@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="8af45068-7b8c-4a1c-9227-a519be4eb1a9" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <sections>
+
+      <section>
+        <title>本体とプラグインの基本インターフェイス</title>
+        <content>
+          <para>Poderosaは、図1-1のように「Poderosa本体」と「プラグイン」で構成されています。</para>
+          <para>Poderosa本体は、「<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>」を備えています。そして、各種プラグインは、「<codeEntityReference>T:Poderosa.Plugins.IPlugin</codeEntityReference>」を備えています。</para>
+
+          <mediaLink>
+            <caption lead="図1-1">Poderosaの全体図</caption>
+            <image xlink:href="fig01_01" />
+          </mediaLink>
+        </content>
+      </section>
+
+      <section>
+        <title>プラグインクラスの条件</title>
+        <content>
+          <para>プラグインは、次の2つの条件を満たしている必要があります。</para>
+
+          <alert class="note">
+            <para>プラグインを作る場合、下記の2つの条件に加えて、アセンブリからプラグインクラスを探し出すために、アセンブリに対して<codeEntityReference>T:Poderosa.Plugins.PluginDeclarationAttribute</codeEntityReference>が必要です。</para>
+          </alert>
+
+          <definitionTable>
+            <definedTerm>(1) PluginInfoアトリビュートを備えていること</definedTerm>
+            <definition>
+              <para>Poderosa本体は、<codeEntityReference>T:Poderosa.Plugins.PluginInfoAttribute</codeEntityReference>を調べて、プラグインを探します。<codeEntityReference>T:Poderosa.Plugins.PluginInfoAttribute</codeEntityReference>には、表1-1のプロパティがあります。</para>
+              <table>
+                <title>表1-1 Poderosa.Plugins.PluginInfoAttribute</title>
+                <tableHeader>
+                  <row>
+                    <entry>プロパティ</entry>
+                    <entry>必須またはオプション</entry>
+                    <entry>解説</entry>
+                  </row>
+                </tableHeader>
+                <row>
+                  <entry>ID</entry>
+                  <entry>必須</entry>
+                  <entry>
+                    プラグインの識別子です。すべてのプラグインで唯一無二のものを指定する必要があります。
+                    識別子は、Javaのパッケージ標準に準じた方式で識別されます。開発者が保有するドメイン名があるならば、それに基づいてプラグインIDを定めてください（たとえば、「<codeInline>jp.co.example.<replaceable>任意名</replaceable></codeInline>」など）
+                	</entry>
+                </row>
+                <row>
+                  <entry>Name</entry>
+                  <entry>オプション</entry>
+                  <entry>プラグインの名称です</entry>
+                </row>
+                <row>
+                  <entry>Dependencies</entry>
+                  <entry>オプション</entry>
+                  <entry>他のプラグインに依存するかどうかの設定です。依存するならば、依存する他のプラグインの識別子を列挙します</entry>
+                </row>
+                <row>
+                  <entry>Version</entry>
+                  <entry>オプション</entry>
+                  <entry>プラグインのバージョン番号です</entry>
+                </row>
+                <row>
+                  <entry>Author</entry>
+                  <entry>オプション</entry>
+                  <entry>プラグインの著作者情報です</entry>
+                </row>
+              </table>
+
+              <para><codeEntityReference>T:Poderosa.Plugins.PluginInfoAttribute</codeEntityReference>のうち、もっとも重要なのは、IDアトリビュートです。Poderosa本体は、IDアトリビュートを使って、プラグインの種類を識別します。そのため、それぞれのプラグインにおいて、IDアトリビュートは唯一無二のものでなければなりません。</para>
+              <para>IDアトリビュートは、Javaのパッケージ名標準に準じた方式で識別されます。IDアトリビュートが唯一無二のものであることを保証するために、開発者が保有・管理するドメイン名を用いることを推奨します。たとえば「<codeInline>example.co.jp</codeInline>ドメイン」を保有しているならば、「<codeInline>co.jp.example.<replaceable>任意の名前</replaceable></codeInline>」という書式のIDアトリビュートを付けるようにします。</para>
+
+              <alert class="note">
+                <para>Poderosa標準のプラグインのIDアトリビュートでは、「<codeInline>org.poderosa</codeInline>」が使われています。開発者が独自のプラグインを作成する際には、「<codeInline>org.poderosa</codeInline>」以下のID値を付けてはいけません。「<codeInline>org.poderosa</codeInline>」以下のID値を付ける場合には、Poderosa開発者コミュニティでの承認を要します。</para>
+              </alert>
+            </definition>
+
+            <definedTerm>(2) IPluginの実装</definedTerm>
+            <definition>
+              <para><codeEntityReference>T:Poderosa.Plugins.IPlugin</codeEntityReference>は、Poderosa本体からプラグインを呼び出すための基本的なインターフェイスです。次の2つのメソッドがあります。</para>
+
+              <definitionTable>
+                <definedTerm><codeEntityReference>M:Poderosa.Plugins.IPlugin.InitializePlugin(Poderosa.Plugins.IPoderosaWorld)</codeEntityReference></definedTerm>
+                <definition>
+                  <para>Poderosa本体がプラグインを読み込んだ直後に呼び出されます。<codeEntityReference>M:Poderosa.Plugins.IPlugin.InitializePlugin(Poderosa.Plugins.IPoderosaWorld)</codeEntityReference>には、プラグイン初期化の処理を記述しておきます。</para>
+                  <para>このとき、引数にはPoderosa本体へとアクセスする<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>が引き渡されます。</para>
+                  <alert class="note">
+                    <para>渡される<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>は、プラグインが解放されるまで不変です。プラグインでは、<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>を使って、プラグインとやりとりするため、多くのプラグインでは、渡された<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>をローカル変数に保存しておき、後続の処理で使えるようにすることになるはずです。</para>
+                  </alert>
+                </definition>
+                <definedTerm><codeEntityReference>M:Poderosa.Plugins.IPlugin.TerminatePlugin</codeEntityReference></definedTerm>
+                <definition>
+                  プラグインが解放されるときに呼び出されます。プラグインの後処理を記述しておきます。
+                </definition>
+              </definitionTable>
+            </definition>
+          </definitionTable>
+
+        </content>
+      </section>
+
+      <section>
+        <title>プラグインの基本的なクラス構造</title>
+        <content>
+          <para>上記の(1)(2)を満たすため、プラグインを構成するクラスの基本的な書式は次のようになります。</para>
+
+<code language="C#">
+[PluginInfo(ID="jp.example.co.myexample.myplugin" Name="PluginSample"]
+internal class MyPlugin : IPlugin {
+    public void InitializePlugin(IPoderosaWorld poderosa) {
+      // ここに初期化処理を書きます
+    }
+
+    public void TerminatePlugin() {
+      // ここに終了処理を書きます
+    }
+}
+</code>
+          <alert class="note">
+            <para>
+              Poderosaライブラリには、<codeEntityReference>T:Poderosa.Plugins.IPlugin</codeEntityReference>と<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>を実装する「<codeEntityReference>T:Poderosa.Plugins.PluginBase</codeEntityReference>」が提供されています。
+              実際にプラグインのコードを書く場合には、<codeEntityReference>T:Poderosa.Plugins.PluginBase</codeEntityReference>から継承したクラスを作ることで、コードを簡略化できます（「<link xlink:href="3accfa48-d659-40ec-9efc-0f285f4e0fa9"/>」を参照）。
+            </para>
+          </alert>
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="93a415e1-f8f9-498f-8e4b-88c11a2303f0"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

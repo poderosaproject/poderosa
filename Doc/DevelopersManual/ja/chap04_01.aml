@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="b62fec3f-1e30-40f8-b0c8-b2f6163425b1" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para>ここでは、プラグイン開発者が、Poderosaにメニューやツールバーを追加する場合の実装について説明します。</para>
+    </introduction>
+
+    <section>
+      <title>コマンド、メニュー、ツールバーの依存関係</title>
+      <content>
+        <para>コマンド、メニュー、ツールバーは、「ウィンドウマネージャ（WindowManagerPlugin：プラグインID「<codeInline>org.poderosa.core.window</codeInline>」）」によって提供されています。
+        そのため、コマンド、メニュー、ツールバーを提供するプラグインは、ウィンドウマネージャよりも後に読み込まれることを保証するため、<codeEntityReference>T:Poderosa.Plugins.PluginInfoAttribute</codeEntityReference>の<codeEntityReference>F:Poderosa.Plugins.PluginInfoAttribute.Dependencies</codeEntityReference>で、「<codeInline>org.poderosa.core.window</codeInline>」を指定する必要があります。</para>
+
+<code language="C#">
+[PluginInfo(ID="プラグインID", Version="バージョン番号",
+    Dependencies="org.poderosa.core.window")]
+internal class MyPlugin : PluginBase
+</code>
+
+      </content>
+    </section>
+
+    <relatedTopics>
+      <link xlink:href="121d52f8-5d8d-444f-8e96-36fd8068acd2"/>
+      <link xlink:href="c7b36a71-f67f-464b-a756-c7cf6c1517da"/>
+      <link xlink:href="ee7e5a69-0054-4d42-89ce-030e7f7b02b5"/>
+      <link xlink:href="e2826339-3389-441c-a922-844040b6a2e1"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

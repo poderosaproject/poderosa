@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="66ea47c3-bd5f-4149-a84a-e0e33246ec23" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <sections>
+
+      <section>
+        <title>IAdaptableによる型変換</title>
+        <content>
+          <para>Poderosaプラグインは、インターフェイスを使って、Poderosa本体や他のプラグインとやりとりすることになります。</para>
+          <para>場合によっては、あるプラグインが、複数のインターフェイスを備えることもあります。たとえば、プラグインXがIFooとIBarの2つのインターフェイスを備えるときには、次のように実装するのが一般的です。</para>
+
+<code language="C#">
+class X : IFoo, IBar { ... };
+</code>
+          <para>このとき、このプラグインXへの参照xを持っているプラグインを使う側では、オブジェクトxのIBarが備えるメソッドXXXを呼び出すときには、</para>
+
+<code language="C#">
+IBar bar = x as IBar;
+if (bar != null) bar.XXX(...);
+</code>
+          <para>のように、そしてIFooが備えるメソッドYYYを呼び出すときには、</para>
+
+<code language="C#">
+IFoo foo = x as IFoo;
+if (foo != null) foo.YYY(...);
+</code>
+
+          <para>のように、オブジェクトxをIBarやIFooへとキャストして呼び出すのが普通です。</para>
+          <para>しかしこのような実装は、「必要なインターフェイスが1つのクラスに実装されていること」を前提にしています。クラスXの実装上の都合で、IBarやIFooを別のクラスに切り分けたいということもあります。この問題を解決するのが、<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>です。</para>
+
+          <sections>
+
+            <section>
+              <title>IAdaptableの役割</title>
+              <content>
+                <para><codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>の役割は、「オブジェクトが備えるほかのインターフェイスを取得する際の取り決め」です。<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>には、唯一のメソッド<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>があり、このメソッドを通じて他のインターフェイスを取得する方法を提供します。</para>
+                <para><codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>は、（1）インターフェイスの取得を提供するクラス本体、（2）サポートするインターフェイス、の双方が実装するようにします。つまり、クラスXが、インターフェイスIBarとIFooをサポートする場合には、次のように実装します。</para>
+
+<code language="C#">
+class X : IAdaptable { ... };
+interface IBar : IAdaptable { ... };
+interface IFoo : IAdaptable { ... };
+</code>
+
+                <para>ここでは、クラスX、インターフェイスIBar、IFooは、継承関係をもっていないことに注意してください。クラスXの実装者は、<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>の<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>をオーバーライドして、要求されたインターフェイスの内部オブジェクトを返すようにしておきます。</para>
+
+<code language="C#">
+class X : IAdaptable {
+   private bar = new Bar(...);  // 内部がもつIBar
+   private foo = new Foo(...);  // 内部がもつIFoo
+   // GetAdapterメソッドのオーバーライド
+   public IAdaptable GetAdapter (Type adapter) {
+     if (adapter==typeof(IBar)) {
+         // IBarを返す
+         return bar;
+     } elseif (adapter==typeof(IFoo)) {
+         // IFooを返す
+         return foo;
+     } else {
+         return null;
+   }
+}
+</code>
+
+                <para>上記のコードは実装例であり、実際には、変数<codeInline>bar</codeInline>や変数<codeInline>foo</codeInline>はどのようなオブジェクトを指していても（自分自身がそのインターフェイスを実装しているなら<codeInline>this</codeInline>を返しても）かまいません。</para>
+                <para>このような実装によって、クラスXを利用する側では、たとえば次のコードを使うことによって、IBarを取得できます。</para>
+
+<code language="C#">
+IBar bar = x.GetAdapter(typeof(IBar));
+if (bar != null) bar.XXX(...);
+</code>
+
+                <alert class="note">
+                  <para><codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>は要求されたインターフェイスを返すためのメソッドであり、キャストとは異なります。すなわち上記の例では、「bar」と「x」が同じオブジェクトを指し示すのか否かは、クラスXの実装に委ねられます。もしクラスXがthisを返す実装ならば、「bar」と「x」は同一になりますが、そうではないこともあります。</para>
+                </alert>
+
+                <para><codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>による変換は、COM（Componemt Object Model）におけるQueryInterfaceに似ています。</para>
+                <para><codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>を実装する場合には、次のルールを守る必要があります。</para>
+
+                <list class="ordered">
+                  <listItem><codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>内で例外を投げてはいけません。未知の型が引数として渡された場合にはnullを返してください。</listItem>
+                  <listItem><codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>の実装において、インスタンスを区別してはいけません。型だけを見てください。つまり、ある特定のインスタンスでだけ<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>が成功するという実装は許されず、同じ型ならば、いつでも成功するように実装しなければなりません。</listItem>
+                  <listItem>対称律を守ってください。たとえばIFooからIBarへの変換が可能であるとき、逆向きのIBarからIFooへの変換も可能でなければいけません。</listItem>
+                </list>
+              </content>
+            </section>
+
+            <section>
+              <title>PoderosaプラグインにおけるIAdaptable</title>
+              <content>
+                <para>Poderosaでは、ほぼすべての公開されているインターフェイスが<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>を備えています。たとえばPoderosa本体とのやりとりをする<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>は<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>から継承しています。</para>
+                <para>そしてPoderosaプラグインのすべては、<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>を備えています。これはプラグインの必要要件が<codeEntityReference>T:Poderosa.Plugins.IPlugin</codeEntityReference>を実装することであり、<codeEntityReference>T:Poderosa.Plugins.IPlugin</codeEntityReference>は<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>から継承しているためです。</para>
+                <para>すなわちほかのプラグインへの参照を何らかの形（たとえば<codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindPlugin(System.String,System.Type)</codeEntityReference>を使うなど）で取得したならば、その<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>を呼び出すことで、そのプラグインが実装している他のインターフェイスを取得することができます。</para>
+              </content>
+            </section>
+
+          </sections>
+
+        </content>
+      </section>
+
+      <section>
+        <title>アダプタマネージャによる型変換</title>
+        <content>
+          <para>このように、それぞれのクラスで<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>を実装することで型変換が可能となりますが、それぞれのクラスで型変換の実装をするのは大変ですし、また、対称律・推移律が守られなくなる可能性もあります。</para>
+          <para>そこでPoderosaでは、型がどのようなものであるのかをそれぞれのプラグインが登録しておき、対称律・推移律が守られるよう変換される仕組みが提供されています。変換作業を担うのが、「アダプタマネージャ」です。</para>
+          <para>アダプタマネージャは、<codeEntityReference>T:Poderosa.IAdapterManager</codeEntityReference>を備えるオブジェクトであり、プラグインが初期化されるときに引き渡される<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>の<codeEntityReference>P:Poderosa.Plugins.IPoderosaWorld.AdapterManager</codeEntityReference>で取得できます。</para>
+          <para><codeEntityReference>T:Poderosa.IAdapterManager</codeEntityReference>の<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>を呼び出すと、アダプタマネージャに登録されているインターフェイスへの型変換が行われます。</para>
+
+          <sections>
+
+            <section>
+              <title>IAdaptable実装の定石</title>
+              <content>
+                <para>ほとんどのプラグインにおいて、<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>の<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>は、下記の実装になっています。</para>
+
+<code language="C#">
+public IAdaptable GetAdapter(Type adapter) {
+  return _poderosa_world.AdapterManager.GetAdapter(this, adapter);
+}
+</code>
+
+                <para>このコードは、型変換をアダプタマネージャに任せるという実装です。上記のコードで変数<codeInline>_poderosa_world</codeInline>は、<codeEntityReference>M:Poderosa.Plugins.IPlugin.InitializePlugin(Poderosa.Plugins.IPoderosaWorld)</codeEntityReference>の呼び出しの際に引き渡された<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>です。</para>
+                <para><codeEntityReference>T:Poderosa.IAdapterManager</codeEntityReference>の<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>を呼び出すと、型の継承情報と、事前にアダプタマネージャに登録されている情報の双方から、呼び出し元のオブジェクトx（上記コードにおける<codeInline>this</codeInline>）、変換先の型<replaceable>T</replaceable>（上記コードの<codeInline>adapter</codeInline>）について、次の判定をし、適切なインターフェイスを返します。
+                  下記の表記において、記号「<replaceable>x</replaceable> &gt;&gt; <replaceable>T</replaceable>」は、「<replaceable>x</replaceable>の型が<replaceable>T</replaceable>または<replaceable>T</replaceable>の派生型」であることを示します。</para>
+
+                <list class="ordered">
+                  <listItem>「<replaceable>x</replaceable> &gt;&gt; <replaceable>T</replaceable>」であるときには、<replaceable>x</replaceable>を返します。</listItem>
+                  <listItem>事前にアダプタマネージャに登録されているアダプタファクトリ（後述）を検索し、「<replaceable>x</replaceable>の型<replaceable>X</replaceable>から型<replaceable>Y</replaceable>の変換先<replaceable>y</replaceable>が取得できる」「<replaceable>y</replaceable> &gt;&gt; <replaceable>T</replaceable>である」の2つの条件を満たすときには、<replaceable>y</replaceable>を返します。</listItem>
+                </list>
+
+                <alert class="caution">
+                  <para>アダプタファクトリを用いるケースでは、「<replaceable>x</replaceable>の型<replaceable>X</replaceable>」だけを見ます。「<replaceable>X</replaceable>の派生型」や「<replaceable>X</replaceable>の基底型」に対するアダプタファクトリが登録されていても効果がありません。</para>
+                </alert>
+              </content>
+            </section>
+
+            <section>
+              <title>アダプタファクトリをアダプタマネージャに登録する</title>
+              <content>
+                <para>プラグインがクラスの継承によって実装されている場合には、事前に何もしなくても、アダプタマネージャによる型変換に成功します。一方、アダプタファクトリをアダプタマネージャに登録すると、対象のクラスを変更することなく新しい変換を可能にすることができます。この仕組みを有効にする唯一の条件は、対象のクラスがアダプタマネージャによる変換を呼び出すように<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>を実装していることだけです。</para>
+                <para>たとえばPoderosaには、TerminalControlというターミナルエミュレータとしてのコントロールがあります。これは.NET FrameworkのSystem.Windows.Forms.Controlから派生しています。</para>
+                <para>TerminalControlコントロール自身は、Poderosaのドキュメント・ビュー・アーキテクチャに依存しない状態でも使用可能にするため、<codeEntityReference>T:Poderosa.Sessions.IPoderosaView</codeEntityReference>を実装していません。代わりに別のTerminalViewというクラスに<codeEntityReference>T:Poderosa.Sessions.IPoderosaView</codeEntityReference>を実装し、TerminalControlのTagプロパティを使って結び付けるという構成をとっています。</para>
+                <para>TerminalViewクラスには、<codeEntityReference>T:Poderosa.Sessions.IPoderosaView</codeEntityReference>以外にも、いくつかのインターフェイスが実装されています（図2-3）。</para>
+
+                <alert class="note">
+                  <para>Tagプロパティは、.NET FrameworkのControlクラスが提供するもので、「汎用的なデータを格納する場所」として使われるものです。</para>
+                </alert>
+
+                <mediaLink>
+                  <caption lead="図2-3">TerminalControlコントロールの実装</caption>
+                  <image xlink:href="fig02_03" />
+                </mediaLink>
+
+                <para>TerminalControlコントロールは、Tagプロパティを経由して見えるTerminalViewクラスが備えるすべてのインターフェイスを、自身が持つものであると見せかけるという手法をとっています。</para>
+                <para>そうすることによって、TerminalControlコントロールの利用者は、その背後でTagプロパティを通じてTerminalViewオブジェクトが存在することを知らなくて済みます。そしてTerminalControlコントロール側では、あとでTagプロパティ以外の方法でTerminalViewオブジェクトと結び付けたり、あるいは、TerminalViewクラスに実装されているそれぞれのインターフェイスをさらに再分割したりするといったリファクタリングも可能となります。</para>
+                <para>このような実装を実現する際に使われるのが、アダプタファクトリです。アダプタファクトリは、「<codeEntityReference>T:Poderosa.IDualDirectionalAdapterFactory</codeEntityReference>」または「<codeEntityReference>T:Poderosa.ITypedDualDirectionalAdapterFactory`2</codeEntityReference>」を備えるクラスとして構成されます。TerminalControlコントロールの場合には、次に示すPaneBridgeAdapterクラスがアダプタファクトリの役割をしています。</para>
+
+<code language="C#">
+internal class PaneBridgeAdapter : 
+  ITypedDualDirectionalAdapterFactory&lt;TerminalControl, TerminalView&gt; {
+    public override TerminalView GetAdapter(TerminalControl obj) {
+      return ((TerminalView)obj.Tag); 
+    }
+
+    public override TerminalControl GetSource(TerminalView obj) {
+      return ((TerminalView)obj).TerminalControl;
+    }
+}
+</code>
+
+                <para>アダプタファクトリでは、対称律を満たすため、次のように実装します。</para>
+
+                <list class="ordered">
+                  <listItem>GetAdapterメソッドでは変換先のオブジェクトを返す</listItem>
+                  <listItem>GetSourceメソッドでは変換元のオブジェクトを返す</listItem>
+                </list>
+
+                <para>アダプタファクトリをアダプタマネージャに登録するには、<codeEntityReference>T:Poderosa.IAdapterManager</codeEntityReference>の<codeEntityReference>M:Poderosa.IAdapterManager.RegisterFactory(Poderosa.IDualDirectionalAdapterFactory)</codeEntityReference>を呼び出します。</para>
+
+<code language="C#">
+// _poderosaworldはプラグインの初期化の際に渡されたIPoderosaWorldです
+private PaneBridgeAdapter _paneBridgeAdapter;
+_paneBridgeAdapter = new PaneBridgeAdapter();
+_poderosa.AdapterManager.RegisterFactory(_paneBridgeAdapter);
+</code>
+
+                <para>このように登録すると、TerminalControlオブジェクトのGetAdapterメソッドを呼び出すことによって、TerminalViewオブジェクトがサポートするすべてのインターフェイスを取得できるようになります。</para>
+
+                <alert class="note">
+                  <para>この変換機能は、アダプタマネージャによって行われているという点に注意してください。なぜならTerminalControlオブジェクトのGetAdapterメソッドでは、</para>
+
+<code language="C#">
+return _poderosa_world.AdapterManager.GetAdapter(this, adapter);
+</code>
+
+                  <para>のようにアダプタマネージャの変換機能を呼び出しているからです。このようにアダプタマネージャのGetAdapterメソッドを呼び出さなければ、アダプタファクトリを登録しても機能しません。</para>
+                </alert>
+
+                <alert class="note">
+                  <para>アダプタマネージャによるアダプタファクトリの検索は、再帰的には行われません。この例であれば、TerminalControlからTerminalViewが備えるインターフェイスを得ることができますが、もし、TerminalViewからさらに別のクラスへの変換をするアダプタファクトリが登録されていたとしても、TerminalControlから直接はそのクラスへ変換することはできません。これは、変換にかかる効率を上げるための仕様です。</para>
+                </alert>
+              </content>
+            </section>
+
+          </sections>
+
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="3accfa48-d659-40ec-9efc-0f285f4e0fa9"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

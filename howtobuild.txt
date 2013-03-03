@@ -1,0 +1,37 @@
+
+How to build Poderosa
+--------------------------------------------------------------------------
+                                                Apr 2005  Daisuke OKAJIMA
+
+1. Environment
+ If you do not intend to edit string resources, open poderosa.sln file with VisualStudio.NET and build all of projects. To reduce the time of compilation, you can change the configuration of the .sln file if the following dependencies are satisfied.
+ 
+[Dependencies in Make style]
+ 
+Container : Terminal, Granados, Common     # Poderosa Executable
+
+Terminal  : Granados, Common               # Internal Terminal Component
+
+Portforwarding : Granados, Common          # Portforwarding Utility
+
+Granados :                                 # SSH client
+
+Common :                                   # Basic classes
+
+2. String Resource
+ To edit string resources for the projects, the 'tools' repository and cygwin shell are required.
+ At first, checkout the 'tools' repository and compile 'xslt' project with VisualStudio.NET.
+ 
+ Second, edit the stringresource.xml file in each projects. The file consists of records and each record defines strings in following format.
+ 
+<record name="[string-id]">
+  <ja>[String in Japanese]</ja>
+  <en>[String in English]</en>
+</record>
+
+ Then convert the stringresource.xml to .resx file in following command.
+
+> cd tools/string
+> ./sr.sh <project name such as 'Terminal' or 'Container'
+
+

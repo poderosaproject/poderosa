@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="978e95e9-b9a4-426a-9a56-0f01b5748812" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <sections>
+
+      <section>
+        <title>Poderosaプラグインのプロジェクトを作る</title>
+        <content>
+          <para>Poderosaプラグインは、クラスライブラリ（dll）として作成します。まずは、Visual Studio 2005で、「クラスライブラリ」の新規プロジェクトを作成します。ここでは、「MyPlugin」という名前のプロジェクトを作成することにします（図3-1）。</para>
+
+          <mediaLink>
+            <caption lead="図3-1">クラスライブラリのプロジェクトを作成する</caption>
+            <image xlink:href="fig03_01" />
+          </mediaLink>
+
+          <sections>
+
+            <section>
+              <title>Poderosaライブラリを参照設定する</title>
+              <content>
+                <para>次に、Poderosaの基本的なインターフェイスや利用したいプラグインのインターフェイスを参照設定します。</para>
+                <para>Poderosa本体とPoderosaプラグインとがやりとりするに必須の<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>や<codeEntityReference>T:Poderosa.Plugins.IPlugin</codeEntityReference>が、「Poderosa.Plugin.dll」に含まれているため、最低限、これだけは参照設定する必要があります（図3-2）。</para>
+
+                <alert class="note">
+                  <para>参照設定の参照先は、Poderosa本体（バイナリ版）でも、ソースからビルドしたもののどちらでもかまいません。</para>
+                </alert>
+
+                <mediaLink>
+                  <caption lead="図3-2">Poderosa.Plugin.dllを参照設定する</caption>
+                  <image xlink:href="fig03_02" />
+                </mediaLink>
+
+                <para>その他のアセンブリは、必要に応じて参照設定します。たとえばメニューやコマンドを扱う場合には、「Poderosa.Core.dll」の参照設定が必要です（表3-1）。</para>
+
+                <table>
+                  <title>表3-1 Poderosaを構成するdllファイル群</title>
+                  <tableHeader>
+                    <row>
+                      <entry>dllファイル名</entry>
+                      <entry>参照設定しなければならない場面</entry>
+                    </row>
+                  </tableHeader>
+                  <row>
+                    <entry>Poderosa.Plugin.dll</entry>
+                    <entry><codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>、<codeEntityReference>T:Poderosa.Plugins.IPlugin</codeEntityReference>（<codeEntityReference>T:Poderosa.Plugins.PluginBase</codeEntityReference>）、<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>などの基本インターフェイスが含まれます。プラグインを開発するには、つねに参照設定が必要です</entry>
+                  </row>
+                  <row>
+                    <entry>Poderosa.Core.dll</entry>
+                    <entry>メニュー、コマンド、ツールバーに関連するインターフェイスが含まれています</entry>
+                  </row>
+                  <row>
+                    <entry>Poderosa.Protocols.dll</entry>
+                    <entry>TelnetやSSH、Cygwin接続に関連するインターフェイスが含まれています</entry>
+                  </row>
+                  <row>
+                    <entry>Poderosa.TerminalEmulator.dll</entry>
+                    <entry>ターミナルエミュレータに関連するインターフェイスが含まれています</entry>
+                  </row>
+                  <row>
+                    <entry>Poderosa.TerminalSession.dll</entry>
+                    <entry>ターミナルセッションに関連するインターフェイスが含まれています</entry>
+                  </row>
+                  <row>
+                    <entry>Poderosa.UI.dll</entry>
+                    <entry>Poderosaのユーザーインターフェイスに関するコンポーネントが含まれています。参照設定しなければならない場面は、ほとんどありません</entry>
+                  </row>
+                  <row>
+                    <entry>Poderosa.Usability.dll</entry>
+                    <entry>ユーザーインターフェイスの拡張機能を提供します。「最近使ったファイル」などの履歴を管理する機能や、オプション設定の画面を拡張する機能などが含まれています</entry>
+                  </row>
+                  <row>
+                    <entry>Granados.dll</entry>
+                    <entry>このアセンブリはSSHの通信ライブラリです。SSHの通信をする際に参照設定します</entry>
+                  </row>
+                </table>
+              </content>
+            </section>
+
+          </sections>
+
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="920fd4b3-78ac-48fe-87ba-be7f692323bd"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <!-- The configuration and platform will be used to determine which
+         assemblies to include from solution and project documentation
+         sources -->
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3f769b5e-1894-4793-b57f-034138174b0f}</ProjectGuid>
+    <SHFBSchemaVersion>1.9.3.0</SHFBSchemaVersion>
+    <!-- AssemblyName, Name, and RootNamespace are not used by SHFB but Visual
+         Studio adds them anyway -->
+    <AssemblyName>Documentation</AssemblyName>
+    <RootNamespace>Documentation</RootNamespace>
+    <Name>Documentation</Name>
+    <!-- SHFB properties -->
+    <OutputPath>.\Help\</OutputPath>
+    <HtmlHelpName>PoderosaMacroAPI_ja</HtmlHelpName>
+    <Language>ja-JP</Language>
+    <BuildLogFile>PoderosaMacroAPI_ja-build.log</BuildLogFile>
+    <FrameworkVersion>.NET 2.0.50727</FrameworkVersion>
+    <CopyrightHref>http://sourceforge.net/projects/poderosa/</CopyrightHref>
+    <CopyrightText>Copyright &amp;#169%3b​2011 Poderosa project, All rights reserved</CopyrightText>
+    <HelpTitle>Poderosa Macro API リファレンス</HelpTitle>
+    <IndentHtml>False</IndentHtml>
+    <NamingMethod>HashedMemberName</NamingMethod>
+    <Preliminary>False</Preliminary>
+    <PresentationStyle>vs2005</PresentationStyle>
+    <DocumentationSources>
+      <DocumentationSource sourceFile="..\Core\Core.csproj" />
+      <DocumentationSource sourceFile="..\Macro\Macro.csproj" />
+      <DocumentationSource sourceFile="..\TerminalEmulator\TerminalEmulator.csproj" />
+    </DocumentationSources>
+    <PlugInConfigurations>
+      <PlugInConfig id="Multilanguage Documentation Support" enabled="True">
+        <configuration>
+          <targetLanguage>ja</targetLanguage>
+        </configuration>
+      </PlugInConfig>
+    </PlugInConfigurations>
+    <MissingTags>AutoDocumentCtors, AutoDocumentDispose</MissingTags>
+    <ApiFilter>
+      <Filter entryType="Namespace" fullName="Poderosa" isExposed="False" />
+      <Filter entryType="Namespace" fullName="Poderosa.Commands" isExposed="False" />
+      <Filter entryType="Namespace" fullName="Poderosa.ConnectionParam" isExposed="True">
+        <Filter entryType="Enumeration" fullName="Poderosa.ConnectionParam.AuthType" filterName="AuthType" isExposed="True" />
+        <Filter entryType="Enumeration" fullName="Poderosa.ConnectionParam.ConnectionMethod" filterName="ConnectionMethod" isExposed="True" />
+        <Filter entryType="Class" fullName="Poderosa.ConnectionParam.CygwinTerminalParam" filterName="CygwinTerminalParam" isExposed="True" />
+        <Filter entryType="Enumeration" fullName="Poderosa.ConnectionParam.EncodingType" filterName="EncodingType" isExposed="True" />
+        <Filter entryType="Enumeration" fullName="Poderosa.ConnectionParam.FlowControl" filterName="FlowControl" isExposed="True" />
+        <Filter entryType="Enumeration" fullName="Poderosa.ConnectionParam.LineFeedRule" filterName="LineFeedRule" isExposed="True" />
+        <Filter entryType="Class" fullName="Poderosa.ConnectionParam.LocalShellTerminalParam" filterName="LocalShellTerminalParam" isExposed="True" />
+        <Filter entryType="Enumeration" fullName="Poderosa.ConnectionParam.LogType" filterName="LogType" isExposed="True" />
+        <Filter entryType="Enumeration" fullName="Poderosa.ConnectionParam.NewLine" filterName="NewLine" isExposed="True" />
+        <Filter entryType="Enumeration" fullName="Poderosa.ConnectionParam.Parity" filterName="Parity" isExposed="True" />
+        <Filter entryType="Class" fullName="Poderosa.ConnectionParam.SSHTerminalParam" filterName="SSHTerminalParam" isExposed="True" />
+        <Filter entryType="Enumeration" fullName="Poderosa.ConnectionParam.StopBits" filterName="StopBits" isExposed="True" />
+        <Filter entryType="Class" fullName="Poderosa.ConnectionParam.TCPTerminalParam" filterName="TCPTerminalParam" isExposed="True" />
+        <Filter entryType="Class" fullName="Poderosa.ConnectionParam.TelnetTerminalParam" filterName="TelnetTerminalParam" isExposed="True" />
+        <Filter entryType="Class" fullName="Poderosa.ConnectionParam.TerminalParam" filterName="TerminalParam" isExposed="True" />
+        <Filter entryType="Enumeration" fullName="Poderosa.ConnectionParam.TerminalType" filterName="TerminalType" isExposed="True" />
+      </Filter>
+      <Filter entryType="Namespace" fullName="Poderosa.Document" isExposed="False" />
+      <Filter entryType="Namespace" fullName="Poderosa.Forms" isExposed="False" />
+      <Filter entryType="Namespace" fullName="Poderosa.Macro" isExposed="True">
+        <Filter entryType="Class" fullName="Poderosa.Macro.Connection" filterName="Connection" isExposed="True" />
+        <Filter entryType="Class" fullName="Poderosa.Macro.ConnectionList" filterName="ConnectionList" isExposed="True" />
+        <Filter entryType="Class" fullName="Poderosa.Macro.DebugService" filterName="DebugService" isExposed="True" />
+        <Filter entryType="Class" fullName="Poderosa.Macro.Environment" filterName="Environment" isExposed="True" />
+        <Filter entryType="Class" fullName="Poderosa.Macro.Util" filterName="Util" isExposed="True" />
+      </Filter>
+      <Filter entryType="Namespace" fullName="Poderosa.Plugins" isExposed="False" />
+      <Filter entryType="Namespace" fullName="Poderosa.Preferences" isExposed="False" />
+      <Filter entryType="Namespace" fullName="Poderosa.Serializing" isExposed="False" />
+      <Filter entryType="Namespace" fullName="Poderosa.Sessions" isExposed="False" />
+      <Filter entryType="Namespace" fullName="Poderosa.Terminal" isExposed="False" />
+      <Filter entryType="Namespace" fullName="Poderosa.Util" isExposed="False" />
+      <Filter entryType="Namespace" fullName="Poderosa.Util.Generics" isExposed="False" />
+      <Filter entryType="Namespace" fullName="Poderosa.View" isExposed="True">
+        <Filter entryType="Enumeration" fullName="Poderosa.View.ImageStyle" filterName="ImageStyle" isExposed="True" />
+        <Filter entryType="Interface" fullName="Poderosa.View.ISelection" filterName="ISelection" isExposed="False" />
+        <Filter entryType="Interface" fullName="Poderosa.View.ISelectionListener" filterName="ISelectionListener" isExposed="False" />
+        <Filter entryType="Interface" fullName="Poderosa.View.ISelectionService" filterName="ISelectionService" isExposed="False" />
+        <Filter entryType="Interface" fullName="Poderosa.View.ITextSelection" filterName="ITextSelection" isExposed="False" />
+        <Filter entryType="Class" fullName="Poderosa.View.RenderProfile" filterName="RenderProfile" isExposed="True" />
+        <Filter entryType="Enumeration" fullName="Poderosa.View.TextFormatOption" filterName="TextFormatOption" isExposed="False" />
+      </Filter>
+      <Filter entryType="Namespace" fullName="Poderosa" isExposed="False" />
+    </ApiFilter>
+    <ComponentConfigurations />
+    <SyntaxFilters>JScript</SyntaxFilters>
+  </PropertyGroup>
+  <!-- There are no properties for these groups.  AnyCPU needs to appear in
+       order for Visual Studio to perform the build.  The others are optional
+       common platform types that may appear. -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Win32' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Win32' ">
+  </PropertyGroup>
+  <!-- Import the SHFB build targets -->
+  <Import Project="$(SHFBROOT)\SandcastleHelpFileBuilder.targets" />
+</Project>

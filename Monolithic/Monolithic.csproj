@@ -1,0 +1,1071 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9D114B8B-E62C-4FBF-B281-0227755C8091}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>..\Executable\poderosa.ico</ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>Poderosa.Monolithic</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Poderosa</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UnitTest|AnyCPU' ">
+    <OutputPath>bin\UnitTest\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE;UNITTEST</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Executable|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Executable\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;EXECUTABLE;MONOLITHIC;TESTSESSION</DefineConstants>
+    <BaseAddress>285212672</BaseAddress>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UIUnitTest|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\UIUnitTest\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;UIUNITTEST</DefineConstants>
+    <BaseAddress>285212672</BaseAddress>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.JScript" />
+    <Reference Include="Microsoft.ReportViewer.WinForms, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="MSHTML">
+      <Guid>{3050F1C5-98B5-11CF-BB82-00AA00BDCE0B}</Guid>
+      <VersionMajor>4</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Granados\Granados.csproj">
+      <Project>{4E6838A6-9255-4673-A322-4522B8C896AB}</Project>
+      <Name>Granados</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\Core\AboutBox.resx">
+      <Link>Core\AboutBox.resx</Link>
+      <DependentUpon>AboutBox.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Core\icons.resx">
+      <Link>Core\icons.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Core\PluginList.resx">
+      <Link>Core\PluginList.resx</Link>
+      <DependentUpon>PluginList.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Core\strings.resx">
+      <Link>Core\strings.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Core\strings_ja.resx">
+      <Link>Core\strings_ja.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Macro\MacroList.resx">
+      <Link>Macro\MacroList.resx</Link>
+      <DependentUpon>MacroList.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Macro\MacroTrace.resx">
+      <Link>Macro\MacroTrace.resx</Link>
+      <DependentUpon>MacroTrace.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Macro\ModuleProperty.resx">
+      <Link>Macro\ModuleProperty.resx</Link>
+      <DependentUpon>ModuleProperty.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Macro\strings.resx">
+      <Link>Macro\strings.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Macro\strings_ja.resx">
+      <Link>Macro\strings_ja.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Plugin\strings.resx">
+      <Link>Plugin\strings.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Plugin\strings_ja.resx">
+      <Link>Plugin\strings_ja.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\PortForwardingCommand\strings.resx">
+      <Link>PortForwardingCommand\strings.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\PortForwardingCommand\strings_ja.resx">
+      <Link>PortForwardingCommand\strings_ja.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Protocols\strings.resx">
+      <Link>Protocols\strings.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Protocols\strings_ja.resx">
+      <Link>Protocols\strings_ja.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\SerialPort\SerialLoginDialog.resx">
+      <Link>SerialPort\SerialLoginDialog.resx</Link>
+      <DependentUpon>SerialLoginDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\SerialPort\SerialPortIconList.resx">
+      <Link>SerialPort\SerialPortIconList.resx</Link>
+      <DependentUpon>SerialPortIconList.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\SerialPort\strings.resx">
+      <Link>SerialPort\strings.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\SerialPort\strings_ja.resx">
+      <Link>SerialPort\strings_ja.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\TerminalEmulator\rulechars.resx">
+      <Link>TerminalEmulator\rulechars.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\TerminalEmulator\strings.resx">
+      <Link>TerminalEmulator\strings.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\TerminalEmulator\strings_ja.resx">
+      <Link>TerminalEmulator\strings_ja.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\TerminalEmulator\TerminalEmulatorIconList.resx">
+      <Link>TerminalEmulator\TerminalEmulatorIconList.resx</Link>
+      <DependentUpon>TerminalEmulatorIconList.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\TerminalSession\CygwinLoginDialog.resx">
+      <Link>TerminalSession\CygwinLoginDialog.resx</Link>
+      <DependentUpon>CygwinLoginDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\TerminalSession\IconList.resx">
+      <Link>TerminalSession\IconList.resx</Link>
+      <DependentUpon>IconList.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\TerminalSession\LoginDialogBase.resx">
+      <Link>TerminalSession\LoginDialogBase.resx</Link>
+      <DependentUpon>LoginDialogBase.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\TerminalSession\SSHShortcutLoginDialog.resx">
+      <Link>TerminalSession\SSHShortcutLoginDialog.resx</Link>
+      <DependentUpon>SSHShortcutLoginDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\TerminalSession\strings.resx">
+      <Link>TerminalSession\strings.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\TerminalSession\strings_ja.resx">
+      <Link>TerminalSession\strings_ja.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\TerminalSession\TelnetSSHLoginDialog.resx">
+      <Link>TerminalSession\TelnetSSHLoginDialog.resx</Link>
+      <DependentUpon>TelnetSSHLoginDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\UI\ThreeButtonMessageBox.resx">
+      <Link>UI\ThreeButtonMessageBox.resx</Link>
+      <DependentUpon>ThreeButtonMessageBox.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Usability\AgentKeyListDialog.resx">
+      <Link>Usability\AgentKeyListDialog.resx</Link>
+      <DependentUpon>AgentKeyListDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Usability\DisplayOptionPanel.resx">
+      <Link>Usability\DisplayOptionPanel.resx</Link>
+      <DependentUpon>DisplayOptionPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Usability\GuevaraAboutBox.resx">
+      <Link>Usability\GuevaraAboutBox.resx</Link>
+      <DependentUpon>GuevaraAboutBox.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Usability\icons.resx">
+      <Link>Usability\icons.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Usability\InputPassphraseDialog.resx">
+      <Link>Usability\InputPassphraseDialog.resx</Link>
+      <DependentUpon>InputPassphraseDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Usability\OptionDialog.resx">
+      <Link>Usability\OptionDialog.resx</Link>
+      <DependentUpon>OptionDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Usability\PreferenceEditor.resx">
+      <Link>Usability\PreferenceEditor.resx</Link>
+      <DependentUpon>PreferenceEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Usability\PreferenceItemEditor.resx">
+      <Link>Usability\PreferenceItemEditor.resx</Link>
+      <DependentUpon>PreferenceItemEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Usability\ShellSchemeEditor.resx">
+      <Link>Usability\ShellSchemeEditor.resx</Link>
+      <DependentUpon>ShellSchemeEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Usability\strings.resx">
+      <Link>Usability\strings.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Usability\strings_ja.resx">
+      <Link>Usability\strings_ja.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Usability\TerminalOptionPanel.resx">
+      <Link>Usability\TerminalOptionPanel.resx</Link>
+      <DependentUpon>TerminalOptionPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\XZModem\strings.resx">
+      <Link>XZModem\strings.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\XZModem\strings_ja.resx">
+      <Link>XZModem\strings_ja.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\XZModem\XZModemDialog.resx">
+      <Link>XZModem\XZModemDialog.resx</Link>
+      <DependentUpon>XZModemDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Core\AboutBox.cs">
+      <Link>Core\AboutBox.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Core\AboutBoxEx.cs">
+      <Link>Core\AboutBoxEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\BasicCommands.cs">
+      <Link>Core\BasicCommands.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\BasicMenus.cs">
+      <Link>Core\BasicMenus.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\Caret.cs">
+      <Link>Core\Caret.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\CharacterDocument.cs">
+      <Link>Core\CharacterDocument.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\CharacterDocumentViewer.cs">
+      <Link>Core\CharacterDocumentViewer.cs</Link>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\Core\CommandEx.cs">
+      <Link>Core\CommandEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\CommandManager.cs">
+      <Link>Core\CommandManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\CommandPositionEx.cs">
+      <Link>Core\CommandPositionEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\CommandPositionT.cs">
+      <Link>Core\CommandPositionT.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\CoreServicesEx.cs">
+      <Link>Core\CoreServicesEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\Credits.cs">
+      <Link>Core\Credits.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Core\DocActivationCommands.cs">
+      <Link>Core\DocActivationCommands.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\DocumentAndViewEx.cs">
+      <Link>Core\DocumentAndViewEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\ExtensionPointList.cs">
+      <Link>Core\ExtensionPointList.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Core\ExtensionPointList.Designer.cs">
+      <Link>Core\ExtensionPointList.Designer.cs</Link>
+      <DependentUpon>ExtensionPointList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\Core\GenericsUtil.cs">
+      <Link>Core\GenericsUtil.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\GLine.cs">
+      <Link>Core\GLine.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\ListenerList.cs">
+      <Link>Core\ListenerList.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\MainWindow.cs">
+      <Link>Core\MainWindow.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Core\MainWindowMenu.cs">
+      <Link>Core\MainWindowMenu.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\MainWindowMenuT.cs">
+      <Link>Core\MainWindowMenuT.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\MenuUtil.cs">
+      <Link>Core\MenuUtil.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\PluginList.cs">
+      <Link>Core\PluginList.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Core\PluginList.designer.cs">
+      <Link>Core\PluginList.designer.cs</Link>
+      <DependentUpon>PluginList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\Core\PoderosaForm.cs">
+      <Link>Core\PoderosaForm.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Core\PopupViewContainer.cs">
+      <Link>Core\PopupViewContainer.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Core\Preferences.cs">
+      <Link>Core\Preferences.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\PreferencesEx.cs">
+      <Link>Core\PreferencesEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\PreferencesT.cs">
+      <Link>Core\PreferencesT.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\RenderProfile.cs">
+      <Link>Core\RenderProfile.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\RenderProfileSerialize.cs">
+      <Link>Core\RenderProfileSerialize.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\Selection.cs">
+      <Link>Core\Selection.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\SelectionEx.cs">
+      <Link>Core\SelectionEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\Serialize.cs">
+      <Link>Core\Serialize.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\SerializeEx.cs">
+      <Link>Core\SerializeEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\Session.cs">
+      <Link>Core\Session.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\SessionEx.cs">
+      <Link>Core\SessionEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\SplittableView.cs">
+      <Link>Core\SplittableView.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\StatusBar.cs">
+      <Link>Core\StatusBar.cs</Link>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\Core\TextDecoration.cs">
+      <Link>Core\TextDecoration.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\TextSelection.cs">
+      <Link>Core\TextSelection.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\ToolBar.cs">
+      <Link>Core\ToolBar.cs</Link>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\Core\ToolBarEx.cs">
+      <Link>Core\ToolBarEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\UIEventHandler.cs">
+      <Link>Core\UIEventHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\WindowManager.cs">
+      <Link>Core\WindowManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\WindowManagerEx.cs">
+      <Link>Core\WindowManagerEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\WindowPreference.cs">
+      <Link>Core\WindowPreference.cs</Link>
+    </Compile>
+    <Compile Include="..\Executable\Main.cs">
+      <Link>Executable\Main.cs</Link>
+    </Compile>
+    <Compile Include="..\Executable\UIRoot.cs">
+      <Link>Executable\UIRoot.cs</Link>
+    </Compile>
+    <Compile Include="..\Macro\MacroEnv.cs">
+      <Link>Macro\MacroEnv.cs</Link>
+    </Compile>
+    <Compile Include="..\Macro\MacroExec.cs">
+      <Link>Macro\MacroExec.cs</Link>
+    </Compile>
+    <Compile Include="..\Macro\MacroInterface.cs">
+      <Link>Macro\MacroInterface.cs</Link>
+    </Compile>
+    <Compile Include="..\Macro\MacroList.cs">
+      <Link>Macro\MacroList.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Macro\MacroModule.cs">
+      <Link>Macro\MacroModule.cs</Link>
+    </Compile>
+    <Compile Include="..\Macro\MacroPlugin.cs">
+      <Link>Macro\MacroPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\Macro\MacroTrace.cs">
+      <Link>Macro\MacroTrace.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Macro\ModuleProperty.cs">
+      <Link>Macro\ModuleProperty.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Macro\TerminalParam.cs">
+      <Link>Macro\TerminalParam.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\AdapterEx.cs">
+      <Link>Plugin\AdapterEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\AdpaterManager.cs">
+      <Link>Plugin\AdpaterManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\CollectionUtil.cs">
+      <Link>Plugin\CollectionUtil.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\ConfigAttr.cs">
+      <Link>Plugin\ConfigAttr.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\ConfigColorAttr.cs">
+      <Link>Plugin\ConfigColorAttr.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\EnumDescription.cs">
+      <Link>Plugin\EnumDescription.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\ExtensionPoint.cs">
+      <Link>Plugin\ExtensionPoint.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\Plugin.cs">
+      <Link>Plugin\Plugin.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\PluginEx.cs">
+      <Link>Plugin\PluginEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\PluginT.cs">
+      <Link>Plugin\PluginT.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\PoderosaLog.cs">
+      <Link>Plugin\PoderosaLog.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\PoderosaLogEx.cs">
+      <Link>Plugin\PoderosaLogEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\PoderosaStartup.cs">
+      <Link>Plugin\PoderosaStartup.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\PoderosaWorld.cs">
+      <Link>Plugin\PoderosaWorld.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\PoderosaWorldEx.cs">
+      <Link>Plugin\PoderosaWorldEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\StringResource.cs">
+      <Link>Plugin\StringResource.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\StructuredText.cs">
+      <Link>Plugin\StructuredText.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\StructuredTextT.cs">
+      <Link>Plugin\StructuredTextT.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\StructuredTextXML.cs">
+      <Link>Plugin\StructuredTextXML.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\Tracer.cs">
+      <Link>Plugin\Tracer.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\Util.cs">
+      <Link>Plugin\Util.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\VersionInfo.cs">
+      <Link>Plugin\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin\Win32.cs">
+      <Link>Plugin\Win32.cs</Link>
+    </Compile>
+    <Compile Include="..\PortForwardingCommand\PortForwardingCommandPlugin.cs">
+      <Link>PortForwardingCommand\PortForwardingCommandPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\CommunicationUtil.cs">
+      <Link>Protocols\CommunicationUtil.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\Connector.cs">
+      <Link>Protocols\Connector.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\HostKeyCheckerEx.cs">
+      <Link>Protocols\HostKeyCheckerEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\InterruptableConnector.cs">
+      <Link>Protocols\InterruptableConnector.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\InterruptableConnectorT.cs">
+      <Link>Protocols\InterruptableConnectorT.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\LocalShell.cs">
+      <Link>Protocols\LocalShell.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\NetUtil.cs">
+      <Link>Protocols\NetUtil.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\ProtocolComponent.cs">
+      <Link>Protocols\ProtocolComponent.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\ProtocolComponentEx.cs">
+      <Link>Protocols\ProtocolComponentEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\ProtocolOptions.cs">
+      <Link>Protocols\ProtocolOptions.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\ProtocolServiceT.cs">
+      <Link>Protocols\ProtocolServiceT.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\ProtocolsEx.cs">
+      <Link>Protocols\ProtocolsEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\ProtocolsPlugin.cs">
+      <Link>Protocols\ProtocolsPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\SimpleStringEncypt.cs">
+      <Link>Protocols\SimpleStringEncypt.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\socks.cs">
+      <Link>Protocols\socks.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\SSH.cs">
+      <Link>Protocols\SSH.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\SSHSocket.cs">
+      <Link>Protocols\SSHSocket.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\Telnet.cs">
+      <Link>Protocols\Telnet.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\TerminalConnection.cs">
+      <Link>Protocols\TerminalConnection.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\TerminalConnectionEx.cs">
+      <Link>Protocols\TerminalConnectionEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\TerminalConnectionT.cs">
+      <Link>Protocols\TerminalConnectionT.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\TerminalParameter.cs">
+      <Link>Protocols\TerminalParameter.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\TerminalParameterEx.cs">
+      <Link>Protocols\TerminalParameterEx.cs</Link>
+    </Compile>
+    <Compile Include="..\Protocols\TerminalParameterSerialize.cs">
+      <Link>Protocols\TerminalParameterSerialize.cs</Link>
+    </Compile>
+    <Compile Include="..\SerialPort\SerialConnection.cs">
+      <Link>SerialPort\SerialConnection.cs</Link>
+    </Compile>
+    <Compile Include="..\SerialPort\SerialLoginDialog.cs">
+      <Link>SerialPort\SerialLoginDialog.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\SerialPort\SerialPluginEx.cs">
+      <Link>SerialPort\SerialPluginEx.cs</Link>
+    </Compile>
+    <Compile Include="..\SerialPort\SerialPortIconList.cs">
+      <Link>SerialPort\SerialPortIconList.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\SerialPort\SerialPortPlugin.cs">
+      <Link>SerialPort\SerialPortPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\SerialPort\SerialSettings.cs">
+      <Link>SerialPort\SerialSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\CharDecoder.cs">
+      <Link>TerminalEmulator\CharDecoder.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\CommandResultEx.cs">
+      <Link>TerminalEmulator\CommandResultEx.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\CommandResultPopup.cs">
+      <Link>TerminalEmulator\CommandResultPopup.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\CommandResultPopupSession.cs">
+      <Link>TerminalEmulator\CommandResultPopupSession.cs</Link>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\Encoding.cs">
+      <Link>TerminalEmulator\Encoding.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\GEnv.cs">
+      <Link>TerminalEmulator\GEnv.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\IntelliSense.cs">
+      <Link>TerminalEmulator\IntelliSense.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\IntelliSenseCommand.cs">
+      <Link>TerminalEmulator\IntelliSenseCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\IntelliSenseEx.cs">
+      <Link>TerminalEmulator\IntelliSenseEx.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\IntelliSenseItem.cs">
+      <Link>TerminalEmulator\IntelliSenseItem.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\IntelliSenseWindow.cs">
+      <Link>TerminalEmulator\IntelliSenseWindow.cs</Link>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\KeepAlive.cs">
+      <Link>TerminalEmulator\KeepAlive.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\KeyFunction.cs">
+      <Link>TerminalEmulator\KeyFunction.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\Logger.cs">
+      <Link>TerminalEmulator\Logger.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\LoggerEx.cs">
+      <Link>TerminalEmulator\LoggerEx.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\ModalTaskEx.cs">
+      <Link>TerminalEmulator\ModalTaskEx.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\OldTerminalParam.cs">
+      <Link>TerminalEmulator\OldTerminalParam.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\Options.cs">
+      <Link>TerminalEmulator\Options.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\PromptRecognizer.cs">
+      <Link>TerminalEmulator\PromptRecognizer.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\ShellScheme.cs">
+      <Link>TerminalEmulator\ShellScheme.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\TerminalBase.cs">
+      <Link>TerminalEmulator\TerminalBase.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\TerminalCommands.cs">
+      <Link>TerminalEmulator\TerminalCommands.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\TerminalControl.cs">
+      <Link>TerminalEmulator\TerminalControl.cs</Link>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\TerminalDocument.cs">
+      <Link>TerminalEmulator\TerminalDocument.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\TerminalEmulatorEx.cs">
+      <Link>TerminalEmulator\TerminalEmulatorEx.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\TerminalEmulatorIconList.cs">
+      <Link>TerminalEmulator\TerminalEmulatorIconList.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\TerminalEmulatorPlugin.cs">
+      <Link>TerminalEmulator\TerminalEmulatorPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\TerminalOutput.cs">
+      <Link>TerminalEmulator\TerminalOutput.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\TerminalSettings.cs">
+      <Link>TerminalEmulator\TerminalSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\TerminalSettingsEx.cs">
+      <Link>TerminalEmulator\TerminalSettingsEx.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\TerminalSettingsSerialize.cs">
+      <Link>TerminalEmulator\TerminalSettingsSerialize.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\TerminalToolBar.cs">
+      <Link>TerminalEmulator\TerminalToolBar.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\TerminalUtil.cs">
+      <Link>TerminalEmulator\TerminalUtil.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\Util.cs">
+      <Link>TerminalEmulator\Util.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\VT100.cs">
+      <Link>TerminalEmulator\VT100.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\WarningWithDisableOption.cs">
+      <Link>TerminalEmulator\WarningWithDisableOption.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\XmlLogger.cs">
+      <Link>TerminalEmulator\XmlLogger.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalEmulator\XTerm.cs">
+      <Link>TerminalEmulator\XTerm.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalSession\AutoShellExecutor.cs">
+      <Link>TerminalSession\AutoShellExecutor.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalSession\CopyPaste.cs">
+      <Link>TerminalSession\CopyPaste.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalSession\CygwinLoginDialog.cs">
+      <Link>TerminalSession\CygwinLoginDialog.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\TerminalSession\CygwinPlugin.cs">
+      <Link>TerminalSession\CygwinPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalSession\IconList.cs">
+      <Link>TerminalSession\IconList.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\TerminalSession\LoginDialogBase.cs">
+      <Link>TerminalSession\LoginDialogBase.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\TerminalSession\PaneBridge.cs">
+      <Link>TerminalSession\PaneBridge.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalSession\Reproduce.cs">
+      <Link>TerminalSession\Reproduce.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalSession\ShortcutFile.cs">
+      <Link>TerminalSession\ShortcutFile.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalSession\ShortcutFileCommands.cs">
+      <Link>TerminalSession\ShortcutFileCommands.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalSession\SSHShortcutLoginDialog.cs">
+      <Link>TerminalSession\SSHShortcutLoginDialog.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\TerminalSession\StartCommands.cs">
+      <Link>TerminalSession\StartCommands.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalSession\TelnetSSHLoginDialog.cs">
+      <Link>TerminalSession\TelnetSSHLoginDialog.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\TerminalSession\TelnetSSHPlugin.cs">
+      <Link>TerminalSession\TelnetSSHPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalSession\TerminalSession.cs">
+      <Link>TerminalSession\TerminalSession.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalSession\TerminalSessionEx.cs">
+      <Link>TerminalSession\TerminalSessionEx.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalSession\TerminalSessionOptions.cs">
+      <Link>TerminalSession\TerminalSessionOptions.cs</Link>
+    </Compile>
+    <Compile Include="..\TerminalSession\TerminalSessionPlugin.cs">
+      <Link>TerminalSession\TerminalSessionPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\TestAndDebug\HelloWorld.cs">
+      <Link>TestAndDebug\HelloWorld.cs</Link>
+    </Compile>
+    <Compile Include="..\TestAndDebug\PromptRecognitionTest.cs">
+      <Link>TestAndDebug\PromptRecognitionTest.cs</Link>
+    </Compile>
+    <Compile Include="..\TestAndDebug\SessionTestPlugin.cs">
+      <Link>TestAndDebug\SessionTestPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\UI\ColorButton.cs">
+      <Link>UI\ColorButton.cs</Link>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\UI\ColorDialog.cs">
+      <Link>UI\ColorDialog.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\UI\ColorUtil.cs">
+      <Link>UI\ColorUtil.cs</Link>
+    </Compile>
+    <Compile Include="..\UI\DrawUtil.cs">
+      <Link>UI\DrawUtil.cs</Link>
+    </Compile>
+    <Compile Include="..\UI\GButton.cs">
+      <Link>UI\GButton.cs</Link>
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="..\UI\GMenuItem.cs">
+      <Link>UI\GMenuItem.cs</Link>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\UI\HotKey.cs">
+      <Link>UI\HotKey.cs</Link>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\UI\PaneDivision.cs">
+      <Link>UI\PaneDivision.cs</Link>
+    </Compile>
+    <Compile Include="..\UI\PaneSplitter.cs">
+      <Link>UI\PaneSplitter.cs</Link>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\UI\TabBar.cs">
+      <Link>UI\TabBar.cs</Link>
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="..\UI\ThreeButtonMessageBox.cs">
+      <Link>UI\ThreeButtonMessageBox.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\UI\Util.cs">
+      <Link>UI\Util.cs</Link>
+    </Compile>
+    <Compile Include="..\UI\Win32.cs">
+      <Link>UI\Win32.cs</Link>
+    </Compile>
+    <Compile Include="..\UI\WinFormsUtil.cs">
+      <Link>UI\WinFormsUtil.cs</Link>
+    </Compile>
+    <Compile Include="..\Usability\AgentKeyListDialog.cs">
+      <Link>Usability\AgentKeyListDialog.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Usability\AgentKeyListDialog.designer.cs">
+      <Link>Usability\AgentKeyListDialog.designer.cs</Link>
+      <DependentUpon>AgentKeyListDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\Usability\ChangeLog.cs">
+      <Link>Usability\ChangeLog.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Usability\ChangePassphrase.cs">
+      <Link>Usability\ChangePassphrase.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Usability\CommandOptionPanel.cs">
+      <Link>Usability\CommandOptionPanel.cs</Link>
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="..\Usability\CommentLog.cs">
+      <Link>Usability\CommentLog.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Usability\ConnectionOptionPanel.cs">
+      <Link>Usability\ConnectionOptionPanel.cs</Link>
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="..\Usability\DisplayOptionPanel.cs">
+      <Link>Usability\DisplayOptionPanel.cs</Link>
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="..\Usability\EditEscapeSequenceColor.cs">
+      <Link>Usability\EditEscapeSequenceColor.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Usability\EditRenderProfile.cs">
+      <Link>Usability\EditRenderProfile.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Usability\FontDialog.cs">
+      <Link>Usability\FontDialog.cs</Link>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\Usability\GenericOptionPanel.cs">
+      <Link>Usability\GenericOptionPanel.cs</Link>
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="..\Usability\GuevaraAboutBox.cs">
+      <Link>Usability\GuevaraAboutBox.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Usability\InputPassphraseDialog.cs">
+      <Link>Usability\InputPassphraseDialog.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Usability\InputPassphraseDialog.designer.cs">
+      <Link>Usability\InputPassphraseDialog.designer.cs</Link>
+      <DependentUpon>InputPassphraseDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\Usability\KeyAgent.cs">
+      <Link>Usability\KeyAgent.cs</Link>
+    </Compile>
+    <Compile Include="..\Usability\KeyGenWizard.cs">
+      <Link>Usability\KeyGenWizard.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Usability\MRUPlugin.cs">
+      <Link>Usability\MRUPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\Usability\OptionDialog.cs">
+      <Link>Usability\OptionDialog.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Usability\OptionDialogPlugin.cs">
+      <Link>Usability\OptionDialogPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\Usability\OrderedCollection.cs">
+      <Link>Usability\OrderedCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\Usability\PeripheralOptionPanel.cs">
+      <Link>Usability\PeripheralOptionPanel.cs</Link>
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="..\Usability\PoderosaLogViewerPlugin.cs">
+      <Link>Usability\PoderosaLogViewerPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\Usability\PoderosaLogViewerSession.cs">
+      <Link>Usability\PoderosaLogViewerSession.cs</Link>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\Usability\PreferenceEditor.cs">
+      <Link>Usability\PreferenceEditor.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Usability\PreferenceItemEditor.cs">
+      <Link>Usability\PreferenceItemEditor.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Usability\RenameTabBox.cs">
+      <Link>Usability\RenameTabBox.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Usability\ShellSchemeEditor.cs">
+      <Link>Usability\ShellSchemeEditor.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\Usability\ShellSchemeEditor.Designer.cs">
+      <Link>Usability\ShellSchemeEditor.Designer.cs</Link>
+      <DependentUpon>ShellSchemeEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\Usability\SSHKnownHosts.cs">
+      <Link>Usability\SSHKnownHosts.cs</Link>
+    </Compile>
+    <Compile Include="..\Usability\SSHOptionPanel.cs">
+      <Link>Usability\SSHOptionPanel.cs</Link>
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="..\Usability\SSHUtilPlugin.cs">
+      <Link>Usability\SSHUtilPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\Usability\StartupActionPlugin.cs">
+      <Link>Usability\StartupActionPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\Usability\TerminalOptionPanel.cs">
+      <Link>Usability\TerminalOptionPanel.cs</Link>
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="..\Usability\TerminalUICommands.cs">
+      <Link>Usability\TerminalUICommands.cs</Link>
+    </Compile>
+    <Compile Include="..\Usability\TerminalUIPlugin.cs">
+      <Link>Usability\TerminalUIPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\Usability\UsabilityPlugin.cs">
+      <Link>Usability\UsabilityPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\XZModem\xmodem.cs">
+      <Link>XZModem\xmodem.cs</Link>
+    </Compile>
+    <Compile Include="..\XZModem\XZModemDialog.cs">
+      <Link>XZModem\XZModemDialog.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\XZModem\XZModemPlugin.cs">
+      <Link>XZModem\XZModemPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\XZModem\zmodem.cs">
+      <Link>XZModem\zmodem.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

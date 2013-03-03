@@ -1,0 +1,159 @@
+﻿<root>
+  <resheader name="ResMimeType">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="Version">
+    <value>1.0.0.0</value>
+  </resheader>
+  <resheader name="Reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="Writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Common.OK">
+    <value>OK</value>
+  </data>
+  <data name="Common.Cancel">
+    <value>Cancel</value>
+  </data>
+  <data name="Menu.Macro">
+    <value>&amp;Macro</value>
+  </data>
+  <data name="Menu.MacroList">
+    <value>&amp;Environment...</value>
+  </data>
+  <data name="Menu._menuStopMacro">
+    <value>&amp;Stop executing macro</value>
+  </data>
+  <data name="Command.MacroList">
+    <value>Show macro configuration dialog</value>
+  </data>
+  <data name="Command.StopMacro">
+    <value>Stop executing macro</value>
+  </data>
+  <data name="Message.MacroEnv.WidthIsOutOfRange">
+    <value>The width must be between 1 and 255.</value>
+  </data>
+  <data name="Message.MacroEnv.HeightIsOutOfRange">
+    <value>The height must be between 1 and 255.</value>
+  </data>
+  <data name="Message.MacroEnv.ShellExecuteError">
+    <value>Failed to execute ShellExecute:{0} - {1}.</value>
+  </data>
+  <data name="Message.MacroEnv.ExecError">
+    <value>Failed to execute {0}. Please check the application name and path.</value>
+  </data>
+  <data name="Message.MacroExec.MissingAssemblies">
+    <value>Some required assemblies are missing.</value>
+  </data>
+  <data name="Message.MacroExec.FailedToCompileScript">
+    <value>Failed to compile the script.
+</value>
+  </data>
+  <data name="Message.MacroExec.ExceptionWithoutTraceWindow">
+    <value>An exception was thrown while executing the macro. 
+[{0}]
+
+To see the detail of the exception, please set the trace window display option of the macro configuration and execute the macro again.</value>
+  </data>
+  <data name="Message.MacroExec.ExceptionInMacro">
+    <value>An exception was thrown while executing the macro.</value>
+  </data>
+  <data name="Form.MacroList._titleHeader">
+    <value>Title</value>
+  </data>
+  <data name="Form.MacroList._pathHeader">
+    <value>Path</value>
+  </data>
+  <data name="Form.MacroList._shortCutHeader">
+    <value>Shortcut</value>
+  </data>
+  <data name="Form.MacroList._infoHeader">
+    <value>Information</value>
+  </data>
+  <data name="Form.MacroList._runButton">
+    <value>&amp;Execute</value>
+  </data>
+  <data name="Form.MacroList._stopButton">
+    <value>&amp;Stop</value>
+  </data>
+  <data name="Form.MacroList._propButton">
+    <value>&amp;Property...</value>
+  </data>
+  <data name="Form.MacroList._downButton">
+    <value>&amp;Down</value>
+  </data>
+  <data name="Form.MacroList._upButton">
+    <value>&amp;Up</value>
+  </data>
+  <data name="Form.MacroList._addButton">
+    <value>&amp;New...</value>
+  </data>
+  <data name="Form.MacroList._deleteButton">
+    <value>&amp;Remove</value>
+  </data>
+  <data name="Form.MacroList._environmentButton">
+    <value>Env. &amp;Variables...</value>
+  </data>
+  <data name="Form.MacroList.Text">
+    <value>Macro</value>
+  </data>
+  <data name="Caption.MacroList.Trace">
+    <value>Trace</value>
+  </data>
+  <data name="Message.MacroModule.AlreadyRunning">
+    <value>Another macro is currently executing.</value>
+  </data>
+  <data name="Message.MacroModule.NoEntryPoint">
+    <value>The entry point of the assembly is not found.</value>
+  </data>
+  <data name="Message.MacroModule.UnknownModuleType">
+    <value>The type of macro is unknown.</value>
+  </data>
+  <data name="Caption.MacroModule.SampleTitleHelloWorld">
+    <value>Sample - Hello World</value>
+  </data>
+  <data name="Caption.MacroModule.SampleTitleAutoTelnet">
+    <value>Sample - Telnet auto login</value>
+  </data>
+  <data name="Caption.MacroModule.SampleTitleOpenBashrc">
+    <value>Sample - Open ~/.bashrc</value>
+  </data>
+  <data name="Message.MacroPlugin.AnotherMacroIsRunningInThisSession">
+    <value>Another macro is running in this session.</value>
+  </data>
+  <data name="Caption.MacroTrace.Title">
+    <value>Macro trace window - </value>
+  </data>
+  <data name="Form.ModuleProperty._titleLabel">
+    <value>&amp;Title</value>
+  </data>
+  <data name="Form.ModuleProperty._pathLabel">
+    <value>&amp;File</value>
+  </data>
+  <data name="Form.ModuleProperty._additionalAssemblyLabel">
+    <value>&amp;Additional assemblies</value>
+  </data>
+  <data name="Form.ModuleProperty._shortcutLabel">
+    <value>&amp;Shortcut</value>
+  </data>
+  <data name="Form.ModuleProperty._debugOption">
+    <value>Open a Trace &amp;Window when executing this macro</value>
+  </data>
+  <data name="Form.ModuleProperty.Text">
+    <value>Macro property</value>
+  </data>
+  <data name="Caption.ModuleProperty.SelectMacroFile">
+    <value>Select macro file</value>
+  </data>
+  <data name="Message.ModuleProperty.FileNotExist">
+    <value>The file {0} is not exist.</value>
+  </data>
+  <data name="Message.ModuleProperty.TooLongTitle">
+    <value>The title of the macro must not exceed 30 characters.</value>
+  </data>
+  <data name="Message.ModuleProperty.DuplicatedKey">
+    <value>This key is already allocated for \"{0}\".</value>
+  </data>
+</root>

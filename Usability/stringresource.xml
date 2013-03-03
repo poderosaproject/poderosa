@@ -1,0 +1,1108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+$Id: stringresource.xml,v 1.6 2012/06/02 15:01:10 kzmi Exp $
+-->
+<string-resource>
+
+<record name="Common.OK">
+  <ja>OK</ja>
+  <en>OK</en>
+</record>
+<record name="Common.Cancel">
+  <ja>キャンセル</ja>
+  <en>Cancel</en>
+</record>
+<record name="Common.FontSample">
+  <ja>Poderosa</ja>
+  <en>Poderosa</en>
+</record>
+<record name="Common.CJKFontSample">
+  <ja>ポデローザ</ja>
+  <en></en><!-- This caption is used in Japanese only -->
+</record>
+
+<!-- Command -->
+<record name="CommandCategory.SSH">
+  <ja>SSH</ja>
+  <en>SSH</en>
+</record>
+<record name="Command.OptionDialog">
+  <ja>オプションダイアログ</ja>
+  <en>Option dialog</en>
+</record>
+<record name="Command.GenerateKeyPair">
+  <ja>SSH鍵作成ウィザードの起動</ja>
+  <en>Start SSH key generation wizard</en>
+</record>
+<record name="Command.ChangePassphrase">
+  <ja>秘密鍵のパスフレーズ変更</ja>
+  <en>Change passphrase for private key</en>
+</record>
+<record name="Command.AgentKeyListDialog">
+  <ja>エージェントフォワーディング設定く</ja>
+  <en>Agent forwarding configuration</en>
+</record>
+<record name="Command.EditRenderProfile">
+  <ja>表示プロファイルの編集</ja>
+  <en>Edit display profile</en>
+</record>
+<record name="Command.RenameTab">
+  <ja>タブのリネーム</ja>
+  <en>Rename tab</en>
+</record>
+<record name="Command.CommentLog">
+  <ja>ログに任意のテキストを書き込む</ja>
+  <en>Writes a comment to the log</en>
+</record>
+<record name="Command.ChangeLog">
+  <ja>ログの設定変更</ja>
+  <en>Changes the log settings</en>
+</record>
+<record name="Command.PoderosaLog">
+  <ja>Poderosaイベントログ表示</ja>
+  <en>Shows Poderosa event log</en>
+</record>
+
+<record name="Menu.EditRenderProfile">
+  <ja>表示プロファイルの編集(&amp;D)...</ja>
+  <en>Edit &amp;display profile...</en>
+</record>
+<record name="Menu.RenameTab">
+  <ja>タブのリネーム(&amp;T)...</ja>
+  <en>Rename &amp;tab...</en>
+</record>
+<record name="Caption.RenameTab">
+  <ja>タブのリネーム</ja>
+  <en>Rename tab</en>
+</record>
+<record name="Menu.CommentLog">
+  <ja>ログにコメントをつける(&amp;G)...</ja>
+  <en>Comment to lo&amp;g...</en>
+</record>
+<record name="Menu.ChangeLog">
+  <ja>ログの設定(&amp;L)...</ja>
+  <en>Change &amp;log...</en>
+</record>
+<record name="Menu.PoderosaLog">
+  <ja>Poderosaイベントログの表示(&amp;E)...</ja>
+  <en>Shows Poderosa &amp;event log...</en>
+</record>
+
+<!-- ChangeLog.cs -->
+<record name="Form.ChangeLog.Text">
+  <ja>ログの設定</ja>
+  <en>Log configuration</en>
+</record>
+<record name="Form.ChangeLog._logTypeLabel">
+  <ja>ログの種別(&amp;T)</ja>
+  <en>Log &amp;type</en>
+</record>
+<record name="Form.ChangeLog._fileNameLabel">
+  <ja>ファイル名(&amp;F)</ja>
+  <en>&amp;File name</en>
+</record>
+
+<!-- CommentLog.cs -->
+<record name="Form.CommentLog._insertButton">
+  <ja>挿入(&amp;I)...</ja>
+  <en>&amp;Insert...</en>
+</record>
+<record name="Form.CommentLog.Text">
+  <ja>ログへのコメント</ja>
+  <en>Comment to log</en>
+</record>
+<record name="Menu.CommentLog.Time">
+  <ja>時刻(&amp;T)</ja>
+  <en>&amp;Time</en>
+</record>
+<record name="Menu.CommentLog.DateTime">
+  <ja>日付と時刻(&amp;D)</ja>
+  <en>&amp;Date and Time</en>
+</record>
+
+
+<!-- EditRenderProfile.cs -->
+<record name="Form.EditRenderProfile._bgColorLabel">
+  <ja>背景色(&amp;B)</ja>
+  <en>&amp;Back color</en>
+</record>
+<record name="Form.EditRenderProfile._textColorLabel">
+  <ja>テキスト色(&amp;T)</ja>
+  <en>&amp;Text color</en>
+</record>
+<record name="Form.EditRenderProfile._editEscapeSequenceColorBox">
+  <ja>色指定エスケープシーケンスの設定...(&amp;E)</ja>
+  <en>Color settings for &amp;escape sequences...</en>
+</record>
+<record name="Form.EditRenderProfile._fontSelectButton">
+  <ja>変更...</ja>
+  <en>Change...</en>
+</record>
+<record name="Form.EditRenderProfile._fontLabel">
+  <ja>フォント(&amp;F)</ja>
+  <en>&amp;Font</en>
+</record>
+<record name="Form.EditRenderProfile._backgroungImageLabel">
+  <ja>背景画像(&amp;P)</ja>
+  <en>Back &amp;picture</en>
+</record>
+<record name="Form.EditRenderProfile._imageStyleLabel">
+  <ja>画像の配置(&amp;L)</ja>
+  <en>Picture &amp;location</en>
+</record>
+<record name="Form.EditRenderProfile._setToDefaultButton">
+  <ja>標準に戻す(&amp;R)</ja>
+  <en>&amp;Reset</en>
+</record>
+<record name="Form.EditRenderProfile.Text">
+  <ja>表示プロファイルの編集</ja>
+  <en>Edit display profile</en>
+</record>
+<record name="Message.EditRenderProfile.InvalidPicture">
+  <ja>{0}は有効な画像ファイル名ではありません。</ja>
+  <en>{0} is not a correct picture file.</en>
+</record>
+<record name="Util.SelectPicture.Caption">
+  <ja>画像の選択</ja>
+  <en>Select picture file</en>
+</record>
+
+
+
+<!-- EditEscapesequenceColor.cs -->
+<record name="Form.EditEscapesequenceColor.Text">
+  <ja>色指定エスケープシーケンスの設定</ja>
+  <en>Color settings for escape sequences</en>
+</record>
+<record name="Form.EditEscapesequenceColor._setDefaultButton">
+  <ja>デフォルトに戻す(&amp;D)</ja>
+  <en>Set to &amp;default</en>
+</record>
+<record name="Caption.EditEscapesequenceColor.DefaultColor">
+  <ja>標準</ja>
+  <en>Default</en>
+</record>
+<record name="Caption.EditEscapesequenceColor.BackColor">
+  <ja>背景</ja>
+  <en>Background</en>
+</record>
+
+<!-- GFontDialog.cs -->
+<record name="Form.GFontDialog._lAsciiFont">
+  <ja>ASCII文字のフォント</ja>
+  <en>Font Name</en> <!-- ascii characters only in english version -->
+</record>
+<record name="Form.GFontDialog._lCJKFont">
+  <ja>CJK文字のフォント</ja>
+  <en>CJK Font Name</en>
+</record>
+<record name="Form.GFontDialog._lFontSize">
+  <ja>サイズ(&amp;S)</ja>
+  <en>&amp;Size</en>
+</record>
+<record name="Form.GFontDialog._checkClearType">
+  <ja>可能であれば常にClearTypeフォントを使う(&amp;C)</ja>
+  <en>Use &amp;Clear Type Font as much as possible</en>
+</record>
+<record name="Form.GFontDialog._checkBoldStyle">
+  <ja>ボールドフォントを有効にする(&amp;B)</ja>
+  <en>Enables &amp;bold fonts</en>
+</record>
+<record name="Form.GFontDialog._checkForceBoldStyle">
+  <ja>ボールドフォントを強制する(&amp;F)</ja>
+  <en>&amp;Force bold fonts</en>
+</record>
+<record name="Form.GFontDialog._labelNotice">
+  <ja>※日本語を多く表示する場合、両方で同じフォントを指定するとパフォーマンスが向上します。</ja>
+  <en></en> <!-- this message is displayed in Japanese version only -->
+</record>
+<record name="Form.GFontDialog.Text">
+  <ja>フォントの選択</ja>
+  <en>Select font</en>
+</record>
+<record name="Message.GFontDialog.NotTrueTypeWarning">
+  <ja>TrueTypeでない{0}フォントを使っているため、サイズは{1}に変更されます。</ja>
+  <en>The size was changed to {1} since {0} is not a TrueType font.</en>
+</record>
+
+<!-- OptionDialog -->
+<record name="Menu.OptionDialog">
+  <ja>オプション(&amp;O)...</ja>
+  <en>&amp;Options...</en>
+</record>
+<record name="Form.OptionDialog.Text">
+  <ja>オプション設定</ja>
+  <en>Option settings</en>
+</record>
+<record name="Form.OptionDialog._displayPanel">
+  <ja>表示</ja>
+  <en>Display</en>
+</record>
+<record name="Form.OptionDialog._colorFontGroup">
+  <ja>色・フォント・背景</ja>
+  <en>Color / Font / Background </en>
+</record>
+<record name="Form.OptionDialog._bgColorLabel">
+  <ja>背景色(&amp;B)</ja>
+  <en>&amp;Back color</en>
+</record>
+<record name="Form.OptionDialog._textColorLabel">
+  <ja>テキスト色(&amp;T)</ja>
+  <en>&amp;Text color</en>
+</record>
+<record name="Form.OptionDialog._editEscapeSequenceColorBox">
+  <ja>色指定エスケープシーケンスの設定...(&amp;E)</ja>
+  <en>Color settings for &amp;escape sequences...</en>
+</record>
+<record name="Form.OptionDialog._darkenEsColorForBackground">
+  <ja>背景色には色を暗くする</ja>
+  <en>Use darkened color for the background color</en>
+</record>
+<record name="Form.OptionDialog._fontLabel">
+  <ja>フォント(&amp;F)</ja>
+  <en>&amp;Font</en>
+</record>
+<record name="Form.OptionDialog._fontSelectButton">
+  <ja>変更...</ja>
+  <en>Change...</en>
+</record>
+<record name="Form.OptionDialog._backgroundImageLabel">
+  <ja>背景画像(&amp;I)</ja>
+  <en>Back &amp;image</en>
+</record>
+<record name="Form.OptionDialog._imageStyleLabel">
+  <ja>画像の配置(&amp;L)</ja>
+  <en>Image &amp;location</en>
+</record>
+<record name="Form.OptionDialog._applyRenderProfileButton">
+  <ja>全接続に適用</ja>
+  <en>Apply to all</en>
+</record>
+<record name="Form.OptionDialog._caretGroup">
+  <ja>キャレット</ja>
+  <en>Caret</en>
+</record>
+<record name="Form.OptionDialog._caretStyleLabel">
+  <ja>スタイル(&amp;S)</ja>
+  <en>&amp;Style</en>
+</record>
+<record name="Form.OptionDialog._caretSpecifyColor">
+  <ja>色を指定する(&amp;C)</ja>
+  <en>Specify &amp;color</en>
+</record>
+<record name="Form.OptionDialog._caretBlink">
+  <ja>点滅させる(&amp;K)</ja>
+  <en>Blin&amp;k</en>
+</record>
+<record name="Form.OptionDialog._lineSpacingLabel">
+  <ja>行間スペース</ja>
+  <en>Line spacing</en>
+</record>
+<record name="Form.OptionDialog._pixelsLabel">
+  <ja>ピクセル</ja>
+  <en>pixels</en>
+</record>
+<record name="Form.OptionDialog._terminalPanel">
+  <ja>ターミナル</ja>
+  <en>Terminal</en>
+</record>
+<record name="Form.OptionDialog._charDecodeErrorBehaviorLabel">
+  <ja>処理できないデータの受信時(&amp;U)</ja>
+  <en>Behavior in case of &amp;invalid data</en>
+</record>
+<record name="Form.OptionDialog._bufferSizeLabel">
+  <ja>バッファ行数(&amp;Z)</ja>
+  <en>Buffer si&amp;ze</en>
+</record>
+<record name="Form.OptionDialog._disconnectNotificationLabel">
+  <ja>切断の通知方法(&amp;N)</ja>
+  <en>&amp;Notification of disconnection</en>
+</record>
+<record name="Form.OptionDialog._closeOnDisconnect">
+  <ja>切断時にペインを閉じる(&amp;P)</ja>
+  <en>Close &amp;Pane on disconnection</en>
+</record>
+<record name="Form.OptionDialog._beepOnBellChar">
+  <ja>ベル文字を受信したときに音を鳴らす(&amp;B)</ja>
+  <en>Play Sound on &amp;bell Character</en>
+</record>
+<record name="Form.OptionDialog._adjustsTabTitleToWindowTitle">
+  <ja>タブの名前をxtermのウィンドウタイトルに一致させる(&amp;T)</ja>
+  <en>Correspond &amp;tab name to xterm window title</en>
+</record>
+<record name="Form.OptionDialog._allowsScrollInAppMode">
+  <ja>アプリケーションモードでもスクロールを許可する(&amp;S)</ja>
+  <en>Allow &amp;scroll in application mode</en>
+</record>
+<record name="Form.OptionDialog._keepAliveCheck">
+  <ja>KeepAliveパケットを送信する(&amp;K)(</ja>
+  <en>Send &amp;keep-alive packet periodically (every</en>
+</record>
+<record name="Form.OptionDialog._keepAliveLabel">
+  <ja>分毎)</ja>
+  <en>minutes)</en>
+</record>
+<record name="Form.OptionDialog._defaultLogTypeLabel">
+  <ja>種別(&amp;L)</ja>
+  <en>&amp;Log type</en>
+</record>
+<record name="Form.OptionDialog._defaultLogDirectoryLabel">
+  <ja>保存先ディレクトリ(&amp;D)</ja>
+  <en>&amp;Directory to save</en>
+</record>
+<record name="Form.OptionDialog._autoLogCheckBox">
+  <ja>ログファイル名を自動設定する(&amp;A)</ja>
+  <en>Set log file name &amp;automatically</en>
+</record>
+<record name="Form.OptionDialog._peripheralPanel">
+  <ja>操作</ja>
+  <en>Operation</en>
+</record>
+<record name="Form.OptionDialog._mouseGroup">
+  <ja>マウス</ja>
+  <en>Mouse</en>
+</record>
+<record name="Form.OptionDialog._keyboardGroup">
+  <ja>キーボード</ja>
+  <en>Keyboard</en>
+</record>
+<record name="Form.OptionDialog._leftAltKeyLabel">
+  <ja>左Altキーの用途(&amp;L)</ja>
+  <en>&amp;Left Alt key</en>
+</record>
+<record name="Form.OptionDialog._rightAltKeyLabel">
+  <ja>右Altキーの用途(&amp;R)</ja>
+  <en>&amp;Right Alt key</en>
+</record>
+<record name="Form.OptionDialog._send0x7FByDel">
+  <ja>Deleteキーで0x7Fを送信(&amp;D)</ja>
+  <en>Send 0x7F by &amp;Delete key</en>
+</record>
+<record name="Form.OptionDialog._send0x7FByBack">
+  <ja>BackSpaceキーで0x7Fを送信(&amp;K)</ja>
+  <en>Send 0x7F by Bac&amp;kSpace key</en>
+</record>
+<record name="Form.OptionDialog._zone0x1FLabel">
+  <ja>0x1C-1Fの送信方法(&amp;0)</ja>
+  <en>Transmission of &amp;0x1C-0x1F</en>
+</record>
+<record name="Form.OptionDialog._autoKeySettingsLabel">
+  <ja>自動キー定義</ja>
+  <en>Key definition</en>
+</record>
+<record name="Form.OptionDialog._customKeySettingsLabel">
+  <ja>追加キー定義(&amp;B)</ja>
+  <en>Additional &amp;key definitions</en>
+</record>
+<record name="Form.OptionDialog._autoCopyByLeftButton">
+  <ja>マウスで選択したら自動的にコピー(&amp;A)</ja>
+  <en>&amp;Automatically copy when selected by mouse</en>
+</record>
+<record name="Form.OptionDialog._additionalWordElementLabel">
+  <ja>英数字に追加する単語構成文字(&amp;E)</ja>
+  <en>Additional characters for &amp;elements of word</en>
+</record>
+<record name="Form.OptionDialog._rightButtonActionLabel">
+  <ja>右クリックの動作(&amp;C)</ja>
+  <en>Action for &amp;right click</en>
+</record>
+<record name="Form.OptionDialog._middleButtonActionLabel">
+  <ja>中クリックの動作(&amp;M)</ja>
+  <en>Action for &amp;middle click</en>
+</record>
+<record name="Form.OptionDialog._wheelAmountLabel">
+  <ja>ホイールでのスクロール行数(&amp;W)</ja>
+  <en>Scroll amount for mouse &amp;wheel</en>
+</record>
+<record name="Form.OptionDialog._viewSplitModifierLabel">
+  <ja>ペイン分割時の修飾キー(&amp;P)</ja>
+  <en>Modifier for &amp;pane division</en>
+</record>
+<record name="Caption.KeysNone">
+  <ja>なし</ja>
+  <en>None</en>
+</record>
+<record name="Form.OptionDialog._localBufferScrollModifierLabel">
+  <ja>ローカルバッファをスクロールさせる修飾キー(&amp;S)</ja>
+  <en>Modifier Key for &amp;scrolling local buffer</en>
+</record>
+<record name="Form.OptionDialog._shellSupportGroup">
+  <ja>シェルサポート</ja>
+  <en>Shell support</en>
+</record>
+<record name="Form.OptionDialog._enableComplementForNewConnections">
+  <ja>新規接続時に文字入力でのシェル補完を有効にする(&amp;C)</ja>
+  <en>Enables shell &amp;complement by character input for new connections</en>
+</record>
+<record name="Form.OptionDialog._commandPopupAlwaysOnTop">
+  <ja>コマンド結果ポップアップを前面に表示(&amp;T)</ja>
+  <en>Shows command result pop-ups on the &amp;top</en>
+</record>
+<record name="Form.OptionDialog._commandPopupInTaskBar">
+  <ja>コマンド結果ポップアップをタスクバーに表示(&amp;R)</ja>
+  <en>Shows command result pop-ups in the task ba&amp;r</en>
+</record>
+<record name="Form.OptionDialog._alertOnPasteNewLineCharCheck">
+  <ja>改行文字を含む貼り付けで警告を表示</ja>
+  <en>Show alert when new-line character will be pasted</en>
+</record>
+
+<record name="Form.OptionDialog._commandPanel">
+  <ja>コマンド</ja>
+  <en>Command</en>
+</record>
+<record name="Form.OptionDialog._commandCategoryHeader">
+  <ja>カテゴリ</ja>
+  <en>Category</en>
+</record>
+<record name="Form.OptionDialog._commandNameHeader">
+  <ja>コマンド</ja>
+  <en>Command</en>
+</record>
+<record name="Form.OptionDialog._commandConfigHeader">
+  <ja>キー割り当て</ja>
+  <en>Key allocation</en>
+</record>
+<record name="Form.OptionDialog._resetKeyConfigButton">
+  <ja>デフォルトに戻す</ja>
+  <en>Reset to default</en>
+</record>
+<record name="Form.OptionDialog._clearKeyConfigButton">
+  <ja>すべてクリア</ja>
+  <en>Clear All</en>
+</record>
+<record name="Form.OptionDialog._commandConfigGroup">
+  <ja>コマンドの設定</ja>
+  <en>Command setting</en>
+</record>
+<record name="Form.OptionDialog._commandNameLabel">
+  <ja>コマンド名</ja>
+  <en>Command name</en>
+</record>
+<record name="Form.OptionDialog._currentConfigLabel">
+  <ja>現在の割り当て</ja>
+  <en>Current allocation</en>
+</record>
+<record name="Form.OptionDialog._newAllocationLabel">
+  <ja>新しい割り当て</ja>
+  <en>New allocation</en>
+</record>
+<record name="Form.OptionDialog._allocateKeyButton">
+  <ja>割り当て</ja>
+  <en>Allocate</en>
+</record>
+<record name="Form.OptionDialog._sshPanel">
+  <ja>SSH</ja>
+  <en>SSH</en>
+</record>
+<record name="Form.OptionDialog._cipherOrderGroup">
+  <ja>暗号アルゴリズムの優先度</ja>
+  <en>Priority of cipher algorithms</en>
+</record>
+<record name="Form.OptionDialog._algorithmOrderUp">
+  <ja>上へ(&amp;U)</ja>
+  <en>&amp;Up</en>
+</record>
+<record name="Form.OptionDialog._algorithmOrderDown">
+  <ja>下へ(&amp;D)</ja>
+  <en>&amp;Down</en>
+</record>
+<record name="Form.OptionDialog._ssh2OptionGroup">
+  <ja>プロトコルオプション(SSH2でのみ有効)</ja>
+  <en>Protocol option (Uses SSH2 only)</en>
+</record>
+<record name="Form.OptionDialog._hostKeyLabel">
+  <ja>使用するホストキー認証アルゴリズム(&amp;H)</ja>
+  <en>&amp;Host key authentication algorithm</en>
+</record>
+<record name="Form.OptionDialog._windowSizeLabel">
+  <ja>SSHチャンネルのウィンドウサイズ(&amp;W)</ja>
+  <en>&amp;Window size of SSH channel</en>
+</record>
+<record name="Form.OptionDialog._sshMiscGroup">
+  <ja>その他</ja>
+  <en>Miscellaneous</en>
+</record>
+<record name="Form.OptionDialog._enableAgentForward">
+  <ja>エージェントフォワーディングを使用(&amp;F)
+(OpenSSHに対するSSH2接続でのみ有効)</ja>
+  <en>Enable agent &amp;forwarding
+(Only for SSH2 connections to OpenSSH)</en>
+</record>
+<record name="Form.OptionDialog._retainsPassphrase">
+  <ja>終了までは一度入力したパスフレーズを記憶(&amp;M)</ja>
+  <en>&amp;Memorize passphrase until the application is terminated</en>
+</record>
+<record name="Form.OptionDialog._sshCheckMAC">
+  <ja>MACチェックを行う(&amp;C)
+(チェックを外すとと若干高速化するかわりセキュリティが低下します)</ja>
+  <en>&amp;Check MAC
+(if you turn this off, the performance gains slightly at the risk of security.)</en>
+</record>
+<record name="Form.OptionDialog._sshEventLog">
+  <ja>SSHネゴシエーションをPoderosaイベントログに出力(&amp;L)</ja>
+  <en>Outputs SSH negotiation to Poderosa event &amp;log</en>
+</record>
+<record name="Form.OptionDialog._connectionPanel">
+  <ja>接続</ja>
+  <en>Connection</en>
+</record>
+<record name="Form.OptionDialog._useSocks">
+  <ja>SOCKS5を使用する(&amp;S)</ja>
+  <en>Use &amp;SOCKS5</en>
+</record>
+<record name="Form.OptionDialog._socksServerLabel">
+  <ja>サーバ名(&amp;N)</ja>
+  <en>Server &amp;name</en>
+</record>
+<record name="Form.OptionDialog._socksPortLabel">
+  <ja>ポート(&amp;O)</ja>
+  <en>P&amp;ort</en>
+</record>
+<record name="Form.OptionDialog._socksAccountLabel">
+  <ja>アカウント(&amp;A)</ja>
+  <en>&amp;Account</en>
+</record>
+<record name="Form.OptionDialog._socksPasswordLabel">
+  <ja>パスワード(&amp;P)</ja>
+  <en>&amp;Password</en>
+</record>
+<record name="Form.OptionDialog._socksNANetworksLabel">
+  <ja>次のネットワークにはSOCKSを使わない(&amp;E)
+(192.168.10.0/24の形式をセミコロンで連結します)</ja>
+  <en>&amp;Exclude the following networks for SOCKS
+(concatenate strings in the form '192.168.10.0/24' using semicolons)</en>
+</record>
+<record name="Form.OptionDialog._IPv6Group">
+  <ja>IPv6</ja>
+  <en>IPv6</en>
+</record>
+<record name="Form.OptionDialog._IPv6PriorityLabel">
+  <ja>IPv4に対する優先度(&amp;P)</ja>
+  <en>&amp;Priority to IPv4</en>
+</record>
+
+<record name="Form.OptionDialog._genericPanel">
+  <ja>全般</ja>
+  <en>Generic</en>
+</record>
+<record name="Form.OptionDialog._actionOnLaunchLabel">
+  <ja>起動時の動作(&amp;A)</ja>
+  <en>&amp;Action on Launch</en>
+</record>
+<record name="Form.OptionDialog._MRUSizeLabel">
+  <ja>ファイルメニューの最近の接続の数(&amp;N)</ja>
+  <en>&amp;Number of recent connections in file menu</en>
+</record>
+<record name="Form.OptionDialog._serialCountLabel">
+  <ja>リストに表示するシリアルポート数(&amp;P)</ja>
+  <en>Number of listed serial &amp;ports</en>
+</record>
+<record name="Form.OptionDialog._showToolBar">
+  <ja>ツールバーを表示する(&amp;B)</ja>
+  <en>Display tool&amp;bar</en>
+</record>
+<record name="Form.OptionDialog._showTabBar">
+  <ja>タブバーを表示する(&amp;T)</ja>
+  <en>Display &amp;tabbar</en>
+</record>
+<record name="Form.OptionDialog._showStatusBar">
+  <ja>ステータスバーを表示する(&amp;S)</ja>
+  <en>Display &amp;statusbar</en>
+</record>
+<record name="Form.OptionDialog._askCloseOnExit">
+  <ja>ウィンドウを閉じる時に開いている接続があれば警告する(&amp;W)</ja>
+  <en>&amp;Warn on closing window if active connections exist</en>
+</record>
+<record name="Form.OptionDialog._quitAppWithLastPane">
+  <ja>最後の接続が切れたらアプリケーションを終了する(&amp;Q)</ja>
+  <en>&amp;Quit application when the last connection is closed</en>
+</record>
+<record name="Form.OptionDialog._optionPreservePlaceLabel">
+  <ja>オプション設定の保存場所(&amp;O)</ja>
+  <en>Storage destination of &amp;option settings</en>
+</record>
+<record name="Form.OptionDialog._languageLabel">
+  <ja>言語(&amp;L)</ja>
+  <en>&amp;Language</en>
+</record>
+<record name="Form.OptionDialog._startupOptionLabel">
+  <ja>起動時の動作(&amp;S)</ja>
+  <en>Action with &amp;startup</en>
+</record>
+<record name="Form.OptionDialog._tabBarGroup">
+  <ja>配置</ja>
+  <en>Alignment</en>
+</record>
+<record name="Form.OptionDialog._tabStyleLabel">
+  <ja>スタイル(&amp;E)</ja>
+  <en>Styl&amp;e</en>
+</record>
+<record name="Form.OptionDialog._splitterRatioBox">
+  <ja>メインウィンドウのリサイズ時にスプリッタの比率を維持する(&amp;R)</ja>
+  <en>&amp;Reserve the proportion of the splitter on resize</en>
+</record>
+<record name="Caption.OptionDialog.CaretStyle0">
+  <ja>箱型</ja>
+  <en>Box</en>
+</record>
+<record name="Caption.OptionDialog.CaretStyle1">
+  <ja>縦棒</ja>
+  <en>Bar</en>
+</record>
+<record name="Caption.OptionDialog.CaretStyle2">
+  <ja>下線</ja>
+  <en>Underline</en>
+</record>
+<record name="Message.OptionDialog.InvalidPictureFile">
+  <ja>{0}は有効な画像ファイル名ではありません。</ja>
+  <en>{0} is a invalid picture file.</en>
+</record>
+<record name="Message.OptionDialog.InvalidItem">
+  <ja>{0}の指定が正しくありません。</ja>
+  <en>The value of {0} is invalid.</en>
+</record>
+<record name="Caption.OptionDialog.BufferLineCount">
+  <ja>バッファ行数</ja>
+  <en>Buffer size</en>
+</record>
+<record name="Caption.OptionDialog.MRUCount">
+  <ja>保存する最近の接続数</ja>
+  <en>Number of stored recent connections</en>
+</record>
+<record name="Caption.OptionDialog.KeepAliveInterval">
+  <ja>KeepAliveの間隔</ja>
+  <en>Keep Alive interval</en>
+</record>
+<record name="Message.OptionDialog.EmptyLogDirectory">
+  <ja>ログのディレクトリ名が入力されていません。</ja>
+  <en>The log directory is empty.</en>
+</record>
+<record name="Message.OptionDialog.AskCreateDirectory">
+  <ja>ディレクトリ {0} は存在しません。作成しますか？</ja>
+  <en>The directory {0} is not exist. Do you want to create?</en>
+</record>
+<record name="Message.OptionDialog.FailedCreateDirectory">
+  <ja>ディレクトリの作成に失敗しました。</ja>
+  <en>Failed to create directory.</en>
+</record>
+<record name="Message.OptionDialog.AltKeyOnWin9x">
+  <ja>Windows98/Meでは、左右のAltキーの動作は同じでなくてはいけません。</ja>
+  <en>The role of left and right Alt keys must be identical on Windows98/Me.</en>
+</record>
+<record name="Caption.OptionDialog.MousewheelAmount">
+  <ja>マウスホイールのスクロール量</ja>
+  <en>Amount of scroll on wheel</en>
+</record>
+<record name="Message.OptionDialog.InvalidWindowSize">
+  <ja>ウィンドウサイズの指定が正しくありません。</ja>
+  <en>The value of window size is invalid.</en>
+</record>
+<record name="Message.OptionDialog.EmptySocksServer">
+  <ja>SOCKSサーバ名が指定されていません。</ja>
+  <en>The SOCKS server name is empty.</en>
+</record>
+<record name="Caption.OptionDialog.SOCKSPortNumber">
+  <ja>SOCKSポート番号</ja>
+  <en>SOCKS port number</en>
+</record>
+<record name="Caption.OptionDialog.NetworkAddress">
+  <ja>ネットワークアドレス</ja>
+  <en>Network address</en>
+</record>
+<record name="Caption.OptionDialog.SerialPortCount">
+  <ja>シリアルポート数</ja>
+  <en>Number of serial ports</en>
+</record>
+<record name="Message.OptionDialog.RegistryWriteAuthWarning">
+  <ja>設定の保存場所を変更するためにはレジストリへの書き込み権限が必要です。</ja>
+  <en>The authority of registry modification is required to change storage location setting.</en>
+</record>
+<record name="Caption.OptionDialog.DefaultLogDirectory">
+  <ja>ログを格納するディレクトリを選択してください。</ja>
+  <en>Select a directory to store log files.</en>
+</record>
+<record name="Message.OptionDialog.AskOverwriteToASCIIInput">
+  <ja>キー {0} はASCIIコード {1} の文字を入力するために使用します。コマンド設定を優先しますか？</ja>
+  <en>The key {0} is used to input ASCII code {1} character. Do you give this command setting priority to the ASCII code?</en>
+</record>
+<record name="Message.OptionDialog.AskOverwriteCommand">
+  <ja>このキーは「{0}」コマンドに割り当てられています。上書きして設定しますか？</ja>
+  <en>This key is already allocated for the command "{0}". Do you wish to overwrite?</en>
+</record>
+<record name="Caption.OptionDialog.ActionOnLaunch.Nothing">
+  <ja>何もしない</ja>
+  <en>Do nothing</en>
+</record>
+<record name="Caption.OptionDialog.ActionOnLaunch.NewConnection">
+  <ja>新規接続ダイアログを開く</ja>
+  <en>Open new connection dialog</en>
+</record>
+<record name="Caption.OptionDialog.ActionOnLaunch.Macro">
+  <ja>マクロの実行 - </ja>
+  <en>Execute macro - </en>
+</record>
+<record name="Message.OptionDialog.InvalidAdditionalWordElement">
+  <ja>単語構成要素として不適切な文字が含まれています。</ja>
+  <en>There are invalid characters as word elements.</en>
+</record>
+<record name="Message.OptionDialog.AskJapaneseFont">
+<!-- this message is always in English -->
+  <ja>If Japanese font is not installed in your computer, the window will be shown incorrectly. Do you wish to continue?</ja>
+  <en>If Japanese font is not installed in your computer, the window will be shown incorrectly. Do you wish to continue?</en>
+</record>
+
+<!--SSHKnownHosts-->
+<record name="Message.HostKeyChecker.AskHostKeyRegister">
+  <ja>SSHサーバの公開鍵はssh_known_hostsに登録されていません。登録して続行しますか？</ja>
+  <en>The public key of the SSH server is not cached in ssh_known_hosts. Do you wish to register it and continue?</en>
+</record>
+<record name="Message.HostKeyChecker.AskHostKeyRenew">
+  <ja>SSHサーバの公開鍵はssh_known_hostsに登録されているものと異なります。更新して続行しますか？</ja>
+  <en>The public key of the SSH server differs from the old key in ssh_known_hosts. Do you wish to renew it and continue?</en>
+</record>
+
+
+<!--SSHUtil-->
+<record name="Menu.GenerateKeyPair">
+  <ja>SSH鍵作成ウィザード(&amp;K)...</ja>
+  <en>SSH &amp;key generation wizard...</en>
+</record>
+<record name="Menu.ChangePassphrase">
+  <ja>秘密鍵のパスフレーズ変更(&amp;P)...</ja>
+  <en>Change &amp;passphrase of private key...</en>
+</record>
+<record name="Menu.AgentKeyListDialog">
+  <ja>エージェントフォワーディング(&amp;F)...</ja>
+  <en>Agent &amp;Forwarding...</en>
+</record>
+
+<!-- KeyGenWizard.cs -->
+<record name="Form.KeyGenWizard._confirmLabel">
+  <ja>確認入力(&amp;C)</ja>
+  <en>&amp;Confirm</en>
+</record>
+<record name="Form.KeyGenWizard._passphraseLabel">
+  <ja>パスフレーズ(&amp;P)</ja>
+  <en>&amp;Passphrase</en>
+</record>
+<record name="Form.KeyGenWizard._bitCountLabel">
+  <ja>ビット数(&amp;B)</ja>
+  <en>&amp;Bit count</en>
+</record>
+<record name="Form.KeyGenWizard._algorithmLabel">
+  <ja>アルゴリズム(&amp;A)</ja>
+  <en>&amp;Algorithm</en>
+</record>
+<record name="Form.KeyGenWizard._promptLabel1">
+  <ja>SSH2の認証用鍵を作成します。アルゴリズムとビット数を指定し、パスフレーズを入力してください。</ja>
+  <en>This wizard generates a key for SSH2 authentication. Please input the algorithm, bit count, and passphrase.</en>
+</record>
+<record name="Form.KeyGenWizard._nextButton">
+  <ja>次へ</ja>
+  <en>Next</en>
+</record>
+<record name="Form.KeyGenWizard._keygenLabel">
+  <ja>鍵を生成します。このウィンドウの中でマウスを乱雑に動かして、乱数を供給してください。</ja>
+  <en>Now generating...  Please move the mouse in this window to feed random numbers.</en>
+</record>
+<record name="Form.KeyGenWizard._storePrivateKey">
+  <ja>秘密鍵を名前をつけて保存(&amp;P)...</ja>
+  <en>Save &amp;private key as...</en>
+</record>
+<record name="Form.KeyGenWizard._storeSECSHPublicKeyButton">
+  <ja>SECSH形式で公開鍵を名前をつけて保存(&amp;S)...</ja>
+  <en>Save public key in &amp;SECSH format as...</en>
+</record>
+<record name="Form.KeyGenWizard._storeOpenSSHPublicKeyButton">
+  <ja>OpenSSH形式で公開鍵を名前をつけて保存(&amp;O)...</ja>
+  <en>Save public key in &amp;OpenSSH format as...</en>
+</record>
+<record name="Form.KeyGenWizard._completeLabel">
+  <ja>生成が完了しました。秘密鍵をローカルホストに、公開鍵をリモートホストに置いてください。</ja>
+  <en>Genaration completed. Please put the private key at local and the public key at remote host.</en>
+</record>
+<record name="Form.KeyGenWizard.Text">
+  <ja>SSH鍵作成ウィザード</ja>
+  <en>SSH key generation wizard</en>
+</record>
+<record name="Message.KeyGenWizard.NotMatch">
+  <ja>入力されたパスフレーズが確認入力と異なっています。</ja>
+  <en>The passphrase does not match the confirmation input.</en>
+</record>
+<record name="Message.KeyGenWizard.ConfirmEmptyPassphrase">
+  <ja>パスフレーズを空にして鍵を生成しますか？</ja>
+  <en>Do you wish to generate the key with empty passphrase?</en>
+</record>
+<record name="Message.KeyGenWizard.Finish">
+  <ja>完了</ja>
+  <en>Finish</en>
+</record>
+<record name="Message.KeyGenWizard.RandomNumberCompleted">
+  <ja>乱数の取得が終わりました。鍵の生成が終わるまでお待ちください。この処理には数分間かかることもあります。</ja>
+  <en>Acquisition of random numbers has been finished. Please wait until key generation is completed. This process may take several minutes.</en>
+</record>
+<record name="Message.KeyGenWizard.GenerationCompleted">
+  <ja>生成が完了しました。</ja>
+  <en>The key generation is completed.</en>
+</record>
+<record name="Caption.KeyGenWizard.SavePrivateKey">
+  <ja>秘密鍵の保存</ja>
+  <en>Save private key</en>
+</record>
+<record name="Message.KeyGenWizard.KeySaveError">
+  <ja>鍵の保存中にエラーが発生しました。{0}</ja>
+  <en>Failed to save the key. {0}</en>
+</record>
+<record name="Caption.KeyGenWizard.SavePublicInSECSH">
+  <ja>公開鍵の保存(SECSHフォーマット)</ja>
+  <en>Save public key in SECSH format</en>
+</record>
+<record name="Caption.KeyGenWizard.SavePublicInOpenSSH">
+  <ja>公開鍵の保存(OpenSSHフォーマット)</ja>
+  <en>Save public key in OpenSSH format</en>
+</record>
+
+<!-- AgentKeyListDialog.cs -->
+<record name="Form.AgentKeyListDialog.Text">
+  <ja>エージェントフォワーディングの秘密鍵リスト</ja>
+  <en>Private Key List for Agent Forwarding</en>
+</record>
+<record name="Form.AgentKeyListDialog._filenameHeader">
+  <ja>ファイル名</ja>
+  <en>File Name</en>
+</record>
+<record name="Form.AgentKeyListDialog._statusHeader">
+  <ja>状態</ja>
+  <en>Status</en>
+</record>
+<record name="Form.AgentKeyListDialog._commentHeader">
+  <ja>コメント</ja>
+  <en>Comment</en>
+</record>
+<record name="Form.AgentKeyListDialog._addButton">
+  <ja>追加(&amp;A)...</ja>
+  <en>&amp;Add...</en>
+</record>
+<record name="Form.AgentKeyListDialog._removeButton">
+  <ja>削除(&amp;R)</ja>
+  <en>&amp;Remove</en>
+</record>
+
+<!-- InputPassphraseDialog.cs -->
+<record name="Form.InputPassphraseDialog.Text">
+  <ja>パスフレーズの入力</ja>
+  <en>Input Passphrase</en>
+</record>
+<record name="Form.InputPassphraseDialog._fileNameLabel">
+  <ja>ファイル名</ja>
+  <en>File Name</en>
+</record>
+<record name="Form.InputPassphraseDialog._passphraseLabel">
+  <ja>パスフレーズ(&amp;P)</ja>
+  <en>&amp;Passphrase</en>
+</record>
+
+<!-- ChangePassphrase.cs -->
+<record name="Form.ChangePassphrase._lKeyFile">
+  <ja>秘密鍵ファイル(&amp;F)</ja>
+  <en>Private key &amp;file</en>
+</record>
+<record name="Form.ChangePassphrase._lCurrentPassphrase">
+  <ja>現在のパスフレーズ(&amp;C)</ja>
+  <en>&amp;Current passphrase</en>
+</record>
+<record name="Form.ChangePassphrase._lNewPassphrase">
+  <ja>新しいパスフレーズ(&amp;N)</ja>
+  <en>&amp;New passphrase</en>
+</record>
+<record name="Form.ChangePassphrase._lNewPassphraseAgain">
+  <ja>確認入力(&amp;A)</ja>
+  <en>Input &amp;again</en>
+</record>
+<record name="Form.ChangePassphrase.Text">
+  <ja>パスフレーズの変更</ja>
+  <en>Change passphrase</en>
+</record>
+<record name="Message.ChangePassphrase.PassphraseMismatch">
+  <ja>新しいパスフレーズが確認入力のものと異なります。</ja>
+  <en>The new passphrase does not match the confirmation input.</en>
+</record>
+<record name="Message.ChangePassphrase.AskEmptyPassphrase">
+  <ja>パスフレーズが入力されていません。空のパスフレーズを設定しますか？</ja>
+  <en>The new passphrase is empty. Do you wish to leave the passphrase empty?</en>
+</record>
+<record name="Message.ChangePassphrase.NotifyChanged">
+  <ja>パスフレーズを変更しました。</ja>
+  <en>The passphrase has been changed.</en>
+</record>
+<record name="Message.KeyAgent.FileNotExist">
+  <ja>{0} は有効なファイルではありません。</ja>
+  <en>{0} is not a valid file.</en>
+</record>
+
+<!-- PreferenceEditor -->
+<record name="Caption.PreferenceEditor.Bool">
+  <ja>真偽</ja>
+  <en>Bool</en>
+</record>
+<record name="Caption.PreferenceEditor.Int">
+  <ja>整数</ja>
+  <en>Integer</en>
+</record>
+<record name="Caption.PreferenceEditor.String">
+  <ja>文字列</ja>
+  <en>String</en>
+</record>
+<record name="Form.PreferenceEditor._nameHeader">
+  <ja>名前</ja>
+  <en>Name</en>
+</record>
+<record name="Form.PreferenceEditor._typeHeader">
+  <ja>型</ja>
+  <en>Type</en>
+</record>
+<record name="Form.PreferenceEditor._valueHeader">
+  <ja>値</ja>
+  <en>Value</en>
+</record>
+<record name="Form.PreferenceEditor._filterLabel">
+  <ja>フィルタ(&amp;F)</ja>
+  <en>&amp;Filter</en>
+</record>
+<record name="Form.PreferenceEditor._resetButton">
+  <ja>すべてリセット(&amp;R)</ja>
+  <en>&amp;Reset All</en>
+</record>
+<record name="Form.PreferenceEditor.Text">
+  <ja>詳細プリファレンスエディタ</ja>
+  <en>Detailed preference editor</en>
+</record>
+<record name="Command.PreferenceEditor">
+  <ja>詳細プリファレンスエディタ</ja>
+  <en>Detailed preference editor</en>
+</record>
+<record name="Menu.PreferenceEditor">
+  <ja>詳細プリファレンスエディタ(&amp;D)...</ja>
+  <en>&amp;Detailed preference editor...</en>
+</record>
+<record name="Form.PreferenceItemEditor.Text">
+  <ja>項目の編集</ja>
+  <en>Edit item</en>
+</record>
+<record name="Form.PreferenceItemEditor._nameLabel">
+  <ja>項目名</ja>
+  <en>Name</en>
+</record>
+<record name="Form.PreferenceItemEditor._valueLabel">
+  <ja>値(&amp;V)</ja>
+  <en>&amp;Value</en>
+</record>
+<record name="Form.PreferenceItemEditor._resetButton">
+  <ja>リセット(&amp;R)</ja>
+  <en>&amp;Reset</en>
+</record>
+
+
+<!-- ShellSchemeEditor -->
+<record name="Form.ShellSchemeEditor.Text">
+  <ja>シェルスキーム エディタ</ja>
+  <en>Shell scheme editor</en>
+</record>
+<record name="Form.ShellSchemeEditor._schemeCollectionGroup">
+  <ja>シェルスキームリスト</ja>
+  <en>Shell scheme list</en>
+</record>
+<record name="Form.ShellSchemeEditor._deleteSchemeButton">
+  <ja>削除(&amp;D)</ja>
+  <en>&amp;Delete</en>
+</record>
+<record name="Form.ShellSchemeEditor._newSchemeButton">
+  <ja>新規(&amp;N)</ja>
+  <en>&amp;New</en>
+</record>
+<record name="Form.ShellSchemeEditor._schemeLabel">
+  <ja>スキーム(&amp;S)</ja>
+  <en>&amp;Scheme</en>
+</record>
+<record name="Form.ShellSchemeEditor._deleteCharLabel">
+  <ja>1文字削除のコード(&amp;R)</ja>
+  <en>Code to &amp;remove 1 char</en>
+</record>
+<record name="Form.ShellSchemeEditor._nameLabel">
+  <ja>名前(&amp;A)</ja>
+  <en>N&amp;ame</en>
+</record>
+<record name="Form.ShellSchemeEditor._promptLabel">
+  <ja>プロンプト正規表現(&amp;P)</ja>
+  <en>&amp;Prompt(RegEx)</en>
+</record>
+<record name="Form.ShellSchemeEditor._deleteButton">
+  <ja>コマンド削除(&amp;E)</ja>
+  <en>D&amp;elete command</en>
+</record>
+<record name="Form.ShellSchemeEditor._alphabeticalSort">
+  <ja>アルファベット順(&amp;S)</ja>
+  <en>&amp;Sort alphabetical order</en>
+</record>
+<record name="Form.ShellSchemeEditor._currentSchemeGroup">
+  <ja>スキーム - {0}</ja>
+  <en>Scheme - {0}</en>
+</record>
+<record name="Form.ShellSchemeEditor._itemLabel">
+  <ja>コマンドリスト</ja>
+  <en>Command list</en>
+</record>
+<record name="Menu.ShellSchemeEditor">
+  <ja>シェルスキーム エディタ(&amp;S)...</ja>
+  <en>&amp;Shell scheme editor...</en>
+</record>
+<record name="Command.ShellSchemeEditor">
+  <ja>シェルスキームエディタ</ja>
+  <en>Shell scheme editor</en>
+</record>
+<record name="Message.ShellSchemeEditor.DuplicatedName">
+  <ja>名前に重複があります。</ja>
+  <en>Duplicated name is found.</en>
+</record>
+<record name="Message.ShellSchemeEditor.EmptyName">
+  <ja>名前が空です</ja>
+  <en>The scheme name is empty.</en>
+</record>
+<record name="Message.ShellSchemeEditor.PromptError">
+  <ja>プロンプトは正しい正規表現でなくてはなりません。</ja>
+  <en>The prompt must be a correct regular expression.</en>
+</record>
+
+<!-- StartupAction -->
+<record name="Enum.StartupAction.DoNothing">
+  <ja>何もしない</ja>
+  <en>Do Nothing</en>
+</record>
+<record name="Enum.StartupAction.TelnetSSHDialog">
+  <ja>Telnet/SSHダイアログを開く</ja>
+  <en>Open Telnet/SSH Login Dialog</en>
+</record>
+<record name="Enum.StartupAction.OpenCygwin">
+  <ja>Cygwin接続を開く</ja>
+  <en>Open Cygwin Connection</en>
+</record>
+
+
+<!-- GuevaraAboutBox -->
+<record name="Message.AboutBox.EnterGuevara">
+  <ja>ようこそゲバラモードへ。これを知る人はおそらく古参ユーザですね。</ja>
+  <en>Welcome to Guevara Mode. Poderosa was called Guevara old days.</en>
+</record>
+<record name="Message.AboutBox.ExitGuevara">
+  <ja>ゲバラモードから抜けます</ja>
+  <en>Now Leaving Guevara Mode</en>
+</record>
+<record name="Form.AboutBox.Text">
+  <ja>バージョン情報</ja>
+  <en>About Poderosa</en>
+</record>
+
+
+
+</string-resource>

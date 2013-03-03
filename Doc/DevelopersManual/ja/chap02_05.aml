@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="3accfa48-d659-40ec-9efc-0f285f4e0fa9" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <sections>
+
+      <section>
+        <title>PluginBaseクラスからの継承</title>
+        <content>
+          <para>プラグインの要件は、<codeEntityReference>T:Poderosa.Plugins.IPlugin</codeEntityReference>を実装することだけですが、<codeEntityReference>T:Poderosa.Plugins.IPlugin</codeEntityReference>は<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>から継承しています。</para>
+          <para>すなわちプラグインの開発者は、（1）<codeEntityReference>T:Poderosa.Plugins.IPlugin</codeEntityReference>が備える<codeEntityReference>M:Poderosa.Plugins.IPlugin.InitializePlugin(Poderosa.Plugins.IPoderosaWorld)</codeEntityReference>と<codeEntityReference>M:Poderosa.Plugins.IPlugin.TerminatePlugin</codeEntityReference>、（2）<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>が備える<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>、の計3つのメソッドを実装する必要があります。</para>
+          <para>「<link xlink:href="66ea47c3-bd5f-4149-a84a-e0e33246ec23"/>」で説明したように、<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>の実装は、ほとんどが下記の実装で済みます。</para>
+
+<code language="C#">
+public IAdaptable GetAdapter(Type adapter) {
+  return _poderosa_world.AdapterManager.GetAdapter(this, adapter);
+}
+</code>
+          <para>そこでPoderosaでは、より簡単にプラグインを実装できるよう、<codeEntityReference>T:Poderosa.Plugins.PluginBase</codeEntityReference>を提供しています。
+              <codeEntityReference>T:Poderosa.Plugins.PluginBase</codeEntityReference>の実装は下記の通りです。</para>
+
+<code language="C#">
+public abstract class PluginBase : MarshalByRefObject, IPlugin {
+  protected IPoderosaWorld _poderosaWorld;
+  public virtual void InitializePlugin(IPoderosaWorld poderosa) {
+    poderosaWorld = poderosa;
+  }
+
+  public IPoderosaWorld PoderosaWorld {
+    get {
+      return _poderosaWorld;
+    }
+  }
+
+  public virtual void TerminatePlugin() {
+  }
+
+  public virtual IAdaptable GetAdapter(Type adapter) {
+    return _poderosaWorld.AdapterManager.GetAdapter(this, adapter);
+  }
+}
+</code>
+          <para>コードを見ると分かるように、（1）初期化で受け取った<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>を保存して<codeEntityReference>P:Poderosa.Plugins.PluginBase.PoderosaWorld</codeEntityReference>で取得できるようにする、（2）<codeEntityReference>M:Poderosa.Plugins.PluginBase.GetAdapter(System.Type)</codeEntityReference>で標準的な型変換の実装をする、という2つの機能が含まれています。</para>
+          <para>開発者は、この<codeEntityReference>T:Poderosa.Plugins.PluginBase</codeEntityReference>から継承したクラスを作ることで、<codeEntityReference>T:Poderosa.Plugins.IPlugin</codeEntityReference>を実装したクラスを作るよりも少ないコードでプラグインを開発できるようになっています。</para>
+        </content>
+      </section>
+
+      <section>
+        <title>実装を容易にするヘルパクラス</title>
+        <content>
+          <para>Poderosaには、開発者がプラグインを開発しやすくするよう、<codeEntityReference>T:Poderosa.Plugins.PluginBase</codeEntityReference>以外にも、いくつかのヘルパクラスを提供しています（表2-3）。これらのクラスを用いると、少ないコードでプラグインを開発できるようになります。</para>
+
+          <alert class="note">
+            <para>コマンドやメニュー、ツールバーの扱いについては、「<link xlink:href="b62fec3f-1e30-40f8-b0c8-b2f6163425b1"/>」を参照してください。</para>
+          </alert>
+
+          <table>
+            <title>表2-3 プラグインの開発を手助けするヘルパクラス</title>
+            <tableHeader>
+              <row>
+                <entry>クラス</entry>
+                <entry>実装される主なインターフェイス</entry>
+                <entry>解説</entry>
+              </row>
+            </tableHeader>
+            <row>
+              <entry><codeEntityReference>T:Poderosa.Commands.GeneralCommandImpl</codeEntityReference></entry>
+              <entry><codeEntityReference>T:Poderosa.Commands.IGeneralCommand</codeEntityReference></entry>
+              <entry>キーボードショートカットをサポートするコマンドを作成するときに使います</entry>
+            </row>
+            <row>
+              <entry><codeEntityReference>T:Poderosa.Commands.PoderosaCommandImpl</codeEntityReference></entry>
+              <entry><codeEntityReference>T:Poderosa.Commands.IPoderosaCommand</codeEntityReference></entry>
+              <entry>コマンドを作成するときに使います</entry>
+            </row>
+            <row>
+              <entry><codeEntityReference>T:Poderosa.Commands.PoderosaMenuGroupImpl</codeEntityReference></entry>
+              <entry><codeEntityReference>T:Poderosa.Commands.IPoderosaMenuGroup</codeEntityReference></entry>
+              <entry>メニューグループを作るときに使います</entry>
+            </row>
+            <row>
+              <entry><codeEntityReference>T:Poderosa.Commands.PoderosaMenuItemImpl</codeEntityReference></entry>
+              <entry><codeEntityReference>T:Poderosa.Commands.IPoderosaMenuItem</codeEntityReference></entry>
+              <entry>メニュー項目を作るときに使います</entry>
+            </row>
+            <row>
+              <entry><codeEntityReference>T:Poderosa.Forms.ToolBarElementImpl</codeEntityReference></entry>
+              <entry><codeEntityReference>T:Poderosa.Forms.IToolBarElement</codeEntityReference></entry>
+              <entry>ツールバーの要素を定義するクラス――ToolBarComboBoxImpl、ToolBarCommandButtonImpl、ToolBarLabelImpl、ToolBarToggleButtonImpl――の基底クラスです</entry>
+            </row>
+            <row>
+              <entry><codeEntityReference>T:Poderosa.Forms.ToolBarComboBoxImpl</codeEntityReference></entry>
+              <entry><codeEntityReference>T:Poderosa.Forms.IToolBarComboBox</codeEntityReference></entry>
+              <entry>ツールバーのコンボボックスを作るときに使います</entry>
+            </row>
+            <row>
+              <entry><codeEntityReference>T:Poderosa.Forms.ToolBarCommandButtonImpl</codeEntityReference></entry>
+              <entry><codeEntityReference>T:Poderosa.Forms.IToolBarCommandButton</codeEntityReference></entry>
+              <entry>ツールバーのコマンドボタンを作るときに使います</entry>
+            </row>
+            <row>
+              <entry><codeEntityReference>T:Poderosa.Forms.ToolBarLabelImpl</codeEntityReference></entry>
+              <entry><codeEntityReference>T:Poderosa.Forms.IToolBarLabel</codeEntityReference></entry>
+              <entry>ツールバーのラベルを作るときに使います</entry>
+            </row>
+            <row>
+              <entry><codeEntityReference>T:Poderosa.Forms.ToolBarToggleButtonImpl</codeEntityReference></entry>
+              <entry><codeEntityReference>T:Poderosa.Forms.IToolBarToggleButton</codeEntityReference></entry>
+              <entry>ツールバーのトグルボタンを作るときに使います</entry>
+            </row>
+          </table>
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="66ea47c3-bd5f-4149-a84a-e0e33246ec23"/>
+      <link xlink:href="3accfa48-d659-40ec-9efc-0f285f4e0fa9"/>
+      <link xlink:href="b62fec3f-1e30-40f8-b0c8-b2f6163425b1"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

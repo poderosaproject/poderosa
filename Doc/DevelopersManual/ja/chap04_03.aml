@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="f56866ba-0bdc-42b4-9123-a80bac3774f7" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <sections>
+
+      <section>
+        <title>ターミナルエミュレータとターミナルセッション</title>
+        <content>
+          <para>ターミナルエミュレータの周辺は、図4-6のように構成されています。</para>
+
+          <mediaLink>
+            <caption lead="図4-6">ターミナルエミュレータ周辺の構造</caption>
+            <image xlink:href="fig04_06" />
+          </mediaLink>
+
+          <para>ターミナルエミュレータは、「TerminalEmulatorPluginプラグイン（プラグインID：「<codeInline>org.poderosa.terminalemulator</codeInline>）」と「TerminalSessionPluginプラグイン（プラグインID：「<codeInline>org.poderosa.terminalsessions</codeInline>）」の2つのプラグインで構成されています。</para>
+          <para>ここでは、これらの2つのプラグインの機能概要と、既存のターミナル接続を操作する主な処理方法について説明します。</para>
+
+          <alert class="note">
+            <para>TerminalEmulatorPluginプラグインは<codeInline>Poderosa.TerminalEmulator.dll</codeInline>、TerminalSessionPluginプラグインは<codeInline>Poderosa.TerminalSession.dll</codeInline>、にそれぞれ実装されているので、開発者がこれらの機能を使ったプラグインを作る際には、これらのアセンブリに対する参照設定が必要です。</para>
+          </alert>
+
+          <alert class="note">
+            <para>ここではすでに接続されている状態のターミナルセッションを操作する方法について説明します。新規にターミナルセッションを作成する方法については、「<link xlink:href="85071b7c-755b-43d7-ae56-b5f174f2fd82"/>」を参照してください。</para>
+          </alert>
+        </content>
+      </section>
+
+      <section>
+        <title>ターミナルセッションの取得</title>
+        <content>
+          <para>ターミナルセッションは、<codeEntityReference>T:Poderosa.Sessions.ITerminalSession</codeEntityReference>を備えるオブジェクトです。<codeEntityReference>T:Poderosa.Sessions.ITerminalSession</codeEntityReference>は、汎用的なセッションを示す<codeEntityReference>T:Poderosa.Sessions.ISession</codeEntityReference>から派生しています。</para>
+          <para>「<link xlink:href="99cfec82-7508-489c-be4d-c71c2ed65f83"/>」で説明したように、セッションへは<codeEntityReference>T:Poderosa.Sessions.IPoderosaDocument</codeEntityReference>の<codeEntityReference>P:Poderosa.Sessions.IPoderosaDocument.OwnerSession</codeEntityReference>を使ってアクセスできます。</para>
+          <para>ドキュメントがターミナルセッションであるならば――Telnet接続、SSH接続、Cygwin接続、シリアル接続などターミナル接続をしているのであれば――<codeEntityReference>P:Poderosa.Sessions.IPoderosaDocument.OwnerSession</codeEntityReference>で取得した<codeEntityReference>T:Poderosa.Sessions.ISession</codeEntityReference>に対して<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>を用いて<codeEntityReference>T:Poderosa.Sessions.ITerminalSession</codeEntityReference>へと変換できます。</para>
+
+          <alert class="note">
+            <para>Poderosaが標準で提供するのは、ターミナルセッションだけです。独自のプラグインを追加しない限り、ターミナルセッション以外のセッションはありません。すなわち<codeEntityReference>T:Poderosa.Sessions.ISession</codeEntityReference>はターミナルセッションを示しているため、<codeEntityReference>T:Poderosa.Sessions.ITerminalSession</codeEntityReference>へと変換できます。しかし独自のプラグインを追加してターミナルセッション以外の種類のセッションを追加した場合には、<codeEntityReference>T:Poderosa.Sessions.ITerminalSession</codeEntityReference>へと変換できない<codeEntityReference>T:Poderosa.Sessions.ISession</codeEntityReference>もありえます。</para>
+          </alert>
+
+          <para><codeEntityReference>T:Poderosa.Sessions.ITerminalSession</codeEntityReference>を取得する具体的なコードは、次のようになります。</para>
+
+          <definitionTable>
+            <definedTerm>(1) アクティブなウィンドウ／ビューから取得する場合</definedTerm>
+            <definition>
+              <para>ウィンドウマネージャの<codeEntityReference>P:Poderosa.Forms.IWindowManager.ActiveWindow</codeEntityReference>は、アクティブウィンドウを示します。このアクティブウィンドウからドキュメント、そして、セッションへとたどることでターミナルセッションを取得できます。</para>
+
+              <alert class="note">
+                <para>下記のコードは、エラー処理を考慮していません。アクティブウィンドウやビュー、ドキュメントやセッションが存在しない場合には<codeInline>null</codeInline>になります。実際には<codeInline>null</codeInline>チェックが必要です。</para>
+              </alert>
+
+<code language="C#">
+// ウィンドウマネージャを取得
+ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
+IWindowManager wm = cs.WindowManager;
+
+// アクティブウィンドウを取得
+IPoderosaMainWindow window = wm.ActiveWindow;
+
+// ビューを取得
+IPoderosaView view = window.LastActivatedView;
+
+// ドキュメントを取得
+IPoderosaDocument doc = view.Document;
+
+// セッションを取得
+ISession session = doc.OwnerSession;
+
+// ターミナルセッションへと変換
+ITerminalSession termsession = 
+  (ITerminalSession)session.GetAdapter(typeof(ITerminalSession));
+</code>
+            </definition>
+
+            <definedTerm>(2) メニューやツールバーのターゲットからターミナルセッションを得る場合</definedTerm>
+            <definition>
+              <para>「<link xlink:href="b62fec3f-1e30-40f8-b0c8-b2f6163425b1"/>」で説明したように、メニューやツールバーからコマンドが引き渡されるときには、ターゲットとして操作対象のウィンドウが得られます。このターゲットを利用してターミナルセッションを得ることができます。</para>
+              <para><codeEntityReference>T:Poderosa.Commands.CommandTargetUtil</codeEntityReference>には、アクティブなドキュメントを得るための<codeEntityReference>M:Poderosa.Commands.CommandTargetUtil.AsGeneralViewCommands(Poderosa.Commands.ICommandTarget)</codeEntityReference>があります。このメソッドを使ってドキュメントを取得し、そこから<codeEntityReference>T:Poderosa.Sessions.ITerminalSession</codeEntityReference>へと変換することで、ターゲットになっているターミナルセッションを取得できます。</para>
+
+<code language="C#">
+// targetはコマンドに渡されたターゲットであると想定します
+// ドキュメントを取得
+IPoderosaDocument doc = 
+  CommandTargetUtil.AsDocumentOrViewOrLastActivatedDocument(target);
+if (doc != null)
+{
+  // セッションを取得
+  ISession session = doc.OwnerSession;
+  // ターミナルセッションへと変換
+  ITerminalSession termsession = 
+    (ITerminalSession)session.GetAdapter(typeof(ITerminalSession));
+}
+</code>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>ターミナルセッションを通じた操作</title>
+        <content>
+          <para><codeEntityReference>T:Poderosa.Sessions.ITerminalSession</codeEntityReference>には、表4-13に示すプロパティがあり、これらのプロパティを通じて参照できるオブジェクトから、さまざまなターミナル操作ができます。</para>
+
+          <table>
+            <title>表4-13 ITerminalSessionのプロパティ</title>
+            <tableHeader>
+              <row>
+                <entry>プロパティ</entry>
+                <entry>意味</entry>
+              </row>
+            </tableHeader>
+            <row>
+              <entry>OwnerWindow</entry>
+              <entry>所有するウィンドウを示します</entry>
+            </row>
+            <row>
+              <entry>Terminal</entry>
+              <entry>ターミナルを管理するAbstructTerminalオブジェクトを示します。送受信をフックしたい場合やログをとりたい場合などに用います</entry>
+            </row>
+            <row>
+              <entry>TerminalConnection</entry>
+              <entry>ターミナルの接続を示すオブジェクトを示します。詳細は「<link xlink:href="85071b7c-755b-43d7-ae56-b5f174f2fd82"/>」で説明します</entry>
+            </row>
+            <row>
+              <entry>TerminalControl</entry>
+              <entry>ターミナルのユーザーインターフェイスを提供するコントロールを示します</entry>
+            </row>
+            <row>
+              <entry>TerminalSettings</entry>
+              <entry>ターミナル設定を示すオブジェクトです。エンコード方法やローカルエコーの有無の設定などを制御します</entry>
+            </row>
+            <row>
+              <entry>TerminalTransmission</entry>
+              <entry>ターミナルの送信機能を提供します。このオブジェクトを用いると任意の文字列を送出できます</entry>
+            </row>
+          </table>
+        </content>
+      </section>
+
+      <section>
+        <title>ターミナル設定の変更</title>
+        <content>
+          <para>ターミナルの設定を変更したい場合には、<codeEntityReference>P:Poderosa.Sessions.ITerminalSession.TerminalSettings</codeEntityReference>から参照できる「ターミナル設定オブジェクト」を使います。ターミナル設定オブジェクトは、<codeEntityReference>T:Poderosa.Terminal.ITerminalSettings</codeEntityReference>を備えています。</para>
+
+<code language="C#">
+// termsessionは、ターミナルセッションを指していると想定します
+ITerminalSettings termsettings = termsession.TerminalSettings;
+</code>
+
+          <para><codeEntityReference>T:Poderosa.Terminal.ITerminalSettings</codeEntityReference>は、表4-14に示すプロパティを備えています。これらのプロパティを使うことで、エンコーディング方法や改行コードの扱い、ローカルエコーの有無などの設定を取得／変更できます。</para>
+
+          <table>
+            <title>表4-14　ITerminalSettingsのプロパティ</title>
+            <tableHeader>
+              <row>
+                <entry>プロパティ</entry>
+                <entry>意味</entry>
+              </row>
+            </tableHeader>
+            <row>
+              <entry>Caption</entry>
+              <entry>ドキュメントバーに表示するキャプションです</entry>
+            </row>
+            <row>
+              <entry>Encoding</entry>
+              <entry>エンコーディング方法です</entry>
+            </row>
+            <row>
+              <entry>Icon</entry>
+              <entry>アイコンです</entry>
+            </row>
+            <row>
+              <entry>EnabledCharTriggerIntelliSense</entry>
+              <entry>通常の文字入力に伴うインテリセンスを有効にするか否かの設定です</entry>
+            </row>
+            <row>
+              <entry>LineFeedRule</entry>
+              <entry>改行コードの取り扱いの設定です</entry>
+            </row>
+            <row>
+              <entry>LocalEcho</entry>
+              <entry>ローカルエコーの有無の設定です</entry>
+            </row>
+            <row>
+              <entry>LogSettings</entry>
+              <entry>ログの設定情報です</entry>
+            </row>
+            <row>
+              <entry>RenderProfile</entry>
+              <entry>コンソールの表示方法を指定するRenderProfileオブジェクトです。フォント、背景色などの情報が含まれます</entry>
+            </row>
+            <row>
+              <entry>ShellScheme</entry>
+              <entry>プロンプトの認識やコマンドの履歴を記憶する機能をもつオブジェクトを示します</entry>
+            </row>
+            <row>
+              <entry>TerminalType</entry>
+              <entry>VT100、XTERM、KTERMのいずれかのターミナルの種類を示します</entry>
+            </row>
+            <row>
+              <entry>TransmitNL</entry>
+              <entry>送信時の改行コードの種類を示します</entry>
+            </row>
+            <row>
+              <entry>UsingDefaultRenderProfile</entry>
+              <entry>デフォルトの表示プロファイルを用いているかどうかを取得します</entry>
+            </row>
+          </table>
+
+          <definitionTable>
+            <definedTerm>ITerminalSettingsのプロパティを変更する際の取り決め</definedTerm>
+            <definition>
+              <para>ここでの説明は省略しますが、<codeEntityReference>T:Poderosa.Terminal.ITerminalSettings</codeEntityReference>には、プロパティが変更されたときにイベントを発生する機構があります。たとえばPoderosaでは、エンコードや改行の種類、ローカルエコーの有無が変更されたときに、ツールバーに表示する情報をそれに合わせるために、この種のイベントを用いています。</para>
+              <para>プロパティが変更されるたびにイベントを発生させると効率が悪いため、<codeEntityReference>T:Poderosa.Terminal.ITerminalSettings</codeEntityReference>では、「プロパティの変更を開始」→「プロパティの変更」→「プロパティの変更の完了」という手順を踏み、プロパティの変更が完了したところで、まとめてイベントが発生する仕組みになっています。</para>
+              <para>プロパティの変更を開始するのが<codeEntityReference>M:Poderosa.Terminal.ITerminalSettings.BeginUpdate</codeEntityReference>、完了するのが<codeEntityReference>M:Poderosa.Terminal.ITerminalSettings.EndUpdate</codeEntityReference>です。<codeEntityReference>T:Poderosa.Terminal.ITerminalSettings</codeEntityReference>のプロパティを変更するには、（1）変更前に<codeEntityReference>M:Poderosa.Terminal.ITerminalSettings.BeginUpdate</codeEntityReference>を呼び出す、（2）変更完了後に<codeEntityReference>M:Poderosa.Terminal.ITerminalSettings.EndUpdate</codeEntityReference>を呼び出す、という取り決めを守る必要があります。</para>
+              <para>たとえばエンコード方式を「UTF-8」に変更するには、次のようにします。</para>
+
+              <alert class="note">
+                <para>下記の「2.」の部分で複数のプロパティを変更してもかまいません。つまり複数のプロパティを変更する場合、<codeEntityReference>M:Poderosa.Terminal.ITerminalSettings.BeginUpdate</codeEntityReference>と<codeEntityReference>M:Poderosa.Terminal.ITerminalSettings.EndUpdate</codeEntityReference>の呼び出しは、1回にまとめてしまってかまいません。</para>
+              </alert>
+
+<code language="C#">
+// termsettingsは、ITerminalSettingsを指していると想定します
+// 1. プロパティの変更を開始します
+termsettings.BeginUpdate();
+// 2. プロパティを変更します
+// （BeginUpdateメソッドを呼び出す前にプロパティを変更しようとすると例外が発生します）
+termsettings.Encoding = Poderosa.ConnectionParam.EncodingType.UTF8;
+// 3. プロパティの変更を終えます
+// （EndUpdateメソッドの呼び出し後にイベントが発生し、ツールバーなどが更新されます）
+termsettings.EndUpdate();
+</code>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>ターミナルへの送信</title>
+        <content>
+          <para>ターミナルへと送信したい場合には、<codeEntityReference>T:Poderosa.Terminal.TerminalTransmission</codeEntityReference>を使います。<codeEntityReference>T:Poderosa.Terminal.TerminalTransmission</codeEntityReference>は、<codeEntityReference>T:Poderosa.Sessions.ITerminalSession</codeEntityReference>の<codeEntityReference>P:Poderosa.Sessions.ITerminalSession.TerminalTransmission</codeEntityReference>から取得できます。</para>
+
+<code language="C#">
+// termsessionは、ターミナルセッションを指していると想定します
+TerminalTransmission termtrans = termsession.TerminalTransmission;
+</code>
+
+          <para><codeEntityReference>T:Poderosa.Terminal.TerminalTransmission</codeEntityReference>には、表4-15に示すメソッドがあり、ターミナルに対してデータを送信することができます。</para>
+
+          <table>
+            <title>表4-15 TerminalTransmissionオブジェクトのメソッド</title>
+            <tableHeader>
+              <row>
+                <entry>メソッド</entry>
+                <entry>意味</entry>
+              </row>
+            </tableHeader>
+            <row>
+              <entry>Resize</entry>
+              <entry>ターミナルのサイズを変更します</entry>
+            </row>
+            <row>
+              <entry>SendLineBreak</entry>
+              <entry>改行を送ります。実際に送るデータは改行設定により、「CR」「LF」「CR+LF」のいずれかになります</entry>
+            </row>
+            <row>
+              <entry>SendString</entry>
+              <entry>Char型の配列を送信します。現在のエンコード設定によりエンコードされてから送信されます</entry>
+            </row>
+            <row>
+              <entry>SendTextStream</entry>
+              <entry>TextStreamから読み取ったデータを送信します。現在のエンコード設定によりエンコードされてから送信されます</entry>
+            </row>
+            <row>
+              <entry>Transmit</entry>
+              <entry>バイト列を送信します</entry>
+            </row>
+          </table>
+
+          <para>たとえば次のようにすると、文字列「abcdef」を送信できます。</para>
+
+<code language="C#">
+// termtransは、TerminalTransmissionオブジェクトを指していると想定します
+termtrans.SendString("abcdef".ToCharArray());
+</code>
+        </content>
+      </section>
+
+      <section>
+        <title>ターミナルの送受信のフック</title>
+        <content>
+          <para>やや複雑になりますが、ターミナルセッションでは、送受信されるデータをフックすることもできます。ここでは、送受信されるデータをフックするための概要を述べます。</para>
+          <para>ターミナルの送受信機能は、<codeEntityReference>P:Poderosa.Sessions.ITerminalSession.Terminal</codeEntityReference>からたどれる<codeEntityReference>T:Poderosa.Terminal.AbstractTerminal</codeEntityReference>が処理しています。</para>
+          <para><codeEntityReference>T:Poderosa.Terminal.AbstractTerminal</codeEntityReference>は、ターミナルエミュレータの中枢となるオブジェクトであり、ドキュメント（<codeEntityReference>T:Poderosa.Sessions.IPoderosaDocument</codeEntityReference>）を作り出し、ビューへとその受信データを供給します。またユーザーからのキー入力を受け取り、データを送信する役割も担います。<codeEntityReference>T:Poderosa.Terminal.AbstractTerminal</codeEntityReference>を用いると、送受信データをフックすることができます。</para>
+          <para>送受信データをフックする機構は、2種類提供されています。</para>
+
+          <definitionTable>
+            <definedTerm>1. 送受信データをフックして加工する方法</definedTerm>
+            <definition>
+              <para>ひとつ目の方法は、送受信データをフックして加工する方法です。このような機構を実装するには、<codeEntityReference>T:Poderosa.Terminal.IModalTerminalTask</codeEntityReference>を実装したオブジェクトを作り、<codeEntityReference>T:Poderosa.Terminal.AbstractTerminal</codeEntityReference>の<codeEntityReference>M:Poderosa.Terminal.AbstractTerminal.StartModalTerminalTask(Poderosa.Terminal.IModalTerminalTask)</codeEntityReference>を呼び出すことで登録します。この方法を用いると、ユーザの操作による送信を禁止するとともに、送受信するデータをコントロールできます。</para>
+              <para>PoderosaのXMODEM／ZMODEMの機構、およびマクロの実行はこの機能を使って実現されています。詳細については、XZModem名前空間に含まれているソースを参照してください。</para>
+            </definition>
+
+            <definedTerm>2. 送受信データを覗き見る方法</definedTerm>
+            <definition>
+              <para>ふたつ目の方法は、データを加工することなく覗き見る方法です。この方法は、ログに採用されています。<codeEntityReference>T:Poderosa.Terminal.AbstractTerminal</codeEntityReference>の<codeEntityReference>P:Poderosa.Terminal.AbstractTerminal.ILogService</codeEntityReference>を参照するとログサービスオブジェクトの<codeEntityReference>T:Poderosa.Terminal.ILogService</codeEntityReference>を得ることができます。</para>
+              <para>ログ機構には、「バイナリ」「テキスト」「XML」があり、開発者はそれぞれ<codeEntityReference>T:Poderosa.Terminal.IBinaryLogger</codeEntityReference>、<codeEntityReference>T:Poderosa.Terminal.ITextLogger</codeEntityReference>、<codeEntityReference>T:Poderosa.Terminal.IXmlLogger</codeEntityReference>を備えたオブジェクトを作っておき、ログサービスオブジェクトへと登録することで、受信データを覗き見ることができます。</para>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="85071b7c-755b-43d7-ae56-b5f174f2fd82"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

@@ -1,0 +1,805 @@
+﻿<root>
+  <resheader name="ResMimeType">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="Version">
+    <value>1.0.0.0</value>
+  </resheader>
+  <resheader name="Reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="Writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Common.OK">
+    <value>OK</value>
+  </data>
+  <data name="Common.Cancel">
+    <value>Cancel</value>
+  </data>
+  <data name="Common.FontSample">
+    <value>Poderosa</value>
+  </data>
+  <data name="Common.CJKFontSample">
+    <value>
+    </value>
+  </data>
+  <data name="CommandCategory.SSH">
+    <value>SSH</value>
+  </data>
+  <data name="Command.OptionDialog">
+    <value>Option dialog</value>
+  </data>
+  <data name="Command.GenerateKeyPair">
+    <value>Start SSH key generation wizard</value>
+  </data>
+  <data name="Command.ChangePassphrase">
+    <value>Change passphrase for private key</value>
+  </data>
+  <data name="Command.AgentKeyListDialog">
+    <value>Agent forwarding configuration</value>
+  </data>
+  <data name="Command.EditRenderProfile">
+    <value>Edit display profile</value>
+  </data>
+  <data name="Command.RenameTab">
+    <value>Rename tab</value>
+  </data>
+  <data name="Command.CommentLog">
+    <value>Writes a comment to the log</value>
+  </data>
+  <data name="Command.ChangeLog">
+    <value>Changes the log settings</value>
+  </data>
+  <data name="Command.PoderosaLog">
+    <value>Shows Poderosa event log</value>
+  </data>
+  <data name="Menu.EditRenderProfile">
+    <value>Edit &amp;display profile...</value>
+  </data>
+  <data name="Menu.RenameTab">
+    <value>Rename &amp;tab...</value>
+  </data>
+  <data name="Caption.RenameTab">
+    <value>Rename tab</value>
+  </data>
+  <data name="Menu.CommentLog">
+    <value>Comment to lo&amp;g...</value>
+  </data>
+  <data name="Menu.ChangeLog">
+    <value>Change &amp;log...</value>
+  </data>
+  <data name="Menu.PoderosaLog">
+    <value>Shows Poderosa &amp;event log...</value>
+  </data>
+  <data name="Form.ChangeLog.Text">
+    <value>Log configuration</value>
+  </data>
+  <data name="Form.ChangeLog._logTypeLabel">
+    <value>Log &amp;type</value>
+  </data>
+  <data name="Form.ChangeLog._fileNameLabel">
+    <value>&amp;File name</value>
+  </data>
+  <data name="Form.CommentLog._insertButton">
+    <value>&amp;Insert...</value>
+  </data>
+  <data name="Form.CommentLog.Text">
+    <value>Comment to log</value>
+  </data>
+  <data name="Menu.CommentLog.Time">
+    <value>&amp;Time</value>
+  </data>
+  <data name="Menu.CommentLog.DateTime">
+    <value>&amp;Date and Time</value>
+  </data>
+  <data name="Form.EditRenderProfile._bgColorLabel">
+    <value>&amp;Back color</value>
+  </data>
+  <data name="Form.EditRenderProfile._textColorLabel">
+    <value>&amp;Text color</value>
+  </data>
+  <data name="Form.EditRenderProfile._editEscapeSequenceColorBox">
+    <value>Color settings for &amp;escape sequences...</value>
+  </data>
+  <data name="Form.EditRenderProfile._fontSelectButton">
+    <value>Change...</value>
+  </data>
+  <data name="Form.EditRenderProfile._fontLabel">
+    <value>&amp;Font</value>
+  </data>
+  <data name="Form.EditRenderProfile._backgroungImageLabel">
+    <value>Back &amp;picture</value>
+  </data>
+  <data name="Form.EditRenderProfile._imageStyleLabel">
+    <value>Picture &amp;location</value>
+  </data>
+  <data name="Form.EditRenderProfile._setToDefaultButton">
+    <value>&amp;Reset</value>
+  </data>
+  <data name="Form.EditRenderProfile.Text">
+    <value>Edit display profile</value>
+  </data>
+  <data name="Message.EditRenderProfile.InvalidPicture">
+    <value>{0} is not a correct picture file.</value>
+  </data>
+  <data name="Util.SelectPicture.Caption">
+    <value>Select picture file</value>
+  </data>
+  <data name="Form.EditEscapesequenceColor.Text">
+    <value>Color settings for escape sequences</value>
+  </data>
+  <data name="Form.EditEscapesequenceColor._setDefaultButton">
+    <value>Set to &amp;default</value>
+  </data>
+  <data name="Caption.EditEscapesequenceColor.DefaultColor">
+    <value>Default</value>
+  </data>
+  <data name="Caption.EditEscapesequenceColor.BackColor">
+    <value>Background</value>
+  </data>
+  <data name="Form.GFontDialog._lAsciiFont">
+    <value>Font Name</value>
+  </data>
+  <data name="Form.GFontDialog._lCJKFont">
+    <value>CJK Font Name</value>
+  </data>
+  <data name="Form.GFontDialog._lFontSize">
+    <value>&amp;Size</value>
+  </data>
+  <data name="Form.GFontDialog._checkClearType">
+    <value>Use &amp;Clear Type Font as much as possible</value>
+  </data>
+  <data name="Form.GFontDialog._checkBoldStyle">
+    <value>Enables &amp;bold fonts</value>
+  </data>
+  <data name="Form.GFontDialog._checkForceBoldStyle">
+    <value>&amp;Force bold fonts</value>
+  </data>
+  <data name="Form.GFontDialog._labelNotice">
+    <value>
+    </value>
+  </data>
+  <data name="Form.GFontDialog.Text">
+    <value>Select font</value>
+  </data>
+  <data name="Message.GFontDialog.NotTrueTypeWarning">
+    <value>The size was changed to {1} since {0} is not a TrueType font.</value>
+  </data>
+  <data name="Menu.OptionDialog">
+    <value>&amp;Options...</value>
+  </data>
+  <data name="Form.OptionDialog.Text">
+    <value>Option settings</value>
+  </data>
+  <data name="Form.OptionDialog._displayPanel">
+    <value>Display</value>
+  </data>
+  <data name="Form.OptionDialog._colorFontGroup">
+    <value>Color / Font / Background </value>
+  </data>
+  <data name="Form.OptionDialog._bgColorLabel">
+    <value>&amp;Back color</value>
+  </data>
+  <data name="Form.OptionDialog._textColorLabel">
+    <value>&amp;Text color</value>
+  </data>
+  <data name="Form.OptionDialog._editEscapeSequenceColorBox">
+    <value>Color settings for &amp;escape sequences...</value>
+  </data>
+  <data name="Form.OptionDialog._darkenEsColorForBackground">
+    <value>Use darkened color for the background color</value>
+  </data>
+  <data name="Form.OptionDialog._fontLabel">
+    <value>&amp;Font</value>
+  </data>
+  <data name="Form.OptionDialog._fontSelectButton">
+    <value>Change...</value>
+  </data>
+  <data name="Form.OptionDialog._backgroundImageLabel">
+    <value>Back &amp;image</value>
+  </data>
+  <data name="Form.OptionDialog._imageStyleLabel">
+    <value>Image &amp;location</value>
+  </data>
+  <data name="Form.OptionDialog._applyRenderProfileButton">
+    <value>Apply to all</value>
+  </data>
+  <data name="Form.OptionDialog._caretGroup">
+    <value>Caret</value>
+  </data>
+  <data name="Form.OptionDialog._caretStyleLabel">
+    <value>&amp;Style</value>
+  </data>
+  <data name="Form.OptionDialog._caretSpecifyColor">
+    <value>Specify &amp;color</value>
+  </data>
+  <data name="Form.OptionDialog._caretBlink">
+    <value>Blin&amp;k</value>
+  </data>
+  <data name="Form.OptionDialog._lineSpacingLabel">
+    <value>Line spacing</value>
+  </data>
+  <data name="Form.OptionDialog._pixelsLabel">
+    <value>pixels</value>
+  </data>
+  <data name="Form.OptionDialog._terminalPanel">
+    <value>Terminal</value>
+  </data>
+  <data name="Form.OptionDialog._charDecodeErrorBehaviorLabel">
+    <value>Behavior in case of &amp;invalid data</value>
+  </data>
+  <data name="Form.OptionDialog._bufferSizeLabel">
+    <value>Buffer si&amp;ze</value>
+  </data>
+  <data name="Form.OptionDialog._disconnectNotificationLabel">
+    <value>&amp;Notification of disconnection</value>
+  </data>
+  <data name="Form.OptionDialog._closeOnDisconnect">
+    <value>Close &amp;Pane on disconnection</value>
+  </data>
+  <data name="Form.OptionDialog._beepOnBellChar">
+    <value>Play Sound on &amp;bell Character</value>
+  </data>
+  <data name="Form.OptionDialog._adjustsTabTitleToWindowTitle">
+    <value>Correspond &amp;tab name to xterm window title</value>
+  </data>
+  <data name="Form.OptionDialog._allowsScrollInAppMode">
+    <value>Allow &amp;scroll in application mode</value>
+  </data>
+  <data name="Form.OptionDialog._keepAliveCheck">
+    <value>Send &amp;keep-alive packet periodically (every</value>
+  </data>
+  <data name="Form.OptionDialog._keepAliveLabel">
+    <value>minutes)</value>
+  </data>
+  <data name="Form.OptionDialog._defaultLogTypeLabel">
+    <value>&amp;Log type</value>
+  </data>
+  <data name="Form.OptionDialog._defaultLogDirectoryLabel">
+    <value>&amp;Directory to save</value>
+  </data>
+  <data name="Form.OptionDialog._autoLogCheckBox">
+    <value>Set log file name &amp;automatically</value>
+  </data>
+  <data name="Form.OptionDialog._peripheralPanel">
+    <value>Operation</value>
+  </data>
+  <data name="Form.OptionDialog._mouseGroup">
+    <value>Mouse</value>
+  </data>
+  <data name="Form.OptionDialog._keyboardGroup">
+    <value>Keyboard</value>
+  </data>
+  <data name="Form.OptionDialog._leftAltKeyLabel">
+    <value>&amp;Left Alt key</value>
+  </data>
+  <data name="Form.OptionDialog._rightAltKeyLabel">
+    <value>&amp;Right Alt key</value>
+  </data>
+  <data name="Form.OptionDialog._send0x7FByDel">
+    <value>Send 0x7F by &amp;Delete key</value>
+  </data>
+  <data name="Form.OptionDialog._send0x7FByBack">
+    <value>Send 0x7F by Bac&amp;kSpace key</value>
+  </data>
+  <data name="Form.OptionDialog._zone0x1FLabel">
+    <value>Transmission of &amp;0x1C-0x1F</value>
+  </data>
+  <data name="Form.OptionDialog._autoKeySettingsLabel">
+    <value>Key definition</value>
+  </data>
+  <data name="Form.OptionDialog._customKeySettingsLabel">
+    <value>Additional &amp;key definitions</value>
+  </data>
+  <data name="Form.OptionDialog._autoCopyByLeftButton">
+    <value>&amp;Automatically copy when selected by mouse</value>
+  </data>
+  <data name="Form.OptionDialog._additionalWordElementLabel">
+    <value>Additional characters for &amp;elements of word</value>
+  </data>
+  <data name="Form.OptionDialog._rightButtonActionLabel">
+    <value>Action for &amp;right click</value>
+  </data>
+  <data name="Form.OptionDialog._middleButtonActionLabel">
+    <value>Action for &amp;middle click</value>
+  </data>
+  <data name="Form.OptionDialog._wheelAmountLabel">
+    <value>Scroll amount for mouse &amp;wheel</value>
+  </data>
+  <data name="Form.OptionDialog._viewSplitModifierLabel">
+    <value>Modifier for &amp;pane division</value>
+  </data>
+  <data name="Caption.KeysNone">
+    <value>None</value>
+  </data>
+  <data name="Form.OptionDialog._localBufferScrollModifierLabel">
+    <value>Modifier Key for &amp;scrolling local buffer</value>
+  </data>
+  <data name="Form.OptionDialog._shellSupportGroup">
+    <value>Shell support</value>
+  </data>
+  <data name="Form.OptionDialog._enableComplementForNewConnections">
+    <value>Enables shell &amp;complement by character input for new connections</value>
+  </data>
+  <data name="Form.OptionDialog._commandPopupAlwaysOnTop">
+    <value>Shows command result pop-ups on the &amp;top</value>
+  </data>
+  <data name="Form.OptionDialog._commandPopupInTaskBar">
+    <value>Shows command result pop-ups in the task ba&amp;r</value>
+  </data>
+  <data name="Form.OptionDialog._alertOnPasteNewLineCharCheck">
+    <value>Show alert when new-line character will be pasted</value>
+  </data>
+  <data name="Form.OptionDialog._commandPanel">
+    <value>Command</value>
+  </data>
+  <data name="Form.OptionDialog._commandCategoryHeader">
+    <value>Category</value>
+  </data>
+  <data name="Form.OptionDialog._commandNameHeader">
+    <value>Command</value>
+  </data>
+  <data name="Form.OptionDialog._commandConfigHeader">
+    <value>Key allocation</value>
+  </data>
+  <data name="Form.OptionDialog._resetKeyConfigButton">
+    <value>Reset to default</value>
+  </data>
+  <data name="Form.OptionDialog._clearKeyConfigButton">
+    <value>Clear All</value>
+  </data>
+  <data name="Form.OptionDialog._commandConfigGroup">
+    <value>Command setting</value>
+  </data>
+  <data name="Form.OptionDialog._commandNameLabel">
+    <value>Command name</value>
+  </data>
+  <data name="Form.OptionDialog._currentConfigLabel">
+    <value>Current allocation</value>
+  </data>
+  <data name="Form.OptionDialog._newAllocationLabel">
+    <value>New allocation</value>
+  </data>
+  <data name="Form.OptionDialog._allocateKeyButton">
+    <value>Allocate</value>
+  </data>
+  <data name="Form.OptionDialog._sshPanel">
+    <value>SSH</value>
+  </data>
+  <data name="Form.OptionDialog._cipherOrderGroup">
+    <value>Priority of cipher algorithms</value>
+  </data>
+  <data name="Form.OptionDialog._algorithmOrderUp">
+    <value>&amp;Up</value>
+  </data>
+  <data name="Form.OptionDialog._algorithmOrderDown">
+    <value>&amp;Down</value>
+  </data>
+  <data name="Form.OptionDialog._ssh2OptionGroup">
+    <value>Protocol option (Uses SSH2 only)</value>
+  </data>
+  <data name="Form.OptionDialog._hostKeyLabel">
+    <value>&amp;Host key authentication algorithm</value>
+  </data>
+  <data name="Form.OptionDialog._windowSizeLabel">
+    <value>&amp;Window size of SSH channel</value>
+  </data>
+  <data name="Form.OptionDialog._sshMiscGroup">
+    <value>Miscellaneous</value>
+  </data>
+  <data name="Form.OptionDialog._enableAgentForward">
+    <value>Enable agent &amp;forwarding
+(Only for SSH2 connections to OpenSSH)</value>
+  </data>
+  <data name="Form.OptionDialog._retainsPassphrase">
+    <value>&amp;Memorize passphrase until the application is terminated</value>
+  </data>
+  <data name="Form.OptionDialog._sshCheckMAC">
+    <value>&amp;Check MAC
+(if you turn this off, the performance gains slightly at the risk of security.)</value>
+  </data>
+  <data name="Form.OptionDialog._sshEventLog">
+    <value>Outputs SSH negotiation to Poderosa event &amp;log</value>
+  </data>
+  <data name="Form.OptionDialog._connectionPanel">
+    <value>Connection</value>
+  </data>
+  <data name="Form.OptionDialog._useSocks">
+    <value>Use &amp;SOCKS5</value>
+  </data>
+  <data name="Form.OptionDialog._socksServerLabel">
+    <value>Server &amp;name</value>
+  </data>
+  <data name="Form.OptionDialog._socksPortLabel">
+    <value>P&amp;ort</value>
+  </data>
+  <data name="Form.OptionDialog._socksAccountLabel">
+    <value>&amp;Account</value>
+  </data>
+  <data name="Form.OptionDialog._socksPasswordLabel">
+    <value>&amp;Password</value>
+  </data>
+  <data name="Form.OptionDialog._socksNANetworksLabel">
+    <value>&amp;Exclude the following networks for SOCKS
+(concatenate strings in the form '192.168.10.0/24' using semicolons)</value>
+  </data>
+  <data name="Form.OptionDialog._IPv6Group">
+    <value>IPv6</value>
+  </data>
+  <data name="Form.OptionDialog._IPv6PriorityLabel">
+    <value>&amp;Priority to IPv4</value>
+  </data>
+  <data name="Form.OptionDialog._genericPanel">
+    <value>Generic</value>
+  </data>
+  <data name="Form.OptionDialog._actionOnLaunchLabel">
+    <value>&amp;Action on Launch</value>
+  </data>
+  <data name="Form.OptionDialog._MRUSizeLabel">
+    <value>&amp;Number of recent connections in file menu</value>
+  </data>
+  <data name="Form.OptionDialog._serialCountLabel">
+    <value>Number of listed serial &amp;ports</value>
+  </data>
+  <data name="Form.OptionDialog._showToolBar">
+    <value>Display tool&amp;bar</value>
+  </data>
+  <data name="Form.OptionDialog._showTabBar">
+    <value>Display &amp;tabbar</value>
+  </data>
+  <data name="Form.OptionDialog._showStatusBar">
+    <value>Display &amp;statusbar</value>
+  </data>
+  <data name="Form.OptionDialog._askCloseOnExit">
+    <value>&amp;Warn on closing window if active connections exist</value>
+  </data>
+  <data name="Form.OptionDialog._quitAppWithLastPane">
+    <value>&amp;Quit application when the last connection is closed</value>
+  </data>
+  <data name="Form.OptionDialog._optionPreservePlaceLabel">
+    <value>Storage destination of &amp;option settings</value>
+  </data>
+  <data name="Form.OptionDialog._languageLabel">
+    <value>&amp;Language</value>
+  </data>
+  <data name="Form.OptionDialog._startupOptionLabel">
+    <value>Action with &amp;startup</value>
+  </data>
+  <data name="Form.OptionDialog._tabBarGroup">
+    <value>Alignment</value>
+  </data>
+  <data name="Form.OptionDialog._tabStyleLabel">
+    <value>Styl&amp;e</value>
+  </data>
+  <data name="Form.OptionDialog._splitterRatioBox">
+    <value>&amp;Reserve the proportion of the splitter on resize</value>
+  </data>
+  <data name="Caption.OptionDialog.CaretStyle0">
+    <value>Box</value>
+  </data>
+  <data name="Caption.OptionDialog.CaretStyle1">
+    <value>Bar</value>
+  </data>
+  <data name="Caption.OptionDialog.CaretStyle2">
+    <value>Underline</value>
+  </data>
+  <data name="Message.OptionDialog.InvalidPictureFile">
+    <value>{0} is a invalid picture file.</value>
+  </data>
+  <data name="Message.OptionDialog.InvalidItem">
+    <value>The value of {0} is invalid.</value>
+  </data>
+  <data name="Caption.OptionDialog.BufferLineCount">
+    <value>Buffer size</value>
+  </data>
+  <data name="Caption.OptionDialog.MRUCount">
+    <value>Number of stored recent connections</value>
+  </data>
+  <data name="Caption.OptionDialog.KeepAliveInterval">
+    <value>Keep Alive interval</value>
+  </data>
+  <data name="Message.OptionDialog.EmptyLogDirectory">
+    <value>The log directory is empty.</value>
+  </data>
+  <data name="Message.OptionDialog.AskCreateDirectory">
+    <value>The directory {0} is not exist. Do you want to create?</value>
+  </data>
+  <data name="Message.OptionDialog.FailedCreateDirectory">
+    <value>Failed to create directory.</value>
+  </data>
+  <data name="Message.OptionDialog.AltKeyOnWin9x">
+    <value>The role of left and right Alt keys must be identical on Windows98/Me.</value>
+  </data>
+  <data name="Caption.OptionDialog.MousewheelAmount">
+    <value>Amount of scroll on wheel</value>
+  </data>
+  <data name="Message.OptionDialog.InvalidWindowSize">
+    <value>The value of window size is invalid.</value>
+  </data>
+  <data name="Message.OptionDialog.EmptySocksServer">
+    <value>The SOCKS server name is empty.</value>
+  </data>
+  <data name="Caption.OptionDialog.SOCKSPortNumber">
+    <value>SOCKS port number</value>
+  </data>
+  <data name="Caption.OptionDialog.NetworkAddress">
+    <value>Network address</value>
+  </data>
+  <data name="Caption.OptionDialog.SerialPortCount">
+    <value>Number of serial ports</value>
+  </data>
+  <data name="Message.OptionDialog.RegistryWriteAuthWarning">
+    <value>The authority of registry modification is required to change storage location setting.</value>
+  </data>
+  <data name="Caption.OptionDialog.DefaultLogDirectory">
+    <value>Select a directory to store log files.</value>
+  </data>
+  <data name="Message.OptionDialog.AskOverwriteToASCIIInput">
+    <value>The key {0} is used to input ASCII code {1} character. Do you give this command setting priority to the ASCII code?</value>
+  </data>
+  <data name="Message.OptionDialog.AskOverwriteCommand">
+    <value>This key is already allocated for the command "{0}". Do you wish to overwrite?</value>
+  </data>
+  <data name="Caption.OptionDialog.ActionOnLaunch.Nothing">
+    <value>Do nothing</value>
+  </data>
+  <data name="Caption.OptionDialog.ActionOnLaunch.NewConnection">
+    <value>Open new connection dialog</value>
+  </data>
+  <data name="Caption.OptionDialog.ActionOnLaunch.Macro">
+    <value>Execute macro - </value>
+  </data>
+  <data name="Message.OptionDialog.InvalidAdditionalWordElement">
+    <value>There are invalid characters as word elements.</value>
+  </data>
+  <data name="Message.OptionDialog.AskJapaneseFont">
+    <value>If Japanese font is not installed in your computer, the window will be shown incorrectly. Do you wish to continue?</value>
+  </data>
+  <data name="Message.HostKeyChecker.AskHostKeyRegister">
+    <value>The public key of the SSH server is not cached in ssh_known_hosts. Do you wish to register it and continue?</value>
+  </data>
+  <data name="Message.HostKeyChecker.AskHostKeyRenew">
+    <value>The public key of the SSH server differs from the old key in ssh_known_hosts. Do you wish to renew it and continue?</value>
+  </data>
+  <data name="Menu.GenerateKeyPair">
+    <value>SSH &amp;key generation wizard...</value>
+  </data>
+  <data name="Menu.ChangePassphrase">
+    <value>Change &amp;passphrase of private key...</value>
+  </data>
+  <data name="Menu.AgentKeyListDialog">
+    <value>Agent &amp;Forwarding...</value>
+  </data>
+  <data name="Form.KeyGenWizard._confirmLabel">
+    <value>&amp;Confirm</value>
+  </data>
+  <data name="Form.KeyGenWizard._passphraseLabel">
+    <value>&amp;Passphrase</value>
+  </data>
+  <data name="Form.KeyGenWizard._bitCountLabel">
+    <value>&amp;Bit count</value>
+  </data>
+  <data name="Form.KeyGenWizard._algorithmLabel">
+    <value>&amp;Algorithm</value>
+  </data>
+  <data name="Form.KeyGenWizard._promptLabel1">
+    <value>This wizard generates a key for SSH2 authentication. Please input the algorithm, bit count, and passphrase.</value>
+  </data>
+  <data name="Form.KeyGenWizard._nextButton">
+    <value>Next</value>
+  </data>
+  <data name="Form.KeyGenWizard._keygenLabel">
+    <value>Now generating...  Please move the mouse in this window to feed random numbers.</value>
+  </data>
+  <data name="Form.KeyGenWizard._storePrivateKey">
+    <value>Save &amp;private key as...</value>
+  </data>
+  <data name="Form.KeyGenWizard._storeSECSHPublicKeyButton">
+    <value>Save public key in &amp;SECSH format as...</value>
+  </data>
+  <data name="Form.KeyGenWizard._storeOpenSSHPublicKeyButton">
+    <value>Save public key in &amp;OpenSSH format as...</value>
+  </data>
+  <data name="Form.KeyGenWizard._completeLabel">
+    <value>Genaration completed. Please put the private key at local and the public key at remote host.</value>
+  </data>
+  <data name="Form.KeyGenWizard.Text">
+    <value>SSH key generation wizard</value>
+  </data>
+  <data name="Message.KeyGenWizard.NotMatch">
+    <value>The passphrase does not match the confirmation input.</value>
+  </data>
+  <data name="Message.KeyGenWizard.ConfirmEmptyPassphrase">
+    <value>Do you wish to generate the key with empty passphrase?</value>
+  </data>
+  <data name="Message.KeyGenWizard.Finish">
+    <value>Finish</value>
+  </data>
+  <data name="Message.KeyGenWizard.RandomNumberCompleted">
+    <value>Acquisition of random numbers has been finished. Please wait until key generation is completed. This process may take several minutes.</value>
+  </data>
+  <data name="Message.KeyGenWizard.GenerationCompleted">
+    <value>The key generation is completed.</value>
+  </data>
+  <data name="Caption.KeyGenWizard.SavePrivateKey">
+    <value>Save private key</value>
+  </data>
+  <data name="Message.KeyGenWizard.KeySaveError">
+    <value>Failed to save the key. {0}</value>
+  </data>
+  <data name="Caption.KeyGenWizard.SavePublicInSECSH">
+    <value>Save public key in SECSH format</value>
+  </data>
+  <data name="Caption.KeyGenWizard.SavePublicInOpenSSH">
+    <value>Save public key in OpenSSH format</value>
+  </data>
+  <data name="Form.AgentKeyListDialog.Text">
+    <value>Private Key List for Agent Forwarding</value>
+  </data>
+  <data name="Form.AgentKeyListDialog._filenameHeader">
+    <value>File Name</value>
+  </data>
+  <data name="Form.AgentKeyListDialog._statusHeader">
+    <value>Status</value>
+  </data>
+  <data name="Form.AgentKeyListDialog._commentHeader">
+    <value>Comment</value>
+  </data>
+  <data name="Form.AgentKeyListDialog._addButton">
+    <value>&amp;Add...</value>
+  </data>
+  <data name="Form.AgentKeyListDialog._removeButton">
+    <value>&amp;Remove</value>
+  </data>
+  <data name="Form.InputPassphraseDialog.Text">
+    <value>Input Passphrase</value>
+  </data>
+  <data name="Form.InputPassphraseDialog._fileNameLabel">
+    <value>File Name</value>
+  </data>
+  <data name="Form.InputPassphraseDialog._passphraseLabel">
+    <value>&amp;Passphrase</value>
+  </data>
+  <data name="Form.ChangePassphrase._lKeyFile">
+    <value>Private key &amp;file</value>
+  </data>
+  <data name="Form.ChangePassphrase._lCurrentPassphrase">
+    <value>&amp;Current passphrase</value>
+  </data>
+  <data name="Form.ChangePassphrase._lNewPassphrase">
+    <value>&amp;New passphrase</value>
+  </data>
+  <data name="Form.ChangePassphrase._lNewPassphraseAgain">
+    <value>Input &amp;again</value>
+  </data>
+  <data name="Form.ChangePassphrase.Text">
+    <value>Change passphrase</value>
+  </data>
+  <data name="Message.ChangePassphrase.PassphraseMismatch">
+    <value>The new passphrase does not match the confirmation input.</value>
+  </data>
+  <data name="Message.ChangePassphrase.AskEmptyPassphrase">
+    <value>The new passphrase is empty. Do you wish to leave the passphrase empty?</value>
+  </data>
+  <data name="Message.ChangePassphrase.NotifyChanged">
+    <value>The passphrase has been changed.</value>
+  </data>
+  <data name="Message.KeyAgent.FileNotExist">
+    <value>{0} is not a valid file.</value>
+  </data>
+  <data name="Caption.PreferenceEditor.Bool">
+    <value>Bool</value>
+  </data>
+  <data name="Caption.PreferenceEditor.Int">
+    <value>Integer</value>
+  </data>
+  <data name="Caption.PreferenceEditor.String">
+    <value>String</value>
+  </data>
+  <data name="Form.PreferenceEditor._nameHeader">
+    <value>Name</value>
+  </data>
+  <data name="Form.PreferenceEditor._typeHeader">
+    <value>Type</value>
+  </data>
+  <data name="Form.PreferenceEditor._valueHeader">
+    <value>Value</value>
+  </data>
+  <data name="Form.PreferenceEditor._filterLabel">
+    <value>&amp;Filter</value>
+  </data>
+  <data name="Form.PreferenceEditor._resetButton">
+    <value>&amp;Reset All</value>
+  </data>
+  <data name="Form.PreferenceEditor.Text">
+    <value>Detailed preference editor</value>
+  </data>
+  <data name="Command.PreferenceEditor">
+    <value>Detailed preference editor</value>
+  </data>
+  <data name="Menu.PreferenceEditor">
+    <value>&amp;Detailed preference editor...</value>
+  </data>
+  <data name="Form.PreferenceItemEditor.Text">
+    <value>Edit item</value>
+  </data>
+  <data name="Form.PreferenceItemEditor._nameLabel">
+    <value>Name</value>
+  </data>
+  <data name="Form.PreferenceItemEditor._valueLabel">
+    <value>&amp;Value</value>
+  </data>
+  <data name="Form.PreferenceItemEditor._resetButton">
+    <value>&amp;Reset</value>
+  </data>
+  <data name="Form.ShellSchemeEditor.Text">
+    <value>Shell scheme editor</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._schemeCollectionGroup">
+    <value>Shell scheme list</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._deleteSchemeButton">
+    <value>&amp;Delete</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._newSchemeButton">
+    <value>&amp;New</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._schemeLabel">
+    <value>&amp;Scheme</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._deleteCharLabel">
+    <value>Code to &amp;remove 1 char</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._nameLabel">
+    <value>N&amp;ame</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._promptLabel">
+    <value>&amp;Prompt(RegEx)</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._deleteButton">
+    <value>D&amp;elete command</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._alphabeticalSort">
+    <value>&amp;Sort alphabetical order</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._currentSchemeGroup">
+    <value>Scheme - {0}</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._itemLabel">
+    <value>Command list</value>
+  </data>
+  <data name="Menu.ShellSchemeEditor">
+    <value>&amp;Shell scheme editor...</value>
+  </data>
+  <data name="Command.ShellSchemeEditor">
+    <value>Shell scheme editor</value>
+  </data>
+  <data name="Message.ShellSchemeEditor.DuplicatedName">
+    <value>Duplicated name is found.</value>
+  </data>
+  <data name="Message.ShellSchemeEditor.EmptyName">
+    <value>The scheme name is empty.</value>
+  </data>
+  <data name="Message.ShellSchemeEditor.PromptError">
+    <value>The prompt must be a correct regular expression.</value>
+  </data>
+  <data name="Enum.StartupAction.DoNothing">
+    <value>Do Nothing</value>
+  </data>
+  <data name="Enum.StartupAction.TelnetSSHDialog">
+    <value>Open Telnet/SSH Login Dialog</value>
+  </data>
+  <data name="Enum.StartupAction.OpenCygwin">
+    <value>Open Cygwin Connection</value>
+  </data>
+  <data name="Message.AboutBox.EnterGuevara">
+    <value>Welcome to Guevara Mode. Poderosa was called Guevara old days.</value>
+  </data>
+  <data name="Message.AboutBox.ExitGuevara">
+    <value>Now Leaving Guevara Mode</value>
+  </data>
+  <data name="Form.AboutBox.Text">
+    <value>About Poderosa</value>
+  </data>
+</root>

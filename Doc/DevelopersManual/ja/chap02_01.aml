@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="1e38e184-2b1d-49b7-898b-dcb8e2331dd9" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <sections>
+
+      <section>
+        <title>プラグインから本体側の情報を読み取るIPoderosaWorld</title>
+        <content>
+          <para>プラグインが読み込まれるときには、プラグインに実装されている<codeEntityReference>T:Poderosa.Plugins.IPlugin</codeEntityReference>の<codeEntityReference>M:Poderosa.Plugins.IPlugin.InitializePlugin(Poderosa.Plugins.IPoderosaWorld)</codeEntityReference>が呼び出されます。</para>
+          <para><codeEntityReference>M:Poderosa.Plugins.IPlugin.InitializePlugin(Poderosa.Plugins.IPoderosaWorld)</codeEntityReference>の引数には、Poderosa本体にアクセスするための<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>が引き渡されます。</para>
+          <para>引き渡される<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>はプラグインが解放されるまで不変です。そこで一般には、あとでこの<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>を通じてPoderosa本体へとアクセスできるよう、ローカル変数に保存しておきます。</para>
+          <para>下記の例では、受け取った<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>をローカル変数<replaceable>_poderosaWorld</replaceable>へと格納しています。</para>
+
+<code language="C#">
+[PluginInfo(ID="jp.example.co.myexample.myplugin" Name="PluginSample"]
+internal class MyPlugin : IPlugin {
+  protected IPoderosaWorld _poderosaWorld;
+  protected void InitializePlugin(IPoderosaWorld poderosa) {
+    // 渡されたIPoderosaWorldをローカルに保存しておく
+    this._poderosaWorld = poderosa;
+}
+</code>
+        </content>
+      </section>
+
+      <section>
+        <title>プラグインマネージャとIPluginManager</title>
+        <content>
+          <para>Poderosaはプラグインの集合体です。たとえば「メニュー登録」や「コマンド実行」「通信の開始」など、さまざまな動作はプラグイン（標準プラグイン）として構成されています。</para>
+          <para>言い換えるとPoderosaプラグインは、他のPoderosaプラグインを探したり、他のPoderosaプラグインに自身を呼び出してもらうように登録したりして、連携して動作することになります。</para>
+
+          <alert class="note">
+            <para>ここで言う「他のPoderosaプラグイン」とは、標準プラグインも含みます。</para>
+          </alert>
+
+          <para>Poderosaプラグインは、「プラグインマネージャ」によって管理されます。プラグインマネージャは、<codeEntityReference>T:Poderosa.Plugins.IPluginManager</codeEntityReference>を経由してアクセスできます。</para>
+          <para><codeEntityReference>T:Poderosa.Plugins.IPluginManager</codeEntityReference>は、<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>の<codeEntityReference>P:Poderosa.Plugins.IPoderosaWorld.PluginManager</codeEntityReference>から取得できます。</para>
+          <para>たとえば先に示したように、変数<replaceable>_poderosaWorld</replaceable>に、受け取った<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>を保存している場合には、下記のコードで、<codeEntityReference>T:Poderosa.Plugins.IPluginManager</codeEntityReference>を取得できます。</para>
+
+<code language="C#">
+IPluginManager pluginmanager = this._poderosaWorld.PluginManager;
+</code>
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="41885482-96bf-4145-8c3b-416b1d4cc154"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

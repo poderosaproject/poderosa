@@ -1,0 +1,47 @@
+
+Poderosa supports the following encodings.
+
+  ISO 8859-1
+  UTF-8
+  EUC JP         : Japanese
+  Shift JIS      : Japanese
+  GB2312         : Chinese (simplified)
+  Big5           : Chinese (traditional)
+  EUC CN         : Chinese (simplified)
+  EUC KR         : Korean
+  OEM850 (CP850)
+
+
+To use UTF-8, there are two options, "UTF-8 (CJK)" and "UTF-8 (Latin)".
+
+The difference between these options is which font and character width
+are used to display some kind of characters.
+
+ UTF-8 (CJK)
+    Characters contained in CJK character sets are displayed as the
+    wide-width characters using CJK font.
+
+    Some symbols, box-drawing characters or european characters may be
+    displayed as the wide-width characters.
+
+ UTF-8 (Latin)
+    Characters other than east asian characters like Kanji are displayed
+    as the narrow-width characters using main font.
+
+    Symbols, box-drawing characters or european characters will be
+    displayed as the narrow-width characters.
+
+
+For example, "DEGREE SIGN" (U+00B0) will be displayed as a wide-width
+character in "UTF-8 (CJK)" mode.
+
+Because some CJK character sets define their "DEGREE SIGN" character
+as a wide-width character like below.
+
+  Shift JIS   818B
+  EUC JP      A1EB
+  GB2312      A1E3
+  Big5        A258
+  EUC KR      A1C6
+
+In general, these characters are mapped to U+00B0.

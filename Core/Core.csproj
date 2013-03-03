@@ -1,0 +1,182 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8A416F19-9031-44A1-B225-BCB31A6BC6A7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Poderosa.Core</RootNamespace>
+    <AssemblyName>Poderosa.Core</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Debug\Poderosa.Core.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Release\Poderosa.Core.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UIDesign|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\UIDesign\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;UIDESIGN</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <DocumentationFile>bin\UIDesign\Poderosa.Core.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UnitTest|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\UnitTest\</OutputPath>
+    <DefineConstants>TRACE;UNITTEST</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\UnitTest\Poderosa.Core.XML</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AboutBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AboutBoxEx.cs" />
+    <Compile Include="BasicCommands.cs" />
+    <Compile Include="BasicMenus.cs" />
+    <Compile Include="Caret.cs" />
+    <Compile Include="CharacterDocument.cs" />
+    <Compile Include="CharacterDocumentViewer.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="CommandEx.cs" />
+    <Compile Include="CommandManager.cs" />
+    <Compile Include="CommandPositionEx.cs" />
+    <Compile Include="CommandPositionT.cs" />
+    <Compile Include="CoreServicesEx.cs" />
+    <Compile Include="Credits.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DocActivationCommands.cs" />
+    <Compile Include="DocumentAndViewEx.cs" />
+    <Compile Include="ExtensionPointList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ExtensionPointList.Designer.cs">
+      <DependentUpon>ExtensionPointList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GenericsUtil.cs" />
+    <Compile Include="GLine.cs" />
+    <Compile Include="ListenerList.cs" />
+    <Compile Include="MacroEngineEx.cs" />
+    <Compile Include="MainWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MenuUtil.cs" />
+    <Compile Include="PluginList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PluginList.Designer.cs">
+      <DependentUpon>PluginList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PopupViewContainer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Unicode.cs" />
+    <Compile Include="RenderProfileSerialize.cs" />
+    <Compile Include="Selection.cs" />
+    <Compile Include="SelectionEx.cs" />
+    <Compile Include="Serialize.cs" />
+    <Compile Include="SerializeEx.cs" />
+    <Compile Include="SplittableView.cs" />
+    <Compile Include="TextSelection.cs" />
+    <Compile Include="ToolBar.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ToolBarEx.cs" />
+    <Compile Include="UIEventHandler.cs" />
+    <Compile Include="WindowManagerEx.cs" />
+    <Compile Include="MainWindowMenu.cs" />
+    <Compile Include="MainWindowMenuT.cs" />
+    <Compile Include="Preferences.cs" />
+    <Compile Include="PreferencesEx.cs" />
+    <Compile Include="PreferencesT.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RenderProfile.cs" />
+    <Compile Include="Session.cs" />
+    <Compile Include="SessionEx.cs" />
+    <Compile Include="StatusBar.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="TextDecoration.cs" />
+    <Compile Include="WindowManager.cs" />
+    <Compile Include="WindowPreference.cs" />
+    <Compile Include="PoderosaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Plugin\Plugin.csproj">
+      <Project>{D84B661B-503E-4C22-892B-7499B72C7E04}</Project>
+      <Name>Plugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UI\UI.csproj">
+      <Project>{9568D8AC-7B55-42E0-ACD7-204E397E7048}</Project>
+      <Name>UI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="AboutBox.resx">
+      <DependentUpon>AboutBox.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Credits.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>Credits.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="icons.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PluginList.resx">
+      <DependentUpon>PluginList.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="strings.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="strings_ja.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

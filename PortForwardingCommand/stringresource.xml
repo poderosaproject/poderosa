@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+$Id: stringresource.xml,v 1.2 2011/12/23 10:45:49 kzmi Exp $
+-->
+<string-resource>
+<record name="Command.PortForwardingExeNotFound">
+  <ja>Portforwarding.exeが見つかりません</ja>
+  <en>Portforwarding.exe cannot be found.</en>
+</record>
+<record name="Command.PortForwarding">
+  <ja>SSHポートフォワーディングツールの起動</ja>
+  <en>Start SSH port forwarding tool</en>
+</record>
+<record name="Menu.PortForwarding">
+  <ja>ポートフォワーディングツールの起動(&amp;F)...</ja>
+  <en>Start port&amp;forwarding tool...</en>
+</record>
+</string-resource>

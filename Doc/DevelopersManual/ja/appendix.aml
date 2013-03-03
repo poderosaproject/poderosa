@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="bbc86d39-3d36-4c6b-aa7a-60e4725d4525" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para>Poderosaの標準プラグインなどの一覧です。</para>
+    </introduction>
+
+    <definitionTable>
+      <definedTerm><link xlink:href="15fa6ae6-d235-425c-848a-c3984aa79f98"/></definedTerm>
+      <definition>Poderosaに標準で含まれるプラグインです。</definition>
+      <definedTerm><link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f"/></definedTerm>
+      <definition>標準プラグインが提供する拡張ポイントです。</definition>
+      <definedTerm><link xlink:href="288a57a5-3eae-48c8-a01e-c29f740c5659"/></definedTerm>
+      <definition>標準プラグインが提供する定義済みコマンドです。</definition>
+      <definedTerm><link xlink:href="dbfdedf8-804f-45e4-aca7-f438cdf9d907"/></definedTerm>
+      <definition>標準プラグインが提供する定義済みメニューです。</definition>
+    </definitionTable>
+
+  </developerConceptualDocument>
+</topic>

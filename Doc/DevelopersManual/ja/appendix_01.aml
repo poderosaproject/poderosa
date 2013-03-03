@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="15fa6ae6-d235-425c-848a-c3984aa79f98" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <sections>
+
+      <section>
+        <title>CommandManagerPluginプラグイン</title>
+        <content>
+          <para>コマンドを実行する際のコマンドマネージャ機能を提供します。</para>
+          <definitionTable>
+            <definedTerm>プラグインID</definedTerm>
+            <definition>org.poderosa.core.commands</definition>
+            <definedTerm>依存</definedTerm>
+            <definition>org.poderosa.core.preferences</definition>
+            <definedTerm>実装するインターフェイス</definedTerm>
+            <definition>
+              <codeEntityReference>T:Poderosa.Commands.ICommandManager</codeEntityReference>、
+              <codeEntityReference>T:Poderosa.Preferences.IPreferenceSupplier</codeEntityReference>、
+              <codeEntityReference>T:Poderosa.Preferences.IPreferenceChangeListener</codeEntityReference>
+            </definition>
+            <definedTerm>提供する拡張ポイント</definedTerm>
+            <definition>なし</definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>PreferencePluginプラグイン</title>
+        <content>
+          <para>ユーザーのオプション設定を記録する機能を提供します。</para>
+          <definitionTable>
+            <definedTerm>プラグインID</definedTerm>
+            <definition>org.poderosa.core.preferences</definition>
+            <definedTerm>依存</definedTerm>
+            <definition>なし</definition>
+            <definedTerm>実装するインターフェイス</definedTerm>
+            <definition>
+              IRootExtension、
+              <codeEntityReference>T:Poderosa.Preferences.IPreferences</codeEntityReference>
+            </definition>
+            <definedTerm>提供する拡張ポイント</definedTerm>
+            <definition><link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f#org.poderosa.core.preferences">org.poderosa.core.preferences</link></definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>SessionManagerPluginプラグイン</title>
+        <content>
+          <para>セッションを管理するセッションマネージャを提供します。</para>
+          <definitionTable>
+            <definedTerm>プラグインID</definedTerm>
+            <definition>org.poderosa.core.sessions</definition>
+            <definedTerm>依存</definedTerm>
+            <definition>org.poderosa.core.window</definition>
+            <definedTerm>実装するインターフェイス</definedTerm>
+            <definition>
+              <codeEntityReference>T:Poderosa.Sessions.ISessionManager</codeEntityReference>、
+              ISessionManagerForViewSplitter
+            </definition>
+            <definedTerm>提供する拡張ポイント</definedTerm>
+            <definition><link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f#org.poderosa.core.sessions.docViewRelationHandle">org.poderosa.core.sessions.docViewRelationHandle</link></definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>WindowManagerPluginプラグイン</title>
+        <content>
+          <para>ウィンドウを管理するウィンドウマネージャを提供します。</para>
+          <definitionTable>
+            <definedTerm>プラグインID</definedTerm>
+            <definition>org.poderosa.core.window</definition>
+            <definedTerm>依存</definedTerm>
+            <definition>org.poderosa.core.preferences、org.poderosa.core.commands</definition>
+            <definedTerm>実装するインターフェイス</definedTerm>
+            <definition>
+              IGUIMessageLoop、
+              <codeEntityReference>T:Poderosa.Forms.IWindowManager</codeEntityReference>、
+              IWinFormsService、
+              ICultureChangeListener、
+              IKeyBindChangeListener
+            </definition>
+            <definedTerm>提供する拡張ポイント</definedTerm>
+            <definition>
+              <link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f#org.poderosa.core.window.mainWindowContent"> org.poderosa.core.window.mainWindowContent</link>、
+              <link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f#org.poderosa.core.window.viewFactory"> org.poderosa.core.window.viewFactory</link>、
+              <link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f#org.org.poderosa.core.window.viewFormatEventHandler"> org.poderosa.core.window.viewFormatEventHandler</link>、
+              <link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f#org.poderosa.core.window.toolbar"> org.poderosa.core.window.toolbar</link>、
+              <link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f#org.poderosa.window.aboutbox"> org.poderosa.window.aboutbox</link>、
+              <!-- メニュー -->
+              <link xlink:href="dbfdedf8-804f-45e4-aca7-f438cdf9d907#org.poderosa.menu.file"> org.poderosa.menu.file</link>、
+              <link xlink:href="dbfdedf8-804f-45e4-aca7-f438cdf9d907#org.poderosa.menu.edit"> org.poderosa.menu.edit</link>、
+              <link xlink:href="dbfdedf8-804f-45e4-aca7-f438cdf9d907#org.poderosa.menu.console"> org.poderosa.menu.console</link>、
+              <link xlink:href="dbfdedf8-804f-45e4-aca7-f438cdf9d907#org.poderosa.menu.tool"> org.poderosa.menu.tool</link>、
+              <link xlink:href="dbfdedf8-804f-45e4-aca7-f438cdf9d907#org.poderosa.menu.window"> org.poderosa.menu.window</link>、
+              <link xlink:href="dbfdedf8-804f-45e4-aca7-f438cdf9d907#org.poderosa.menu.plugin"> org.poderosa.menu.plugin</link>、
+              <link xlink:href="dbfdedf8-804f-45e4-aca7-f438cdf9d907#org.poderosa.menu.help"> org.poderosa.menu.help</link>、
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>SerializeServicePluginプラグイン</title>
+        <content>
+          <para>オブジェクトの設定ファイルへの保存に関するサポートを提供します。</para>
+          <definitionTable>
+            <definedTerm>プラグインID</definedTerm>
+            <definition>org.poderosa.core.serializing</definition>
+            <definedTerm>依存</definedTerm>
+            <definition>なし</definition>
+            <definedTerm>実装するインターフェイス</definedTerm>
+            <definition>ISerializeService</definition>
+            <definedTerm>提供する拡張ポイント</definedTerm>
+            <definition>
+              <definitionTable>
+                <definedTerm>org.poderosa.core.serializeElement</definedTerm>
+                <definition>ISerializeServiceElement</definition>
+              </definitionTable>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>ProtocolsPluginプラグイン</title>
+        <content>
+          <para>TelnetやSSH、Cygwin接続のプロトコル接続を提供します。</para>
+          <definitionTable>
+            <definedTerm>プラグインID</definedTerm>
+            <definition>org.poderosa.protocols</definition>
+            <definedTerm>依存</definedTerm>
+            <definition>org.poderosa.core.preferences、org.poderosa.core.serializing</definition>
+            <definedTerm>実装するインターフェイス</definedTerm>
+            <definition><codeEntityReference>T:Poderosa.Protocols.IProtocolService</codeEntityReference></definition>
+            <definedTerm>提供する拡張ポイント</definedTerm>
+            <definition>
+              <link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f#org.poderosa.protocols.resultEventHandler"> org.poderosa.protocols.resultEventHandler</link>、
+              <link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f#org.poderosa.protocols.sshHostKeyChecker"> org.poderosa.protocols.sshHostKeyChecker</link>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>TerminalEmulatorPluginプラグイン</title>
+        <content>
+          <para>ターミナルエミュレータ機能を提供します。</para>
+          <definitionTable>
+            <definedTerm>プラグインID</definedTerm>
+            <definition>org.poderosa.terminalemulator</definition>
+            <definedTerm>依存</definedTerm>
+            <definition>org.poderosa.core.sessions、org.poderosa.core.commands</definition>
+            <definedTerm>実装するインターフェイス</definedTerm>
+            <definition><codeEntityReference>T:Poderosa.Terminal.ITerminalEmulatorService</codeEntityReference></definition>
+            <definedTerm>提供する拡張ポイント</definedTerm>
+            <definition>
+              <link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f#org.poderosa.protocols.resultEventHandler"> org.poderosa.terminalemulator.intellisense</link>、
+              <link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f#org.poderosa.terminalemulator.logFileNameFormatter"> org.poderosa.terminalemulator.logFileNameFormatter</link>、
+              <link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f#org.poderosa.terminalemulator.dynamicCaptionFormatter"> org.poderosa.terminalemulator.dynamicCaptionFormatter</link>、
+              <link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f#org.poderosa.terminalemulator.commandProcessorPopupMenu"> org.poderosa.terminalemulator.commandProcessorPopupMenu</link>、
+              <!-- メニュー -->
+              <link xlink:href="dbfdedf8-804f-45e4-aca7-f438cdf9d907#org.poderosa.terminalemulator.contextMenu"> org.poderosa.terminalemulator.contextMenu</link>、
+              <link xlink:href="dbfdedf8-804f-45e4-aca7-f438cdf9d907#org.poderosa.terminalemulator.documentContextMenu"> org.poderosa.terminalemulator.documentContextMenu</link>、
+              <link xlink:href="dbfdedf8-804f-45e4-aca7-f438cdf9d907#org.poderosa.terminalemulator.specialCommand"> org.poderosa.terminalemulator.specialCommand</link>、
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>TerminalSessionsPluginプラグイン</title>
+        <content>
+          <para>ターミナルセッション機能を提供します。</para>
+          <definitionTable>
+            <definedTerm>プラグインID</definedTerm>
+            <definition>org.poderosa.terminalsession</definition>
+            <definedTerm>依存</definedTerm>
+            <definition>org.poderosa.core.window、org.poderosa.terminalemulator、org.poderosa.protocols</definition>
+            <definedTerm>実装するインターフェイス</definedTerm>
+            <definition><codeEntityReference>T:Poderosa.Sessions.ITerminalSessionsService</codeEntityReference></definition>
+            <definedTerm>提供する拡張ポイント</definedTerm>
+            <definition>
+              <link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f#org.poderosa.terminalsessions.telnetSSHLoginDialogInitializer"> org.poderosa.terminalsessions.telnetSSHLoginDialogInitializer</link>、
+              <link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f#org.poderosa.terminalsessions.loginDialogUISupport"> org.poderosa.terminalsessions.loginDialogUISupport</link>、
+              <link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f#org.poderosa.termianlsessions.terminalConnectionFactory"> org.poderosa.termianlsessions.terminalConnectionFactory</link>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>CygwinPluginプラグイン</title>
+        <content>
+          <para>Cygwin接続機能を提供する内部プラグインです。</para>
+          <definitionTable>
+            <definedTerm>プラグインID</definedTerm>
+            <definition>org.poderosa.cygwin</definition>
+            <definedTerm>依存</definedTerm>
+            <definition>org.poderosa.core.window</definition>
+            <definedTerm>実装するインターフェイス</definedTerm>
+            <definition>ICygwinPlugin</definition>
+            <definedTerm>提供する拡張ポイント</definedTerm>
+            <definition>なし</definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>TelnetSSHPluginプラグイン</title>
+        <content>
+          <para>TelnetまたはSSH接続機能を提供する内部プラグインです。</para>
+          <definitionTable>
+            <definedTerm>プラグインID</definedTerm>
+            <definition>org.poderosa.telnet_ssh</definition>
+            <definedTerm>依存</definedTerm>
+            <definition>org.poderosa.core.window</definition>
+            <definedTerm>実装するインターフェイス</definedTerm>
+            <definition>なし</definition>
+            <definedTerm>提供する拡張ポイント</definedTerm>
+            <definition>なし</definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>MRUPluginプラグイン</title>
+        <content>
+          <para>ユーザーが過去に接続した接続先を保存し、［ファイル］メニューの履歴部分に追加する機能を提供します。</para>
+          <definitionTable>
+            <definedTerm>プラグインID</definedTerm>
+            <definition>org.poderosa.usability.mru</definition>
+            <definedTerm>依存</definedTerm>
+            <definition>org.poderosa.core.serializing、org.poderosa.terminalsessions</definition>
+            <definedTerm>実装するインターフェイス</definedTerm>
+            <definition>なし</definition>
+            <definedTerm>提供する拡張ポイント</definedTerm>
+            <definition>なし</definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>OptionDialogPluginプラグイン</title>
+        <content>
+          <para>［ツール］メニューから［オプション］を選択したときに表示される「オプション設定」ダイアログボックスを提供します。</para>
+          <definitionTable>
+            <definedTerm>プラグインID</definedTerm>
+            <definition>org.poderosa.optiondialog</definition>
+            <definedTerm>依存</definedTerm>
+            <definition>org.poderosa.core.window、org.poderosa.core.commands</definition>
+            <definedTerm>実装するインターフェイス</definedTerm>
+            <definition>ICultureChangeListener</definition>
+            <definedTerm>提供する拡張ポイント</definedTerm>
+            <definition><link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f#org.poderosa.optionpanel"> org.poderosa.optionpanel</link></definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>SSHUtilPluginプラグイン</title>
+        <content>
+          <para>SSHに関する周辺的な機能(鍵の作成など)を提供します。</para>
+          <definitionTable>
+            <definedTerm>プラグインID</definedTerm>
+            <definition>org.poderosa.sshutil</definition>
+            <definedTerm>依存</definedTerm>
+            <definition>org.poderosa.core.window</definition>
+            <definedTerm>実装するインターフェイス</definedTerm>
+            <definition>なし</definition>
+            <definedTerm>提供する拡張ポイント</definedTerm>
+            <definition>なし</definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>TerminalUIPluginプラグイン</title>
+        <content>
+          <para>ログの設定、接続ごとのフォントと色の設定など、ターミナルの周辺機能を提供します。</para>
+          <definitionTable>
+            <definedTerm>プラグインID</definedTerm>
+            <definition>org.poderosa.terminalui</definition>
+            <definedTerm>依存</definedTerm>
+            <definition>org.poderosa.terminalsessions、org.poderosa.optiondialog</definition>
+            <definedTerm>実装するインターフェイス</definedTerm>
+            <definition>なし</definition>
+            <definedTerm>提供する拡張ポイント</definedTerm>
+            <definition>なし</definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>ShortcutFilePluginプラグイン</title>
+        <content>
+          <para>接続へのショートカットファイルに関する機能を提供します。</para>
+          <definitionTable>
+            <definedTerm>プラグインID</definedTerm>
+            <definition>org.poderosa.shortcutfile</definition>
+            <definedTerm>依存</definedTerm>
+            <definition>org.poderosa.cygwin、org.poderosa.telnet_ssh</definition>
+            <definedTerm>実装するインターフェイス</definedTerm>
+            <definition>なし</definition>
+            <definedTerm>提供する拡張ポイント</definedTerm>
+            <definition>なし</definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>UsabilityPluginプラグイン</title>
+        <content>
+          <para>その他雑多の小機能を収録しています。</para>
+          <definitionTable>
+            <definedTerm>プラグインID</definedTerm>
+            <definition>org.poderosa.usability</definition>
+            <definedTerm>依存</definedTerm>
+            <definition>org.poderosa.terminalsessions</definition>
+            <definedTerm>実装するインターフェイス</definedTerm>
+            <definition>なし</definition>
+            <definedTerm>提供する拡張ポイント</definedTerm>
+            <definition>なし</definition>
+          </definitionTable>
+        </content>
+      </section>
+
+    </sections>
+
+  </developerConceptualDocument>
+</topic>

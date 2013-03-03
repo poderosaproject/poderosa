@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="99cfec82-7508-489c-be4d-c71c2ed65f83" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para>ドキュメントは、<codeEntityReference>T:Poderosa.Sessions.IPoderosaDocument</codeEntityReference>を備えるオブジェクトであり、セッションによって提供されます。</para>
+
+      <alert class="note">
+        <para>ドキュメントはセッションの開始時に、セッションを提供するプラグインがセッションホストの<codeEntityReference>M:Poderosa.Sessions.ISessionHost.RegisterDocument(Poderosa.Sessions.IPoderosaDocument)</codeEntityReference>を呼び出すことによって登録されます。詳細は、「<link xlink:href="7608eadb-dd54-46d1-9cf7-59af54f2367c"/>」を参照してください。</para>
+      </alert>
+
+      <para>ビューに結び付けられているドキュメントは、<codeEntityReference>T:Poderosa.Sessions.IPoderosaView</codeEntityReference>の<codeEntityReference>P:Poderosa.Sessions.IPoderosaView.Document</codeEntityReference>から参照できます。</para>
+
+<code language="C#">
+// viewはIPoderosaViewを示していると仮定します。
+IPoderosaDocument doc = view.Document;
+</code>
+    </introduction>
+
+    <sections>
+
+      <section>
+        <title>ドキュメントの基本的なプロパティ</title>
+        <content>
+          <para><codeEntityReference>T:Poderosa.Sessions.IPoderosaDocument</codeEntityReference>には、次のプロパティがあり、ドキュメントのキャプションやドキュメントを提供しているセッションを取得できます（表4-10）。</para>
+
+          <table>
+            <title>表4-10 IPoderosaDocumentのプロパティ</title>
+            <tableHeader>
+              <row>
+                <entry>プロパティ</entry>
+                <entry>意味</entry>
+              </row>
+            </tableHeader>
+            <row>
+              <entry>Caption</entry>
+              <entry>ドキュメントタブに表示されるキャプション文字列を示します。</entry>
+            </row>
+            <row>
+              <entry>Icon</entry>
+              <entry>ドキュメントタブに表示されるアイコンを示します。</entry>
+            </row>
+            <row>
+              <entry>OwnerSession</entry>
+              <entry>このドキュメントを提供するセッションを示します。</entry>
+            </row>
+          </table>
+        </content>
+      </section>
+
+      <section>
+        <title>CharacterDocumentクラス</title>
+        <content>
+          <para>ドキュメントがTelnet接続、SSH接続、Cygin接続などのターミナル接続である場合、ドキュメントは、<codeEntityReference>T:Poderosa.Sessions.IPoderosaDocument</codeEntityReference>を実装している<codeEntityReference>T:Poderosa.Document.CharacterDocument</codeEntityReference>として構成されます。</para>
+          <para>必要があれば、次のように<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>を用いて、<codeEntityReference>T:Poderosa.Document.CharacterDocument</codeEntityReference>に変換して操作することもできます。</para>
+
+<code language="C#">
+// docはIPoderosaDocumentを示していると仮定します。
+CharacterDocument chardoc = 
+  (CharacterDocument)doc.GetAdapter(typeof(CharacterDocument));
+</code>
+
+          <para><codeEntityReference>T:Poderosa.Document.CharacterDocument</codeEntityReference>には、表示されている行を1行単位で取得するメソッドがあり、行単位／文字単位での操作ができますが、あまり使われることはないので、ここでの解説は省略します。</para>
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="012e4424-55ff-4cee-9431-8066358e6205"/>
+      <link xlink:href="1f80fe4b-cfea-4dc5-b71c-834a51d572f3"/>
+      <link xlink:href="2a44f911-a5e8-4d62-8451-814990164672"/>
+      <link xlink:href="7608eadb-dd54-46d1-9cf7-59af54f2367c"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

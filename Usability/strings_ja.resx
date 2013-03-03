@@ -1,0 +1,803 @@
+﻿<root>
+  <resheader name="ResMimeType">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="Version">
+    <value>1.0.0.0</value>
+  </resheader>
+  <resheader name="Reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="Writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Common.OK">
+    <value>OK</value>
+  </data>
+  <data name="Common.Cancel">
+    <value>キャンセル</value>
+  </data>
+  <data name="Common.FontSample">
+    <value>Poderosa</value>
+  </data>
+  <data name="Common.CJKFontSample">
+    <value>ポデローザ</value>
+  </data>
+  <data name="CommandCategory.SSH">
+    <value>SSH</value>
+  </data>
+  <data name="Command.OptionDialog">
+    <value>オプションダイアログ</value>
+  </data>
+  <data name="Command.GenerateKeyPair">
+    <value>SSH鍵作成ウィザードの起動</value>
+  </data>
+  <data name="Command.ChangePassphrase">
+    <value>秘密鍵のパスフレーズ変更</value>
+  </data>
+  <data name="Command.AgentKeyListDialog">
+    <value>エージェントフォワーディング設定く</value>
+  </data>
+  <data name="Command.EditRenderProfile">
+    <value>表示プロファイルの編集</value>
+  </data>
+  <data name="Command.RenameTab">
+    <value>タブのリネーム</value>
+  </data>
+  <data name="Command.CommentLog">
+    <value>ログに任意のテキストを書き込む</value>
+  </data>
+  <data name="Command.ChangeLog">
+    <value>ログの設定変更</value>
+  </data>
+  <data name="Command.PoderosaLog">
+    <value>Poderosaイベントログ表示</value>
+  </data>
+  <data name="Menu.EditRenderProfile">
+    <value>表示プロファイルの編集(&amp;D)...</value>
+  </data>
+  <data name="Menu.RenameTab">
+    <value>タブのリネーム(&amp;T)...</value>
+  </data>
+  <data name="Caption.RenameTab">
+    <value>タブのリネーム</value>
+  </data>
+  <data name="Menu.CommentLog">
+    <value>ログにコメントをつける(&amp;G)...</value>
+  </data>
+  <data name="Menu.ChangeLog">
+    <value>ログの設定(&amp;L)...</value>
+  </data>
+  <data name="Menu.PoderosaLog">
+    <value>Poderosaイベントログの表示(&amp;E)...</value>
+  </data>
+  <data name="Form.ChangeLog.Text">
+    <value>ログの設定</value>
+  </data>
+  <data name="Form.ChangeLog._logTypeLabel">
+    <value>ログの種別(&amp;T)</value>
+  </data>
+  <data name="Form.ChangeLog._fileNameLabel">
+    <value>ファイル名(&amp;F)</value>
+  </data>
+  <data name="Form.CommentLog._insertButton">
+    <value>挿入(&amp;I)...</value>
+  </data>
+  <data name="Form.CommentLog.Text">
+    <value>ログへのコメント</value>
+  </data>
+  <data name="Menu.CommentLog.Time">
+    <value>時刻(&amp;T)</value>
+  </data>
+  <data name="Menu.CommentLog.DateTime">
+    <value>日付と時刻(&amp;D)</value>
+  </data>
+  <data name="Form.EditRenderProfile._bgColorLabel">
+    <value>背景色(&amp;B)</value>
+  </data>
+  <data name="Form.EditRenderProfile._textColorLabel">
+    <value>テキスト色(&amp;T)</value>
+  </data>
+  <data name="Form.EditRenderProfile._editEscapeSequenceColorBox">
+    <value>色指定エスケープシーケンスの設定...(&amp;E)</value>
+  </data>
+  <data name="Form.EditRenderProfile._fontSelectButton">
+    <value>変更...</value>
+  </data>
+  <data name="Form.EditRenderProfile._fontLabel">
+    <value>フォント(&amp;F)</value>
+  </data>
+  <data name="Form.EditRenderProfile._backgroungImageLabel">
+    <value>背景画像(&amp;P)</value>
+  </data>
+  <data name="Form.EditRenderProfile._imageStyleLabel">
+    <value>画像の配置(&amp;L)</value>
+  </data>
+  <data name="Form.EditRenderProfile._setToDefaultButton">
+    <value>標準に戻す(&amp;R)</value>
+  </data>
+  <data name="Form.EditRenderProfile.Text">
+    <value>表示プロファイルの編集</value>
+  </data>
+  <data name="Message.EditRenderProfile.InvalidPicture">
+    <value>{0}は有効な画像ファイル名ではありません。</value>
+  </data>
+  <data name="Util.SelectPicture.Caption">
+    <value>画像の選択</value>
+  </data>
+  <data name="Form.EditEscapesequenceColor.Text">
+    <value>色指定エスケープシーケンスの設定</value>
+  </data>
+  <data name="Form.EditEscapesequenceColor._setDefaultButton">
+    <value>デフォルトに戻す(&amp;D)</value>
+  </data>
+  <data name="Caption.EditEscapesequenceColor.DefaultColor">
+    <value>標準</value>
+  </data>
+  <data name="Caption.EditEscapesequenceColor.BackColor">
+    <value>背景</value>
+  </data>
+  <data name="Form.GFontDialog._lAsciiFont">
+    <value>ASCII文字のフォント</value>
+  </data>
+  <data name="Form.GFontDialog._lCJKFont">
+    <value>CJK文字のフォント</value>
+  </data>
+  <data name="Form.GFontDialog._lFontSize">
+    <value>サイズ(&amp;S)</value>
+  </data>
+  <data name="Form.GFontDialog._checkClearType">
+    <value>可能であれば常にClearTypeフォントを使う(&amp;C)</value>
+  </data>
+  <data name="Form.GFontDialog._checkBoldStyle">
+    <value>ボールドフォントを有効にする(&amp;B)</value>
+  </data>
+  <data name="Form.GFontDialog._checkForceBoldStyle">
+    <value>ボールドフォントを強制する(&amp;F)</value>
+  </data>
+  <data name="Form.GFontDialog._labelNotice">
+    <value>※日本語を多く表示する場合、両方で同じフォントを指定するとパフォーマンスが向上します。</value>
+  </data>
+  <data name="Form.GFontDialog.Text">
+    <value>フォントの選択</value>
+  </data>
+  <data name="Message.GFontDialog.NotTrueTypeWarning">
+    <value>TrueTypeでない{0}フォントを使っているため、サイズは{1}に変更されます。</value>
+  </data>
+  <data name="Menu.OptionDialog">
+    <value>オプション(&amp;O)...</value>
+  </data>
+  <data name="Form.OptionDialog.Text">
+    <value>オプション設定</value>
+  </data>
+  <data name="Form.OptionDialog._displayPanel">
+    <value>表示</value>
+  </data>
+  <data name="Form.OptionDialog._colorFontGroup">
+    <value>色・フォント・背景</value>
+  </data>
+  <data name="Form.OptionDialog._bgColorLabel">
+    <value>背景色(&amp;B)</value>
+  </data>
+  <data name="Form.OptionDialog._textColorLabel">
+    <value>テキスト色(&amp;T)</value>
+  </data>
+  <data name="Form.OptionDialog._editEscapeSequenceColorBox">
+    <value>色指定エスケープシーケンスの設定...(&amp;E)</value>
+  </data>
+  <data name="Form.OptionDialog._darkenEsColorForBackground">
+    <value>背景色には色を暗くする</value>
+  </data>
+  <data name="Form.OptionDialog._fontLabel">
+    <value>フォント(&amp;F)</value>
+  </data>
+  <data name="Form.OptionDialog._fontSelectButton">
+    <value>変更...</value>
+  </data>
+  <data name="Form.OptionDialog._backgroundImageLabel">
+    <value>背景画像(&amp;I)</value>
+  </data>
+  <data name="Form.OptionDialog._imageStyleLabel">
+    <value>画像の配置(&amp;L)</value>
+  </data>
+  <data name="Form.OptionDialog._applyRenderProfileButton">
+    <value>全接続に適用</value>
+  </data>
+  <data name="Form.OptionDialog._caretGroup">
+    <value>キャレット</value>
+  </data>
+  <data name="Form.OptionDialog._caretStyleLabel">
+    <value>スタイル(&amp;S)</value>
+  </data>
+  <data name="Form.OptionDialog._caretSpecifyColor">
+    <value>色を指定する(&amp;C)</value>
+  </data>
+  <data name="Form.OptionDialog._caretBlink">
+    <value>点滅させる(&amp;K)</value>
+  </data>
+  <data name="Form.OptionDialog._lineSpacingLabel">
+    <value>行間スペース</value>
+  </data>
+  <data name="Form.OptionDialog._pixelsLabel">
+    <value>ピクセル</value>
+  </data>
+  <data name="Form.OptionDialog._terminalPanel">
+    <value>ターミナル</value>
+  </data>
+  <data name="Form.OptionDialog._charDecodeErrorBehaviorLabel">
+    <value>処理できないデータの受信時(&amp;U)</value>
+  </data>
+  <data name="Form.OptionDialog._bufferSizeLabel">
+    <value>バッファ行数(&amp;Z)</value>
+  </data>
+  <data name="Form.OptionDialog._disconnectNotificationLabel">
+    <value>切断の通知方法(&amp;N)</value>
+  </data>
+  <data name="Form.OptionDialog._closeOnDisconnect">
+    <value>切断時にペインを閉じる(&amp;P)</value>
+  </data>
+  <data name="Form.OptionDialog._beepOnBellChar">
+    <value>ベル文字を受信したときに音を鳴らす(&amp;B)</value>
+  </data>
+  <data name="Form.OptionDialog._adjustsTabTitleToWindowTitle">
+    <value>タブの名前をxtermのウィンドウタイトルに一致させる(&amp;T)</value>
+  </data>
+  <data name="Form.OptionDialog._allowsScrollInAppMode">
+    <value>アプリケーションモードでもスクロールを許可する(&amp;S)</value>
+  </data>
+  <data name="Form.OptionDialog._keepAliveCheck">
+    <value>KeepAliveパケットを送信する(&amp;K)(</value>
+  </data>
+  <data name="Form.OptionDialog._keepAliveLabel">
+    <value>分毎)</value>
+  </data>
+  <data name="Form.OptionDialog._defaultLogTypeLabel">
+    <value>種別(&amp;L)</value>
+  </data>
+  <data name="Form.OptionDialog._defaultLogDirectoryLabel">
+    <value>保存先ディレクトリ(&amp;D)</value>
+  </data>
+  <data name="Form.OptionDialog._autoLogCheckBox">
+    <value>ログファイル名を自動設定する(&amp;A)</value>
+  </data>
+  <data name="Form.OptionDialog._peripheralPanel">
+    <value>操作</value>
+  </data>
+  <data name="Form.OptionDialog._mouseGroup">
+    <value>マウス</value>
+  </data>
+  <data name="Form.OptionDialog._keyboardGroup">
+    <value>キーボード</value>
+  </data>
+  <data name="Form.OptionDialog._leftAltKeyLabel">
+    <value>左Altキーの用途(&amp;L)</value>
+  </data>
+  <data name="Form.OptionDialog._rightAltKeyLabel">
+    <value>右Altキーの用途(&amp;R)</value>
+  </data>
+  <data name="Form.OptionDialog._send0x7FByDel">
+    <value>Deleteキーで0x7Fを送信(&amp;D)</value>
+  </data>
+  <data name="Form.OptionDialog._send0x7FByBack">
+    <value>BackSpaceキーで0x7Fを送信(&amp;K)</value>
+  </data>
+  <data name="Form.OptionDialog._zone0x1FLabel">
+    <value>0x1C-1Fの送信方法(&amp;0)</value>
+  </data>
+  <data name="Form.OptionDialog._autoKeySettingsLabel">
+    <value>自動キー定義</value>
+  </data>
+  <data name="Form.OptionDialog._customKeySettingsLabel">
+    <value>追加キー定義(&amp;B)</value>
+  </data>
+  <data name="Form.OptionDialog._autoCopyByLeftButton">
+    <value>マウスで選択したら自動的にコピー(&amp;A)</value>
+  </data>
+  <data name="Form.OptionDialog._additionalWordElementLabel">
+    <value>英数字に追加する単語構成文字(&amp;E)</value>
+  </data>
+  <data name="Form.OptionDialog._rightButtonActionLabel">
+    <value>右クリックの動作(&amp;C)</value>
+  </data>
+  <data name="Form.OptionDialog._middleButtonActionLabel">
+    <value>中クリックの動作(&amp;M)</value>
+  </data>
+  <data name="Form.OptionDialog._wheelAmountLabel">
+    <value>ホイールでのスクロール行数(&amp;W)</value>
+  </data>
+  <data name="Form.OptionDialog._viewSplitModifierLabel">
+    <value>ペイン分割時の修飾キー(&amp;P)</value>
+  </data>
+  <data name="Caption.KeysNone">
+    <value>なし</value>
+  </data>
+  <data name="Form.OptionDialog._localBufferScrollModifierLabel">
+    <value>ローカルバッファをスクロールさせる修飾キー(&amp;S)</value>
+  </data>
+  <data name="Form.OptionDialog._shellSupportGroup">
+    <value>シェルサポート</value>
+  </data>
+  <data name="Form.OptionDialog._enableComplementForNewConnections">
+    <value>新規接続時に文字入力でのシェル補完を有効にする(&amp;C)</value>
+  </data>
+  <data name="Form.OptionDialog._commandPopupAlwaysOnTop">
+    <value>コマンド結果ポップアップを前面に表示(&amp;T)</value>
+  </data>
+  <data name="Form.OptionDialog._commandPopupInTaskBar">
+    <value>コマンド結果ポップアップをタスクバーに表示(&amp;R)</value>
+  </data>
+  <data name="Form.OptionDialog._alertOnPasteNewLineCharCheck">
+    <value>改行文字を含む貼り付けで警告を表示</value>
+  </data>
+  <data name="Form.OptionDialog._commandPanel">
+    <value>コマンド</value>
+  </data>
+  <data name="Form.OptionDialog._commandCategoryHeader">
+    <value>カテゴリ</value>
+  </data>
+  <data name="Form.OptionDialog._commandNameHeader">
+    <value>コマンド</value>
+  </data>
+  <data name="Form.OptionDialog._commandConfigHeader">
+    <value>キー割り当て</value>
+  </data>
+  <data name="Form.OptionDialog._resetKeyConfigButton">
+    <value>デフォルトに戻す</value>
+  </data>
+  <data name="Form.OptionDialog._clearKeyConfigButton">
+    <value>すべてクリア</value>
+  </data>
+  <data name="Form.OptionDialog._commandConfigGroup">
+    <value>コマンドの設定</value>
+  </data>
+  <data name="Form.OptionDialog._commandNameLabel">
+    <value>コマンド名</value>
+  </data>
+  <data name="Form.OptionDialog._currentConfigLabel">
+    <value>現在の割り当て</value>
+  </data>
+  <data name="Form.OptionDialog._newAllocationLabel">
+    <value>新しい割り当て</value>
+  </data>
+  <data name="Form.OptionDialog._allocateKeyButton">
+    <value>割り当て</value>
+  </data>
+  <data name="Form.OptionDialog._sshPanel">
+    <value>SSH</value>
+  </data>
+  <data name="Form.OptionDialog._cipherOrderGroup">
+    <value>暗号アルゴリズムの優先度</value>
+  </data>
+  <data name="Form.OptionDialog._algorithmOrderUp">
+    <value>上へ(&amp;U)</value>
+  </data>
+  <data name="Form.OptionDialog._algorithmOrderDown">
+    <value>下へ(&amp;D)</value>
+  </data>
+  <data name="Form.OptionDialog._ssh2OptionGroup">
+    <value>プロトコルオプション(SSH2でのみ有効)</value>
+  </data>
+  <data name="Form.OptionDialog._hostKeyLabel">
+    <value>使用するホストキー認証アルゴリズム(&amp;H)</value>
+  </data>
+  <data name="Form.OptionDialog._windowSizeLabel">
+    <value>SSHチャンネルのウィンドウサイズ(&amp;W)</value>
+  </data>
+  <data name="Form.OptionDialog._sshMiscGroup">
+    <value>その他</value>
+  </data>
+  <data name="Form.OptionDialog._enableAgentForward">
+    <value>エージェントフォワーディングを使用(&amp;F)
+(OpenSSHに対するSSH2接続でのみ有効)</value>
+  </data>
+  <data name="Form.OptionDialog._retainsPassphrase">
+    <value>終了までは一度入力したパスフレーズを記憶(&amp;M)</value>
+  </data>
+  <data name="Form.OptionDialog._sshCheckMAC">
+    <value>MACチェックを行う(&amp;C)
+(チェックを外すとと若干高速化するかわりセキュリティが低下します)</value>
+  </data>
+  <data name="Form.OptionDialog._sshEventLog">
+    <value>SSHネゴシエーションをPoderosaイベントログに出力(&amp;L)</value>
+  </data>
+  <data name="Form.OptionDialog._connectionPanel">
+    <value>接続</value>
+  </data>
+  <data name="Form.OptionDialog._useSocks">
+    <value>SOCKS5を使用する(&amp;S)</value>
+  </data>
+  <data name="Form.OptionDialog._socksServerLabel">
+    <value>サーバ名(&amp;N)</value>
+  </data>
+  <data name="Form.OptionDialog._socksPortLabel">
+    <value>ポート(&amp;O)</value>
+  </data>
+  <data name="Form.OptionDialog._socksAccountLabel">
+    <value>アカウント(&amp;A)</value>
+  </data>
+  <data name="Form.OptionDialog._socksPasswordLabel">
+    <value>パスワード(&amp;P)</value>
+  </data>
+  <data name="Form.OptionDialog._socksNANetworksLabel">
+    <value>次のネットワークにはSOCKSを使わない(&amp;E)
+(192.168.10.0/24の形式をセミコロンで連結します)</value>
+  </data>
+  <data name="Form.OptionDialog._IPv6Group">
+    <value>IPv6</value>
+  </data>
+  <data name="Form.OptionDialog._IPv6PriorityLabel">
+    <value>IPv4に対する優先度(&amp;P)</value>
+  </data>
+  <data name="Form.OptionDialog._genericPanel">
+    <value>全般</value>
+  </data>
+  <data name="Form.OptionDialog._actionOnLaunchLabel">
+    <value>起動時の動作(&amp;A)</value>
+  </data>
+  <data name="Form.OptionDialog._MRUSizeLabel">
+    <value>ファイルメニューの最近の接続の数(&amp;N)</value>
+  </data>
+  <data name="Form.OptionDialog._serialCountLabel">
+    <value>リストに表示するシリアルポート数(&amp;P)</value>
+  </data>
+  <data name="Form.OptionDialog._showToolBar">
+    <value>ツールバーを表示する(&amp;B)</value>
+  </data>
+  <data name="Form.OptionDialog._showTabBar">
+    <value>タブバーを表示する(&amp;T)</value>
+  </data>
+  <data name="Form.OptionDialog._showStatusBar">
+    <value>ステータスバーを表示する(&amp;S)</value>
+  </data>
+  <data name="Form.OptionDialog._askCloseOnExit">
+    <value>ウィンドウを閉じる時に開いている接続があれば警告する(&amp;W)</value>
+  </data>
+  <data name="Form.OptionDialog._quitAppWithLastPane">
+    <value>最後の接続が切れたらアプリケーションを終了する(&amp;Q)</value>
+  </data>
+  <data name="Form.OptionDialog._optionPreservePlaceLabel">
+    <value>オプション設定の保存場所(&amp;O)</value>
+  </data>
+  <data name="Form.OptionDialog._languageLabel">
+    <value>言語(&amp;L)</value>
+  </data>
+  <data name="Form.OptionDialog._startupOptionLabel">
+    <value>起動時の動作(&amp;S)</value>
+  </data>
+  <data name="Form.OptionDialog._tabBarGroup">
+    <value>配置</value>
+  </data>
+  <data name="Form.OptionDialog._tabStyleLabel">
+    <value>スタイル(&amp;E)</value>
+  </data>
+  <data name="Form.OptionDialog._splitterRatioBox">
+    <value>メインウィンドウのリサイズ時にスプリッタの比率を維持する(&amp;R)</value>
+  </data>
+  <data name="Caption.OptionDialog.CaretStyle0">
+    <value>箱型</value>
+  </data>
+  <data name="Caption.OptionDialog.CaretStyle1">
+    <value>縦棒</value>
+  </data>
+  <data name="Caption.OptionDialog.CaretStyle2">
+    <value>下線</value>
+  </data>
+  <data name="Message.OptionDialog.InvalidPictureFile">
+    <value>{0}は有効な画像ファイル名ではありません。</value>
+  </data>
+  <data name="Message.OptionDialog.InvalidItem">
+    <value>{0}の指定が正しくありません。</value>
+  </data>
+  <data name="Caption.OptionDialog.BufferLineCount">
+    <value>バッファ行数</value>
+  </data>
+  <data name="Caption.OptionDialog.MRUCount">
+    <value>保存する最近の接続数</value>
+  </data>
+  <data name="Caption.OptionDialog.KeepAliveInterval">
+    <value>KeepAliveの間隔</value>
+  </data>
+  <data name="Message.OptionDialog.EmptyLogDirectory">
+    <value>ログのディレクトリ名が入力されていません。</value>
+  </data>
+  <data name="Message.OptionDialog.AskCreateDirectory">
+    <value>ディレクトリ {0} は存在しません。作成しますか？</value>
+  </data>
+  <data name="Message.OptionDialog.FailedCreateDirectory">
+    <value>ディレクトリの作成に失敗しました。</value>
+  </data>
+  <data name="Message.OptionDialog.AltKeyOnWin9x">
+    <value>Windows98/Meでは、左右のAltキーの動作は同じでなくてはいけません。</value>
+  </data>
+  <data name="Caption.OptionDialog.MousewheelAmount">
+    <value>マウスホイールのスクロール量</value>
+  </data>
+  <data name="Message.OptionDialog.InvalidWindowSize">
+    <value>ウィンドウサイズの指定が正しくありません。</value>
+  </data>
+  <data name="Message.OptionDialog.EmptySocksServer">
+    <value>SOCKSサーバ名が指定されていません。</value>
+  </data>
+  <data name="Caption.OptionDialog.SOCKSPortNumber">
+    <value>SOCKSポート番号</value>
+  </data>
+  <data name="Caption.OptionDialog.NetworkAddress">
+    <value>ネットワークアドレス</value>
+  </data>
+  <data name="Caption.OptionDialog.SerialPortCount">
+    <value>シリアルポート数</value>
+  </data>
+  <data name="Message.OptionDialog.RegistryWriteAuthWarning">
+    <value>設定の保存場所を変更するためにはレジストリへの書き込み権限が必要です。</value>
+  </data>
+  <data name="Caption.OptionDialog.DefaultLogDirectory">
+    <value>ログを格納するディレクトリを選択してください。</value>
+  </data>
+  <data name="Message.OptionDialog.AskOverwriteToASCIIInput">
+    <value>キー {0} はASCIIコード {1} の文字を入力するために使用します。コマンド設定を優先しますか？</value>
+  </data>
+  <data name="Message.OptionDialog.AskOverwriteCommand">
+    <value>このキーは「{0}」コマンドに割り当てられています。上書きして設定しますか？</value>
+  </data>
+  <data name="Caption.OptionDialog.ActionOnLaunch.Nothing">
+    <value>何もしない</value>
+  </data>
+  <data name="Caption.OptionDialog.ActionOnLaunch.NewConnection">
+    <value>新規接続ダイアログを開く</value>
+  </data>
+  <data name="Caption.OptionDialog.ActionOnLaunch.Macro">
+    <value>マクロの実行 - </value>
+  </data>
+  <data name="Message.OptionDialog.InvalidAdditionalWordElement">
+    <value>単語構成要素として不適切な文字が含まれています。</value>
+  </data>
+  <data name="Message.OptionDialog.AskJapaneseFont">
+    <value>If Japanese font is not installed in your computer, the window will be shown incorrectly. Do you wish to continue?</value>
+  </data>
+  <data name="Message.HostKeyChecker.AskHostKeyRegister">
+    <value>SSHサーバの公開鍵はssh_known_hostsに登録されていません。登録して続行しますか？</value>
+  </data>
+  <data name="Message.HostKeyChecker.AskHostKeyRenew">
+    <value>SSHサーバの公開鍵はssh_known_hostsに登録されているものと異なります。更新して続行しますか？</value>
+  </data>
+  <data name="Menu.GenerateKeyPair">
+    <value>SSH鍵作成ウィザード(&amp;K)...</value>
+  </data>
+  <data name="Menu.ChangePassphrase">
+    <value>秘密鍵のパスフレーズ変更(&amp;P)...</value>
+  </data>
+  <data name="Menu.AgentKeyListDialog">
+    <value>エージェントフォワーディング(&amp;F)...</value>
+  </data>
+  <data name="Form.KeyGenWizard._confirmLabel">
+    <value>確認入力(&amp;C)</value>
+  </data>
+  <data name="Form.KeyGenWizard._passphraseLabel">
+    <value>パスフレーズ(&amp;P)</value>
+  </data>
+  <data name="Form.KeyGenWizard._bitCountLabel">
+    <value>ビット数(&amp;B)</value>
+  </data>
+  <data name="Form.KeyGenWizard._algorithmLabel">
+    <value>アルゴリズム(&amp;A)</value>
+  </data>
+  <data name="Form.KeyGenWizard._promptLabel1">
+    <value>SSH2の認証用鍵を作成します。アルゴリズムとビット数を指定し、パスフレーズを入力してください。</value>
+  </data>
+  <data name="Form.KeyGenWizard._nextButton">
+    <value>次へ</value>
+  </data>
+  <data name="Form.KeyGenWizard._keygenLabel">
+    <value>鍵を生成します。このウィンドウの中でマウスを乱雑に動かして、乱数を供給してください。</value>
+  </data>
+  <data name="Form.KeyGenWizard._storePrivateKey">
+    <value>秘密鍵を名前をつけて保存(&amp;P)...</value>
+  </data>
+  <data name="Form.KeyGenWizard._storeSECSHPublicKeyButton">
+    <value>SECSH形式で公開鍵を名前をつけて保存(&amp;S)...</value>
+  </data>
+  <data name="Form.KeyGenWizard._storeOpenSSHPublicKeyButton">
+    <value>OpenSSH形式で公開鍵を名前をつけて保存(&amp;O)...</value>
+  </data>
+  <data name="Form.KeyGenWizard._completeLabel">
+    <value>生成が完了しました。秘密鍵をローカルホストに、公開鍵をリモートホストに置いてください。</value>
+  </data>
+  <data name="Form.KeyGenWizard.Text">
+    <value>SSH鍵作成ウィザード</value>
+  </data>
+  <data name="Message.KeyGenWizard.NotMatch">
+    <value>入力されたパスフレーズが確認入力と異なっています。</value>
+  </data>
+  <data name="Message.KeyGenWizard.ConfirmEmptyPassphrase">
+    <value>パスフレーズを空にして鍵を生成しますか？</value>
+  </data>
+  <data name="Message.KeyGenWizard.Finish">
+    <value>完了</value>
+  </data>
+  <data name="Message.KeyGenWizard.RandomNumberCompleted">
+    <value>乱数の取得が終わりました。鍵の生成が終わるまでお待ちください。この処理には数分間かかることもあります。</value>
+  </data>
+  <data name="Message.KeyGenWizard.GenerationCompleted">
+    <value>生成が完了しました。</value>
+  </data>
+  <data name="Caption.KeyGenWizard.SavePrivateKey">
+    <value>秘密鍵の保存</value>
+  </data>
+  <data name="Message.KeyGenWizard.KeySaveError">
+    <value>鍵の保存中にエラーが発生しました。{0}</value>
+  </data>
+  <data name="Caption.KeyGenWizard.SavePublicInSECSH">
+    <value>公開鍵の保存(SECSHフォーマット)</value>
+  </data>
+  <data name="Caption.KeyGenWizard.SavePublicInOpenSSH">
+    <value>公開鍵の保存(OpenSSHフォーマット)</value>
+  </data>
+  <data name="Form.AgentKeyListDialog.Text">
+    <value>エージェントフォワーディングの秘密鍵リスト</value>
+  </data>
+  <data name="Form.AgentKeyListDialog._filenameHeader">
+    <value>ファイル名</value>
+  </data>
+  <data name="Form.AgentKeyListDialog._statusHeader">
+    <value>状態</value>
+  </data>
+  <data name="Form.AgentKeyListDialog._commentHeader">
+    <value>コメント</value>
+  </data>
+  <data name="Form.AgentKeyListDialog._addButton">
+    <value>追加(&amp;A)...</value>
+  </data>
+  <data name="Form.AgentKeyListDialog._removeButton">
+    <value>削除(&amp;R)</value>
+  </data>
+  <data name="Form.InputPassphraseDialog.Text">
+    <value>パスフレーズの入力</value>
+  </data>
+  <data name="Form.InputPassphraseDialog._fileNameLabel">
+    <value>ファイル名</value>
+  </data>
+  <data name="Form.InputPassphraseDialog._passphraseLabel">
+    <value>パスフレーズ(&amp;P)</value>
+  </data>
+  <data name="Form.ChangePassphrase._lKeyFile">
+    <value>秘密鍵ファイル(&amp;F)</value>
+  </data>
+  <data name="Form.ChangePassphrase._lCurrentPassphrase">
+    <value>現在のパスフレーズ(&amp;C)</value>
+  </data>
+  <data name="Form.ChangePassphrase._lNewPassphrase">
+    <value>新しいパスフレーズ(&amp;N)</value>
+  </data>
+  <data name="Form.ChangePassphrase._lNewPassphraseAgain">
+    <value>確認入力(&amp;A)</value>
+  </data>
+  <data name="Form.ChangePassphrase.Text">
+    <value>パスフレーズの変更</value>
+  </data>
+  <data name="Message.ChangePassphrase.PassphraseMismatch">
+    <value>新しいパスフレーズが確認入力のものと異なります。</value>
+  </data>
+  <data name="Message.ChangePassphrase.AskEmptyPassphrase">
+    <value>パスフレーズが入力されていません。空のパスフレーズを設定しますか？</value>
+  </data>
+  <data name="Message.ChangePassphrase.NotifyChanged">
+    <value>パスフレーズを変更しました。</value>
+  </data>
+  <data name="Message.KeyAgent.FileNotExist">
+    <value>{0} は有効なファイルではありません。</value>
+  </data>
+  <data name="Caption.PreferenceEditor.Bool">
+    <value>真偽</value>
+  </data>
+  <data name="Caption.PreferenceEditor.Int">
+    <value>整数</value>
+  </data>
+  <data name="Caption.PreferenceEditor.String">
+    <value>文字列</value>
+  </data>
+  <data name="Form.PreferenceEditor._nameHeader">
+    <value>名前</value>
+  </data>
+  <data name="Form.PreferenceEditor._typeHeader">
+    <value>型</value>
+  </data>
+  <data name="Form.PreferenceEditor._valueHeader">
+    <value>値</value>
+  </data>
+  <data name="Form.PreferenceEditor._filterLabel">
+    <value>フィルタ(&amp;F)</value>
+  </data>
+  <data name="Form.PreferenceEditor._resetButton">
+    <value>すべてリセット(&amp;R)</value>
+  </data>
+  <data name="Form.PreferenceEditor.Text">
+    <value>詳細プリファレンスエディタ</value>
+  </data>
+  <data name="Command.PreferenceEditor">
+    <value>詳細プリファレンスエディタ</value>
+  </data>
+  <data name="Menu.PreferenceEditor">
+    <value>詳細プリファレンスエディタ(&amp;D)...</value>
+  </data>
+  <data name="Form.PreferenceItemEditor.Text">
+    <value>項目の編集</value>
+  </data>
+  <data name="Form.PreferenceItemEditor._nameLabel">
+    <value>項目名</value>
+  </data>
+  <data name="Form.PreferenceItemEditor._valueLabel">
+    <value>値(&amp;V)</value>
+  </data>
+  <data name="Form.PreferenceItemEditor._resetButton">
+    <value>リセット(&amp;R)</value>
+  </data>
+  <data name="Form.ShellSchemeEditor.Text">
+    <value>シェルスキーム エディタ</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._schemeCollectionGroup">
+    <value>シェルスキームリスト</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._deleteSchemeButton">
+    <value>削除(&amp;D)</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._newSchemeButton">
+    <value>新規(&amp;N)</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._schemeLabel">
+    <value>スキーム(&amp;S)</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._deleteCharLabel">
+    <value>1文字削除のコード(&amp;R)</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._nameLabel">
+    <value>名前(&amp;A)</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._promptLabel">
+    <value>プロンプト正規表現(&amp;P)</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._deleteButton">
+    <value>コマンド削除(&amp;E)</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._alphabeticalSort">
+    <value>アルファベット順(&amp;S)</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._currentSchemeGroup">
+    <value>スキーム - {0}</value>
+  </data>
+  <data name="Form.ShellSchemeEditor._itemLabel">
+    <value>コマンドリスト</value>
+  </data>
+  <data name="Menu.ShellSchemeEditor">
+    <value>シェルスキーム エディタ(&amp;S)...</value>
+  </data>
+  <data name="Command.ShellSchemeEditor">
+    <value>シェルスキームエディタ</value>
+  </data>
+  <data name="Message.ShellSchemeEditor.DuplicatedName">
+    <value>名前に重複があります。</value>
+  </data>
+  <data name="Message.ShellSchemeEditor.EmptyName">
+    <value>名前が空です</value>
+  </data>
+  <data name="Message.ShellSchemeEditor.PromptError">
+    <value>プロンプトは正しい正規表現でなくてはなりません。</value>
+  </data>
+  <data name="Enum.StartupAction.DoNothing">
+    <value>何もしない</value>
+  </data>
+  <data name="Enum.StartupAction.TelnetSSHDialog">
+    <value>Telnet/SSHダイアログを開く</value>
+  </data>
+  <data name="Enum.StartupAction.OpenCygwin">
+    <value>Cygwin接続を開く</value>
+  </data>
+  <data name="Message.AboutBox.EnterGuevara">
+    <value>ようこそゲバラモードへ。これを知る人はおそらく古参ユーザですね。</value>
+  </data>
+  <data name="Message.AboutBox.ExitGuevara">
+    <value>ゲバラモードから抜けます</value>
+  </data>
+  <data name="Form.AboutBox.Text">
+    <value>バージョン情報</value>
+  </data>
+</root>

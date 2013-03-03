@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="1f80fe4b-cfea-4dc5-b71c-834a51d572f3" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para>ウィンドウは、<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>を備えたオブジェクトです。<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>は、ウィンドウやコントロールとして扱えるようにするため、<codeEntityReference>T:Poderosa.Forms.IPoderosaControl</codeEntityReference>と<codeEntityReference>T:Poderosa.Forms.IPoderosaForm</codeEntityReference>の2つのインターフェイスを実装しています。</para>
+      <definitionTable>
+        <definedTerm>IPoderosaControl</definedTerm>
+        <definition>.NET FrameworkのWindowsコントロールに相当する機能を提供します。<codeEntityReference>M:Poderosa.Forms.IPoderosaControl.AsControl</codeEntityReference>を使うと、.NET FrameworkのControlオブジェクトを取得できます。</definition>
+        <definedTerm>IPoderosaForm</definedTerm>
+        <definition>.NET FrameworkのWindowsフォームに相当する機能を提供します。<codeEntityReference>M:Poderosa.Forms.IPoderosaForm.AsForm</codeEntityReference>を使うと、.NET FrameworkのFormオブジェクトを取得できます。</definition>
+      </definitionTable>
+    </introduction>
+
+    <sections>
+
+      <section>
+        <title>ウィンドウマネージャ</title>
+        <content>
+          <para>Poderosaのウィンドウは、「ウィンドウマネージャ」によって管理されます。</para>
+          <para>ウィンドウマネージャは、標準プラグイン「WindowManagerPluginプラグイン（プラグインID：<codeInline>org.poderosa.core.window</codeInline>）」として提供されるオブジェクトであり、<codeEntityReference>T:Poderosa.Forms.IWindowManager</codeEntityReference>を備えています。</para>
+          <para><codeEntityReference>T:Poderosa.Forms.IWindowManager</codeEntityReference>は、<codeEntityReference>T:Poderosa.Plugins.ICoreServices</codeEntityReference>を通じて、次のように取得できます。</para>
+
+<code language="C#">
+// ICoreServicesを取得
+ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
+// IWindowManagerを取得
+IWindowManager wm = cs.WindowManager;
+</code>
+
+          <para>このようにして取得した<codeEntityReference>T:Poderosa.Forms.IWindowManager</codeEntityReference>には、次のメンバがあります（表4-6）。</para>
+
+          <table>
+            <title>表4-6 IWindowManagerのメンバ</title>
+            <tableHeader>
+              <row>
+                <entry>プロパティ</entry>
+                <entry>意味</entry>
+              </row>
+            </tableHeader>
+            <row>
+              <entry>ActiveWindow</entry>
+              <entry>現在アクティブになっているウィンドウです</entry>
+            </row>
+            <row>
+              <entry>MainWindows</entry>
+              <entry>ウィンドウの配列です</entry>
+            </row>
+            <row>
+              <entry>SelectionService</entry>
+              <entry>オブジェクトの選択とコピーに関するアクセスを提供します</entry>
+            </row>
+            <row>
+              <entry>メソッド</entry>
+              <entry>意味</entry>
+            </row>
+            <row>
+              <entry>ReloadMenu</entry>
+              <entry>メニューをリロードします</entry>
+            </row>
+            <row>
+              <entry>ReloadPreference</entry>
+              <entry>ユーザー設定値をリロードします（「<link xlink:href="448b659e-151b-426a-ae17-359f6fbbd535"/>」を参照）</entry>
+            </row>
+          </table>
+
+          <para>たとえば次のようにすると、アクティブウィンドウを示す<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>を取得できます。</para>
+
+<code language="C#">
+IPoderosaMainWindow mainwin = cs.WindowManager.ActiveWindow;
+</code>
+
+          <alert class="note">
+            <para>メニューやツールバーからコマンドが実行されたときには、コマンド実行時の引数に渡されるターゲットとして、操作対象になっている<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>を得ることができます（「<link xlink:href="121d52f8-5d8d-444f-8e96-36fd8068acd2#target">Poderosa側からコマンドが実行された場合のターゲットの取得</link>」を参照）。</para>
+          </alert>
+        </content>
+      </section>
+
+      <section>
+        <title>ウィンドウを通じてビュー、ドキュメント、ステータスバーを操作する</title>
+        <content>
+          <para>ウィンドウを示す<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>には、次のプロパティがあり、ビューやドキュメント、ステータスバーやツールバーなど、ウィンドウに付属するオブジェクトにアクセスできます（表4-7）。</para>
+
+          <table>
+            <title>表4-7 IPoderosaMainWindowのプロパティ</title>
+            <tableHeader>
+              <row>
+                <entry>プロパティ</entry>
+                <entry>意味</entry>
+              </row>
+            </tableHeader>
+            <row>
+              <entry>DocumentTabFeature</entry>
+              <entry>ウィンドウのドキュメントタブを示します</entry>
+            </row>
+            <row>
+              <entry>LastActivatedView</entry>
+              <entry>最後にアクティブ化されたビューを示します</entry>
+            </row>
+            <row>
+              <entry>StatusBar</entry>
+              <entry>ステータスバーを示します</entry>
+            </row>
+            <row>
+              <entry>ToolBar</entry>
+              <entry>ツールバーを示します</entry>
+            </row>
+            <row>
+              <entry>ViewManager</entry>
+              <entry>ビューマネージャを示します</entry>
+            </row>
+          </table>
+        </content>
+      </section>
+
+      <section>
+        <title>フォームやコントロールとして操作する</title>
+        <content>
+          <para><codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>は、<codeEntityReference>T:Poderosa.Forms.IPoderosaControl</codeEntityReference>と<codeEntityReference>T:Poderosa.Forms.IPoderosaForm</codeEntityReference>を実装しており、.NET Frameworkのコントロールやフォームに変換して操作することもできます。</para>
+
+<code language="C#">
+// アクティブウィンドウ
+IPoderosaMainWindow mainwin = wm.ActiveWindow;
+// コントロールとして利用（IPoderosaControl経由）
+Control wincontrol = mainwin.AsControl();
+// フォームとして利用（IPoderosaForm経由）
+Form winform = mainwin.AsForm();
+</code>
+
+          <para>このような変換することで、コントロールやフォーム上で発生するイベント（たとえば、マウスのクリックやウィンドウサイズの変更など）を処理することができます。</para>
+          <para>また<codeEntityReference>T:Poderosa.Forms.IPoderosaForm</codeEntityReference>には、ポップアップメニューやメッセージボックスを表示する、次のメソッドを備えています（表4-8）。</para>
+
+          <alert class="note">
+            <para>表4-8に示したメソッドのうち、「AskUserYesNo」「Information」「Warning」の3つに限り、フォームを所有するスレッド以外から呼び出してもかまいません。</para>
+            <para>ただしオブジェクトへのロックをもったまま呼び出すと、そのロックはメッセージボックスを閉じるまで解放されないので注意してください。</para>
+          </alert>
+
+          <table>
+            <title>表4-8 IPoderosaFormのメソッド</title>
+            <tableHeader>
+              <row>
+                <entry>メソッド</entry>
+                <entry>意味</entry>
+              </row>
+            </tableHeader>
+            <row>
+              <entry>AskUserYesNo</entry>
+              <entry>［はい］か［いいえ］かを尋ねるメッセージボックスを表示します</entry>
+            </row>
+            <row>
+              <entry>Information</entry>
+              <entry>情報メッセージボックスを表示します</entry>
+            </row>
+            <row>
+              <entry>Warning</entry>
+              <entry>警告メッセージボックスを表示します</entry>
+            </row>
+            <row>
+              <entry>CancellableClose</entry>
+              <entry>ウィンドウを閉じます。ただし、セッションの処理によっては、ユーザに閉じてもよいかどうかを問い合わせることができるため、閉じる動作がキャンセルされることもあります。</entry>
+            </row>
+            <row>
+              <entry>ShowContextMenu</entry>
+              <entry>指定した位置にコンテキストメニュー（ポップアップメニュー）を表示します</entry>
+            </row>
+          </table>
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="012e4424-55ff-4cee-9431-8066358e6205"/>
+      <link xlink:href="2a44f911-a5e8-4d62-8451-814990164672"/>
+      <link xlink:href="99cfec82-7508-489c-be4d-c71c2ed65f83"/>
+      <link xlink:href="7608eadb-dd54-46d1-9cf7-59af54f2367c"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

@@ -1,0 +1,223 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9D114B8B-E62C-4FBF-B281-0227755C8091}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>Granados</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Granados</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;DEBUG;PODEROSA_KEYFORMAT,ENABLE_TUTORIAL</DefineConstants>
+    <DocumentationFile>bin\Debug\Granados.XML</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>1591</NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;PODEROSA_KEYFORMAT</DefineConstants>
+    <DocumentationFile>bin\Release\Granados.XML</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>1591</NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>pdbonly</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UnitTest|AnyCPU' ">
+    <OutputPath>bin\UnitTest\</OutputPath>
+    <DefineConstants>TRACE;PODEROSA_KEYFORMAT,UNITTEST</DefineConstants>
+    <DocumentationFile>bin\UnitTest\Granados.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AgentForward.cs" />
+    <Compile Include="AlgorithmSupport.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Base64.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="BigInteger.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Blowfish.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ChannelCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CipherUtil.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConnectionInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConnectionParameter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConnectionRoot.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CRC.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DataFragment.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DES.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DSA.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LibraryClient.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PKIBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Poderosa\FileTransfer\Cancellation.cs" />
+    <Compile Include="Poderosa\KeyFormat\BERReader.cs" />
+    <Compile Include="Poderosa\KeyFormat\ByteArrayUtil.cs" />
+    <Compile Include="Poderosa\KeyFormat\ISSH1PrivateKeyLoader.cs" />
+    <Compile Include="Poderosa\KeyFormat\ISSH2PrivateKeyLoader.cs" />
+    <Compile Include="Poderosa\KeyFormat\OpenSSHPrivateKeyLoader.cs" />
+    <Compile Include="Poderosa\KeyFormat\PrivateKeyFileFormat.cs" />
+    <Compile Include="Poderosa\KeyFormat\PrivateKeyFileHeader.cs" />
+    <Compile Include="Poderosa\KeyFormat\PrivateKeyLoader.cs" />
+    <Compile Include="Poderosa\KeyFormat\PuTTYPrivateKeyLoader.cs" />
+    <Compile Include="Poderosa\KeyFormat\SSH1PrivateKeyLoader.cs" />
+    <Compile Include="Poderosa\KeyFormat\SSHComPrivateKeyLoader.cs" />
+    <Compile Include="Poderosa\SCP\SCPChannelStreamTest.cs" />
+    <Compile Include="Poderosa\SCP\SCPClientException.cs" />
+    <Compile Include="Poderosa\SCP\SCPClient.cs" />
+    <Compile Include="Poderosa\SCP\SCPChannelStream.cs" />
+    <Compile Include="Poderosa\SFTP\SFTPClientException.cs" />
+    <Compile Include="Poderosa\SFTP\SFTPFileInfo.cs" />
+    <Compile Include="Poderosa\SFTP\SFTPPacketType.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Poderosa\SFTP\SFTPClient.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Poderosa\SFTP\SFTPPacket.cs" />
+    <Compile Include="Poderosa\SFTP\SFTPFileAttributes.cs" />
+    <Compile Include="Poderosa\SFTP\SFTPStatusCodes.cs" />
+    <Compile Include="PrimeSieve.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ReaderWriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rijndael.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RSA.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SCP.cs" />
+    <Compile Include="Socket.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SSH1Connection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SSH1Packet.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SSH1UserAuthKey.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SSH1Util.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SSH2Connection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SSH2Packet.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SSH2UserAuthKey.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SSH2Util.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SSHUtil.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StringResource.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Tutorial.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <EmbeddedResource Include="strings.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="strings_ja.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

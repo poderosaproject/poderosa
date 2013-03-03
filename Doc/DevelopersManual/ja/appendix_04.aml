@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="dbfdedf8-804f-45e4-aca7-f438cdf9d907" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para>定義済みのトップメニュー一覧を示します。下記の拡張ポイントは、すべて、<codeEntityReference>T:Poderosa.Commands.IPoderosaMenuGroup</codeEntityReference>を要求します。</para>
+      <para>各メニュー下の実メニューについては、「<link xlink:href="288a57a5-3eae-48c8-a01e-c29f740c5659"/>」を参照してください。</para>
+    </introduction>
+
+    <table>
+      <tableHeader>
+        <row>
+          <entry>メニュー</entry>
+          <entry>拡張ポイント</entry>
+        </row>
+      </tableHeader>
+      <row>
+        <entry>［ファイル］</entry>
+        <entry address="org.poderosa.menu.file">org.poderosa.menu.file</entry>
+      </row>
+      <row>
+        <entry>［編集］</entry>
+        <entry address="org.poderosa.menu.edit">org.poderosa.menu.edit</entry>
+      </row>
+      <row>
+        <entry>［コンソール］</entry>
+        <entry address="org.poderosa.menu.console">org.poderosa.menu.console</entry>
+      </row>
+      <row>
+        <entry>［ツール］</entry>
+        <entry address="org.poderosa.menu.tool">org.poderosa.menu.tool</entry>
+      </row>
+      <row>
+        <entry>［ウィンドウ］</entry>
+        <entry address="org.poderosa.menu.window">org.poderosa.menu.window</entry>
+      </row>
+      <row>
+        <entry>［プラグイン］</entry>
+        <entry address="org.poderosa.menu.plugin">org.poderosa.menu.plugin</entry>
+      </row>
+      <row>
+        <entry>［ヘルプ］</entry>
+        <entry address="org.poderosa.menu.help">org.poderosa.menu.help</entry>
+      </row>
+      <row>
+        <entry>［コンソール］―［特殊］</entry>
+        <entry address="org.poderosa.terminalemulator.specialcommand">org.poderosa.terminalemulator.specialcommand</entry>
+      </row>
+      <row>
+        <entry>右クリックされたときに表示されるコンテキストメニュー</entry>
+        <entry address="org.poderosa.terminalemulator.contextmenu">org.poderosa.terminalemulator.contextmenu</entry>
+      </row>
+    </table>
+
+  </developerConceptualDocument>
+</topic>

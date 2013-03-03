@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+$Id: stringresource.xml,v 1.2 2011/06/19 01:56:08 kzmi Exp $
+-->
+<string-resource>
+<record name="Common.OK">
+  <ja>OK</ja>
+  <en>OK</en>
+</record>
+<record name="Common.Cancel">
+  <ja>キャンセル</ja>
+  <en>Cancel</en>
+</record>
+<record name="Common.Do">
+  <ja>する</ja>
+  <en>Yes</en>
+</record>
+<record name="Common.DoNot">
+  <ja>しない</ja>
+  <en>No</en>
+</record>
+<record name="Command.SerialPort">
+  <ja>シリアルポート接続</ja>
+  <en>Open serial port</en>
+</record>
+<record name="Menu.SerialPort">
+  <ja>シリアルポート接続(&amp;S)...</ja>
+  <en>Open &amp;serial port</en>
+</record>
+
+
+
+<record name="Enum.FlowControl.None">
+  <ja>なし</ja>
+  <en>None</en>
+</record>
+<record name="Enum.FlowControl.Xon_Xoff">
+  <ja>Xon/Xoff</ja>
+  <en>Xon/Xoff</en>
+</record>
+<record name="Enum.FlowControl.Hardware">
+  <ja>ハードウェア</ja>
+  <en>Hardware</en>
+</record>
+<record name="Enum.Parity.NOPARITY">
+  <ja>なし</ja>
+  <en>None</en>
+</record>
+<record name="Enum.Parity.ODDPARITY">
+  <ja>奇数</ja>
+  <en>Odd</en>
+</record>
+<record name="Enum.Parity.EVENPARITY">
+  <ja>偶数</ja>
+  <en>Even</en>
+</record>
+<record name="Enum.StopBits.ONESTOPBIT">
+  <ja>1ビット</ja>
+  <en>1 bit</en>
+</record>
+<record name="Enum.StopBits.ONE5STOPBITS">
+  <ja>1.5ビット</ja>
+  <en>1.5 bits</en>
+</record>
+<record name="Enum.StopBits.TWOSTOPBITS">
+  <ja>2ビット</ja>
+  <en>2 bits</en>
+</record>
+
+<!-- SerialConfig.cs -->
+<record name="Form.SerialConfig._portLabel">
+  <ja>ポート(&amp;P)</ja>
+  <en>&amp;Port</en>
+</record>
+<record name="Form.SerialConfig._baudRateLabel">
+  <ja>ボーレート(&amp;B)</ja>
+  <en>&amp;Baud rate</en>
+</record>
+<record name="Form.SerialConfig._dataBitsLabel">
+  <ja>データ(&amp;D)</ja>
+  <en>&amp;Data</en>
+</record>
+<record name="Form.SerialConfig._parityLabel">
+  <ja>パリティ(&amp;A)</ja>
+  <en>P&amp;arity</en>
+</record>
+<record name="Form.SerialConfig._stopBitsLabel">
+  <ja>ストップビット(&amp;S)</ja>
+  <en>&amp;Stop bits</en>
+</record>
+<record name="Form.SerialConfig._flowControlLabel">
+  <ja>フロー制御(&amp;W)</ja>
+  <en>Flo&amp;w control</en>
+</record>
+<record name="Caption.SerialConfig.Bits">
+  <ja>ビット</ja>
+  <en>bits</en>
+</record>
+<record name="Form.SerialConfig.Text">
+  <ja>シリアルポートの設定</ja>
+  <en>Serial port configuration</en>
+</record>
+
+<!-- SerialLoginDialog.cs -->
+<record name="Form.SerialLoginDialog._serialGroup">
+  <ja>シリアルポート</ja>
+  <en>Serial port</en>
+</record>
+<record name="Form.SerialLoginDialog._terminalGroup">
+  <ja>ターミナル</ja>
+  <en>Terminal settings</en>
+</record>
+<record name="Form.SerialLoginDialog.Text">
+  <ja>新規シリアル接続</ja>
+  <en>New serial connection</en>
+</record>
+<record name="Form.SerialLoginDialog._localEchoLabel">
+  <ja>ローカルエコー(&amp;O)</ja>
+  <en>Local ech&amp;o</en>
+</record>
+<record name="Form.SerialLoginDialog._newLineLabel">
+  <ja>改行の送信(&amp;N)</ja>
+  <en>&amp;New line</en>
+</record>
+<record name="Form.SerialLoginDialog._logFileLabel">
+  <ja>ログの保存先(&amp;F)</ja>
+  <en>Log &amp;file</en>
+</record>
+<record name="Form.SerialLoginDialog._encodingLabel">
+  <ja>エンコーディング(&amp;E)</ja>
+  <en>&amp;Encoding</en>
+</record>
+<record name="Form.SerialLoginDialog._logTypeLabel">
+  <ja>ログの種別(&amp;L)</ja>
+  <en>&amp;Log type</en>
+</record>
+<record name="Form.SerialLoginDialog._autoExecMacroPathLabel">
+  <ja>自動開始マクロ</ja>
+  <en>Auto Exec Macro</en>
+</record>
+
+<record name="Message.CommunicationUtil.FailedToOpenSerial">
+  <ja>シリアルポートのオープンに失敗しました。</ja>
+  <en>Failed to open the serial port.</en>
+</record>
+<record name="Message.NoSuchDevice">
+  <ja>
+存在しないデバイスが選択されました。</ja>
+  <en>
+Nonexistent device is selected.</en>
+</record>
+<record name="Message.DeviceIsBusy">
+  <ja>
+ポートは既に別のアプリケーションに使われています。</ja>
+  <en>
+The port is already used by other applications.</en>
+</record>
+<record name="Message.FailedToConfigSerial">
+  <ja>シリアルポートの設定に失敗しました。</ja>
+  <en>Failed to configure serial port.</en>
+</record>
+
+
+</string-resource>

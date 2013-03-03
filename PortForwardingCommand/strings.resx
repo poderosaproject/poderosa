@@ -1,0 +1,23 @@
+﻿<root>
+  <resheader name="ResMimeType">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="Version">
+    <value>1.0.0.0</value>
+  </resheader>
+  <resheader name="Reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="Writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Command.PortForwardingExeNotFound">
+    <value>Portforwarding.exe cannot be found.</value>
+  </data>
+  <data name="Command.PortForwarding">
+    <value>Start SSH port forwarding tool</value>
+  </data>
+  <data name="Menu.PortForwarding">
+    <value>Start port&amp;forwarding tool...</value>
+  </data>
+</root>

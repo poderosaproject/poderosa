@@ -1,0 +1,154 @@
+﻿<root>
+  <resheader name="ResMimeType">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="Version">
+    <value>1.0.0.0</value>
+  </resheader>
+  <resheader name="Reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="Writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Common.OK">
+    <value>OK</value>
+  </data>
+  <data name="Common.Cancel">
+    <value>キャンセル</value>
+  </data>
+  <data name="Common.DoNot">
+    <value>しない</value>
+  </data>
+  <data name="Common.Do">
+    <value>する</value>
+  </data>
+  <data name="Menu.OpenPipe">
+    <value>パイプを開く...</value>
+  </data>
+  <data name="Command.OpenPipe">
+    <value>パイプを開く</value>
+  </data>
+  <data name="Form.OpenPipeDialog.Title">
+    <value>パイプを開く</value>
+  </data>
+  <data name="Form.OpenPipeDialog._radioButtonProcess">
+    <value>プロセス</value>
+  </data>
+  <data name="Form.OpenPipeDialog._radioButtonPipe">
+    <value>名前付きパイプ</value>
+  </data>
+  <data name="Form.OpenPipeDialog._groupBoxProcess">
+    <value>プロセス</value>
+  </data>
+  <data name="Form.OpenPipeDialog._groupBoxPipe">
+    <value>名前付きパイプ</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelExePath">
+    <value>実行ファイル</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelCommandLineOptions">
+    <value>オプション</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelInputPath">
+    <value>パス (入力側)</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelOutputPath">
+    <value>パス (出力側)</value>
+  </data>
+  <data name="Form.OpenPipeDialog._checkBoxBidirectinal">
+    <value>双方向: 上のパスは出力にも使用されます</value>
+  </data>
+  <data name="Form.OpenPipeDialog._buttonEnvironmentVariables">
+    <value>環境変数の追加...</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelLocalEcho">
+    <value>ローカルエコー(&amp;O)</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelNewLine">
+    <value>改行の送信(&amp;N)</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelLogFile">
+    <value>ログの保存先(&amp;F)</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelEncoding">
+    <value>エンコーディング(&amp;E)</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelLogType">
+    <value>ログの種別(&amp;L)</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelTerminalType">
+    <value>種類(&amp;Y)</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelAutoExecMacroPath">
+    <value>自動開始マクロ</value>
+  </data>
+  <data name="Form.OpenPipeDialog.SelectExeFile.Title">
+    <value>実行ファイルを選択</value>
+  </data>
+  <data name="Form.OpenPipeDialog.SelectExeFile.ExeFiles">
+    <value>実行ファイル</value>
+  </data>
+  <data name="Form.OpenPipeDialog.SelectExeFile.AllFiles">
+    <value>すべてのファイル</value>
+  </data>
+  <data name="Form.OpenPipeDialog.Error.NoExePath">
+    <value>実行ファイルを指定してください。</value>
+  </data>
+  <data name="Form.OpenPipeDialog.Error.NoOpenMode">
+    <value>開くモードを指定してください (プロセスか名前付きパイプ)。</value>
+  </data>
+  <data name="Form.OpenPipeDialog.Error.NoInputPath">
+    <value>パス(入力側)を入力してください。</value>
+  </data>
+  <data name="Form.OpenPipeDialog.Error.NoOutputPath">
+    <value>パス(出力側)を入力してください。</value>
+  </data>
+  <data name="Form.EditVariableDialog.Title">
+    <value>変数</value>
+  </data>
+  <data name="Form.EditVariableDialog._labelName">
+    <value>変数名</value>
+  </data>
+  <data name="Form.EditVariableDialog._labelValue">
+    <value>値</value>
+  </data>
+  <data name="Form.EditVariableDialog.Error.NameHasIllegalCharacter">
+    <value>変数名に使用できない文字が含まれています。</value>
+  </data>
+  <data name="Form.EditVariableDialog.Error.EnterName">
+    <value>変数名を入力してください。</value>
+  </data>
+  <data name="Form.EditVariableDialog.Error.EnterValue">
+    <value>値を入力してください。</value>
+  </data>
+  <data name="Form.EnvironmentVariablesDialog.Title">
+    <value>追加する環境変数</value>
+  </data>
+  <data name="Form.EnvironmentVariablesDialog._columnName">
+    <value>変数名</value>
+  </data>
+  <data name="Form.EnvironmentVariablesDialog._columnValue">
+    <value>値</value>
+  </data>
+  <data name="Form.EnvironmentVariablesDialog._labelDescription">
+    <value>変数値の中の%で括られた文字列は、対応する環境変数で展開されます。</value>
+  </data>
+  <data name="Form.EnvironmentVariablesDialog._buttonAdd">
+    <value>追加(&amp;A)...</value>
+  </data>
+  <data name="Form.EnvironmentVariablesDialog._buttonEdit">
+    <value>編集(&amp;E)...</value>
+  </data>
+  <data name="Form.EnvironmentVariablesDialog._buttonDelete">
+    <value>削除(&amp;D)</value>
+  </data>
+  <data name="PipeCreator.LaunchingApplicationFailed">
+    <value>アプリケーションが起動できません。
+より詳しいエラー情報はログを確認してください。</value>
+  </data>
+  <data name="PipeCreator.OpeningPipeFailed">
+    <value>名前付きパイプをオープンできません。
+より詳しいエラー情報はログを確認してください。</value>
+  </data>
+</root>

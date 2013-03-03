@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="ee7e5a69-0054-4d42-89ce-030e7f7b02b5" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para>Poderosaのツールバーは、メニューと同じく、拡張ポイントとして構成されています。ツールバーが公開する拡張ポイントは、「<codeInline>org.poderosa.core.window.toolbar</codeInline>」です。</para>
+    </introduction>
+
+    <sections>
+
+      <section>
+        <title>ツールバーコンポーネント</title>
+        <content>
+          <para>拡張ポイント「<codeInline>org.poderosa.core.window.toolbar</codeInline>」には、「ツールバーコンポーネント」と呼ばれるオブジェクトを登録します。</para>
+          <para>ツールバーコンポーネントは、内部に「ラベル」「ボタン」「コマンドボタン」「コンボボックス」「トグルボタン」のいずれかの要素をひとつ以上含むものであり、ひとつのパネルを構成します。ユーザーはパネルをドラッグしてツールバー内で移動することもできます。</para>
+          <para>ツールバーコンポーネントは、<codeEntityReference>T:Poderosa.Forms.IToolBarComponent</codeEntityReference>を実装したオブジェクトです。</para>
+
+<code language="C#">
+public interface IToolBarComponent : IAdaptable {
+  IToolBarElement[] ToolBarElements { get; }
+}
+</code>
+
+          <para><codeEntityReference>P:Poderosa.Forms.IToolBarComponent.ToolBarElements</codeEntityReference>は、このツールバーコンポーネントに含まれる「ラベル」「ボタン」「トグルボタン」「コンボボックス」の配列を示します。</para>
+        </content>
+      </section>
+
+      <section>
+        <title>ツールバーコンポーネントの要素</title>
+        <content>
+          <para>ツールバーコンポーネントの各要素は、<codeEntityReference>T:Poderosa.Forms.IToolBarElement</codeEntityReference>から継承したオブジェクトとして構成されます。<codeEntityReference>T:Poderosa.Forms.IToolBarElement</codeEntityReference>には、マウスがホバーされたときに表示するツールチップを設定する<codeEntityReference>P:Poderosa.Forms.IToolBarElement.ToolTipText</codeEntityReference>があります。</para>
+
+<code language="C#">
+public interface IToolBarElement : IAdaptable {
+  string ToolTipText { get; }
+}
+</code>
+
+          <para>ツールバーの要素は、「ラベル」「ボタン」「トグルボタン」「コンボボックス」のいずれかであり、それぞれ、<codeEntityReference>T:Poderosa.Forms.IToolBarLabel</codeEntityReference>、<codeEntityReference>T:Poderosa.Forms.IToolBarCommandButton</codeEntityReference>、<codeEntityReference>T:Poderosa.Forms.IToolBarToggleButton</codeEntityReference>、<codeEntityReference>T:Poderosa.Forms.IToolBarComboBox</codeEntityReference>を実装するオブジェクトとして構成されます。</para>
+
+          <definitionTable>
+            <definedTerm>ラベル</definedTerm>
+            <definition>
+              <para>ラベルは、<codeEntityReference>T:Poderosa.Forms.IToolBarLabel</codeEntityReference>を実装するオブジェクトとして構成されます。ラベル名を設定する<codeEntityReference>P:Poderosa.Forms.IToolBarLabel.Text</codeEntityReference>と、ラベル幅をピクセル単位で設定する<codeEntityReference>P:Poderosa.Forms.IToolBarLabel.Width</codeEntityReference>があります。</para>
+
+<code language="C#">
+public interface IToolBarLabel : IToolBarElement {
+  string Text { get; }
+  int Width { get; }
+}
+</code>
+            </definition>
+
+            <definedTerm>ボタン</definedTerm>
+            <definition>
+              <para>ボタンは、<codeEntityReference>T:Poderosa.Forms.IToolBarCommandButton</codeEntityReference>を実装するオブジェクトとして構成されます。ボタンがクリックされたときに実行されるコマンドオブジェクトを指定する<codeEntityReference>P:Poderosa.Forms.IToolBarCommandButton.Command</codeEntityReference>と、ボタンのアイコンを設定する<codeEntityReference>P:Poderosa.Forms.IToolBarCommandButton.Icon</codeEntityReference>があります。</para>
+
+<code language="C#">
+public interface IToolBarCommandButton : IToolBarElement {
+  IPoderosaCommand Command { get; }
+  Image Icon { get; }
+}
+</code>
+
+              <para>ボタンがクリックされたときには<codeEntityReference>P:Poderosa.Forms.IToolBarCommandButton.Command</codeEntityReference>が指すコマンドオブジェクトの<codeEntityReference>M:Poderosa.Commands.IPoderosaCommand.InternalExecute(Poderosa.Commands.ICommandTarget,Poderosa.IAdaptable[])</codeEntityReference>が呼び出されます。またボタンを淡色表示にするか否かは、コマンドオブジェクトの<codeEntityReference>M:Poderosa.Commands.IPoderosaCommand.CanExecute(Poderosa.Commands.ICommandTarget)</codeEntityReference>の戻り値によって決まります。</para>
+              <para><codeEntityReference>P:Poderosa.Forms.IToolBarCommandButton.Icon</codeEntityReference>で指定するアイコンの大きさは、16×16ピクセルでなければなりません。</para>
+            </definition>
+
+            <definedTerm>トグルボタン</definedTerm>
+            <definition>
+              <para>クリックするたびにオン／オフが切り替わるトグルボタンは、<codeEntityReference>T:Poderosa.Forms.IToolBarToggleButton</codeEntityReference>を実装したオブジェクトとして構成されます。</para>
+
+<code language="C#">
+public interface IToolBarToggleButton : IToolBarElement {
+  Image Icon { get; }
+  bool IsEnabled(ICommandTarget target);
+  bool IsChecked(ICommandTarget target);
+  void OnChange(ICommandTarget target, bool is_checked);
+}
+</code>
+
+              <para><codeEntityReference>P:Poderosa.Forms.IToolBarToggleButton.Icon</codeEntityReference>は、ボタンのアイコンを示す16×16ピクセルの画像です。<codeEntityReference>M:Poderosa.Forms.IToolBarToggleButton.IsEnabled(Poderosa.Commands.ICommandTarget)</codeEntityReference>、<codeEntityReference>M:Poderosa.Forms.IToolBarToggleButton.IsChecked(Poderosa.Commands.ICommandTarget)</codeEntityReference>、<codeEntityReference>M:Poderosa.Forms.IToolBarToggleButton.OnChange(Poderosa.Commands.ICommandTarget,System.Boolean)</codeEntityReference>の各メソッドは、次の場面で呼び出されます。</para>
+
+              <definitionTable>
+                <definedTerm>IsEnabledメソッド</definedTerm>
+                <definition>このトグルボタンを選択できるかどうかを示します。選択できるときには<codeInline>true</codeInline>、そうでないときには<codeInline>false</codeInline>を返すように実装してください。<codeInline>false</codeInline>のときには淡色表示になり、クリックできなくなります。</definition>
+                <definedTerm>IsCheckedメソッド</definedTerm>
+                <definition>このトグルボタンのオン／オフの状態を示します。<codeInline>true</codeInline>である場合はオン（凹んでいる状態）、<codeInline>false</codeInline>である場合にはオフ（凹んでいない状態）を示します。</definition>
+                <definedTerm>OnChanceメソッド</definedTerm>
+                <definition>ボタンのオン／オフの状態が変わったときに呼び出されるメソッドです。開発者は、このメソッドに、オン／オフが切り替わったときに実行したいコードを書いておきます。第2引数の<replaceable>is_checked</replaceable>は、オン／オフの状態を示します。</definition>
+              </definitionTable>
+
+              <para>これらのメソッドの第1引数に渡される<codeEntityReference>T:Poderosa.Commands.ICommandTarget</codeEntityReference>は、Poderosaのメインウィンドウを示す<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>になります。</para>
+            </definition>
+
+            <definedTerm>コンボボックス</definedTerm>
+            <definition>
+              <para>コンボボックスは、<codeEntityReference>T:Poderosa.Forms.IToolBarComboBox</codeEntityReference>を実装するオブジェクトとして構成されます。</para>
+              <para>コンボボックスの要素はテキストだけで、アイコンはサポートされません。コンボボックスの要素を示すテキストは<codeEntityReference>P:Poderosa.Forms.IToolBarComboBox.Items</codeEntityReference>で、コンボボックスの幅（ピクセル単位）は<codeEntityReference>P:Poderosa.Forms.IToolBarComboBox.Width</codeEntityReference>で、それぞれ指定します。</para>
+
+<code language="C#">
+public interface IToolBarComboBox : IToolBarElement {
+  string[] Items { get; }
+  int Width { get; }
+  bool IsEnabled(ICommandTarget target);
+  int GetSelectedIndex(ICommandTarget target);
+  void OnChange(ICommandTarget target, int selectedIndex);
+}
+</code>
+
+              <para><codeEntityReference>M:Poderosa.Forms.IToolBarComboBox.IsEnabled(Poderosa.Commands.ICommandTarget)</codeEntityReference>、<codeEntityReference>M:Poderosa.Forms.IToolBarComboBox.GetSelectedIndex(Poderosa.Commands.ICommandTarget)</codeEntityReference>、<codeEntityReference>M:Poderosa.Forms.IToolBarComboBox.OnChange(Poderosa.Commands.ICommandTarget,System.Int32)</codeEntityReference>の各メソッドは、それぞれ次の場面で呼び出されます。</para>
+
+              <definitionTable>
+                <definedTerm>IsEnabledメソッド</definedTerm>
+                <definition>このコンボボックスが選択できるかどうかを示します。選択できるときには<codeInline>true</codeInline>、そうでないときには<codeInline>false</codeInline>を返すように実装してください。<codeInline>false</codeInline>のときには淡色表示になり、クリックできなくなります。</definition>
+                <definedTerm>GetSelectedIndexメソッド</definedTerm>
+                <definition>現在選択されている選択肢のインデックス番号を返すように実装してください。このメソッドで戻されたインデックス位置が、コンボボックスの現在選択されている値であるように設定されます。</definition>
+                <definedTerm>OnChangeメソッド</definedTerm>
+                <definition>コンボボックスで選択されている選択肢が変化されたときに呼び出されるメソッドです。開発者は、このメソッドに、何か選択されたときに実行したいコードを書いておきます。第2引数の<replaceable>selectedIndex</replaceable>には、ユーザーが選択した選択肢のインデックス番号が引き渡されます。</definition>
+              </definitionTable>
+
+              <para>これらのメソッドの第1引数に渡される<codeEntityReference>T:Poderosa.Commands.ICommandTarget</codeEntityReference>は、Poderosaのメインウィンドウを示す<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>になります。</para>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>ツールバーの要素を作るためのヘルパクラス</title>
+        <content>
+          <para>Poderosaでは、「ラベル」「ボタン」「トグルボタン」「コンボボックス」を作るためのヘルパクラスが用意されています（表4-4）。</para>
+
+          <table>
+            <title>表4-4 ツールバーの要素を作るためのヘルパクラス</title>
+            <tableHeader>
+              <row>
+                <entry>要素</entry>
+                <entry>ヘルパクラス</entry>
+                <entry>実装するインターフェイス</entry>
+              </row>
+            </tableHeader>
+            <row>
+              <entry>汎用</entry>
+              <entry><codeEntityReference>T:Poderosa.Forms.ToolBarElementImpl</codeEntityReference></entry>
+              <entry><codeEntityReference>T:Poderosa.Forms.IToolBarElement</codeEntityReference></entry>
+            </row>
+            <row>
+              <entry>ラベル</entry>
+              <entry><codeEntityReference>T:Poderosa.Forms.ToolBarLabelImpl</codeEntityReference></entry>
+              <entry><codeEntityReference>T:Poderosa.Forms.IToolBarLabel</codeEntityReference></entry>
+            </row>
+            <row>
+              <entry>ボタン</entry>
+              <entry><codeEntityReference>T:Poderosa.Forms.ToolBarCommandButtonImpl</codeEntityReference></entry>
+              <entry><codeEntityReference>T:Poderosa.Forms.IToolBarCommandButton</codeEntityReference></entry>
+            </row>
+            <row>
+              <entry>トグルボタン</entry>
+              <entry><codeEntityReference>T:Poderosa.Forms.ToolBarToggleButtonImpl</codeEntityReference></entry>
+              <entry><codeEntityReference>T:Poderosa.Forms.IToolBarToggleButton</codeEntityReference></entry>
+            </row>
+            <row>
+              <entry>コンボボックス</entry>
+              <entry><codeEntityReference>T:Poderosa.Forms.ToolBarComboBoxImpl</codeEntityReference></entry>
+              <entry><codeEntityReference>T:Poderosa.Forms.IToolBarComboBox</codeEntityReference></entry>
+            </row>
+          </table>
+
+          <para>たとえば次のようにすると、100ピクセル幅のラベルを作成できます。</para>
+
+<code language="C#">
+ToolBarLabelImpl mylabel = 
+  new ToolBarLabelImpl("ラベル名", 100);
+</code>
+        </content>
+      </section>
+
+      <section>
+        <title>ツールバーの作成と登録の実例</title>
+        <content>
+          <para>ここでは実際にツールバーを追加するには、どのようなコードを記述すればよいのかを説明します。ひとつのボタンを含むツールバーを追加し、そのボタンがクリックされたときに、何らかのコマンドを実行するためのコードは、たとえば次のようになります。</para>
+
+<code language="C#">
+[assembly: PluginDeclaration(typeof(MyPlugin.HelloWorldPlugin))]
+namespace MyPlugin
+{
+    [PluginInfo(ID="jp.example.helloworld", Version="1.0",
+        Dependencies="org.poderosa.core.window")]
+
+    // ここではプラグイン自身にIToolBarComponentを実装
+    internal class HelloWorldPlugin : PluginBase, IToolBarComponent
+    {
+        private IToolBarElement[] _elements;
+
+        public override void InitializePlugin(IPoderosaWorld poderosa)
+        {
+            base.InitializePlugin(poderosa);
+            
+            // （1）コマンドオブジェクトを用意する
+            PoderosaCommandImpl btncommand = new PoderosaCommandImpl(
+              delegate(ICommandTarget target)
+              {
+                  // 実行されたときのコマンド
+                  MessageBox.Show("ボタンがクリックされました");
+                  return CommandResult.Succeeded;
+              },
+              delegate(ICommandTarget target)
+              {
+                  // コマンドが実行できるかどうかを示すデリゲート
+                  return true;
+              }
+            );
+
+            // （2）要素としてボタンを作る（myImageは16×16のビットマップ）
+            System.Drawing.Image myImage = 
+              new System.Drawing.Bitmap("画像ファイル名");
+            ToolBarCommandButtonImpl btn = ]
+              new ToolBarCommandButtonImpl(btncommand, myImage);
+
+            // 要素として設定
+            _elements = new IToolBarElement[]{ btn };
+
+            // （3）拡張ポイントを検索して登録
+            IExtensionPoint toolbarExt = 
+              poderosa.PluginManager.FindExtensionPoint("org.poderosa.core.window.toolbar");
+            // 登録
+            toolbarExt.RegisterExtension(this);
+        }
+
+        public IToolBarElement[] ToolBarElements
+        {
+            // 要素を返す
+            get { return _elements; }
+        }
+    }
+}
+</code>
+
+          <para>この例では、プラグイン自身に<codeEntityReference>T:Poderosa.Forms.IToolBarComponent</codeEntityReference>を実装しています。</para>
+
+<code language="C#">
+internal class HelloWorldPlugin : PluginBase, IToolBarComponent
+</code>
+
+          <para>しかし<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>による型変換の仕組みを使えば、別のクラスとして実装することもできます。</para>
+
+          <definitionTable>
+            <definedTerm>(1) コマンドの準備</definedTerm>
+            <definition>
+              <para>ツールバー内にボタンを付ける場合には、まず、ボタンがクリックされたときに実行されるコマンドを用意します。これはメニューの場合と同じで、<codeEntityReference>T:Poderosa.Commands.PoderosaCommandImpl</codeEntityReference>を使って作ることができます。</para>
+
+<code language="C#">
+PoderosaCommandImpl btncommand = new PoderosaCommandImpl(
+  delegate(ICommandTarget target)
+  {
+    // 実行されたときのコマンド
+    MessageBox.Show("ボタンがクリックされました");
+    return CommandResult.Succeeded;
+  },
+  delegate(ICommandTarget target)
+  {
+    // コマンドが実行できるかどうかを示すデリゲート
+    return true;
+  }
+);
+</code>
+            </definition>
+
+            <definedTerm>(2) 要素の作成</definedTerm>
+            <definition>
+              <para>ツールバーの要素を作成します。ボタンの場合には、<codeEntityReference>T:Poderosa.Forms.ToolBarCommandButtonImpl</codeEntityReference>を使って作ることができます。</para>
+
+<code language="C#">
+System.Drawing.Image myImage = 
+  new System.Drawing.Bitmap("画像ファイル名");
+ToolBarCommandButtonImpl btn = ]
+  new ToolBarCommandButtonImpl(btncommand, myImage);
+</code>
+
+              <alert class="note">
+                <para>ここではファイルから画像を取得していますが、実際にはリソースとして構成することになるでしょう。</para>
+              </alert>
+
+              <para>ツールバーの要素は、<codeEntityReference>T:Poderosa.Forms.IToolBarElement</codeEntityReference>の配列として保存しておきます。</para>
+
+<code language="C#">
+private IToolBarElement[] _elements;
+_elements = new IToolBarElement[]{ btn };
+</code>
+
+              <para>そして<codeEntityReference>P:Poderosa.Forms.IToolBarComponent.ToolBarElements</codeEntityReference>で、この配列を返すように実装します。</para>
+
+<code language="C#">
+public IToolBarElement[] ToolBarElements
+{
+  // 要素を返す
+  get { return _elements; }
+}
+</code>
+            </definition>
+
+            <definedTerm>(3) 拡張ポイントへ登録する</definedTerm>
+            <definition>
+              <para><codeInline>org.poderosa.core.window.toolbar</codeInline>の拡張ポイントを検索し、そこに自身を登録します。</para>
+
+<code language="C#">
+IExtensionPoint toolbarExt = 
+  poderosa.PluginManager.FindExtensionPoint("org.poderosa.core.window.toolbar");
+toolbarExt.RegisterExtension(this);
+</code>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="121d52f8-5d8d-444f-8e96-36fd8068acd2"/>
+      <link xlink:href="c7b36a71-f67f-464b-a756-c7cf6c1517da"/>
+      <link xlink:href="e2826339-3389-441c-a922-844040b6a2e1"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

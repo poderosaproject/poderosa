@@ -1,0 +1,208 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <!-- The configuration and platform will be used to determine which
+         assemblies to include from solution and project documentation
+         sources -->
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7a9ed8ee-7790-42cc-8c54-e44d9cdb77a5}</ProjectGuid>
+    <SHFBSchemaVersion>1.9.3.0</SHFBSchemaVersion>
+    <!-- AssemblyName, Name, and RootNamespace are not used by SHFB but Visual
+         Studio adds them anyway -->
+    <AssemblyName>Documentation</AssemblyName>
+    <RootNamespace>Documentation</RootNamespace>
+    <Name>Documentation</Name>
+    <!-- SHFB properties -->
+    <OutputPath>.\Help\</OutputPath>
+    <HtmlHelpName>PoderosaAPI_ja</HtmlHelpName>
+    <Language>ja-JP</Language>
+    <BuildLogFile>PoderosaAPI_ja-build.log</BuildLogFile>
+    <FrameworkVersion>.NET 2.0.50727</FrameworkVersion>
+    <CopyrightHref>http://sourceforge.net/projects/poderosa/</CopyrightHref>
+    <CopyrightText>Copyright &amp;#169%3b​2011 Poderosa project, All rights reserved</CopyrightText>
+    <HelpTitle>Poderosa API リファレンス</HelpTitle>
+    <IndentHtml>False</IndentHtml>
+    <NamingMethod>HashedMemberName</NamingMethod>
+    <Preliminary>False</Preliminary>
+    <PresentationStyle>vs2005</PresentationStyle>
+    <DocumentationSources>
+      <DocumentationSource sourceFile="..\Core\Core.csproj" />
+      <DocumentationSource sourceFile="..\Executable\Executable.csproj" />
+      <DocumentationSource sourceFile="..\Granados\Granados.csproj" />
+      <DocumentationSource sourceFile="..\Macro\Macro.csproj" />
+      <DocumentationSource sourceFile="..\Pipe\Pipe.csproj" />
+      <DocumentationSource sourceFile="..\Plugin\Plugin.csproj" />
+      <DocumentationSource sourceFile="..\PortForwardingCommand\PortForwardingCommand.csproj" />
+      <DocumentationSource sourceFile="..\Protocols\Protocols.csproj" />
+      <DocumentationSource sourceFile="..\SerialPort\SerialPort.csproj" />
+      <DocumentationSource sourceFile="..\TerminalEmulator\TerminalEmulator.csproj" />
+      <DocumentationSource sourceFile="..\TerminalSession\TerminalSession.csproj" />
+      <DocumentationSource sourceFile="..\TestAndDebug\TestAndDebug.csproj" />
+      <DocumentationSource sourceFile="..\UI\UI.csproj" />
+      <DocumentationSource sourceFile="..\Usability\Usability.csproj" />
+      <DocumentationSource sourceFile="..\XZModem\XZModem.csproj" />
+    </DocumentationSources>
+    <PlugInConfigurations>
+      <PlugInConfig id="Multilanguage Documentation Support" enabled="True">
+        <configuration>
+          <targetLanguage>ja</targetLanguage>
+        </configuration>
+      </PlugInConfig>
+    </PlugInConfigurations>
+    <MissingTags>AutoDocumentCtors, AutoDocumentDispose</MissingTags>
+    <SyntaxFilters>CSharp, VisualBasic, CPlusPlus, FSharp, JSharp, JScript</SyntaxFilters>
+  </PropertyGroup>
+  <!-- There are no properties for these groups.  AnyCPU needs to appear in
+       order for Visual Studio to perform the build.  The others are optional
+       common platform types that may appear. -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Win32' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Win32' ">
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="DevelopersManual\ja\Media\" />
+    <Folder Include="DevelopersManual\ja\" />
+    <Folder Include="DevelopersManual\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ContentLayout Include="DevelopersManual\ja\Content Layout.content" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DevelopersManual\ja\apihelp.aml" />
+    <None Include="DevelopersManual\ja\index.aml" />
+    <None Include="DevelopersManual\ja\chap04_05.aml" />
+    <None Include="DevelopersManual\ja\chap04_04.aml" />
+    <None Include="DevelopersManual\ja\chap04_03.aml" />
+    <None Include="DevelopersManual\ja\chap04_02_04.aml" />
+    <None Include="DevelopersManual\ja\chap04_02_03.aml" />
+    <None Include="DevelopersManual\ja\chap04_02_02.aml" />
+    <None Include="DevelopersManual\ja\chap04_02_01.aml" />
+    <None Include="DevelopersManual\ja\chap04_02.aml" />
+    <None Include="DevelopersManual\ja\chap04_01_04.aml" />
+    <None Include="DevelopersManual\ja\chap04_01_03.aml" />
+    <None Include="DevelopersManual\ja\chap04_01_02.aml" />
+    <None Include="DevelopersManual\ja\chap04_01_01.aml" />
+    <None Include="DevelopersManual\ja\chap04_01.aml" />
+    <None Include="DevelopersManual\ja\chap04.aml" />
+    <None Include="DevelopersManual\ja\chap03_03.aml" />
+    <None Include="DevelopersManual\ja\chap03_02.aml" />
+    <None Include="DevelopersManual\ja\chap03_01.aml" />
+    <None Include="DevelopersManual\ja\chap03.aml" />
+    <None Include="DevelopersManual\ja\chap02_06.aml" />
+    <None Include="DevelopersManual\ja\chap02_05.aml" />
+    <None Include="DevelopersManual\ja\chap02_04.aml" />
+    <None Include="DevelopersManual\ja\chap02_03.aml" />
+    <None Include="DevelopersManual\ja\chap02_02.aml" />
+    <None Include="DevelopersManual\ja\chap02_01.aml" />
+    <None Include="DevelopersManual\ja\chap02.aml" />
+    <None Include="DevelopersManual\ja\chap01_03.aml" />
+    <None Include="DevelopersManual\ja\chap01_02.aml" />
+    <None Include="DevelopersManual\ja\chap01_01.aml" />
+    <None Include="DevelopersManual\ja\chap01.aml" />
+    <None Include="DevelopersManual\ja\appendix_04.aml" />
+    <None Include="DevelopersManual\ja\appendix_03.aml" />
+    <None Include="DevelopersManual\ja\appendix_02.aml" />
+    <None Include="DevelopersManual\ja\appendix_01.aml" />
+    <None Include="DevelopersManual\ja\appendix.aml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="DevelopersManual\ja\Media\fig04_06.gif">
+      <ImageId>fig04_06</ImageId>
+      <AlternateText>fig 04 06</AlternateText>
+    </Image>
+    <Image Include="DevelopersManual\ja\Media\fig04_05.gif">
+      <ImageId>fig04_05</ImageId>
+      <AlternateText>fig 04 05</AlternateText>
+    </Image>
+    <Image Include="DevelopersManual\ja\Media\fig04_04.gif">
+      <ImageId>fig04_04</ImageId>
+      <AlternateText>fig 04 04</AlternateText>
+    </Image>
+    <Image Include="DevelopersManual\ja\Media\fig04_03.gif">
+      <ImageId>fig04_03</ImageId>
+      <AlternateText>fig 04 03</AlternateText>
+    </Image>
+    <Image Include="DevelopersManual\ja\Media\fig04_02.gif">
+      <ImageId>fig04_02</ImageId>
+      <AlternateText>fig 04 02</AlternateText>
+    </Image>
+    <Image Include="DevelopersManual\ja\Media\fig04_01.gif">
+      <ImageId>fig04_01</ImageId>
+      <AlternateText>fig 04 01</AlternateText>
+    </Image>
+    <Image Include="DevelopersManual\ja\Media\fig03_05.gif">
+      <ImageId>fig03_05</ImageId>
+      <AlternateText>fig 03 05</AlternateText>
+    </Image>
+    <Image Include="DevelopersManual\ja\Media\fig03_04.gif">
+      <ImageId>fig03_04</ImageId>
+      <AlternateText>fig 03 04</AlternateText>
+    </Image>
+    <Image Include="DevelopersManual\ja\Media\fig03_03.gif">
+      <ImageId>fig03_03</ImageId>
+      <AlternateText>fig 03 03</AlternateText>
+    </Image>
+    <Image Include="DevelopersManual\ja\Media\fig03_02.gif">
+      <ImageId>fig03_02</ImageId>
+      <AlternateText>fig 03 02</AlternateText>
+    </Image>
+    <Image Include="DevelopersManual\ja\Media\fig03_01.gif">
+      <ImageId>fig03_01</ImageId>
+      <AlternateText>fig 03 01</AlternateText>
+    </Image>
+    <Image Include="DevelopersManual\ja\Media\fig02_03.gif">
+      <ImageId>fig02_03</ImageId>
+      <AlternateText>fig 02 03</AlternateText>
+    </Image>
+    <Image Include="DevelopersManual\ja\Media\fig02_02.gif">
+      <ImageId>fig02_02</ImageId>
+      <AlternateText>fig 02 02</AlternateText>
+    </Image>
+    <Image Include="DevelopersManual\ja\Media\fig02_01.gif">
+      <ImageId>fig02_01</ImageId>
+      <AlternateText>fig 02 01</AlternateText>
+    </Image>
+    <Image Include="DevelopersManual\ja\Media\fig01_02.gif">
+      <ImageId>fig01_02</ImageId>
+      <AlternateText>fig 01 02</AlternateText>
+    </Image>
+    <Image Include="DevelopersManual\ja\Media\fig01_01.gif">
+      <ImageId>fig01_01</ImageId>
+      <AlternateText>fig 01 01</AlternateText>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceItems Include="DevelopersManual\ja\Resource Item File.items" />
+  </ItemGroup>
+  <!-- Import the SHFB build targets -->
+  <Import Project="$(SHFBROOT)\SandcastleHelpFileBuilder.targets" />
+</Project>

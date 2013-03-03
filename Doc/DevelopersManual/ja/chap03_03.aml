@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="5794bbe1-6042-4eaf-95ab-67fc156e0ed7" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <sections>
+
+      <section>
+        <title>メニューからコマンドを実行するプラグイン</title>
+        <content>
+          <para>ここではPoderosaにメニューを追加して、メニューがクリックされたときにコマンドを実行するという例を見ながら、Poderosa本体とPoderosaプラグインが、実際にどのようにやりとりするのかを説明していきます。</para>
+          <para>例として取り上げるのは、［ヘルプ］メニューに［Hello］というメニューを追加し、そのメニューがクリックされたときに、画面に「Hello」と表示するというごく簡単なものです。</para>
+          <para>メニューやコマンドに関するインターフェイスは、Poderosa.Core.dllに含まれているので、このアセンブリを参照設定しておきます（図3-3）。</para>
+
+          <mediaLink>
+            <caption lead="図3-3">Poderosa.Core.dllを参照設定する</caption>
+            <image xlink:href="fig03_03" />
+          </mediaLink>
+
+          <para>また次のように名前空間をインポートします。</para>
+
+<code language="C#">
+using Poderosa.Commands;
+</code>
+
+          <alert class="note">
+            <para>ここではコマンドやメニューについての詳細な解説はしません。コマンドやメニューの詳細な解説については「<link xlink:href="b62fec3f-1e30-40f8-b0c8-b2f6163425b1"/>」を参照してください。</para>
+          </alert>
+
+          <sections>
+
+            <section>
+              <title>依存関係を設定する</title>
+              <content>
+                <para>メニューやコマンドは、「ウィンドウマネージャ（WindowManagerPlugin）」というプラグインによって管理されています。そのため、メニューやコマンドの機能を使うには、ウィンドウマネージャよりも後に読み込まれることが必要です。そこで依存関係を設定して、ウィンドウマネージャよりも後に読み込まれることが保証されるようにします。</para>
+                <para>ウィンドウマネージャのプラグインIDは「<codeInline>org.poderosa.core.window</codeInline>」です。そこで、<codeEntityReference>T:Poderosa.Plugins.PluginInfoAttribute</codeEntityReference>の<codeEntityReference>F:Poderosa.Plugins.PluginInfoAttribute.Dependencies</codeEntityReference>を次のように設定します。</para>
+
+                <alert class="note">
+                  <para>主なプラグインとプラグインIDについては、「<link xlink:href="515db704-eb9e-4bd5-836f-6683382954fc"/>」を参照してください。</para>
+                </alert>
+
+<code language="C#">
+// Dependenciesパラメータで依存関係を指定
+[PluginInfo(ID="jp.example.helloworld", Version="1.0",
+    Dependencies="org.poderosa.core.window")]
+internal class HelloWorldPlugin : PluginBase
+</code>
+              </content>
+            </section>
+
+            <section>
+              <title>初期化時にメニューを追加する</title>
+              <content>
+                <para>プラグインが初期化される際に呼び出される<codeEntityReference>M:Poderosa.Plugins.IPlugin.InitializePlugin(Poderosa.Plugins.IPoderosaWorld)</codeEntityReference>において、メニューを追加し、特定のコマンドが実行されるようにします。この処理は、たとえば、次のようになります。</para>
+
+<code language="C#">
+public override void InitializePlugin(IPoderosaWorld poderosa)
+{
+    base.InitializePlugin(poderosa);
+    // （a）コマンドを作成する
+    PoderosaCommandImpl cmd = new PoderosaCommandImpl(MyCommandDelegate);
+    // （b）［ヘルプ］メニューに登録する
+    IExtensionPoint helpmenu = poderosa.PluginManager.FindExtensionPoint(
+        "org.poderosa.menu.help");
+    helpmenu.RegisterExtension(
+      new PoderosaMenuGroupImpl(new PoderosaMenuItemImpl(cmd, "Hello")));
+}
+
+// コマンドに対応するデリゲート
+public CommandResult MyCommandDelegate(ICommandTarget target)
+{
+    MessageBox.Show("Hello");
+    return CommandResult.Succeeded;
+}
+</code>
+
+                <definitionTable>
+                  <definedTerm>(a) コマンドの作成</definedTerm>
+                  <definition>
+                    <para>メニューやツールバーなどがクリックされたときの処理は、「コマンド」として定義します。コマンドは、<codeEntityReference>T:Poderosa.Commands.IPoderosaCommand</codeEntityReference>または<codeEntityReference>T:Poderosa.Commands.IGeneralCommand</codeEntityReference>を実装するオブジェクトとして構成されます。</para>
+
+                    <alert class="note">
+                      <para><codeEntityReference>T:Poderosa.Commands.IPoderosaCommand</codeEntityReference>はコマンドの最低限必要な機能を持ったインタフェース、<codeEntityReference>T:Poderosa.Commands.IGeneralCommand</codeEntityReference>はキーボードショートカットを割り当てるなどの追加機能を持ったインタフェースです。</para>
+                    </alert>
+
+                    <para>コマンドを作成するには、<codeEntityReference>T:Poderosa.Commands.PoderosaCommandImpl</codeEntityReference>や<codeEntityReference>T:Poderosa.Commands.GeneralCommandImpl</codeEntityReference>というヘルパクラスを使うのが簡単です。ここでは次のようにして、<codeEntityReference>T:Poderosa.Commands.PoderosaCommandImpl</codeEntityReference>のインスタンスを作成しています。作られたPoderosaCommandImplオブジェクトは、<codeEntityReference>T:Poderosa.Commands.IPoderosaCommand</codeEntityReference>を備えます。</para>
+
+<code language="C#">
+PoderosaCommandImpl cmd = new PoderosaCommandImpl(MyCommandDelegate);
+</code>
+
+                    <para>引数に渡すのは、コマンドが実行される際に呼び出されるデリゲートです。このデリゲートは次のように、MessageBox.Showメソッドを使って、画面に「Hello」と出力するように実装してあります。</para>
+
+<code language="C#">
+public CommandResult MyCommandDelegate(ICommandTarget target)
+{
+    MessageBox.Show("Hello");
+    return CommandResult.Succeeded;
+}
+</code>
+
+                    <para>デリゲートでは、成功の可否によって、<codeEntityReference>T:Poderosa.Commands.CommandResult</codeEntityReference>のいずれかの値を返すように実装します。</para>
+
+                    <table>
+                      <title>表3-2 CommandReult列挙体</title>
+                      <tableHeader>
+                        <row>
+                          <entry>メンバ</entry>
+                          <entry>意味</entry>
+                        </row>
+                      </tableHeader>
+                      <row>
+                        <entry>Succeeded</entry>
+                        <entry>成功した</entry>
+                      </row>
+                      <row>
+                        <entry>Failed</entry>
+                        <entry>失敗した</entry>
+                      </row>
+                      <row>
+                        <entry>Cancelled</entry>
+                        <entry>キャンセルされた</entry>
+                      </row>
+                      <row>
+                        <entry>Ignored</entry>
+                        <entry>無視された</entry>
+                      </row>
+                    </table>
+
+                    <alert class="note">
+                      <para>戻り値をどのように扱うのかは、プラグイン次第です。たとえばIgnoredは、Poderosaの標準プラグインでは、すでにアクティブになっている接続のタブをクリックした（そしてアクティブになるものが変化しなかった）ときなどの結果の戻り値として使われています。</para>
+                    </alert>
+                  </definition>
+
+                  <definedTerm>(b) ［ヘルプ］メニューに登録する</definedTerm>
+                  <definition>
+                    <para>メニューは拡張ポイントを提供しており、メニューに項目を追加するには、拡張ポイントを検索して、そこにメニュー項目を追加するという手順をとります（「<link xlink:href="102e0c3c-f009-4d02-a59f-018e279624ae"/>」を参照）。</para>
+                    <para>ここでは［ヘルプ］メニューに登録することにします。［ヘルプ］メニューは、「<codeInline>org.poderosa.menu.help</codeInline>」という拡張ポイントを公開しています。そこで次のように<codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindExtensionPoint(System.String)</codeEntityReference>を呼び出して、この拡張ポイントを探します。</para>
+
+                    <alert class="note">
+                      <para>メニューが提供する拡張ポイントについては、「<link xlink:href="dbfdedf8-804f-45e4-aca7-f438cdf9d907"/>」を参照してください。</para>
+                    </alert>
+
+                    <alert class="note">
+                      <para>先の手順で、<codeEntityReference>T:Poderosa.Plugins.PluginInfoAttribute</codeEntityReference>の<codeEntityReference>F:Poderosa.Plugins.PluginInfoAttribute.Dependencies</codeEntityReference>で「<codeInline>org.poderosa.core.window</codeInline>」に対して依存関係を設定したのは、このようにメニューを登録する際の拡張ポイントを検索するためです。もし「<codeInline>org.poderosa.core.window</codeInline>」が読み込まれるよりも前に、このプラグインが読み込まれたら、<codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindExtensionPoint(System.String)</codeEntityReference>の呼び出しは失敗する（nullが戻る）ことになります。</para>
+                    </alert>
+
+<code language="C#">
+IExtensionPoint helpmenu = poderosa.PluginManager.FindExtensionPoint("org.poderosa.menu.help");
+</code>
+
+                    <para>次に、この拡張ポイントにメニュー項目を追加します。メニュー項目を追加するには、<codeEntityReference>M:Poderosa.Plugins.IExtensionPoint.RegisterExtension(System.Object)</codeEntityReference>を呼び出します。</para>
+                    <para>メニュー項目の拡張ポイントは、<codeEntityReference>T:Poderosa.Commands.IPoderosaMenuGroup</codeEntityReference>を要求します。<codeEntityReference>T:Poderosa.Commands.IPoderosaMenuGroup</codeEntityReference>をもつオブジェクトを作るには、<codeEntityReference>T:Poderosa.Commands.PoderosaMenuGroupImpl</codeEntityReference>というヘルパクラスを使うのが簡単です。</para>
+
+                    <alert class="note">
+                      <para><codeEntityReference>T:Poderosa.Commands.IPoderosaMenuGroup</codeEntityReference>は階層化されたメニューグループを示します。階層化されない場合（1階層しかない場合や1つしかメニュー項目を含まない場合）でも、メニューグループとして構成する必要があり、メニュー項目の拡張ポイントに、メニューアイテム（<codeEntityReference>T:Poderosa.Commands.IPoderosaMenuItem</codeEntityReference>を備えるオブジェクト）を直接渡すことはできません。</para>
+                    </alert>
+
+<code language="C#">
+helpmenu.RegisterExtension(new PoderosaMenuGroupImpl(new PoderosaMenuItemImpl(cmd, "Hello")));
+</code>
+
+                    <para><codeEntityReference>T:Poderosa.Commands.PoderosaMenuGroupImpl</codeEntityReference>のコンストラクタ引数には、<codeEntityReference>T:Poderosa.Commands.IPoderosaMenuItem</codeEntityReference>を備えるオブジェクトを引き渡します。このオブジェクトは、メニューアイテム（メニューと実行されるコマンド）を示します。</para>
+                    <para><codeEntityReference>T:Poderosa.Commands.PoderosaMenuItemImpl</codeEntityReference>は、<codeEntityReference>T:Poderosa.Commands.IPoderosaMenuItem</codeEntityReference>を備えるオブジェクトを作るためのヘルパクラスです。コンストラクタ引数には、コマンドオブジェクトとメニューの表示名を渡します。</para>
+                    <para>すなわちこの例では、「Hello」というメニュー名を渡しているので、［ヘルプ］メニューの下に［Hello］という項目ができ、ユーザーが選択したときには、変数cmdで示されているコマンドが実行されるという意味になります。</para>
+                    <para>実際にビルドし、Poderosa本体の配下にコピーしてからPoderosaを実行すると、次のように［ヘルプ］メニューの下に［Hello］というメニューが現われることを確認できます（図3-4）。</para>
+
+                    <mediaLink>
+                      <caption lead="図3-4">［ヘルプ］メニューに追加されたメニュー</caption>
+                      <image xlink:href="fig03_04" />
+                    </mediaLink>
+
+                    <para>［Hello］メニューをクリックすると、画面には「Hello」と表示されます（図3-5）。</para>
+
+                    <mediaLink>
+                      <caption lead="図3-5">［Hello］メニューをクリックしたとき</caption>
+                      <image xlink:href="fig03_05" />
+                    </mediaLink>
+                  </definition>
+                </definitionTable>
+
+              </content>
+            </section>
+
+          </sections>
+
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="515db704-eb9e-4bd5-836f-6683382954fc"/>
+      <link xlink:href="102e0c3c-f009-4d02-a59f-018e279624ae"/>
+      <link xlink:href="b62fec3f-1e30-40f8-b0c8-b2f6163425b1"/>
+      <link xlink:href="dbfdedf8-804f-45e4-aca7-f438cdf9d907"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

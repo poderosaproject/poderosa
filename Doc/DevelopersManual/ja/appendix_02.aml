@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="4a1e718e-02bc-4670-9ac3-668138ea940f" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para>標準で提供される拡張ポイント一覧を示します。</para>
+    </introduction>
+
+    <alert class="note">
+      <para>下記のリストには、「メニュー」は含まれていません。メニューについては、「<link xlink:href="dbfdedf8-804f-45e4-aca7-f438cdf9d907"/>」を参照してください。</para>
+    </alert>
+
+    <table>
+      <tableHeader>
+        <row>
+          <entry>拡張ポイントID</entry>
+          <entry>提供するプラグイン</entry>
+          <entry>要求するインターフェイス</entry>
+        </row>
+      </tableHeader>
+      <row>
+        <entry>org.poderosa.root</entry>
+        <entry>Poderosa本体</entry>
+        <entry>IRootExtension</entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.core.preferences">org.poderosa.core.preferences</entry>
+        <entry>PreferencePluginプラグイン</entry>
+        <entry><codeEntityReference>T:Poderosa.Preferences.IPreferenceSupplier</codeEntityReference></entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.core.sessions.docViewRelationHandle">org.poderosa.core.sessions.docViewRelationHandle</entry>
+        <entry>SessionManagerPluginプラグイン</entry>
+        <entry><codeEntityReference>T:Poderosa.Preferences.IPreferenceSupplier</codeEntityReference></entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.core.window.mainWindowContent">org.poderosa.core.window.mainWindowContent</entry>
+        <entry>WindowManagerPluginプラグイン</entry>
+        <entry>IViewManagerFactory</entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.core.window.viewFactory">org.poderosa.core.window.viewFactory</entry>
+        <entry>WindowManagerPluginプラグイン</entry>
+        <entry>IViewFactory</entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.core.window.viewFormatEventHandler">org.poderosa.core.window.viewFormatEventHandler</entry>
+        <entry>WindowManagerPluginプラグイン</entry>
+        <entry>IViewFormatEventHandler</entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.core.window.toolbar">org.poderosa.core.window.toolbar</entry>
+        <entry>WindowManagerPluginプラグイン</entry>
+        <entry><codeEntityReference>T:Poderosa.Forms.IToolBarComponent</codeEntityReference></entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.window.aboutbox">org.poderosa.window.aboutbox</entry>
+        <entry>WindowManagerPluginプラグイン</entry>
+        <entry>IPoderosaAboutBoxFactory</entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.core.serializeElement">org.poderosa.core.serializeElement</entry>
+        <entry>SerializeServicePluginプラグイン</entry>
+        <entry>ISerializeServiceElement</entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.protocols.resultEventHandler">org.poderosa.protocols.resultEventHandler</entry>
+        <entry>ProtocolsPluginプラグイン</entry>
+        <entry><codeEntityReference>T:Poderosa.Protocols.IConnectionResultEventHandler</codeEntityReference></entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.protocols.sshHostKeyChecker">org.poderosa.protocols.sshHostKeyCheckerr</entry>
+        <entry>ProtocolsPluginプラグイン</entry>
+        <entry>ISSHHostKeyVerifier</entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.terminalemulator.intellisense">org.poderosa.terminalemulator.intellisense</entry>
+        <entry>TerminalEmulatorPluginプラグイン</entry>
+        <entry>IIntelliSenseCandidateExtension</entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.terminalemulator.logFileNameFormatter">org.poderosa.terminalemulator.logFileNameFormatter</entry>
+        <entry>TerminalEmulatorPluginプラグイン</entry>
+        <entry>IAutoLogFileFormatter</entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.terminalemulator.dynamicCaptionFormatter">org.poderosa.terminalemulator.dynamicCaptionFormatter</entry>
+        <entry>TerminalEmulatorPluginプラグイン</entry>
+        <entry>IDynamicCaptionFormatter</entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.terminalemulator.commandProcessorPopupMenu">org.poderosa.terminalemulator.commandProcessorPopupMenu</entry>
+        <entry>TerminalEmulatorPluginプラグイン</entry>
+        <entry>ICommandResultProcessorMenuItem</entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.terminalsessions.telnetSSHLoginDialogInitializer">org.poderosa.terminalsessions.telnetSSHLoginDialogInitializer</entry>
+        <entry>TerminalSessionsPluginプラグイン</entry>
+        <entry>ITelnetSSHLoginDialogInitializer</entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.terminalsessions.loginDialogUISupport">org.poderosa.terminalsessions.loginDialogUISupport</entry>
+        <entry>TerminalSessionsPluginプラグイン</entry>
+        <entry>ILoginDialogUISupport</entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.termianlsessions.terminalConnectionFactory">org.poderosa.termianlsessions.terminalConnectionFactory</entry>
+        <entry>TerminalSessionsPluginプラグイン</entry>
+        <entry>ITerminalConnectionFactory</entry>
+      </row>
+      <row>
+        <entry address="org.poderosa.optionpanel">org.poderosa.optionpanel</entry>
+        <entry>OptionDialogPluginプラグイン</entry>
+        <entry>IOptionPanelExtension</entry>
+      </row>
+    </table>
+
+  </developerConceptualDocument>
+</topic>

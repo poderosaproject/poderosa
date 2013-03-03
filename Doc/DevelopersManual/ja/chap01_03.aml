@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="515db704-eb9e-4bd5-836f-6683382954fc" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para>Poderosaには、いくつかの標準プラグインが備わっています（表1-2）。プラグイン開発者は、これらの標準プラグインを呼び出して利用できます。</para>
+      <alert class="note">
+        <para>標準プラグインは、<codeEntityReference>T:Poderosa.Plugins.PluginInfoAttribute</codeEntityReference>を備えています。そのためPoderosaのソースファイルから<codeEntityReference>T:Poderosa.Plugins.PluginInfoAttribute</codeEntityReference>を備えるものを検索すれば、標準プラグインを見つけることができます。</para>
+      </alert>
+    </introduction>
+
+    <sections>
+
+      <section>
+        <title>標準プラグインとその用途</title>
+        <content>
+          <table>
+            <title>表1-2 標準プラグインとその用途</title>
+            <tableHeader>
+              <row>
+                <entry>プラグイン名</entry>
+                <entry>プラグインID</entry>
+                <entry>用途</entry>
+              </row>
+            </tableHeader>
+            <row>
+              <entry>CommandManagerPluginプラグイン</entry>
+              <entry>org.poderosa.core.commands</entry>
+              <entry>コマンドを実行する際のコマンドマネージャ機能を提供します（「<link xlink:href="b62fec3f-1e30-40f8-b0c8-b2f6163425b1"/>」）</entry>
+            </row>
+            <row>
+              <entry>PreferencePluginプラグイン</entry>
+              <entry>org.poderosa.core.preferences</entry>
+              <entry>ユーザーのオプション設定を記録する機能を提供します（「<link xlink:href="448b659e-151b-426a-ae17-359f6fbbd535"/>」）</entry>
+            </row>
+            <row>
+              <entry>SessionManagerPluginプラグイン</entry>
+              <entry>org.poderosa.core.sessions</entry>
+              <entry>セッションを管理するセッションマネージャを提供します（「<link xlink:href="012e4424-55ff-4cee-9431-8066358e6205"/>」）</entry>
+            </row>
+            <row>
+              <entry>WindowManagerPluginプラグイン</entry>
+              <entry>org.poderosa.core.window</entry>
+              <entry>ウィンドウを管理するウィンドウマネージャを提供します（「<link xlink:href="012e4424-55ff-4cee-9431-8066358e6205"/>」）</entry>
+            </row>
+            <row>
+              <entry>SerializeServicePluginプラグイン</entry>
+              <entry>org.poderosa.core.serializing</entry>
+              <entry>オブジェクトの設定ファイルへの保存に関するサポートを提供します</entry>
+            </row>
+            <row>
+              <entry>ProtocolsPluginプラグイン</entry>
+              <entry>org.poderosa.protocols</entry>
+              <entry>TelnetやSSH、Cygwin接続のプロトコル接続を提供します（「<link xlink:href="85071b7c-755b-43d7-ae56-b5f174f2fd82"/>」）</entry>
+            </row>
+            <row>
+              <entry>TerminalEmulatorPluginプラグイン</entry>
+              <entry>org.poderosa.terminalemulator</entry>
+              <entry>ターミナルエミュレータ機能を提供します（「<link xlink:href="f56866ba-0bdc-42b4-9123-a80bac3774f7"/>」）</entry>
+            </row>
+            <row>
+              <entry>TerminalSessionsPluginプラグイン</entry>
+              <entry>org.poderosa.terminalsessions</entry>
+              <entry>ターミナルセッション機能を提供します（「<link xlink:href="f56866ba-0bdc-42b4-9123-a80bac3774f7"/>」）</entry>
+            </row>
+            <row>
+              <entry>CygwinPluginプラグイン</entry>
+              <entry>org.poderosa.cygwin</entry>
+              <entry>Cygwin接続機能を提供する内部プラグインです</entry>
+            </row>
+            <row>
+              <entry>TelnetSSHPluginプラグイン</entry>
+              <entry>org.poderosa.telnet_ssh</entry>
+              <entry>TelnetまたはSSH接続機能を提供する内部プラグインです</entry>
+            </row>
+            <row>
+              <entry>MRUPluginプラグイン</entry>
+              <entry>org.poderosa.usability.mru</entry>
+              <entry>ユーザーが過去に接続した接続先を保存し、［ファイル］メニューの履歴部分に追加する機能を提供します</entry>
+            </row>
+            <row>
+              <entry>OptionDialogPluginプラグイン</entry>
+              <entry>org.poderosa.optiondialog</entry>
+              <entry>［ツール］メニューから［オプション］を選択したときに表示される「オプション設定」ダイアログボックスを提供します</entry>
+            </row>
+            <row>
+              <entry>SSHUtilPluginプラグイン</entry>
+              <entry>org.poderosa.sshutil</entry>
+              <entry>SSHに関する周辺的な機能(鍵の作成など)を提供します</entry>
+            </row>
+            <row>
+              <entry>TerminalUIPluginプラグイン</entry>
+              <entry>org.poderosa.terminalui</entry>
+              <entry>ログの設定、接続ごとのフォントと色の設定など、ターミナルの周辺機能を提供します</entry>
+            </row>
+            <row>
+              <entry>ShortcutFilePluginプラグイン</entry>
+              <entry>org.poderosa.shortcutfile</entry>
+              <entry>接続へのショートカットファイルに関する機能を提供します</entry>
+            </row>
+            <row>
+              <entry>UsabilityPluginプラグイン</entry>
+              <entry>org.poderosa.usability</entry>
+              <entry>その他雑多の小機能を収録しています</entry>
+            </row>
+          </table>
+        </content>
+      </section>
+
+      <section>
+        <title>標準プラグインの依存関係</title>
+        <content>
+          <para>標準プラグインは、図1-2に示す依存関係をもっています。</para>
+
+          <mediaLink>
+            <caption lead="図1-2">標準プラグインの依存関係</caption>
+            <image xlink:href="fig01_02" />
+          </mediaLink>
+
+          <alert class="caution">
+            <para>Poderosaにおいては、標準プラグインと開発者が作成したプラグインの区別はありません。たとえば、標準プラグインが先行して読み込まれるということはありません。そのため開発者は、標準プラグインがインストールされていると仮定してはならず、標準プラグインを利用するプラグインは、利用するプラグインのIDをPluginInfoアトリビュートのDependenciesプロパティに記述しておく必要があります。</para>
+          </alert>
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="15fa6ae6-d235-425c-848a-c3984aa79f98"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

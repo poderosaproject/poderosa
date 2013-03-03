@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="448b659e-151b-426a-ae17-359f6fbbd535" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <sections>
+
+      <section>
+        <title>ユーザー設定値の操作</title>
+        <content>
+          <para>それぞれのプラグインでは、現在の設定値を保存することができます。具体的な設定値としては、たとえば「ウィンドウサイズ」や「ツールバーの位置」、「キーバインド」、「過去の接続履歴」などが挙げられます。</para>
+          <para>これらの設定値を操作する機能を提供するのが、PreferencePluginプラグイン（プラグインID：<codeInline>org.poderosa.core.preferences</codeInline>）です。</para>
+          <para>PreferencePluginプラグイン（プラグインID：<codeInline>org.poderosa.core.preferences</codeInline>）は、デフォルトでは、Poderosa起動ディレクトリにoptions.confというファイルを作成し、すべてのプラグインにおける設定値を階層化して保存します。</para>
+
+<code language="C#" title="options.confの例">
+Poderosa {
+  org.poderosa.core.commands {
+    keybinds {
+    }
+  }
+  org.poderosa.core.window {
+    mainwindow {
+      position=(356,462,1129,600)
+      toolbar=1121,25,41,0,79,0,149,0,114,0,207,0
+    }
+  }
+  …以下略…
+}
+</code>
+
+          <alert class="caution">
+            <para>options.confのファイル構造は変わる恐れもあります。開発者はPreferencePluginプラグインを経由せずに、直接options.confファイルを変更するように実装してはいけません。</para>
+          </alert>
+
+          <sections>
+
+            <section>
+              <title>PreferencePluginプラグインが提供する拡張ポイントへの登録</title>
+              <content>
+                <para>PreferencePluginプラグインを通じて、ユーザー設定値を読み書きする場合、次の2つの要件を満たす必要があります。</para>
+
+                <definitionTable>
+                  <definedTerm>1. PreferencePluginプラグインよりも後に読み込まれるようにすること</definedTerm>
+                  <definition>
+                    <para>PreferencePluginプラグインよりも後に読み込まれることを保証するため、<codeEntityReference>T:Poderosa.Plugins.PluginInfoAttribute</codeEntityReference>の<codeEntityReference>F:Poderosa.Plugins.PluginInfoAttribute.Dependencies</codeEntityReference>で、「<codeInline>org.poderosa.core.preferences</codeInline>」を指定する必要があります。</para>
+                  </definition>
+
+                  <definedTerm>2. <codeEntityReference>T:Poderosa.Preferences.IPreferenceSupplier</codeEntityReference>を実装したオブジェクトを用意すること</definedTerm>
+                  <definition>
+                    <para>PreferencePluginプラグインを通じたユーザー設定値の読み書きでは、<codeEntityReference>T:Poderosa.Preferences.IPreferenceSupplier</codeEntityReference>を用います。そこで<codeEntityReference>T:Poderosa.Preferences.IPreferenceSupplier</codeEntityReference>を実装したオブジェクトを用意しておく必要があります。</para>
+                  </definition>
+                </definitionTable>
+
+                <para>たとえばプラグイン自身に<codeEntityReference>T:Poderosa.Preferences.IPreferenceSupplier</codeEntityReference>を実装するのであれば、次のようなクラス定義になります。</para>
+
+<code language="C#">
+[PluginInfo(ID="プラグインID", Version="バージョン番号",
+  Dependencies="org.poderosa.core.preferences")]
+  internal class MyPlugin : PluginBase, IPreferenceSupplier
+</code>
+
+                <para>PreferencePluginプラグインは、「<codeInline>org.poderosa.core.preferences</codeInline>」という拡張ポイントを公開します。</para>
+                <para>拡張ポイント「<codeInline>org.poderosa.core.preferences</codeInline>」は、<codeEntityReference>T:Poderosa.Plugins.ICoreServices</codeEntityReference>の<codeEntityReference>P:Poderosa.Plugins.ICoreServices.PreferenceExtensionPoint</codeEntityReference>から取得できます。</para>
+
+                <alert class="note">
+                  <para>プラグインマネージャの<codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindExtensionPoint(System.String)</codeEntityReference>から取得してもかまいません。</para>
+                </alert>
+
+<code language="C#">
+// _poderosa_worldはIPoderosaWorldインターフェイスを指していると想定します
+ICoreServices cs = _poderosa_world.GetAdapter(typeof(ICoreServices));
+// PreferencesPluginプラグインの拡張ポイントを取得します
+IExtensionPoint prefext =cs.PreferenceExtensionPoint;
+</code>
+
+                <para>この拡張ポイント「<codeInline>org.poderosa.core.preferences</codeInline>」に対して、<codeEntityReference>T:Poderosa.Preferences.IPreferenceSupplier</codeEntityReference>を備えたオブジェクトを登録します。</para>
+
+<code language="C#">
+// 自身がIPreferenceSupplierを備える場合
+prefext.RegisterExtension(this);
+</code>
+              </content>
+            </section>
+
+            <section>
+              <title>設定項目の登録と初期化</title>
+              <content>
+                <para><codeEntityReference>T:Poderosa.Preferences.IPreferenceSupplier</codeEntityReference>は、下記のように定義されています。</para>
+
+<code language="C#">
+public interface IPreferenceSupplier {
+  string PreferenceID { get; } 
+  void InitializePreference(IPreferenceBuilder builder, IPreferenceFolder folder);
+  object QueryAdapter(IPreferenceFolder folder, Type type);
+  void ValidateFolder(IPreferenceFolder folder, IPreferenceValidationResult output);
+}
+</code>
+
+                <para>「<codeInline>org.poderosa.core.preferences</codeInline>」拡張ポイントへと登録すると、Poderosaが起動する際に（より正確に言えば、PreferencePluginプラグインが読み込まれる際に）、<codeEntityReference>M:Poderosa.Preferences.IPreferenceSupplier.InitializePreference(Poderosa.Preferences.IPreferenceBuilder,Poderosa.Preferences.IPreferenceFolder)</codeEntityReference>が呼び出されます。<codeEntityReference>M:Poderosa.Preferences.IPreferenceSupplier.InitializePreference(Poderosa.Preferences.IPreferenceBuilder,Poderosa.Preferences.IPreferenceFolder)</codeEntityReference>には、設定項目の初期設定処理を実装しておきます。</para>
+
+                <definitionTable>
+                  <definedTerm>InitializePreferenceメソッド</definedTerm>
+                  <definition>
+                    <para><codeEntityReference>M:Poderosa.Preferences.IPreferenceSupplier.InitializePreference(Poderosa.Preferences.IPreferenceBuilder,Poderosa.Preferences.IPreferenceFolder)</codeEntityReference>では、引数に、<codeEntityReference>T:Poderosa.Preferences.IPreferenceBuilder</codeEntityReference>と<codeEntityReference>T:Poderosa.Preferences.IPreferenceFolder</codeEntityReference>という2つのインターフェイスが渡されます。</para>
+
+<code language="C#">
+void InitializePreference(
+  IPreferenceBuilder builder,
+  IPreferenceFolder folder
+);
+</code>
+                  </definition>
+
+                  <definedTerm>設定項目の登録と初期化</definedTerm>
+                  <definition>
+                    <para>第1引数に渡される<codeEntityReference>T:Poderosa.Preferences.IPreferenceBuilder</codeEntityReference>には、設定項目を登録し、値を初期化するための次の3つのメソッドがあります。</para>
+
+                    <definitionTable>
+                      <definedTerm><codeEntityReference>M:Poderosa.Preferences.IPreferenceBuilder.DefineBoolValue(Poderosa.Preferences.IPreferenceFolder,System.String,System.Boolean,Poderosa.Preferences.PreferenceItemValidator{System.Boolean})</codeEntityReference></definedTerm>
+                      <definition><codeInline>bool</codeInline>型として登録します。</definition>
+                      <definedTerm><codeEntityReference>M:Poderosa.Preferences.IPreferenceBuilder.DefineIntValue(Poderosa.Preferences.IPreferenceFolder,System.String,System.Int32,Poderosa.Preferences.PreferenceItemValidator{System.Int32})</codeEntityReference></definedTerm>
+                      <definition><codeInline>int</codeInline>型として登録します。</definition>
+                      <definedTerm><codeEntityReference>M:Poderosa.Preferences.IPreferenceBuilder.DefineStringValue(Poderosa.Preferences.IPreferenceFolder,System.String,System.String,Poderosa.Preferences.PreferenceItemValidator{System.String})</codeEntityReference></definedTerm>
+                      <definition><codeInline>string</codeInline>型として登録します。</definition>
+                    </definitionTable>
+
+                    <para>どのメソッドも、「作成する設定の階層」「設定名」「初期値」「バリデータ」の4つの引数をとります。たとえば、<codeEntityReference>M:Poderosa.Preferences.IPreferenceBuilder.DefineStringValue(Poderosa.Preferences.IPreferenceFolder,System.String,System.String,Poderosa.Preferences.PreferenceItemValidator{System.String})</codeEntityReference>は、次のように定義されています。</para>
+
+<code language="C#">
+IStringPreferenceItem DefineStringValue(
+  IPreferenceFolder parent,
+  String id,
+  String initial_value,
+  PreferenceItemValidator&lt;T&gt; validator
+);
+</code>
+
+                    <para>第1引数の<replaceable>parent</replaceable>は設定の階層を設定するものです。通常は、<codeEntityReference>M:Poderosa.Preferences.IPreferenceSupplier.InitializePreference(Poderosa.Preferences.IPreferenceBuilder,Poderosa.Preferences.IPreferenceFolder)</codeEntityReference>の第2引数に渡された<codeEntityReference>T:Poderosa.Preferences.IPreferenceFolder</codeEntityReference>を、そのまま引き渡してください。</para>
+                    <para>第2引数の<replaceable>id</replaceable>は環境設定項目を識別するための「設定名」です。設定項目は、第1引数の<replaceable>parent</replaceable>の設定によって、プラグインごとに異なる階層に入るため、他のプラグインと重複するかどうかを気にする必要はありません。</para>
+                    <para>第3引数の<replaceable>initial_value</replaceable>は、もし設定値がなかった場合に初期化値として採用する値です。すでに設定値があった場合には、無視され、既存の設定値が読み込まれます。</para>
+                    <para>第4引数の<replaceable>validator</replaceable>は、値を検証するためのバリデータです。値を検証する場合には、値を検証する機能を実装した<codeEntityReference>T:Poderosa.Preferences.PreferenceItemValidator`1</codeEntityReference>を渡してください。<codeEntityReference>T:Poderosa.Preferences.PreferenceItemValidator`1</codeEntityReference>は、次のように定義されています。</para>
+
+<code language="C#">
+public delegate void PreferenceItemValidator&lt;T&gt;
+  (T value, IPreferenceValidationResult result);
+</code>
+
+                    <para>第1引数の<replaceable>value</replaceable>は検証の対象になる値です。第2引数には検証結果を格納します。</para>
+                    <para>検証が成功したなら、<codeEntityReference>P:Poderosa.Preferences.IPreferenceValidationResult.Validated</codeEntityReference>に<codeInline>true</codeInline>を格納するようにしてください。</para>
+                    <para>検証に失敗したなら、<codeEntityReference>P:Poderosa.Preferences.IPreferenceValidationResult.Validated</codeEntityReference>には<codeInline>false</codeInline>を格納し、<codeEntityReference>P:Poderosa.Preferences.IPreferenceValidationResult.ErrorMessage</codeEntityReference>に、エラーメッセージを格納するようにしてください。</para>
+                    <para>なお、バリデータを使った検証をしないときには、<replaceable>validator</replaceable>引数に<codeInline>null</codeInline>を引き渡すこともできます。</para>
+                  </definition>
+
+                  <definedTerm>設定値の登録例</definedTerm>
+                  <definition>
+                    <para>たとえば次のようにすると、「<codeInline>myvalue</codeInline>」という設定名ができ、初期値が「東京」に設定されます。</para>
+
+<code language="C#">
+IStringPreferenceItem prefitem;
+public void InitializePreference(IPreferenceBuilder builder, IPreferenceFolder folder)
+{
+  prefitem = builder.DefineStringValue(folder, "myvalue", "東京", null);
+}
+</code>
+
+                    <para>上記のコードに示したように、<codeEntityReference>M:Poderosa.Preferences.IPreferenceBuilder.DefineStringValue(Poderosa.Preferences.IPreferenceFolder,System.String,System.String,Poderosa.Preferences.PreferenceItemValidator{System.String})</codeEntityReference>は、戻り値として、<codeEntityReference>T:Poderosa.Preferences.IStringPreferenceItem</codeEntityReference>を返します。このインターフェイスは、あとで値を読み書きする際に使います。</para>
+                    <para>ここでは、<codeEntityReference>M:Poderosa.Preferences.IPreferenceBuilder.DefineStringValue(Poderosa.Preferences.IPreferenceFolder,System.String,System.String,Poderosa.Preferences.PreferenceItemValidator{System.String})</codeEntityReference>を例にとりましたが、同様に、<codeEntityReference>M:Poderosa.Preferences.IPreferenceBuilder.DefineBoolValue(Poderosa.Preferences.IPreferenceFolder,System.String,System.Boolean,Poderosa.Preferences.PreferenceItemValidator{System.Boolean})</codeEntityReference>の場合の戻り値は、<codeEntityReference>T:Poderosa.Preferences.IBoolPreferenceItem</codeEntityReference>となります。また、<codeEntityReference>M:Poderosa.Preferences.IPreferenceBuilder.DefineIntValue(Poderosa.Preferences.IPreferenceFolder,System.String,System.Int32,Poderosa.Preferences.PreferenceItemValidator{System.Int32})</codeEntityReference>の場合には、<codeEntityReference>T:Poderosa.Preferences.IIntPreferenceItem</codeEntityReference>です。</para>
+                  </definition>
+                </definitionTable>
+              </content>
+            </section>
+
+            <section>
+              <title>設定値の読み書き</title>
+              <content>
+                <para><codeEntityReference>M:Poderosa.Preferences.IPreferenceBuilder.DefineStringValue(Poderosa.Preferences.IPreferenceFolder,System.String,System.String,Poderosa.Preferences.PreferenceItemValidator{System.String})</codeEntityReference>や、<codeEntityReference>T:Poderosa.Preferences.IBoolPreferenceItem</codeEntityReference>、<codeEntityReference>T:Poderosa.Preferences.IIntPreferenceItem</codeEntityReference>には、設定値を読み書きするための<codeEntityReference>P:Poderosa.Preferences.ITypedPreferenceItem`1.Value</codeEntityReference>があり、この<codeEntityReference>P:Poderosa.Preferences.ITypedPreferenceItem`1.Value</codeEntityReference>を通じて、設定値を読み書きできます。</para>
+
+                <definitionTable>
+                  <definedTerm>読み込み</definedTerm>
+                  <definition>
+<code language="C#">
+Debug.WriteLine(prefitem.Value);
+</code>
+                  </definition>
+
+                  <definedTerm>書き込み</definedTerm>
+                  <definition>
+<code language="C#">
+prefitem.Value = "大阪";
+</code>
+                  </definition>
+                </definitionTable>
+
+                <para>設定した値はPoderosaの終了時（正確にはPreferencePluginプラグインが解放されるとき）に保存され、次回起動時（正確にはPreferencePluginプラグインが読み込まれるとき）に、その値が読み込まれるようになります。</para>
+              </content>
+            </section>
+
+            <section>
+              <title>その他の実装すべきプロパティとメソッド</title>
+              <content>
+                <para><codeEntityReference>T:Poderosa.Preferences.IPreferenceSupplier</codeEntityReference>の残りのプロパティ／メソッドは、次のように実装してください。</para>
+
+                <definitionTable>
+                  <definedTerm><codeEntityReference>P:Poderosa.Preferences.IPreferenceSupplier.PreferenceID</codeEntityReference></definedTerm>
+                  <definition>設定値をプラグインごとに識別する名前を返すように実装してください。options.confに書き込まれるときのルート直下の名前として採用されます。他のプラグインと重複するものを指定すると設定値が混じってしまうので避けてください。そのため通常は、プラグインIDと同じものを設定することが推奨されます（あえて他のプラグインの設定値を読み書きしたい場合には、この限りではありません）。</definition>
+                  <definedTerm><codeEntityReference>M:Poderosa.Preferences.IPreferenceSupplier.QueryAdapter(Poderosa.Preferences.IPreferenceFolder,System.Type)</codeEntityReference></definedTerm>
+                  <definition>処理が複雑であるため、説明を省略します。<codeInline>null</codeInline>を返すように実装しておいてください。</definition>
+                  <definedTerm><codeEntityReference>M:Poderosa.Preferences.IPreferenceSupplier.ValidateFolder(Poderosa.Preferences.IPreferenceFolder,Poderosa.Preferences.IPreferenceValidationResult)</codeEntityReference></definedTerm>
+                  <definition>複数の項目を検証したいときに用います。第1引数に検証となる対象を示す<codeEntityReference>T:Poderosa.Preferences.IPreferenceFolder</codeEntityReference>が渡されるので、そこから検証したい値を探して検証します。検証結果は、第2引数の<codeEntityReference>T:Poderosa.Preferences.IPreferenceValidationResult</codeEntityReference>の<codeEntityReference>P:Poderosa.Preferences.IPreferenceValidationResult.Validated</codeEntityReference>に渡します。<codeEntityReference>P:Poderosa.Preferences.IPreferenceValidationResult.Validated</codeEntityReference>のデフォルト値は<codeInline>true</codeInline>であり、「検証成功」を示します。そのため検証を必要としない場合には、このメソッドには、コードを何も書かなくてかまいません。</definition>
+                </definitionTable>
+
+                <para>これらのプロパティ／メソッドの実例を示すと、たとえば、下記のようになります。</para>
+
+<code language="C#">
+public string PreferenceID 
+{
+  get 
+  {
+    return "jp.example.helloworld"; // プラグインID
+  }
+}
+
+public object QueryAdapter(IPreferenceFolder folder, Type type)
+{
+  // nullを返すようにしてください
+  return null;
+}
+
+public void ValidateFolder(IPreferenceFolder folder, IPreferenceValidationResult output)
+{
+  // 検証する場合はoutput.Validatedに
+  // trueまたはfalseを格納してください
+  // 階層内の値は、folder.FindItem("設定名")として取得できます
+}
+</code>
+              </content>
+            </section>
+
+          </sections>
+
+        </content>
+      </section>
+
+    </sections>
+
+  </developerConceptualDocument>
+</topic>

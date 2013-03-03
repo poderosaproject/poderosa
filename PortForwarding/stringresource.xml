@@ -1,0 +1,587 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+$Id: stringresource.xml,v 1.1 2010/11/19 15:55:01 kzmi Exp $
+-->
+<string-resource>
+<record name="Common.OK">
+  <ja>OK</ja>
+  <en>OK</en>
+</record>
+<record name="Common.Cancel">
+  <ja>キャンセル</ja>
+  <en>Cancel</en>
+</record>
+
+<!-- AboutBox.cs -->
+<record name="Form.AboutBox.Text">
+  <ja>バージョン情報</ja>
+  <en>Version Information</en>
+</record>
+
+<!-- channel.cs -->
+<record name="Message.Channel.ServerError">
+  <ja>SSHサーバ {0} が次のエラーを送信してきました。
+{1}</ja>
+  <en>The SSH server {0} has notified following error.
+{1}</en>
+</record>
+
+<!-- commands.cs -->
+<record name="Message.Commands.CannotEditConnectedProfile">
+  <ja>接続中のため編集できません。</ja>
+  <en>Cannot edit while connecting.</en>
+</record>
+<record name="Message.Commands.CannotDeleteConnectedProfile">
+  <ja>接続中のため削除できません。</ja>
+  <en>Cannot remove while connecting.</en>
+</record>
+<record name="Message.ConnectionManager.Disconnected">
+  <ja>リモートホストが接続を切断しました。</ja>
+  <en>Disconnected by the remote host.</en>
+</record>
+<record name="Message.ConnectionManager.ConnectionCancelled">
+  <ja>接続を中止しました。</ja>
+  <en>Aborted the connection.</en>
+</record>
+
+<!-- MainForm.cs -->
+<record name="Form.MainForm._sshHostColumn">
+  <ja>SSHホスト</ja>
+  <en>SSH Host</en>
+</record>
+<record name="Form.MainForm._accountColumn">
+  <ja>アカウント</ja>
+  <en>Account</en>
+</record>
+<record name="Form.MainForm._typeColumn">
+  <ja>種別</ja>
+  <en>Type</en>
+</record>
+<record name="Form.MainForm._listenPortColumn">
+  <ja>待機するポート</ja>
+  <en>Listening Port</en>
+</record>
+<record name="Form.MainForm._destinationHostColumn">
+  <ja>転送先ホスト</ja>
+  <en>Destination Host</en>
+</record>
+<record name="Form.MainForm._destinationPortColumn">
+  <ja>転送先ポート</ja>
+  <en>Destination Port</en>
+</record>
+<record name="Form.MainForm._statusColumn">
+  <ja>状態</ja>
+  <en>Status</en>
+</record>
+<record name="Menu._menuFile">
+  <ja>ファイル(&amp;F)</ja>
+  <en>&amp;File</en>
+</record>
+<record name="Menu._menuNewProfile">
+  <ja>新規プロファイル(&amp;N)...</ja>
+  <en>&amp;New profile...</en>
+</record>
+<record name="Menu._menuTaskTray">
+  <ja>タスクトレイに入れる(&amp;T)</ja>
+  <en>Put into &amp;Task Tray</en>
+</record>
+<record name="Menu._menuExit">
+  <ja>終了(&amp;X)</ja>
+  <en>E&amp;xit</en>
+</record>
+<record name="Menu._menuProfile">
+  <ja>プロファイル(&amp;P)</ja>
+  <en>&amp;Profile</en>
+</record>
+<record name="Menu._menuProfileProperty">
+  <ja>プロパティ(&amp;P)...</ja>
+  <en>&amp;Property...</en>
+</record>
+<record name="Menu._menuProfileRemove">
+  <ja>削除(&amp;R)</ja>
+  <en>&amp;Remove</en>
+</record>
+<record name="Menu._menuProfileUp">
+  <ja>上へ(&amp;U)</ja>
+  <en>&amp;Up</en>
+</record>
+<record name="Menu._menuProfileDown">
+  <ja>下へ(&amp;O)</ja>
+  <en>D&amp;own</en>
+</record>
+<record name="Menu._menuProfileConnect">
+  <ja>接続(&amp;C)...</ja>
+  <en>&amp;Connect</en>
+</record>
+<record name="Menu._menuProfileDisconnect">
+  <ja>切断(&amp;D)</ja>
+  <en>&amp;Disconnect</en>
+</record>
+<record name="Menu._menuAllProfile">
+  <ja>全プロファイル(&amp;A)</ja>
+  <en>&amp;All Profiles</en>
+</record>
+<record name="Menu._menuAllProfileConnect">
+  <ja>接続(&amp;C)</ja>
+  <en>&amp;Connect</en>
+</record>
+<record name="Menu._menuAllProfileDisconnect">
+  <ja>切断(&amp;D)</ja>
+  <en>&amp;Disconnect</en>
+</record>
+<record name="Menu._menuTool">
+  <ja>ツール(&amp;T)</ja>
+  <en>&amp;Tools</en>
+</record>
+<record name="Menu._menuOption">
+  <ja>オプション(&amp;O)...</ja>
+  <en>&amp;Options...</en>
+</record>
+<record name="Menu._menuHelp">
+  <ja>ヘルプ(&amp;H)</ja>
+  <en>&amp;Help</en>
+</record>
+<record name="Menu._menuAboutBox">
+  <ja>バージョン情報(&amp;A)...</ja>
+  <en>&amp;About...</en>
+</record>
+<record name="Menu._menuAllProfileConnect">
+  <ja>すべて接続(&amp;C)...</ja>
+  <en>&amp;Connect All</en>
+</record>
+<record name="Menu._menuAllProfileDisconnect">
+  <ja>すべて切断(&amp;D)</ja>
+  <en>&amp;Disconnect All</en>
+</record>
+<record name="Message.MainForm.AskDisconnect">
+  <ja>接続中のプロファイルがあります。切断してよろしいですか？</ja>
+  <en>There are connecting profiles. Do you wish to disconnect them?</en>
+</record>
+
+<!-- OptionDialog.cs -->
+<record name="Form.OptionDialog._cipherOrderGroup">
+  <ja>暗号アルゴリズムの優先度</ja>
+  <en>Encryption algorithm priority</en>
+</record>
+<record name="Form.OptionDialog._algorithmOrderUp">
+  <ja>上へ(&amp;U)</ja>
+  <en>&amp;Up</en>
+</record>
+<record name="Form.OptionDialog._algorithmOrderDown">
+  <ja>下へ(&amp;D)</ja>
+  <en>&amp;Down</en>
+</record>
+<record name="Form.OptionDialog._ssh2OptionGroup">
+  <ja>プロトコルオプション(SSH2でのみ有効)</ja>
+  <en>Protocol option (SSH2 only)</en>
+</record>
+<record name="Form.OptionDialog._hostKeyLabel">
+  <ja>使用するホストキー認証アルゴリズム(&amp;H)</ja>
+  <en>&amp;Host key authentication algorithm</en>
+</record>
+<record name="Form.OptionDialog._windowSizeLabel">
+  <ja>SSHチャンネルのウィンドウサイズ(&amp;W)</ja>
+  <en>&amp;Window size of SSH channel</en>
+</record>
+<record name="Form.OptionDialog._sshMiscGroup">
+  <ja>その他</ja>
+  <en>Miscellaneous</en>
+</record>
+<record name="Form.OptionDialog._retainsPassphrase">
+  <ja>一度入力したパスフレーズを記憶(&amp;M)</ja>
+  <en>&amp;Memorize Passphrase until the Application is Terminated</en>
+</record>
+<record name="Form.OptionDialog._sshCheckMAC">
+  <ja>MACチェックを行う(offにすると若干高速化するかわりセキュリティが低下します)(&amp;C)</ja>
+  <en>&amp;Check MAC (if you set this off, the performance gains slightly at the risk of security.)</en>
+</record>
+<record name="Form.OptionDialog._connectionPage">
+  <ja>接続</ja>
+  <en>Connection</en>
+</record>
+<record name="Form.OptionDialog._useSocks">
+  <ja>SOCKS5を使用する(&amp;S)</ja>
+  <en>Use &amp;SOCKS5</en>
+</record>
+<record name="Form.OptionDialog._socksServerLabel">
+  <ja>サーバ名(&amp;N)</ja>
+  <en>Server &amp;name</en>
+</record>
+<record name="Form.OptionDialog._socksPortLabel">
+  <ja>ポート(&amp;P)</ja>
+  <en>&amp;Port</en>
+</record>
+<record name="Form.OptionDialog._socksAccountLabel">
+  <ja>アカウント(&amp;A)</ja>
+  <en>&amp;Account</en>
+</record>
+<record name="Form.OptionDialog._socksPasswordLabel">
+  <ja>パスワード(&amp;W)</ja>
+  <en>Pass&amp;word</en>
+</record>
+<record name="Form.OptionDialog._socksNANetworksLabel">
+  <ja>次のネットワークにはSOCKSを使わない(&amp;E)
+(192.168.10.0/24の形式をセミコロンで区切ります)</ja>
+  <en>&amp;Exclude the following networks for SOCKS
+(concatenate strings in the form '192.168.10.0/24' using ';')</en>
+</record>
+<record name="Form.OptionDialog._genericPage">
+  <ja>全般</ja>
+  <en>Generic</en>
+</record>
+<record name="Form.OptionDialog._showInTaskBarOption">
+  <ja>タスクバーに表示(&amp;T)</ja>
+  <en>Display in &amp;taskbar</en>
+</record>
+<record name="Form.OptionDialog._warningOnExit">
+  <ja>終了時に接続中なら警告(&amp;W)</ja>
+  <en>&amp;Warn on exit if active connections exist</en>
+</record>
+<record name="Form.OptionDialog._optionPreservePlaceLabel">
+  <ja>オプション設定の保存場所(&amp;O)</ja>
+  <en>Preservation Place of &amp;Option Settings</en>
+</record>
+<record name="Form.OptionDialog._languageLabel">
+  <ja>言語(&amp;L)</ja>
+  <en>&amp;Language</en>
+</record>
+<record name="Form.OptionDialog.Text">
+  <ja>オプション設定</ja>
+  <en>Option settings</en>
+</record>
+<record name="Message.OptionDialog.InvalidWindowSize">
+  <ja>ウィンドウサイズの指定が正しくありません。</ja>
+  <en>The value of window size is not valid.</en>
+</record>
+<record name="Message.OptionDialog.EmptySOCKSServer">
+  <ja>SOCKSサーバ名が指定されていません。</ja>
+  <en>The SOCKS server name is empty.</en>
+</record>
+<record name="Caption.OptionDialog.SOCKSPort">
+  <ja>SOCKSポート番号</ja>
+  <en>SOCKS port number</en>
+</record>
+<record name="Caption.OptionDialog.NetworkAddress">
+  <ja>ネットワークアドレス</ja>
+  <en>network address</en>
+</record>
+<record name="Message.OptionDialog.InvalidItem">
+  <ja>{0}の指定が正しくありません</ja>
+  <en>The value of {0} is not valid.</en>
+</record>
+<record name="Message.OptionDialog.RegistryAuthRequired">
+  <ja>設定の保存場所を変更するためにはレジストリへの書き込み権限が必要です。</ja>
+  <en>To change the setting preservation place, authority of registry modification is required.</en>
+</record>
+<record name="Message.OptionDialog.AskJapaneseFont">
+  <ja>If Japanese font is not installed in your computer, the window will be shown incorrectly. Do you wish to continue?</ja>
+  <en>If Japanese font is not installed in your computer, the window will be shown incorrectly. Do you wish to continue?</en>
+</record>
+
+<!-- options.cs -->
+<record name="Message.Options.IntFormatError">
+  <ja>設定ファイルのフォーマットエラー： {0}要素が整数ではありません。</ja>
+  <en>Configuration file format error: {0} element is not an integer.</en>
+</record>
+<record name="Message.Options.FloatFormatError">
+  <ja>設定ファイルのフォーマットエラー： {0}要素が数値ではありません。</ja>
+  <en>Configuration file format error: {0} element is not a number.</en>
+</record>
+<record name="Message.Options.BoolFormatError">
+  <ja>設定ファイルのフォーマットエラー： {0}要素がbool値ではありません。</ja>
+  <en>Configuration file format error: {0} element is not a boolean.</en>
+</record>
+<record name="Enum.OptionPreservePlace.InstalledDir">
+  <ja>インストールしたディレクトリ</ja>
+  <en>Installed directory</en>
+</record>
+<record name="Enum.OptionPreservePlace.AppData">
+  <ja>Windowsの標準</ja>
+  <en>Windows standard</en>
+</record>
+<record name="Enum.Language.English">
+  <ja>英語</ja>
+  <en>English</en>
+</record>
+<record name="Enum.Language.Japanese">
+  <ja>日本語</ja>
+  <en>Japanese</en>
+</record>
+
+<!-- ProfileEdit.cs -->
+<record name="Form.ProfileEdit._sshHostLabel">
+  <ja>SSHサーバ(&amp;S)</ja>
+  <en>&amp;SSH Server</en>
+</record>
+<record name="Form.ProfileEdit._portLabel">
+  <ja>SSHポート(&amp;O)</ja>
+  <en>P&amp;ort</en>
+</record>
+<record name="Form.ProfileEdit._accountLabel">
+  <ja>アカウント(&amp;A)</ja>
+  <en>&amp;Account</en>
+</record>
+<record name="Form.ProfileEdit._authTypeGroup">
+  <ja>認証方法</ja>
+  <en>Authentication method</en>
+</record>
+<record name="Form.ProfileEdit._passwordOption">
+  <ja>パスワード(&amp;P)</ja>
+  <en>&amp;Password</en>
+</record>
+<record name="Form.ProfileEdit._publicKeyOption">
+  <ja>公開鍵(&amp;K)</ja>
+  <en>Public &amp;Key</en>
+</record>
+<record name="Form.ProfileEdit._privateKeyLabel">
+  <ja>秘密鍵ファイル(&amp;F)</ja>
+  <en>Private Key &amp;File</en>
+</record>
+<record name="Form.ProfileEdit._localToRemoteOption">
+  <ja>ローカルからリモートへのポートフォワーディング(&amp;L)</ja>
+  <en>Port forwarding from &amp;local to remote</en>
+</record>
+<record name="Form.ProfileEdit._LRLocalPortLabel">
+  <ja>ローカルでlistenするポート(&amp;T)</ja>
+  <en>Local listening por&amp;t</en>
+</record>
+<record name="Form.ProfileEdit._LRIPv6">
+  <ja>IPv6で待機(&amp;6)</ja>
+  <en>Use IPv&amp;6</en>
+</record>
+<record name="Form.ProfileEdit._LRRemoteHostLabel">
+  <ja>転送先ホスト(&amp;H)</ja>
+  <en>Destination &amp;host</en>
+</record>
+<record name="Form.ProfileEdit._LRRemotePortLabel">
+  <ja>転送先ポート(&amp;D)</ja>
+  <en>&amp;Destination port</en>
+</record>
+<record name="Form.ProfileEdit._remoteToLocalOption">
+  <ja>リモートからローカルへのポートフォワーディング(&amp;R)</ja>
+  <en>Port forwarding from &amp;Remote to Local</en>
+</record>
+<record name="Form.ProfileEdit._RLRemotePortLabel">
+  <ja>リモートでlistenするポート(&amp;T)</ja>
+  <en>Remote listening por&amp;t</en>
+</record>
+<record name="Form.ProfileEdit._RLLocalHostLabel">
+  <ja>転送先ホスト(&amp;H)</ja>
+  <en>Destination &amp;host</en>
+</record>
+<record name="Form.ProfileEdit._RLLocalPortLabel">
+  <ja>転送先ポート(&amp;D)</ja>
+  <en>&amp;Destination port</en>
+</record>
+<record name="Form.ProfileEdit._optionGroup">
+  <ja>オプション</ja>
+  <en>Options</en>
+</record>
+<record name="Form.ProfileEdit._loopbackOnly">
+  <ja>Loopbackアドレスからの接続のみを許可(&amp;B)</ja>
+  <en>Allow connections only from Loop&amp;back Address</en>
+</record>
+<record name="Form.ProfileEdit.Text">
+  <ja>プロファイルの編集</ja>
+  <en>Edit profile</en>
+</record>
+<record name="Message.ProfileEdit.EmptySSHServer">
+  <ja>SSHサーバ名が入力されていません。</ja>
+  <en>SSH server name is empty.</en>
+</record>
+<record name="Message.ProfileEdit.EmptyAccount">
+  <ja>アカウントが入力されていません。</ja>
+  <en>Account is empty.</en>
+</record>
+<record name="Caption.ProfileEdit.SSHPortNumber">
+  <ja>SSHポート番号</ja>
+  <en>SSH port number</en>
+</record>
+<record name="Caption.ProfileEdit.LocalPort">
+  <ja>ローカルポート</ja>
+  <en>local port</en>
+</record>
+<record name="Message.ProfileEdit.EmptyRemoveHost">
+  <ja>リモートホスト名が入力されていません。</ja>
+  <en>The remote host name is empty.</en>
+</record>
+<record name="Caption.ProfileEdit.DestinationPort">
+  <ja>転送先ポート</ja>
+  <en>destination port</en>
+</record>
+<record name="Caption.ProfileEdit.DestinationHost">
+  <ja>転送先ホスト</ja>
+  <en>destination host</en>
+</record>
+<record name="Caption.ProfileEdit.RemotePort">
+  <ja>リモートポート</ja>
+  <en>remote port</en>
+</record>
+
+<!-- SockesWithTimeout.cs -->
+<record name="Message.SocketWithTimeout.DestinationNotFound">
+  <ja>{0} {1} が見つかりません。</ja>
+  <en>The {0} {1} was not found.</en>
+</record>
+<record name="Message.SocketWithTimeout.FailedtoConnect">
+  <ja>{0} {1} へ接続できませんでした。アドレスとポートを確認してください。</ja>
+  <en>Failed to connect to {0} {1}. Please check the address and the port.</en>
+</record>
+<record name="Message.SocketWithTimeout.SOCKSError">
+  <ja>SOCKSの接続中のエラーです。</ja>
+  <en>An error occurred while SOCKS negotiation.</en>
+</record>
+<record name="Message.SocketWithTimeout.InvalidAddressForSOCKS">
+  <ja>{0} はネットワークアドレスとして不適切です</ja>
+  <en>{0} is invalid as a network address.</en>
+</record>
+
+<!-- socks.cs -->
+<record name="Message.SOCKS.AddressIsNotSpecified">
+  <ja>アドレスが指定されていません。</ja>
+  <en>The address is not specified.</en>
+</record>
+<record name="Message.SOCKS.FailedToAuthenticate">
+  <ja>SOCKSの認証に失敗しました。</ja>
+  <en>SOCKS authentication failure.</en>
+</record>
+<record name="Message.SOCKS.FailedToConnect">
+  <ja>SOCKSサーバと通信できませんでした。</ja>
+  <en>Failed to communicate with the SOCKS server.</en>
+</record>
+<record name="Message.SOCKS.VersionError">
+  <ja>SOCKSサーバのバージョンが違います。</ja>
+  <en>The protocol version of the SOCKS server is wrong.</en>
+</record>
+<record name="Messaeg.SOCKS.UnknownAuthMethod">
+  <ja>サポートされていないSOCKS認証方式[{0}]がサーバから指定されました。</ja>
+  <en>The server specified an unsupported SOCKS authentication method [{0}].</en>
+</record>
+<record name="Message.FailedToConnect">
+  <ja>接続が失敗しました。</ja>
+  <en>Failed to connect.</en>
+</record>
+<record name="Message.SOCKS.ServerError">
+  <ja>SOCKSサーバのエラーです。</ja>
+  <en>SOCKS server error</en>
+</record>
+<record name="Message.SOCKS.NotPermitted">
+  <ja>接続は許可されていません。</ja>
+  <en>The connection is not allowed.</en>
+</record>
+<record name="Message.SOCKS.FailedToConnectNetwork">
+  <ja>ネットワークに到達できません。</ja>
+  <en>Failed to reach the destination network.</en>
+</record>
+<record name="Message.SOCKS.FailedToConnectHost">
+  <ja>ホストに到達できません。</ja>
+  <en>Failed to reach the destination host.</en>
+</record>
+<record name="Message.SOCKS.AccessDenied">
+  <ja>アクセスが拒否されました。</ja>
+  <en>The access is denied.</en>
+</record>
+<record name="Message.SOCKS.TTLDisposed">
+  <ja>TTLが無効になりました。</ja>
+  <en>TTL is disposed.</en>
+</record>
+<record name="Message.SOCKS.UnsupportedCommand">
+  <ja>サポートされていないコマンドです。</ja>
+  <en>The SOCKS command is not supported.</en>
+</record>
+<record name="Message.SOCKS.UnsupportedAddress">
+  <ja>アドレスタイプがサポートされていません。</ja>
+  <en>The type of address is not supported.</en>
+</record>
+<record name="Message.SOCKS.UnknownMessage">
+  <ja>不明なコード {0}</ja>
+  <en>Unknown Code {0}</en>
+</record>
+
+<!-- SSHShortcutLoginDialog.cs -->
+<record name="Form.SSHShortcutLoginDialog._privateKeyLabel">
+  <ja>秘密鍵</ja>
+  <en>Private Key</en>
+</record>
+<record name="Form.SSHShortcutLoginDialog._passphraseLabel">
+  <ja>パスフレーズ(&amp;P)</ja>
+  <en>&amp;Passphrase</en>
+</record>
+<record name="Form.SSHShortcutLoginDialog._hostLabel">
+  <ja>ホスト</ja>
+  <en>Host</en>
+</record>
+<record name="Form.SSHShortcutLoginDialog._methodLabel">
+  <ja>接続</ja>
+  <en>Method</en>
+</record>
+<record name="Form.SSHShortcutLoginDialog._accountLabel">
+  <ja>アカウント</ja>
+  <en>Account</en>
+</record>
+<record name="Form.SSHShortcutLoginDialog._authTypeLabel">
+  <ja>認証方法</ja>
+  <en>Authentication</en>
+</record>
+<record name="Form.SSHShortcutLoginDialog.Text">
+  <ja>SSH ログイン</ja>
+  <en>SSH login</en>
+</record>
+<record name="Caption.SSHShortcutLoginDialog.NotRegularPort">
+  <ja>(ポート{0})</ja>
+  <en>(port {0})</en>
+</record>
+<record name="Caption.SSHShortcutLoginDialog.Connecting">
+  <ja>SSH ログイン - 接続中 (Ctrl+Cで中止します)</ja>
+  <en>SSH Login - Connecting (Ctrl+C to stop)</en>
+</record>
+<record name="Message.SSHShortcutLoginDialog.KeyFileNotExist">
+  <ja>秘密鍵ファイルが存在しません。</ja>
+  <en>The private key file is not exist.</en>
+</record>
+<record name="Message.SSHShortcutLoginDialog.ConnectionError">
+  <ja>接続エラー</ja>
+  <en>Connection error</en>
+</record>
+
+<!-- Util.cs -->
+<record name="Caption.Util.SelectPrivateKey">
+  <ja>秘密鍵</ja>
+  <en>Private Key</en>
+</record>
+<record name="Caption.Util.Local">
+  <ja>ローカル</ja>
+  <en>local</en>
+</record>
+<record name="Caption.Util.Remote">
+  <ja>リモート</ja>
+  <en>remote</en>
+</record>
+<record name="Caption.Util.Connected">
+  <ja>接続中</ja>
+  <en>connected</en>
+</record>
+<record name="Caption.Util.Disconnected">
+  <ja>切断</ja>
+  <en>disconnected</en>
+</record>
+<record name="Caption.AuthenticationType.Password">
+  <ja>パスワード</ja>
+  <en>Password</en>
+</record>
+<record name="Caption.AuthenticationType.PublicKey">
+  <ja>公開鍵</ja>
+  <en>Public key</en>
+</record>
+
+<!--
+<record name="">
+  <ja></ja>
+  <en></en>
+</record>
+
+[設定漏れを探す正規表現]
+".*(:Id|:Hi|:Ka).*"
+
+-->
+</string-resource>

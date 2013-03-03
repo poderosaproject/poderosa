@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="102e0c3c-f009-4d02-a59f-018e279624ae" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <sections>
+
+      <section>
+        <title>拡張ポイントへの登録</title>
+        <content>
+          <para>拡張ポイントとは、「未知のプラグイン」を呼び出すための仕組みです。</para>
+          <para><codeEntityReference>T:Poderosa.Plugins.IPluginManager</codeEntityReference>の<codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindPlugin(System.String,System.Type)</codeEntityReference>を使ってプラグインを検索する場合には、「プラグインID」と「どのようなインターフェイスを備えているのか」を知っている必要があります。</para>
+          <para>しかしプラグイン同士で呼び出し合う場合には、未知のプラグインを呼び出さなければならない場面もあります。その典型的な例は、イベント処理です。</para>
+          <para>たとえば、メニュー機能を提供するプラグインを考えてみます。メニュー機能を提供するプラグインは、「メニューがクリックされたら、他のプラグインに実装されているメソッドを呼び出す」という機能を提供する必要があるでしょう。</para>
+          <para>しかしこのときメニュー機能を提供するプラグイン側では、どのようなプラグインが読み込まれているのかを知ることはできず、また、そのプラグインIDも分かりません。</para>
+          <para>そこでこのような場面では、メニュー機能側が「他のプラグインと接続可能な場所」を提供しておき、呼び出されたいプラグイン側は、そこに登録するという方法をとります。この「他のプラグインと接続可能な場所」が、「拡張ポイント」です。拡張ポイントは、Poderosa本体内の「プラグインマネージャ（<codeEntityReference>T:Poderosa.Plugins.IPluginManager</codeEntityReference>をもつオブジェクト）」によって管理されます（図2-1）。</para>
+
+          <mediaLink>
+            <caption lead="図2-1">拡張ポイントの概念</caption>
+            <image xlink:href="fig02_01" />
+          </mediaLink>
+
+          <para>拡張ポイントには、拡張ポイントを提供するプラグインが独自に付けた「拡張ポイントID」という識別子が付けられます。拡張ポイントIDは、他のプラグインが提供する拡張ポイントとは重複しない唯一無二の名前です。</para>
+
+          <alert class="note">
+            <para>開発者が拡張ポイントを提供する場合には、他のプラグインが提供する拡張ポイントIDと重複しないようにするため、「プラグインID」の下に適当な名前を付けた命名規則で「拡張ポイントID」を決定することを推奨します。たとえば「<codeInline>co.jp.example.myplugin</codeInline>」というプラグインIDをもつプラグインならば、拡張ポイントとして「<codeInline>co.jp.example.myplugin.extpoint</codeInline>」といった名前を付けるようにします。</para>
+          </alert>
+
+          <alert class="note">
+            <para>「プラグインID」と「拡張ポイントID」は、別のものとして管理されます。そのため「プラグインID」と「拡張ポイントID」が同じ名前であっても、重複とは見なされません。</para>
+          </alert>
+
+          <para>また拡張ポイントでは、「どのようなインターフェイスを要求するのか」も定義します。これは拡張ポイントを提供する側のプラグインによって定められます。</para>
+          <para>拡張ポイントに接続する側のプラグインでは、拡張ポイントが要求するインターフェイスを実装しておき、そのインターフェイスを登録するという方法を使って接続します。</para>
+          <para>拡張ポイントには複数のプラグインが接続できます。すなわち拡張ポイントを提供するプラグインと、拡張ポイントに接続するプラグインとの関係は、1対多になります。</para>
+
+          <alert class="note">
+            <para>標準プラグインによって提供される「拡張ポイントID」と「要求されるインターフェイス」については、「<link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f"/>」を参照してください。</para>
+          </alert>
+        </content>
+      </section>
+
+      <section>
+        <title>拡張ポイントの動作の詳細</title>
+        <content>
+          <para>ここでは例として、メニューがクリックされたときに呼び出される拡張ポイントを取り上げ、より具体的に、拡張ポイントがどのように動作するのかを説明します（図2-2）。</para>
+
+          <mediaLink>
+            <caption lead="図2-2">拡張ポイントの動作</caption>
+            <image xlink:href="fig02_02" />
+          </mediaLink>
+
+          <definitionTable>
+            <definedTerm>(1) 拡張ポイントの作成（拡張ポイントを提供する側）</definedTerm>
+            <definition>
+              <para>Poderosaでは、［ファイル］や［編集］、［ヘルプ］などの各メニュー項目に対して、拡張ポイントを提供しています。たとえば［ヘルプ］メニューには、「<codeInline>org.poderosa.menu.help</codeInline>」という拡張ポイントが割り当てられています。</para>
+              <para>拡張ポイントを提供する側では、<codeEntityReference>T:Poderosa.Plugins.IPluginManager</codeEntityReference>の<codeEntityReference>M:Poderosa.Plugins.IPluginManager.CreateExtensionPoint(System.String,System.Type,Poderosa.Plugins.IPlugin)</codeEntityReference>を呼び出して、拡張ポイントをプラグインマネージャ内に作成します。</para>
+              <para><codeEntityReference>M:Poderosa.Plugins.IPluginManager.CreateExtensionPoint(System.String,System.Type,Poderosa.Plugins.IPlugin)</codeEntityReference>の引数には、その拡張ポイントで要求するインターフェイスも渡します。たとえば<codeEntityReference>T:Poderosa.Commands.IPoderosaMenuGroup</codeEntityReference>を要求する場合には、次のコードになります。</para>
+
+              <alert class="note">
+                <para>メニューやコマンドの詳細については、「<link xlink:href="b62fec3f-1e30-40f8-b0c8-b2f6163425b1"/>」を参照してください。またメニューが提供する拡張ポイントについては、「<link xlink:href="dbfdedf8-804f-45e4-aca7-f438cdf9d907"/>」を参照してください。</para>
+              </alert>
+
+              <alert class="note">
+                <para>下記のコードは、説明を分かりやすくした疑似コードであり、実際の実装とは異なります。</para>
+              </alert>
+
+<code language="C#">
+_poderosa_world.PluginManager.CreateExtentionPoint(
+    "org.poderosa.menu.help", typeof(IPoderosaMenuGroup), this);
+</code>
+
+              <para><codeEntityReference>M:Poderosa.Plugins.IPluginManager.CreateExtensionPoint(System.String,System.Type,Poderosa.Plugins.IPlugin)</codeEntityReference>の呼び出しによって拡張ポイントが「プラグインマネージャ」内に作成され、他のプラグインから接続可能な状態となります。</para>
+            </definition>
+
+            <definedTerm>(2) 拡張ポイントへの登録（拡張ポイントに接続する側）</definedTerm>
+            <definition>
+              <para>拡張ポイントに接続する側では、次の2つの方法を使って、拡張ポイントを検索できます。拡張ポイントは、<codeEntityReference>T:Poderosa.Plugins.IExtensionPoint</codeEntityReference>として実装されています。</para>
+
+              <definitionTable>
+                <definedTerm>(a) IPluginManagerのFindExtensionPointメソッドを使う方法</definedTerm>
+                <definition>
+                  <para><codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindExtensionPoint(System.String)</codeEntityReference>の引数に「拡張ポイントID」を渡すと、その拡張ポイントを得られます。</para>
+
+<code language="C#">
+IExteisionPoint expt = _poderosa_world.PluginManager.FindExtensionPoint("org.poderosa.menu.help");
+</code>
+                </definition>
+
+                <definedTerm>(b) ICoreServicesインターフェイスを使う方法</definedTerm>
+                <definition>
+                  <para>標準プラグインが提供する次の2つの拡張ポイントは、<codeEntityReference>T:Poderosa.Plugins.ICoreServices</codeEntityReference>のプロパティを使って取得することもできます（表2-2）。</para>
+
+                  <table>
+                    <title>表2-2 主要な拡張ポイントを返すプロパティ</title>
+                    <tableHeader>
+                      <row>
+                        <entry>プロパティ</entry>
+                        <entry>対応する拡張ポイントID</entry>
+                        <entry>解説</entry>
+                      </row>
+                    </tableHeader>
+                    <row>
+                      <entry>PreferenceExtensionPoint</entry>
+                      <entry>org.poderosa.core.preferences</entry>
+                      <entry>PreferencesPluginプラグインが提供する拡張ポイントを返します</entry>
+                    </row>
+                    <row>
+                      <entry>SerializerExtensionPoint</entry>
+                      <entry>org.poderosa.core.serializeElement</entry>
+                      <entry>SerializeServicePluginプラグインが提供する拡張ポイントを返します</entry>
+                    </row>
+                  </table>
+                </definition>
+              </definitionTable>
+
+              <para>拡張ポイントに登録するには、<codeEntityReference>M:Poderosa.Plugins.IExtensionPoint.RegisterExtension(System.Object)</codeEntityReference>を呼び出します。<codeEntityReference>M:Poderosa.Plugins.IExtensionPoint.RegisterExtension(System.Object)</codeEntityReference>の引数には、呼び出して欲しいオブジェクトを引き渡します。</para>
+              <para>このオブジェクトは、拡張ポイントが要求するインターフェイスを実装していなければなりません。実装していない場合には、ArgumentException例外が発生します。</para>
+
+              <alert class="note">
+                <para><codeEntityReference>T:Poderosa.Commands.PoderosaMenuGroupImpl</codeEntityReference>は、Poderosaのメニューグループを定義するヘルパクラスです（「<link xlink:href="b62fec3f-1e30-40f8-b0c8-b2f6163425b1"/>」を参照）。</para>
+              </alert>
+
+              <alert class="note">
+                <para><codeEntityReference>M:Poderosa.Plugins.IExtensionPoint.RegisterExtension(System.Object)</codeEntityReference>を使って登録したオブジェクトを解除する仕組みは、標準では提供されていません。動的な登録／解除を実現するには、拡張ポイントを提供するプラグイン側が、動的な登録／解除のためのメソッドを提供する必要があります。</para>
+              </alert>
+
+<code language="C#">
+// IExtensionPointを取得
+IExteisionPoint expt = _poderosa_world.PluginManager.FindExtensionPoint("org.poderosa.menu.help");
+// 登録するオブジェクトを作成
+// このオブジェクトは拡張ポイント「org.poderosa.menu.help」が要求するインターフェイス
+// ――すなわち、IPoderosaMenuGroup――を実装していなければならない
+PoderosaMenuGroupImpl helpmenu = new PoderosaMenuGroupImpl(…);
+// 登録する
+expt.RegisterExtension(helpmenu);
+</code>
+
+            </definition>
+
+            <definedTerm>(3) 拡張ポイントを通じた他のプラグインの呼び出し（拡張ポイントを提供する側）</definedTerm>
+            <definition>
+              <para>（2）の手順で登録された拡張ポイントは、拡張ポイントを提供する側からは、<codeEntityReference>T:Poderosa.Plugins.IExtensionPoint</codeEntityReference>の<codeEntityReference>M:Poderosa.Plugins.IExtensionPoint.GetExtensions</codeEntityReference>を呼び出すことで、配列として取得できます。</para>
+
+<code language="C#">
+// IExtensionPointを取得
+IExteisionPoint expt = _poderosa_world.PluginManager.FindExtensionPoint("org.poderosa.menu.help");
+// 登録されているオブジェクトを配列として得る
+IPoderosaMenuGroup[] menugroups = (IPoderosaMenuGroups[])expt.GetExtensions();
+</code>
+
+              <para>拡張ポイントを提供する側では、この配列を使って、登録されたオブジェクトに対する操作ができます。</para>
+            </definition>
+          </definitionTable>
+
+        </content>
+      </section>
+
+      <section>
+        <title>拡張ポイントの注意</title>
+        <content>
+          <para>Poderosaでは標準プラグインが多数の拡張ポイントを提供しているほか、開発者が作成するプラグインでも拡張ポイントを追加で提供できます。</para>
+          <para>拡張ポイントを扱うときには、次の点に注意してください。</para>
+
+          <definitionTable>
+            <definedTerm>1. 1つの拡張ポイントには1つのインターフェイスだけが対応する</definedTerm>
+            <definition>
+              <para>1つの拡張ポイントには、1つのインターフェイスだけが対応します。複数のインターフェイスを提供したい場合には、その数だけ別の拡張ポイントを用意することになります。</para>
+
+              <alert class="note">
+                <para>もしくは、拡張ポイントでは<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>を要求し、必要に応じて型変換するという方法もとれます（「<link xlink:href="85071b7c-755b-43d7-ae56-b5f174f2fd82"/>」を参照）。</para>
+              </alert>
+            </definition>
+
+            <definedTerm>2. 1つのポイントには複数のオブジェクトを登録できる</definedTerm>
+            <definition>
+              <para>1つの拡張ポイントには複数のオブジェクトを登録できるというのが基本です。拡張ポイントを提供するプラグインでは、<codeEntityReference>M:Poderosa.Plugins.IExtensionPoint.GetExtensions</codeEntityReference>を呼び出して登録されているオブジェクトの配列を取得し、そのそれぞれに対して、メソッドを呼び出すように実装しなければならず、一部のオブジェクトだけしか呼び出さないという動作をしてはいけません。</para>
+
+              <alert class="note">
+                <para>ただし何らかの理由で、1つしか登録できない場合には、この限りではありません。1つしか登録できない場合には、ダイアログボックスや設定オプションなどで、どれを使うのかをエンドユーザーが設定できる仕組みを提供することを推奨します。</para>
+              </alert>
+            </definition>
+
+            <definedTerm>3. 拡張ポイントの作成や登録は、InitializePluginメソッドのなかで行う</definedTerm>
+            <definition>
+              <para>拡張ポイントの作成や登録は、プラグインが初期化される際に呼び出される<codeEntityReference>M:Poderosa.Plugins.IPlugin.InitializePlugin(Poderosa.Plugins.IPoderosaWorld)</codeEntityReference>のなかで行ってください。<codeEntityReference>M:Poderosa.Plugins.IPlugin.InitializePlugin(Poderosa.Plugins.IPoderosaWorld)</codeEntityReference>以外で拡張ポイントを操作した場合、正しく動作するかどうかは、拡張ポイントを提供するプラグインの実装に依存します。</para>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="66ea47c3-bd5f-4149-a84a-e0e33246ec23"/>
+      <link xlink:href="4a1e718e-02bc-4670-9ac3-668138ea940f"/>
+      <link xlink:href="dbfdedf8-804f-45e4-aca7-f438cdf9d907"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

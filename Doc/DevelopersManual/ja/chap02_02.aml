@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="41885482-96bf-4145-8c3b-416b1d4cc154" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <sections>
+
+      <section>
+        <title>プラグインの検索</title>
+        <content>
+          <para>Poderosaでは、プラグイン検索のために、次の2つの方法を提供しています。</para>
+
+          <definitionTable>
+            <definedTerm>1. <link xlink:href="#findinterface1">プラグインIDから検索する</link></definedTerm>
+            <definition>
+              <para>プラグインに対する識別子である「プラグインID」を指定して検索する方法です。</para>
+            </definition>
+
+            <definedTerm>2. <link xlink:href="#findinterface2">標準的なインターフェイスを取得する</link></definedTerm>
+            <definition>
+              <para>標準プラグインに備わるインターフェイスのうち、頻繁に使われるものを手早く取得する方法です。</para>
+            </definition>
+          </definitionTable>
+
+          <para>Poderosaプラグインは、インターフェースを基本としてやりとりします。すなわち、プラグインを検索するということは、「プラグインを見つけて、そのプラグインが備えるいずれかのインターフェイスを取得する」という操作を意味します。</para>
+
+          <alert class="note">
+            <para>標準プラグインが備えるインターフェイスについては、「<link xlink:href="15fa6ae6-d235-425c-848a-c3984aa79f98"/>」を参照してください。</para>
+          </alert>
+
+        </content>
+      </section>
+
+      <section address="findinterface1">
+        <title>プラグインIDから検索する</title>
+        <content>
+          <para>プラグインIDを使ってプラグインを検出する場合は、<codeEntityReference>T:Poderosa.Plugins.IPluginManager</codeEntityReference>の<codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindPlugin(System.String,System.Type)</codeEntityReference>を用います。</para>
+
+          <alert class="note">
+            <para><codeEntityReference>T:Poderosa.Plugins.IPluginManager</codeEntityReference>は、<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>の<codeEntityReference>P:Poderosa.Plugins.IPoderosaWorld.PluginManager</codeEntityReference>で取得できます（「<link xlink:href="1e38e184-2b1d-49b7-898b-dcb8e2331dd9"/>」を参照）。</para>
+          </alert>
+
+          <para><codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindPlugin(System.String,System.Type)</codeEntityReference>の引数には、検索したいプラグインの「プラグインID」と「取得したいインターフェイスの型」を渡します。</para>
+          <para>たとえば、標準プラグイン「WindowManagerプラグイン」は、「<codeInline>org.poderosa.core.window</codeInline>」というプラグインIDをもち、<codeEntityReference>T:Poderosa.Forms.IWindowManager</codeEntityReference>を備えています。そこで次のようにして、この<codeEntityReference>T:Poderosa.Forms.IWindowManager</codeEntityReference>を取得できます。</para>
+
+          <alert class="note">
+            <para>WindowManagerプラグインは、ウィンドウマネージャを提供するプラグインです（「<link xlink:href="012e4424-55ff-4cee-9431-8066358e6205"/>」を参照）。</para>
+          </alert>
+
+<code language="C#">
+IWindowManager wm = (IWindowManager)_poderosa_world.PluginManager.FindPlugin(
+    "org.poderosa.core.window", typeof(IWindowManager));
+</code>
+          <para>もし該当のインターフェイスが見つからなかった場合には、<codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindPlugin(System.String,System.Type)</codeEntityReference>はnullを返します。</para>
+
+          <alert class="caution">
+            <para>他のプラグインを検索するときには、プラグインの依存関係に注意してください。<codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindPlugin(System.String,System.Type)</codeEntityReference>を呼び出すときには、そのプラグインがすでに読み込まれている必要があります。もし<codeEntityReference>T:Poderosa.Plugins.PluginInfoAttribute</codeEntityReference>のDependenciesプロパティでの依存関係の設定が欠落している場合には、読み込み順序は不定ですから、<codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindPlugin(System.String,System.Type)</codeEntityReference>が「正しくインターフェイスを返すとき」と「nullを返すときがある」というように、環境によって挙動が変わる恐れがあります。</para>
+          </alert>
+        </content>
+      </section>
+
+      <section address="findinterface2">
+        <title>標準的なインターフェイスを取得する</title>
+        <content>
+          <para>標準プラグインが備えるいくつかのインターフェイスは、<codeEntityReference>T:Poderosa.Plugins.ICoreServices</codeEntityReference>を用いることで、プラグインIDを指定しなくても取得できます。</para>
+          <para>まず次のように、<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>の<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>を呼び出すことで、<codeEntityReference>T:Poderosa.Plugins.ICoreServices</codeEntityReference>を取得します。</para>
+
+          <alert class="note">
+            <para><codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>は、<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>固有のメソッドではなく、インターフェイスの型変換をする<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>が備えるメソッドです（<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>は、<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>から継承しています）。<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>を使った型変換については、「<link xlink:href="66ea47c3-bd5f-4149-a84a-e0e33246ec23"/>」を参照してください。</para>
+          </alert>
+
+<code language="C#">
+ICoreServices cs = _poderosa_world.GetAdapter(typeof(ICoreServices));
+</code>
+
+          <para><codeEntityReference>T:Poderosa.Plugins.ICoreServices</codeEntityReference>は、主要なインターフェイスを返す、いくつかのプロパティを備えています（表2-1）。</para>
+
+          <alert class="note">
+            <para><codeEntityReference>T:Poderosa.Plugins.ICoreServices</codeEntityReference>には、表2-1に示す以外にも、主な拡張ポイントを返すプロパティも備わっています（「<link xlink:href="102e0c3c-f009-4d02-a59f-018e279624ae"/>」を参照）。</para>
+          </alert>
+
+          <table>
+            <title>表2-1 主要なインターフェイスを返すプロパティ</title>
+            <tableHeader>
+              <row>
+                <entry>プロパティ</entry>
+                <entry>返すインターフェイス</entry>
+                <entry>対応するプラグインID</entry>
+              </row>
+            </tableHeader>
+            <row>
+              <entry>WindowManager</entry>
+              <entry>IWindowManager</entry>
+              <entry>org.poderosa.core.window</entry>
+            </row>
+            <row>
+              <entry>Preferences</entry>
+              <entry>IPreferences</entry>
+              <entry>org.poderosa.core.preferences</entry>
+            </row>
+            <row>
+              <entry>CommandManager</entry>
+              <entry>ICommandManager</entry>
+              <entry>org.poderosa.core.commands</entry>
+            </row>
+            <row>
+              <entry>SerializeService</entry>
+              <entry>ISerializeService</entry>
+              <entry>org.poderosa.core.serializing</entry>
+            </row>
+            <row>
+              <entry>SessionManager</entry>
+              <entry>ISessionManager</entry>
+              <entry>org.poderosa.core.sessions</entry>
+            </row>
+          </table>
+
+          <para>たとえば次のように<codeEntityReference>P:Poderosa.Plugins.ICoreServices.WindowManager</codeEntityReference>を参照すれば、<codeEntityReference>T:Poderosa.Forms.IWindowManager</codeEntityReference>を取得できます。</para>
+
+          <alert class="note">
+            <para><codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindPlugin(System.String,System.Type)</codeEntityReference>を使って取得する方法と<codeEntityReference>T:Poderosa.Plugins.ICoreServices</codeEntityReference>を通じてインターフェイスを取得する方法との違いは、プラグインIDを意識するか否かの違いに過ぎません。たとえば上記の<codeEntityReference>T:Poderosa.Forms.IWindowManager</codeEntityReference>を取得する例では、<codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindPlugin(System.String,System.Type)</codeEntityReference>でプラグインID「<codeInline>org.poderosa.core.window</codeInline>」を検索し<codeEntityReference>T:Poderosa.Forms.IWindowManager</codeEntityReference>を取得するのとまったく同じインターフェイスが得られます。ですから開発者は、使いやすい方法のどちらを使ってかまいません。</para>
+          </alert>
+
+<code language="C#">
+IWindowManager wm = cs.WindowManager;
+</code>
+
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="102e0c3c-f009-4d02-a59f-018e279624ae"/>
+      <link xlink:href="66ea47c3-bd5f-4149-a84a-e0e33246ec23"/>
+      <link xlink:href="15fa6ae6-d235-425c-848a-c3984aa79f98"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

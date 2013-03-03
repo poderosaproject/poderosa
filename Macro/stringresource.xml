@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+$Id: stringresource.xml,v 1.4 2011/10/30 13:41:37 kzmi Exp $
+-->
+<string-resource>
+ 
+<!-- 汎用 -->
+<record name="Common.OK">
+  <ja>OK</ja>
+  <en>OK</en>
+</record>
+<record name="Common.Cancel">
+  <ja>キャンセル</ja>
+  <en>Cancel</en>
+</record>
+
+<record name="Menu.Macro">
+  <ja>マクロ(&amp;M)</ja>
+  <en>&amp;Macro</en>
+</record>
+<record name="Menu.MacroList">
+  <ja>環境設定(&amp;C)...</ja>
+  <en>&amp;Environment...</en>
+</record>
+<record name="Menu._menuStopMacro">
+  <ja>実行中のマクロの停止(&amp;S)</ja>
+  <en>&amp;Stop executing macro</en>
+</record>
+<record name="Command.MacroList">
+  <ja>マクロの設定ダイアログを開く</ja>
+  <en>Show macro configuration dialog</en>
+</record>
+<record name="Command.StopMacro">
+  <ja>実行中のマクロを強制終了</ja>
+  <en>Stop executing macro</en>
+</record>
+
+<!-- MacroEnv.cs -->
+<record name="Message.MacroEnv.WidthIsOutOfRange">
+  <ja>幅は1から255までが指定できます。</ja>
+  <en>The width must be between 1 and 255.</en>
+</record>
+<record name="Message.MacroEnv.HeightIsOutOfRange">
+  <ja>高さは1から255までが指定できます。</ja>
+  <en>The height must be between 1 and 255.</en>
+</record>
+<record name="Message.MacroEnv.ShellExecuteError">
+  <ja>ShellExecute:{0} - {1} の実行に失敗しました。</ja>
+  <en>Failed to execute ShellExecute:{0} - {1}.</en>
+</record>
+<record name="Message.MacroEnv.ExecError">
+  <ja>{0} の実行に失敗しました。指定したアプリケーションの名前とパスを確認してください。</ja>
+  <en>Failed to execute {0}. Please check the application name and path.</en>
+</record>
+
+<!-- MacroExec.cs -->
+<record name="Message.MacroExec.MissingAssemblies">
+  <ja>いくつかの必要なアセンブリが見つかりません。</ja>
+  <en>Some required assemblies are missing.</en>
+</record>
+<record name="Message.MacroExec.FailedToCompileScript">
+  <ja>スクリプトのコンパイルエラーです。
+</ja>
+  <en>Failed to compile the script.
+</en>
+</record>
+<record name="Message.MacroExec.ExceptionWithoutTraceWindow">
+  <ja>マクロの実行中に例外がスローされました。
+[{0}]
+
+エラーの詳細を見るにはこのマクロの実行中にトレースウィンドウを
+表示するように設定してから、もう一度マクロを実行してください。</ja>
+  <en>An exception was thrown while executing the macro. 
+[{0}]
+
+To see the detail of the exception, please set the trace window display option of the macro configuration and execute the macro again.</en>
+</record>
+<record name="Message.MacroExec.ExceptionInMacro">
+  <ja>マクロの実行中に例外がスローされました。</ja>
+  <en>An exception was thrown while executing the macro.</en>
+</record>
+
+<!-- MacroList.cs -->
+<record name="Form.MacroList._titleHeader">
+  <ja>タイトル</ja>
+  <en>Title</en>
+</record>
+<record name="Form.MacroList._pathHeader">
+  <ja>パス</ja>
+  <en>Path</en>
+</record>
+<record name="Form.MacroList._shortCutHeader">
+  <ja>ショートカット</ja>
+  <en>Shortcut</en>
+</record>
+<record name="Form.MacroList._infoHeader">
+  <ja>情報</ja>
+  <en>Information</en>
+</record>
+<record name="Form.MacroList._runButton">
+  <ja>実行(&amp;E)</ja>
+  <en>&amp;Execute</en>
+</record>
+<record name="Form.MacroList._stopButton">
+  <ja>停止(&amp;S)</ja>
+  <en>&amp;Stop</en>
+</record>
+<record name="Form.MacroList._propButton">
+  <ja>プロパティ...(&amp;P)</ja>
+  <en>&amp;Property...</en>
+</record>
+<record name="Form.MacroList._downButton">
+  <ja>↓</ja>
+  <en>&amp;Down</en>
+</record>
+<record name="Form.MacroList._upButton">
+  <ja>↑</ja>
+  <en>&amp;Up</en>
+</record>
+<record name="Form.MacroList._addButton">
+  <ja>新規...(&amp;N)</ja>
+  <en>&amp;New...</en>
+</record>
+<record name="Form.MacroList._deleteButton">
+  <ja>削除(&amp;R)</ja>
+  <en>&amp;Remove</en>
+</record>
+<record name="Form.MacroList._environmentButton">
+  <ja>環境変数...(&amp;V)</ja>
+  <en>Env. &amp;Variables...</en>
+</record>
+<record name="Form.MacroList.Text">
+  <ja>マクロ</ja>
+  <en>Macro</en>
+</record>
+<record name="Caption.MacroList.Trace">
+  <ja>トレース</ja>
+  <en>Trace</en>
+</record>
+
+<!-- MacroModule.cs -->
+<record name="Message.MacroModule.AlreadyRunning">
+  <ja>現在別のマクロを実行中です。</ja>
+  <en>Another macro is currently executing.</en>
+</record>
+<record name="Message.MacroModule.NoEntryPoint">
+  <ja>アセンブリのエントリポイントがみつかりません。</ja>
+  <en>The entry point of the assembly is not found.</en>
+</record>
+<record name="Message.MacroModule.UnknownModuleType">
+  <ja>マクロの種別が判別できません。</ja>
+  <en>The type of macro is unknown.</en>
+</record>
+<record name="Caption.MacroModule.SampleTitleHelloWorld">
+  <ja>サンプル - Hello World</ja>
+  <en>Sample - Hello World</en>
+</record>
+<record name="Caption.MacroModule.SampleTitleAutoTelnet">
+  <ja>サンプル - Telnet自動ログイン</ja>
+  <en>Sample - Telnet auto login</en>
+</record>
+<record name="Caption.MacroModule.SampleTitleOpenBashrc">
+  <ja>サンプル - ~/.bashrcを開く</ja>
+  <en>Sample - Open ~/.bashrc</en>
+</record>
+
+<!-- MacroPlugin.cs -->
+<record name="Message.MacroPlugin.AnotherMacroIsRunningInThisSession">
+  <ja>このセッションで他のマクロが実行中です。</ja>
+  <en>Another macro is running in this session.</en>
+</record>
+
+<!-- MacroTrace.cs -->
+<record name="Caption.MacroTrace.Title">
+  <ja>マクロトレースウィンドウ - </ja>
+  <en>Macro trace window - </en>
+</record>
+
+<!-- ModuleProperty.cs -->
+<record name="Form.ModuleProperty._titleLabel">
+  <ja>タイトル(&amp;T)</ja>
+  <en>&amp;Title</en>
+</record>
+<record name="Form.ModuleProperty._pathLabel">
+  <ja>ファイル(&amp;F)</ja>
+  <en>&amp;File</en>
+</record>
+<record name="Form.ModuleProperty._additionalAssemblyLabel">
+  <ja>追加のアセンブリ(&amp;A)</ja>
+  <en>&amp;Additional assemblies</en>
+</record>
+<record name="Form.ModuleProperty._shortcutLabel">
+  <ja>ショートカット(&amp;S)</ja>
+  <en>&amp;Shortcut</en>
+</record>
+<record name="Form.ModuleProperty._debugOption">
+  <ja>このマクロを実行するときトレースウィンドウを開く(&amp;W)</ja>
+  <en>Open a Trace &amp;Window when executing this macro</en>
+</record>
+<record name="Form.ModuleProperty.Text">
+  <ja>マクロのプロパティ</ja>
+  <en>Macro property</en>
+</record>
+<record name="Caption.ModuleProperty.SelectMacroFile">
+  <ja>マクロファイルの選択</ja>
+  <en>Select macro file</en>
+</record>
+<record name="Message.ModuleProperty.FileNotExist">
+  <ja>ファイル {0} は存在しません。</ja>
+  <en>The file {0} is not exist.</en>
+</record>
+<record name="Message.ModuleProperty.TooLongTitle">
+  <ja>マクロのタイトルは30文字までです。</ja>
+  <en>The title of the macro must not exceed 30 characters.</en>
+</record>
+<record name="Message.ModuleProperty.DuplicatedKey">
+  <ja>このキーは \"{0}\" に割り当て済みです。</ja>
+  <en>This key is already allocated for \"{0}\".</en>
+</record>
+
+</string-resource>

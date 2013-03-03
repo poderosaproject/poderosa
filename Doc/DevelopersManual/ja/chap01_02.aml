@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="93a415e1-f8f9-498f-8e4b-88c11a2303f0" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <sections>
+
+      <section>
+        <title>プラグイン検出と呼び出しの流れ</title>
+        <content>
+          <para>Poderosaは、起動時に、次のいずれかの方法で、プラグインのアセンブリを検索します。</para>
+
+          <definitionTable>
+            <definedTerm>(1) 引数にプラグイン構成ファイルが渡されなかったとき</definedTerm>
+            <definition>
+              <para>引数にプラグイン構成ファイルが渡されなかったときには、Poderosaをインストールしたディレクトリの配下ならびに、そのサブディレクトリにある.NETアセンブリ（*.dll）が検索されます。これはデフォルトの動作です。</para>
+              <para>そして見つかったアセンブリのうち、「<codeEntityReference>T:Poderosa.Plugins.PluginDeclarationAttribute</codeEntityReference>」が付いているものがプラグインとして読み込まれます。</para>
+
+              <alert class="note">
+                <para>起動速度高速化のため、ディレクトリの再帰的な検索はせず、「子ディレクトリまで」となります。たとえば、Poderosaのインストール直下に「<codeInline>co\jp\example\myplugin</codeInline>」といった名前のディレクトリを作ったとしても、検索されるのは、「<codeInline>co</codeInline>ディレクトリ」までです。プラグインIDをディレクトリ名にするときには、階層構造にするのではなく、「<codeInline>co.jp.example.myplugin</codeInline>」といったディレクトリ名を作ってください。</para>
+              </alert>
+            </definition>
+
+            <definedTerm>(2) 引数にプラグイン構成ファイルが渡されたとき</definedTerm>
+            <definition>
+              <para>Poderosaが引数付きで実行されたときには、その引数に記載されている「プラグイン構成ファイル」から、プラグインを読み込みます。この方法は、一般的な起動方法ではありません。</para>
+              <para>この場合、上記（1）のディレクトリ検索は行われません。また、アセンブリの「<codeEntityReference>T:Poderosa.Plugins.PluginDeclarationAttribute</codeEntityReference>」も無視されます。</para>
+
+              <alert class="note">
+                <para>「プラグイン構成ファイル」は、下記の書式で作られた構成ファイルを言います。</para>
+<code language="none">
+Root {
+  アセンブリ名 {
+      plugin=クラス名
+      plugin=クラス名
+      …
+  }
+  アセンブリ名 {
+      plugin=クラス名
+      plugin=クラス名
+      …
+  }
+  …
+}
+</code>
+              </alert>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>アセンブリからのプラグインクラスの発見</title>
+        <content>
+          <para>
+          該当するアセンブリが見つかったならば、そのアセンブリの<codeEntityReference>T:Poderosa.Plugins.PluginDeclarationAttribute</codeEntityReference>が調べられます。
+          アセンブリの<codeEntityReference>T:Poderosa.Plugins.PluginDeclarationAttribute</codeEntityReference>には、プラグインクラスのクラス名が書かれています。たとえば、次のようになります。
+          </para>
+
+<code language="C#">
+[assembly: PluginDeclaration(typeof(MypluginNameSpace.MyPlugin))]
+namespace MypluginNameSpace
+{
+  [PluginInfo(ID="jp.example.co.myexample.myplugin" Name="PluginSample"]
+    internal class MyPlugin : IPlugin {
+      public void InitializePlugin(IPoderosaWorld poderosa) {
+        // ここに初期化処理を書きます
+      }
+
+    public void TerminatePlugin() {
+        // ここに終了処理を書きます
+      }
+  }
+}
+</code>
+
+          <para>この例では、下記の<codeEntityReference>T:Poderosa.Plugins.PluginDeclarationAttribute</codeEntityReference>があります。これによってPoderosa本体は、<codeInline>MypluginNameSpace.MyPlugin</codeInline>のインスタンスを作り、初期化メソッドである<codeEntityReference>M:Poderosa.Plugins.IPlugin.InitializePlugin(Poderosa.Plugins.IPoderosaWorld)</codeEntityReference>を呼び出します。</para>
+
+<code language="C#">
+[assembly: PluginDeclaration(typeof(MypluginNameSpace.MyPlugin))]
+</code>
+          <para>プラグインのインスタンスは、Poderosa本体が作ります。そのためプラグインクラスは、独自のコンストラクタを定義してはいけません。</para>
+        </content>
+      </section>
+
+      <section>
+        <title>依存関係と読み込み順序</title>
+        <content>
+          <para>プラグインでは、ほかのプラグインの機能を呼び出して使うことができます。そのためには、プラグインが読み込まれる前に、使いたいプラグインが読み込まれていることが保証されている必要があります。</para>
+          <para>そこでPoderosaでは、プラグインの依存関係を指定することで、「あるプラグインが読み込まれた後に、自分が読み込まれるようにする」という動作ができるようになっています。</para>
+          <para>
+          プラグインの依存関係は、<codeEntityReference>T:Poderosa.Plugins.PluginInfoAttribute</codeEntityReference>のDependenciesプロパティで指定します。
+          たとえば、次のようにDependenciesプロパティを指定したプラグインがあるとすると、<codeInline>org.poderosa.core.preferences</codeInline>というIDをもつプラグインに依存しているものと判断され、「<codeInline>org.poderosa.core.preferences</codeInline>プラグインが読み込まれた後」に読み込まれることが保証されます。
+          </para>
+
+<code language="C#">
+[PluginInfo(ID="jp.example.co.myexample.myplugin" Name="PluginSample"
+            Dependencies="org.poderosa.core.preferences")]
+internal class MyPlugin : IPlugin {
+</code>
+
+          <alert class="note">
+            <para>「org.poderosa.core.preferenceプラグイン」は、Poderosaの標準プラグインで、ユーザー設定値の操作をする機能をもつものです（「<link xlink:href="448b659e-151b-426a-ae17-359f6fbbd535"/>」を参照）。</para>
+          </alert>
+
+          <para>複数のプラグインに依存している場合には、Dependenciesプロパティに、セミコロンで区切って列挙します。列挙する場合、指定する順番は関係ありません。</para>
+        </content>
+      </section>
+
+      <section>
+        <title>プラグイン読み込み順序の注意</title>
+        <content>
+          <para>Poderosaは、このように、Dependenciesプロパティを参照し、依存先のプラグインの後に読み込まれることが保証されます。</para>
+          <para>このとき、次の点に注意しなければなりません。</para>
+
+          <definitionTable>
+            <definedTerm>1. 依存関係が循環してはならない</definedTerm>
+            <definition><para>依存関係が循環する場合、循環するすべてのプラグインが読み込まれません。</para></definition>
+
+            <definedTerm>2. 依存先のプラグインが見つからない場合には読み込まれない</definedTerm>
+            <definition><para>依存先のプラグインがひとつでも見つからない場合には、読み込まれません。</para></definition>
+
+            <definedTerm>3. 依存しない場合の読み込み順序は不定</definedTerm>
+            <definition>
+              <para>Poderosa本体でのプラグインの読み込みは、Dependenciesプロパティを参照し、依存先のプラグインの後に読み込まれることが保証することだけです。</para>
+              <para>依存関係がないプラグインがどのような順序で読み込まれるのかは不定です。</para>
+            </definition>
+          </definitionTable>
+
+          <alert class="note">
+            <para>循環や依存先プラグインが見つからないなどの理由でプラグインが読み込まれない場合でも、エラーメッセージなどが表示されることはなく、該当プラグインは単純に無視されます。</para>
+          </alert>
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="8af45068-7b8c-4a1c-9227-a519be4eb1a9"/>
+      <link xlink:href="515db704-eb9e-4bd5-836f-6683382954fc"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

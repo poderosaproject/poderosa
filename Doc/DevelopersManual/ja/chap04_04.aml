@@ -1,0 +1,576 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="85071b7c-755b-43d7-ae56-b5f174f2fd82" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <sections>
+
+      <section>
+        <title>プロトコルとターミナル操作</title>
+        <content>
+          <para>Telnet／SSH／Cygwin接続機能は、次の3つのプラグインで構成されます。</para>
+          <para>ここではこれらのプラグインを使って、新規にTelnet／SSH／Cygwin接続してターミナルセッションを開始する方法について説明します。</para>
+
+          <definitionTable>
+            <definedTerm>Protocolsプラグイン（プラグインID「<codeInline>org.poderosa.protocols</codeInline>」）</definedTerm>
+            <definition>
+              <para><codeInline>Poderosa.Protocols.dll</codeInline>に含まれます。SSH接続するときには、さらにGrandosライブラリ（Grandos.dll）の参照設定が必要です。</para>
+            </definition>
+
+            <definedTerm>TerminalEmulatorPluginプラグイン（プラグインID：「<codeInline>org.poderosa.terminalemulator</codeInline>｝）</definedTerm>
+            <definition>
+              <para><codeInline>Poderosa.TerminalEmulator.dll</codeInline>に含まれます。</para>
+            </definition>
+
+            <definedTerm>TerminalSessionPluginプラグイン（プラグインID：「<codeInline>org.poderosa.terminalsessions</codeInline>」）</definedTerm>
+            <definition>
+              <para><codeInline>Poderosa.TerminalSession.dll</codeInline>に含まれます。</para>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>新規Telnet／SSH／Cygwin接続の概要</title>
+        <content>
+          <para>新規Telnet／SSH／Cygwin接続してターミナル操作を開始するには、「TerminalSessionPluginプラグイン（プラグインID：「<codeInline>org.poderosa.terminalsessions</codeInline>）」が備える<codeEntityReference>T:Poderosa.Sessions.ITerminalSessionsService</codeEntityReference>を用います。</para>
+          <para>まずは次のようにプラグインマネージャを経由して、<codeEntityReference>T:Poderosa.Sessions.ITerminalSessionsService</codeEntityReference>を取得します。</para>
+
+<code language="C#">
+// PoderosaWorldはIPoderosaWorldインターフェイスを指すものと想定します
+ITerminalSessionsService termservice = 
+  (ITerminalSessionsService)PoderosaWorld.PluginManager.FindPlugin(
+    "org.poderosa.terminalsessions", typeof(ITerminalSessionsService));
+Debug.Assert(termservice != null);
+</code>
+
+          <para><codeEntityReference>T:Poderosa.Sessions.ITerminalSessionsService</codeEntityReference>の<codeEntityReference>P:Poderosa.Sessions.ITerminalSessionsService.TerminalSessionStartCommand</codeEntityReference>を経由して得られる<codeEntityReference>T:Poderosa.Sessions.ITerminalSessionStartCommand</codeEntityReference>が、新規ターミナルセッション開始の機能を備えています。</para>
+
+<code language="C#">
+// ITerminalSessionStartCommandを得る
+ITerminalSessionStartCommand startcmd = termservice.TerminalSessionStartCommand;
+</code>
+
+          <para><codeEntityReference>T:Poderosa.Sessions.ITerminalSessionStartCommand</codeEntityReference>の<codeEntityReference autoUpgrade="true">M:Poderosa.Sessions.ITerminalSessionStartCommand.StartTerminalSession(Poderosa.Commands.ICommandTarget,Poderosa.Protocols.ITerminalConnection,Poderosa.Terminal.ITerminalSettings)</codeEntityReference>を呼び出すことで、新規ターミナルセッションが開始されます。正しく接続が開始されると、その新規に作成されたターミナルセッションを示す<codeEntityReference>T:Poderosa.Sessions.ITerminalSession</codeEntityReference>が得られます。接続できなかったときには、例外がスローされます。例外の種類はエラーの内容により異なります。</para>
+          <para><codeEntityReference autoUpgrade="true">M:Poderosa.Sessions.ITerminalSessionStartCommand.StartTerminalSession(Poderosa.Commands.ICommandTarget,Poderosa.Protocols.ITerminalConnection,Poderosa.Terminal.ITerminalSettings)</codeEntityReference>には、次の2つのオーバーロードがあります。異なるのは第2引数の種類だけです。</para>
+
+          <definitionTable>
+            <definedTerm>第2引数に<codeEntityReference>T:Poderosa.Protocols.ITerminalConnection</codeEntityReference>を渡すもの</definedTerm>
+            <definition>
+
+<code language="C#">
+ITerminalSession StartTerminalSession(
+  ICommandTarget target,
+  ITerminalConnection existing_connection,
+  ITerminalSettings settings);
+</code>
+
+            </definition>
+
+            <definedTerm>第2引数に<codeEntityReference>T:Poderosa.Protocols.ITerminalParameter</codeEntityReference>を渡すもの</definedTerm>
+            <definition>
+
+<code language="C#">
+ITerminalSession StartTerminalSession(
+  ICommandTarget target,
+  ITerminalParameter destination,
+  ITerminalSettings settings);
+</code>
+
+            </definition>
+          </definitionTable>
+
+          <para>第1引数の<replaceable>target</replaceable>は、「ターミナルを開きたいビュー」もしくは「ウィンドウ」です。メニューやツールバーからコマンドが実行されたときにターミナルセッションを新規開始したいのであれば、コマンドに渡されたターゲットをそのまま渡せばよいでしょう。</para>
+
+          <alert class="note">
+            <para><replaceable>target</replaceable>がウィンドウであるときには、<codeEntityReference>M:Poderosa.Sessions.IViewManager.GetCandidateViewForNewDocument</codeEntityReference>が自動的に呼び出され、そのビューが使われます。</para>
+          </alert>
+
+          <para>第2引数の<replaceable>existing_connection</replaceable>または<replaceable>destination</replaceable>は、コネクションを決める引数です。</para>
+          <para>ターミナルセッションでは、ターミナルとの接続は<codeEntityReference>T:Poderosa.Protocols.ITerminalConnection</codeEntityReference>を備えるオブジェクトとして表現されます。もしすでに接続が開始されている<codeEntityReference>T:Poderosa.Protocols.ITerminalConnection</codeEntityReference>があるならば、それを<replaceable>existing_connection</replaceable>として渡します。</para>
+          <para>そうでない場合には、<replaceable>destination</replaceable>に接続パラメータを格納した<codeEntityReference>T:Poderosa.Protocols.ITerminalParameter</codeEntityReference>を備えるオブジェクトを渡します。すると内部でコネクション（<codeEntityReference>T:Poderosa.Protocols.ITerminalConnection</codeEntityReference>をもつオブジェクト）が作成され、そのコネクションが使われます。</para>
+          <para>第3引数の<replaceable>settings</replaceable>は、ターミナルの種別（「VT100」「KTERM」「XTERM」）やエンコード方法、改行コードの種類など、ターミナル設定を示すオブジェクトの<codeEntityReference>T:Poderosa.Terminal.ITerminalSettings</codeEntityReference>を渡します（「<link xlink:href="f56866ba-0bdc-42b4-9123-a80bac3774f7"/>」を参照）。</para>
+          <para>新規接続時には、<codeEntityReference>T:Poderosa.Terminal.ITerminalEmulatorService</codeEntityReference>の<codeEntityReference>M:Poderosa.Terminal.ITerminalEmulatorService.CreateDefaultTerminalSettings(System.String,System.Drawing.Image)</codeEntityReference>を呼び出すことで、第3引数の<replaceable>settings</replaceable>に指定するデフォルト値を得ることができます。</para>
+          <para>第1引数は単なるビューまたはウィンドウを指すだけなので、「<link xlink:href="012e4424-55ff-4cee-9431-8066358e6205"/>」を参照して頂くことにし、以降、第2引数と第3引数をどのように作成すればよいのかという点について説明します。</para>
+        </content>
+      </section>
+
+      <section>
+        <title>ITerminalParameterで接続先を指定する</title>
+        <content>
+          <para>新規にターミナル接続するには、いくつかの方法がありますが、簡単なのは、接続先を指定する<codeEntityReference>T:Poderosa.Protocols.ITerminalParameter</codeEntityReference>を用意する方法です。
+          というのは、Protocolsプラグイン（プラグインID「<codeInline>org.poderosa.protocols</codeInline>」)が備える<codeEntityReference>T:Poderosa.Protocols.IProtocolService</codeEntityReference>が、Telnet／SSH／Cygwin接続のデフォルトのパラメータを設定したオブジェクトを作り、その<codeEntityReference>T:Poderosa.Protocols.ITerminalParameter</codeEntityReference>を返す機構をもっているためです</para>
+          <para>まずは次のようにしてProtocolsプラグインを検索し、<codeEntityReference>T:Poderosa.Protocols.IProtocolService</codeEntityReference>を得ます。</para>
+
+<code language="C#">
+IProtocolService protocolservice = 
+  (IProtocolService)PoderosaWorld.PluginManager.FindPlugin(
+    "org.poderosa.protocols", typeof(IProtocolService));
+Debug.Assert(protocolservice != null);
+</code>
+
+          <para><codeEntityReference>T:Poderosa.Protocols.IProtocolService</codeEntityReference>には、Telnet／SSH／Cygwinのそれぞれのための接続パラメータをもったオブジェクトを作り、その固有のインターフェイスを返すメソッドが用意されています。</para>
+
+          <alert class="note">
+            <para>ここでの説明は省略しますが、<codeEntityReference>T:Poderosa.Protocols.IProtocolService</codeEntityReference>の<codeEntityReference>P:Poderosa.Protocols.IProtocolService.ProtocolOptions</codeEntityReference>を使うと、Socksを用いたプロキシなどを設定することができます。</para>
+          </alert>
+
+          <definitionTable>
+            <definedTerm>(1) Telnet接続の場合</definedTerm>
+            <definition>
+              <para>Telnet接続の場合には、<codeEntityReference>M:Poderosa.Protocols.IProtocolService.CreateDefaultTelnetParameter</codeEntityReference>を使います。このメソッドは、Telnet接続用のオブジェクトを作り、その<codeEntityReference>T:Poderosa.Protocols.ITCPParameter</codeEntityReference>を返します。</para>
+
+<code language="C#">
+ITCPParameter tcpparam = protocolservice.CreateDefaultTelnetParameter();
+</code>
+
+              <para><codeEntityReference>T:Poderosa.Protocols.ITCPParameter</codeEntityReference>には、接続先ホストを設定する<codeEntityReference>P:Poderosa.Protocols.ITCPParameter.Destination</codeEntityReference>とポート番号を設定する<codeEntityReference>P:Poderosa.Protocols.ITCPParameter.Port</codeEntityReference>があるので、これらを初期化します。たとえば、example.co.jpにポート23で接続する場合には、次のようになります。</para>
+
+<code language="C#">
+tcpparam.Destination = "example.co.jp";
+tcpparam.Port = 23;
+</code>
+
+              <para><codeEntityReference>T:Poderosa.Protocols.ITCPParameter</codeEntityReference>に対して<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>を使うと、<codeEntityReference>T:Poderosa.Protocols.ITerminalParameter</codeEntityReference>へと変換できます。</para>
+
+<code language="C#">
+ITerminalParameter termparam = 
+  (ITerminalParameter)tcpparam.GetAdapter(typeof(ITerminalParameter));
+</code>
+            </definition>
+
+            <definedTerm>(2) SSH接続の場合</definedTerm>
+            <definition>
+              <para>SSH接続の場合には、<codeEntityReference>M:Poderosa.Protocols.IProtocolService.CreateDefaultSSHParameter</codeEntityReference>を使います。このメソッドは、SSH接続用のオブジェクトを作り、その<codeEntityReference>T:Poderosa.Protocols.ISSHLoginParameter</codeEntityReference>を返します。</para>
+
+              <alert class="note">
+                <para>SSH接続機能は、Granadosライブラリによって提供されています。そのため、<codeInline>Granados.dll</codeInline>の参照設定が必要です。</para>
+              </alert>
+
+<code language="C#">
+ISSHLoginParameter sshparam = protocolservice.CreateDefaultSSHParameter();
+</code>
+
+              <para><codeEntityReference>T:Poderosa.Protocols.ISSHLoginParameter</codeEntityReference>には、アカウントやパスワード／パスフレーズ、認証方法などを設定するプロパティがあるので、これらを初期化します（表4-16）。</para>
+
+              <table>
+                <title>表4-16 ISSHLoginParameterのプロパティ</title>
+                <tableHeader>
+                  <row>
+                    <entry>プロパティ</entry>
+                    <entry>意味</entry>
+                  </row>
+                </tableHeader>
+                <row>
+                  <entry>Account</entry>
+                  <entry>ログインするアカウント名（ユーザー名）です</entry>
+                </row>
+                <row>
+                  <entry>AuthenticationType</entry>
+                  <entry>認証方式です。「<codeInline>AutehnticationType.PublicKey</codeInline>（公開鍵）」「<codeInline>AuthenticationType.Password</codeInline>（パスワード）」「<codeInline>AutehnticationType.KeyboardInteractive</codeInline>（キーボードインタラクティブ）」のいずれかです。</entry>
+                </row>
+                <row>
+                  <entry>IdentityFileName</entry>
+                  <entry>ユーザの認証に使用する秘密鍵のファイル名です。AuthenticationTypeが<codeInline>AutehnticationType.PublicKey</codeInline>のときのみ有効です。</entry>
+                </row>
+                <row>
+                  <entry>Method</entry>
+                  <entry>SSHプロトコルのバージョンです。「SSHProtocol.SSH1（SSHバージョン1）」または「SSHProtocol.SSH2（SSHバージョン2）」のいずれかです</entry>
+                </row>
+                <row>
+                  <entry>PasswordOrPassphrase</entry>
+                  <entry>パスワードまたはパスフレーズです。AuthenticationTypeプロパティが<codeInline>AuthenticationType.Password</codeInline>のときには「パスワード」を、<codeInline>AuthenticationType.PublicKey</codeInline>のときには「パスフレーズ」を設定します。<codeInline>AuthenticationType.KeyboardInteractive</codeInline>のときには、このプロパティは無視されます</entry>
+                </row>
+              </table>
+
+              <para>たとえば、パスワード認証方式を用いて、「taro」アカウントでパスワード「mypassword」でSSH2接続する場合には、次のように初期化します。</para>
+
+<code language="C#">
+sshparam.Account = "taro";
+sshparam.AuthenticationType = Granados.AuthenticationType.Password;
+sshparam.PasswordOrPassphrase = "mypassword";
+sshparam.Method = Granados.SSHProtocol.SSH2;
+</code>
+
+              <para>接続先の情報は、<codeEntityReference>T:Poderosa.Protocols.ISSHLoginParameter</codeEntityReference>をを<codeEntityReference>T:Poderosa.Protocols.ITCPParameter</codeEntityReference>へと変換し、その<codeEntityReference>P:Poderosa.Protocols.ITCPParameter.Destination</codeEntityReference>と<codeEntityReference>P:Poderosa.Protocols.ITCPParameter.Port</codeEntityReference>で定めます。たとえば「example.co.jp」にポート22で接続するには、次のようにします。</para>
+
+<code language="C#">
+ITCPParameter ssh_tcpparam = (ITCPParameter)sshparam.GetAdapter(typeof(ITCPParameter));
+ssh_tcpparam.Destination = "example.co.jp";
+ssh_tcpparam.Port = 22;
+</code>
+
+              <para>そして最終的に、<codeEntityReference>T:Poderosa.Protocols.ITerminalParameter</codeEntityReference>へと変換します。</para>
+
+<code language="C#">
+ITerminalParameter termparam = (ITerminalParameter)ssh_tcpparam.GetAdapter(typeof(ITerminalParameter));
+</code>
+            </definition>
+
+            <definedTerm>(3) Cygwin接続の場合</definedTerm>
+            <definition>
+              <para>Cygwin接続の場合には、<codeEntityReference>M:Poderosa.Protocols.IProtocolService.CreateDefaultCygwinParameter</codeEntityReference>を使います。このメソッドは、Cygwin接続用のオブジェクトを作り、その<codeEntityReference>T:Poderosa.Protocols.ICygwinParameter</codeEntityReference>を返します。</para>
+
+<code language="C#">
+ICygwinParameter cygwinparam = protocolservice.CreateDefaultCygwinParameter();
+</code>
+
+              <para><codeEntityReference>T:Poderosa.Protocols.ICygwinParameter</codeEntityReference>には、ホームディレクトリを指定する<codeEntityReference>P:Poderosa.Protocols.ICygwinParameter.Home</codeEntityReference>、そして、シェルを指定する<codeEntityReference>P:Poderosa.Protocols.ICygwinParameter.ShellName</codeEntityReference>があるので初期化します。ホームディレクトリが「<codeInline>/home/Taro</codeInline>」、シェルが「<codeInline>/bin/bash -i -l</codeInline>」であるなら、次のようにします。</para>
+
+<code language="C#">
+cygwinparam.Home = "/home/Taro";
+cygwinparam.ShellName = "/bin/bash -i -l";
+</code>
+
+              <para>このようにして初期化した<codeEntityReference>T:Poderosa.Protocols.ICygwinParameter</codeEntityReference>を、<codeEntityReference>T:Poderosa.Protocols.ITerminalParameter</codeEntityReference>へと変換します。</para>
+
+<code language="C#">
+ITerminalParameter termparam = 
+  (ITerminalParameter)cygwinparam.GetAdapter(typeof(ITerminalParameter));
+</code>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>ITerminalSettingsでターミナル設定を指定する</title>
+        <content>
+          <para>次に接続時に必要となる<codeEntityReference>T:Poderosa.Terminal.ITerminalSettings</codeEntityReference>の取得方法を説明します。</para>
+          <para>新規ターミナル接続時に用いる<codeEntityReference>T:Poderosa.Terminal.ITerminalSettings</codeEntityReference>は、TerminalEmuratorPluginプラグイン（プラグインID「<codeInline>org.poderosa.terminalemulator</codeInline>」）が備える<codeEntityReference>T:Poderosa.Terminal.ITerminalEmulatorService</codeEntityReference>を用いて作成できます。</para>
+          <para>まずは次のようにしてTerminalEmuratorPluginプラグインを検索し、<codeEntityReference>T:Poderosa.Terminal.ITerminalEmulatorService</codeEntityReference>を取得します。</para>
+
+<code language="C#">
+ITerminalEmulatorService emuservice = 
+  (ITerminalEmulatorService)PoderosaWorld.PluginManager.FindPlugin(
+    "org.poderosa.terminalemulator", typeof(ITerminalEmulatorService));
+</code>
+
+          <para><codeEntityReference>T:Poderosa.Terminal.ITerminalEmulatorService</codeEntityReference>が備える<codeEntityReference>M:Poderosa.Terminal.ITerminalEmulatorService.CreateDefaultTerminalSettings(System.String,System.Drawing.Image)</codeEntityReference>を呼び出すと、デフォルトのターミナル設定を示すターミナル設定オブジェクトが作られ、その<codeEntityReference>T:Poderosa.Terminal.ITerminalSettings</codeEntityReference>が得られます。
+          <codeEntityReference>M:Poderosa.Terminal.ITerminalEmulatorService.CreateDefaultTerminalSettings(System.String,System.Drawing.Image)</codeEntityReference>の第1引数には接続のキャプション、第2引数にはアイコンを渡します。アイコンには<codeInline>null</codeInline>を渡すこともできます。<codeInline>null</codeInline>を渡すと、デフォルトのアイコンが使われます。</para>
+
+<code language="C#">
+ITerminalSettings termsettings = emuservice.CreateDefaultTerminalSettings("新規接続", null);
+</code>
+
+          <para>取得した<codeEntityReference>T:Poderosa.Terminal.ITerminalSettings</codeEntityReference>は、必要に応じて設定を変更することもできます。変更方法については「<link xlink:href="f56866ba-0bdc-42b4-9123-a80bac3774f7"/>」を参照してください。</para>
+
+          <alert class="note">
+            <para>「<link xlink:href="f56866ba-0bdc-42b4-9123-a80bac3774f7"/>」で説明したように、<codeEntityReference>T:Poderosa.Terminal.ITerminalSettings</codeEntityReference>のプロパティを変更する際には、<codeEntityReference>M:Poderosa.Terminal.ITerminalSettings.BeginUpdate</codeEntityReference>／<codeEntityReference>M:Poderosa.Terminal.ITerminalSettings.EndUpdate</codeEntityReference>の呼び出しが必要です。</para>
+          </alert>
+        </content>
+      </section>
+
+      <section>
+        <title>SSH接続の例</title>
+        <content>
+          <para>ここまでの説明をまとめると、新規ターミナル接続するには、次の手順をとることになります。</para>
+
+          <definitionTable>
+            <definedTerm>接続設定を示すITerminalParameterを用意する</definedTerm>
+            <definition>
+              <para>Protocolsプラグイン（プラグインID「org.poderosa.protocols」）から<codeEntityReference>T:Poderosa.Protocols.IProtocolService</codeEntityReference>を得ます。そして、接続の種類により、次のいずれかのインターフェイスを得ます。</para>
+
+              <definitionTable>
+                <definedTerm>Telnet接続の場合</definedTerm>
+                <definition>
+                  <para><codeEntityReference>M:Poderosa.Protocols.IProtocolService.CreateDefaultTelnetParameter</codeEntityReference>で<codeEntityReference>T:Poderosa.Protocols.ITCPParameter</codeEntityReference>を得ます。</para>
+                </definition>
+
+                <definedTerm>SSH接続の場合</definedTerm>
+                <definition>
+                  <para><codeEntityReference>M:Poderosa.Protocols.IProtocolService.CreateDefaultSSHParameter</codeEntityReference>で<codeEntityReference>T:Poderosa.Protocols.ISSHLoginParameter</codeEntityReference>を得ます。さらに<codeEntityReference>T:Poderosa.Protocols.ITCPParameter</codeEntityReference>へと変換し、接続先とポート番号を定めます。</para>
+                </definition>
+
+                <definedTerm>Cygwin接続の場合</definedTerm>
+                <definition>
+                  <para><codeEntityReference>M:Poderosa.Protocols.IProtocolService.CreateDefaultCygwinParameter</codeEntityReference>で<codeEntityReference>T:Poderosa.Protocols.ICygwinParameter</codeEntityReference>を得ます。</para>
+                </definition>
+              </definitionTable>
+
+              <para>これらのインターフェイスを通じて接続設定を初期化したのち、<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>を用いて<codeEntityReference>T:Poderosa.Protocols.ITerminalParameter</codeEntityReference>へと変換します。</para>
+            </definition>
+
+            <definedTerm>ターミナル設定を示すITerminalSettingsを用意する</definedTerm>
+            <definition>
+              <para>TerminalEmuratorプラグイン（プラグインID「org.poderosa.terminalemulator」）から<codeEntityReference>T:Poderosa.Terminal.ITerminalEmulatorService</codeEntityReference>を得ます。そして<codeEntityReference>M:Poderosa.Terminal.ITerminalEmulatorService.CreateDefaultTerminalSettings(System.String,System.Drawing.Image)</codeEntityReference>を呼び出してデフォルトのターミナル設定オブジェクトを作り、その<codeEntityReference>T:Poderosa.Terminal.ITerminalSettings</codeEntityReference>を得ます。</para>
+              <para>必要に応じて、<codeEntityReference>T:Poderosa.Terminal.ITerminalSettings</codeEntityReference>のプロパティを変更し、エンコード方法、改行コードなどを設定します。</para>
+            </definition>
+
+            <definedTerm>ITerminalSessionsServiceのTerminalSessionStartCommandメソッドで接続を開始する</definedTerm>
+            <definition>
+              <para>TerminalSessionPlugin（プラグインID「org.poderosa.terminalsessions」）から<codeEntityReference>T:Poderosa.Sessions.ITerminalSessionsService</codeEntityReference>を得ます。そして<codeEntityReference autoUpgrade="true">M:Poderosa.Sessions.ITerminalSessionStartCommand.StartTerminalSession(Poderosa.Commands.ICommandTarget,Poderosa.Protocols.ITerminalParameter,Poderosa.Terminal.ITerminalSettings)</codeEntityReference>を呼び出すことで新規ターミナルセッションを開始します。<codeEntityReference autoUpgrade="true">M:Poderosa.Sessions.ITerminalSessionStartCommand.StartTerminalSession(Poderosa.Commands.ICommandTarget,Poderosa.Protocols.ITerminalParameter,Poderosa.Terminal.ITerminalSettings)</codeEntityReference>の引数には、1.の<codeEntityReference>T:Poderosa.Protocols.ITerminalParameter</codeEntityReference>、2.の<codeEntityReference>T:Poderosa.Terminal.ITerminalSettings</codeEntityReference>、そして、作成したターミナルセッションを割り当てるウィンドウまたはビューを渡します。</para>
+            </definition>
+          </definitionTable>
+
+          <para>これらの手順を総合し、新規にSSH接続するコード例を示すと、次のようになります。</para>
+
+<code language="C#">
+// 1. SSH用のITerminalParameterを用意します
+IProtocolService protocolservice = 
+  (IProtocolService)PoderosaWorld.PluginManager.FindPlugin(
+    "org.poderosa.protocols", typeof(IProtocolService));
+Debug.Assert(protocolservice != null);
+
+// ISSHLoginParameterの取得と初期化
+ISSHLoginParameter sshparam = protocolservice.CreateDefaultSSHParameter();
+sshparam.Account = "taro";
+sshparam.AuthenticationType = Granados.AuthenticationType.Password;
+sshparam.PasswordOrPassphrase = "mypassword";
+sshparam.Method = Granados.SSHProtocol.SSH2;
+
+// ITCPParameterを取得して接続先を設定
+ITCPParameter ssh_tcpparam = (ITCPParameter)sshparam.GetAdapter(typeof(ITCPParameter));
+ssh_tcpparam.Destination = "example.co.jp";
+ssh_tcpparam.Port = 22;
+
+// ITerminalParameterへと変換
+ITerminalParameter termparam = (ITerminalParameter)sshparam.GetAdapter(typeof(ITerminalParameter));
+
+// 2. ターミナル設定を示すITerminalSettingsを用意します
+ITerminalEmulatorService emuservice = 
+  (ITerminalEmulatorService)PoderosaWorld.PluginManager.FindPlugin(
+    "org.poderosa.terminalemulator", typeof(ITerminalEmulatorService));
+ITerminalSettings termsettings = emuservice.CreateDefaultTerminalSettings("新規接続", null);
+
+// 3. TerminalSessionStartCommandで接続します
+ITerminalSessionsService termservice = 
+  (ITerminalSessionsService)PoderosaWorld.PluginManager.FindPlugin(
+    "org.poderosa.terminalsessions", typeof(ITerminalSessionsService));
+Debug.Assert(termservice != null);
+
+// targetはコマンドに渡されたターゲットであると想定します
+ITerminalSessionStartCommand startcmd = termservice.TerminalSessionStartCommand;
+ITerminalSession termsession = 
+  termservice.TerminalSessionStartCommand.StartTerminalSession(target, termparam, termsettings);
+if (termsession != null)
+{
+  // 接続成功
+}
+else
+{
+  // 接続失敗
+}
+</code>
+        </content>
+      </section>
+
+      <section>
+        <title>接続オブジェクトについての詳細</title>
+        <content>
+          <para>Poderosaでは、Telnet／SSH／Cygwinの各接続をするオブジェクトは、<codeEntityReference>T:Poderosa.Protocols.ITerminalConnection</codeEntityReference>で示されます。以下、<codeEntityReference>T:Poderosa.Protocols.ITerminalConnection</codeEntityReference>の内部動作について説明します。</para>
+
+          <alert class="note">
+            <para>以下の説明は、高度な使い方をする開発者のためのものです。ほとんどの場合、これらの機能を使う必要はありません。</para>
+          </alert>
+
+          <definitionTable>
+            <definedTerm>既存のITerminalConnectionの取得</definedTerm>
+            <definition>
+              <para>すでに接続されているターミナルセッション（<codeEntityReference>T:Poderosa.Sessions.ITerminalSession</codeEntityReference>）がある場合、<codeEntityReference>P:Poderosa.Sessions.ITerminalSession.TerminalConnection</codeEntityReference>から、<codeEntityReference>T:Poderosa.Protocols.ITerminalConnection</codeEntityReference>を取得できます。</para>
+            </definition>
+
+            <definedTerm>新規にITerminalConnectionを作成する</definedTerm>
+            <definition>
+              <para>新規にターミナルセッションを作成するには、<codeEntityReference>T:Poderosa.Protocols.IProtocolService</codeEntityReference>の、次のいずれかのメソッドを呼び出します。</para>
+
+<code language="C#">
+IInterruptable AsyncCygwinConnect(IInterruptableConnectorClient result_client, ICygwinParameter destination);
+IInterruptable AsyncTelnetConnect(IInterruptableConnectorClient result_client, ITCPParameter destination);
+IInterruptable AsyncSSHConnect(IInterruptableConnectorClient result_client, ISSHLoginParameter destination);
+</code>
+
+              <para>これらのメソッドの呼び出しは、非同期に行われます。なぜなら接続には時間がかかることもあり、また、接続中にユーザーがキャンセルできるようにする機能も想定しているからです。言い換えれば、これらのメソッドはブロックすることなく、接続の成功・失敗の結果を待たずに、戻ってきます。</para>
+              <para>これらのメソッドを呼び出すには、開発者が<codeEntityReference>T:Poderosa.Protocols.IInterruptableConnectorClient</codeEntityReference>を備えたオブジェクトを用意しておき、それを第1引数に渡す必要があります。</para>
+              <para><codeEntityReference>T:Poderosa.Protocols.IInterruptableConnectorClient</codeEntityReference>には、次の2つのメソッドがあり、接続の結果を非同期に受け取ります。</para>
+
+              <alert class="caution">
+                <para>下記の2つのメソッドは、<codeEntityReference>M:Poderosa.Protocols.IProtocolService.AsyncCygwinConnect(Poderosa.Protocols.IInterruptableConnectorClient,Poderosa.Protocols.ICygwinParameter)</codeEntityReference>／<codeEntityReference>M:Poderosa.Protocols.IProtocolService.AsyncTelnetConnect(Poderosa.Protocols.IInterruptableConnectorClient,Poderosa.Protocols.ITCPParameter)</codeEntityReference>／<codeEntityReference>M:Poderosa.Protocols.IProtocolService.AsyncSSHConnect(Poderosa.Protocols.IInterruptableConnectorClient,Poderosa.Protocols.ISSHLoginParameter)</codeEntityReference>の各メソッドを呼び出したものとは異なるスレッドで実行されます。</para>
+              </alert>
+
+              <definitionTable>
+                <definedTerm>void SuccessfullyExit(ITerminalConnection result)</definedTerm>
+                <definition>
+                  <para>接続が成功したときに呼び出されます。引数には接続が完了した<codeEntityReference>T:Poderosa.Protocols.ITerminalConnection</codeEntityReference>が得られます。以降、この<codeEntityReference>T:Poderosa.Protocols.ITerminalConnection</codeEntityReference>を使ってデータを送受信できます。</para>
+                </definition>
+
+                <definedTerm>void ConnectionFailed(string message)</definedTerm>
+                <definition>
+                  <para>接続が失敗したときに呼び出されます。引数にはなぜ失敗したのかという理由を示すメッセージが渡されます。</para>
+                </definition>
+              </definitionTable>
+
+              <para>つまり接続の動作としては、<codeEntityReference>M:Poderosa.Protocols.IProtocolService.AsyncCygwinConnect(Poderosa.Protocols.IInterruptableConnectorClient,Poderosa.Protocols.ICygwinParameter)</codeEntityReference>／<codeEntityReference>M:Poderosa.Protocols.IProtocolService.AsyncTelnetConnect(Poderosa.Protocols.IInterruptableConnectorClient,Poderosa.Protocols.ITCPParameter)</codeEntityReference>／<codeEntityReference>M:Poderosa.Protocols.IProtocolService.AsyncSSHConnect(Poderosa.Protocols.IInterruptableConnectorClient,Poderosa.Protocols.ISSHLoginParameter)</codeEntityReference>のいずれかのメソッドを呼び出し、<codeEntityReference>M:Poderosa.Protocols.IInterruptableConnectorClient.SuccessfullyExit(Poderosa.Protocols.ITerminalConnection)</codeEntityReference>が呼び出されるまで待つという処理をすることになります。</para>
+              <para><codeEntityReference>M:Poderosa.Protocols.IProtocolService.AsyncCygwinConnect(Poderosa.Protocols.IInterruptableConnectorClient,Poderosa.Protocols.ICygwinParameter)</codeEntityReference>／<codeEntityReference>M:Poderosa.Protocols.IProtocolService.AsyncTelnetConnect(Poderosa.Protocols.IInterruptableConnectorClient,Poderosa.Protocols.ITCPParameter)</codeEntityReference>／<codeEntityReference>M:Poderosa.Protocols.IProtocolService.AsyncSSHConnect(Poderosa.Protocols.IInterruptableConnectorClient,Poderosa.Protocols.ISSHLoginParameter)</codeEntityReference>の戻り値となる<codeEntityReference>T:Poderosa.Protocols.IInterruptable</codeEntityReference>の<codeEntityReference>M:Poderosa.Protocols.IInterruptable.Interrupt</codeEntityReference>を呼び出すと、接続動作をキャンセルすることもできます。接続キャンセルをしない場合には、戻り値は無視してかまいません。</para>
+              <para>接続をキャンセルした場合には、<codeEntityReference>T:Poderosa.Protocols.IInterruptableConnectorClient</codeEntityReference>に実装したメソッドが呼び出されることはありません。</para>
+
+              <section>
+                <title>簡易な同期的な接続</title>
+                <content>
+                  <para>非同期的な接続をする場合は、開発者が<codeEntityReference>T:Poderosa.Protocols.IInterruptableConnectorClient</codeEntityReference>を実装したオブジェクトを用意する必要があり、実装が複雑になります。</para>
+                  <para>そこでProtocolsプラグインでは、内蔵の<codeEntityReference>T:Poderosa.Protocols.IInterruptableConnectorClient</codeEntityReference>を用いて、同期的に接続することもできるようになっています。</para>
+                  <para>同期的な接続をする際には、まず、<codeEntityReference>M:Poderosa.Protocols.IProtocolService.CreateFormBasedSynchronozedConnector(Poderosa.Forms.IPoderosaForm)</codeEntityReference>を呼び出して、<codeEntityReference>T:Poderosa.Protocols.ISynchronizedConnector</codeEntityReference>を得ます。<codeEntityReference>M:Poderosa.Protocols.IProtocolService.CreateFormBasedSynchronozedConnector(Poderosa.Forms.IPoderosaForm)</codeEntityReference>の引数には、接続時にユーザーに表示するフォームを渡します。</para>
+
+<code language="C#">
+// formはユーザーに表示するフォームです
+ISynchronizedConnector sc = protocolservice.CreateFormBasedSynchronozedConnector(form);
+</code>
+
+                    <para><codeEntityReference>M:Poderosa.Protocols.IProtocolService.AsyncCygwinConnect(Poderosa.Protocols.IInterruptableConnectorClient,Poderosa.Protocols.ICygwinParameter)</codeEntityReference>／<codeEntityReference>M:Poderosa.Protocols.IProtocolService.AsyncTelnetConnect(Poderosa.Protocols.IInterruptableConnectorClient,Poderosa.Protocols.ITCPParameter)</codeEntityReference>／<codeEntityReference>M:Poderosa.Protocols.IProtocolService.AsyncSSHConnect(Poderosa.Protocols.IInterruptableConnectorClient,Poderosa.Protocols.ISSHLoginParameter)</codeEntityReference>の各メソッドが要求する<codeEntityReference>T:Poderosa.Protocols.IInterruptableConnectorClient</codeEntityReference>には、このようにして得た<codeEntityReference>T:Poderosa.Protocols.ISynchronizedConnector</codeEntityReference>の<codeEntityReference>P:Poderosa.Protocols.ISynchronizedConnector.InterruptableConnectorClient</codeEntityReference>の値を渡します。</para>
+
+<code language="C#">
+IInterrutable t = protocol_service.AsyncSSHConnect(sc.InterruptableConnectorClient, sshparam);
+</code>
+
+                    <para>そして<codeEntityReference>M:Poderosa.Protocols.ISynchronizedConnector.WaitConnection(Poderosa.Protocols.IInterruptable,System.Int32)</codeEntityReference>を呼び出すことで、接続が完了するかタイムアウトするかするまで待ちます。</para>
+
+                    <alert class="note">
+                      <para>タイムアウトの単位はミリ秒です。System.Threading.Timeout.Infiniteを指定して無期限に待つこともできます。</para>
+                    </alert>
+
+<code language="C#">
+// 30秒間待つ
+int timeout = 30 * 1000;
+ITerminalConnection connection = sc.WaitConnection(t, timeout);
+</code>
+                </content>
+              </section>
+
+            </definition>
+
+            <definedTerm>ITerminalConnectionを使った送受信</definedTerm>
+            <definition>
+              <para><codeEntityReference>T:Poderosa.Protocols.ITerminalConnection</codeEntityReference>には、表4-17に示すメンバがあります。</para>
+
+              <table>
+                <title>表4-17 ITerminalConnectionのメンバ</title>
+                <tableHeader>
+                  <row>
+                    <entry>プロパティ</entry>
+                    <entry>意味</entry>
+                  </row>
+                </tableHeader>
+                <row>
+                  <entry>Destination</entry>
+                  <entry>接続先情報を示す<codeEntityReference>T:Poderosa.Protocols.ITerminalParameter</codeEntityReference>です</entry>
+                </row>
+                <row>
+                  <entry>TerminalOutput</entry>
+                  <entry>ブレーク信号の送信やAreYouThere、ターミナルサイズ変更の通知など、ターミナルに特殊制御するメソッドをもつ<codeEntityReference>T:Poderosa.Protocols.ITerminalOutput</codeEntityReference>です</entry>
+                </row>
+                <row>
+                  <entry>Socket</entry>
+                  <entry>ターミナルへの送受信機能をもつ<codeEntityReference>T:Poderosa.Protocols.IPoderosaSocket</codeEntityReference>です</entry>
+                </row>
+                <row>
+                  <entry>IsClosed</entry>
+                  <entry>接続が閉じているかどうかを示します</entry>
+                </row>
+                <row>
+                  <entry>メソッド</entry>
+                  <entry>意味</entry>
+                </row>
+                <row>
+                  <entry>Close</entry>
+                  <entry>接続を閉じます。ターミナルセッションとして使われている場合には、直接このメソッドを呼び出さず、ターミナルセッション側から切断してください</entry>
+                </row>
+              </table>
+
+              <section>
+                <title>IPoderosaSocketを用いた送受信</title>
+                <content>
+                  <para><codeEntityReference>P:Poderosa.Protocols.ITerminalConnection.Socket</codeEntityReference>から取得できる<codeEntityReference>T:Poderosa.Protocols.IPoderosaSocket</codeEntityReference>を用いると、接続先に対してデータを送受信できます。</para>
+
+                  <definitionTable>
+                    <definedTerm>(1) 送信</definedTerm>
+                    <definition>
+                      <para>データを送信したいときには、<codeEntityReference autoUpgrade="true">M:Poderosa.Protocols.IByteOutputStream.Transmit(Poderosa.Protocols.ByteDataFragment)</codeEntityReference>を用います。</para>
+                    </definition>
+
+                    <definedTerm>(2) 受信</definedTerm>
+                    <definition>
+                      <para>データを受信したいときには、あらかじめ受信データを処理する<codeEntityReference>T:Poderosa.Protocols.IByteAsyncInputStream</codeEntityReference>を備えたオブジェクトを用意しておきます。<codeEntityReference>T:Poderosa.Protocols.IByteAsyncInputStream</codeEntityReference>には、次のメソッドがあります。</para>
+
+<code language="C#">
+public interface IByteAsyncInputStream {
+  void OnReception(ByteDataFragment data);
+  void OnNormalTermination();
+  void OnAbnormalTermination(string message);
+}
+</code>
+
+                      <definitionTable>
+                        <definedTerm>OnReceptionメソッド</definedTerm>
+                        <definition>
+                          <para>データが届いたときに呼び出されます。受信したデータは引数に渡される<codeEntityReference>T:Poderosa.Protocols.ByteDataFragment</codeEntityReference>で表現されます。</para>
+                        </definition>
+
+                        <definedTerm>OnNormalTerminationメソッド</definedTerm>
+                        <definition>
+                          <para>接続が通常の切断手順で終了したときに呼び出されます。</para>
+                        </definition>
+
+                        <definedTerm>OnAbnormalTerminationメソッド</definedTerm>
+                        <definition>
+                          <para>接続がエラーなどの異常によって終了したときに呼び出されます。引数には切断された理由が渡されます。</para>
+                        </definition>
+                      </definitionTable>
+
+                      <para><codeEntityReference>T:Poderosa.Protocols.IByteAsyncInputStream</codeEntityReference>を備えたオブジェクトを用意したなら、<codeEntityReference>M:Poderosa.Protocols.IPoderosaSocket.RepeatAsyncRead(Poderosa.Protocols.IByteAsyncInputStream)</codeEntityReference>を呼び出して登録します。すると受信データが届くたびに<codeEntityReference>M:Poderosa.Protocols.IByteAsyncInputStream.OnReception(Poderosa.Protocols.ByteDataFragment)</codeEntityReference>が呼び出されるようになります。</para>
+
+                      <alert class="note">
+                        <para><codeEntityReference>M:Poderosa.Protocols.IPoderosaSocket.RepeatAsyncRead(Poderosa.Protocols.IByteAsyncInputStream)</codeEntityReference>を複数回呼び出して、多数のインターフェイスを登録することはできません。また登録したインターフェイスを解除する方法は提供されていません。</para>
+                      </alert>
+
+                    </definition>
+                  </definitionTable>
+                </content>
+              </section>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>Protocolsプラグインが提供する拡張ポイント</title>
+        <content>
+          <para>Protocolsプラグインは、次の2つの拡張ポイントを公開します。</para>
+
+          <definitionTable>
+            <definedTerm>org.poderosa.protocols.resultEventHandler</definedTerm>
+            <definition>
+              <para>接続が成功するたびに通知を受け取る<codeEntityReference>T:Poderosa.Protocols.IConnectionResultEventHandler</codeEntityReference>を登録できます。たとえばMRUPluginプラグイン（プラグインID「<codeInline>org.poderosa.usability.mru</codeInline>」）では、この拡張ポイントを用いて通知を受け、内部にもっている接続履歴一覧を更新しています。</para>
+            </definition>
+
+            <definedTerm>org.poderosa.protocols.sshHostKeyChecker</definedTerm>
+            <definition>
+              <para>SSHの接続において、サーバーの鍵の信用性判定を拡張するときに用います。標準では、ごく一般的なssh_known_hostsファイルを使って、必要に応じてダイアログボックスを出してユーザーに判定を委ねるように実装されています。</para>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="f56866ba-0bdc-42b4-9123-a80bac3774f7"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

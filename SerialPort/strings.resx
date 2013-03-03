@@ -1,0 +1,124 @@
+﻿<root>
+  <resheader name="ResMimeType">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="Version">
+    <value>1.0.0.0</value>
+  </resheader>
+  <resheader name="Reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="Writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Common.OK">
+    <value>OK</value>
+  </data>
+  <data name="Common.Cancel">
+    <value>Cancel</value>
+  </data>
+  <data name="Common.Do">
+    <value>Yes</value>
+  </data>
+  <data name="Common.DoNot">
+    <value>No</value>
+  </data>
+  <data name="Command.SerialPort">
+    <value>Open serial port</value>
+  </data>
+  <data name="Menu.SerialPort">
+    <value>Open &amp;serial port</value>
+  </data>
+  <data name="Enum.FlowControl.None">
+    <value>None</value>
+  </data>
+  <data name="Enum.FlowControl.Xon_Xoff">
+    <value>Xon/Xoff</value>
+  </data>
+  <data name="Enum.FlowControl.Hardware">
+    <value>Hardware</value>
+  </data>
+  <data name="Enum.Parity.NOPARITY">
+    <value>None</value>
+  </data>
+  <data name="Enum.Parity.ODDPARITY">
+    <value>Odd</value>
+  </data>
+  <data name="Enum.Parity.EVENPARITY">
+    <value>Even</value>
+  </data>
+  <data name="Enum.StopBits.ONESTOPBIT">
+    <value>1 bit</value>
+  </data>
+  <data name="Enum.StopBits.ONE5STOPBITS">
+    <value>1.5 bits</value>
+  </data>
+  <data name="Enum.StopBits.TWOSTOPBITS">
+    <value>2 bits</value>
+  </data>
+  <data name="Form.SerialConfig._portLabel">
+    <value>&amp;Port</value>
+  </data>
+  <data name="Form.SerialConfig._baudRateLabel">
+    <value>&amp;Baud rate</value>
+  </data>
+  <data name="Form.SerialConfig._dataBitsLabel">
+    <value>&amp;Data</value>
+  </data>
+  <data name="Form.SerialConfig._parityLabel">
+    <value>P&amp;arity</value>
+  </data>
+  <data name="Form.SerialConfig._stopBitsLabel">
+    <value>&amp;Stop bits</value>
+  </data>
+  <data name="Form.SerialConfig._flowControlLabel">
+    <value>Flo&amp;w control</value>
+  </data>
+  <data name="Caption.SerialConfig.Bits">
+    <value>bits</value>
+  </data>
+  <data name="Form.SerialConfig.Text">
+    <value>Serial port configuration</value>
+  </data>
+  <data name="Form.SerialLoginDialog._serialGroup">
+    <value>Serial port</value>
+  </data>
+  <data name="Form.SerialLoginDialog._terminalGroup">
+    <value>Terminal settings</value>
+  </data>
+  <data name="Form.SerialLoginDialog.Text">
+    <value>New serial connection</value>
+  </data>
+  <data name="Form.SerialLoginDialog._localEchoLabel">
+    <value>Local ech&amp;o</value>
+  </data>
+  <data name="Form.SerialLoginDialog._newLineLabel">
+    <value>&amp;New line</value>
+  </data>
+  <data name="Form.SerialLoginDialog._logFileLabel">
+    <value>Log &amp;file</value>
+  </data>
+  <data name="Form.SerialLoginDialog._encodingLabel">
+    <value>&amp;Encoding</value>
+  </data>
+  <data name="Form.SerialLoginDialog._logTypeLabel">
+    <value>&amp;Log type</value>
+  </data>
+  <data name="Form.SerialLoginDialog._autoExecMacroPathLabel">
+    <value>Auto Exec Macro</value>
+  </data>
+  <data name="Message.CommunicationUtil.FailedToOpenSerial">
+    <value>Failed to open the serial port.</value>
+  </data>
+  <data name="Message.NoSuchDevice">
+    <value>
+Nonexistent device is selected.</value>
+  </data>
+  <data name="Message.DeviceIsBusy">
+    <value>
+The port is already used by other applications.</value>
+  </data>
+  <data name="Message.FailedToConfigSerial">
+    <value>Failed to configure serial port.</value>
+  </data>
+</root>

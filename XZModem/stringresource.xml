@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+$Id: stringresource.xml,v 1.1 2010/11/19 15:41:42 kzmi Exp $
+-->
+<string-resource>
+
+<record name="Common.OK">
+  <ja>OK</ja>
+  <en>OK</en>
+</record>
+<record name="Common.Cancel">
+  <ja>キャンセル</ja>
+  <en>Cancel</en>
+</record>
+<record name="Common.Reception">
+  <ja>受信</ja>
+  <en>Receive</en>
+</record>
+<record name="Common.Transmission">
+  <ja>送信</ja>
+  <en>Transmit</en>
+</record>
+
+<record name="Menu.XZModem">
+  <ja>X/ZMODEM(&amp;X)...</ja>
+  <en>&amp;X/ZMODEM...</en>
+</record>
+<record name="Command.XZModem">
+  <ja>X/ZMODEM(&amp;X)による送受信</ja>
+  <en>&amp;X/ZMODEM communication</en>
+</record>
+
+<!-- XZModemDialog.cs -->
+<record name="Form.XZModemDialog._okButton">
+  <ja>開始</ja>
+  <en>Start</en>
+</record>
+<record name="Form.XZModemDialog._fileNameLabel">
+  <ja>ファイル名(&amp;F)</ja>
+  <en>&amp;File name</en>
+</record>
+<record name="Form.XZModemDialog._protocolLabel">
+  <ja>プロトコル(&amp;P)</ja>
+  <en>&amp;Protocol</en>
+</record>
+<record name="Form.XZModemDialog._directionLabel">
+  <ja>送信/受信(&amp;T)</ja>
+  <en>&amp;Transmit/Receive</en>
+</record>
+<record name="Caption.XZModemDialog.Reception">
+  <ja>ホストからの受信</ja>
+  <en>Receive from the host</en>
+</record>
+<record name="Caption.XZModemDialog.Transmission">
+  <ja>ホストへの送信</ja>
+  <en>Send to the host</en>
+</record>
+<record name="Caption.XZModemDialog.DialogTitle">
+  <ja>X/ZModem - {0}</ja>
+  <en>X/ZModem - {0}</en>
+</record>
+<record name="Caption.XZModemDialog.ReceptionFileSelect">
+  <ja>保存するファイルの選択</ja>
+  <en>Select file to save</en>
+</record>
+<record name="Caption.XZModemDialog.TransmissionFileSelect">
+  <ja>送信するファイルの選択</ja>
+  <en>Select file to send</en>
+</record>
+<record name="Caption.XZModemDialog.ReceptionProgress">
+  <ja>{0} バイト受信...</ja>
+  <en>Received: {0} bytes...</en>
+</record>
+<record name="Caption.XZModemDialog.TransmissionProgress">
+  <ja>{0} バイト送信...</ja>
+  <en>Sent: {0} bytes...</en>
+</record>
+<record name="Caption.XZModemDialog.InitialPrompt">
+  <ja>ホスト側で用意ができたら開始してください。</ja>
+  <en>Push "Start" after preparing the host.</en>
+</record>
+<record name="Caption.XZModemDialog.Negotiating">
+  <ja>通信中...</ja>
+  <en>Negotiating...</en>
+</record>
+
+<!-- xmodem.cs -->
+<record name="Message.XModem.StartTimedOut">
+  <ja>XMODEMの開始はタイムアウトしました。</ja>
+  <en>Time out is occurred when the xmodem negotiation is started.</en>
+</record>
+<record name="Message.XModem.ReceiveComplete">
+  <ja>受信を完了しました。</ja>
+  <en>Reception completed successfully.</en>
+</record>
+<record name="Message.XModem.SequenceError">
+  <ja>XMODEMのシーケンス番号エラーです。処理を中止します。</ja>
+  <en>An XMODEM sequence number error occurred. The procedure will be aborted.</en>
+</record>
+<record name="Message.XModem.CheckSumError">
+  <ja>XMODEMのチェックサムエラーです。処理を中止します。</ja>
+  <en>An XMODEM checksum error occurred. The procedure will be aborted.</en>
+</record>
+<record name="Message.XModem.SendComplete">
+  <ja>送信が完了しました。</ja>
+  <en>Transmission completed successfully.</en>
+</record>
+<record name="Message.XModem.BlockStartError">
+  <ja>XMODEMのブロック受信信号を受け取れませんでした。処理を中止します。</ja>
+  <en>Failed to receive the block start signal of XMODEM. The procedure will be aborted.</en>
+</record>
+
+</string-resource>

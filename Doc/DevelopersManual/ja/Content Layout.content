@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Topics>
+  <Topic id="ecd71da5-271f-4ad0-9814-5efb173b7e98" visible="True" noFile="true" title="Poderosaプラグイン開発者マニュアル">
+    <Topic id="c219dddd-ff55-41c3-8c0f-d39697051b27" visible="True" isDefault="true" title="はじめに" />
+    <Topic id="3930435a-6e8f-46c8-b6ef-2c4121661627" visible="True" title="Poderosaプラグインの基本">
+      <Topic id="8af45068-7b8c-4a1c-9227-a519be4eb1a9" visible="True" title="本体とプラグインの基本インターフェイス" />
+      <Topic id="93a415e1-f8f9-498f-8e4b-88c11a2303f0" visible="True" title="プラグイン検出と呼び出しの流れ" />
+      <Topic id="515db704-eb9e-4bd5-836f-6683382954fc" visible="True" title="標準プラグイン" />
+    </Topic>
+    <Topic id="79c0709a-1ee6-436d-851d-eb9b4daf26c3" visible="True" title="Poderosa本体とプラグインとのやりとり">
+      <Topic id="1e38e184-2b1d-49b7-898b-dcb8e2331dd9" visible="True" title="プラグインから本体側の情報を読み取るIPoderosaWorld" />
+      <Topic id="41885482-96bf-4145-8c3b-416b1d4cc154" visible="True" title="プラグインの検索" />
+      <Topic id="102e0c3c-f009-4d02-a59f-018e279624ae" visible="True" title="拡張ポイントへの登録" />
+      <Topic id="66ea47c3-bd5f-4149-a84a-e0e33246ec23" visible="True" title="IAdaptableによる型変換" />
+      <Topic id="3accfa48-d659-40ec-9efc-0f285f4e0fa9" visible="True" title="PluginBaseクラスからの継承" />
+      <Topic id="6be16ce5-93ec-4104-affa-d1f1ce4eed43" visible="True" title="プラグインのまとめ" />
+    </Topic>
+    <Topic id="4f8f2bb3-172f-41d5-86fe-66eceb0cd078" visible="True" title="はじめてのPoderosaプラグイン">
+      <Topic id="978e95e9-b9a4-426a-9a56-0f01b5748812" visible="True" title="Poderosaプラグインのプロジェクトを作る" />
+      <Topic id="920fd4b3-78ac-48fe-87ba-be7f692323bd" visible="True" title="Poderosaプラグインの基本構造" />
+      <Topic id="5794bbe1-6042-4eaf-95ab-67fc156e0ed7" visible="True" title="メニューからコマンドを実行するプラグイン" />
+    </Topic>
+    <Topic id="f7da61c5-73db-47eb-b5f3-2143ecbbb443" visible="True" title="インターフェイスガイド">
+      <Topic id="b62fec3f-1e30-40f8-b0c8-b2f6163425b1" visible="True" title="コマンド、メニュー、ツールバー">
+        <Topic id="121d52f8-5d8d-444f-8e96-36fd8068acd2" visible="True" title="コマンド" />
+        <Topic id="c7b36a71-f67f-464b-a756-c7cf6c1517da" visible="True" title="メニュー" />
+        <Topic id="ee7e5a69-0054-4d42-89ce-030e7f7b02b5" visible="True" title="ツールバー" />
+        <Topic id="e2826339-3389-441c-a922-844040b6a2e1" visible="True" title="メニューやツールバーの位置の調整" />
+      </Topic>
+      <Topic id="012e4424-55ff-4cee-9431-8066358e6205" visible="True" title="ウィンドウ、ビュー、ドキュメント、セッション">
+        <Topic id="1f80fe4b-cfea-4dc5-b71c-834a51d572f3" visible="True" title="ウィンドウの操作" />
+        <Topic id="2a44f911-a5e8-4d62-8451-814990164672" visible="True" title="ビューの操作" />
+        <Topic id="99cfec82-7508-489c-be4d-c71c2ed65f83" visible="True" title="ドキュメントの操作" />
+        <Topic id="7608eadb-dd54-46d1-9cf7-59af54f2367c" visible="True" title="セッションの操作" />
+      </Topic>
+      <Topic id="f56866ba-0bdc-42b4-9123-a80bac3774f7" visible="True" title="ターミナルエミュレータとターミナルセッション" />
+      <Topic id="85071b7c-755b-43d7-ae56-b5f174f2fd82" visible="True" title="プロトコルとターミナル操作" />
+      <Topic id="448b659e-151b-426a-ae17-359f6fbbd535" visible="True" title="ユーザー設定値の操作" />
+    </Topic>
+    <Topic id="bbc86d39-3d36-4c6b-aa7a-60e4725d4525" visible="True" title="Appendix">
+      <Topic id="15fa6ae6-d235-425c-848a-c3984aa79f98" visible="True" title="標準プラグイン一覧" />
+      <Topic id="4a1e718e-02bc-4670-9ac3-668138ea940f" visible="True" title="標準拡張ポイント一覧" />
+      <Topic id="288a57a5-3eae-48c8-a01e-c29f740c5659" visible="True" title="定義済みコマンド一覧" />
+      <Topic id="dbfdedf8-804f-45e4-aca7-f438cdf9d907" visible="True" title="定義済みメニュー一覧" />
+    </Topic>
+  </Topic>
+  <Topic id="32965469-3043-40a6-8ef7-6b5a50f46887" visible="True" apiParentMode="InsertAsChild" title="APIリファレンス" />
+</Topics>

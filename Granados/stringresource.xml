@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+$Id: stringresource.xml,v 1.4 2011/05/01 15:28:52 kzmi Exp $
+-->
+<string-resource>
+  <record name="AuthenticationFailed">
+    <en>User authentication failed.</en>
+    <ja>ユーザ認証に失敗しました。</ja>
+  </record>
+  <record name="BrokenKeyFile">
+    <en>{0} is not valid private key file.</en>
+    <ja>{0} は正しい鍵ファイルではありません。</ja>
+  </record>
+  <record name="WrongPassphrase">
+    <en>The passphrase is wrong.</en>
+    <ja>パスフレーズが誤っています</ja>
+  </record>
+  <record name="NotSSHServer">
+    <en>The destination is not a correct SSH server.</en>
+    <ja>接続先はSSHのサーバではありません。</ja>
+  </record>
+  <record name="ServerNotSupportedPassword">
+    <en>Server does not support the plain password authentication.</en>
+    <ja>サーバはパスワード認証をサポートしません。</ja>
+  </record>
+  <record name="ServerNotSupportedRSA">
+    <en>Server does not support the RSA authentication.</en>
+    <ja>サーバはRSA認証をサポートしません。</ja>
+  </record>
+  <record name="ServerNotSupportedX">
+    <en>Server does not support {0}.</en>
+    <ja>サーバは{0}をサポートしません。</ja>
+  </record>
+  <record name="ServerRefusedRSA">
+    <en>Server refused the RSA authentication.</en>
+    <ja>サーバはRSA認証を拒否しました。</ja>
+  </record>
+  <record name="UnexpectedResponse">
+    <en>Received unexpected response [{0}].</en>
+    <ja>予期しない応答 {0} を受信しました。</ja>
+  </record>
+  <record name="UnexpectedEOF">
+    <en>An unexpected end of stream is found.</en>
+    <ja>予期しないストリーム終端に到達しました。</ja>
+  </record>
+  <record name="UnsupportedPrivateKeyFormat">
+    <en>Unsupported private key format.</en>
+    <ja>サポートされていないプライベートキー形式です。</ja>
+  </record>
+  <record name="NotValidPrivateKeyFile">
+    <en>Not a valid private key file.</en>
+    <ja>正しいプライベートキーファイルではありません。</ja>
+  </record>
+  <record name="UnsupportedAuthenticationMethod">
+    <en>The private key file indicates unsupported authentication method.</en>
+    <ja>サポートされていない認証方式のプライベートキーファイルです。</ja>
+  </record>
+  <record name="Reason_UnsupportedDSAKeyFormat">
+    <en>unsupported DSA key format</en>
+    <ja>サポートされないDSAキー形式</ja>
+  </record>
+  <record name="Reason_UnsupportedProcType">
+    <en>unsupported Proc-Type</en>
+    <ja>サポートされないProc-Type</ja>
+  </record>
+  <record name="Reason_UnsupportedEncryptionType">
+    <en>unsupported encryption type</en>
+    <ja>サポートされない暗号化方式</ja>
+  </record>
+</string-resource>

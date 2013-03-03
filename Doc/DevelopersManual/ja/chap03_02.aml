@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="920fd4b3-78ac-48fe-87ba-be7f692323bd" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <sections>
+
+      <section>
+        <title>Poderosaプラグインの基本構造</title>
+        <content>
+          <para>Poderosaプラグインの基本的なソースファイルの構造は、次のようになります。</para>
+
+          <alert class="note">
+            <para>ここでは<codeEntityReference>T:Poderosa.Plugins.PluginBase</codeEntityReference>から継承することでプラグインを作成しています（「<link xlink:href="3accfa48-d659-40ec-9efc-0f285f4e0fa9"/>」を参照）。しかし<codeEntityReference>T:Poderosa.Plugins.IPlugin</codeEntityReference>を実装するという構成にしてもかまいません。</para>
+          </alert>
+
+<code language="C#">
+// （1）Poderosa.Plugin名前空間のインポート
+using Poderosa.Plugins;
+
+// （2）アセンブリに含まれるプラグインのクラスを定義
+[assembly: PluginDeclaration(typeof(MyPlugin.HelloWorldPlugin))]
+namespace MyPlugin
+{
+    // （3）プラグインの名前やバージョン、依存関係を定義
+    [PluginInfo(ID="jp.example.helloworld", Version="1.0")]
+    internal class HelloWorldPlugin : PluginBase
+    {
+        public override void InitializePlugin(IPoderosaWorld poderosa)
+        {
+            base.InitializePlugin(poderosa);
+            // （4）ここに初期化のコードを書く
+            MessageBox.Show("Start");
+        }
+
+        public override void TerminatePlugin()
+        {
+            // （5）ここに終了のコードを書く
+            MessageBox.Show("End");
+            base.TerminatePlugin();
+        }
+    }
+}
+</code>
+
+          <definitionTable>
+            <definedTerm>(1) 名前空間のインポート</definedTerm>
+            <definition>
+              <para>まずは、主要なインターフェイスが定義されている<codeEntityReference>N:Poderosa.Plugins</codeEntityReference>をインポートします。</para>
+
+<code language="C#">
+using Poderosa.Plugins;
+</code>
+            </definition>
+
+            <definedTerm>(2) プラグインとなるクラスの定義</definedTerm>
+            <definition>
+              <para><codeEntityReference>T:Poderosa.Plugins.PluginDeclarationAttribute</codeEntityReference>を使って、プラグインを構成するクラスを定義します。ここでは、プラグインを構成するクラスを「MyPlugin.HelloWorldPluginクラス」であるとしています。</para>
+
+              <alert class="note">
+                <para><codeEntityReference>T:Poderosa.Plugins.PluginDeclarationAttribute</codeEntityReference>については、「<link xlink:href="93a415e1-f8f9-498f-8e4b-88c11a2303f0"/>」を参照してください。</para>
+              </alert>
+
+<code language="C#">
+[assembly: PluginDeclaration(typeof(MyPlugin.HelloWorldPlugin))]
+</code>
+            </definition>
+
+            <definedTerm>(3) プラグインの名前やバージョン、依存関係を定義</definedTerm>
+            <definition>
+              <para>プラグインのクラスを定義する際には、<codeEntityReference>T:Poderosa.Plugins.PluginInfoAttribute</codeEntityReference>を用いて、プラグインIDや依存関係などを定義する必要があります。</para>
+              <para>ここでは次のように、プラグインIDを「<codeInline>jp.example.helloworld</codeInline>」とし、バージョン番号を「1.0」に設定しています。</para>
+
+              <alert class="note">
+                <para>クラスは<codeInline>internal</codeInline>にすることを推奨します。</para>
+              </alert>
+
+<code language="C#">
+// （3）プラグインの名前やバージョン、依存関係を定義
+[PluginInfo(ID="jp.example.helloworld", Version="1.0")]
+internal class HelloWorldPlugin : PluginBase
+</code>
+            </definition>
+
+            <definedTerm>(4) 初期化コードの実装</definedTerm>
+            <definition>
+              <para>プラグインが読み込まれるときには、<codeEntityReference>M:Poderosa.Plugins.IPlugin.InitializePlugin(Poderosa.Plugins.IPoderosaWorld)</codeEntityReference>が呼び出されます。そこで必要に応じて、<codeEntityReference>M:Poderosa.Plugins.IPlugin.InitializePlugin(Poderosa.Plugins.IPoderosaWorld)</codeEntityReference>をオーバーライドします。</para>
+              <para>ここでは次のように、MessageBox.Showメソッドを使って「Start」と出力するコードにしてあります。</para>
+
+              <alert class="caution">
+                <para><codeEntityReference>T:Poderosa.Plugins.PluginBase</codeEntityReference>から継承させる場合には、はじめに<codeEntityReference>M:Poderosa.Plugins.PluginBase.InitializePlugin(Poderosa.Plugins.IPoderosaWorld)</codeEntityReference>を呼び出してください。</para>
+              </alert>
+
+              <alert class="note">
+                <para>MessageBoxクラスは、System.Windows.Forms.dllにあります。そのため実際にビルドするには、System.Windows.Forms.dllの参照設定が必要です。</para>
+              </alert>
+
+<code language="C#">
+public override void InitializePlugin(IPoderosaWorld poderosa)
+{
+    base.InitializePlugin(poderosa);
+    // （4）ここに初期化のコードを書く
+    MessageBox.Show("Start");
+}
+</code>
+            </definition>
+
+            <definedTerm>(5) 終了コードの実装</definedTerm>
+            <definition>
+              <para>プラグインが解放されるときには、<codeEntityReference>M:Poderosa.Plugins.IPlugin.TerminatePlugin</codeEntityReference>が呼び出されます。終了時の処理をする際には、必要に応じてオーバーライドします。</para>
+
+              <alert class="note">
+                <para><codeEntityReference>T:Poderosa.Plugins.PluginBase</codeEntityReference>から継承させる場合、終了時の処理が必要ない場合には、オーバーライドしなくてもかまいません。</para>
+              </alert>
+
+              <para>ここでは、次のようにMessageBox.Showメソッドを使って「End」と出力しています。</para>
+
+              <alert class="caution">
+                <para><codeEntityReference>T:Poderosa.Plugins.PluginBase</codeEntityReference>から継承させる場合には、最後に<codeEntityReference>M:Poderosa.Plugins.PluginBase.TerminatePlugin</codeEntityReference>を呼び出してください。</para>
+              </alert>
+
+<code language="C#">
+public override void TerminatePlugin()
+{
+    // （5）ここに終了のコードを書く
+    MessageBox.Show("End");
+    base.TerminatePlugin();
+}
+</code>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>ビルドと配置</title>
+        <content>
+          <para>コードを書いたならば、ビルドします。そしてビルドしたアセンブリ（この例ではMyPlugin.dll）をPoderosa本体のディレクトリまたは、サブディレクトリのなかにコピーします。</para>
+
+          <alert class="caution">
+            <para>Poderosaは、自身のディレクトリまたはサブディレクトリまでしかプラグインを検索しません。Poderosaの孫ディレクトリにアセンブリを配置しても、読み込まれないので注意してください。</para>
+          </alert>
+
+          <para>このサンプルでは、<codeEntityReference>M:Poderosa.Plugins.IPlugin.InitializePlugin(Poderosa.Plugins.IPoderosaWorld)</codeEntityReference>で「Start」と出力するようにしてあるので、Poderosaが起動する際に、画面に「Start」と表示されます。</para>
+          <para>また<codeEntityReference>M:Poderosa.Plugins.IPlugin.TerminatePlugin</codeEntityReference>で「End」と出力するようにしてあるので、Poderosaを終了したときには、画面に「End」と表示されます。</para>
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="93a415e1-f8f9-498f-8e4b-88c11a2303f0"/>
+      <link xlink:href="3accfa48-d659-40ec-9efc-0f285f4e0fa9"/>
+      <link xlink:href="978e95e9-b9a4-426a-9a56-0f01b5748812"/>
+      <link xlink:href="5794bbe1-6042-4eaf-95ab-67fc156e0ed7"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

@@ -1,0 +1,154 @@
+﻿<root>
+  <resheader name="ResMimeType">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="Version">
+    <value>1.0.0.0</value>
+  </resheader>
+  <resheader name="Reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="Writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Common.OK">
+    <value>OK</value>
+  </data>
+  <data name="Common.Cancel">
+    <value>Cancel</value>
+  </data>
+  <data name="Common.DoNot">
+    <value>Don't</value>
+  </data>
+  <data name="Common.Do">
+    <value>Do</value>
+  </data>
+  <data name="Menu.OpenPipe">
+    <value>Open pipe...</value>
+  </data>
+  <data name="Command.OpenPipe">
+    <value>Open pipe</value>
+  </data>
+  <data name="Form.OpenPipeDialog.Title">
+    <value>Open pipe</value>
+  </data>
+  <data name="Form.OpenPipeDialog._radioButtonProcess">
+    <value>Process</value>
+  </data>
+  <data name="Form.OpenPipeDialog._radioButtonPipe">
+    <value>Named pipe</value>
+  </data>
+  <data name="Form.OpenPipeDialog._groupBoxProcess">
+    <value>Process</value>
+  </data>
+  <data name="Form.OpenPipeDialog._groupBoxPipe">
+    <value>Named pipe</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelExePath">
+    <value>Executable file</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelCommandLineOptions">
+    <value>Options</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelInputPath">
+    <value>Path (Input)</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelOutputPath">
+    <value>Path (Output)</value>
+  </data>
+  <data name="Form.OpenPipeDialog._checkBoxBidirectinal">
+    <value>Bidirectional: Above path is used also for output.</value>
+  </data>
+  <data name="Form.OpenPipeDialog._buttonEnvironmentVariables">
+    <value>Add environment variables...</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelLocalEcho">
+    <value>Local ech&amp;o</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelNewLine">
+    <value>&amp;New Line</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelLogFile">
+    <value>Log &amp;File</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelEncoding">
+    <value>&amp;Encoding</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelLogType">
+    <value>&amp;Log type</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelTerminalType">
+    <value>Terminal T&amp;ype</value>
+  </data>
+  <data name="Form.OpenPipeDialog._labelAutoExecMacroPath">
+    <value>Auto Exec Macro</value>
+  </data>
+  <data name="Form.OpenPipeDialog.SelectExeFile.Title">
+    <value>Select executable file</value>
+  </data>
+  <data name="Form.OpenPipeDialog.SelectExeFile.ExeFiles">
+    <value>Executable files</value>
+  </data>
+  <data name="Form.OpenPipeDialog.SelectExeFile.AllFiles">
+    <value>All files</value>
+  </data>
+  <data name="Form.OpenPipeDialog.Error.NoExePath">
+    <value>Specify an executable file.</value>
+  </data>
+  <data name="Form.OpenPipeDialog.Error.NoOpenMode">
+    <value>Specify open mode (Process or Pipe).</value>
+  </data>
+  <data name="Form.OpenPipeDialog.Error.NoInputPath">
+    <value>Enter a path (input).</value>
+  </data>
+  <data name="Form.OpenPipeDialog.Error.NoOutputPath">
+    <value>Enter a path (output).</value>
+  </data>
+  <data name="Form.EditVariableDialog.Title">
+    <value>Variable</value>
+  </data>
+  <data name="Form.EditVariableDialog._labelName">
+    <value>Name</value>
+  </data>
+  <data name="Form.EditVariableDialog._labelValue">
+    <value>Value</value>
+  </data>
+  <data name="Form.EditVariableDialog.Error.NameHasIllegalCharacter">
+    <value>Variable name has an illegal letter.</value>
+  </data>
+  <data name="Form.EditVariableDialog.Error.EnterName">
+    <value>Enter a variable name.</value>
+  </data>
+  <data name="Form.EditVariableDialog.Error.EnterValue">
+    <value>Enter a value.</value>
+  </data>
+  <data name="Form.EnvironmentVariablesDialog.Title">
+    <value>Environment variables to add</value>
+  </data>
+  <data name="Form.EnvironmentVariablesDialog._columnName">
+    <value>Name</value>
+  </data>
+  <data name="Form.EnvironmentVariablesDialog._columnValue">
+    <value>Value</value>
+  </data>
+  <data name="Form.EnvironmentVariablesDialog._labelDescription">
+    <value>A text string enclosed by % symbols in a value will be expanded using the corresponding environment variable.</value>
+  </data>
+  <data name="Form.EnvironmentVariablesDialog._buttonAdd">
+    <value>&amp;Add...</value>
+  </data>
+  <data name="Form.EnvironmentVariablesDialog._buttonEdit">
+    <value>&amp;Edit...</value>
+  </data>
+  <data name="Form.EnvironmentVariablesDialog._buttonDelete">
+    <value>&amp;Delete</value>
+  </data>
+  <data name="PipeCreator.LaunchingApplicationFailed">
+    <value>Could not launch the application.
+See the log file for more information of the error.</value>
+  </data>
+  <data name="PipeCreator.OpeningPipeFailed">
+    <value>Could not open the named pipe.
+See the log file for more information of the error.</value>
+  </data>
+</root>

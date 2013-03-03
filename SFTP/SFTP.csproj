@@ -1,0 +1,151 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A6D32222-4FA2-4197-9B48-36199FB49321}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Poderosa.SFTP</RootNamespace>
+    <AssemblyName>Poderosa.SFTP</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MultiSelectTreeView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SCPForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SCPForm.Designer.cs">
+      <DependentUpon>SCPForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SFTPForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SFTPForm.Designer.cs">
+      <DependentUpon>SFTPForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SFTPPlugin.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SFTPToolbar.cs" />
+    <Compile Include="UnixPermissions.cs" />
+    <Compile Include="YesNoAllDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="YesNoAllDialog.Designer.cs">
+      <DependentUpon>YesNoAllDialog.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{8A416F19-9031-44A1-B225-BCB31A6BC6A7}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Granados\Granados.csproj">
+      <Project>{9D114B8B-E62C-4FBF-B281-0227755C8091}</Project>
+      <Name>Granados</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Plugin\Plugin.csproj">
+      <Project>{D84B661B-503E-4C22-892B-7499B72C7E04}</Project>
+      <Name>Plugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Protocols\Protocols.csproj">
+      <Project>{04F18DA5-BF47-48A3-9B8B-B6B93DCBA875}</Project>
+      <Name>Protocols</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TerminalEmulator\TerminalEmulator.csproj">
+      <Project>{7F80731C-443A-4533-90D1-1643A5C1364E}</Project>
+      <Name>TerminalEmulator</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SCPForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>SCPForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SFTPForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>SFTPForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="strings.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="strings_ja.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="YesNoAllDialog.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>YesNoAllDialog.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\IconSCP16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\IconSFTP16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FolderClose16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FolderOpen16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\File16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Host16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FormIconSFTP.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FormIconSCP.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Link16x16.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

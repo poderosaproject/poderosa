@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="012e4424-55ff-4cee-9431-8066358e6205" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para>Poderosaは、複数のウィンドウを開いたり、ウィンドウを分割したりすることによって、複数の接続先へと接続できます。これらの機能は、「ウィンドウ」「ビュー」「ドキュメント」「セッション」というMVC（Model-View-Controller）モデルで構成されています。</para>
+    </introduction>
+
+    <section>
+      <title>Poderosaウィンドウの全体構造</title>
+      <content>
+        <para>Poderosaにおける、「ウィンドウ」「ビュー」「ドキュメント」「セッション」の関係は、次のようになっています（図4-3）。</para>
+
+        <mediaLink>
+          <caption lead="図4-3">PoderosaのMVCモデル</caption>
+          <image xlink:href="fig04_03" />
+        </mediaLink>
+
+        <definitionTable>
+          <definedTerm>セッション</definedTerm>
+          <definition>
+            <para>最下位にあるのがセッションです。ターミナルエミュレータとして使う場合、「接続ならびに通信機能を提供するもの」がセッションとなります。</para>
+          </definition>
+
+          <definedTerm>セッションマネージャ</definedTerm>
+          <definition>
+            <para>セッションは<codeEntityReference>T:Poderosa.Sessions.ISession</codeEntityReference>を備えるオブジェクトとして構成され、全体は、「セッションマネージャ」によって管理されます。</para>
+            <para>セッションマネージャは、SessionManagerPluginプラグイン（プラグインID「<codeInline>org.poderosa.core.sessions</codeInline>」）によって提供されるオブジェクトです。セッションマネージャは<codeEntityReference>T:Poderosa.Sessions.ISessionManager</codeEntityReference>を備え、このインターフェイスを通じて、新しくセッションを作ったり閉じたり、既存のセッションを列挙したりできます。</para>
+            <para>セッションを開始するために使われるメソッドは、<codeEntityReference>M:Poderosa.Sessions.ISessionManager.StartNewSession(Poderosa.Sessions.ISession,Poderosa.Sessions.IPoderosaView)</codeEntityReference>です。<codeEntityReference>M:Poderosa.Sessions.ISessionManager.StartNewSession(Poderosa.Sessions.ISession,Poderosa.Sessions.IPoderosaView)</codeEntityReference>を呼び出すと、セッションを管理する「セッションホスト」と呼ばれるオブジェクトを作成します。セッションホストは、<codeEntityReference>T:Poderosa.Sessions.ISessionHost</codeEntityReference>を備え、セッションとドキュメントとの結び付けを管理します。</para>
+          </definition>
+
+          <definedTerm>ターミナルセッション</definedTerm>
+          <definition>
+            <para>Poderosaはデフォルトでは、ターミナルエミュレータとして使うことを想定されており、<codeEntityReference>T:Poderosa.Sessions.ISession</codeEntityReference>から派生し、ターミナル機能を持った<codeEntityReference>T:Poderosa.Sessions.ITerminalSession</codeEntityReference>が使われます。</para>
+            <para><codeEntityReference>T:Poderosa.Sessions.ITerminalSession</codeEntityReference>は、通信プロトコルの制御、接続や切断、データの送受信の機能を担うもので、「ターミナルセッション」と呼ばれます。</para>
+            <para>ターミナルセッションの扱い方については、「<link xlink:href="f56866ba-0bdc-42b4-9123-a80bac3774f7"/>」で説明します。</para>
+
+            <alert class="note">
+              <para>開発者が適切な<codeEntityReference>T:Poderosa.Sessions.ISession</codeEntityReference>を備えるオブジェクトを用意すれば、Poderosaをターミナルエミュレータ以外の用途にも使えます。</para>
+            </alert>
+          </definition>
+
+          <definedTerm>ドキュメント</definedTerm>
+          <definition>
+            <para>ドキュメントは、ユーザーが実際に目にするデータを提供します。ドキュメントは<codeEntityReference>T:Poderosa.Sessions.IPoderosaDocument</codeEntityReference>を備えるオブジェクトとして提供されます。</para>
+            <para>ドキュメントはセッションによって作り出され、セッションホストの<codeEntityReference>M:Poderosa.Sessions.ISessionHost.RegisterDocument(Poderosa.Sessions.IPoderosaDocument)</codeEntityReference>が呼び出されることで、セッションマネージャへと登録されます。</para>
+          </definition>
+
+          <definedTerm>ビュー</definedTerm>
+          <definition>
+            <para>ビューは、ドキュメントをユーザーに表示したり、ユーザーからの入力を受け取ったりする機能を提供します。ビューは、<codeEntityReference>T:Poderosa.Sessions.IPoderosaView</codeEntityReference>を備えるオブジェクトとして提供されます。</para>
+            <para>ビューとドキュメントとは「1対1」で結び付けられます。すなわちビューは、結び付けられたドキュメントを表示したり、ビュー上で何か操作されたときに、それをドキュメントへと伝える役割を担います。</para>
+            <para>ビューはウィンドウの一部を通じて、実際にユーザーへと表示されます。画面が分割されていない場合には、ウィンドウはただひとつのビューを持ち、それはクライアント領域部分となります。</para>
+            <para>しかしウィンドウが分割されている場合には、ひとつのウィンドウに複数のビューが含まれることになります。</para>
+            <para>セッションマネージャの<codeEntityReference>M:Poderosa.Sessions.ISessionManager.StartNewSession(Poderosa.Sessions.ISession,Poderosa.Sessions.IPoderosaView)</codeEntityReference>を呼び出して新規セッションを開始したときには、「ビュー」と「セッションが作り出したドキュメント」とが結び付けられます。</para>
+            <para>しかしセッションマネージャの<codeEntityReference>M:Poderosa.Sessions.ISessionManager.AttachDocumentAndView(Poderosa.Sessions.IPoderosaDocument,Poderosa.Sessions.IPoderosaView)</codeEntityReference>を呼び出すことで、あとからその割り当てを変更することもできます。</para>
+
+            <alert class="note">
+              <para>たとえば空のビューにドキュメントをドラッグ＆ドロップする操作が行われた場合には、<codeEntityReference>M:Poderosa.Sessions.ISessionManager.AttachDocumentAndView(Poderosa.Sessions.IPoderosaDocument,Poderosa.Sessions.IPoderosaView)</codeEntityReference>の呼び出しにより、ビューとドキュメントとの再割り当てが行われます。</para>
+            </alert>
+
+            <alert class="note">
+              <para>ウィンドウに結び付けられたビューを検索する機能は提供されていません。ウィンドウを通じてできる操作は、（1）最後にアクティブになったビューを取得すること、（2）新しくビューを作ること、の2つの操作に限られます。</para>
+            </alert>
+          </definition>
+
+          <definedTerm>ウィンドウ</definedTerm>
+          <definition>
+            <para>ユーザーが操作するウィンドウです。<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>を備えるオブジェクトとして表現されます。</para>
+            <para>Poderosaの起動時には、ひとつのウィンドウをもっています。しかしユーザーは、［ファイル］メニューから［新しいウィンドウ］を選ぶことで、複数のウィンドウを開くことができます。すなわち、Poderosaにおけるウィンドウはひとつとは限りません。</para>
+            <para>ウィンドウは、WindowManagerPluginプラグイン（プラグインID「<codeInline>org.poderosa.core.window</codeInline>」）によって提供される「ウィンドウマネージャ」によって統括管理されます。
+            ウィンドウマネージャは<codeEntityReference>T:Poderosa.Forms.IWindowManager</codeEntityReference>を備え、このインターフェイスを通じて、アクティブなウィンドウを取得したり、ウィンドウを列挙したりできます。</para>
+          </definition>
+        </definitionTable>
+
+      </content>
+    </section>
+
+    <relatedTopics>
+      <link xlink:href="1f80fe4b-cfea-4dc5-b71c-834a51d572f3"/>
+      <link xlink:href="2a44f911-a5e8-4d62-8451-814990164672"/>
+      <link xlink:href="99cfec82-7508-489c-be4d-c71c2ed65f83"/>
+      <link xlink:href="7608eadb-dd54-46d1-9cf7-59af54f2367c"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

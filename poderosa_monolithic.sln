@@ -1,0 +1,50 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Granados", "Granados\Granados.csproj", "{4E6838A6-9255-4673-A322-4522B8C896AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monolithic", "Monolithic\Monolithic.csproj", "{9D114B8B-E62C-4FBF-B281-0227755C8091}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Executable|Any CPU = Executable|Any CPU
+		MakeDoc|Any CPU = MakeDoc|Any CPU
+		Release|Any CPU = Release|Any CPU
+		UIUnitTest|Any CPU = UIUnitTest|Any CPU
+		UnitTest|Any CPU = UnitTest|Any CPU
+		XMLDocument|Any CPU = XMLDocument|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4E6838A6-9255-4673-A322-4522B8C896AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E6838A6-9255-4673-A322-4522B8C896AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E6838A6-9255-4673-A322-4522B8C896AB}.Executable|Any CPU.ActiveCfg = XMLDocument|Any CPU
+		{4E6838A6-9255-4673-A322-4522B8C896AB}.Executable|Any CPU.Build.0 = XMLDocument|Any CPU
+		{4E6838A6-9255-4673-A322-4522B8C896AB}.MakeDoc|Any CPU.ActiveCfg = MakeDoc|Any CPU
+		{4E6838A6-9255-4673-A322-4522B8C896AB}.MakeDoc|Any CPU.Build.0 = MakeDoc|Any CPU
+		{4E6838A6-9255-4673-A322-4522B8C896AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E6838A6-9255-4673-A322-4522B8C896AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E6838A6-9255-4673-A322-4522B8C896AB}.UIUnitTest|Any CPU.ActiveCfg = XMLDocument|Any CPU
+		{4E6838A6-9255-4673-A322-4522B8C896AB}.UIUnitTest|Any CPU.Build.0 = XMLDocument|Any CPU
+		{4E6838A6-9255-4673-A322-4522B8C896AB}.UnitTest|Any CPU.ActiveCfg = XMLDocument|Any CPU
+		{4E6838A6-9255-4673-A322-4522B8C896AB}.UnitTest|Any CPU.Build.0 = XMLDocument|Any CPU
+		{4E6838A6-9255-4673-A322-4522B8C896AB}.XMLDocument|Any CPU.ActiveCfg = XMLDocument|Any CPU
+		{4E6838A6-9255-4673-A322-4522B8C896AB}.XMLDocument|Any CPU.Build.0 = XMLDocument|Any CPU
+		{9D114B8B-E62C-4FBF-B281-0227755C8091}.Debug|Any CPU.ActiveCfg = UIUnitTest|Any CPU
+		{9D114B8B-E62C-4FBF-B281-0227755C8091}.Debug|Any CPU.Build.0 = UIUnitTest|Any CPU
+		{9D114B8B-E62C-4FBF-B281-0227755C8091}.Executable|Any CPU.ActiveCfg = Executable|Any CPU
+		{9D114B8B-E62C-4FBF-B281-0227755C8091}.Executable|Any CPU.Build.0 = Executable|Any CPU
+		{9D114B8B-E62C-4FBF-B281-0227755C8091}.MakeDoc|Any CPU.ActiveCfg = UIUnitTest|Any CPU
+		{9D114B8B-E62C-4FBF-B281-0227755C8091}.MakeDoc|Any CPU.Build.0 = UIUnitTest|Any CPU
+		{9D114B8B-E62C-4FBF-B281-0227755C8091}.Release|Any CPU.ActiveCfg = UIUnitTest|Any CPU
+		{9D114B8B-E62C-4FBF-B281-0227755C8091}.Release|Any CPU.Build.0 = UIUnitTest|Any CPU
+		{9D114B8B-E62C-4FBF-B281-0227755C8091}.UIUnitTest|Any CPU.ActiveCfg = UIUnitTest|Any CPU
+		{9D114B8B-E62C-4FBF-B281-0227755C8091}.UIUnitTest|Any CPU.Build.0 = UIUnitTest|Any CPU
+		{9D114B8B-E62C-4FBF-B281-0227755C8091}.UnitTest|Any CPU.ActiveCfg = UnitTest|Any CPU
+		{9D114B8B-E62C-4FBF-B281-0227755C8091}.UnitTest|Any CPU.Build.0 = UnitTest|Any CPU
+		{9D114B8B-E62C-4FBF-B281-0227755C8091}.XMLDocument|Any CPU.ActiveCfg = UIUnitTest|Any CPU
+		{9D114B8B-E62C-4FBF-B281-0227755C8091}.XMLDocument|Any CPU.Build.0 = UIUnitTest|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

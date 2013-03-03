@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="e2826339-3389-441c-a922-844040b6a2e1" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <sections>
+
+      <section>
+        <title>メニューやツールバーの位置の調整</title>
+        <content>
+          <para>メニューやツールバーが表示される位置は、プラグインが読み込まれる順序によって決まります。そのため、他にどのようなプラグインがインストールされているのかによって、表示される順序が変わってしまいます。</para>
+          <para>そこでPoderosaでは、「あるメニューの直前にメニューを入れる」とか「あるメニューの直後にメニューを入れる」といった仕組みが提供されています。</para>
+          <para>メニューやツールバーの順序を設定するには、メニューに<codeEntityReference>T:Poderosa.Commands.IPositionDesignation</codeEntityReference>を実装し、<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>経由で取得できるようにしておきます。<codeEntityReference>T:Poderosa.Commands.IPositionDesignation</codeEntityReference>は、次のように定義されています。</para>
+
+          <alert class="note">
+            <para><codeEntityReference>T:Poderosa.Commands.IPositionDesignation</codeEntityReference>の実装は必須ではありません。メニューやツールバーの位置を指定する必要がない場合には、実装を省略できます。実装しなかった場合には、<codeEntityReference>P:Poderosa.Commands.IPositionDesignation.DesignationPosition</codeEntityReference>に<codeInline>PositionType.DontCare</codeInline>を設定したものと同じ動作となります。このとき、メニューのどこかには項目は表示されますが、その位置はPoderosaの判断で決定されます。</para>
+          </alert>
+
+<code language="C#">
+public interface IPositionDesignation : IAdaptable {
+  IAdaptable DesignationTarget { get; }
+  PositionType DesignationPosition { get; }
+}
+</code>
+
+          <para><codeEntityReference>P:Poderosa.Commands.IPositionDesignation.DesignationTarget</codeEntityReference>は、「どのようなメニューグループやツールバーコンポーネントの後ろに表示するか」を指定します。メニューの場合には<codeEntityReference>T:Poderosa.Commands.IPoderosaMenuGroup</codeEntityReference>を、ツールバーの場合には<codeEntityReference>T:Poderosa.Forms.IToolBarComponent</codeEntityReference>を指定します。</para>
+          <para>外部のプラグインが提供するメニューグループオブジェクトへの参照を得るには、そのための便宜をそのプラグインが提供していない限り、そのメニューの拡張ポイントから辿ります。
+          すなわち、プラグインマネージャの<codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindExtensionPoint(System.String)</codeEntityReference>でプラグインを検索し、<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>の<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>を経由して、<codeEntityReference>T:Poderosa.Commands.IPoderosaMenuGroup</codeEntityReference>）への変換を試みるようにします。</para>
+          <para><codeEntityReference>P:Poderosa.Commands.IPositionDesignation.DesignationPosition</codeEntityReference>は、<codeEntityReference>P:Poderosa.Commands.IPositionDesignation.DesignationTarget</codeEntityReference>で指定したオブジェクトに対して、「前」や「後」などの位置を<codeEntityReference>T:Poderosa.Commands.PositionType</codeEntityReference>として設定します（表4-5）。</para>
+
+          <table>
+            <title>表4-5 PositionType列挙体</title>
+            <tableHeader>
+              <row>
+                <entry>メンバ</entry>
+                <entry>意味</entry>
+              </row>
+            </tableHeader>
+            <row>
+              <entry>First</entry>
+              <entry>先頭です。<codeEntityReference>P:Poderosa.Commands.IPositionDesignation.DesignationTarget</codeEntityReference>には<codeInline>null</codeInline>を指定してください</entry>
+            </row>
+            <row>
+              <entry>Last</entry>
+              <entry>末尾です。<codeEntityReference>P:Poderosa.Commands.IPositionDesignation.DesignationTarget</codeEntityReference>には<codeInline>null</codeInline>を指定してください</entry>
+            </row>
+            <row>
+              <entry>PreviousTo</entry>
+              <entry><codeEntityReference>P:Poderosa.Commands.IPositionDesignation.DesignationTarget</codeEntityReference>で指定されたメニューグループやツールバーコンポーネントの直前です</entry>
+            </row>
+            <row>
+              <entry>NextTo</entry>
+              <entry>DesignationTargetで指定されたメニューグループやツールバーコンポーネントの直後です</entry>
+            </row>
+            <row>
+              <entry>DontCare</entry>
+              <entry>位置を明示的に指定しません。<codeEntityReference>P:Poderosa.Commands.IPositionDesignation.DesignationTarget</codeEntityReference>には<codeInline>null</codeInline>を指定してください</entry>
+            </row>
+          </table>
+
+          <definitionTable>
+            <definedTerm>順序の調停</definedTerm>
+            <definition>
+              <para>Poderosaではプラグインを自由に追加できるため、同一の拡張ポイントにおいて、同じ場所に設定するという設定がある場合――たとえば、あるプラグインA、プラグインBがあり、プラグインAのメニューで「Xメニューの直後」、プラグインBのメニューも「Xメニューの直後」が指定されているような場合――もありえます。この場合、Poderosa側で、適当に調停されます。</para>
+              <para>すなわち<codeEntityReference>T:Poderosa.Commands.IPositionDesignation</codeEntityReference>による順序の設定は絶対的なものではありません。順序がずれることもありえるので、開発者は、設定した通りに並んでいるということを想定してはいけません。</para>
+            </definition>
+          </definitionTable>
+
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="121d52f8-5d8d-444f-8e96-36fd8068acd2"/>
+      <link xlink:href="c7b36a71-f67f-464b-a756-c7cf6c1517da"/>
+      <link xlink:href="ee7e5a69-0054-4d42-89ce-030e7f7b02b5"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

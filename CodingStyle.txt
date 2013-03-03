@@ -1,0 +1,55 @@
+--------------------------------------
+VisualStudio 2005 text editor settings
+--------------------------------------
+
+Tab settings:
+  Indent Size => 4
+  Tab Size    => 4
+  Insert Tabs => False (Use space chars when indenting)
+
+New Line settings:
+  Place open brace on new line for types             => False
+  Place open brace on new line for methods           => False
+  Place open brace on new line for anonymous methods => False
+  Place open brace on new line for control blocks    => False
+
+Wrapping settings:
+  Leave block on single line                                => False
+  Leave statements and member declarations on the same line => False
+
+Other spacing or indentation should follow the default settings.
+
+
+Here is a sample:
+
+    class Sample {
+        private static readonly int[] m = {
+            1, 2, 3, 4,
+        };
+
+        public int Size {
+            get {
+                return m.Length;
+            }
+        }
+
+        public void Run(int x) {
+            if (x >= 0 && x < m.Length) {
+                Runner.Run(delegate() {
+                    return m[x];
+                });
+            }
+        }
+    }
+
+
+You can use PoderosaVSMacro.vb for overriding the conding-style settings.
+PoderosaVSMacro.vb can be found at tools/vsmacro on CVS.
+
+To set conding-style settings:
+
+  1. Open Macro IDE
+  2. Add existing macro (PoderosaVSMacro.vb) to MyMacros
+  3. Open Macro Explorer
+  4. Run MyMacros > PoderosaVSMacro > SetEditorProperties
+

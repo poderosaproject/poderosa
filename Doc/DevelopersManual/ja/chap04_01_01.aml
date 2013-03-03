@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="121d52f8-5d8d-444f-8e96-36fd8068acd2" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para>コマンドとは、Poderosaにおいて、ユーザーの作業単位のことです。コマンドの多くは、メニューやツールバーに関連付けられます。つまりメニューが選択されたり、ツールバーのボタンがクリックされたりしたときに実行される一連の処理を示します。</para>
+    </introduction>
+
+    <sections>
+
+      <section>
+        <title>コマンドの基本</title>
+        <content>
+          <para>Poderosaにおいて、コマンドの基本となるのは、<codeEntityReference>T:Poderosa.Commands.IPoderosaCommand</codeEntityReference>を備えるオブジェクトです。</para>
+          <para><codeEntityReference>T:Poderosa.Commands.IPoderosaCommand</codeEntityReference>は、次の2つのメソッドが定義されています。開発者は、コマンドが実行されるときのために、この2つのメソッドの処理を実装しておきます。</para>
+
+<code language="C#">
+public interface IPoderosaCommand : IAdaptable {
+  CommandResult InternalExecute(ICommandTarget target, params IAdaptable[] args);
+  bool CanExecute(ICommandTarget target);
+}
+</code>
+
+          <definitionTable>
+            <definedTerm>InternalExecuteメソッド</definedTerm>
+            <definition>
+              <para><codeEntityReference>M:Poderosa.Commands.IPoderosaCommand.InternalExecute(Poderosa.Commands.ICommandTarget,Poderosa.IAdaptable[])</codeEntityReference>は、コマンドが実行されるときに呼び出されるメソッドです。開発者は、このメソッドに、コマンドが実行されるときの処理を記述しておきます。</para>
+
+              <alert class="caution">
+                <para><codeEntityReference>M:Poderosa.Commands.IPoderosaCommand.InternalExecute(Poderosa.Commands.ICommandTarget,Poderosa.IAdaptable[])</codeEntityReference>は、後述するコマンドマネージャが呼び出します。開発者は、<codeEntityReference>M:Poderosa.Commands.IPoderosaCommand.InternalExecute(Poderosa.Commands.ICommandTarget,Poderosa.IAdaptable[])</codeEntityReference>を直接呼び出してはいけません。別のコマンドを実行したいときには、<codeEntityReference>T:Poderosa.Commands.ICommandManager</codeEntityReference>の<codeEntityReference>M:Poderosa.Commands.ICommandManager.Execute(Poderosa.Commands.IPoderosaCommand,Poderosa.Commands.ICommandTarget,Poderosa.IAdaptable[])</codeEntityReference>を使ってください。</para>
+              </alert>
+            </definition>
+
+            <definedTerm>CanExecuteメソッド</definedTerm>
+            <definition>
+              <para>このコマンドがメニューやツールバーのボタンに関連付けられている場合、メニューやツールバーによって、このコマンドが現在実行可能かどうかを調べるときに呼び出されます。実行可能であるなら<codeInline>true</codeInline>を、実行不可能であるなら<codeInline>false</codeInline>を返すように実装してください。<codeInline>false</codeInline>を返した場合には、メニューやツールバーのボタンが淡色表示となり、ユーザーが選択できない状態になります。</para>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>コマンドマネージャとキーボードショートカットの管理</title>
+        <content>
+          <para>Poderosaでは、キーボードショートカットを割り当てたり、他のプラグインからコマンドを探して呼び出したりするための仕組みが提供されています。</para>
+          <para>コマンドの統括管理をするのが、「コマンドマネージャ」と呼ばれるオブジェクトです。コマンドマネージャの実体は、「<codeInline>org.poderosa.core.commands</codeInline>」というプラグインIDをもつ「CommandManagerPluginプラグイン」です。</para>
+          <para>CommandManagerPluginプラグインは、<codeEntityReference>T:Poderosa.Commands.ICommandManager</codeEntityReference>を備えています。</para>
+          <para><codeEntityReference>T:Poderosa.Commands.ICommandManager</codeEntityReference>は、<codeEntityReference>T:Poderosa.Plugins.ICoreServices</codeEntityReference>の<codeEntityReference>P:Poderosa.Plugins.ICoreServices.CommandManager</codeEntityReference>を使って取得できます。</para>
+
+<code language="C#">
+// ここでPoderosaWorldは、InitializePluginメソッドで受け取った
+// IPoderosaWorldであると仮定します。
+ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
+ICommandManager cm = cs.CommandManager;
+</code>
+
+          <definitionTable>
+            <definedTerm>IGeneralCommandインターフェイス</definedTerm>
+            <definition>
+              <para>コマンドマネージャは、<codeEntityReference>T:Poderosa.Commands.IGeneralCommand</codeEntityReference>を備えたコマンドを管理します。<codeEntityReference>T:Poderosa.Commands.IGeneralCommand</codeEntityReference>は、先に説明した<codeEntityReference>T:Poderosa.Commands.IPoderosaCommand</codeEntityReference>を継承するもので、コマンドの一般的な機能に加えて、「コマンドID」や「カテゴリ」「キーボードショートカット」の定義を追加したものです。</para>
+
+<code language="C#">
+public interface IGeneralCommand : IPoderosaCommand {
+  string ID { get; }
+  string Description { get; }
+  Keys DefaultShortcutKey { get; }
+  ICommandCategory CommandCategory { get; }
+}
+</code>
+
+              <para>これらのプロパティは、Poderosaのオプション設定画面の［コマンド］に対応します（図4-1）。</para>
+
+              <definitionTable>
+                <definedTerm>IDプロパティ</definedTerm>
+                <definition>コマンドを内部で識別するための「コマンドID」です。他のコマンドとは重複しない一意のものを設定します。</definition>
+                <definedTerm>Descriptionプロパティ</definedTerm>
+                <definition>このコマンドの説明文です。オプション画面の「コマンド」欄に表示される文字列です。</definition>
+                <definedTerm>DefaultShortcutKeyプロパティ</definedTerm>
+                <definition>このコマンドに割り当てられるデフォルトのショートカットキーです。ショートカットキーを割り当てない場合には、<codeInline>Keys.None</codeInline>を渡してください。なお、既存の他のコマンドと重複する場合には、無視されます。</definition>
+                <definedTerm>CommandCategoryプロパティ</definedTerm>
+                <definition>「コマンドカテゴリ」（後述）を示す<codeEntityReference>T:Poderosa.Commands.ICommandCategory</codeEntityReference>を渡します。</definition>
+              </definitionTable>
+
+              <alert class="note">
+                <para>開発者がコマンドを提供する場合には、他のプラグインが提供するコマンドIDと重複しないようにするため、「プラグインID」の下に適当な名前を付けた命名規則で「コマンドID」を決定することを推奨します。たとえば「<codeInline>co.jp.example.myplugin</codeInline>」というプラグインIDをもつプラグインならば、コマンドIDとして「<codeInline>co.jp.example.myplugin.mycommand</codeInline>」といった名前を付けるようにします。 </para>
+              </alert>
+
+              <mediaLink>
+                <caption lead="図4-1">Poderosaのオプション設定画面</caption>
+                <image xlink:href="fig04_01" />
+              </mediaLink>
+            </definition>
+
+            <definedTerm>コマンドカテゴリ</definedTerm>
+            <definition>
+              <para>コマンドカテゴリとは、オプション設定画面のキーバインド設定において、コマンドを表示する順番を決めるときに使われます。コマンドカテゴリは、<codeEntityReference>T:Poderosa.Commands.ICommandCategory</codeEntityReference>を備えるオブジェクトです。</para>
+
+<code language="C#">
+public interface ICommandCategory : IAdaptable {
+  string Name { get; }
+  bool IsKeybindCustomizable { get; }
+}
+</code>
+
+              <para><codeEntityReference>P:Poderosa.Commands.ICommandCategory.Name</codeEntityReference>は、オプション設定の「カテゴリ」に表示される名称です。そして、<codeEntityReference>P:Poderosa.Commands.ICommandCategory.IsKeybindCustomizable</codeEntityReference>は、オプション設定の［コマンド］に表示するか否かを決める指定です。<codeEntityReference>P:Poderosa.Commands.ICommandCategory.IsKeybindCustomizable</codeEntityReference>を<codeInline>false</codeInline>にした場合には、オプション設定の［コマンド］から隠すことができます。</para>
+            </definition>
+
+            <definedTerm>定義済みコマンドカテゴリ</definedTerm>
+            <definition>
+              <para>Poderosaには、あらかじめ定義済みのコマンドカテゴリを示すオブジェクトが用意されています。定義済みのカテゴリは、コマンドマネージャがもつ<codeEntityReference>T:Poderosa.Commands.ICommandManager</codeEntityReference>の<codeEntityReference>P:Poderosa.Commands.ICommandManager.CommandCategories</codeEntityReference>で取得できます。</para>
+
+<code language="C#">
+// cmはICommandManagerを示していると仮定します
+IDefaultCommandCategories categories = cm.CommandCategories;
+</code>
+
+              <para>得られた<codeEntityReference>T:Poderosa.Commands.IDefaultCommandCategories</codeEntityReference>には、表4-1に示す定義済みカテゴリがあります。</para>
+
+              <table>
+                <title>表4-1 IDefaultCommandCategoriesから取得できる定義済みカテゴリ</title>
+                <tableHeader>
+                  <row>
+                    <entry>プロパティ</entry>
+                    <entry>対応するカテゴリ</entry>
+                  </row>
+                </tableHeader>
+                <row>
+                  <entry>File</entry>
+                  <entry>ファイル</entry>
+                </row>
+                <row>
+                  <entry>Dialogs</entry>
+                  <entry>ダイアログ</entry>
+                </row>
+                <row>
+                  <entry>Edit</entry>
+                  <entry>編集</entry>
+                </row>
+                <row>
+                  <entry>Window</entry>
+                  <entry>ウィンドウ</entry>
+                </row>
+              </table>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>コマンドマネージャを通じたコマンドの呼び出し</title>
+        <content>
+          <para>Poderosa標準プラグインは、いくつかのコマンドをコマンドマネージャに登録しており、開発者は、そのコマンドを検索して呼び出すことができます。ここでは例として、［編集］メニューの［ファイルへコピー］を実行する方法を示します。［ファイルへコピー］のメニューは、「<codeInline>org.poderosa.terminalemulator.copytofile</codeInline>」というコマンドIDが割り当てられています。</para>
+
+          <alert class="note">
+            <para>標準プラグインが提供するコマンドIDについては、「<link xlink:href="288a57a5-3eae-48c8-a01e-c29f740c5659"/>」を参照してください。</para>
+          </alert>
+
+          <definitionTable>
+            <definedTerm>コマンドの検索</definedTerm>
+            <definition>
+              <para>コマンドIDが分かっている場合、<codeEntityReference>T:Poderosa.Commands.ICommandManager</codeEntityReference>の<codeEntityReference autoUpgrade="true">M:Poderosa.Commands.ICommandManager.Find(System.String)</codeEntityReference>を使うことでコマンドを検索し、そのコマンドの<codeEntityReference>T:Poderosa.Commands.IGeneralCommand</codeEntityReference>を取得できます。</para>
+
+              <alert class="note">
+                <para>コマンドマネージャに登録されているコマンドは、<codeEntityReference>T:Poderosa.Commands.ICommandManager</codeEntityReference>の<codeEntityReference>P:Poderosa.Commands.ICommandManager.Commands</codeEntityReference>を使って列挙することもできます。</para>
+              </alert>
+
+<code language="C#">
+IGeneralCommand cmd = cm.Find("org.poderosa.terminalemulator.copytofile");
+</code>
+            </definition>
+
+            <definedTerm>コマンドの実行</definedTerm>
+            <definition>
+              <para>コマンドを実行するには、<codeEntityReference>T:Poderosa.Commands.ICommandManager</codeEntityReference>の<codeEntityReference>M:Poderosa.Commands.ICommandManager.Execute(Poderosa.Commands.IPoderosaCommand,Poderosa.Commands.ICommandTarget,Poderosa.IAdaptable[])</codeEntityReference>を呼び出します。<codeEntityReference>M:Poderosa.Commands.ICommandManager.Execute(Poderosa.Commands.IPoderosaCommand,Poderosa.Commands.ICommandTarget,Poderosa.IAdaptable[])</codeEntityReference>の第1引数には、実行したいコマンドの<codeEntityReference>T:Poderosa.Commands.IGeneralCommand</codeEntityReference>を渡します。これは上記の<codeEntityReference autoUpgrade="true">M:Poderosa.Commands.ICommandManager.Find(System.String)</codeEntityReference>で得られたものを指定できます。</para>
+
+<code language="C#">
+cm.Execute(cmd, ターゲット, 引数);
+</code>
+
+              <para>第2引数には、コマンドの駆動対象を指定します。たとえば「現在のアクティブなビューに対して」とか「選択範囲に対して」といった対象要素です。ターゲットは<codeEntityReference>T:Poderosa.Commands.ICommandTarget</codeEntityReference>を備えるオブジェクトとして指定します。</para>
+
+              <alert class="note">
+                <para>ビューについては、「<link xlink:href="012e4424-55ff-4cee-9431-8066358e6205"/>」を参照してください。</para>
+              </alert>
+
+              <para><codeEntityReference>T:Poderosa.Commands.ICommandTarget</codeEntityReference>から継承するインターフェイスには、次のものがあります。</para>
+
+              <definitionTable>
+                <definedTerm><codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference></definedTerm>
+                <definition>Poderosaのメインウィンドウを示します。</definition>
+                <definedTerm><codeEntityReference>T:Poderosa.Sessions.IPoderosaView</codeEntityReference></definedTerm>
+                <definition>Poderosaのビューを示します（「<link xlink:href="012e4424-55ff-4cee-9431-8066358e6205"/>」を参照）</definition>
+                <definedTerm><codeEntityReference>T:Poderosa.View.ISelection</codeEntityReference></definedTerm>
+                <definition>ユーザが選択したオブジェクトを示します。</definition>
+                <definedTerm><codeEntityReference>T:Poderosa.View.ITextSelection</codeEntityReference></definedTerm>
+                <definition><codeEntityReference>T:Poderosa.View.ISelection</codeEntityReference>のうち、選択内容がテキストであるものを示します。</definition>
+              </definitionTable>
+
+              <para>メニューやツールバーを経由してコマンドが呼び出される場合、第2引数には、現在ユーザーが操作しているウィンドウを示す<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>が引き渡されます。<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>は<codeEntityReference>T:Poderosa.Commands.ICommandTarget</codeEntityReference>を実装しているインターフェイスであり、ユーザーの操作によって「選択されたテキスト」や「現在操作中のセッション」などを対象要素として示しています。</para>
+              <para>逆に言うと、メニューやツールバーから呼び出されるコマンドは、第2引数に<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>が引き渡されることを想定して実装されているため、もし開発者が、これらのコマンドをコマンドマネージャを経由して呼び出したいときには、第2引数には、<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>を渡す必要があります。</para>
+              <para>現在ユーザーが操作しているウィンドウを示す<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>は、次のようにして取得できます。</para>
+
+              <alert class="note">
+                <para>IPoderosaMainWindowについての詳細は、「<link xlink:href="012e4424-55ff-4cee-9431-8066358e6205"/>」を参照してください。</para>
+              </alert>
+
+<code language="C#">
+// ここで変数csはICoreServicesを指していると仮定
+IPoderosaMainWindow mainwin = cs.WindowManager.ActiveWindow;
+</code>
+
+              <alert class="caution">
+                <para>コマンドを実装する場合、第2引数が<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>とは限らないという点に注意してください。
+                たとえば、トップメニューの［編集］―［コピー］をクリックした場合には、<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>ですが、ターミナルを右クリックして表示されたコンテキストメニューから［コピー］をクリックした場合には、<codeEntityReference>T:Poderosa.Sessions.IPoderosaView</codeEntityReference>となります。そのため、第2引数に何が渡されたのかの判定が必要です。</para>
+                <para>実際、Poderosaの標準プラグインが提供する［コピー］がクリックされたときの実装では、第2引数を調べ、第2引数に渡された<codeEntityReference>T:Poderosa.Commands.ICommandTarget</codeEntityReference>が何であるのかを判定し、処理を切り分けています。</para>
+              </alert>
+
+              <para>第3引数は、コマンドを実行する際の引数です。引数は、<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>の配列ですが、何を要求するのかはコマンドによって異なります。コマンドによっては引数を必要としないものもあります。ここで例示している「ファイルへコピー」のコマンドは引数を必要としません。引数を必要としない場合には、省略可能です。</para>
+
+              <alert class="note">
+                <para>メニューやツールバーからコマンドが実行される場合には、メニューやツールバー側に、第3引数に何を渡すのかを設定できます。たとえばメニューアイテムを構成するときに、<codeEntityReference>T:Poderosa.Commands.IPoderosaMenuItemWithArgs</codeEntityReference>を用いると、第3引数に渡す値を定義できます（「<link xlink:href="c7b36a71-f67f-464b-a756-c7cf6c1517da"/>」を参照）。</para>
+              </alert>
+
+              <para>つまりまとめると、「ファイルへコピー」を実行するには、次のようにすればよいということになります。</para>
+
+<code language="C#">
+// ICoreServicesの取得
+ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
+
+// コマンドマネージャの取得
+ICommandManager cm = cs.CommandManager;
+
+// 「ファイルへコピー」のコマンドを検索
+IGeneralCommand cmd = cm.Find("org.poderosa.terminalemulator.copytofile");
+
+// アクティブウィンドウのIPoderosaMainWindowを得る
+IPoderosaMainWindow mainwin = cs.WindowManager.ActiveWindow;
+
+// 実行
+CommandResult result = cm.Execute(cmd, mainwin);
+</code>
+
+              <para>コマンドを実行すると、コマンドマネージャによって間接的に、そのコマンドに実装されている<codeEntityReference>M:Poderosa.Commands.IPoderosaCommand.InternalExecute(Poderosa.Commands.ICommandTarget,Poderosa.IAdaptable[])</codeEntityReference>が呼び出されます。</para>
+              <para>そしてその実行結果（<codeEntityReference>M:Poderosa.Commands.IPoderosaCommand.InternalExecute(Poderosa.Commands.ICommandTarget,Poderosa.IAdaptable[])</codeEntityReference>からの戻り値）が、<codeEntityReference>T:Poderosa.Commands.CommandResult</codeEntityReference>として戻ります。開発者は、この戻り値を調べることで、コマンドが正しく実行されたかどうかを確認できます（表4-2）。</para>
+
+              <table>
+                <title>表4-2 CommandReult列挙体</title>
+                <tableHeader>
+                  <row>
+                    <entry>メンバ</entry>
+                    <entry>意味</entry>
+                  </row>
+                </tableHeader>
+                <row>
+                  <entry>Succeeded</entry>
+                  <entry>成功した</entry>
+                </row>
+                <row>
+                  <entry>Failed</entry>
+                  <entry>失敗した</entry>
+                </row>
+                <row>
+                  <entry>Cancelled</entry>
+                  <entry>キャンセルされた。たとえば接続のダイアログボックスが表示されたのにユーザーがキャンセルした場合などが、これに相当します。</entry>
+                </row>
+                <row>
+                  <entry>Ignored</entry>
+                  <entry>無視された。たとえばテキストが選択されていることを必要とするのに、何もテキストが選択されていない状態で呼び出した場合などが、これに相当します。</entry>
+                </row>
+              </table>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>コマンドの作成とコマンドマネージャへと登録</title>
+        <content>
+          <para>次に、開発者がコマンドを作成し、それをコマンドマネージャへと登録する方法を説明します。</para>
+
+          <definitionTable>
+            <definedTerm>コマンドの作成</definedTerm>
+            <definition>
+              <para>コマンドは、<codeEntityReference>T:Poderosa.Commands.IPoderosaCommand</codeEntityReference>または<codeEntityReference>T:Poderosa.Commands.IGeneralCommand</codeEntityReference>を備えるオブジェクトとして構成します。
+              <codeEntityReference>T:Poderosa.Commands.IPoderosaCommand</codeEntityReference>はメニューやツールバーなどから呼び出したいコマンドを実装したいときに、<codeEntityReference>T:Poderosa.Commands.IGeneralCommand</codeEntityReference>はキーボードショートカットを設定したいときに、それぞれ用いるのが一般的です。</para>
+              <para>Poderosaでは、コマンドオブジェクトを簡単に作る仕組みとして、次の2つのクラスが提供されています。</para>
+
+              <definitionTable>
+                <definedTerm><codeEntityReference>T:Poderosa.Commands.PoderosaCommandImpl</codeEntityReference></definedTerm>
+                <definition><codeEntityReference>T:Poderosa.Commands.IPoderosaCommand</codeEntityReference>を実装するオブジェクトを作ります。</definition>
+                <definedTerm><codeEntityReference>T:Poderosa.Commands.GeneralCommandImpl</codeEntityReference>クラス</definedTerm>
+                <definition><codeEntityReference>T:Poderosa.Commands.IGeneralCommand</codeEntityReference>を実装するオブジェクトを作ります。</definition>
+              </definitionTable>
+
+              <alert class="note">
+                <para><codeEntityReference>T:Poderosa.Commands.IGeneralCommand</codeEntityReference>は<codeEntityReference>T:Poderosa.Commands.IPoderosaCommand</codeEntityReference>から継承しているので、<codeEntityReference>T:Poderosa.Commands.GeneralCommandImpl</codeEntityReference>を使って作ったコマンドオブジェクトは、<codeEntityReference>T:Poderosa.Commands.IPoderosaCommand</codeEntityReference>も備えます。</para>
+              </alert>
+
+              <para>どちらも使い方は似ていて、コンストラクタ引数として、コマンドが呼び出される際に実行したい処理を実装したデリゲートなどを渡します。</para>
+              <para><codeEntityReference>T:Poderosa.Commands.GeneralCommandImpl</codeEntityReference>には、たとえば、次のように5つの引数をとるコンストラクタがあります。</para>
+
+              <alert class="note">
+                <para><codeEntityReference>T:Poderosa.Commands.GeneralCommandImpl</codeEntityReference>には、ほかにもオーバーロードされたコンストラクタがいくつかあります。</para>
+              </alert>
+
+<code language="C#">
+public GeneralCommandImpl(
+  String commandID,
+  String description,
+  ICommandCategory category,
+  ExecuteDelegate execute,
+  CanExecuteDelegate canExecute
+);
+</code>
+
+              <definitionTable>
+                <definedTerm>commandID</definedTerm>
+                <definition>コマンドIDです。一意の識別子を指定します。</definition>
+                <definedTerm>description</definedTerm>
+                <definition>コマンドの説明文字列です。</definition>
+                <definedTerm>category</definedTerm>
+                <definition>コマンドカテゴリです。</definition>
+                <definedTerm>execute</definedTerm>
+                <definition>コマンドが実行されるときに呼び出されるデリゲートです。<codeEntityReference>M:Poderosa.Commands.IPoderosaCommand.InternalExecute(Poderosa.Commands.ICommandTarget,Poderosa.IAdaptable[])</codeEntityReference>が呼び出されたときに呼び出されます。</definition>
+                <definedTerm>canExecute</definedTerm>
+                <definition>メニューやツールバーから実行可能かどうかを調べるときに呼び出されます。<codeEntityReference>M:Poderosa.Commands.IPoderosaCommand.CanExecute(Poderosa.Commands.ICommandTarget)</codeEntityReference>が呼び出されたときに間接的に呼び出されます。</definition>
+              </definitionTable>
+
+              <para>たとえば次のようにすると、［編集］というカテゴリ（<codeInline>cm.CommandCategories.Edit</codeInline>）に属するコマンドオブジェクトを作成できます。</para>
+
+<code language="C#">
+// コマンドマネージャの取得
+ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
+ICommandManager cm = cs.CommandManager;
+
+// コマンド作成
+IGeneralCommand mycmd = new GeneralCommandImpl(
+  "co.example.myplugin.mycommand",
+  "MyCommand", cm.CommandCategories.Edit,
+  delegate(ICommandTarget target)
+  {
+    // ここにコマンドが実行されるときの処理を書く
+    return CommandResult.Succeeded; // 成功ならSucceededを返す
+  },
+  delegate(ICommandTarget target)
+  {
+    // ここにコマンドの可否が調べられるときの処理を書く
+    return true; // 実行可能ならtrueを返す
+  }
+);
+</code>
+            </definition>
+
+            <definedTerm>コマンドマネージャへの登録</definedTerm>
+            <definition>
+              <para>コマンドマネージャへ登録する場合には、<codeEntityReference>T:Poderosa.Commands.ICommandManager</codeEntityReference>の<codeEntityReference>M:Poderosa.Commands.ICommandManager.Register(Poderosa.Commands.IGeneralCommand)</codeEntityReference>を呼び出します。</para>
+
+<code language="C#">
+// cmはICommandManagerを示していると仮定します
+// mycmdはコマンドオブジェクトを示していると仮定します
+cm.Register(mycmd);
+</code>
+
+              <para>コマンドマネージャへと登録すると、オプション設定の［コマンド］に、このコマンドが登録されたことを確認できます（図4-2）。</para>
+
+              <mediaLink>
+                <caption lead="図4-2">オプション設定に登録されたコマンド</caption>
+                <image xlink:href="fig04_02" />
+              </mediaLink>
+            </definition>
+
+            <definedTerm address="target">Poderosa側からコマンドが実行された場合のターゲットの取得</definedTerm>
+            <definition>
+              <para>コマンドが呼び出されたときには、そのコマンドの対象物が<codeEntityReference>T:Poderosa.Commands.ICommandTarget</codeEntityReference>を実装するオブジェクトとして渡されます。何が渡されるのかは、呼び出し元がどのようなオブジェクトを渡したのかに依存します。</para>
+              <para>コマンドの実装者は、何を対象として実行されたのかをGetAdapterメソッドを使って型変換して調査します。よく使われる操作を紹介します。</para>
+
+              <definitionTable>
+                <definedTerm>(1) IPoderosaMainWindowを得る</definedTerm>
+                <definition>
+                  <para>どのウィンドウに対して操作されたのかを知りたい場合には、<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>に型変換します。</para>
+
+<code language="C#">
+IPoderosaMainWindow window = 
+  (IPoderosaMainWindow)target.GetAdapter(typeof(IPoderosaMainWindow));
+Debug.Assert(window!=null);
+</code>
+
+                  <para>メインメニューから呼び出された場合、<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>への変換は成功することが保証されます。</para>
+
+                  <alert class="note">
+                    <para>コマンドマネージャに登録されたコマンドは、コマンドマネージャの<codeEntityReference>M:Poderosa.Commands.ICommandManager.Execute(Poderosa.Commands.IPoderosaCommand,Poderosa.Commands.ICommandTarget,Poderosa.IAdaptable[])</codeEntityReference>を経由することで、他のプラグインから呼び出すことができます。そのため誤った処理をしている他のプラグインから呼び出された場合には、第2引数が<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>ではない可能性もあります。</para>
+                  </alert>
+
+                  <para>メッセージボックスやダイアログボックスなどを表示したいときなど、何らかの理由でWindowsフォームのFormオブジェクトが欲しいときには、<codeEntityReference>M:Poderosa.Forms.IPoderosaForm.AsForm</codeEntityReference>を呼び出すことで、メインウィンドウのFormオブジェクトを得ることもできます。</para>
+
+<code language="C#">
+Form form = window.AsForm();
+</code>
+                </definition>
+
+                <definedTerm>(2) ユーザーが選択しているテキストを得る</definedTerm>
+                <definition>
+                  <para>ユーザーが選択しているテキストを得たい場合には、<codeEntityReference>T:Poderosa.View.ITextSelection</codeEntityReference>へと型変換します。</para>
+                  <para><codeEntityReference>T:Poderosa.View.ITextSelection</codeEntityReference>は、「ビュー」と呼ばれるオブジェクトが備えています。ビューは、<codeEntityReference>T:Poderosa.Sessions.IPoderosaView</codeEntityReference>を備えるオブジェクトです（詳細は「<link xlink:href="012e4424-55ff-4cee-9431-8066358e6205"/>」で説明します）。</para>
+                  <para>次のように<codeEntityReference>T:Poderosa.Commands.CommandTargetUtil</codeEntityReference>の<codeEntityReference>M:Poderosa.Commands.CommandTargetUtil.AsViewOrLastActivatedView(Poderosa.Commands.ICommandTarget)</codeEntityReference>を呼び出すと、有効なビューオブジェクトを取得できます。</para>
+
+<code language="C#">
+IPoderosaView view = CommandTargetUtil.AsViewOrLastActivatedView(target);
+</code>
+
+                  <para>そしてビューオブジェクトの<codeEntityReference>P:Poderosa.Sessions.IPoderosaView.CurrentSelection</codeEntityReference>を呼び出して選択範囲を示す<codeEntityReference>T:Poderosa.View.ISelection</codeEntityReference>を取得し、さらに<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>で<codeEntityReference>T:Poderosa.View.ITextSelection</codeEntityReference>へと変換します。</para>
+
+<code language="C#">
+ITextSelection select = (ITextSelection)view.CurrentSelection.GetAdapter(
+  typeof(ITextSelection));
+</code>
+
+                  <para><codeEntityReference>T:Poderosa.View.ITextSelection</codeEntityReference>の<codeEntityReference>M:Poderosa.View.ITextSelection.GetSelectedText(Poderosa.View.TextFormatOption)</codeEntityReference>を呼び出すと、現在選択されている文字列を取得できます。</para>
+
+<code language="C#">
+if ((select != null) &amp;&amp; (!select.IsEmpty))
+{
+  MessageBox.Show(select.GetSelectedText(TextFormatOption.Default));
+}
+</code>
+
+                  <alert class="note">
+                    <para>何も選択されていないときにメニューやツールバーを淡色表示にして選択できないようにしたいなら、<codeEntityReference>M:Poderosa.Commands.IPoderosaCommand.CanExecute(Poderosa.Commands.ICommandTarget)</codeEntityReference>で、（1）<codeEntityReference>T:Poderosa.View.ITextSelection</codeEntityReference>への型変換が成功するか、（2）<codeEntityReference>P:Poderosa.View.ITextSelection.IsEmpty</codeEntityReference>を調べて空でないことを確認する、という処理をして、<codeInline>true</codeInline>または<codeInline>false</codeInline>を返すように実装します。</para>
+                  </alert>
+                </definition>
+              </definitionTable>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="c7b36a71-f67f-464b-a756-c7cf6c1517da"/>
+      <link xlink:href="ee7e5a69-0054-4d42-89ce-030e7f7b02b5"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

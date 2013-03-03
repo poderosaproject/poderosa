@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="6be16ce5-93ec-4104-affa-d1f1ce4eed43" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <sections>
+
+      <section>
+        <title>プラグインのまとめ</title>
+        <content>
+          <para>最後にプラグインについてまとめておきます。プラグインは、次のように構成する必要があります。</para>
+
+          <definitionTable>
+            <definedTerm>1. PluginDeclarationアトリビュートを指定する</definedTerm>
+            <definition>
+              <para>プラグインを含むアセンブリには、<codeEntityReference>T:Poderosa.Plugins.PluginDeclarationAttribute</codeEntityReference>を指定して、プラグインとして構成するクラスを定義しなければなりません。</para>
+            </definition>
+
+            <definedTerm>2. PluginInfoアトリビュートで依存関係を指定する</definedTerm>
+            <definition>
+              <para>プラグインのクラスには、<codeEntityReference>T:Poderosa.Plugins.PluginInfoAttribute</codeEntityReference>を指定しなければなりません。
+              ほかのプラグインに依存する場合には、<codeEntityReference>F:Poderosa.Plugins.PluginInfoAttribute.Dependencies</codeEntityReference>を指定します。
+              <codeEntityReference>F:Poderosa.Plugins.PluginInfoAttribute.Dependencies</codeEntityReference>を指定した場合には、そのプラグインよりも後に読み込まれることが保証されます。</para>
+            </definition>
+
+            <definedTerm>3. プラグインはPoderosaをインストールしたディレクトリの配下またはサブディレクトリに配置します</definedTerm>
+            <definition>
+              <para>ビルドしたプラグインは、Poderosaをインストールしたディレクトリの配下またはサブディレクトリに配置することで読み込まれます。孫ディレクトリは検索されません。</para>
+            </definition>
+
+            <definedTerm>4. IPluginを実装する</definedTerm>
+            <definition>
+              <para>プラグインのクラスには、<codeEntityReference>T:Poderosa.Plugins.IPlugin</codeEntityReference>を実装しなければなりません。</para>
+
+              <definitionTable>
+                <definedTerm>1. InitializePluginメソッドとTerminatePluginメソッド</definedTerm>
+                <definition>
+                  <para><codeEntityReference>T:Poderosa.Plugins.IPlugin</codeEntityReference>には<codeEntityReference>M:Poderosa.Plugins.IPlugin.InitializePlugin(Poderosa.Plugins.IPoderosaWorld)</codeEntityReference>と<codeEntityReference>M:Poderosa.Plugins.IPlugin.TerminatePlugin</codeEntityReference>があります。
+                  前者は読み込まれるときに、後者は解放される直前に呼び出されます。
+                  <codeEntityReference>M:Poderosa.Plugins.IPlugin.InitializePlugin(Poderosa.Plugins.IPoderosaWorld)</codeEntityReference>の引数には<codeEntityReference>T:Poderosa.Plugins.IPoderosaWorld</codeEntityReference>が渡され、このインターフェイスを通じて、Poderosa本体やその他のプラグインとやりとりします。</para>
+                </definition>
+
+                <definedTerm>2. IAdaptableのGetAdapterメソッド</definedTerm>
+                <definition>
+                  <para><codeEntityReference>T:Poderosa.Plugins.IPlugin</codeEntityReference>は<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>から継承しています。
+                  <codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>は型変換のための<codeEntityReference>M:Poderosa.IAdaptable.GetAdapter(System.Type)</codeEntityReference>を備えており、その実装をしなければなりません。
+                  標準的な実装は次のようになります。</para>
+
+<code language="C#">
+public IAdaptable GetAdapter(Type adapter) {
+  return _poderosa_world.AdapterManager.GetAdapter(this, adapter);
+}
+</code>
+                </definition>
+
+                <definedTerm>3. PluginBaseクラスからの継承</definedTerm>
+                <definition>
+                  <para>開発者は上記の2つの実装を簡単にするため、<codeEntityReference>T:Poderosa.Plugins.PluginBase</codeEntityReference>から継承したクラスを作るという手法をとることができます。</para>
+                </definition>
+              </definitionTable>
+            </definition>
+
+            <definedTerm>5. プラグインの検索</definedTerm>
+            <definition>
+              <para>プラグインは「プラグインマネージャ」によって管理されます。プラグインマネージャは<codeEntityReference>T:Poderosa.Plugins.IPluginManager</codeEntityReference>を備えます。</para>
+              <para>他のプラグインを検索するには、<codeEntityReference>T:Poderosa.Plugins.IPluginManager</codeEntityReference>の<codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindPlugin(System.String,System.Type)</codeEntityReference>を使います。標準プラグインの代表的なインターフェイスは、<codeEntityReference>T:Poderosa.Plugins.ICoreServices</codeEntityReference>を使って取得することもできます。</para>
+            </definition>
+
+            <definedTerm>6. 拡張ポイントの利用</definedTerm>
+            <definition>
+              <para>いくつかのプラグインは、他のプラグインと通信するための場所として拡張ポイントを公開しています。拡張ポイントは、「メニューがクリックされたときの呼び出し」などに使われます。拡張ポイントは、<codeEntityReference>T:Poderosa.Plugins.IPluginManager</codeEntityReference>の<codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindExtensionPoint(System.String)</codeEntityReference>を使って検索できます。いくつかの代表的な拡張ポイントは、<codeEntityReference>T:Poderosa.Plugins.ICoreServices</codeEntityReference>を使って取得することもできます。</para>
+              <para>拡張ポイントは<codeEntityReference>T:Poderosa.Plugins.IExtensionPoint</codeEntityReference>を備えます。拡張ポイントに接続する場合には、このインターフェイスの<codeEntityReference>M:Poderosa.Plugins.IExtensionPoint.RegisterExtension(System.Object)</codeEntityReference>を呼び出し、接続するオブジェクトのインターフェイスを引き渡します。</para>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="1e38e184-2b1d-49b7-898b-dcb8e2331dd9"/>
+      <link xlink:href="41885482-96bf-4145-8c3b-416b1d4cc154"/>
+      <link xlink:href="102e0c3c-f009-4d02-a59f-018e279624ae"/>
+      <link xlink:href="66ea47c3-bd5f-4149-a84a-e0e33246ec23"/>
+      <link xlink:href="3accfa48-d659-40ec-9efc-0f285f4e0fa9"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

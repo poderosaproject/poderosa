@@ -1,0 +1,160 @@
+﻿<root>
+  <resheader name="ResMimeType">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="Version">
+    <value>1.0.0.0</value>
+  </resheader>
+  <resheader name="Reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="Writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Common.OK">
+    <value>OK</value>
+  </data>
+  <data name="Common.Cancel">
+    <value>キャンセル</value>
+  </data>
+  <data name="Menu.Macro">
+    <value>マクロ(&amp;M)</value>
+  </data>
+  <data name="Menu.MacroList">
+    <value>環境設定(&amp;C)...</value>
+  </data>
+  <data name="Menu._menuStopMacro">
+    <value>実行中のマクロの停止(&amp;S)</value>
+  </data>
+  <data name="Command.MacroList">
+    <value>マクロの設定ダイアログを開く</value>
+  </data>
+  <data name="Command.StopMacro">
+    <value>実行中のマクロを強制終了</value>
+  </data>
+  <data name="Message.MacroEnv.WidthIsOutOfRange">
+    <value>幅は1から255までが指定できます。</value>
+  </data>
+  <data name="Message.MacroEnv.HeightIsOutOfRange">
+    <value>高さは1から255までが指定できます。</value>
+  </data>
+  <data name="Message.MacroEnv.ShellExecuteError">
+    <value>ShellExecute:{0} - {1} の実行に失敗しました。</value>
+  </data>
+  <data name="Message.MacroEnv.ExecError">
+    <value>{0} の実行に失敗しました。指定したアプリケーションの名前とパスを確認してください。</value>
+  </data>
+  <data name="Message.MacroExec.MissingAssemblies">
+    <value>いくつかの必要なアセンブリが見つかりません。</value>
+  </data>
+  <data name="Message.MacroExec.FailedToCompileScript">
+    <value>スクリプトのコンパイルエラーです。
+</value>
+  </data>
+  <data name="Message.MacroExec.ExceptionWithoutTraceWindow">
+    <value>マクロの実行中に例外がスローされました。
+[{0}]
+
+エラーの詳細を見るにはこのマクロの実行中にトレースウィンドウを
+表示するように設定してから、もう一度マクロを実行してください。</value>
+  </data>
+  <data name="Message.MacroExec.ExceptionInMacro">
+    <value>マクロの実行中に例外がスローされました。</value>
+  </data>
+  <data name="Form.MacroList._titleHeader">
+    <value>タイトル</value>
+  </data>
+  <data name="Form.MacroList._pathHeader">
+    <value>パス</value>
+  </data>
+  <data name="Form.MacroList._shortCutHeader">
+    <value>ショートカット</value>
+  </data>
+  <data name="Form.MacroList._infoHeader">
+    <value>情報</value>
+  </data>
+  <data name="Form.MacroList._runButton">
+    <value>実行(&amp;E)</value>
+  </data>
+  <data name="Form.MacroList._stopButton">
+    <value>停止(&amp;S)</value>
+  </data>
+  <data name="Form.MacroList._propButton">
+    <value>プロパティ...(&amp;P)</value>
+  </data>
+  <data name="Form.MacroList._downButton">
+    <value>↓</value>
+  </data>
+  <data name="Form.MacroList._upButton">
+    <value>↑</value>
+  </data>
+  <data name="Form.MacroList._addButton">
+    <value>新規...(&amp;N)</value>
+  </data>
+  <data name="Form.MacroList._deleteButton">
+    <value>削除(&amp;R)</value>
+  </data>
+  <data name="Form.MacroList._environmentButton">
+    <value>環境変数...(&amp;V)</value>
+  </data>
+  <data name="Form.MacroList.Text">
+    <value>マクロ</value>
+  </data>
+  <data name="Caption.MacroList.Trace">
+    <value>トレース</value>
+  </data>
+  <data name="Message.MacroModule.AlreadyRunning">
+    <value>現在別のマクロを実行中です。</value>
+  </data>
+  <data name="Message.MacroModule.NoEntryPoint">
+    <value>アセンブリのエントリポイントがみつかりません。</value>
+  </data>
+  <data name="Message.MacroModule.UnknownModuleType">
+    <value>マクロの種別が判別できません。</value>
+  </data>
+  <data name="Caption.MacroModule.SampleTitleHelloWorld">
+    <value>サンプル - Hello World</value>
+  </data>
+  <data name="Caption.MacroModule.SampleTitleAutoTelnet">
+    <value>サンプル - Telnet自動ログイン</value>
+  </data>
+  <data name="Caption.MacroModule.SampleTitleOpenBashrc">
+    <value>サンプル - ~/.bashrcを開く</value>
+  </data>
+  <data name="Message.MacroPlugin.AnotherMacroIsRunningInThisSession">
+    <value>このセッションで他のマクロが実行中です。</value>
+  </data>
+  <data name="Caption.MacroTrace.Title">
+    <value>マクロトレースウィンドウ - </value>
+  </data>
+  <data name="Form.ModuleProperty._titleLabel">
+    <value>タイトル(&amp;T)</value>
+  </data>
+  <data name="Form.ModuleProperty._pathLabel">
+    <value>ファイル(&amp;F)</value>
+  </data>
+  <data name="Form.ModuleProperty._additionalAssemblyLabel">
+    <value>追加のアセンブリ(&amp;A)</value>
+  </data>
+  <data name="Form.ModuleProperty._shortcutLabel">
+    <value>ショートカット(&amp;S)</value>
+  </data>
+  <data name="Form.ModuleProperty._debugOption">
+    <value>このマクロを実行するときトレースウィンドウを開く(&amp;W)</value>
+  </data>
+  <data name="Form.ModuleProperty.Text">
+    <value>マクロのプロパティ</value>
+  </data>
+  <data name="Caption.ModuleProperty.SelectMacroFile">
+    <value>マクロファイルの選択</value>
+  </data>
+  <data name="Message.ModuleProperty.FileNotExist">
+    <value>ファイル {0} は存在しません。</value>
+  </data>
+  <data name="Message.ModuleProperty.TooLongTitle">
+    <value>マクロのタイトルは30文字までです。</value>
+  </data>
+  <data name="Message.ModuleProperty.DuplicatedKey">
+    <value>このキーは \"{0}\" に割り当て済みです。</value>
+  </data>
+</root>

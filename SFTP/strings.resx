@@ -1,0 +1,93 @@
+﻿<root>
+  <resheader name="ResMimeType">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="Version">
+    <value>1.0.0.0</value>
+  </resheader>
+  <resheader name="Reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="Writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="SFTPCommand.MenuText">
+    <value>SFTP (experimental)...</value>
+  </data>
+  <data name="SCPCommand.MenuText">
+    <value>SCP (experimental)...</value>
+  </data>
+  <data name="SFTPToolbarCommandButton.ToolTip">
+    <value>SFTP (experimental)</value>
+  </data>
+  <data name="SCPToolbarCommandButton.ToolTip">
+    <value>SCP (experimental)</value>
+  </data>
+  <data name="Common.UnknownPeer">
+    <value>(unknown)</value>
+  </data>
+  <data name="Common.WarnExperimentalFormat">
+    <value>{0} is still experimental.
+SSH connection of the console may be closed unexpectedly.
+Do you want to use {0} ?</value>
+  </data>
+  <data name="SFTPForm.labelDropHere">
+    <value>Drop files or folders to upload</value>
+  </data>
+  <data name="SFTPForm.buttonCancel">
+    <value>Cancel</value>
+  </data>
+  <data name="SFTPForm.buttonDownload">
+    <value>Download to...</value>
+  </data>
+  <data name="SFTPForm.Confirmation">
+    <value>Confirmation</value>
+  </data>
+  <data name="SFTPForm.AskOverwriteFormat">
+    <value>{0} already exists.
+Overwrite it ?</value>
+  </data>
+  <data name="SFTPForm.ChooseFolder">
+    <value>Choose a folder to save files.</value>
+  </data>
+  <data name="SCPForm.labelRemotePath">
+    <value>Remote path</value>
+  </data>
+  <data name="SCPForm.checkPreserveTime">
+    <value>Preserve modification time</value>
+  </data>
+  <data name="SCPForm.checkRecursive">
+    <value>Recursive</value>
+  </data>
+  <data name="SCPForm.labelDropHere">
+    <value>Drop files or folders here to upload</value>
+  </data>
+  <data name="SCPForm.buttonDownload">
+    <value>Download to...</value>
+  </data>
+  <data name="SCPForm.buttonCancel">
+    <value>Cancel</value>
+  </data>
+  <data name="SCPForm.ChooseFolder">
+    <value>Choose a folder to save files.</value>
+  </data>
+  <data name="SCPForm.NeedRemotePath">
+    <value>Remote path is required.</value>
+  </data>
+  <data name="SCPForm.RecursiveOptionIsRequired">
+    <value>Recursive option is required to copy a directory.
+Do you want to enable the recursive option now ?</value>
+  </data>
+  <data name="YesNoAllDialog.buttonYes">
+    <value>&amp;Yes</value>
+  </data>
+  <data name="YesNoAllDialog.buttonNo">
+    <value>&amp;No</value>
+  </data>
+  <data name="YesNoAllDialog.buttonYesToAll">
+    <value>Yes to &amp;all</value>
+  </data>
+  <data name="YesNoAllDialog.buttonCancel">
+    <value>&amp;Cancel</value>
+  </data>
+</root>

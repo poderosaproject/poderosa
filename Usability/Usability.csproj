@@ -1,0 +1,224 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7B6BA4DA-8390-4605-B979-C2D1CC09BD9A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Poderosa.Usability</RootNamespace>
+    <AssemblyName>Poderosa.Usability</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Poderosa.Usability.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Poderosa.Usability.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{8A416F19-9031-44A1-B225-BCB31A6BC6A7}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Granados\Granados.csproj">
+      <Project>{9D114B8B-E62C-4FBF-B281-0227755C8091}</Project>
+      <Name>Granados</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Plugin\Plugin.csproj">
+      <Project>{D84B661B-503E-4C22-892B-7499B72C7E04}</Project>
+      <Name>Plugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Protocols\Protocols.csproj">
+      <Project>{04F18DA5-BF47-48A3-9B8B-B6B93DCBA875}</Project>
+      <Name>Protocols</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TerminalEmulator\TerminalEmulator.csproj">
+      <Project>{7F80731C-443A-4533-90D1-1643A5C1364E}</Project>
+      <Name>TerminalEmulator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TerminalSession\TerminalSession.csproj">
+      <Project>{4554E83A-2A00-47E2-AB5B-14A228895C17}</Project>
+      <Name>TerminalSession</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UI\UI.csproj">
+      <Project>{9568D8AC-7B55-42E0-ACD7-204E397E7048}</Project>
+      <Name>UI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AgentKeyListDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AgentKeyListDialog.Designer.cs">
+      <DependentUpon>AgentKeyListDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="ChangeLog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ChangePassphrase.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CommandOptionPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CommentLog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConnectionOptionPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DisplayOptionPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="EditEscapeSequenceColor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditRenderProfile.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FontDialog.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="GenericOptionPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GuevaraAboutBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="InputPassphraseDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="InputPassphraseDialog.Designer.cs">
+      <DependentUpon>InputPassphraseDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="KeyAgent.cs" />
+    <Compile Include="KeyGenWizard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MRUPlugin.cs" />
+    <Compile Include="MRUPluginEx.cs" />
+    <Compile Include="OptionDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OptionDialogPlugin.cs" />
+    <Compile Include="OrderedCollection.cs" />
+    <Compile Include="PeripheralOptionPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PoderosaLogViewerPlugin.cs" />
+    <Compile Include="PoderosaLogViewerSession.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PreferenceEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PreferenceItemEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RenameTabBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ShellSchemeEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ShellSchemeEditor.Designer.cs">
+      <DependentUpon>ShellSchemeEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SSHKnownHosts.cs" />
+    <Compile Include="SSHOptionPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SSHUtilPlugin.cs" />
+    <Compile Include="StartupActionPlugin.cs" />
+    <Compile Include="TerminalOptionPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TerminalUICommands.cs" />
+    <Compile Include="TerminalUIPlugin.cs" />
+    <Compile Include="UsabilityPlugin.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="AgentKeyListDialog.resx">
+      <DependentUpon>AgentKeyListDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DisplayOptionPanel.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>DisplayOptionPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GuevaraAboutBox.resx">
+      <DependentUpon>GuevaraAboutBox.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="icons.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="InputPassphraseDialog.resx">
+      <DependentUpon>InputPassphraseDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OptionDialog.resx">
+      <DependentUpon>OptionDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PreferenceEditor.resx">
+      <DependentUpon>PreferenceEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PreferenceItemEditor.resx">
+      <DependentUpon>PreferenceItemEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ShellSchemeEditor.resx">
+      <DependentUpon>ShellSchemeEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SSHOptionPanel.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>SSHOptionPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="strings.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="strings_ja.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TerminalOptionPanel.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>TerminalOptionPanel.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

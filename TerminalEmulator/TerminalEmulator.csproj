@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7F80731C-443A-4533-90D1-1643A5C1364E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Poderosa.TerminalEmulator</RootNamespace>
+    <AssemblyName>Poderosa.TerminalEmulator</AssemblyName>
+    <StartupObject>
+    </StartupObject>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Debug\Poderosa.TerminalEmulator.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Release\Poderosa.TerminalEmulator.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UnitTest|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\UnitTest\</OutputPath>
+    <DefineConstants>TRACE;UNITTEST</DefineConstants>
+    <DocumentationFile>bin\UnitTest\Poderosa.TerminalEmulator.XML</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="CharDecoder.cs" />
+    <Compile Include="CommandResultEx.cs" />
+    <Compile Include="CommandResultPopup.cs" />
+    <Compile Include="CommandResultPopupSession.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Encoding.cs" />
+    <Compile Include="GEnv.cs" />
+    <Compile Include="IntelliSense.cs" />
+    <Compile Include="IntelliSenseCommand.cs" />
+    <Compile Include="IntelliSenseEx.cs" />
+    <Compile Include="IntelliSenseItem.cs" />
+    <Compile Include="IntelliSenseWindow.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="KeepAlive.cs" />
+    <Compile Include="KeyFunction.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="LoggerEx.cs" />
+    <Compile Include="ModalTaskEx.cs" />
+    <Compile Include="OldTerminalParam.cs" />
+    <Compile Include="Options.cs" />
+    <Compile Include="PromptRecognizer.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="ShellScheme.cs" />
+    <Compile Include="TerminalBase.cs" />
+    <Compile Include="TerminalCommands.cs" />
+    <Compile Include="TerminalDocument.cs" />
+    <Compile Include="TerminalEmulatorEx.cs" />
+    <Compile Include="TerminalEmulatorPlugin.cs" />
+    <Compile Include="TerminalControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="TerminalOutput.cs" />
+    <Compile Include="TerminalSettings.cs" />
+    <Compile Include="TerminalSettingsEx.cs" />
+    <Compile Include="TerminalSettingsSerialize.cs" />
+    <Compile Include="TerminalToolBar.cs" />
+    <Compile Include="TerminalUtil.cs" />
+    <Compile Include="Util.cs" />
+    <Compile Include="VT100.cs" />
+    <Compile Include="WarningWithDisableOption.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="XmlLogger.cs" />
+    <Compile Include="XTerm.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="rulechars.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="strings.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="strings_ja.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WarningWithDisableOption.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>WarningWithDisableOption.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{8A416F19-9031-44A1-B225-BCB31A6BC6A7}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Granados\Granados.csproj">
+      <Project>{9D114B8B-E62C-4FBF-B281-0227755C8091}</Project>
+      <Name>Granados</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Plugin\Plugin.csproj">
+      <Project>{D84B661B-503E-4C22-892B-7499B72C7E04}</Project>
+      <Name>Plugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Protocols\Protocols.csproj">
+      <Project>{04F18DA5-BF47-48A3-9B8B-B6B93DCBA875}</Project>
+      <Name>Protocols</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UI\UI.csproj">
+      <Project>{9568D8AC-7B55-42E0-ACD7-204E397E7048}</Project>
+      <Name>UI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.XML" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Bell16x16.png" />
+    <None Include="Resources\CommentLog16x16.png" />
+    <None Include="Resources\Info16x16.png" />
+    <None Include="Resources\Intellisense16x16.png" />
+    <None Include="Resources\LineFeed16x16.png" />
+    <None Include="Resources\LocalEcho16x16.png" />
+    <None Include="Resources\Poderosa16x16.png" />
+    <None Include="Resources\SuspendLog16x16.png" />
+  </ItemGroup>
+</Project>

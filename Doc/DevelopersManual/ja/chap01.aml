@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="3930435a-6e8f-46c8-b6ef-2c4121661627" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para>
+      Poderosaでは、プラグインを作成して機能を拡張できるだけでなく、Poderosa自身がプラグインの集合体として構成されています。
+      この章では、Poderosaプラグインが、どのようなインターフェイスを備えており、どのようにPlugin本体とやりとりするのか、その概要を説明します。
+      </para>
+    </introduction>
+
+    <list class="bullet">
+      <listItem><link xlink:href="8af45068-7b8c-4a1c-9227-a519be4eb1a9"/></listItem>
+      <listItem><link xlink:href="93a415e1-f8f9-498f-8e4b-88c11a2303f0"/></listItem>
+      <listItem><link xlink:href="515db704-eb9e-4bd5-836f-6683382954fc"/></listItem>
+    </list>
+
+  </developerConceptualDocument>
+</topic>

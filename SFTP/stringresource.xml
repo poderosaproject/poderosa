@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+$Id: stringresource.xml,v 1.2 2012/05/05 12:42:45 kzmi Exp $
+-->
+<string-resource>
+
+<record name="SFTPCommand.MenuText">
+  <ja>SFTP (experimental)...</ja>
+  <en>SFTP (experimental)...</en>
+</record>
+
+<record name="SCPCommand.MenuText">
+  <ja>SCP (experimental)...</ja>
+  <en>SCP (experimental)...</en>
+</record>
+
+<record name="SFTPToolbarCommandButton.ToolTip">
+  <ja>SFTP (experimental)</ja>
+  <en>SFTP (experimental)</en>
+</record>
+
+<record name="SCPToolbarCommandButton.ToolTip">
+  <ja>SCP (experimental)</ja>
+  <en>SCP (experimental)</en>
+</record>
+
+<record name="Common.UnknownPeer">
+  <ja>(不明)</ja>
+  <en>(unknown)</en>
+</record>
+
+<record name="Common.WarnExperimentalFormat">
+  <ja>{0}はまだ実験的な機能です。&#13;&#10;コンソールのSSH接続が終了することがあるかもしれません。&#13;&#10;{0}を使用しますか？</ja>
+  <en>{0} is still experimental.&#13;&#10;SSH connection of the console may be closed unexpectedly.&#13;&#10;Do you want to use {0} ?</en>
+</record>
+
+<!--
+ SFTPForm
+-->
+<record name="SFTPForm.labelDropHere">
+  <ja>ファイルやフォルダをドロップしてアップロード</ja>
+  <en>Drop files or folders to upload</en>
+</record>
+<record name="SFTPForm.buttonCancel">
+  <ja>キャンセル</ja>
+  <en>Cancel</en>
+</record>
+<record name="SFTPForm.buttonDownload">
+  <ja>ダウンロード...</ja>
+  <en>Download to...</en>
+</record>
+<record name="SFTPForm.Confirmation">
+  <ja>確認</ja>
+  <en>Confirmation</en>
+</record>
+<record name="SFTPForm.AskOverwriteFormat">
+  <ja>{0} が存在します。&#13;&#10;上書きしますか？</ja>
+  <en>{0} already exists.&#13;&#10;Overwrite it ?</en>
+</record>
+<record name="SFTPForm.ChooseFolder">
+  <ja>保存先のフォルダを選択してください。</ja>
+  <en>Choose a folder to save files.</en>
+</record>
+
+
+<!--
+ SCPForm
+-->
+<record name="SCPForm.labelRemotePath">
+  <ja>リモートパス</ja>
+  <en>Remote path</en>
+</record>
+<record name="SCPForm.checkPreserveTime">
+  <ja>更新日時を保持</ja>
+  <en>Preserve modification time</en>
+</record>
+<record name="SCPForm.checkRecursive">
+  <ja>再帰</ja>
+  <en>Recursive</en>
+</record>
+<record name="SCPForm.labelDropHere">
+  <ja>ここにファイルやフォルダをドロップしてアップロード</ja>
+  <en>Drop files or folders here to upload</en>
+</record>
+<record name="SCPForm.buttonDownload">
+  <ja>ダウンロード...</ja>
+  <en>Download to...</en>
+</record>
+<record name="SCPForm.buttonCancel">
+  <ja>キャンセル</ja>
+  <en>Cancel</en>
+</record>
+
+<record name="SCPForm.ChooseFolder">
+  <ja>保存先のフォルダを選択してください。</ja>
+  <en>Choose a folder to save files.</en>
+</record>
+
+<record name="SCPForm.NeedRemotePath">
+  <ja>リモートパスを入力してください。</ja>
+  <en>Remote path is required.</en>
+</record>
+<record name="SCPForm.RecursiveOptionIsRequired">
+  <ja>ディレクトリのコピーには再帰オプションが必要です。&#13;&#10;今すぐ再帰オプションを有効にしますか？</ja>
+  <en>Recursive option is required to copy a directory.&#13;&#10;Do you want to enable the recursive option now ?</en>
+</record>
+
+
+<!--
+ YesNoAllDialog
+-->
+<record name="YesNoAllDialog.buttonYes">
+  <ja>はい(&amp;Y)</ja>
+  <en>&amp;Yes</en>
+</record>
+<record name="YesNoAllDialog.buttonNo">
+  <ja>いいえ(&amp;N)</ja>
+  <en>&amp;No</en>
+</record>
+<record name="YesNoAllDialog.buttonYesToAll">
+  <ja>全てにはい(&amp;A)</ja>
+  <en>Yes to &amp;all</en>
+</record>
+<record name="YesNoAllDialog.buttonCancel">
+  <ja>キャンセル(&amp;C)</ja>
+  <en>&amp;Cancel</en>
+</record>
+
+
+</string-resource>

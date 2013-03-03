@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="c7b36a71-f67f-464b-a756-c7cf6c1517da" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para>Poderosaのメニューは、拡張ポイントを公開しています。メニューを追加したいプラグインは、公開されている拡張ポイントに対して、メニューを構成するオブジェクトを登録するという手順をとります。登録されている拡張ポイントは、主に、トップメニュー項目ですが、右クリックしたときに表示されるコンテキストメニューもあります（表4-3）。</para>
+
+      <alert class="note">
+        <para>コンテキストメニューの場合、メニューが結び付けられたコマンドが実行される際に、対象（<codeEntityReference>M:Poderosa.Commands.IPoderosaCommand.InternalExecute(Poderosa.Commands.ICommandTarget,Poderosa.IAdaptable[])</codeEntityReference>の第2引数）に渡されるのは、<codeEntityReference>T:Poderosa.Forms.IPoderosaMainWindow</codeEntityReference>ではなく、<codeEntityReference>T:Poderosa.Sessions.IPoderosaView</codeEntityReference>になります。</para>
+      </alert>
+
+      <table>
+        <title>表4-3 メニューが公開している拡張ポイント</title>
+        <tableHeader>
+          <row>
+            <entry>メニュー</entry>
+            <entry>拡張ポイント</entry>
+          </row>
+        </tableHeader>
+        <row>
+          <entry>［ファイル］</entry>
+          <entry><codeInline>org.poderosa.menu.file</codeInline></entry>
+        </row>
+        <row>
+          <entry>［編集］</entry>
+          <entry><codeInline>org.poderosa.menu.edit</codeInline></entry>
+        </row>
+        <row>
+          <entry>［コンソール］</entry>
+          <entry><codeInline>org.poderosa.menu.console</codeInline></entry>
+        </row>
+        <row>
+          <entry>［ツール］</entry>
+          <entry><codeInline>org.poderosa.menu.tool</codeInline></entry>
+        </row>
+        <row>
+          <entry>［ウィンドウ］</entry>
+          <entry><codeInline>org.poderosa.menu.window</codeInline></entry>
+        </row>
+        <row>
+          <entry>［プラグイン］</entry>
+          <entry><codeInline>org.poderosa.menu.plugin</codeInline></entry>
+        </row>
+        <row>
+          <entry>［ヘルプ］</entry>
+          <entry><codeInline>org.poderosa.menu.help</codeInline></entry>
+        </row>
+        <row>
+          <entry>［コンソール］―［特殊］</entry>
+          <entry><codeInline>org.poderosa.terminalemulator.specialcommand</codeInline></entry>
+        </row>
+        <row>
+          <entry>右クリックされたときに表示されるコンテキストメニュー</entry>
+          <entry><codeInline>org.poderosa.terminalemulator.contextmenu</codeInline></entry>
+        </row>
+      </table>
+    </introduction>
+
+    <sections>
+
+      <section>
+        <title>メニューグループ</title>
+        <content>
+          <para>Poderosaでは、いくつかのメニューをひとまとめにして「メニューグループ」として扱います。これは複数の連続したメニューをプラグインが提供することを想定しているためです。</para>
+
+          <alert class="note">
+            <para>たとえば［編集］メニューの［コピー］と［ペースト］は同じプラグインで提供されると考えるのが自然です。</para>
+          </alert>
+
+          <para>表4-3に示した拡張ポイントに対しては、メニューをひとまとめにした「メニューグループ」を登録します。メニューグループは、<codeEntityReference>T:Poderosa.Commands.IPoderosaMenuGroup</codeEntityReference>を備えるオブジェクトです。</para>
+
+<code language="C#">
+public interface IPoderosaMenuGroup : IAdaptable {
+  IPoderosaMenu[] ChildMenus { get; }
+  bool IsVolatileContent { get; }
+  bool ShowSeparator { get; } 
+}
+</code>
+
+          <definitionTable>
+            <definedTerm>ChildMenusプロパティ</definedTerm>
+            <definition>それぞれのメニューを示すメニューオブジェクトの配列です。</definition>
+            <definedTerm>IsVolatileContentプロパティ</definedTerm>
+            <definition>実行中にメニューが動的に変化するかどうかを示すフラグです。動的に変化する場合には<codeInline>true</codeInline>を指定します。<codeInline>true</codeInline>である場合、メニュー項目が表示されようとするたびに、メニューが再生成されるようになります。</definition>
+            <definedTerm>ShowSeparatosプロパティ</definedTerm>
+            <definition>このメニューグループの直後に区切りバー（セパレータ）を表示したいときには<codeInline>true</codeInline>に設定します。</definition>
+          </definitionTable>
+
+          <alert class="note">
+            <para>実行中にメニューが動的に変化する場合とは、たとえば「［ウィンドウ］メニュー内の各ターミナルのリスト」や「［ファイル］メニューの最近の接続先」などが挙げられます。</para>
+          </alert>
+        </content>
+      </section>
+
+      <section>
+        <title>メニューオブジェクト</title>
+        <content>
+          <para><codeEntityReference>T:Poderosa.Commands.IPoderosaMenuGroup</codeEntityReference>の<codeEntityReference>P:Poderosa.Commands.IPoderosaMenuGroup.ChildMenus</codeEntityReference>は、個々のメニュー項目に対応する「メニューオブジェクト」の配列です。メニューオブジェクトは、<codeEntityReference>T:Poderosa.Commands.IPoderosaMenu</codeEntityReference>を実装します。</para>
+
+<code language="C#">
+public interface IPoderosaMenu : IAdaptable {
+  //メニューの文字列
+  string Text { get; }
+  //メニューのEnabledプロパティを設定するために使用
+  bool IsEnabled(ICommandTarget target);
+  //メニューのCheckedプロパティを設定するために使用
+  bool IsChecked(ICommandTarget target);
+}
+</code>
+
+          <definitionTable>
+            <definedTerm>Textプロパティ</definedTerm>
+            <definition>メニューに表示される文字列を設定します。</definition>
+            <definedTerm>IsEnabledプロパティ</definedTerm>
+            <definition>メニューが有効／無効であるかどうかを設定または取得します。</definition>
+            <definedTerm>IsCheckedプロパティ</definedTerm>
+            <definition>メニューがチェックされているか否かを示す値を設定または取得します。</definition>
+          </definitionTable>
+
+          <para>実際のメニューオブジェクトは、<codeEntityReference>T:Poderosa.Commands.IPoderosaMenu</codeEntityReference>を直接実装することはなく、メニューの種類に応じて、<codeEntityReference>T:Poderosa.Commands.IPoderosaMenu</codeEntityReference>から継承している、次のいずれかのインターフェイスを実装します。</para>
+
+          <alert class="note">
+            <para>下記の（1）～（3）は、<codeEntityReference>T:Poderosa.Commands.IPoderosaMenu</codeEntityReference>から継承していますから、いずれも、上に示したText、IsEnabled、IsCheckedの3つのプロパティを備えています。</para>
+          </alert>
+
+          <definitionTable>
+            <definedTerm>(1) サブメニューを定義するIPoderosaMenuFolder</definedTerm>
+            <definition>
+              <para>メニューが階層化されている場合には、<codeEntityReference>T:Poderosa.Commands.IPoderosaMenuFolder</codeEntityReference>を実装したオブジェクトを用意します。ここで<codeEntityReference>P:Poderosa.Commands.IPoderosaMenuFolder.ChildGroups</codeEntityReference>は、階層化したサブメニューのグループの配列を示します。</para>
+
+<code language="C#">
+public interface IPoderosaMenuFolder : IPoderosaMenu {
+  IPoderosaMenuGroup[] ChildGroups { get; }
+}
+</code>
+            </definition>
+
+            <definedTerm>(2) 引数をもたないコマンドを実行するIPoderosaMenuItem</definedTerm>
+            <definition>
+              <para>メニューが選択されたときに、何らかのコマンドを実行するには、<codeEntityReference>T:Poderosa.Commands.IPoderosaMenuItem</codeEntityReference>を用います。</para>
+
+<code language="C#">
+public interface IPoderosaMenuItem : IPoderosaMenu {
+  IPoderosaCommand AssociatedCommand { get; }
+}
+</code>
+
+              <para><codeEntityReference>P:Poderosa.Commands.IPoderosaMenuItem.AssociatedCommand</codeEntityReference>には、このメニューが選択されたときに実行したいコマンドオブジェクトを設定しておきます。するとメニューが選択されたときに該当のコマンドが実行されます。すなわち言い換えれば、コマンドマネージャを経由して間接的にAssociatedCommand.InternalExecuteメソッドが呼び出されるということになります。</para>
+              <para><codeEntityReference>P:Poderosa.Commands.IPoderosaMenuItem.AssociatedCommand</codeEntityReference>で指定するコマンドオブジェクトは、メニューを淡色表示にするかどうかを判断する際にも使われます。つまりPoderosaはメニューを表示するときにAssociatedCommand.CanExecuteメソッドを呼び出し、その結果が<codeInline>false</codeInline>である場合には、メニューを淡色表示にして、選択できないようにします。</para>
+            </definition>
+
+            <definedTerm>(3) メニューに引数を設定しておきコマンドに引き渡すIPoderosaItemWithArgs</definedTerm>
+            <definition>
+              <para><codeEntityReference>T:Poderosa.Commands.IPoderosaMenuItemWithArgs</codeEntityReference>は、上記（2）の<codeEntityReference>T:Poderosa.Commands.IPoderosaMenuItem</codeEntityReference>から継承しており、次のように<codeEntityReference>P:Poderosa.Commands.IPoderosaMenuItemWithArgs.AdditionalArgs</codeEntityReference>という追加のプロパティがひとつだけ提供されています。</para>
+
+<code language="C#">
+public interface IPoderosaMenuItemWithArgs : IPoderosaMenuItem {
+  IAdaptable[] AdditionalArgs { get; }
+}
+</code>
+
+              <para><codeEntityReference>P:Poderosa.Commands.IPoderosaMenuItemWithArgs.AdditionalArgs</codeEntityReference>に設定しておいたオブジェクトは、コマンドが実行される際に引き渡されます。より具体的に言うと、メニューが選択されたときに間接的に呼び出されるAssosicatedCommand.InternalCommandメソッドの第3引数に渡されます。</para>
+              <para>すなわち<codeEntityReference>T:Poderosa.Commands.IPoderosaMenuItemWithArgs</codeEntityReference>を使うことで、メニュー側から<codeEntityReference>T:Poderosa.IAdaptable</codeEntityReference>を備える任意のオブジェクトの配列をコマンド側へと引き渡すことができ、コマンド側で、どのメニューが選択されたのかを判別できるようになります。</para>
+
+              <alert class="note">
+                <para>たとえば［ファイル］メニューの接続履歴を表示するメニューでは、履歴の個々のメニュー項目の<codeEntityReference>P:Poderosa.Commands.IPoderosaMenuItemWithArgs.AdditionalArgs</codeEntityReference>に接続先の情報を保持するオブジェクトを設定しておくことで、コマンド側では、「どの履歴が選択されてどこに接続するのか」を判定しています。</para>
+              </alert>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>メニューの作成と登録の実例</title>
+        <content>
+          <para>プラグインがメニューを追加し、そのメニューがクリックされたときに何らかのコマンドを実行するためには、次の手順が必要になります。</para>
+
+          <definitionTable>
+            <definedTerm>(1) コマンドの準備</definedTerm>
+            <definition>
+              <para>まずはメニューから実行すべきコマンドを用意します。このコマンドは、<codeEntityReference>T:Poderosa.Commands.IPoderosaCommand</codeEntityReference>を備えるものでも、<codeEntityReference>T:Poderosa.Commands.IGeneralCommand</codeEntityReference>を備えるものでも、どちらでもかまいません。</para>
+              <para>たとえば<codeEntityReference>T:Poderosa.Commands.PoderosaCommandImpl</codeEntityReference>というヘルパクラスを使うことで、次のようにして、<codeEntityReference>T:Poderosa.Commands.IPoderosaCommand</codeEntityReference>を備えるコマンドオブジェクトを作成できます。</para>
+
+<code language="C#">
+PoderosaCommandImpl mycommand = new PoderosaCommandImpl(
+  delegate(ICommandTarget target)
+  {
+    // 実行されたときのコマンド
+    MessageBox.Show("実行されました");
+    return CommandResult.Succeeded;
+  },
+  delegate(ICommandTarget target)
+  {
+    // コマンドが実行できるかどうかを示すデリゲート
+    return true;
+  }
+);
+</code>
+            </definition>
+
+            <definedTerm>(2) メニューオブジェクトを作る</definedTerm>
+            <definition>
+              <para>次にメニューオブジェクトを作ります。<codeEntityReference>T:Poderosa.Commands.IPoderosaMenuItem</codeEntityReference>を備えるメニューオブジェクトを作る場合には、次のように<codeEntityReference>T:Poderosa.Commands.PoderosaMenuItemImpl</codeEntityReference>を使うと、簡単に作成できます。</para>
+
+<code language="C#">
+PoderosaMenuItemImpl menuitem = new PoderosaMenuItemImpl(
+  mycommand, "My Menu Name");
+</code>
+            </definition>
+
+            <definedTerm>(3) メニューグループで包み込む</definedTerm>
+            <definition>
+              <para>（2）のメニューをメニューグループとして包み込みます。そのためには、<codeEntityReference>T:Poderosa.Commands.PoderosaMenuGroupImpl</codeEntityReference>というヘルパクラスを使うことができます。</para>
+
+              <alert class="note">
+                <para>ここではコンストラクタのうち、ひとつのオーバーロードの例を示しているのにすぎません。たとえば、<codeEntityReference>T:Poderosa.Commands.IPoderosaMenu</codeEntityReference>の配列を受け取るコンストラクタもあります。複数のメニューを提供する場合には、（2）の手順を繰り返して複数個のメニューオブジェクトを作り、その配列を引き渡すように実装します。</para>
+              </alert>
+
+<code language="C#">
+PoderosaMenuGroupImpl menugroup = new PoderosaMenuGroupImpl(menuitem);
+</code>
+            </definition>
+
+            <definedTerm>(4) メニューの拡張ポイントへと追加する</definedTerm>
+            <definition>
+              <para>（3）で作成したメニューグループをメニューの拡張ポイントへと登録します。たとえば［編集］メニュー（<codeInline>org.poderosa.menu.edit</codeInline>）に登録する場合には、次のようにします。</para>
+
+<code language="C#">
+// 拡張ポイントを検索
+IExtensionPoint editmenu = 
+  _poderosaworld.PluginManager.FindExtensionPoint("org.poderosa.menu.edit");
+// 拡張ポイントにメニューグループを登録
+editmenu.RegisterExtension(menugroup);
+</code>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="121d52f8-5d8d-444f-8e96-36fd8068acd2"/>
+      <link xlink:href="ee7e5a69-0054-4d42-89ce-030e7f7b02b5"/>
+      <link xlink:href="e2826339-3389-441c-a922-844040b6a2e1"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

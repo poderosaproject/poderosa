@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="79c0709a-1ee6-436d-851d-eb9b4daf26c3" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para>この章では、PoderosaプラグインとPoderosa本体とのやりとりについて説明します。</para>
+    </introduction>
+
+    <list class="bullet">
+      <listItem><link xlink:href="1e38e184-2b1d-49b7-898b-dcb8e2331dd9"/></listItem>
+      <listItem><link xlink:href="41885482-96bf-4145-8c3b-416b1d4cc154"/></listItem>
+      <listItem><link xlink:href="102e0c3c-f009-4d02-a59f-018e279624ae"/></listItem>
+      <listItem><link xlink:href="66ea47c3-bd5f-4149-a84a-e0e33246ec23"/></listItem>
+      <listItem><link xlink:href="3accfa48-d659-40ec-9efc-0f285f4e0fa9"/></listItem>
+      <listItem><link xlink:href="6be16ce5-93ec-4104-affa-d1f1ce4eed43"/></listItem>
+    </list>
+
+  </developerConceptualDocument>
+</topic>

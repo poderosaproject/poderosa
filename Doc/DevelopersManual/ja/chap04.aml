@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="f7da61c5-73db-47eb-b5f3-2143ecbbb443" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para>Poderosa本体とプラグインとのやりとりで使われる主なインターフェイスについて説明します。</para>
+    </introduction>
+
+    <definitionTable>
+      <definedTerm><link xlink:href="b62fec3f-1e30-40f8-b0c8-b2f6163425b1"/></definedTerm>
+      <definition>コマンドの実行やメニュー、ツールバー機能について説明します。</definition>
+      <definedTerm><link xlink:href="012e4424-55ff-4cee-9431-8066358e6205"/></definedTerm>
+      <definition>PoderosaのMCV（Model View Controller）の概要を説明します。</definition>
+      <definedTerm><link xlink:href="f56866ba-0bdc-42b4-9123-a80bac3774f7"/></definedTerm>
+      <definition>SSH、Telnet、Cygwin接続において使われるエミュレータ機能について説明します。</definition>
+      <definedTerm><link xlink:href="85071b7c-755b-43d7-ae56-b5f174f2fd82"/></definedTerm>
+      <definition>SSH、Telnet、Cygwin接続の開き方、閉じ方などを説明します。</definition>
+      <definedTerm><link xlink:href="448b659e-151b-426a-ae17-359f6fbbd535"/></definedTerm>
+      <definition>各プラグインにおける、ユーザーのオプション設定項目を保存したり読み込んだりするための仕組みを説明します。</definition>
+    </definitionTable>
+
+  </developerConceptualDocument>
+</topic>

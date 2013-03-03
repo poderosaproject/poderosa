@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+$Id: stringresource.xml,v 1.1 2011/08/04 15:28:58 kzmi Exp $
+-->
+<string-resource>
+
+<record name="Common.OK">
+  <ja>OK</ja>
+  <en>OK</en>
+</record>
+<record name="Common.Cancel">
+  <ja>キャンセル</ja>
+  <en>Cancel</en>
+</record>
+<record name="Common.DoNot">
+  <ja>しない</ja>
+  <en>Don't</en>
+</record>
+<record name="Common.Do">
+  <ja>する</ja>
+  <en>Do</en>
+</record>
+
+<!-- Menu -->
+<record name="Menu.OpenPipe">
+  <ja>パイプを開く...</ja>
+  <en>Open pipe...</en>
+</record>
+
+<record name="Command.OpenPipe">
+  <ja>パイプを開く</ja>
+  <en>Open pipe</en>
+</record>
+
+
+<!-- OpenPipeDialog.cs -->
+<record name="Form.OpenPipeDialog.Title">
+  <ja>パイプを開く</ja>
+  <en>Open pipe</en>
+</record>
+<record name="Form.OpenPipeDialog._radioButtonProcess">
+  <ja>プロセス</ja>
+  <en>Process</en>
+</record>
+<record name="Form.OpenPipeDialog._radioButtonPipe">
+  <ja>名前付きパイプ</ja>
+  <en>Named pipe</en>
+</record>
+
+<record name="Form.OpenPipeDialog._groupBoxProcess">
+  <ja>プロセス</ja>
+  <en>Process</en>
+</record>
+<record name="Form.OpenPipeDialog._groupBoxPipe">
+  <ja>名前付きパイプ</ja>
+  <en>Named pipe</en>
+</record>
+<record name="Form.OpenPipeDialog._labelExePath">
+  <ja>実行ファイル</ja>
+  <en>Executable file</en>
+</record>
+<record name="Form.OpenPipeDialog._labelCommandLineOptions">
+  <ja>オプション</ja>
+  <en>Options</en>
+</record>
+<record name="Form.OpenPipeDialog._labelInputPath">
+  <ja>パス (入力側)</ja>
+  <en>Path (Input)</en>
+</record>
+<record name="Form.OpenPipeDialog._labelOutputPath">
+  <ja>パス (出力側)</ja>
+  <en>Path (Output)</en>
+</record>
+<record name="Form.OpenPipeDialog._checkBoxBidirectinal">
+  <ja>双方向: 上のパスは出力にも使用されます</ja>
+  <en>Bidirectional: Above path is used also for output.</en>
+</record>
+<record name="Form.OpenPipeDialog._buttonEnvironmentVariables">
+  <ja>環境変数の追加...</ja>
+  <en>Add environment variables...</en>
+</record>
+<record name="Form.OpenPipeDialog._labelLocalEcho">
+  <ja>ローカルエコー(&amp;O)</ja>
+  <en>Local ech&amp;o</en>
+</record>
+<record name="Form.OpenPipeDialog._labelNewLine">
+  <ja>改行の送信(&amp;N)</ja>
+  <en>&amp;New Line</en>
+</record>
+<record name="Form.OpenPipeDialog._labelLogFile">
+  <ja>ログの保存先(&amp;F)</ja>
+  <en>Log &amp;File</en>
+</record>
+<record name="Form.OpenPipeDialog._labelEncoding">
+  <ja>エンコーディング(&amp;E)</ja>
+  <en>&amp;Encoding</en>
+</record>
+<record name="Form.OpenPipeDialog._labelLogType">
+  <ja>ログの種別(&amp;L)</ja>
+  <en>&amp;Log type</en>
+</record>
+<record name="Form.OpenPipeDialog._labelTerminalType">
+  <ja>種類(&amp;Y)</ja>
+  <en>Terminal T&amp;ype</en>
+</record>
+<record name="Form.OpenPipeDialog._labelAutoExecMacroPath">
+  <ja>自動開始マクロ</ja>
+  <en>Auto Exec Macro</en>
+</record>
+
+<record name="Form.OpenPipeDialog.SelectExeFile.Title">
+  <ja>実行ファイルを選択</ja>
+  <en>Select executable file</en>
+</record>
+<record name="Form.OpenPipeDialog.SelectExeFile.ExeFiles">
+  <ja>実行ファイル</ja>
+  <en>Executable files</en>
+</record>
+<record name="Form.OpenPipeDialog.SelectExeFile.AllFiles">
+  <ja>すべてのファイル</ja>
+  <en>All files</en>
+</record>
+
+<record name="Form.OpenPipeDialog.Error.NoExePath">
+  <ja>実行ファイルを指定してください。</ja>
+  <en>Specify an executable file.</en>
+</record>
+<record name="Form.OpenPipeDialog.Error.NoOpenMode">
+  <ja>開くモードを指定してください (プロセスか名前付きパイプ)。</ja>
+  <en>Specify open mode (Process or Pipe).</en>
+</record>
+<record name="Form.OpenPipeDialog.Error.NoInputPath">
+  <ja>パス(入力側)を入力してください。</ja>
+  <en>Enter a path (input).</en>
+</record>
+<record name="Form.OpenPipeDialog.Error.NoOutputPath">
+  <ja>パス(出力側)を入力してください。</ja>
+  <en>Enter a path (output).</en>
+</record>
+
+<!-- EditVariableDialog.cs -->
+<record name="Form.EditVariableDialog.Title">
+  <ja>変数</ja>
+  <en>Variable</en>
+</record>
+<record name="Form.EditVariableDialog._labelName">
+  <ja>変数名</ja>
+  <en>Name</en>
+</record>
+<record name="Form.EditVariableDialog._labelValue">
+  <ja>値</ja>
+  <en>Value</en>
+</record>
+<record name="Form.EditVariableDialog.Error.NameHasIllegalCharacter">
+  <ja>変数名に使用できない文字が含まれています。</ja>
+  <en>Variable name has an illegal letter.</en>
+</record>
+<record name="Form.EditVariableDialog.Error.EnterName">
+  <ja>変数名を入力してください。</ja>
+  <en>Enter a variable name.</en>
+</record>
+<record name="Form.EditVariableDialog.Error.EnterValue">
+  <ja>値を入力してください。</ja>
+  <en>Enter a value.</en>
+</record>
+
+<!-- EnvironmentVariablesDialog.cs -->
+<record name="Form.EnvironmentVariablesDialog.Title">
+  <ja>追加する環境変数</ja>
+  <en>Environment variables to add</en>
+</record>
+<record name="Form.EnvironmentVariablesDialog._columnName">
+  <ja>変数名</ja>
+  <en>Name</en>
+</record>
+<record name="Form.EnvironmentVariablesDialog._columnValue">
+  <ja>値</ja>
+  <en>Value</en>
+</record>
+<record name="Form.EnvironmentVariablesDialog._labelDescription">
+  <ja>変数値の中の%で括られた文字列は、対応する環境変数で展開されます。</ja>
+  <en>A text string enclosed by % symbols in a value will be expanded using the corresponding environment variable.</en>
+</record>
+<record name="Form.EnvironmentVariablesDialog._buttonAdd">
+  <ja>追加(&amp;A)...</ja>
+  <en>&amp;Add...</en>
+</record>
+<record name="Form.EnvironmentVariablesDialog._buttonEdit">
+  <ja>編集(&amp;E)...</ja>
+  <en>&amp;Edit...</en>
+</record>
+<record name="Form.EnvironmentVariablesDialog._buttonDelete">
+  <ja>削除(&amp;D)</ja>
+  <en>&amp;Delete</en>
+</record>
+
+
+<!-- PipeCreator.cs -->
+<record name="PipeCreator.LaunchingApplicationFailed">
+  <ja>アプリケーションが起動できません。&#13;&#10;より詳しいエラー情報はログを確認してください。</ja>
+  <en>Could not launch the application.&#13;&#10;See the log file for more information of the error.</en>
+</record>
+<record name="PipeCreator.OpeningPipeFailed">
+  <ja>名前付きパイプをオープンできません。&#13;&#10;より詳しいエラー情報はログを確認してください。</ja>
+  <en>Could not open the named pipe.&#13;&#10;See the log file for more information of the error.</en>
+</record>
+
+
+
+</string-resource>

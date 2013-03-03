@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="7608eadb-dd54-46d1-9cf7-59af54f2367c" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para>すべてのセッションは、「セッションマネージャ」によって管理されます。セッションマネージャは、セッションの開始や終了、ドキュメントとビューとの関連付けなどを管理します。</para>
+    </introduction>
+
+    <sections>
+
+      <section>
+        <title>セッションマネージャを使った操作</title>
+        <content>
+          <para>セッションマネージャは、SessionManagerPluginプラグイン（プラグインID「<codeInline>org.poderosa.core.sessions</codeInline>」）によって提供されます。</para>
+          <para>セッションマネージャは<codeEntityReference>T:Poderosa.Sessions.ISessionManager</codeEntityReference>を備えるオブジェクトであり、<codeEntityReference>T:Poderosa.Plugins.ICoreServices</codeEntityReference>の<codeEntityReference>P:Poderosa.Plugins.ICoreServices.SessionManager</codeEntityReference>から取得できます。</para>
+
+<code language="C#">
+// ICoreServicesを取得
+ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
+// セッションマネージャを取得
+ISessionManager sessionman= cs.SessionManager;
+</code>
+
+          <alert class="note">
+            <para>もしくは、プラグインマネージャの<codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindPlugin(System.String,System.Type)</codeEntityReference>を使って「<codeInline>org.poderosa.core.sessions</codeInline>」を検索して取得する方法をとってもかまいません。</para>
+          </alert>
+
+          <para><codeEntityReference>T:Poderosa.Sessions.ISessionManager</codeEntityReference>は、次のように定義されています。</para>
+
+<code language="C#">
+public interface ISessionManager {
+  IEnumerable&lt;ISession&gt; AllSessions { get; }
+  void StartNewSession(ISession session, IPoderosaView firstView);
+  void AttachDocumentAndView(IPoderosaDocument document, IPoderosaView view);
+  PrepareCloseResult TerminateSession(ISession session);
+  PrepareCloseResult CloseDocument(IPoderosaDocument document);
+  void RefreshDocumentStatus(IPoderosaDocument document);
+  void ActivateDocument(IPoderosaDocument document, ActivateReason reason);
+  IPoderosaDocument[] GetDocuments(IPoderosaMainWindow window);
+  void AddActiveDocumentChangeListener(IActiveDocumentChangeListener listener);
+  void RemoveActiveDocumentChangeListener(IActiveDocumentChangeListener listener);
+  void AddSessionListener(ISessionListener listener);
+  void RemoveSessionListener(ISessionListener listener);
+}
+</code>
+          <para>セッションマネージャを使うと、次の操作ができます。</para>
+
+          <definitionTable>
+            <definedTerm>セッションの列挙</definedTerm>
+            <definition>
+              <para><codeEntityReference>P:Poderosa.Sessions.ISessionManager.AllSessions</codeEntityReference>を通じて、全セッションを列挙できます。</para>
+            </definition>
+
+            <definedTerm>ドキュメントの列挙</definedTerm>
+            <definition>
+              <para><codeEntityReference>M:Poderosa.Sessions.ISessionManager.GetDocuments(Poderosa.Forms.IPoderosaMainWindow)</codeEntityReference>を呼び出すと、特定のウィンドウに結び付けられている全ドキュメントを配列として得ることができます。</para>
+            </definition>
+
+            <definedTerm>新規セッションの開始</definedTerm>
+            <definition>
+              <para><codeEntityReference>M:Poderosa.Sessions.ISessionManager.StartNewSession(Poderosa.Sessions.ISession,Poderosa.Sessions.IPoderosaView)</codeEntityReference>を呼び出すと、セッションを開始し、ビューと結び付けることができます。</para>
+            </definition>
+
+            <definedTerm>ドキュメントとビューとの関連付け</definedTerm>
+            <definition>
+              <para><codeEntityReference>M:Poderosa.Sessions.ISessionManager.AttachDocumentAndView(Poderosa.Sessions.IPoderosaDocument,Poderosa.Sessions.IPoderosaView)</codeEntityReference>を呼び出すと、ドキュメントとビューとの関連付けを変更できます。たとえば、ドキュメントがビューにドラッグされたとき、ドラッグ先のビューに、そのドキュメントを結び付けるときなどに使います。</para>
+            </definition>
+
+            <definedTerm>アクティブなドキュメントの変更</definedTerm>
+            <definition>
+              <para><codeEntityReference>M:Poderosa.Sessions.ISessionManager.ActivateDocument(Poderosa.Sessions.IPoderosaDocument,Poderosa.Sessions.ActivateReason)</codeEntityReference>を呼び出すと、アクティブなドキュメントを変更できます。</para>
+            </definition>
+
+            <definedTerm>セッションの切断やドキュメントを閉じる操作</definedTerm>
+            <definition>
+              <para><codeEntityReference>M:Poderosa.Sessions.ISessionManager.TerminateSession(Poderosa.Sessions.ISession)</codeEntityReference>を呼び出すと、セッションを切断できます。また、<codeEntityReference>M:Poderosa.Sessions.ISessionManager.CloseDocument(Poderosa.Sessions.IPoderosaDocument)</codeEntityReference>を呼び出すと、ドキュメントを閉じることができます。</para>
+
+              <alert class="note">
+                <para>ウィンドウを閉じたいだけなら、<codeEntityReference>T:Poderosa.Forms.IPoderosaForm</codeEntityReference>の<codeEntityReference>M:Poderosa.Forms.IPoderosaForm.CancellableClose</codeEntityReference>を使ってください。</para>
+              </alert>
+            </definition>
+
+            <definedTerm>ドキュメント状態の変化のイベント処理</definedTerm>
+            <definition>
+              <para>アクティブなドキュメントが変化したときのイベントを処理したい場合には、<codeEntityReference>M:Poderosa.Sessions.ISessionManager.AddActiveDocumentChangeListener(Poderosa.Sessions.IActiveDocumentChangeListener)</codeEntityReference>を使ってデリゲートを登録します。たとえば、アクティブなドキュメントが変化したときに、ウィンドウのキャプションを変更したいという場合には、このイベントを使って処理します。</para>
+            </definition>
+
+            <definedTerm>セッション状態の変化のイベント処理</definedTerm>
+            <definition>
+              <para>セッションが開始されたり切断されたときのイベントを処理したい場合には、<codeEntityReference>M:Poderosa.Sessions.ISessionManager.AddSessionListener(Poderosa.Sessions.ISessionListener)</codeEntityReference>を使ってデリゲートを登録します。たとえばPoderosaでは、接続履歴を管理するのに、このイベントを用いています。</para>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>セッション動作の詳細</title>
+        <content>
+          <para>ここでは、セッション機能を提供しようとするプラグイン開発者向けに、セッションの動きの詳細を説明します。</para>
+          <para>セッションマネージャは、図4-4に示す手順で新規セッションを作成します。</para>
+
+          <alert class="note">
+            <para>新しい接続をしたり、ターミナルの設定を変更したりするだけなら、これらの機能を知る必要はありません。ターミナルセッションを使って新規接続する方法については、「<link xlink:href="f56866ba-0bdc-42b4-9123-a80bac3774f7"/>」ならびに「<link xlink:href="85071b7c-755b-43d7-ae56-b5f174f2fd82"/>」を参照してください。</para>
+          </alert>
+
+          <mediaLink>
+            <caption lead="図4-4">セッションマネージャによるセッションの作成</caption>
+            <image xlink:href="fig04_04" />
+          </mediaLink>
+
+          <definitionTable>
+            <definedTerm>セッションの開始</definedTerm>
+            <definition>
+              <para>セッションは、セッションマネージャの<codeEntityReference>M:Poderosa.Sessions.ISessionManager.StartNewSession(Poderosa.Sessions.ISession,Poderosa.Sessions.IPoderosaView)</codeEntityReference>の呼び出しによって開始されます。</para>
+              <para><codeEntityReference>M:Poderosa.Sessions.ISessionManager.StartNewSession(Poderosa.Sessions.ISession,Poderosa.Sessions.IPoderosaView)</codeEntityReference>の引数には、「開始するセッションの<codeEntityReference>T:Poderosa.Sessions.ISession</codeEntityReference>」「セッション開始後に結び付けるビューを示す<codeEntityReference>T:Poderosa.Sessions.IPoderosaView</codeEntityReference>」を渡します。</para>
+
+<code language="C#">
+// ICoreServicesを取得
+ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
+// セッションマネージャを取得
+ISessionManager sessionman= cs.SessionManager;
+// セッションの開始
+sessionman.StartNewSession(
+  ISessionをもつオブジェクト, 
+  IPoderosaViewをもつオブジェクト);
+</code>
+
+              <para>第1引数の<codeEntityReference>T:Poderosa.Sessions.ISession</codeEntityReference>は、何らかの方法で取得した、セッション機能を備えるオブジェクトです。たとえば既存のプラグインが提供するセッションを開始したいのであれば、<codeEntityReference>T:Poderosa.Plugins.IPluginManager</codeEntityReference>の<codeEntityReference>M:Poderosa.Plugins.IPluginManager.FindPlugin(System.String,System.Type)</codeEntityReference>を使って、そのプラグインを検索し、何らかのオブジェクトを作成することで<codeEntityReference>T:Poderosa.Sessions.ISession</codeEntityReference>を取得することになります。</para>
+
+              <alert class="note">
+                <para>Telnet接続、SSH接続、Cygwin接続の場合には、ターミナルセッションを使って接続することになります。この場合、もっと簡単な方法が提供されています。その方法については、「<link xlink:href="85071b7c-755b-43d7-ae56-b5f174f2fd82"/>」で説明します。</para>
+              </alert>
+
+              <para>第2引数の<codeEntityReference>T:Poderosa.Sessions.IPoderosaView</codeEntityReference>は、セッションが開始されたあと、セッションから提供されるドキュメントと結び付けるビューを示します。</para>
+              <para>ビューマネージャの<codeEntityReference>M:Poderosa.Sessions.IViewManager.GetCandidateViewForNewDocument</codeEntityReference>を呼び出すと、新しいビューが作られるので、通常は、そのようにして得た<codeEntityReference>T:Poderosa.Sessions.IPoderosaView</codeEntityReference>を渡します。</para>
+
+<code language="C#">
+ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
+// 操作対象となるウィンドウ
+IPoderosaMainWindow mainwin = cs.WindowManager.ActiveWindow;
+// 新しいビューを作成する
+IPoderosaView newview = mainwin.ViewManager.GetCandidateViewForNewDocument();
+</code>
+            </definition>
+
+            <definedTerm>セッションを提供するプラグインの初期化処理</definedTerm>
+            <definition>
+              <para>セッションマネージャの<codeEntityReference>M:Poderosa.Sessions.ISessionManager.StartNewSession(Poderosa.Sessions.ISession,Poderosa.Sessions.IPoderosaView)</codeEntityReference>を呼び出すと、第1引数に渡した<codeEntityReference>T:Poderosa.Sessions.ISession</codeEntityReference>を備えるオブジェクトの<codeEntityReference>M:Poderosa.Sessions.ISession.InternalStart(Poderosa.Sessions.ISessionHost)</codeEntityReference>が呼び出されます。</para>
+<code language="C#" title="セッションを提供する側のISessionの実装">
+void InternalStart(ISessionHost host)
+{
+  // ここに初期化処理を書いておきます。
+}
+</code>
+
+              <para><codeEntityReference>M:Poderosa.Sessions.ISession.InternalStart(Poderosa.Sessions.ISessionHost)</codeEntityReference>の引数には、セッションホストを示す<codeEntityReference>T:Poderosa.Sessions.ISessionHost</codeEntityReference>が渡されます。<codeEntityReference>T:Poderosa.Sessions.ISessionHost</codeEntityReference>は次のメソッドを持ちます（表4-11）。</para>
+
+              <table>
+                <title>表4-11 ISessionHostのメソッド</title>
+                <tableHeader>
+                  <row>
+                    <entry>メソッド</entry>
+                    <entry>意味</entry>
+                  </row>
+                </tableHeader>
+                <row>
+                  <entry>RegisterDocument</entry>
+                  <entry>ドキュメントを登録します</entry>
+                </row>
+                <row>
+                  <entry>TerminateSession</entry>
+                  <entry>セッションを終了します</entry>
+                </row>
+                <row>
+                  <entry>GetParentFormFor</entry>
+                  <entry>指定したドキュメントに結び付けられているウィンドウを<codeEntityReference>T:Poderosa.Forms.IPoderosaForm</codeEntityReference>として得ます</entry>
+                </row>
+              </table>
+
+              <para><codeEntityReference>M:Poderosa.Sessions.ISession.InternalStart(Poderosa.Sessions.ISessionHost)</codeEntityReference>内では、セッションが提供するドキュメントを作成します。そして<codeEntityReference>M:Poderosa.Sessions.ISessionHost.RegisterDocument(Poderosa.Sessions.IPoderosaDocument)</codeEntityReference>を呼び出すことで、そのドキュメントを登録します。
+              するとそのドキュメントがセッションマネージャによって、ビューと結び付けられ、ユーザーに表示されるようになります。</para>
+
+              <alert class="note">
+                <para>セッションはひとつ以上のドキュメントを提供する必要があるため、<codeEntityReference>M:Poderosa.Sessions.ISessionHost.RegisterDocument(Poderosa.Sessions.IPoderosaDocument)</codeEntityReference>は、必ず1回以上、呼び出す必要があります。</para>
+              </alert>
+
+              <para><codeEntityReference>M:Poderosa.Sessions.ISession.InternalStart(Poderosa.Sessions.ISessionHost)</codeEntityReference>に引き渡される<codeEntityReference>T:Poderosa.Sessions.ISessionHost</codeEntityReference>は、セッションが終了するまで不変です。</para>
+              <para><codeEntityReference>T:Poderosa.Sessions.ISessionHost</codeEntityReference>には、セッションを終了するための<codeEntityReference>M:Poderosa.Sessions.ISessionHost.TerminateSession</codeEntityReference>や、ドキュメントに結び付けられたウィンドウを取得する<codeEntityReference>M:Poderosa.Sessions.ISessionHost.GetParentFormFor(Poderosa.Sessions.IPoderosaDocument)</codeEntityReference>があり、後続の処理で必要になるはずです。</para>
+              <para>そこで渡された<codeEntityReference>T:Poderosa.Sessions.ISessionHost</codeEntityReference>を変数に保存しておき、あとで使えるようにしておくのが一般的です。</para>
+            </definition>
+
+            <definedTerm>セッションを終了する方法</definedTerm>
+            <definition>
+              <para>セッションの終了は、「ユーザー側から終了する場合」と「セッションを提供するプラグイン側から終了する場合」の2通りがあります。</para>
+
+              <alert class="note">
+                <para>セッションを終了する前に、セッションが提供しているドキュメントが先に閉じられます（後掲の「ドキュメントを閉じる方法」を参照）。</para>
+              </alert>
+
+              <definitionTable>
+                <definedTerm>(1) 任意のセッションを終了する場合</definedTerm>
+                <definition>
+                  <para>セッションを終了させたい場合には、セッションマネージャの<codeEntityReference>M:Poderosa.Sessions.ISessionManager.TerminateSession(Poderosa.Sessions.ISession)</codeEntityReference>を呼び出します。</para>
+
+<code language="C#">
+// ICoreServicesを取得
+ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
+// セッションマネージャを取得
+ISessionManager sessionman= cs.SessionManager;
+// セッションの終了
+sessionman.TerminateSession(
+  終了したいセッション（ISession）);
+</code>
+
+                  <para><codeEntityReference>M:Poderosa.Sessions.ISessionManager.TerminateSession(Poderosa.Sessions.ISession)</codeEntityReference>を呼び出すと、引数に指定した<codeEntityReference>T:Poderosa.Sessions.ISession</codeEntityReference>の<codeEntityReference>M:Poderosa.Sessions.ISession.PrepareCloseSession</codeEntityReference>が呼び出されます。</para>
+
+<code language="C#" title="セッションを提供する側のISessionの実装">
+PrepareCloseResult PrepareCloseSession()
+{
+  // 切断してよい場合にはTerminateSessionを返す
+  return PrepareCloseResult.TerminateSession;
+}
+</code>
+
+                  <para><codeEntityReference>M:Poderosa.Sessions.ISession.PrepareCloseSession</codeEntityReference>では、セッションを閉じるかどうかを戻り値で決めることができます（表4-12）。</para>
+
+                  <table>
+                    <title>表4-12 PrepareCloseResult列挙体</title>
+                    <tableHeader>
+                      <row>
+                        <entry>メンバ</entry>
+                        <entry>意味</entry>
+                      </row>
+                    </tableHeader>
+                    <row>
+                      <entry>ContinueSession</entry>
+                      <entry>ドキュメントは閉じるが、セッションを持続する（<codeEntityReference>M:Poderosa.Sessions.ISession.PrepareCloseSession</codeEntityReference>では使われません。後掲する<codeEntityReference>M:Poderosa.Sessions.ISession.PrepareCloseDocument(Poderosa.Sessions.IPoderosaDocument)</codeEntityReference>の処理でのみ使われます）</entry>
+                    </row>
+                    <row>
+                      <entry>TerminateSession</entry>
+                      <entry>セッションを切断する</entry>
+                    </row>
+                    <row>
+                      <entry>Cancel</entry>
+                      <entry>切断をキャンセルする</entry>
+                    </row>
+                  </table>
+
+                  <para>セッションマネージャは、戻り値がPrepareCloseResult.TerminateSessionの場合に限って、切断処理を継続します。そうでない場合は、切断処理を取りやめます。</para>
+                  <para>たとえばPoderosaでは、ユーザーが切断するときに「切断してもよいですか？」とユーザーに尋ねるメッセージを出していますが、これは<codeEntityReference>M:Poderosa.Sessions.ISession.PrepareCloseSession</codeEntityReference>で処理されています。
+                  すなわち、［はい］ボタンがクリックされたときにはPrepareCloseResult.Terminateを返すことでセッションを終了し、［いいえ］ボタンがクリックされたときには、PrepareCloseResult.Cancelを返すことによってセッションの終了をキャンセルするように実装されています。</para>
+                  <para><codeEntityReference>M:Poderosa.Sessions.ISession.PrepareCloseSession</codeEntityReference>の戻り値は、そのままセッションマネージャの<codeEntityReference>M:Poderosa.Sessions.ISessionManager.TerminateSession(Poderosa.Sessions.ISession)</codeEntityReference>の戻り値となります。</para>
+                </definition>
+
+                <definedTerm>(2) セッションを提供するプラグイン側から自発的に終了する場合</definedTerm>
+                <definition>
+                  <para>セッションは、セッションを提供するプラグイン側から終了することもあります。たとえばターミナルエミュレータにおいて、接続先のホストが切断してきたり、ネットワークエラーが発生したような場合です。</para>
+                  <para>このようにセッションを提供するプラグイン側の都合でセッションを切断するときには、<codeEntityReference>M:Poderosa.Sessions.ISession.InternalStart(Poderosa.Sessions.ISessionHost)</codeEntityReference>で引き渡された<codeEntityReference>T:Poderosa.Sessions.ISessionHost</codeEntityReference>の<codeEntityReference>M:Poderosa.Sessions.ISessionHost.TerminateSession</codeEntityReference>を呼び出します。</para>
+                  <para><codeEntityReference>T:Poderosa.Sessions.ISessionHost</codeEntityReference>の<codeEntityReference>M:Poderosa.Sessions.ISessionHost.TerminateSession</codeEntityReference>を呼び出した場合は、セッション側に終了の意図があることになるので、<codeEntityReference>M:Poderosa.Sessions.ISession.PrepareCloseSession</codeEntityReference>は呼び出されません。</para>
+                </definition>
+              </definitionTable>
+            </definition>
+
+            <definedTerm>ドキュメントを閉じる方法</definedTerm>
+            <definition>
+              <para>ユーザーの操作では、セッションを閉じるのではなく、ドキュメントを閉じることもできます。ドキュメントを閉じたい場合には、セッションマネージャの<codeEntityReference>M:Poderosa.Sessions.ISessionManager.CloseDocument(Poderosa.Sessions.IPoderosaDocument)</codeEntityReference>を呼び出します。</para>
+
+<code language="C#">
+// ICoreServicesを取得
+ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
+// セッションマネージャを取得
+ISessionManager sessionman= cs.SessionManager;
+// ドキュメントを閉じる
+sessionman.CloseDocument(
+  終了したいドキュメント（IPoderosaDocument）);
+</code>
+
+              <para><codeEntityReference>M:Poderosa.Sessions.ISessionManager.CloseDocument(Poderosa.Sessions.IPoderosaDocument)</codeEntityReference>を呼び出すと、セッションマネージャによって、該当するドキュメントを提供するセッションの<codeEntityReference>M:Poderosa.Sessions.ISession.PrepareCloseDocument(Poderosa.Sessions.IPoderosaDocument)</codeEntityReference>が呼び出されます。</para>
+
+<code language="C#" title="セッションを提供する側のISessionの実装">
+PrepareCloseResult PrepareCloseDocument()
+{
+  // 閉じてよい場合にはTerminateSessionを返す
+  return PrepareCloseResult.TerminateSession;
+}
+</code>
+
+              <para><codeEntityReference>M:Poderosa.Sessions.ISession.PrepareCloseDocument(Poderosa.Sessions.IPoderosaDocument)</codeEntityReference>では、セッションの終了と同様に、戻り値としてPrepareCloseResult列挙体のいずれかの値を返します（前掲の表4-12を参照）。</para>
+              <para>閉じてよい場合には、PrepareCloseResult.TerminateSessionを返すようにします。するとドキュメントが閉じたのち、セッションも終了します。しかしPrepareCloseResult.ContinueSessionを返すと、ドキュメントは閉じるけれども、セッションは持続したままにすることもできます。</para>
+
+              <alert class="note">
+                <para>たとえばセッションを提供するプラグインが複数のドキュメントを提供する場合には、最後のドキュメントが閉じた場合にはPrepareCloseResult.TerminateSessionを、そうでない場合にはPrepareCloseResult.ContinueSessionを返すように実装することになるでしょう。</para>
+              </alert>
+
+              <para>閉じるのを取りやめたいときには、PrepareCloseResult.Cancelを返すようにします。するとドキュメントを閉じる動作は取り消されます。</para>
+              <para>PrepareCloseDocumentメソッドの戻り値は、そのままセッションマネージャの<codeEntityReference>M:Poderosa.Sessions.ISessionManager.CloseDocument(Poderosa.Sessions.IPoderosaDocument)</codeEntityReference>の戻り値となります。</para>
+            </definition>
+
+            <definedTerm>セッションを提供するプラグインの終了処理</definedTerm>
+            <definition>
+              <para>セッションマネージャは、セッションの終了に際し、次のメソッドを順に呼び出します（図4-5）。</para>
+
+              <alert class="note">
+                <para>ユーザー主導でセッションが終了する場合――<codeEntityReference>T:Poderosa.Sessions.ISessionManager</codeEntityReference>の<codeEntityReference>M:Poderosa.Sessions.ISessionManager.TerminateSession(Poderosa.Sessions.ISession)</codeEntityReference>によって終了する場合――に限り、下記（1）の前に、すべてのドキュメントに対して、<codeEntityReference>M:Poderosa.Sessions.ISession.PrepareCloseDocument(Poderosa.Sessions.IPoderosaDocument)</codeEntityReference>が呼び出されます。PrepareCloseDocumentメソッドがPrepareCloseResult.TerminateSession以外の値を返した場合には、セッションの終了処理は中止され、下記のいずれのメソッドも呼び出されません。</para>
+              </alert>
+
+              <mediaLink>
+                <caption lead="図4-5">セッションの終了処理</caption>
+                <image xlink:href="fig04_05" />
+              </mediaLink>
+
+              <definitionTable>
+                <definedTerm>(1) InternalCloseDocumentメソッドの呼び出し</definedTerm>
+                <definition>
+                  <para>そのセッションが保有するドキュメントの数だけ、引数にそれぞれのドキュメントをとった<codeEntityReference>M:Poderosa.Sessions.ISession.InternalCloseDocument(Poderosa.Sessions.IPoderosaDocument)</codeEntityReference>が、次々と呼び出されます。</para>
+                  <para>セッションを提供するプラグインでは、<codeEntityReference>M:Poderosa.Sessions.ISession.InternalCloseDocument(Poderosa.Sessions.IPoderosaDocument)</codeEntityReference>の処理において、ドキュメントが閉じられたときの後処理を記述しておきます。</para>
+
+<code language="C#" title="セッションを提供する側のISessionの実装">
+void InternalCloseDocument(IPoderosaDocument document)
+{
+  // documentは閉じられる対象のドキュメントです
+  // ここにドキュメントが閉じられるときの処理を書いておきます。
+}
+</code>
+                </definition>
+
+                <definedTerm>(2) InternalTerminateメソッドの呼び出し</definedTerm>
+                <definition>
+                  <para>（1）がすべてのドキュメントに対して呼び出されたあと、<codeEntityReference>M:Poderosa.Sessions.ISession.InternalTerminate</codeEntityReference>が呼び出されます。</para>
+                  <para>セッションを提供するプラグインでは、<codeEntityReference>M:Poderosa.Sessions.ISession.InternalTerminate</codeEntityReference>の処理において、セッションが終了したときの後処理を記述しておきます。</para>
+
+                  <alert class="note">
+                    <para><codeEntityReference>M:Poderosa.Sessions.ISession.InternalStart(Poderosa.Sessions.ISessionHost)</codeEntityReference>で渡された<codeEntityReference>T:Poderosa.Sessions.ISessionHost</codeEntityReference>は、この（2）の処理が終わると無効になります。</para>
+                  </alert>
+
+<code language="C#" title="セッションを提供する側のISessionの実装">
+void InternalTerminate()
+{
+  // ここにセッションが閉じられるときの処理を書いておきます。
+}
+</code>
+                </definition>
+              </definitionTable>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="012e4424-55ff-4cee-9431-8066358e6205"/>
+      <link xlink:href="1f80fe4b-cfea-4dc5-b71c-834a51d572f3"/>
+      <link xlink:href="2a44f911-a5e8-4d62-8451-814990164672"/>
+      <link xlink:href="99cfec82-7508-489c-be4d-c71c2ed65f83"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

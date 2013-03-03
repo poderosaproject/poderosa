@@ -1,0 +1,93 @@
+﻿<root>
+  <resheader name="ResMimeType">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="Version">
+    <value>1.0.0.0</value>
+  </resheader>
+  <resheader name="Reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="Writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="SFTPCommand.MenuText">
+    <value>SFTP (experimental)...</value>
+  </data>
+  <data name="SCPCommand.MenuText">
+    <value>SCP (experimental)...</value>
+  </data>
+  <data name="SFTPToolbarCommandButton.ToolTip">
+    <value>SFTP (experimental)</value>
+  </data>
+  <data name="SCPToolbarCommandButton.ToolTip">
+    <value>SCP (experimental)</value>
+  </data>
+  <data name="Common.UnknownPeer">
+    <value>(不明)</value>
+  </data>
+  <data name="Common.WarnExperimentalFormat">
+    <value>{0}はまだ実験的な機能です。
+コンソールのSSH接続が終了することがあるかもしれません。
+{0}を使用しますか？</value>
+  </data>
+  <data name="SFTPForm.labelDropHere">
+    <value>ファイルやフォルダをドロップしてアップロード</value>
+  </data>
+  <data name="SFTPForm.buttonCancel">
+    <value>キャンセル</value>
+  </data>
+  <data name="SFTPForm.buttonDownload">
+    <value>ダウンロード...</value>
+  </data>
+  <data name="SFTPForm.Confirmation">
+    <value>確認</value>
+  </data>
+  <data name="SFTPForm.AskOverwriteFormat">
+    <value>{0} が存在します。
+上書きしますか？</value>
+  </data>
+  <data name="SFTPForm.ChooseFolder">
+    <value>保存先のフォルダを選択してください。</value>
+  </data>
+  <data name="SCPForm.labelRemotePath">
+    <value>リモートパス</value>
+  </data>
+  <data name="SCPForm.checkPreserveTime">
+    <value>更新日時を保持</value>
+  </data>
+  <data name="SCPForm.checkRecursive">
+    <value>再帰</value>
+  </data>
+  <data name="SCPForm.labelDropHere">
+    <value>ここにファイルやフォルダをドロップしてアップロード</value>
+  </data>
+  <data name="SCPForm.buttonDownload">
+    <value>ダウンロード...</value>
+  </data>
+  <data name="SCPForm.buttonCancel">
+    <value>キャンセル</value>
+  </data>
+  <data name="SCPForm.ChooseFolder">
+    <value>保存先のフォルダを選択してください。</value>
+  </data>
+  <data name="SCPForm.NeedRemotePath">
+    <value>リモートパスを入力してください。</value>
+  </data>
+  <data name="SCPForm.RecursiveOptionIsRequired">
+    <value>ディレクトリのコピーには再帰オプションが必要です。
+今すぐ再帰オプションを有効にしますか？</value>
+  </data>
+  <data name="YesNoAllDialog.buttonYes">
+    <value>はい(&amp;Y)</value>
+  </data>
+  <data name="YesNoAllDialog.buttonNo">
+    <value>いいえ(&amp;N)</value>
+  </data>
+  <data name="YesNoAllDialog.buttonYesToAll">
+    <value>全てにはい(&amp;A)</value>
+  </data>
+  <data name="YesNoAllDialog.buttonCancel">
+    <value>キャンセル(&amp;C)</value>
+  </data>
+</root>

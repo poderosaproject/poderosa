@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="c219dddd-ff55-41c3-8c0f-d39697051b27" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para><application>Poderosa</application>（ポデローサ）は、タブ式GUI-SSH2をサポートしているオープンソースのWindows用高機能ターミナルエミュレータです。</para>
+      <para>Poderosaはプラグインの集合体として構成されており、開発者はプラグインを作ることで、Poderosaの既存の機能を拡張したり、新機能を追加したりできます。</para>
+      <para>「Poderosaプラグイン開発者マニュアル」では、Poderosaの構成の概要と、どのようにしてPoderosaプラグインを作成すればよいのかについて説明します。</para>
+    </introduction>
+
+    <section>
+      <title>このドキュメントの内容</title>
+      <content>
+        <definitionTable>
+          <definedTerm><link xlink:href="3930435a-6e8f-46c8-b6ef-2c4121661627" /></definedTerm>
+          <definition>
+            Poderosa本体とプラグインの構成について説明します。
+            Poderosa本体はどのようにしてプラグインを探して読み込むのか、そして、プラグインに実装しなければならない必須のインターフェイスについて説明します。
+          </definition>
+
+          <definedTerm><link xlink:href="79c0709a-1ee6-436d-851d-eb9b4daf26c3" /></definedTerm>
+          <definition>
+            Poderosa本体とプラグインとは、いくつかのインターフェイスを使って、メソッドの呼び出しや通知をします。ここでは、それらのインターフェイスを通じたやりとりを説明します。
+          </definition>
+
+          <definedTerm><link xlink:href="4f8f2bb3-172f-41d5-86fe-66eceb0cd078" /></definedTerm>
+          <definition>
+            ごく簡単なPoderosaプラグインを例にとり、ソースコードを記述してビルドし、Poderosaで使うための開発作業の流れを説明します。
+          </definition>
+
+          <definedTerm><link xlink:href="f7da61c5-73db-47eb-b5f3-2143ecbbb443" /></definedTerm>
+          <definition>
+            Poderosa本体とプラグインとのやりとりで使われる主なインターフェイスについて説明します。
+
+            <definitionTable>
+              <definedTerm><link xlink:href="b62fec3f-1e30-40f8-b0c8-b2f6163425b1"/></definedTerm>
+              <definition>コマンドの実行やメニュー、ツールバー機能について説明します。</definition>
+              <definedTerm><link xlink:href="012e4424-55ff-4cee-9431-8066358e6205"/></definedTerm>
+              <definition>PoderosaのMCV（Model View Controller）の概要を説明します。</definition>
+              <definedTerm><link xlink:href="f56866ba-0bdc-42b4-9123-a80bac3774f7"/></definedTerm>
+              <definition>SSH、Telnet、Cygwin接続において使われるエミュレータ機能について説明します。</definition>
+              <definedTerm><link xlink:href="85071b7c-755b-43d7-ae56-b5f174f2fd82"/></definedTerm>
+              <definition>SSH、Telnet、Cygwin接続の開き方、閉じ方などを説明します。</definition>
+              <definedTerm><link xlink:href="448b659e-151b-426a-ae17-359f6fbbd535"/></definedTerm>
+              <definition>各プラグインにおけるユーザーのオプション設定値を保存したり読み込んだりするための仕組みを説明します。</definition>
+            </definitionTable>
+          </definition>
+        </definitionTable>
+      </content>
+    </section>
+
+    <relatedTopics>
+      <link xlink:href="bbc86d39-3d36-4c6b-aa7a-60e4725d4525"/>
+      <link xlink:href="32965469-3043-40a6-8ef7-6b5a50f46887"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

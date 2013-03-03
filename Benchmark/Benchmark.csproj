@@ -1,0 +1,117 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1E6933D9-0701-434A-8B8A-80AA3B7A1B38}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Poderosa.Benchmark</RootNamespace>
+    <AssemblyName>Poderosa.Benchmark</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Poderosa.Benchmark.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Poderosa.Benchmark.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BenchmarkMenuGroup.cs" />
+    <Compile Include="BenchmarkPlugin.cs" />
+    <Compile Include="ChoosePatternDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ChoosePatternDialog.Designer.cs">
+      <DependentUpon>ChoosePatternDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DataLoadDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DataLoadDialog.Designer.cs">
+      <DependentUpon>DataLoadDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MockSocket.cs" />
+    <Compile Include="OnPaintTimeStatistics.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="MockTerminalConnection.cs" />
+    <Compile Include="TerminalParameter.cs" />
+    <Compile Include="XTermBenchmark.cs" />
+    <Compile Include="AbstractTerminalBenchmark.cs" />
+    <Compile Include="DataLoadBenchmark.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{8A416F19-9031-44A1-B225-BCB31A6BC6A7}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Plugin\Plugin.csproj">
+      <Project>{D84B661B-503E-4C22-892B-7499B72C7E04}</Project>
+      <Name>Plugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Protocols\Protocols.csproj">
+      <Project>{04F18DA5-BF47-48A3-9B8B-B6B93DCBA875}</Project>
+      <Name>Protocols</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TerminalEmulator\TerminalEmulator.csproj">
+      <Project>{7F80731C-443A-4533-90D1-1643A5C1364E}</Project>
+      <Name>TerminalEmulator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TerminalSession\TerminalSession.csproj">
+      <Project>{4554E83A-2A00-47E2-AB5B-14A228895C17}</Project>
+      <Name>TerminalSession</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UI\UI.csproj">
+      <Project>{9568D8AC-7B55-42E0-ACD7-204E397E7048}</Project>
+      <Name>UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Usability\Usability.csproj">
+      <Project>{7B6BA4DA-8390-4605-B979-C2D1CC09BD9A}</Project>
+      <Name>Usability</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ChoosePatternDialog.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ChoosePatternDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DataLoadDialog.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>DataLoadDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="strings.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="strings_ja.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

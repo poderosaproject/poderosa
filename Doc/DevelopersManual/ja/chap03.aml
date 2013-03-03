@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="4f8f2bb3-172f-41d5-86fe-66eceb0cd078" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <introduction>
+      <para>この章では、Visual Studio 2005を使ってPoderosaプラグインを作る方法を説明します。</para>
+    </introduction>
+
+    <list class="bullet">
+      <listItem><link xlink:href="978e95e9-b9a4-426a-9a56-0f01b5748812"/></listItem>
+      <listItem><link xlink:href="920fd4b3-78ac-48fe-87ba-be7f692323bd"/></listItem>
+      <listItem><link xlink:href="5794bbe1-6042-4eaf-95ab-67fc156e0ed7"/></listItem>
+    </list>
+
+  </developerConceptualDocument>
+</topic>

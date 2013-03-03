@@ -1,0 +1,124 @@
+﻿<root>
+  <resheader name="ResMimeType">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="Version">
+    <value>1.0.0.0</value>
+  </resheader>
+  <resheader name="Reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="Writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Common.OK">
+    <value>OK</value>
+  </data>
+  <data name="Common.Cancel">
+    <value>キャンセル</value>
+  </data>
+  <data name="Common.Do">
+    <value>する</value>
+  </data>
+  <data name="Common.DoNot">
+    <value>しない</value>
+  </data>
+  <data name="Command.SerialPort">
+    <value>シリアルポート接続</value>
+  </data>
+  <data name="Menu.SerialPort">
+    <value>シリアルポート接続(&amp;S)...</value>
+  </data>
+  <data name="Enum.FlowControl.None">
+    <value>なし</value>
+  </data>
+  <data name="Enum.FlowControl.Xon_Xoff">
+    <value>Xon/Xoff</value>
+  </data>
+  <data name="Enum.FlowControl.Hardware">
+    <value>ハードウェア</value>
+  </data>
+  <data name="Enum.Parity.NOPARITY">
+    <value>なし</value>
+  </data>
+  <data name="Enum.Parity.ODDPARITY">
+    <value>奇数</value>
+  </data>
+  <data name="Enum.Parity.EVENPARITY">
+    <value>偶数</value>
+  </data>
+  <data name="Enum.StopBits.ONESTOPBIT">
+    <value>1ビット</value>
+  </data>
+  <data name="Enum.StopBits.ONE5STOPBITS">
+    <value>1.5ビット</value>
+  </data>
+  <data name="Enum.StopBits.TWOSTOPBITS">
+    <value>2ビット</value>
+  </data>
+  <data name="Form.SerialConfig._portLabel">
+    <value>ポート(&amp;P)</value>
+  </data>
+  <data name="Form.SerialConfig._baudRateLabel">
+    <value>ボーレート(&amp;B)</value>
+  </data>
+  <data name="Form.SerialConfig._dataBitsLabel">
+    <value>データ(&amp;D)</value>
+  </data>
+  <data name="Form.SerialConfig._parityLabel">
+    <value>パリティ(&amp;A)</value>
+  </data>
+  <data name="Form.SerialConfig._stopBitsLabel">
+    <value>ストップビット(&amp;S)</value>
+  </data>
+  <data name="Form.SerialConfig._flowControlLabel">
+    <value>フロー制御(&amp;W)</value>
+  </data>
+  <data name="Caption.SerialConfig.Bits">
+    <value>ビット</value>
+  </data>
+  <data name="Form.SerialConfig.Text">
+    <value>シリアルポートの設定</value>
+  </data>
+  <data name="Form.SerialLoginDialog._serialGroup">
+    <value>シリアルポート</value>
+  </data>
+  <data name="Form.SerialLoginDialog._terminalGroup">
+    <value>ターミナル</value>
+  </data>
+  <data name="Form.SerialLoginDialog.Text">
+    <value>新規シリアル接続</value>
+  </data>
+  <data name="Form.SerialLoginDialog._localEchoLabel">
+    <value>ローカルエコー(&amp;O)</value>
+  </data>
+  <data name="Form.SerialLoginDialog._newLineLabel">
+    <value>改行の送信(&amp;N)</value>
+  </data>
+  <data name="Form.SerialLoginDialog._logFileLabel">
+    <value>ログの保存先(&amp;F)</value>
+  </data>
+  <data name="Form.SerialLoginDialog._encodingLabel">
+    <value>エンコーディング(&amp;E)</value>
+  </data>
+  <data name="Form.SerialLoginDialog._logTypeLabel">
+    <value>ログの種別(&amp;L)</value>
+  </data>
+  <data name="Form.SerialLoginDialog._autoExecMacroPathLabel">
+    <value>自動開始マクロ</value>
+  </data>
+  <data name="Message.CommunicationUtil.FailedToOpenSerial">
+    <value>シリアルポートのオープンに失敗しました。</value>
+  </data>
+  <data name="Message.NoSuchDevice">
+    <value>
+存在しないデバイスが選択されました。</value>
+  </data>
+  <data name="Message.DeviceIsBusy">
+    <value>
+ポートは既に別のアプリケーションに使われています。</value>
+  </data>
+  <data name="Message.FailedToConfigSerial">
+    <value>シリアルポートの設定に失敗しました。</value>
+  </data>
+</root>

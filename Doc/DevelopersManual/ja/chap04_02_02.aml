@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2006-2011 Poderosa Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<topic id="2a44f911-a5e8-4d62-8451-814990164672" revisionNumber="1">
+  <developerConceptualDocument
+    xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <sections>
+
+      <section>
+        <title>ビューの操作</title>
+        <content>
+          <para>ビューは、<codeEntityReference>T:Poderosa.Sessions.IPoderosaView</codeEntityReference>を備えたオブジェクトです。<codeEntityReference>T:Poderosa.Sessions.IPoderosaView</codeEntityReference>は、主に、次の2つの方法で取得します。</para>
+
+          <definitionTable>
+            <definedTerm>(1) 新規にビューを作成する場合</definedTerm>
+            <definition>
+              <para>新規にビューを作成するには、ウィンドウが備えるビューマネージャの<codeEntityReference>M:Poderosa.Sessions.IViewManager.GetCandidateViewForNewDocument</codeEntityReference>を呼び出します。</para>
+
+<code language="C#">
+ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
+// 操作対象となるウィンドウ
+IPoderosaMainWindow mainwin = cs.WindowManager.ActiveWindow;
+// 新しいビューを作成する
+IPoderosaView newview = mainwin.ViewManager.GetCandidateViewForNewDocument();
+</code>
+            </definition>
+
+            <definedTerm>(2) 既存のビューを取得する場合</definedTerm>
+            <definition>
+              <para>ウィンドウに備わるビューを列挙する方法はありません。取得できるのは、常に、「アクティブなビュー」になります。一般に、次のいずれかの方法で、アクティブなビューを取得します。</para>
+
+              <definitionTable>
+                <definedTerm>(a) ウィンドウから辿る場合</definedTerm>
+                <definition>
+                  <para>ウィンドウから辿る場合には、<codeEntityReference>P:Poderosa.Forms.IPoderosaMainWindow.LastActivatedView</codeEntityReference>を使います。</para>
+                  <para><codeEntityReference>P:Poderosa.Forms.IPoderosaMainWindow.LastActivatedView</codeEntityReference>は、最後にアクティブであったビューを返します。
+                  ウィンドウにビューがまだ作られていないときには、<codeEntityReference>P:Poderosa.Forms.IPoderosaMainWindow.LastActivatedView</codeEntityReference>は<codeInline>null</codeInline>を示すこともあるので注意してください。</para>
+
+<code language="C#">
+ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
+// 操作対象となるウィンドウ
+IPoderosaMainWindow mainwin = cs.WindowManager.ActiveWindow;
+// アクティブなビューを取得する
+IPoderosaView view = mainwin.LastActivatedView;
+if (view == null)
+{
+  // ビューがない
+}
+</code>
+                </definition>
+
+                <definedTerm>(a) コマンドのデリゲートに渡される引数を変換する場合</definedTerm>
+                <definition>
+                  <para>メニューやツールバーからコマンドが実行される場合、ターゲットには、操作対象となるウィンドウが渡されます。<codeEntityReference>T:Poderosa.Commands.CommandTargetUtil</codeEntityReference>の<codeEntityReference>M:Poderosa.Commands.CommandTargetUtil.AsViewOrLastActivatedView(Poderosa.Commands.ICommandTarget)</codeEntityReference>を使うと、ビューへと変換できます。</para>
+
+<code language="C#">
+// イベントが実行される際のデリゲート
+public CommandResult MyCommandDelegate(ICommandTarget target)
+{
+  // ターゲットをビューに変換
+  IPoderosaView view = CommandTargetUtil.AsViewOrLastActivatedView(target);
+  if (view == null)
+  {
+    // ビューがない
+  }
+}
+</code>
+
+                  <alert class="note">
+                    <para>この機構の詳細については、「<link xlink:href="121d52f8-5d8d-444f-8e96-36fd8068acd2#target">Poderosa側からコマンドが実行された場合のターゲットの取得</link>」を参照してください。</para>
+                  </alert>
+                </definition>
+              </definitionTable>
+            </definition>
+          </definitionTable>
+        </content>
+      </section>
+
+      <section>
+        <title>ビューからドキュメントやセッションを辿る</title>
+        <content>
+          <para>ビューが備える<codeEntityReference>T:Poderosa.Sessions.IPoderosaView</codeEntityReference>には、次のプロパティがあり、ビューで現在選択されている部分やドキュメント、フォームを参照できます（表4-9）。</para>
+
+          <table>
+            <title>表4-9 IPoderosaFormのメソッド</title>
+            <tableHeader>
+              <row>
+                <entry>プロパティ</entry>
+                <entry>意味</entry>
+              </row>
+            </tableHeader>
+            <row>
+              <entry>CurrentSelection</entry>
+              <entry>現在選択されている部分を示します。具体的な使い方は、「<link xlink:href="121d52f8-5d8d-444f-8e96-36fd8068acd2"/>」の「<link xlink:href="121d52f8-5d8d-444f-8e96-36fd8068acd2#gettext">ユーザーが選択しているテキストを得る</link>」を参照してください。</entry>
+            </row>
+            <row>
+              <entry>Document</entry>
+              <entry>このビューに結び付けられているドキュメントを示します。</entry>
+            </row>
+            <row>
+              <entry>ParentForm</entry>
+              <entry>このビューの親となるフォームを示します。</entry>
+            </row>
+          </table>
+        </content>
+      </section>
+
+    </sections>
+
+    <relatedTopics>
+      <link xlink:href="012e4424-55ff-4cee-9431-8066358e6205"/>
+      <link xlink:href="1f80fe4b-cfea-4dc5-b71c-834a51d572f3"/>
+      <link xlink:href="99cfec82-7508-489c-be4d-c71c2ed65f83"/>
+      <link xlink:href="7608eadb-dd54-46d1-9cf7-59af54f2367c"/>
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>
