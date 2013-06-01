@@ -343,6 +343,10 @@ namespace Poderosa.Terminal {
             return false;
         }
 
+        public virtual bool GetFocusReportingMode() {
+            return false;
+        }
+
         #region IByteAsyncInputStream
         public void OnReception(ByteDataFragment data) {
             try {

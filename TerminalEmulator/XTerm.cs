@@ -51,6 +51,7 @@ namespace Poderosa.Terminal {
 
         private MouseTrackingState _mouseTrackingState = MouseTrackingState.Off;
         private MouseTrackingProtocol _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
+        private bool _focusReportingMode = false;
         private int _prevMouseRow = -1;
         private int _prevMouseCol = -1;
         private MouseButtons _mouseButton = MouseButtons.None;
@@ -66,6 +67,10 @@ namespace Poderosa.Terminal {
             _isAlternateBuffer = false;
             _savedMode_isAlternateBuffer = false;
             InitTabStops();
+        }
+
+        public override bool GetFocusReportingMode() {
+            return _focusReportingMode;
         }
 
         public override void ProcessChar(char ch) {
@@ -639,8 +644,7 @@ namespace Poderosa.Terminal {
                     ResetMouseTracking((set) ? MouseTrackingState.Any : MouseTrackingState.Off);
                     return ProcessCharResult.Processed;
                 case "1004": // Send FocusIn/FocusOut events
-                    // Not supported
-                    ResetMouseTracking(MouseTrackingState.Off);
+                    _focusReportingMode = set;
                     return ProcessCharResult.Processed;
                 case "1005": // Enable UTF8 Mouse Mode
                     if (set) {
