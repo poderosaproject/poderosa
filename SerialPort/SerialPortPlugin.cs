@@ -188,7 +188,7 @@ namespace Poderosa.SerialPort {
                 SerialLoginDialog dlg = new SerialLoginDialog();
                 using (dlg) {
                     SerialTerminalParam tp = new SerialTerminalParam();
-                    SerialTerminalSettings ts = SerialPortUtil.CreateDefaultSerialTerminalSettings(tp.Port);
+                    SerialTerminalSettings ts = SerialPortUtil.CreateDefaultSerialTerminalSettings(tp.PortName);
                     dlg.ApplyParam(tp, ts);
 
                     if (dlg.ShowDialog(window.AsForm()) == DialogResult.OK) { //TODO 親ウィンドウ指定

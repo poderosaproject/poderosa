@@ -535,9 +535,12 @@ namespace Poderosa.SerialPort {
         }
 
         private void InitUI() {
-            int maxport = SerialPortUtil.GetMaxPort();
-            for (int i = 1; i <= maxport; i++) //超頻出なのでとりあえず定数に。Preference化はあとでしてもよい
-                _portBox.Items.Add(String.Format("COM{0}", i));
+            // シリアルポート名をそのままアイテムとする。
+            _portBox.Items.AddRange(System.IO.Ports.SerialPort.GetPortNames());
+            if (_portBox.Items.Count <= 0) {
+                // ポートが1つも無い場合はOKを無効化しておく。
+                _loginButton.Enabled = false;
+            }
 
             _logTypeBox.SelectedItem = LogType.None;    // select EnumListItem<T> by T
 
@@ -551,9 +554,14 @@ namespace Poderosa.SerialPort {
 
         public void ApplyParam(SerialTerminalParam param, SerialTerminalSettings settings) {
             _terminalParam = param == null ? new SerialTerminalParam() : param;
-            _terminalSettings = settings == null ? SerialPortUtil.CreateDefaultSerialTerminalSettings(_terminalParam.Port) : settings;
+            _terminalSettings = settings == null ? SerialPortUtil.CreateDefaultSerialTerminalSettings(_terminalParam.PortName) : settings;
 
-            _portBox.SelectedIndex = _terminalParam.Port - 1; //COM1からなので
+            // 設定のポート名称のアイテムを選択。それが選択できなければ最初の項目を選択。
+            _portBox.SelectedItem = _terminalParam.PortName;
+            if (_portBox.SelectedItem == null && 0 < _portBox.Items.Count) {
+                _portBox.SelectedIndex = 0;
+            }
+
             //これらのSelectedIndexの設定はコンボボックスに設定した項目順に依存しているので注意深くすること
             _baudRateBox.SelectedIndex = _baudRateBox.FindStringExact(_terminalSettings.BaudRate.ToString());
             _dataBitsBox.SelectedIndex = _terminalSettings.ByteSize == 7 ? 0 : 1;
@@ -610,7 +618,10 @@ namespace Poderosa.SerialPort {
                         return false; //動作キャンセル
                 }
 
-                param.Port = _portBox.SelectedIndex + 1;
+                param.PortName = _portBox.SelectedItem as string;
+                if (param.PortName == null) {
+                    return false;
+                }
 
                 string autoExecMacroPath = null;
                 if (_autoExecMacroPathBox.Text.Length != 0)
@@ -623,7 +634,7 @@ namespace Poderosa.SerialPort {
                 settings.BeginUpdate();
                 if (logsettings != null)
                     settings.LogSettings.Reset(logsettings);
-                settings.Caption = String.Format("COM{0}", param.Port);
+                settings.Caption = param.PortName;
                 settings.BaudRate = Int32.Parse(_baudRateBox.Text);
                 settings.ByteSize = (byte)(_dataBitsBox.SelectedIndex == 0 ? 7 : 8);
                 settings.StopBits = ((EnumListItem<StopBits>)_stopBitsBox.SelectedItem).Value;
