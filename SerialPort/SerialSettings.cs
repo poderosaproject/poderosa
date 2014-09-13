@@ -278,7 +278,7 @@ namespace Poderosa.SerialPort {
             Debug.Assert(tp != null);
 
             StructuredText node = new StructuredText(this.ConcreteType.FullName);
-            node.Set("Port", tp.PortName);
+            node.Set("PortName", tp.PortName);
             if (tp.TerminalType != "vt100")
                 node.Set("TerminalType", tp.TerminalType);
             if (tp.AutoExecMacroPath != null)
@@ -288,7 +288,12 @@ namespace Poderosa.SerialPort {
 
         public object Deserialize(StructuredText node) {
             SerialTerminalParam tp = new SerialTerminalParam();
-            tp.PortName = node.Get("PortName", "COM1");
+            if (node.Get("Port") != null) {
+                // accept old parameter.
+                // "PortName" setting overwrites this setting.
+                tp.PortName = "COM" + node.Get("Port");
+            }
+            tp.PortName = node.Get("PortName", tp.PortName);
             tp.SetTerminalName(node.Get("TerminalType", "vt100"));
             tp.AutoExecMacroPath = node.Get("autoexec-macro", null);
             return tp;
