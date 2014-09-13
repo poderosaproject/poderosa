@@ -562,7 +562,7 @@ namespace Poderosa.SerialPort {
             try {
                 StringResource sr = SerialPortPlugin.Instance.Strings;
                 //Debug.WriteLine("OPENING COM"+param.Port);
-                string portstr = String.Format("\\\\.\\COM{0}", param.Port);
+                string portstr = String.Format("\\\\.\\{0}", param.PortName);
                 IntPtr ptr = Win32Serial.CreateFile(portstr, Win32.GENERIC_READ | Win32.GENERIC_WRITE, 0, IntPtr.Zero, Win32.OPEN_EXISTING, Win32.FILE_ATTRIBUTE_NORMAL | Win32.FILE_FLAG_OVERLAPPED, IntPtr.Zero);
                 if (ptr == Win32.INVALID_HANDLE_VALUE) {
                     string msg = sr.GetString("Message.FailedToOpenSerial");
@@ -637,29 +637,14 @@ namespace Poderosa.SerialPort {
             }
         }
 
-        public static SerialTerminalSettings CreateDefaultSerialTerminalSettings(int port) {
+        public static SerialTerminalSettings CreateDefaultSerialTerminalSettings(string portName) {
             SerialTerminalSettings ts = new SerialTerminalSettings();
             ts.BeginUpdate();
             ts.Icon = SerialPortPlugin.Instance.LoadIcon();
-            ts.Caption = String.Format("COM{0}", port);
+            ts.Caption = portName;
             ts.EndUpdate();
             return ts;
         }
 
-        public static int GetMaxPort() {
-            int max = 1;
-            try {
-                foreach (string t in System.IO.Ports.SerialPort.GetPortNames()) {
-                    if (t.StartsWith("COM")) {
-                        int port = Int32.Parse(t.Substring(3)); //"COM"ïîï™ÇèúÇ≠
-                        max = Math.Max(max, port);
-                    }
-                }
-            }
-            catch (Exception ex) {
-                RuntimeUtil.ReportException(ex);
-            }
-            return max;
-        }
     }
 }

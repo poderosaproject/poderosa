@@ -22,22 +22,22 @@ using Poderosa.MacroEngine;
 
 namespace Poderosa.SerialPort {
     internal class SerialTerminalParam : ITerminalParameter, IAutoExecMacroParameter {
-        private int _port;
+        private string _portName;
         private string _terminalType;
         private string _autoExecMacro;
 
         [MacroConnectionParameter]
-        public int Port {
+        public string PortName {
             get {
-                return _port;
+                return _portName;
             }
             set {
-                _port = value;
+                _portName = value;
             }
         }
 
         public SerialTerminalParam() {
-            _port = 1; //COM1
+            _portName = "COM1";
         }
 
         //シリアルでは幅・高さは関知せず。しかしこの値は最初のGLineの長さにもなるので０にはできない
@@ -68,7 +68,7 @@ namespace Poderosa.SerialPort {
 
         public bool UIEquals(ITerminalParameter param) {
             SerialTerminalParam tp = param as SerialTerminalParam;
-            return tp != null && _port == tp.Port;
+            return tp != null && _portName == tp.PortName;
         }
 
         public IAdaptable GetAdapter(Type adapter) {
@@ -77,7 +77,7 @@ namespace Poderosa.SerialPort {
 
         public object Clone() {
             SerialTerminalParam tp = new SerialTerminalParam();
-            tp._port = _port;
+            tp._portName = _portName;
             tp._terminalType = _terminalType;
             return tp;
         }
@@ -278,7 +278,7 @@ namespace Poderosa.SerialPort {
             Debug.Assert(tp != null);
 
             StructuredText node = new StructuredText(this.ConcreteType.FullName);
-            node.Set("Port", tp.Port.ToString());
+            node.Set("PortName", tp.PortName);
             if (tp.TerminalType != "vt100")
                 node.Set("TerminalType", tp.TerminalType);
             if (tp.AutoExecMacroPath != null)
@@ -288,7 +288,12 @@ namespace Poderosa.SerialPort {
 
         public object Deserialize(StructuredText node) {
             SerialTerminalParam tp = new SerialTerminalParam();
-            tp.Port = ParseUtil.ParseInt(node.Get("Port"), 1);
+            if (node.Get("Port") != null) {
+                // accept old parameter.
+                // "PortName" setting overwrites this setting.
+                tp.PortName = "COM" + node.Get("Port");
+            }
+            tp.PortName = node.Get("PortName", tp.PortName);
             tp.SetTerminalName(node.Get("TerminalType", "vt100"));
             tp.AutoExecMacroPath = node.Get("autoexec-macro", null);
             return tp;
@@ -327,7 +332,7 @@ namespace Poderosa.SerialPort {
         }
 
         public object Deserialize(StructuredText node) {
-            SerialTerminalSettings ts = SerialPortUtil.CreateDefaultSerialTerminalSettings(1);
+            SerialTerminalSettings ts = SerialPortUtil.CreateDefaultSerialTerminalSettings("COM1");
 
             //TODO Deserializeの別バージョンを作ってimportさせるべきだろう。もしくはService側の実装から変える。要素側には空引数コンストラクタを強制すればいいか
             StructuredText basenode = node.FindChild(typeof(TerminalSettings).FullName);
