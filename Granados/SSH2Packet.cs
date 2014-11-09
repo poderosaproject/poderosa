@@ -138,6 +138,8 @@ namespace Granados.SSH2 {
         private bool _head_is_available;
         private int _sequence;
         private Cipher _cipher;
+        private volatile bool _waitingNewCipher;
+        private readonly object _cipherSync = new object();
         private MAC _mac;
         private bool _macEnabled;
 
@@ -153,13 +155,19 @@ namespace Granados.SSH2 {
             _cipher = null;
             _mac = null;
             _head = null;
+            _waitingNewCipher = false;
         }
 
         public void SetCipher(Cipher cipher, MAC mac, bool mac_enabled) {
-            _cipher = cipher;
-            _mac = mac;
-            _macEnabled = mac_enabled;
-            _head = new byte[cipher.BlockSize];
+            lock (_cipherSync) {
+                if (_waitingNewCipher) {
+                    _cipher = cipher;
+                    _mac = mac;
+                    _macEnabled = mac_enabled;
+                    _head = new byte[cipher.BlockSize];
+                    _waitingNewCipher = false;
+                }
+            }
         }
 
         public override void OnData(DataFragment data) {
@@ -168,7 +176,24 @@ namespace Granados.SSH2 {
 
                 //ここで複数パケットを一括して受け取った場合を考慮している
                 while (ConstructPacket()) {
-                    _inner_handler.OnData(_packet);
+                    if (_packet.Length >= 1 && _packet.ByteAt(0) == (byte)PacketType.SSH_MSG_NEWKEYS) {
+                        // next packet must be decrypted with the new key
+                        lock (_cipherSync) {
+                            _waitingNewCipher = true;
+                            _inner_handler.OnData(_packet);
+                            Monitor.Wait(_cipherSync, 1000);
+                            if (_waitingNewCipher) {
+                                // something is going wrong...
+                                _waitingNewCipher = false;
+                                _cipher = null;
+                                _mac = null;
+                                _macEnabled = false;
+                                _head = null;
+                            }
+                        }
+                    } else {
+                        _inner_handler.OnData(_packet);
+                    }
                 }
 
             }
