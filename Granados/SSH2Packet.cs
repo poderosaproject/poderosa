@@ -166,6 +166,7 @@ namespace Granados.SSH2 {
                     _macEnabled = mac_enabled;
                     _head = new byte[cipher.BlockSize];
                     _waitingNewCipher = false;
+                    Monitor.PulseAll(_cipherSync);
                 }
             }
         }
