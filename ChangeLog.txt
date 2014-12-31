@@ -1,3 +1,9 @@
+4.3.10b
+--------
+    * Add support for forcus reporting mode in xterm. (by saitoha)
+    * Support non-standard serial port names.
+    * Fix timing issue in the key exchange.
+
 4.3.8b
 --------
   Changes for users
