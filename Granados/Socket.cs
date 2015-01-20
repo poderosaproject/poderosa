@@ -116,6 +116,7 @@ namespace Granados.IO {
         private AbstractGranadosSocket _socket;
         private ManualResetEvent _event;
         private Queue _results;
+        private readonly object _dequeueSync = new object();
 
         public SynchronizedDataHandler(AbstractGranadosSocket socket) {
             _socket = socket;
@@ -125,9 +126,13 @@ namespace Granados.IO {
 
         public void Close() {
             _event.Close();
+            lock (_dequeueSync) {
+                _results.Clear();
+                Monitor.PulseAll(_dequeueSync);
+            }
         }
 
-        public void OnData(DataFragment data) {
+        public virtual void OnData(DataFragment data) {
             lock (_socket) {
                 OnDataInLock(data);
             }
@@ -161,6 +166,15 @@ namespace Granados.IO {
             _event.Set();
         }
 
+        // Wait untill all elements are dequeued
+        protected void WaitEmpty() {
+            lock (_dequeueSync) {
+                while (_results.Count > 0) {
+                    Monitor.Wait(_dequeueSync);
+                }
+            }
+        }
+
         //Send request and wait response
         public DataFragment SendAndWaitResponse(DataFragment data) {
             //this lock is important
@@ -192,7 +206,11 @@ namespace Granados.IO {
         //Pop the data from the queue
         private DataFragment Dequeue() {
             lock (_socket) {
-                object t = _results.Dequeue();
+                object t;
+                lock (_dequeueSync) {
+                    t = _results.Dequeue();
+                    Monitor.PulseAll(_dequeueSync);
+                }
                 Debug.Assert(t != null);
 
                 DataFragment d = t as DataFragment;

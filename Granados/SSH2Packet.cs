@@ -181,6 +181,8 @@ namespace Granados.SSH2 {
                         // next packet must be decrypted with the new key
                         lock (_cipherSync) {
                             _waitingNewCipher = true;
+                            // Note: SSH2SynchronizedPacketReceiver.OnData() queue the packet then
+                            //       wait until the packet is dequeued
                             _inner_handler.OnData(_packet);
                             Monitor.Wait(_cipherSync, 1000);
                             if (_waitingNewCipher) {
