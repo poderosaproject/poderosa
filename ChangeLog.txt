@@ -1,3 +1,8 @@
+4.3.11b
+--------
+    * Fixed regression bug: SSH2 connection will fail if the confirmation dialog
+      about the ssh_known_hosts file was popped up.
+
 4.3.10b
 --------
     * Add support for forcus reporting mode in xterm. (by saitoha)
