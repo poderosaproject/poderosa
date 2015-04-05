@@ -131,6 +131,9 @@ namespace Poderosa.Terminal {
 
             // Preferences for PromptRecognizer
             cs.PreferenceExtensionPoint.RegisterExtension(PromptRecognizerPreferences.Instance);
+
+            // Preferences for XTerm
+            cs.PreferenceExtensionPoint.RegisterExtension(XTermPreferences.Instance);
         }
 
         #region ITerminalEmulatorPlugin

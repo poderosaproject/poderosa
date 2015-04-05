@@ -20,6 +20,7 @@ using System.Globalization;
 using Poderosa.Document;
 using Poderosa.ConnectionParam;
 using Poderosa.View;
+using Poderosa.Preferences;
 
 namespace Poderosa.Terminal {
     internal class XTerm : VT100Terminal {
@@ -959,9 +960,12 @@ namespace Poderosa.Terminal {
         internal override byte[] SequenceKeyData(Keys modifier, Keys key) {
             if ((int)Keys.F1 <= (int)key && (int)key <= (int)Keys.F12)
                 return base.SequenceKeyData(modifier, key);
-            else if (GUtil.IsCursorKey(key))
+            else if (GUtil.IsCursorKey(key)) {
+                byte[] data = modifyCursorKey(modifier, key);
+                if (data != null)
+                    return data;
                 return base.SequenceKeyData(modifier, key);
-            else {
+            } else {
                 byte[] r = new byte[4];
                 r[0] = 0x1B;
                 r[1] = (byte)'[';
@@ -985,6 +989,59 @@ namespace Poderosa.Terminal {
             }
         }
 
+        // emulate Xterm's modifyCursorKeys
+        private byte[] modifyCursorKey(Keys modifier, Keys key) {
+            char c;
+            switch (key) {
+                case Keys.Up:
+                    c = 'A';
+                    break;
+                case Keys.Down:
+                    c = 'B';
+                    break;
+                case Keys.Right:
+                    c = 'C';
+                    break;
+                case Keys.Left:
+                    c = 'D';
+                    break;
+                default:
+                    return null;
+            }
+
+            int m = 1;
+            if ((modifier & Keys.Shift) != Keys.None) {
+                m += 1;
+            }
+            if ((modifier & Keys.Alt) != Keys.None) {
+                m += 2;
+            }
+            if ((modifier & Keys.Control) != Keys.None) {
+                m += 4;
+            }
+            if (m == 1 || m == 8) {
+                return null;
+            }
+
+            switch (XTermPreferences.Instance.modifyCursorKeys) {
+                // only modifyCursorKeys=2 and modifyCursorKeys=3 are supported
+                case 2: {
+                        byte[] data = new byte[] {
+                            0x1b, (byte)'[', (byte)'1', (byte)';', (byte)('0' + m), (byte)c
+                        };
+                        return data;
+                    }
+                case 3: {
+                        byte[] data = new byte[] {
+                            0x1b, (byte)'[', (byte)'>', (byte)'1', (byte)';', (byte)('0' + m), (byte)c
+                        };
+                        return data;
+                    }
+            }
+
+            return null;
+        }
+
         public override void FullReset() {
             InitTabStops();
             base.FullReset();
@@ -1004,5 +1061,56 @@ namespace Poderosa.Terminal {
                 _settings.EndUpdate();
             }
         }
+    }
+
+    /// <summary>
+    /// Preferences for XTerm
+    /// </summary>
+    internal class XTermPreferences : IPreferenceSupplier {
+
+        private static XTermPreferences _instance = new XTermPreferences();
+
+        public static XTermPreferences Instance {
+            get {
+                return _instance;
+            }
+        }
+
+        private const int DEFAULT_MODIFY_CURSOR_KEYS = 2;
+
+        private IIntPreferenceItem _modifyCursorKeys;
+
+        /// <summary>
+        /// Xterm's modifyCursorKeys feature
+        /// </summary>
+        public int modifyCursorKeys {
+            get {
+                if (_modifyCursorKeys != null)
+                    return _modifyCursorKeys.Value;
+                else
+                    return DEFAULT_MODIFY_CURSOR_KEYS;
+            }
+        }
+
+        #region IPreferenceSupplier
+
+        public string PreferenceID {
+            get {
+                return TerminalEmulatorPlugin.PLUGIN_ID + ".xterm";
+            }
+        }
+
+        public void InitializePreference(IPreferenceBuilder builder, IPreferenceFolder folder) {
+            _modifyCursorKeys = builder.DefineIntValue(folder, "modifyCursorKeys", DEFAULT_MODIFY_CURSOR_KEYS, PreferenceValidatorUtil.PositiveIntegerValidator);
+        }
+
+        public object QueryAdapter(IPreferenceFolder folder, Type type) {
+            return null;
+        }
+
+        public void ValidateFolder(IPreferenceFolder folder, IPreferenceValidationResult output) {
+        }
+
+        #endregion
     }
 }
