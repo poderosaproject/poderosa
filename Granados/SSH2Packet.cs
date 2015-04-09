@@ -128,6 +128,34 @@ namespace Granados.SSH2 {
         }
     }
 
+    // Special DataFragment for SSH_MSG_NEWKEYS.
+    internal class SSH2MsgNewKeys : DataFragment, SynchronizedDataHandler.IQueueEventListener {
+
+        private ManualResetEvent _dequeuedEvent;
+
+        public SSH2MsgNewKeys(DataFragment data, ManualResetEvent dequeuedEvent) : base(data.Data, data.Offset, data.Length) {
+            _dequeuedEvent = dequeuedEvent;
+        }
+
+        public override DataFragment Isolate() {
+            // The new instance returned from this method will be queued into the packet queue.
+            // Need to pass event object to the new instance to receive "dequeued" event.
+            DataFragment newData = base.Isolate();
+            SSH2MsgNewKeys newMsgNewKeys = new SSH2MsgNewKeys(newData, _dequeuedEvent);
+            _dequeuedEvent = null;
+            return newMsgNewKeys;
+        }
+
+        #region IQueueEventListener Members
+
+        public void Dequeued() {
+            if (_dequeuedEvent != null) {
+                _dequeuedEvent.Set();
+            }
+        }
+
+        #endregion
+    }
 
     internal class SSH2PacketBuilder : FilterDataHandler {
         private const int MAX_PACKET_LENGTH = 0x80000; //there was the case that 64KB is insufficient
@@ -179,19 +207,25 @@ namespace Granados.SSH2 {
                 while (ConstructPacket()) {
                     if (_packet.Length >= 1 && _packet.ByteAt(0) == (byte)PacketType.SSH_MSG_NEWKEYS) {
                         // next packet must be decrypted with the new key
-                        lock (_cipherSync) {
-                            _waitingNewCipher = true;
-                            // Note: SSH2SynchronizedPacketReceiver.OnData() queue the packet then
-                            //       wait until the packet is dequeued
-                            _inner_handler.OnData(_packet);
-                            Monitor.Wait(_cipherSync, 1000);
-                            if (_waitingNewCipher) {
-                                // something is going wrong...
-                                _waitingNewCipher = false;
-                                _cipher = null;
-                                _mac = null;
-                                _macEnabled = false;
-                                _head = null;
+                        using (ManualResetEvent dequeuedEvent = new ManualResetEvent(false)) {
+                            SSH2MsgNewKeys _packetNewKeys = new SSH2MsgNewKeys(_packet, dequeuedEvent);
+                            lock (_cipherSync) {
+                                _waitingNewCipher = true;
+                                _inner_handler.OnData(_packetNewKeys);
+                                // wait until the packet is dequeued
+                                dequeuedEvent.WaitOne();
+                                Debug.WriteLine("SSH_MSG_NEWKEYS dequeued");
+                                // wait SetCipher()
+                                Monitor.Wait(_cipherSync, 1000);
+                                if (_waitingNewCipher) {
+                                    // something is going wrong...
+                                    Debug.WriteLine("SSH_MSG_NEWKEYS was not processed ?");
+                                    _waitingNewCipher = false;
+                                    _cipher = null;
+                                    _mac = null;
+                                    _macEnabled = false;
+                                    _head = null;
+                                }
                             }
                         }
                     } else {
@@ -203,6 +237,10 @@ namespace Granados.SSH2 {
             catch (Exception ex) {
                 OnError(ex);
             }
+        }
+
+        public override void OnClosed() {
+            base.OnClosed();
         }
 
         //returns true if a new packet is obtained to _packet

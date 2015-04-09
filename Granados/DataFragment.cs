@@ -88,7 +88,7 @@ namespace Granados.IO {
             _length = 0;
         }
 
-        public DataFragment Isolate() {
+        public virtual DataFragment Isolate() {
             int newcapacity = RoundUp(_length);
             byte[] t = new byte[newcapacity];
             Buffer.BlockCopy(_data, _offset, t, 0, _length);

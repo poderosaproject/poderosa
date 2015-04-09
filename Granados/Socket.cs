@@ -116,7 +116,10 @@ namespace Granados.IO {
         private AbstractGranadosSocket _socket;
         private ManualResetEvent _event;
         private Queue _results;
-        private readonly object _dequeueSync = new object();
+
+        internal interface IQueueEventListener {
+            void Dequeued();
+        }
 
         public SynchronizedDataHandler(AbstractGranadosSocket socket) {
             _socket = socket;
@@ -126,13 +129,10 @@ namespace Granados.IO {
 
         public void Close() {
             _event.Close();
-            lock (_dequeueSync) {
-                _results.Clear();
-                Monitor.PulseAll(_dequeueSync);
-            }
+            ClearQueue();
         }
 
-        public virtual void OnData(DataFragment data) {
+        public void OnData(DataFragment data) {
             lock (_socket) {
                 OnDataInLock(data);
             }
@@ -140,6 +140,7 @@ namespace Granados.IO {
         public void OnClosed() {
             lock (_socket) {
                 OnClosedInLock();
+                ClearQueue();
             }
         }
         public void OnError(Exception error) {
@@ -164,15 +165,6 @@ namespace Granados.IO {
         protected void SetFailureResult(Exception error) {
             _results.Enqueue(error);
             _event.Set();
-        }
-
-        // Wait untill all elements are dequeued
-        protected void WaitEmpty() {
-            lock (_dequeueSync) {
-                while (_results.Count > 0) {
-                    Monitor.Wait(_dequeueSync);
-                }
-            }
         }
 
         //Send request and wait response
@@ -206,12 +198,13 @@ namespace Granados.IO {
         //Pop the data from the queue
         private DataFragment Dequeue() {
             lock (_socket) {
-                object t;
-                lock (_dequeueSync) {
-                    t = _results.Dequeue();
-                    Monitor.PulseAll(_dequeueSync);
-                }
+                object t = _results.Dequeue();
                 Debug.Assert(t != null);
+
+                IQueueEventListener el = t as IQueueEventListener;
+                if (el != null) {
+                    el.Dequeued();
+                }
 
                 DataFragment d = t as DataFragment;
                 if (d != null)
@@ -220,6 +213,17 @@ namespace Granados.IO {
                     Exception e = t as Exception;
                     Debug.Assert(e != null);
                     throw e;
+                }
+            }
+        }
+
+        private void ClearQueue() {
+            lock (_socket) {
+                while (_results.Count > 0) {
+                    IQueueEventListener el = _results.Dequeue() as IQueueEventListener;
+                    if (el != null) {
+                        el.Dequeued();
+                    }
                 }
             }
         }
@@ -322,6 +326,8 @@ namespace Granados.IO {
 
         private AsyncCallback _callback;
 
+        private volatile bool onClosedFired = false;
+
         internal PlainSocket(Socket s, IDataHandler h)
             : base(h) {
             _socket = s;
@@ -341,6 +347,7 @@ namespace Granados.IO {
                 _socket.Shutdown(SocketShutdown.Both);
                 _socket.Close();
                 _socketStatus = SocketStatus.Closed;
+                FireOnClosed();
             }
         }
 
@@ -368,12 +375,12 @@ namespace Granados.IO {
                     RepeatAsyncRead();
                 }
                 else {
-                    _handler.OnClosed();
+                    FireOnClosed();
                 }
             }
             catch (ObjectDisposedException) {
                 // _socket has been closed
-                _handler.OnClosed();
+                FireOnClosed();
             }
             catch (Exception ex) {
                 if ((ex is SocketException) && ((SocketException)ex).ErrorCode == 995) {
@@ -382,6 +389,15 @@ namespace Granados.IO {
                 }
                 else if (_socketStatus != SocketStatus.Closed)
                     _handler.OnError(ex);
+            }
+        }
+
+        private void FireOnClosed() {
+            lock (_handler) {
+                if (!onClosedFired) {
+                    onClosedFired = true;
+                    _handler.OnClosed();
+                }
             }
         }
     }
