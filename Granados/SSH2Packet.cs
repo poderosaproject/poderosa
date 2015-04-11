@@ -131,26 +131,29 @@ namespace Granados.SSH2 {
     // Special DataFragment for SSH_MSG_NEWKEYS.
     internal class SSH2MsgNewKeys : DataFragment, SynchronizedDataHandler.IQueueEventListener {
 
-        private ManualResetEvent _dequeuedEvent;
+        public delegate void Handler();
 
-        public SSH2MsgNewKeys(DataFragment data, ManualResetEvent dequeuedEvent) : base(data.Data, data.Offset, data.Length) {
-            _dequeuedEvent = dequeuedEvent;
+        private Handler _onDequeued;
+
+        public SSH2MsgNewKeys(DataFragment data, Handler onDequeued)
+            : base(data.Data, data.Offset, data.Length) {
+            _onDequeued = onDequeued;
         }
 
         public override DataFragment Isolate() {
             // The new instance returned from this method will be queued into the packet queue.
-            // Need to pass event object to the new instance to receive "dequeued" event.
+            // Need to pass delegate object to the new instance to process "dequeued" event.
             DataFragment newData = base.Isolate();
-            SSH2MsgNewKeys newMsgNewKeys = new SSH2MsgNewKeys(newData, _dequeuedEvent);
-            _dequeuedEvent = null;
+            SSH2MsgNewKeys newMsgNewKeys = new SSH2MsgNewKeys(newData, _onDequeued);
+            _onDequeued = null;
             return newMsgNewKeys;
         }
 
         #region IQueueEventListener Members
 
         public void Dequeued() {
-            if (_dequeuedEvent != null) {
-                _dequeuedEvent.Set();
+            if (_onDequeued != null) {
+                _onDequeued();
             }
         }
 
@@ -160,16 +163,20 @@ namespace Granados.SSH2 {
     internal class SSH2PacketBuilder : FilterDataHandler {
         private const int MAX_PACKET_LENGTH = 0x80000; //there was the case that 64KB is insufficient
 
-        private DataFragment _buffer;
-        private DataFragment _packet;
+        private readonly DataFragment _buffer;
+        private readonly DataFragment _packet;
         private byte[] _head;
         private bool _head_is_available;
         private int _sequence;
         private Cipher _cipher;
-        private volatile bool _waitingNewCipher;
         private readonly object _cipherSync = new object();
         private MAC _mac;
         private bool _macEnabled;
+
+        private bool _pending = false;
+        private bool _keyError = false;
+
+        private DateTime _keyErrorDetectionTimeout = DateTime.MaxValue;
 
         private const int SEQUENCE_FIELD_LEN = 4;
         private const int PACKET_LENGTH_FIELD_LEN = 4;
@@ -183,59 +190,80 @@ namespace Granados.SSH2 {
             _cipher = null;
             _mac = null;
             _head = null;
-            _waitingNewCipher = false;
         }
 
         public void SetCipher(Cipher cipher, MAC mac, bool mac_enabled) {
             lock (_cipherSync) {
-                if (_waitingNewCipher) {
+                try {
                     _cipher = cipher;
                     _mac = mac;
                     _macEnabled = mac_enabled;
                     _head = new byte[cipher.BlockSize];
-                    _waitingNewCipher = false;
-                    Monitor.PulseAll(_cipherSync);
+
+                    _pending = false;
+                    _keyErrorDetectionTimeout = DateTime.MaxValue;
+
+                    ProcessBuffer();
+                } catch (Exception ex) {
+                    OnError(ex);
                 }
             }
         }
 
         public override void OnData(DataFragment data) {
-            try {
-                _buffer.Append(data);
-
-                //ここで複数パケットを一括して受け取った場合を考慮している
-                while (ConstructPacket()) {
-                    if (_packet.Length >= 1 && _packet.ByteAt(0) == (byte)PacketType.SSH_MSG_NEWKEYS) {
-                        // next packet must be decrypted with the new key
-                        using (ManualResetEvent dequeuedEvent = new ManualResetEvent(false)) {
-                            SSH2MsgNewKeys _packetNewKeys = new SSH2MsgNewKeys(_packet, dequeuedEvent);
-                            lock (_cipherSync) {
-                                _waitingNewCipher = true;
-                                _inner_handler.OnData(_packetNewKeys);
-                                // wait until the packet is dequeued
-                                dequeuedEvent.WaitOne();
-                                Debug.WriteLine("SSH_MSG_NEWKEYS dequeued");
-                                // wait SetCipher()
-                                Monitor.Wait(_cipherSync, 1000);
-                                if (_waitingNewCipher) {
-                                    // something is going wrong...
-                                    Debug.WriteLine("SSH_MSG_NEWKEYS was not processed ?");
-                                    _waitingNewCipher = false;
-                                    _cipher = null;
-                                    _mac = null;
-                                    _macEnabled = false;
-                                    _head = null;
-                                }
-                            }
+            lock (_cipherSync) {
+                try {
+                    if (!_keyError) {
+                        // key error detection
+                        if (_pending && DateTime.UtcNow > _keyErrorDetectionTimeout) {
+                            _keyError = true;   // disable accepting data any more
+                            return;
                         }
-                    } else {
-                        _inner_handler.OnData(_packet);
+
+                        _buffer.Append(data);
+
+                        if (!_pending) {
+                            ProcessBuffer();
+                        }
                     }
+                } catch (Exception ex) {
+                    OnError(ex);
+                }
+            }
+        }
+
+        private void ProcessBuffer() {
+            // buffer may contains multiple packet data
+            while (ConstructPacket()) {
+                if (IsMsgNewKeys(_packet)) {
+                    // next packet must be decrypted with the new key
+                    _cipher = null;
+                    _mac = null;
+                    _macEnabled = false;
+                    _head = null;
+
+                    _pending = true;    // retain trailing packets in the buffer
+                    _keyErrorDetectionTimeout = DateTime.MaxValue;
+
+                    SSH2MsgNewKeys newKeysPacket =
+                        new SSH2MsgNewKeys(_packet, new SSH2MsgNewKeys.Handler(OnMsgNewKeysDequeued));
+
+                    _inner_handler.OnData(newKeysPacket);
+                    break;
                 }
 
+                _inner_handler.OnData(_packet);
             }
-            catch (Exception ex) {
-                OnError(ex);
+        }
+
+        private bool IsMsgNewKeys(DataFragment packet) {
+            return packet.Length >= 1 && packet.ByteAt(0) == (byte)PacketType.SSH_MSG_NEWKEYS;
+        }
+
+        private void OnMsgNewKeysDequeued() {
+            lock (_cipherSync) {
+                // start key error detection
+                _keyErrorDetectionTimeout = DateTime.UtcNow.AddMilliseconds(1000);
             }
         }
 
