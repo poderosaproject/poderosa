@@ -1,3 +1,12 @@
+4.3.12b
+--------
+    * Add Xterm's modifyCursorKeys feature.
+      Emulates modifyCursorKeys:2 by default, and modifyCursorKeys:3 is also
+      available by changing "org.poderosa.terminalemulator.xterm.modifyCursorKeys"
+      in the detailed preference editor.
+
+    * Refactor changes in 4.3.11b.
+
 4.3.11b
 --------
     * Fixed regression bug: SSH2 connection will fail if the confirmation dialog
