@@ -157,6 +157,16 @@ namespace Granados {
     public enum MACAlgorithm {
         HMACSHA1
     }
+
+    /// <summary>
+    /// <ja>Œ®ŒðŠ·ƒAƒ‹ƒSƒŠƒYƒ€</ja>
+    /// <en>key exchange algorighm</en>
+    /// </summary>
+    /// <exclude/>
+    public enum KexAlgorithm {
+        DH_G1_SHA1,
+        DH_G14_SHA1
+    }
 }
 
 namespace Granados.Util {
