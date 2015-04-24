@@ -1572,7 +1572,7 @@ namespace Granados.SSH2 {
                         return _dh_g14_prime;
                         break;
                     default:
-                        throw new SSHException("CipherAlgorithm is not set");
+                        throw new SSHException("KexAlgorithm is not set");
                         break;
                 }
             }
