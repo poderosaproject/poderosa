@@ -164,6 +164,7 @@ namespace Granados {
     /// </summary>
     /// <exclude/>
     public enum KexAlgorithm {
+        None,
         DH_G1_SHA1,
         DH_G14_SHA1
     }

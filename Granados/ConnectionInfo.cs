@@ -149,7 +149,7 @@ namespace Granados.SSH2 {
         internal string _supportedHostKeyAlgorithms;
         internal PublicKeyAlgorithm _algorithmForHostKeyVerification;
         internal string _supportedKEXAlgorithms;
-        internal KexAlgorithm _kexAlgorithm;
+        internal KexAlgorithm _kexAlgorithm = KexAlgorithm.None;
 
         public string SupportedHostKeyAlgorithms {
             get {

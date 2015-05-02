@@ -1098,6 +1098,21 @@ namespace Granados.SSH2 {
         private MAC _rm;
         private MAC _tm;
 
+        private struct SupportedKexAlgorithm {
+            public readonly string name;
+            public readonly KexAlgorithm value;
+
+            public SupportedKexAlgorithm(string name, KexAlgorithm value) {
+                this.name = name;
+                this.value = value;
+            }
+        }
+
+        private static readonly SupportedKexAlgorithm[] supportedKexAlgorithms = new SupportedKexAlgorithm[] {
+            new SupportedKexAlgorithm("diffie-hellman-group14-sha1", KexAlgorithm.DH_G14_SHA1),
+            new SupportedKexAlgorithm("diffie-hellman-group1-sha1", KexAlgorithm.DH_G1_SHA1),
+        };
+
         public KeyExchanger(SSH2Connection con, byte[] sessionID) {
             _connection = con;
             _param = con.Param;
@@ -1180,14 +1195,13 @@ namespace Granados.SSH2 {
         }
 
         private void SendKEXINIT(Mode mode) {
-            const string kex_algorithm = "diffie-hellman-group14-sha1,diffie-hellman-group1-sha1";
             const string mac_algorithm = "hmac-sha1";
             SSH2DataWriter wr = new SSH2DataWriter();
             wr.WritePacketType(PacketType.SSH_MSG_KEXINIT);
             byte[] cookie = new byte[16];
             _param.Random.NextBytes(cookie);
             wr.Write(cookie);
-            wr.WriteString(kex_algorithm); //    kex_algorithms
+            wr.WriteString(GetSupportedKexAlgorithms()); //    kex_algorithms
             wr.WriteString(FormatHostKeyAlgorithmDescription());            //    server_host_key_algorithms
             wr.WriteString(FormatCipherAlgorithmDescription());      //    encryption_algorithms_client_to_server
             wr.WriteString(FormatCipherAlgorithmDescription());      //    encryption_algorithms_server_to_client
@@ -1205,7 +1219,7 @@ namespace Granados.SSH2 {
             if (_connection.IsEventTracerAvailable) {
                 StringBuilder bld = new StringBuilder();
                 bld.Append("kex_algorithm=");
-                bld.Append(kex_algorithm);
+                bld.Append(GetSupportedKexAlgorithms());
                 bld.Append("; server_host_key_algorithms=");
                 bld.Append(FormatHostKeyAlgorithmDescription());
                 bld.Append("; encryption_algorithms_client_to_server=");
@@ -1241,7 +1255,6 @@ namespace Granados.SSH2 {
 
             string kex = enc.GetString(re.ReadString());
             _cInfo._supportedKEXAlgorithms = kex;
-//            CheckAlgorithmSupport("keyexchange", kex, "diffie-hellman-group1-sha1");
             _cInfo._kexAlgorithm = DecideKexAlgorithm(kex);
 
             string host_key = enc.GetString(re.ReadString());
@@ -1303,7 +1316,7 @@ namespace Granados.SSH2 {
             byte[] sx = new byte[16];
             _param.Random.NextBytes(sx);
             _x = new BigInteger(sx);
-            _e = new BigInteger(2).modPow(_x, DH_PRIME);
+            _e = new BigInteger(2).modPow(_x, GetDiffieHellmanPrime(_cInfo._kexAlgorithm));
             SSH2DataWriter wr = new SSH2DataWriter();
             wr.WritePacketType(PacketType.SSH_MSG_KEXDH_INIT);
             wr.WriteBigInteger(_e);
@@ -1340,7 +1353,7 @@ namespace Granados.SSH2 {
 
             //Round3 calc hash H
             SSH2DataWriter wr = new SSH2DataWriter();
-            _k = f.modPow(_x, DH_PRIME);
+            _k = f.modPow(_x, GetDiffieHellmanPrime(_cInfo._kexAlgorithm));
             wr = new SSH2DataWriter();
             wr.WriteString(_cInfo._clientVersionString);
             wr.WriteString(_cInfo._serverVersionString);
@@ -1483,13 +1496,23 @@ namespace Granados.SSH2 {
         }
         private KexAlgorithm DecideKexAlgorithm(string data) {
             string[] k = data.Split(',');
-            if (SSHUtil.ContainsString(k, "diffie-hellman-group14-sha1")) {
-                return KexAlgorithm.DH_G14_SHA1;
-            }
-            else if (SSHUtil.ContainsString(k, "diffie-hellman-group1-sha1")) {
-                return KexAlgorithm.DH_G1_SHA1;
+            foreach (string s in k) {
+                foreach (SupportedKexAlgorithm algorithm in supportedKexAlgorithms) {
+                    if (algorithm.name == s) {
+                        return algorithm.value;
+                    }
+                }
             }
             throw new SSHException("The negotiation of kex algorithm is failed");
+        }
+        private string GetSupportedKexAlgorithms() {
+            StringBuilder s = new StringBuilder();
+            string sep = "";
+            for (int i = 0; i < supportedKexAlgorithms.Length; ++i) {
+                s.Append(sep).Append(supportedKexAlgorithms[i].name);
+                sep = ",";
+            }
+            return s.ToString();
         }
         private PublicKeyAlgorithm DecideHostKeyAlgorithm(string data) {
             string[] t = data.Split(',');
@@ -1537,44 +1560,41 @@ namespace Granados.SSH2 {
          */
         private static BigInteger _dh_g1_prime = null;
         private static BigInteger _dh_g14_prime = null;
-        private BigInteger DH_PRIME {
-            get {
-                switch (_cInfo._kexAlgorithm) {
-                    case KexAlgorithm.DH_G1_SHA1:
-                        if (_dh_g1_prime == null) {
-                            StringBuilder sb = new StringBuilder();
-                            sb.Append("FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1");
-                            sb.Append("29024E088A67CC74020BBEA63B139B22514A08798E3404DD");
-                            sb.Append("EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245");
-                            sb.Append("E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED");
-                            sb.Append("EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381");
-                            sb.Append("FFFFFFFFFFFFFFFF");
-                            _dh_g1_prime = new BigInteger(sb.ToString(), 16);
-                        }
-                        return _dh_g1_prime;
-                        break;
-                    case KexAlgorithm.DH_G14_SHA1:
-                        if (_dh_g14_prime == null) {
-                            StringBuilder sb = new StringBuilder();
-                            sb.Append("FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1");
-                            sb.Append("29024E088A67CC74020BBEA63B139B22514A08798E3404DD");
-                            sb.Append("EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245");
-                            sb.Append("E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED");
-                            sb.Append("EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D");
-                            sb.Append("C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F");
-                            sb.Append("83655D23DCA3AD961C62F356208552BB9ED529077096966D");
-                            sb.Append("670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B");
-                            sb.Append("E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9");
-                            sb.Append("DE2BCBF6955817183995497CEA956AE515D2261898FA0510");
-                            sb.Append("15728E5A8AACAA68FFFFFFFFFFFFFFFF");
-                            _dh_g14_prime = new BigInteger(sb.ToString(), 16);
-                        }
-                        return _dh_g14_prime;
-                        break;
-                    default:
-                        throw new SSHException("KexAlgorithm is not set");
-                        break;
-                }
+        private BigInteger GetDiffieHellmanPrime(KexAlgorithm algorithm) {
+            switch (algorithm) {
+                case KexAlgorithm.DH_G1_SHA1:
+                    if (_dh_g1_prime == null) {
+                        _dh_g1_prime = new BigInteger(
+                            "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1" +
+                            "29024E088A67CC74020BBEA63B139B22514A08798E3404DD" +
+                            "EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245" +
+                            "E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED" +
+                            "EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381" +
+                            "FFFFFFFFFFFFFFFF",
+                            16);
+                    }
+                    return _dh_g1_prime;
+
+                case KexAlgorithm.DH_G14_SHA1:
+                    if (_dh_g14_prime == null) {
+                        _dh_g14_prime = new BigInteger(
+                            "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1" +
+                            "29024E088A67CC74020BBEA63B139B22514A08798E3404DD" +
+                            "EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245" +
+                            "E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED" +
+                            "EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D" +
+                            "C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F" +
+                            "83655D23DCA3AD961C62F356208552BB9ED529077096966D" +
+                            "670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B" +
+                            "E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9" +
+                            "DE2BCBF6955817183995497CEA956AE515D2261898FA0510" +
+                            "15728E5A8AACAA68FFFFFFFFFFFFFFFF",
+                            16);
+                    }
+                    return _dh_g14_prime;
+
+                default:
+                    throw new SSHException("KexAlgorithm is not set");
             }
         }
 
