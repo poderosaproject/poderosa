@@ -149,6 +149,7 @@ namespace Granados.SSH2 {
         internal string _supportedHostKeyAlgorithms;
         internal PublicKeyAlgorithm _algorithmForHostKeyVerification;
         internal string _supportedKEXAlgorithms;
+        internal KexAlgorithm _kexAlgorithm;
 
         public string SupportedHostKeyAlgorithms {
             get {
@@ -164,6 +165,11 @@ namespace Granados.SSH2 {
         public string SupportedKEXAlgorithms {
             get {
                 return _supportedKEXAlgorithms;
+            }
+        }
+        public KexAlgorithm UsingKEXAlgorithms {
+            get {
+                return _kexAlgorithm;
             }
         }
         public override string DumpHostKeyInKnownHostsStyle() {

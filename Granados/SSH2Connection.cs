@@ -1180,7 +1180,7 @@ namespace Granados.SSH2 {
         }
 
         private void SendKEXINIT(Mode mode) {
-            const string kex_algorithm = "diffie-hellman-group1-sha1";
+            const string kex_algorithm = "diffie-hellman-group14-sha1,diffie-hellman-group1-sha1";
             const string mac_algorithm = "hmac-sha1";
             SSH2DataWriter wr = new SSH2DataWriter();
             wr.WritePacketType(PacketType.SSH_MSG_KEXINIT);
@@ -1241,7 +1241,8 @@ namespace Granados.SSH2 {
 
             string kex = enc.GetString(re.ReadString());
             _cInfo._supportedKEXAlgorithms = kex;
-            CheckAlgorithmSupport("keyexchange", kex, "diffie-hellman-group1-sha1");
+//            CheckAlgorithmSupport("keyexchange", kex, "diffie-hellman-group1-sha1");
+            _cInfo._kexAlgorithm = DecideKexAlgorithm(kex);
 
             string host_key = enc.GetString(re.ReadString());
             _cInfo._supportedHostKeyAlgorithms = host_key;
@@ -1480,6 +1481,16 @@ namespace Granados.SSH2 {
             }
             throw new SSHException("Server does not support " + algorithm_name + " for " + title);
         }
+        private KexAlgorithm DecideKexAlgorithm(string data) {
+            string[] k = data.Split(',');
+            if (SSHUtil.ContainsString(k, "diffie-hellman-group14-sha1")) {
+                return KexAlgorithm.DH_G14_SHA1;
+            }
+            else if (SSHUtil.ContainsString(k, "diffie-hellman-group1-sha1")) {
+                return KexAlgorithm.DH_G1_SHA1;
+            }
+            throw new SSHException("The negotiation of kex algorithm is failed");
+        }
         private PublicKeyAlgorithm DecideHostKeyAlgorithm(string data) {
             string[] t = data.Split(',');
             foreach (PublicKeyAlgorithm a in _param.PreferableHostKeyAlgorithms) {
@@ -1524,20 +1535,46 @@ namespace Granados.SSH2 {
         /*
          * the seed of diffie-hellman KX defined in the spec of SSH2
          */
-        private static BigInteger _dh_prime = null;
-        private static BigInteger DH_PRIME {
+        private static BigInteger _dh_g1_prime = null;
+        private static BigInteger _dh_g14_prime = null;
+        private BigInteger DH_PRIME {
             get {
-                if (_dh_prime == null) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.Append("FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1");
-                    sb.Append("29024E088A67CC74020BBEA63B139B22514A08798E3404DD");
-                    sb.Append("EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245");
-                    sb.Append("E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED");
-                    sb.Append("EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381");
-                    sb.Append("FFFFFFFFFFFFFFFF");
-                    _dh_prime = new BigInteger(sb.ToString(), 16);
+                switch (_cInfo._kexAlgorithm) {
+                    case KexAlgorithm.DH_G1_SHA1:
+                        if (_dh_g1_prime == null) {
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1");
+                            sb.Append("29024E088A67CC74020BBEA63B139B22514A08798E3404DD");
+                            sb.Append("EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245");
+                            sb.Append("E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED");
+                            sb.Append("EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381");
+                            sb.Append("FFFFFFFFFFFFFFFF");
+                            _dh_g1_prime = new BigInteger(sb.ToString(), 16);
+                        }
+                        return _dh_g1_prime;
+                        break;
+                    case KexAlgorithm.DH_G14_SHA1:
+                        if (_dh_g14_prime == null) {
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1");
+                            sb.Append("29024E088A67CC74020BBEA63B139B22514A08798E3404DD");
+                            sb.Append("EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245");
+                            sb.Append("E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED");
+                            sb.Append("EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D");
+                            sb.Append("C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F");
+                            sb.Append("83655D23DCA3AD961C62F356208552BB9ED529077096966D");
+                            sb.Append("670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B");
+                            sb.Append("E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9");
+                            sb.Append("DE2BCBF6955817183995497CEA956AE515D2261898FA0510");
+                            sb.Append("15728E5A8AACAA68FFFFFFFFFFFFFFFF");
+                            _dh_g14_prime = new BigInteger(sb.ToString(), 16);
+                        }
+                        return _dh_g14_prime;
+                        break;
+                    default:
+                        throw new SSHException("KexAlgorithm is not set");
+                        break;
                 }
-                return _dh_prime;
             }
         }
 
