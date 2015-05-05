@@ -1,3 +1,10 @@
+4.3.13b
+-------
+    * Add support for using "diffie-hellman-group14-sha1" as a key-exchange method
+      of SSH2.
+ 
+    * Fix URL of the project home page.
+
 4.3.12b
 --------
     * Add Xterm's modifyCursorKeys feature.
