@@ -1313,7 +1313,7 @@ namespace Granados.SSH2 {
 
         private DataFragment SendKEXDHINIT(Mode mode) {
             //Round1 computes and sends [e]
-            byte[] sx = new byte[16];
+            byte[] sx = new byte[32];
             _param.Random.NextBytes(sx);
             _x = new BigInteger(sx);
             _e = new BigInteger(2).modPow(_x, GetDiffieHellmanPrime(_cInfo._kexAlgorithm));
