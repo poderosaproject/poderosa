@@ -2,6 +2,7 @@
 * text=auto
 
 *.aml text
+*.asc text
 *.bat text
 *.cc text
 *.content text
@@ -20,6 +21,7 @@
 *.gif binary
 *.ico binary
 *.png binary
+*.snk binary
 
 # Custom for Visual Studio
 *.cs     diff=csharp
