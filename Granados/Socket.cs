@@ -394,11 +394,14 @@ namespace Granados.IO {
 
         private void FireOnClosed() {
             lock (_handler) {
-                if (!onClosedFired) {
-                    onClosedFired = true;
-                    _handler.OnClosed();
+                if (onClosedFired) {
+                    return;
                 }
+                onClosedFired = true;
             }
+            // PlainSocket.Close() may be called from another thread again in _handler.OnClosed().
+            // For avoiding deadlock, _handler.OnClosed() have to be called out of the lock() block.
+            _handler.OnClosed();
         }
     }
 
