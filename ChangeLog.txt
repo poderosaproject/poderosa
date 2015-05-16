@@ -1,3 +1,7 @@
+4.3.14b
+-------
+    * Fix deadlock which occurs when a socket was closed by the peer.
+
 4.3.13b
 -------
     * Add support for using "diffie-hellman-group14-sha1" as a key-exchange method
