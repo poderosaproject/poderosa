@@ -1,6 +1,26 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 
+*.aml text
+*.bat text
+*.cc text
+*.content text
+*.cs text
+*.csproj text
+*.items text
+*.js text
+*.resx text
+*.shfbproj text
+*.sln text
+*.txt text
+*.xml text
+
+*.dll binary
+*.exe binary
+*.gif binary
+*.ico binary
+*.png binary
+
 # Custom for Visual Studio
 *.cs     diff=csharp
 *.sln    merge=union
