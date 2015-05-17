@@ -2,6 +2,10 @@
 -------
     * Fix deadlock which occurs when a socket was closed by the peer.
 
+    * PGP signature will be used for the released files.
+      Public key file is Misc/Keys/kzmi-PGP-KEY.asc in the source tree and also
+      can be obtained from the key server.
+
 4.3.13b
 -------
     * Add support for using "diffie-hellman-group14-sha1" as a key-exchange method
