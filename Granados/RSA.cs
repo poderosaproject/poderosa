@@ -258,16 +258,16 @@ namespace Granados.PKI {
     /// <exclude/>
     public class RSAUtil {
 
-        public static BigInteger PKCS1PadType2(BigInteger input, int pad_len, Random rand) {
+        public static BigInteger PKCS1PadType2(BigInteger input, int pad_len, RNGCryptoServiceProvider rng) {
             int input_byte_length = (input.bitCount() + 7) / 8;
             //System.out.println(String.valueOf(pad_len) + ":" + input_byte_length);
             byte[] pad = new byte[pad_len - input_byte_length - 3];
 
             for (int i = 0; i < pad.Length; i++) {
                 byte[] b = new byte[1];
-                rand.NextBytes(b);
+                rng.GetBytes(b);
                 while (b[0] == 0)
-                    rand.NextBytes(b); //0‚Å‚Í‚¾‚ß‚¾
+                    rng.GetBytes(b); //0‚Å‚Í‚¾‚ß‚¾
                 pad[i] = b[0];
             }
 

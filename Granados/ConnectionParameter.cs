@@ -8,6 +8,7 @@
 */
 
 using System;
+using System.Security.Cryptography;
 
 using Granados.PKI;
 
@@ -150,13 +151,13 @@ namespace Granados {
             }
         }
 
-        private Random _random;
-        public Random Random {
+        private RNGCryptoServiceProvider _rng;
+        public RNGCryptoServiceProvider Rng {
             get {
-                return _random;
+                return _rng;
             }
             set {
-                _random = value;
+                _rng = value;
             }
         }
 
@@ -226,7 +227,7 @@ namespace Granados {
         }
 
         public SSHConnectionParameter() {
-            _random = new Random();
+            _rng = new RNGCryptoServiceProvider();
             _authtype = AuthenticationType.Password;
             _terminalname = "vt100";
             _width = 80;
@@ -251,7 +252,7 @@ namespace Granados {
             n._maxpacketsize = _maxpacketsize;
             n._password = _password;
             n._protocol = _protocol;
-            n._random = _random;
+            n._rng = _rng;
             n._terminalname = _terminalname;
             n._username = _username;
             n._width = _width;

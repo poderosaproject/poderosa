@@ -398,7 +398,7 @@ namespace Granados.SSH2 {
 
         internal void TransmitPacket(SSH2TransmissionPacket packet) {
             lock (_transmitSync) {
-                DataFragment data = packet.Close(_tCipher, _param.Random, _tMAC, _tSequence++);
+                DataFragment data = packet.Close(_tCipher, _param.Rng, _tMAC, _tSequence++);
                 _stream.Write(data.Data, data.Offset, data.Length);
             }
         }
@@ -411,7 +411,7 @@ namespace Granados.SSH2 {
 
         internal DataFragment SynchronizedTransmitPacket(SSH2TransmissionPacket packet) {
             lock (_transmitSync) {
-                DataFragment data = packet.Close(_tCipher, _param.Random, _tMAC, _tSequence++);
+                DataFragment data = packet.Close(_tCipher, _param.Rng, _tMAC, _tSequence++);
                 return _packetReceiver.SendAndWaitResponse(data);
             }
         }
@@ -1199,7 +1199,7 @@ namespace Granados.SSH2 {
             SSH2DataWriter wr = new SSH2DataWriter();
             wr.WritePacketType(PacketType.SSH_MSG_KEXINIT);
             byte[] cookie = new byte[16];
-            _param.Random.NextBytes(cookie);
+            _param.Rng.GetBytes(cookie);
             wr.Write(cookie);
             wr.WriteString(GetSupportedKexAlgorithms()); //    kex_algorithms
             wr.WriteString(FormatHostKeyAlgorithmDescription());            //    server_host_key_algorithms
@@ -1314,7 +1314,7 @@ namespace Granados.SSH2 {
         private DataFragment SendKEXDHINIT(Mode mode) {
             //Round1 computes and sends [e]
             byte[] sx = new byte[16];
-            _param.Random.NextBytes(sx);
+            _param.Rng.GetBytes(sx);
             _x = new BigInteger(sx);
             _e = new BigInteger(2).modPow(_x, GetDiffieHellmanPrime(_cInfo._kexAlgorithm));
             SSH2DataWriter wr = new SSH2DataWriter();
