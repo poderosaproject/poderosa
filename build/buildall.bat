@@ -6,7 +6,7 @@ if "%1" == "" (
   goto :end
 )
 
-call "%VS80COMNTOOLS%\vsvars32.bat"
+call "%VS120COMNTOOLS%\vsvars32.bat"
 
 set CONFIGNAME=%1
 set PORTFORWARDING=%~dp0..\PortForwarding.sln
