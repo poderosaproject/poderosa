@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@ using System.Net.Sockets;
 namespace Poderosa.Protocols {
 
     /// <summary>
-    /// ƒ\ƒPƒbƒg‚ğŠJ‚«AÚ‘±‚ğŠm—§‚·‚éè‡‚ğ‚µ‚Â‚Âƒ^ƒCƒ€ƒAƒEƒg‚â“r’†‚Å’†~‚·‚é‚±‚Æ‚à‚Å‚«‚é‚½‚ß‚Ì‹@”\
+    /// ã‚½ã‚±ãƒƒãƒˆã‚’é–‹ãã€æ¥ç¶šã‚’ç¢ºç«‹ã™ã‚‹æ‰‹é †ã‚’ã—ã¤ã¤ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆã‚„é€”ä¸­ã§ä¸­æ­¢ã™ã‚‹ã“ã¨ã‚‚ã§ãã‚‹ãŸã‚ã®æ©Ÿèƒ½
     /// </summary>
     internal abstract class InterruptableConnector : IInterruptable {
         private IPAddressList _addressSet;
@@ -41,7 +41,7 @@ namespace Poderosa.Protocols {
             _host = param.Destination;
             _port = param.Port;
 
-            //AgentForward“™‚Ìƒ`ƒFƒbƒN‚ğ‚·‚é
+            //AgentForwardç­‰ã®ãƒã‚§ãƒƒã‚¯ã‚’ã™ã‚‹
             foreach (IConnectionResultEventHandler ch in ProtocolsPlugin.Instance.ConnectionResultEventHandler.GetExtensions())
                 ch.BeforeAsyncConnect((ITerminalParameter)param.GetAdapter(typeof(ITerminalParameter)));
 
@@ -59,14 +59,14 @@ namespace Poderosa.Protocols {
 
         public void Interrupt() {
             _interrupted = true;
-            //Ú‘±ƒXƒŒƒbƒh‚ªƒuƒƒbƒN‚µ‚Ä‚¢‚½‚è’ÊM’†‚Å‚ ‚Á‚Ä‚àAƒ\ƒPƒbƒg‚ğ•Â‚¶‚Ä‚µ‚Ü‚¦‚Î‚·‚®—áŠO‚É‚È‚é‚Í‚¸‚Å‚ ‚èA
-            //‰º‚ÌRun()‚Ìcatch‚ÆfinallyƒuƒƒbƒN‚ªÀs‚³‚ê‚éB
+            //æ¥ç¶šã‚¹ãƒ¬ãƒƒãƒ‰ãŒãƒ–ãƒ­ãƒƒã‚¯ã—ã¦ã„ãŸã‚Šé€šä¿¡ä¸­ã§ã‚ã£ã¦ã‚‚ã€ã‚½ã‚±ãƒƒãƒˆã‚’é–‰ã˜ã¦ã—ã¾ãˆã°ã™ãä¾‹å¤–ã«ãªã‚‹ã¯ãšã§ã‚ã‚Šã€
+            //ä¸‹ã®Run()ã®catchã¨finallyãƒ–ãƒ­ãƒƒã‚¯ãŒå®Ÿè¡Œã•ã‚Œã‚‹ã€‚
             if (_socket != null)
                 _socket.Close();
         }
 
-        //Start..EndŠÔ‚Å”­¶‚·‚éException‚É‚Â‚¢‚Ä‚ÍAƒGƒ‰[ƒƒbƒZ[ƒW‚ğã‘‚«‚·‚éB
-        //•Ï‚ÈSocketException‚ÌƒGƒ‰[ƒƒbƒZ[ƒW‚ğg‚¢‚½‚­‚È‚¢‚Æ‚«—p
+        //Start..Endé–“ã§ç™ºç”Ÿã™ã‚‹Exceptionã«ã¤ã„ã¦ã¯ã€ã‚¨ãƒ©ãƒ¼ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ä¸Šæ›¸ãã™ã‚‹ã€‚
+        //å¤‰ãªSocketExceptionã®ã‚¨ãƒ©ãƒ¼ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ä½¿ã„ãŸããªã„ã¨ãç”¨
         protected void StartOverridingErrorMessage(string message) {
             _errorMessage = message;
             _overridingErrorMessage = true;
@@ -105,20 +105,20 @@ namespace Poderosa.Protocols {
                 if (!_interrupted) {
                     if (!_succeeded && _socket != null && _socket.Connected) {
                         try {
-                            _socket.Shutdown(SocketShutdown.Both); //Close()‚¾‚Æ”ñ“¯ŠúóM‚µ‚Ä‚éêŠ‚Å‘¦Exception‚É‚È‚Á‚Ä‚µ‚Ü‚¤
+                            _socket.Shutdown(SocketShutdown.Both); //Close()ã ã¨éåŒæœŸå—ä¿¡ã—ã¦ã‚‹å ´æ‰€ã§å³Exceptionã«ãªã£ã¦ã—ã¾ã†
                         }
-                        catch (Exception ex) { //‚±‚±‚Å‚¿‚á‚ñ‚Æ•Â‚¶‚é‚±‚Æ‚ªo—ˆ‚È‚¢ê‡‚ª‚ ‚Á‚½
+                        catch (Exception ex) { //ã“ã“ã§ã¡ã‚ƒã‚“ã¨é–‰ã˜ã‚‹ã“ã¨ãŒå‡ºæ¥ãªã„å ´åˆãŒã‚ã£ãŸ
                             RuntimeUtil.SilentReportException(ex);
                         }
                     }
-                    //‚±‚±‚Å‘Ò‹@‚µ‚Ä‚¢‚½ƒXƒŒƒbƒh‚ª“®‚«o‚·‚Ì‚ÅA‚»‚Ì‘O‚ÉSocket‚ÌDisconnect‚Í‚â‚Á‚Â‚¯‚Ä‚¨‚­B“¯‚É‚Â‚Â‚¢‚½‚¹‚¢‚©ƒ\ƒPƒbƒg‚Ì“®ì‚ª–­‚É‚È‚Á‚½ƒP[ƒX‚ ‚èB
+                    //ã“ã“ã§å¾…æ©Ÿã—ã¦ã„ãŸã‚¹ãƒ¬ãƒƒãƒ‰ãŒå‹•ãå‡ºã™ã®ã§ã€ãã®å‰ã«Socketã®Disconnectã¯ã‚„ã£ã¤ã‘ã¦ãŠãã€‚åŒæ™‚ã«ã¤ã¤ã„ãŸã›ã„ã‹ã‚½ã‚±ãƒƒãƒˆã®å‹•ä½œãŒå¦™ã«ãªã£ãŸã‚±ãƒ¼ã‚¹ã‚ã‚Šã€‚
                     NotifyAsyncClient();
                 }
             }
         }
 
         protected virtual void MakeConnection() {
-            //‚Ü‚¸SOCKS‚ğg‚¤‚×‚«‚©‚Ç‚¤‚©‚ğ”»’è‚·‚é
+            //ã¾ãšSOCKSã‚’ä½¿ã†ã¹ãã‹ã©ã†ã‹ã‚’åˆ¤å®šã™ã‚‹
             IProtocolOptions opt = ProtocolsPlugin.Instance.ProtocolOptions;
             if (opt.UseSocks && SocksApplicapable(opt.SocksNANetworks, IPAddressList.SilentGetAddress(_host))) {
                 _socks = new Socks();
@@ -135,9 +135,9 @@ namespace Poderosa.Protocols {
 
             IPAddress address = null;
             if (IPAddress.TryParse(dest, out address)) {
-                _addressSet = new IPAddressList(address); //Å‰‚©‚çIPƒAƒhƒŒƒXŒ`®‚Ì‚Æ‚«‚Íè‚Å•ÏŠ·B‚»‚¤‚Å‚È‚¢‚ÆDNS‚Ì‹tˆø‚«‚ğ‚µ‚Äƒ^ƒCƒ€ƒAƒEƒgA‚Æ‚©‚â‚â‚±‚µ‚¢‚±‚Æ‚ª‹N‚±‚é
+                _addressSet = new IPAddressList(address); //æœ€åˆã‹ã‚‰IPã‚¢ãƒ‰ãƒ¬ã‚¹å½¢å¼ã®ã¨ãã¯æ‰‹ã§å¤‰æ›ã€‚ãã†ã§ãªã„ã¨DNSã®é€†å¼•ãã‚’ã—ã¦ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆã€ã¨ã‹ã‚„ã‚„ã“ã—ã„ã“ã¨ãŒèµ·ã“ã‚‹
             }
-            else { //ƒzƒXƒg–¼Œ`®
+            else { //ãƒ›ã‚¹ãƒˆåå½¢å¼
                 StartOverridingErrorMessage(String.Format(PEnv.Strings.GetString("Message.AddressNotResolved"), dest));
                 _addressSet = new IPAddressList(dest);
                 EndOverridingErrorMessage();
@@ -151,7 +151,7 @@ namespace Poderosa.Protocols {
             if (_socks != null) {
                 _errorMessage = "An error occurred in SOCKS negotiation.";
                 _socks.Connect(_socket);
-                //Ú‘±¬Œ÷‚µ‚½‚ç_host,_port‚ğŒ³‚É–ß‚·
+                //æ¥ç¶šæˆåŠŸã—ãŸã‚‰_host,_portã‚’å…ƒã«æˆ»ã™
                 _host = _socks.DestName;
                 _port = _socks.DestPort;
             }
@@ -160,10 +160,10 @@ namespace Poderosa.Protocols {
         }
 
 
-        //‚±‚ê‚ğƒI[ƒo[ƒ‰ƒCƒh‚µ‚ÄTCPÚ‘±Œã‚Ì“®ì‚ğ‚·‚é
+        //ã“ã‚Œã‚’ã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰ã—ã¦TCPæ¥ç¶šå¾Œã®å‹•ä½œã‚’ã™ã‚‹
         protected abstract void Negotiate();
 
-        //¬Œ÷‚µ‚½‚ç‚±‚ê‚ğÀ‘•‚µ‚ÄŒ‹‰Ê‚ğ•Ô‚·
+        //æˆåŠŸã—ãŸã‚‰ã“ã‚Œã‚’å®Ÿè£…ã—ã¦çµæœã‚’è¿”ã™
         internal abstract TerminalConnection Result {
             get;
         }
@@ -211,7 +211,7 @@ namespace Poderosa.Protocols {
                 if (!NetAddressUtil.IsNetworkAddress(netaddress)) {
                     throw new FormatException(String.Format("{0} is not suitable as a network address.", netaddress));
                 }
-                if (address.AvailableAddresses.Length > 0 && NetAddressUtil.NetAddressIncludesIPAddress(netaddress, address.AvailableAddresses[0])) //‚PŒÂ‚¾‚¯‚Å”»’fA‚â‚â‚³‚Ú‚è
+                if (address.AvailableAddresses.Length > 0 && NetAddressUtil.NetAddressIncludesIPAddress(netaddress, address.AvailableAddresses[0])) //ï¼‘å€‹ã ã‘ã§åˆ¤æ–­ã€ã‚„ã‚„ã•ã¼ã‚Š
                     return false;
             }
             return true;

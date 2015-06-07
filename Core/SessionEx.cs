@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@ using Poderosa.Commands;
 namespace Poderosa.Sessions {
     /// <summary>
     /// <ja>
-    /// ƒZƒbƒVƒ‡ƒ“ƒ}ƒl[ƒWƒƒ‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ãƒãƒãƒ¼ã‚¸ãƒ£ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows session manager.
@@ -27,13 +27,13 @@ namespace Poderosa.Sessions {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍƒZƒbƒVƒ‡ƒ“ƒ}ƒl[ƒWƒƒiSessionManagerPluginƒvƒ‰ƒOƒCƒ“Fƒvƒ‰ƒOƒCƒ“IDuorg.poderosa.core.sessionsvj
-    /// ‚É‚æ‚Á‚Ä’ñ‹Ÿ‚³‚ê‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚ ‚èAƒZƒbƒVƒ‡ƒ“î•ñ‚ğ‘€ì‚µ‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã‚»ãƒƒã‚·ãƒ§ãƒ³ãƒãƒãƒ¼ã‚¸ãƒ£ï¼ˆSessionManagerPluginãƒ—ãƒ©ã‚°ã‚¤ãƒ³ï¼šãƒ—ãƒ©ã‚°ã‚¤ãƒ³IDã€Œorg.poderosa.core.sessionsã€ï¼‰
+    /// ã«ã‚ˆã£ã¦æä¾›ã•ã‚Œã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã‚ã‚Šã€ã‚»ãƒƒã‚·ãƒ§ãƒ³æƒ…å ±ã‚’æ“ä½œã—ã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍA<seealso cref="Poderosa.Plugins.ICoreServices">ICoreServices</seealso>‚Ì
-    /// <see cref="Poderosa.Plugins.ICoreServices.SessionManager">SessionManagerƒvƒƒpƒeƒB</see>
-    /// ‚ğg‚Á‚Äæ“¾‚Å‚«‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€<seealso cref="Poderosa.Plugins.ICoreServices">ICoreServices</seealso>ã®
+    /// <see cref="Poderosa.Plugins.ICoreServices.SessionManager">SessionManagerãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>
+    /// ã‚’ä½¿ã£ã¦å–å¾—ã§ãã¾ã™ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -47,11 +47,11 @@ namespace Poderosa.Sessions {
     /// </remarks>
     /// <example>
     /// <ja>
-    /// ISessionManager‚ğæ“¾‚µ‚Ü‚·B
+    /// ISessionManagerã‚’å–å¾—ã—ã¾ã™ã€‚
     /// <code>
-    /// // ICoreServices‚ğæ“¾
+    /// // ICoreServicesã‚’å–å¾—
     /// ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
-    /// // ISessionManager‚ğæ“¾
+    /// // ISessionManagerã‚’å–å¾—
     /// ISessionManager sessionman = cs.SessionManager;
     /// </code>
     /// </ja>
@@ -69,7 +69,7 @@ namespace Poderosa.Sessions {
         //Structure
         /// <summary>
         /// <ja>
-        /// ‚·‚×‚Ä‚ÌƒZƒbƒVƒ‡ƒ“‚ğ—ñ‹“‚µ‚Ü‚·B
+        /// ã™ã¹ã¦ã®ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’åˆ—æŒ™ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Enumerate all sessions.
@@ -80,32 +80,32 @@ namespace Poderosa.Sessions {
         }
         /// <summary>
         /// <ja>
-        /// ƒEƒBƒ“ƒhƒE‚ÉŒ‹‚Ñ‚Â‚¯‚ç‚ê‚½ƒhƒLƒ…ƒƒ“ƒg‚ğ”z—ñ‚Æ‚µ‚Ä“¾‚Ü‚·B
+        /// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã«çµã³ã¤ã‘ã‚‰ã‚ŒãŸãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’é…åˆ—ã¨ã—ã¦å¾—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The document tie to the window is obtained as an array. 
         /// </en>
         /// </summary>
-        /// <param name="window"><ja>‘ÎÛ‚Æ‚È‚éƒEƒBƒ“ƒhƒE‚Å‚·B</ja><en>It is a window that becomes an object. </en></param>
-        /// <returns><ja>ƒEƒBƒ“ƒhƒE‚ÉŠÜ‚Ü‚ê‚éƒhƒLƒ…ƒƒ“ƒg‚Ì”z—ñ‚ª•Ô‚³‚ê‚Ü‚·B</ja><en>The array of the document included in the window is returned. </en></returns>
+        /// <param name="window"><ja>å¯¾è±¡ã¨ãªã‚‹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã§ã™ã€‚</ja><en>It is a window that becomes an object. </en></param>
+        /// <returns><ja>ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã«å«ã¾ã‚Œã‚‹ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã®é…åˆ—ãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja><en>The array of the document included in the window is returned. </en></returns>
         IPoderosaDocument[] GetDocuments(IPoderosaMainWindow window);
 
         //Start/End
         /// <summary>
         /// <ja>
-        /// V‚µ‚¢ƒZƒbƒVƒ‡ƒ“‚ğŠJn‚µ‚Ü‚·B
+        /// æ–°ã—ã„ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’é–‹å§‹ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Start a new session.
         /// </en>
         /// </summary>
-        /// <param name="session"><ja>ŠJn‚·‚éƒZƒbƒVƒ‡ƒ“</ja><en>Session to start.</en></param>
-        /// <param name="firstView"><ja>ƒZƒbƒVƒ‡ƒ“‚ÉŠ„‚è“–‚Ä‚éƒrƒ…[</ja><en>View allocated in session</en></param>
+        /// <param name="session"><ja>é–‹å§‹ã™ã‚‹ã‚»ãƒƒã‚·ãƒ§ãƒ³</ja><en>Session to start.</en></param>
+        /// <param name="firstView"><ja>ã‚»ãƒƒã‚·ãƒ§ãƒ³ã«å‰²ã‚Šå½“ã¦ã‚‹ãƒ“ãƒ¥ãƒ¼</ja><en>View allocated in session</en></param>
         /// <remarks>
         /// <ja>
-        /// V‚µ‚­ƒZƒbƒVƒ‡ƒ“‚ğì¬‚·‚é‚½‚ß‚Ìƒrƒ…[‚ÍA<seealso cref="IViewManager">IViewManager</seealso>‚Ì
-        /// <see cref="IViewManager.GetCandidateViewForNewDocument">GetCandidateViewForNewDocumentƒƒ\ƒbƒh</see>
-        /// ‚Åì‚é‚±‚Æ‚ª‚Å‚«‚Ü‚·B
+        /// æ–°ã—ãã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’ä½œæˆã™ã‚‹ãŸã‚ã®ãƒ“ãƒ¥ãƒ¼ã¯ã€<seealso cref="IViewManager">IViewManager</seealso>ã®
+        /// <see cref="IViewManager.GetCandidateViewForNewDocument">GetCandidateViewForNewDocumentãƒ¡ã‚½ãƒƒãƒ‰</see>
+        /// ã§ä½œã‚‹ã“ã¨ãŒã§ãã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The view to make the session newly can be made by the <see cref="IViewManager.GetCandidateViewForNewDocument">GetCandidateViewForNewDocument method</see> of IViewManager. 
@@ -115,21 +115,21 @@ namespace Poderosa.Sessions {
 
         /// <summary>
         /// <ja>
-        /// ƒZƒbƒVƒ‡ƒ“‚ğ•Â‚¶‚Ü‚·B
+        /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’é–‰ã˜ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Close the session.
         /// </en>
         /// </summary>
-        /// <param name="session"><ja>•Â‚¶‚½‚¢ƒZƒbƒVƒ‡ƒ“‚Å‚·B</ja><en>Session to close.</en></param>
-        /// <returns><ja>ƒZƒbƒVƒ‡ƒ“‚ª•Â‚¶‚ç‚ê‚½‚©‚Ç‚¤‚©‚ğ¦‚·’l‚Å‚·B</ja><en>It is a value in which it is shown whether the session was closed. </en></returns>
+        /// <param name="session"><ja>é–‰ã˜ãŸã„ã‚»ãƒƒã‚·ãƒ§ãƒ³ã§ã™ã€‚</ja><en>Session to close.</en></param>
+        /// <returns><ja>ã‚»ãƒƒã‚·ãƒ§ãƒ³ãŒé–‰ã˜ã‚‰ã‚ŒãŸã‹ã©ã†ã‹ã‚’ç¤ºã™å€¤ã§ã™ã€‚</ja><en>It is a value in which it is shown whether the session was closed. </en></returns>
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ğŒÄ‚Ño‚·‚ÆAƒZƒbƒVƒ‡ƒ“‚ğ\¬‚·‚é<seealso cref="ISession">ISession</seealso>
-        /// ‚Ì<see cref="ISession.PrepareCloseSession">PrepareCloseSessionƒƒ\ƒbƒh</see>
-        /// ‚ªŒÄ‚Ño‚³‚ê‚Ü‚·B<see cref="ISession.PrepareCloseSession">PrepareCloseSessionƒƒ\ƒbƒh</see>‚ªPrepareCloseResult.Cancel
-        /// ‚ğ•Ô‚µ‚½‚Æ‚«‚É‚ÍAƒZƒbƒVƒ‡ƒ“‚ğ•Â‚¶‚é“®ì‚Í’†~‚³‚ê‚Ü‚·B
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‚’å‘¼ã³å‡ºã™ã¨ã€ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’æ§‹æˆã™ã‚‹<seealso cref="ISession">ISession</seealso>
+        /// ã®<see cref="ISession.PrepareCloseSession">PrepareCloseSessionãƒ¡ã‚½ãƒƒãƒ‰</see>
+        /// ãŒå‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚<see cref="ISession.PrepareCloseSession">PrepareCloseSessionãƒ¡ã‚½ãƒƒãƒ‰</see>ãŒPrepareCloseResult.Cancel
+        /// ã‚’è¿”ã—ãŸã¨ãã«ã¯ã€ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’é–‰ã˜ã‚‹å‹•ä½œã¯ä¸­æ­¢ã•ã‚Œã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -141,21 +141,21 @@ namespace Poderosa.Sessions {
         PrepareCloseResult TerminateSession(ISession session);
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚ğ•Â‚¶‚Ü‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’é–‰ã˜ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Close the document.
         /// </en>
         /// </summary>
-        /// <param name="document"><ja>•Â‚¶‚½‚¢ƒhƒLƒ…ƒƒ“ƒg‚Å‚·B</ja><en>Document to close.</en></param>
-        /// <returns><ja>ƒhƒLƒ…ƒƒ“ƒg‚ª•Â‚¶‚ç‚ê‚½‚©‚Ç‚¤‚©‚ğ¦‚·’l‚Å‚·B</ja><en>It is a value in which it is shown whether the document was closed. </en></returns>
+        /// <param name="document"><ja>é–‰ã˜ãŸã„ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã§ã™ã€‚</ja><en>Document to close.</en></param>
+        /// <returns><ja>ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒé–‰ã˜ã‚‰ã‚ŒãŸã‹ã©ã†ã‹ã‚’ç¤ºã™å€¤ã§ã™ã€‚</ja><en>It is a value in which it is shown whether the document was closed. </en></returns>
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ğŒÄ‚Ño‚·‚ÆAƒZƒbƒVƒ‡ƒ“‚ğ\¬‚·‚é<seealso cref="ISession">ISession</seealso>
-        /// ‚Ì<see cref="ISession.PrepareCloseDocument">PrepareCloseDocumentƒƒ\ƒbƒh</see>
-        /// ‚ªŒÄ‚Ño‚³‚ê‚Ü‚·B<see cref="ISession.PrepareCloseDocument">PrepareCloseDocumentƒƒ\ƒbƒh</see>‚ªPrepareCloseResult.Cancel
-        /// ‚ğ•Ô‚µ‚½‚Æ‚«‚É‚ÍAƒhƒLƒ…ƒƒ“ƒg‚ğ•Â‚¶‚é“®ì‚Í’†~‚³‚ê‚Ü‚·B
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‚’å‘¼ã³å‡ºã™ã¨ã€ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’æ§‹æˆã™ã‚‹<seealso cref="ISession">ISession</seealso>
+        /// ã®<see cref="ISession.PrepareCloseDocument">PrepareCloseDocumentãƒ¡ã‚½ãƒƒãƒ‰</see>
+        /// ãŒå‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚<see cref="ISession.PrepareCloseDocument">PrepareCloseDocumentãƒ¡ã‚½ãƒƒãƒ‰</see>ãŒPrepareCloseResult.Cancel
+        /// ã‚’è¿”ã—ãŸã¨ãã«ã¯ã€ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’é–‰ã˜ã‚‹å‹•ä½œã¯ä¸­æ­¢ã•ã‚Œã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -171,74 +171,74 @@ namespace Poderosa.Sessions {
 
         //Document Management
         /// <summary>
-        /// <ja>ƒhƒLƒ…ƒƒ“ƒg‚ğƒAƒNƒeƒBƒu‰»‚µ‚Ü‚·B</ja><en>Activate the document.</en>
+        /// <ja>ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’ã‚¢ã‚¯ãƒ†ã‚£ãƒ–åŒ–ã—ã¾ã™ã€‚</ja><en>Activate the document.</en>
         /// </summary>
-        /// <param name="document"><ja>ƒAƒNƒeƒBƒu‰»‚·‚éƒhƒLƒ…ƒƒ“ƒg</ja><en>Document to activate.</en></param>
-        /// <param name="reason"><ja>ƒAƒNƒeƒBƒu‰»‚·‚é——R‚ğŠi”[‚µ‚½ƒIƒuƒWƒFƒNƒg</ja><en>Object that stored reason made active</en></param>
+        /// <param name="document"><ja>ã‚¢ã‚¯ãƒ†ã‚£ãƒ–åŒ–ã™ã‚‹ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆ</ja><en>Document to activate.</en></param>
+        /// <param name="reason"><ja>ã‚¢ã‚¯ãƒ†ã‚£ãƒ–åŒ–ã™ã‚‹ç†ç”±ã‚’æ ¼ç´ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>Object that stored reason made active</en></param>
         void ActivateDocument(IPoderosaDocument document, ActivateReason reason);
         /// <summary>
-        /// <ja>ƒhƒLƒ…ƒƒ“ƒg‚Æƒrƒ…[‚Æ‚ğŒ‹‚Ñ‚Â‚¯‚Ü‚·B</ja><en>Tie the document and the view.</en>
+        /// <ja>ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã¨ãƒ“ãƒ¥ãƒ¼ã¨ã‚’çµã³ã¤ã‘ã¾ã™ã€‚</ja><en>Tie the document and the view.</en>
         /// </summary>
-        /// <param name="document"><ja>‘ÎÛ‚Æ‚È‚éƒhƒLƒ…ƒƒ“ƒg</ja>
+        /// <param name="document"><ja>å¯¾è±¡ã¨ãªã‚‹ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆ</ja>
         /// <en>Document to target.</en>
         /// </param>
-        /// <param name="view"><ja>Š„‚è“–‚Ä‚éƒrƒ…[</ja>
+        /// <param name="view"><ja>å‰²ã‚Šå½“ã¦ã‚‹ãƒ“ãƒ¥ãƒ¼</ja>
         /// <en>View to assign.</en>
         /// </param>
         void AttachDocumentAndView(IPoderosaDocument document, IPoderosaView view);
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚ÌƒXƒe[ƒ^ƒX‚ğXV‚µ‚Ü‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã‚’æ›´æ–°ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Update the status of the document.
         /// </en>
         /// </summary>
-        /// <param name="document"><ja>XV‚·‚éƒhƒLƒ…ƒƒ“ƒg</ja><en>Document to update.</en></param>
+        /// <param name="document"><ja>æ›´æ–°ã™ã‚‹ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆ</ja><en>Document to update.</en></param>
         void RefreshDocumentStatus(IPoderosaDocument document);
 
         //Listener
         /// <summary>
         /// <ja>
-        /// ƒAƒNƒeƒBƒu‚ÈƒhƒLƒ…ƒƒ“ƒg‚ª•Ï‰»‚µ‚½‚Æ‚«‚Ì’Ê’m‚ğó‚¯æ‚éƒŠƒXƒi‚ğ“o˜^‚µ‚Ü‚·B
+        /// ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒå¤‰åŒ–ã—ãŸã¨ãã®é€šçŸ¥ã‚’å—ã‘å–ã‚‹ãƒªã‚¹ãƒŠã‚’ç™»éŒ²ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The listener that receives the notification when an active document is changed is registered. 
         /// </en>
         /// </summary>
-        /// <param name="listener"><ja>“o˜^‚·‚éƒŠƒXƒi</ja><en>Registered listener</en></param>
+        /// <param name="listener"><ja>ç™»éŒ²ã™ã‚‹ãƒªã‚¹ãƒŠ</ja><en>Registered listener</en></param>
         void AddActiveDocumentChangeListener(IActiveDocumentChangeListener listener);
         /// <summary>
         /// <ja>
-        /// ƒAƒNƒeƒBƒu‚ÈƒhƒLƒ…ƒƒ“ƒg‚ª•Ï‰»‚µ‚½‚Æ‚«‚Ì’Ê’m‚ğó‚¯æ‚éƒŠƒXƒi‚ğ‰ğœ‚µ‚Ü‚·B
+        /// ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒå¤‰åŒ–ã—ãŸã¨ãã®é€šçŸ¥ã‚’å—ã‘å–ã‚‹ãƒªã‚¹ãƒŠã‚’è§£é™¤ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The listener that receives the notification when an active document is changed is released. 
         /// </en>
         /// </summary>
-        /// <param name="listener"><ja>‰ğœ‚·‚éƒŠƒXƒi</ja><en>Listener to release.</en></param>
+        /// <param name="listener"><ja>è§£é™¤ã™ã‚‹ãƒªã‚¹ãƒŠ</ja><en>Listener to release.</en></param>
         void RemoveActiveDocumentChangeListener(IActiveDocumentChangeListener listener);
         /// <summary>
         /// <ja>
-        /// ƒZƒbƒVƒ‡ƒ“‚ªŠJn‚³‚ê‚½‚èØ’f‚³‚ê‚½‚Æ‚«‚Ì’Ê’m‚ğó‚¯æ‚éƒŠƒXƒi‚ğ“o˜^‚µ‚Ü‚·B
+        /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ãŒé–‹å§‹ã•ã‚ŒãŸã‚Šåˆ‡æ–­ã•ã‚ŒãŸã¨ãã®é€šçŸ¥ã‚’å—ã‘å–ã‚‹ãƒªã‚¹ãƒŠã‚’ç™»éŒ²ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The listener that is begun the session and receives the notification when close is registered. 
         /// </en>
         /// </summary>
-        /// <param name="listener"><ja>“o˜^‚·‚éƒŠƒXƒi</ja><en>Listener to regist</en></param>
+        /// <param name="listener"><ja>ç™»éŒ²ã™ã‚‹ãƒªã‚¹ãƒŠ</ja><en>Listener to regist</en></param>
         void AddSessionListener(ISessionListener listener);
         /// <summary>
-        /// <ja>ƒZƒbƒVƒ‡ƒ“‚ªŠJn‚³‚ê‚½‚èØ’f‚³‚ê‚½‚Æ‚«‚Ì’Ê’m‚ğó‚¯æ‚éƒŠƒXƒi‚ğ‰ğœ‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚»ãƒƒã‚·ãƒ§ãƒ³ãŒé–‹å§‹ã•ã‚ŒãŸã‚Šåˆ‡æ–­ã•ã‚ŒãŸã¨ãã®é€šçŸ¥ã‚’å—ã‘å–ã‚‹ãƒªã‚¹ãƒŠã‚’è§£é™¤ã—ã¾ã™ã€‚</ja>
         /// <en>The listener that is begun the session and receives the notification when close is released.</en>
         /// </summary>
-        /// <param name="listener"><ja>‰ğœ‚·‚éƒŠƒXƒi</ja><en>Listener to release.</en></param>
+        /// <param name="listener"><ja>è§£é™¤ã™ã‚‹ãƒªã‚¹ãƒŠ</ja><en>Listener to release.</en></param>
         void RemoveSessionListener(ISessionListener listener);
     }
 
     /// <summary>
     /// <ja>
-    /// ƒZƒbƒVƒ‡ƒ“ƒzƒXƒgƒIƒuƒWƒFƒNƒg‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ãƒ›ã‚¹ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows session host object.
@@ -247,18 +247,18 @@ namespace Poderosa.Sessions {
     public interface ISessionHost {
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚ğ“o˜^‚µ‚Ü‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’ç™»éŒ²ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Regist the document.
         /// </en>
         /// </summary>
-        /// <param name="document"><ja>“o˜^‚·‚éƒhƒLƒ…ƒƒ“ƒg</ja><en>Document to regist.</en></param>
+        /// <param name="document"><ja>ç™»éŒ²ã™ã‚‹ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆ</ja><en>Document to regist.</en></param>
         void RegisterDocument(IPoderosaDocument document);
-        //TODO RemoveDocument‚ ‚Á‚Ä‚æ‚¢
+        //TODO RemoveDocumentã‚ã£ã¦ã‚ˆã„
         /// <summary>
         /// <ja>
-        /// ƒZƒbƒVƒ‡ƒ“‚ğƒvƒ‰ƒOƒCƒ“‘¤‚©‚çI—¹‚³‚¹‚Ü‚·B
+        /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’ãƒ—ãƒ©ã‚°ã‚¤ãƒ³å´ã‹ã‚‰çµ‚äº†ã•ã›ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Terminate the sessoin from plug-in side.
@@ -267,21 +267,21 @@ namespace Poderosa.Sessions {
         void TerminateSession();
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚ÉŒ‹‚Ñ‚Â‚¯‚ç‚ê‚½ƒtƒH[ƒ€‚ğ“¾‚Ü‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã«çµã³ã¤ã‘ã‚‰ã‚ŒãŸãƒ•ã‚©ãƒ¼ãƒ ã‚’å¾—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Get the form tied with document.
         /// </en>
         /// </summary>
-        /// <param name="document"><ja>‘ÎÛ‚Æ‚È‚éƒhƒLƒ…ƒƒ“ƒg‚Å‚·B</ja><en>Targeted document.</en></param>
-        /// <returns><ja>ƒhƒLƒ…ƒƒ“ƒg‚ÉŒ‹‚Ñ‚Â‚¯‚ç‚ê‚½ƒtƒH[ƒ€‚ª•Ô‚³‚ê‚Ü‚·B</ja><en>The form tie to the document is returned. </en></returns>
+        /// <param name="document"><ja>å¯¾è±¡ã¨ãªã‚‹ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã§ã™ã€‚</ja><en>Targeted document.</en></param>
+        /// <returns><ja>ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã«çµã³ã¤ã‘ã‚‰ã‚ŒãŸãƒ•ã‚©ãƒ¼ãƒ ãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja><en>The form tie to the document is returned. </en></returns>
         IPoderosaForm GetParentFormFor(IPoderosaDocument document);
     }
 
-    //ƒAƒNƒeƒBƒu‚É‚·‚é‘€ì‚ÌŠJnğŒ
+    //ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ã™ã‚‹æ“ä½œã®é–‹å§‹æ¡ä»¶
     /// <summary>
     /// <ja>
-    /// ƒhƒLƒ…ƒƒ“ƒg‚ªƒAƒNƒeƒBƒu‚É‚È‚Á‚½‚Æ‚«‚Ì——R‚ğ¦‚µ‚Ü‚·B
+    /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ãŸã¨ãã®ç†ç”±ã‚’ç¤ºã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The reason when the document becomes active is shown. 
@@ -289,22 +289,22 @@ namespace Poderosa.Sessions {
     /// </summary>
     public enum ActivateReason {
         /// <summary>
-        /// <ja>“à•”“®ì‚É‚æ‚èƒAƒNƒeƒBƒu‚É‚È‚Á‚½</ja>
+        /// <ja>å†…éƒ¨å‹•ä½œã«ã‚ˆã‚Šã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ãŸ</ja>
         /// <en>It became active by internal operation. </en>
         /// </summary>
         InternalAction,
         /// <summary>
-        /// <ja>ƒ^ƒuƒNƒŠƒbƒN‚É‚æ‚èƒAƒNƒeƒBƒu‚É‚È‚Á‚½</ja>
+        /// <ja>ã‚¿ãƒ–ã‚¯ãƒªãƒƒã‚¯ã«ã‚ˆã‚Šã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ãŸ</ja>
         /// <en>It became active by the tab click. </en>
         /// </summary>
         TabClick,
         /// <summary>
-        /// <ja>ƒrƒ…[‚ªƒtƒH[ƒJƒX‚ğó‚¯æ‚Á‚½‚½‚ß‚ÉƒAƒNƒeƒBƒu‚É‚È‚Á‚½</ja>
+        /// <ja>ãƒ“ãƒ¥ãƒ¼ãŒãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã‚’å—ã‘å–ã£ãŸãŸã‚ã«ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ãŸ</ja>
         /// <en>Because the view had got focus, it became active. </en>
         /// </summary>
         ViewGotFocus,
         /// <summary>
-        /// <ja>ƒhƒ‰ƒbƒO•ƒhƒƒbƒv‘€ì‚É‚æ‚èƒAƒNƒeƒBƒu‚É‚È‚Á‚½</ja>
+        /// <ja>ãƒ‰ãƒ©ãƒƒã‚°ï¼†ãƒ‰ãƒ­ãƒƒãƒ—æ“ä½œã«ã‚ˆã‚Šã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ãŸ</ja>
         /// <en>It became active by the drag &amp; drop operation. </en>
         /// </summary>
         DragDrop
@@ -312,7 +312,7 @@ namespace Poderosa.Sessions {
 
     /// <summary>
     /// <ja>
-    /// ƒhƒLƒ…ƒƒ“ƒg‚âƒZƒbƒVƒ‡ƒ“‚ª•Â‚¶‚ç‚ê‚æ‚¤‚Æ‚·‚é‚Æ‚«‚Ì–ß‚è’l‚ğ¦‚µ‚Ü‚·B
+    /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚„ã‚»ãƒƒã‚·ãƒ§ãƒ³ãŒé–‰ã˜ã‚‰ã‚Œã‚ˆã†ã¨ã™ã‚‹ã¨ãã®æˆ»ã‚Šå€¤ã‚’ç¤ºã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The return value when the document and the session start being shut is shown. 
@@ -321,11 +321,11 @@ namespace Poderosa.Sessions {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ‚±‚Ì—ñ‹“‘Ì‚ÍA<seealso cref="ISession">ISession</seealso>‚Ì<see cref="ISession.PrepareCloseDocument">PrepareCloseDocumentƒƒ\ƒbƒh</see>
-    /// ‚â<see cref="ISession.PrepareCloseSession">PrepareCloseSessionƒƒ\ƒbƒh</see>‚Ì–ß‚è’l‚Æ‚µ‚Äg‚í‚ê‚Ü‚·B
+    /// ã“ã®åˆ—æŒ™ä½“ã¯ã€<seealso cref="ISession">ISession</seealso>ã®<see cref="ISession.PrepareCloseDocument">PrepareCloseDocumentãƒ¡ã‚½ãƒƒãƒ‰</see>
+    /// ã‚„<see cref="ISession.PrepareCloseSession">PrepareCloseSessionãƒ¡ã‚½ãƒƒãƒ‰</see>ã®æˆ»ã‚Šå€¤ã¨ã—ã¦ä½¿ã‚ã‚Œã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// PrepareCloseResult.ContinueSession‚ªg‚í‚ê‚é‚Ì‚ÍA<see cref="ISession.PrepareCloseDocument">PrepareCloseDocumentƒƒ\ƒbƒh</see>‚Ì‚Æ‚«‚¾‚¯‚Å‚·B
+    /// PrepareCloseResult.ContinueSessionãŒä½¿ã‚ã‚Œã‚‹ã®ã¯ã€<see cref="ISession.PrepareCloseDocument">PrepareCloseDocumentãƒ¡ã‚½ãƒƒãƒ‰</see>ã®ã¨ãã ã‘ã§ã™ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -340,7 +340,7 @@ namespace Poderosa.Sessions {
     public enum PrepareCloseResult {
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚Í•Â‚¶‚Ü‚·‚ªAƒZƒbƒVƒ‡ƒ“‚Í•Â‚¶‚Ü‚¹‚ñB
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã¯é–‰ã˜ã¾ã™ãŒã€ã‚»ãƒƒã‚·ãƒ§ãƒ³ã¯é–‰ã˜ã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
         /// Close the document, but session is not close.
@@ -349,7 +349,7 @@ namespace Poderosa.Sessions {
         ContinueSession,
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚âƒZƒbƒVƒ‡ƒ“‚ğ•Â‚¶‚Ü‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚„ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’é–‰ã˜ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Close the document and the session.
@@ -358,7 +358,7 @@ namespace Poderosa.Sessions {
         TerminateSession,
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚âƒZƒbƒVƒ‡ƒ“‚ğ•Â‚¶‚é“®ì‚ğƒLƒƒƒ“ƒZƒ‹‚µ‚Ü‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚„ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’é–‰ã˜ã‚‹å‹•ä½œã‚’ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Cancel closing the document and the session.
@@ -369,7 +369,7 @@ namespace Poderosa.Sessions {
 
     /// <summary>
     /// <ja>
-    /// ƒZƒbƒVƒ‡ƒ“‚ğ¦‚µ‚Ü‚·B
+    /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’ç¤ºã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The session is shown. 
@@ -377,8 +377,8 @@ namespace Poderosa.Sessions {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// •W€‚Ìƒ^[ƒ~ƒiƒ‹ƒGƒ~ƒ…ƒŒ[ƒ^‚Æ‚µ‚Ä—p‚¢‚éê‡AISession‚ÌÀ‘Ô‚ÍAISession‚©‚çŒp³‚µ‚Ä‚¢‚é
-    /// <seealso cref="Poderosa.Sessions.ITerminalSession">ITerminalSession</seealso>‚Å‚ ‚èAGetAdapterƒƒ\ƒbƒh‚Å•ÏŠ·‚Å‚«‚Ü‚·B
+    /// æ¨™æº–ã®ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚¨ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚¿ã¨ã—ã¦ç”¨ã„ã‚‹å ´åˆã€ISessionã®å®Ÿæ…‹ã¯ã€ISessionã‹ã‚‰ç¶™æ‰¿ã—ã¦ã„ã‚‹
+    /// <seealso cref="Poderosa.Sessions.ITerminalSession">ITerminalSession</seealso>ã§ã‚ã‚Šã€GetAdapterãƒ¡ã‚½ãƒƒãƒ‰ã§å¤‰æ›ã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The realities of ISession are <seealso cref="Poderosa.Sessions.ITerminalSession">ITerminalSession</seealso> that has been succeeded to, 
@@ -388,7 +388,7 @@ namespace Poderosa.Sessions {
     public interface ISession : IAdaptable {
         /// <summary>
         /// <ja>
-        /// ƒZƒbƒVƒ‡ƒ“‚ÌƒLƒƒƒvƒVƒ‡ƒ“‚Å‚·B
+        /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ã®ã‚­ãƒ£ãƒ—ã‚·ãƒ§ãƒ³ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Caption of the session.
@@ -399,7 +399,7 @@ namespace Poderosa.Sessions {
         }
         /// <summary>
         /// <ja>
-        /// ƒZƒbƒVƒ‡ƒ“‚ÌƒAƒCƒRƒ“‚Å‚·B
+        /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ã®ã‚¢ã‚¤ã‚³ãƒ³ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Icon of the session.
@@ -409,31 +409,31 @@ namespace Poderosa.Sessions {
             get;
         } //16*16
 
-        //ˆÈ‰º‚ÍSessionManager‚ªŒÄ‚ÔB‚±‚êˆÈŠO‚Å‚ÍŒÄ‚ñ‚Å‚Í‚¢‚¯‚È‚¢
+        //ä»¥ä¸‹ã¯SessionManagerãŒå‘¼ã¶ã€‚ã“ã‚Œä»¥å¤–ã§ã¯å‘¼ã‚“ã§ã¯ã„ã‘ãªã„
         /// <summary>
         /// <ja>
-        /// ƒZƒbƒVƒ‡ƒ“ƒ}ƒl[ƒWƒƒ‚©‚çŒÄ‚Ño‚³‚ê‚é‰Šú‰»‚Ìƒƒ\ƒbƒh‚Å‚·B
+        /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ãƒãƒãƒ¼ã‚¸ãƒ£ã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹åˆæœŸåŒ–ã®ãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Initialization called from session manager method.
         /// </en>
         /// </summary>
-        /// <param name="host"><ja>ƒZƒbƒVƒ‡ƒ“‚ğ‘€ì‚·‚é‚½‚ß‚ÌƒZƒbƒVƒ‡ƒ“ƒzƒXƒgƒIƒuƒWƒFƒNƒg‚Å‚·B</ja>
+        /// <param name="host"><ja>ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’æ“ä½œã™ã‚‹ãŸã‚ã®ã‚»ãƒƒã‚·ãƒ§ãƒ³ãƒ›ã‚¹ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚</ja>
         /// <en>Session host object to operate session.</en>
         /// </param>
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ÍA<seealso cref="ISessionManager">ISessionManager</seealso>‚Ì<see cref="ISessionManager.StartNewSession">StartNewSessionƒƒ\ƒbƒh</see>
-        /// ‚ªŒÄ‚Ño‚³‚ê‚½‚Æ‚«‚ÉAƒZƒbƒVƒ‡ƒ“ƒ}ƒl[ƒWƒƒ‚É‚æ‚Á‚ÄŠÔÚ“I‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B
-        /// ŠJ”­Ò‚ÍA‚±‚Ìƒƒ\ƒbƒh‚ğ’¼ÚŒÄ‚Ño‚µ‚Ä‚Í‚¢‚¯‚Ü‚¹‚ñB
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã€<seealso cref="ISessionManager">ISessionManager</seealso>ã®<see cref="ISessionManager.StartNewSession">StartNewSessionãƒ¡ã‚½ãƒƒãƒ‰</see>
+        /// ãŒå‘¼ã³å‡ºã•ã‚ŒãŸã¨ãã«ã€ã‚»ãƒƒã‚·ãƒ§ãƒ³ãƒãƒãƒ¼ã‚¸ãƒ£ã«ã‚ˆã£ã¦é–“æ¥çš„ã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
+        /// é–‹ç™ºè€…ã¯ã€ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‚’ç›´æ¥å‘¼ã³å‡ºã—ã¦ã¯ã„ã‘ã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// ŠJ”­Ò‚Íˆê”Ê‚ÉA‚±‚Ìƒƒ\ƒbƒh‚Ìˆ—‚É‚¨‚¢‚ÄƒhƒLƒ…ƒƒ“ƒg‚ğì¬‚µA<paramref name="host">host</paramref>‚Æ‚µ‚Ä“n‚³‚ê‚½<seealso cref="ISessionHost">ISessionHost</seealso>
-        /// ‚Ì<see cref="ISessionHost.RegisterDocument">RegisterDocumentƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚µ‚ÄƒhƒLƒ…ƒƒ“ƒg‚ğ“o˜^‚µ‚Ü‚·B
+        /// é–‹ç™ºè€…ã¯ä¸€èˆ¬ã«ã€ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å‡¦ç†ã«ãŠã„ã¦ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’ä½œæˆã—ã€<paramref name="host">host</paramref>ã¨ã—ã¦æ¸¡ã•ã‚ŒãŸ<seealso cref="ISessionHost">ISessionHost</seealso>
+        /// ã®<see cref="ISessionHost.RegisterDocument">RegisterDocumentãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã—ã¦ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’ç™»éŒ²ã—ã¾ã™ã€‚
         /// </para>
         /// <para>
-        /// ƒZƒbƒVƒ‡ƒ“‚ÌÚ×‚É‚Â‚¢‚Ä‚ÍA<see href="chap04_02_04.html">ƒZƒbƒVƒ‡ƒ“‚Ì‘€ì</see>‚ğQÆ‚µ‚Ä‚­‚¾‚³‚¢B
+        /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ã®è©³ç´°ã«ã¤ã„ã¦ã¯ã€<see href="chap04_02_04.html">ã‚»ãƒƒã‚·ãƒ§ãƒ³ã®æ“ä½œ</see>ã‚’å‚ç…§ã—ã¦ãã ã•ã„ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -454,7 +454,7 @@ namespace Poderosa.Sessions {
 
         /// <summary>
         /// <ja>
-        /// ƒZƒbƒVƒ‡ƒ“‚ªI—¹‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒƒ\ƒbƒh‚Å‚·B
+        /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ãŒçµ‚äº†ã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is a method of the call when the session ends. 
@@ -462,25 +462,25 @@ namespace Poderosa.Sessions {
         /// </summary>
         void InternalTerminate();
 
-        //Session‘¤‚ÅTerminate‚ğw’è‚µ‚½ê‡‚Å‚àA•K‚¸Terminate‚³‚ê‚é‚Æ‚ÍŒÀ‚ç‚È‚¢“_‚É’ˆÓB
+        //Sessionå´ã§Terminateã‚’æŒ‡å®šã—ãŸå ´åˆã§ã‚‚ã€å¿…ãšTerminateã•ã‚Œã‚‹ã¨ã¯é™ã‚‰ãªã„ç‚¹ã«æ³¨æ„ã€‚
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚ğ•Â‚¶‚Ä‚à‚æ‚¢‚©‚ğŒˆ’è‚µ‚Ü‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’é–‰ã˜ã¦ã‚‚ã‚ˆã„ã‹ã‚’æ±ºå®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is decided whether I may close the document. 
         /// </en>
         /// </summary>
-        /// <param name="document"><ja>•Â‚¶‚é‘ÎÛ‚Æ‚È‚éƒhƒLƒ…ƒƒ“ƒg</ja><en>Document that close object</en></param>
-        /// <returns><ja>ƒhƒLƒ…ƒƒ“ƒg‚ğ•Â‚¶‚é‚©‚Ç‚¤‚©‚ğŒˆ’è‚·‚é’l‚Å‚·B</ja><en>Value in which it is decided whether to close document</en></returns>
+        /// <param name="document"><ja>é–‰ã˜ã‚‹å¯¾è±¡ã¨ãªã‚‹ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆ</ja><en>Document that close object</en></param>
+        /// <returns><ja>ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’é–‰ã˜ã‚‹ã‹ã©ã†ã‹ã‚’æ±ºå®šã™ã‚‹å€¤ã§ã™ã€‚</ja><en>Value in which it is decided whether to close document</en></returns>
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ÍAƒhƒLƒ…ƒƒ“ƒg‚ğ•Â‚¶‚é‘€ì‚ªs‚í‚ê‚é‚ÆŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã€ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’é–‰ã˜ã‚‹æ“ä½œãŒè¡Œã‚ã‚Œã‚‹ã¨å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </para>
         /// <para>
-        /// ŠJ”­Ò‚ÍƒhƒLƒ…ƒƒ“ƒg‚ğ•Â‚¶‚é‚©‚Ç‚¤‚©‚ğ<seealso cref="PrepareCloseResult">PrepareCloseResult—ñ‹“‘Ì</seealso>
-        /// ‚Æ‚µ‚Ä•Ô‚µ‚Ä‚­‚¾‚³‚¢BPrepareCloseResult.Cancel‚ğ•Ô‚µ‚½ê‡AƒhƒLƒ…ƒƒ“ƒg‚ğ•Â‚¶‚é“®ì‚Íæ‚èÁ‚³‚ê‚Ü‚·B
+        /// é–‹ç™ºè€…ã¯ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’é–‰ã˜ã‚‹ã‹ã©ã†ã‹ã‚’<seealso cref="PrepareCloseResult">PrepareCloseResultåˆ—æŒ™ä½“</seealso>
+        /// ã¨ã—ã¦è¿”ã—ã¦ãã ã•ã„ã€‚PrepareCloseResult.Cancelã‚’è¿”ã—ãŸå ´åˆã€ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’é–‰ã˜ã‚‹å‹•ä½œã¯å–ã‚Šæ¶ˆã•ã‚Œã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -497,21 +497,21 @@ namespace Poderosa.Sessions {
         PrepareCloseResult PrepareCloseDocument(IPoderosaDocument document);
         /// <summary>
         /// <ja>
-        /// ƒZƒbƒVƒ‡ƒ“‚ğ•Â‚¶‚Ä‚à‚æ‚¢‚©‚ğŒˆ’è‚µ‚Ü‚·B
+        /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’é–‰ã˜ã¦ã‚‚ã‚ˆã„ã‹ã‚’æ±ºå®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is decided whether I may close the session. 
         /// </en>
         /// </summary>
-        /// <returns><ja>ƒZƒbƒVƒ‡ƒ“‚ğ•Â‚¶‚é‚©‚Ç‚¤‚©‚ğŒˆ’è‚·‚é’l‚Å‚·B</ja><en>It is a value in which it is decided whether to close the session. </en></returns>
+        /// <returns><ja>ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’é–‰ã˜ã‚‹ã‹ã©ã†ã‹ã‚’æ±ºå®šã™ã‚‹å€¤ã§ã™ã€‚</ja><en>It is a value in which it is decided whether to close the session. </en></returns>
         /// <remarks>
         /// <ja>
         ///    <para>
-        ///    ‚±‚Ìƒƒ\ƒbƒh‚ÍAƒZƒbƒVƒ‡ƒ“‚ğ•Â‚¶‚é‘€ì‚ªs‚í‚ê‚é‚ÆŒÄ‚Ño‚³‚ê‚Ü‚·B
+        ///    ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã€ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’é–‰ã˜ã‚‹æ“ä½œãŒè¡Œã‚ã‚Œã‚‹ã¨å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         ///    </para>
         ///    <para>
-        ///    ŠJ”­Ò‚ÍƒZƒbƒVƒ‡ƒ“‚ğ•Â‚¶‚é‚©‚Ç‚¤‚©‚ğ<seealso cref="T:Poderosa.Sessions.PrepareCloseResult">PrepareCloseResult—ñ‹“‘Ì</seealso>
-        ///    ‚Æ‚µ‚Ä•Ô‚µ‚Ä‚­‚¾‚³‚¢BPrepareCloseResult.Cancel‚ğ•Ô‚µ‚½ê‡AƒZƒbƒVƒ‡ƒ“‚ğ•Â‚¶‚é“®ì‚Íæ‚èÁ‚³‚ê‚Ü‚·B
+        ///    é–‹ç™ºè€…ã¯ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’é–‰ã˜ã‚‹ã‹ã©ã†ã‹ã‚’<seealso cref="T:Poderosa.Sessions.PrepareCloseResult">PrepareCloseResultåˆ—æŒ™ä½“</seealso>
+        ///    ã¨ã—ã¦è¿”ã—ã¦ãã ã•ã„ã€‚PrepareCloseResult.Cancelã‚’è¿”ã—ãŸå ´åˆã€ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’é–‰ã˜ã‚‹å‹•ä½œã¯å–ã‚Šæ¶ˆã•ã‚Œã¾ã™ã€‚
         ///    </para>
         /// </ja>
         /// <en>
@@ -546,19 +546,19 @@ namespace Poderosa.Sessions {
 
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚ª•Â‚¶‚ç‚ê‚éÛ‚ÉŒÄ‚Ño‚³‚ê‚éƒƒ\ƒbƒh‚Å‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒé–‰ã˜ã‚‰ã‚Œã‚‹éš›ã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is a method of the call when the document is closed. 
         /// </en>
         /// </summary>
-        /// <param name="document"><ja>•Â‚¶‚ç‚ê‚é‘ÎÛ‚Æ‚È‚éƒhƒLƒ…ƒƒ“ƒg</ja><en>Document that becomes close object</en></param>
+        /// <param name="document"><ja>é–‰ã˜ã‚‰ã‚Œã‚‹å¯¾è±¡ã¨ãªã‚‹ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆ</ja><en>Document that becomes close object</en></param>
         /// <exclude/>
         void InternalCloseDocument(IPoderosaDocument document);
 
     }
 
-    //Doc/View‚ÌŠÖ˜A•t‚¯•ÏX‚Ì’Ê’m@•ÏX“à—e‚ğ’€ˆêæ“¾‚Å‚«‚é‚æ‚¤‚É‚·‚é‚Ì‚ÍŒã‚Ì‰Û‘è
+    //Doc/Viewã®é–¢é€£ä»˜ã‘å¤‰æ›´ã®é€šçŸ¥ã€€å¤‰æ›´å†…å®¹ã‚’é€ä¸€å–å¾—ã§ãã‚‹ã‚ˆã†ã«ã™ã‚‹ã®ã¯å¾Œã®èª²é¡Œ
     /// <summary>
     /// 
     /// </summary>
@@ -570,7 +570,7 @@ namespace Poderosa.Sessions {
 
     /// <summary>
     /// <ja>
-    /// ƒhƒLƒ…ƒƒ“ƒg‚ªƒAƒNƒeƒBƒu‰»‚³‚ê‚½‚è”ñƒAƒNƒeƒBƒu‰»‚³‚ê‚½‚±‚Æ‚ğ’Ê’m‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒã‚¢ã‚¯ãƒ†ã‚£ãƒ–åŒ–ã•ã‚ŒãŸã‚Šéã‚¢ã‚¯ãƒ†ã‚£ãƒ–åŒ–ã•ã‚ŒãŸã“ã¨ã‚’é€šçŸ¥ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that notifies for document to be made active and to have been made non-actively.
@@ -579,31 +579,31 @@ namespace Poderosa.Sessions {
     public interface IActiveDocumentChangeListener {
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚ªƒAƒNƒeƒBƒu‰»‚³‚ê‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒã‚¢ã‚¯ãƒ†ã‚£ãƒ–åŒ–ã•ã‚ŒãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Called when the document is activated.
         /// </en>
         /// </summary>
-        /// <param name="window"><ja>‘ÎÛ‚Æ‚È‚éƒEƒBƒ“ƒhƒE</ja><en>Window that becomes object.</en></param>
-        /// <param name="document"><ja>‘ÎÛ‚Æ‚È‚éƒhƒLƒ…ƒƒ“ƒg</ja><en>Window that becomes object</en></param>
+        /// <param name="window"><ja>å¯¾è±¡ã¨ãªã‚‹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦</ja><en>Window that becomes object.</en></param>
+        /// <param name="document"><ja>å¯¾è±¡ã¨ãªã‚‹ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆ</ja><en>Window that becomes object</en></param>
         void OnDocumentActivated(IPoderosaMainWindow window, IPoderosaDocument document);
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚ª”ñƒAƒNƒeƒBƒu‰»‚³‚ê‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒéã‚¢ã‚¯ãƒ†ã‚£ãƒ–åŒ–ã•ã‚ŒãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When the document is made non-active, it is called. 
         /// </en>
         /// </summary>
-        /// <param name="window"><ja>‘ÎÛ‚Æ‚È‚éƒEƒBƒ“ƒhƒE</ja><en>Window that becomes object</en>
+        /// <param name="window"><ja>å¯¾è±¡ã¨ãªã‚‹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦</ja><en>Window that becomes object</en>
         /// </param>
         void OnDocumentDeactivated(IPoderosaMainWindow window);
     }
 
     /// <summary>
     /// <ja>
-    /// ƒZƒbƒVƒ‡ƒ“‚ªŠJn^Ø’f‚³‚ê‚½‚Æ‚«‚Ì’Ê’m‚ğó‚¯æ‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ãŒé–‹å§‹ï¼åˆ‡æ–­ã•ã‚ŒãŸã¨ãã®é€šçŸ¥ã‚’å—ã‘å–ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that receives notification when session begin/finish
@@ -612,23 +612,23 @@ namespace Poderosa.Sessions {
     public interface ISessionListener {
         /// <summary>
         /// <ja>
-        /// ƒZƒbƒVƒ‡ƒ“‚ªŠJn‚³‚ê‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ãŒé–‹å§‹ã•ã‚ŒãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When the session is started, it is called. 
         /// </en>
         /// </summary>
-        /// <param name="session"><ja>ŠJn‚³‚ê‚½ƒZƒbƒVƒ‡ƒ“</ja><en>Started session.</en></param>
+        /// <param name="session"><ja>é–‹å§‹ã•ã‚ŒãŸã‚»ãƒƒã‚·ãƒ§ãƒ³</ja><en>Started session.</en></param>
         void OnSessionStart(ISession session);
         /// <summary>
         /// <ja>
-        /// ƒZƒbƒVƒ‡ƒ“‚ªI—¹‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ãŒçµ‚äº†ã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When the session ends, it is called. 
         /// </en>
         /// </summary>
-        /// <param name="session"><ja>I—¹‚µ‚½ƒZƒbƒVƒ‡ƒ“</ja><en>Ended session</en></param>
+        /// <param name="session"><ja>çµ‚äº†ã—ãŸã‚»ãƒƒã‚·ãƒ§ãƒ³</ja><en>Ended session</en></param>
         void OnSessionEnd(ISession session);
     }
 

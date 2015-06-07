@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@ using Poderosa.View;
 [assembly: PluginDeclaration(typeof(Poderosa.Serializing.SerializeServicePlugin))]
 
 namespace Poderosa.Serializing {
-    //StructuredText‚ğg‚Á‚ÄƒIƒuƒWƒFƒNƒg‚ğƒVƒŠƒAƒ‰ƒCƒY‚·‚é‚½‚ß‚Ìd‘g‚İ
+    //StructuredTextã‚’ä½¿ã£ã¦ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ã‚·ãƒªã‚¢ãƒ©ã‚¤ã‚ºã™ã‚‹ãŸã‚ã®ä»•çµ„ã¿
     [PluginInfo(ID = SerializeServicePlugin.PLUGIN_ID, Version = VersionInfo.PODEROSA_VERSION, Author = VersionInfo.PROJECT_NAME)]
     internal class SerializeServicePlugin : PluginBase, ISerializeService {
         public const string PLUGIN_ID = "org.poderosa.core.serializing";
@@ -29,7 +29,7 @@ namespace Poderosa.Serializing {
             base.InitializePlugin(poderosa);
             _serviceElements = poderosa.PluginManager.CreateExtensionPoint(EXTENSIONPOINT_NAME, typeof(ISerializeServiceElement), this);
             //_typeToElement = new TypedHashtable<Type, ISerializeServiceElement>();
-            //RenderProfile‚Í‚±‚ÌƒAƒZƒ“ƒuƒŠ‚È‚Ì‚Å“o˜^‚µ‚Ä‚µ‚Ü‚¤
+            //RenderProfileã¯ã“ã®ã‚¢ã‚»ãƒ³ãƒ–ãƒªãªã®ã§ç™»éŒ²ã—ã¦ã—ã¾ã†
             _serviceElements.RegisterExtension(new RenderProfileSerializer());
         }
 
@@ -56,7 +56,7 @@ namespace Poderosa.Serializing {
             return t;
         }
 
-        //Œ^‚©‚çŒŸõ‚·‚éB‚Ü‚ ŒÂ”‚Í‘½‚­‚È‚¢‚¾‚ë‚¤‚©‚çƒŠƒjƒAƒT[ƒ`‚Å‚¢‚¢‚¾‚ë‚¤B‚Ç‚¤‚µ‚Ä‚àA‚Æ‚¢‚¤ê‡‚É‚Í‚±‚Ì’†‚ÅƒLƒƒƒbƒVƒ…‚·‚é‚­‚ç‚¢‚©
+        //å‹ã‹ã‚‰æ¤œç´¢ã™ã‚‹ã€‚ã¾ã‚å€‹æ•°ã¯å¤šããªã„ã ã‚ã†ã‹ã‚‰ãƒªãƒ‹ã‚¢ã‚µãƒ¼ãƒã§ã„ã„ã ã‚ã†ã€‚ã©ã†ã—ã¦ã‚‚ã€ã¨ã„ã†å ´åˆã«ã¯ã“ã®ä¸­ã§ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã™ã‚‹ãã‚‰ã„ã‹
         private ISerializeServiceElement FindServiceElement(string tag) {
             if (_nameToSerializer == null) {
                 _nameToSerializer = new TypedHashtable<string, ISerializeServiceElement>();

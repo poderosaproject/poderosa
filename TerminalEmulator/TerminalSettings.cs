@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,7 @@ using Poderosa.Plugins;
 using Poderosa.MacroEngine;
 
 namespace Poderosa.Terminal {
-    //IShellSchemeDynamicChangeListener‚ÉŠÖ‚µ‚Ä‚ÍAShellScheme‚ğŠm’è‚·‚é‚Æ‚«‚ÉListen‚·‚é
+    //IShellSchemeDynamicChangeListenerã«é–¢ã—ã¦ã¯ã€ShellSchemeã‚’ç¢ºå®šã™ã‚‹ã¨ãã«Listenã™ã‚‹
     /// <summary>
     /// 
     /// </summary>
@@ -64,13 +64,13 @@ namespace Poderosa.Terminal {
             _listeners = new ListenerList<ITerminalSettingsChangeListener>();
         }
 
-        //Clone, ‚Å‚àIConeable‚Å‚Í‚È‚¢BListener—Ş‚ÍƒRƒs[‚µ‚È‚¢B
+        //Clone, ã§ã‚‚IConeableã§ã¯ãªã„ã€‚Listeneré¡ã¯ã‚³ãƒ”ãƒ¼ã—ãªã„ã€‚
         public virtual ITerminalSettings Clone() {
             TerminalSettings t = new TerminalSettings();
             t.Import(this);
             return t;
         }
-        //ListenerˆÈŠO‚ğ‚Á‚Ä‚­‚é
+        //Listenerä»¥å¤–ã‚’æŒã£ã¦ãã‚‹
         public virtual void Import(ITerminalSettings src) {
             _encoding = src.Encoding;
             _terminalType = src.TerminalType;
@@ -80,7 +80,7 @@ namespace Poderosa.Terminal {
             _caption = src.Caption;
             _icon = src.Icon;
             TerminalSettings src_r = (TerminalSettings)src;
-            _shellSchemeName = src_r._shellSchemeName; //‚¿‚å‚Á‚ÆƒCƒ“ƒ`ƒL
+            _shellSchemeName = src_r._shellSchemeName; //ã¡ã‚‡ã£ã¨ã‚¤ãƒ³ãƒã‚­
             if (src_r._shellScheme != null) {
                 _shellScheme = src_r._shellScheme;
                 TerminalEmulatorPlugin.Instance.ShellSchemeCollection.AddDynamicChangeListener(this);
@@ -195,7 +195,7 @@ namespace Poderosa.Terminal {
         }
         public IShellScheme ShellScheme {
             get {
-                //ShellSchemeName‚ÍƒŒƒCƒgƒoƒCƒ“ƒhê—p
+                //ShellSchemeNameã¯ãƒ¬ã‚¤ãƒˆãƒã‚¤ãƒ³ãƒ‰å°‚ç”¨
                 if (_shellScheme == null) {
                     _shellScheme = TerminalEmulatorPlugin.Instance.ShellSchemeCollection.FindShellSchemeOrDefault(_shellSchemeName);
                     TerminalEmulatorPlugin.Instance.ShellSchemeCollection.AddDynamicChangeListener(this);
@@ -269,7 +269,7 @@ namespace Poderosa.Terminal {
             BeginUpdate();
             _shellScheme = ns;
             _shellSchemeName = ns.Name;
-            EndUpdate(); //‚±‚ê‚Å’Ê’m‚ªo‚éB—á‚¦‚ÎShellScheme‘I‘ğƒRƒ“ƒ{ƒ{ƒbƒNƒXB
+            EndUpdate(); //ã“ã‚Œã§é€šçŸ¥ãŒå‡ºã‚‹ã€‚ä¾‹ãˆã°ShellSchemeé¸æŠã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ã€‚
         }
     }
 

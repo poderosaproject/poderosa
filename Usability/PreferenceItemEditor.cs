@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,14 +19,14 @@ using Poderosa.Preferences;
 namespace Poderosa.Usability {
     internal class PreferenceItemEditor : Form {
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
-        /// g—p’†‚ÌƒŠƒ\[ƒX‚ğ‚·‚×‚ÄƒNƒŠ[ƒ“ƒAƒbƒv‚µ‚Ü‚·B
+        /// ä½¿ç”¨ä¸­ã®ãƒªã‚½ãƒ¼ã‚¹ã‚’ã™ã¹ã¦ã‚¯ãƒªãƒ¼ãƒ³ã‚¢ãƒƒãƒ—ã—ã¾ã™ã€‚
         /// </summary>
-        /// <param name="disposing">ƒ}ƒl[ƒW ƒŠƒ\[ƒX‚ª”jŠü‚³‚ê‚éê‡ trueA”jŠü‚³‚ê‚È‚¢ê‡‚Í false ‚Å‚·B</param>
+        /// <param name="disposing">ãƒãƒãƒ¼ã‚¸ ãƒªã‚½ãƒ¼ã‚¹ãŒç ´æ£„ã•ã‚Œã‚‹å ´åˆ trueã€ç ´æ£„ã•ã‚Œãªã„å ´åˆã¯ false ã§ã™ã€‚</param>
         protected override void Dispose(bool disposing) {
             if (disposing && (components != null)) {
                 components.Dispose();
@@ -34,11 +34,11 @@ namespace Poderosa.Usability {
             base.Dispose(disposing);
         }
 
-        #region Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi‚Å¶¬‚³‚ê‚½ƒR[ƒh
+        #region Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠã§ç”Ÿæˆã•ã‚ŒãŸã‚³ãƒ¼ãƒ‰
 
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this._nameLabel = new System.Windows.Forms.Label();
@@ -154,7 +154,7 @@ namespace Poderosa.Usability {
             _okButton.Text = sr.GetString("Common.OK");
             _cancelButton.Text = sr.GetString("Common.Cancel");
 
-            //int/string‚Ç‚¿‚ç‚©‚Ìê‡‚ğƒTƒ|[ƒg
+            //int/stringã©ã¡ã‚‰ã‹ã®å ´åˆã‚’ã‚µãƒãƒ¼ãƒˆ
             IIntPreferenceItem intitem = item.AsInt();
             IStringPreferenceItem stritem = item.AsString();
             Debug.Assert(intitem != null || stritem != null);

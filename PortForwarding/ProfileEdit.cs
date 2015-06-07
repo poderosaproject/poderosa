@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  Copyright (c) 2005 Poderosa Project, All Rights Reserved.
 
  $Id: ProfileEdit.cs,v 1.2 2011/10/27 23:21:57 kzmi Exp $
@@ -53,25 +53,25 @@ namespace Poderosa.PortForwarding {
         private System.Windows.Forms.Button _okButton;
         private System.Windows.Forms.Button _cancelButton;
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.Container components = null;
 
         public ProfileEdit(ChannelProfile prof) {
             //
-            // Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Å‚·B
+            // Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ã§ã™ã€‚
             //
             InitializeComponent();
             InitializeText();
 
             //
-            // TODO: InitializeComponent ŒÄ‚Ño‚µ‚ÌŒã‚ÉAƒRƒ“ƒXƒgƒ‰ƒNƒ^ ƒR[ƒh‚ğ’Ç‰Á‚µ‚Ä‚­‚¾‚³‚¢B
+            // TODO: InitializeComponent å‘¼ã³å‡ºã—ã®å¾Œã«ã€ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ ã‚³ãƒ¼ãƒ‰ã‚’è¿½åŠ ã—ã¦ãã ã•ã„ã€‚
             //
             InitUI(prof);
         }
 
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -82,10 +82,10 @@ namespace Poderosa.PortForwarding {
             base.Dispose(disposing);
         }
 
-        #region Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi‚Å¶¬‚³‚ê‚½ƒR[ƒh
+        #region Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠã§ç”Ÿæˆã•ã‚ŒãŸã‚³ãƒ¼ãƒ‰
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this._sshHostLabel = new System.Windows.Forms.Label();
@@ -582,7 +582,7 @@ namespace Poderosa.PortForwarding {
                     p.AllowsForeignConnection = !_loopbackOnly.Checked;
                     /*
                     if(_udpOption.Checked && _loopbackOnly.Checked) {
-                        throw new Exception("ƒŠƒ‚[ƒg‚©‚çƒ[ƒJƒ‹‚Ö‚ÌUDP‚Ì“]‘—‚ğ‚·‚é‚Æ‚«‚ÍLoopbackˆÈŠO‚©‚ç‚ÌÚ‘±‚ğ‹–‰Â‚·‚é•K—v‚ª‚ ‚è‚Ü‚·B");
+                        throw new Exception("ãƒªãƒ¢ãƒ¼ãƒˆã‹ã‚‰ãƒ­ãƒ¼ã‚«ãƒ«ã¸ã®UDPã®è»¢é€ã‚’ã™ã‚‹ã¨ãã¯Loopbackä»¥å¤–ã‹ã‚‰ã®æ¥ç¶šã‚’è¨±å¯ã™ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™ã€‚");
                     }
                     */
                 }

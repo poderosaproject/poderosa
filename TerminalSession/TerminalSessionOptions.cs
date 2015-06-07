@@ -1,4 +1,4 @@
-/*
+Ôªø/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -67,7 +67,7 @@ namespace Poderosa.Sessions {
 
         public string PreferenceID {
             get {
-                return TerminalSessionsPlugin.PLUGIN_ID; //ìØÇ∂Ç∆Ç∑ÇÈ
+                return TerminalSessionsPlugin.PLUGIN_ID; //Âêå„Åò„Å®„Åô„Çã
             }
         }
 

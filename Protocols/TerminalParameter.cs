@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,23 +16,23 @@ using Granados;
 using Poderosa.MacroEngine;
 
 namespace Poderosa.Protocols {
-    /** TerminalParameter‘°‚Ì’ñ‹Ÿ
-     *    ‚±‚±‚Å‚Í]—ˆ‚Ì‚æ‚¤‚ÈƒNƒ‰ƒXŒp³ŠÖŒW‚ª‚ ‚é‚ªAGetAdapter‚Åæ‚é‚×‚«‚à‚Ì‚Å‚ ‚éB
-     *    •ïŠÜŠÖŒW‚ğŒp³‚Å•\Œ»‚µ‚Ä‚¢‚½‚Æ‚±‚ë‚Éƒ€ƒŠ‚ª¶‚¶‚Ä‚¢‚½B•¡”ƒCƒ“ƒ^ƒtƒF[ƒX‚ÌÀ‘•‚Ì‚½‚ß‚É•Ö‹X“I‚ÉŒp³‚ğg‚Á‚Ä‚¢‚é‚É‚·‚¬‚È‚¢
+    /** TerminalParameteræ—ã®æä¾›
+     *    ã“ã“ã§ã¯å¾“æ¥ã®ã‚ˆã†ãªã‚¯ãƒ©ã‚¹ç¶™æ‰¿é–¢ä¿‚ãŒã‚ã‚‹ãŒã€GetAdapterã§å–ã‚‹ã¹ãã‚‚ã®ã§ã‚ã‚‹ã€‚
+     *    åŒ…å«é–¢ä¿‚ã‚’ç¶™æ‰¿ã§è¡¨ç¾ã—ã¦ã„ãŸã¨ã“ã‚ã«ãƒ ãƒªãŒç”Ÿã˜ã¦ã„ãŸã€‚è¤‡æ•°ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹ã®å®Ÿè£…ã®ãŸã‚ã«ä¾¿å®œçš„ã«ç¶™æ‰¿ã‚’ä½¿ã£ã¦ã„ã‚‹ã«ã™ããªã„
      */
 
     internal abstract class TerminalParameter : ITerminalParameter, IAutoExecMacroParameter, ICloneable {
 
         public const string DEFAULT_TERMINAL_TYPE = "xterm";
 
-        private int _initialWidth;  //ƒVƒFƒ‹‚Ì•
-        private int _initialHeight; //ƒVƒFƒ‹‚Ì‚‚³
+        private int _initialWidth;  //ã‚·ã‚§ãƒ«ã®å¹…
+        private int _initialHeight; //ã‚·ã‚§ãƒ«ã®é«˜ã•
         private string _terminalType;
         private string _autoExecMacroPath;
 
         public TerminalParameter() {
             SetTerminalName(DEFAULT_TERMINAL_TYPE);
-            SetTerminalSize(80, 25); //‰½‚àİ’è‚µ‚È‚­‚Ä‚à
+            SetTerminalSize(80, 25); //ä½•ã‚‚è¨­å®šã—ãªãã¦ã‚‚
             _autoExecMacroPath = null;
         }
         public TerminalParameter(TerminalParameter src) {
@@ -81,7 +81,7 @@ namespace Poderosa.Protocols {
         //IAdaptable
         public virtual IAdaptable GetAdapter(Type adapter) {
 #if UNITTEST
-            return adapter.IsInstanceOfType(this) ? this : null; //UnitTest‚Å‚ÍPoderosa‚Ì‹N“®‚É‚È‚ç‚È‚¢ƒP[ƒX‚à‚ ‚é
+            return adapter.IsInstanceOfType(this) ? this : null; //UnitTestã§ã¯Poderosaã®èµ·å‹•ã«ãªã‚‰ãªã„ã‚±ãƒ¼ã‚¹ã‚‚ã‚ã‚‹
 #else
             return ProtocolsPlugin.Instance.PoderosaWorld.AdapterManager.GetAdapter(this, adapter);
 #endif
@@ -94,7 +94,7 @@ namespace Poderosa.Protocols {
         #endregion
     }
 
-    //Telnet, SSH‚Å‚ÌÚ‘±æî•ñ
+    //Telnet, SSHã§ã®æ¥ç¶šå…ˆæƒ…å ±
     internal abstract class TCPParameter : TerminalParameter, ITCPParameter {
         private string _destination;
         //private IPAddress _address;
@@ -257,7 +257,7 @@ namespace Poderosa.Protocols {
         }
         public override bool UIEquals(ITerminalParameter param) {
             ISSHLoginParameter ssh = (ISSHLoginParameter)param.GetAdapter(typeof(ISSHLoginParameter));
-            return ssh != null && base.UIEquals(param) && _account == ssh.Account; //ƒvƒƒgƒRƒ‹‚ªˆá‚¤‚¾‚¯‚Å‚Í“¯ˆê‹‚µ‚Ä‚µ‚Ü‚¤
+            return ssh != null && base.UIEquals(param) && _account == ssh.Account; //ãƒ—ãƒ­ãƒˆã‚³ãƒ«ãŒé•ã†ã ã‘ã§ã¯åŒä¸€è¦–ã—ã¦ã—ã¾ã†
         }
         #region ICloneable
         public override object Clone() {
@@ -329,13 +329,13 @@ namespace Poderosa.Protocols {
                 _shellName = value;
             }
         }
-        //ˆø”‚È‚µ‚ÌƒVƒFƒ‹–¼
+        //å¼•æ•°ãªã—ã®ã‚·ã‚§ãƒ«å
         [MacroConnectionParameter]
         public string ShellBody {
             get {
                 int c = _shellName.IndexOf(' ');
                 if (c != -1)
-                    return _shellName.Substring(0, c); //Å‰‚ÌƒXƒy[ƒX‚Ìè‘O‚Ü‚Å: ‚Ó‚Â‚¤/bin/bash
+                    return _shellName.Substring(0, c); //æœ€åˆã®ã‚¹ãƒšãƒ¼ã‚¹ã®æ‰‹å‰ã¾ã§: ãµã¤ã†/bin/bash
                 else
                     return _shellName;
             }
@@ -352,7 +352,7 @@ namespace Poderosa.Protocols {
 
 
         public override bool UIEquals(ITerminalParameter param) {
-            return param is LocalShellParameter; //Cygwin‚Í‘S•”“¯ˆê‹
+            return param is LocalShellParameter; //Cygwinã¯å…¨éƒ¨åŒä¸€è¦–
         }
 
         #region ICloneable

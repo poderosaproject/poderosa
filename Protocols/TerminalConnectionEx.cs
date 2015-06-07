@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,29 +13,29 @@ using System.Text;
 namespace Poderosa.Protocols {
     /// <summary>
     /// <ja>
-    /// ’ÊM‚·‚é‚½‚ß‚Ìƒ\ƒPƒbƒg‚Æ‚È‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// é€šä¿¡ã™ã‚‹ãŸã‚ã®ã‚½ã‚±ãƒƒãƒˆã¨ãªã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface to became a  socket to connection.
     /// </en>
     /// </summary>
     /// <remarks>
-    /// <ja>‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍAÚ‘±‚ğ¦‚·<seealso cref="ITerminalConnection">ITerminalConnection</seealso>‚Ì<see cref="ITerminalConnection.Socket">SocketƒvƒƒpƒeƒB</see>‚Æ‚µ‚Äæ“¾‚Å‚«‚Ü‚·B</ja><en>This interface can be got <see cref="ITerminalConnection.Socket">Socket property</see> that show connection on <seealso cref="ITerminalConnection">ITerminalConnection</seealso>.</en>
+    /// <ja>ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€æ¥ç¶šã‚’ç¤ºã™<seealso cref="ITerminalConnection">ITerminalConnection</seealso>ã®<see cref="ITerminalConnection.Socket">Socketãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>ã¨ã—ã¦å–å¾—ã§ãã¾ã™ã€‚</ja><en>This interface can be got <see cref="ITerminalConnection.Socket">Socket property</see> that show connection on <seealso cref="ITerminalConnection">ITerminalConnection</seealso>.</en>
     /// </remarks>
     public interface IPoderosaSocket : IByteOutputStream {
         /// <summary>
         /// <ja>
-        /// ƒf[ƒ^‚ğóM‚·‚é‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ“o˜^‚µ‚Ü‚·B
+        /// ãƒ‡ãƒ¼ã‚¿ã‚’å—ä¿¡ã™ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’ç™»éŒ²ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Regist the interface to recieve data.
         /// </en>
         /// </summary>
-        /// <param name="receiver"><ja>ƒf[ƒ^‚ğóM‚·‚é‚Æ‚«‚ÉŒÄ‚Ño‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX</ja><en>Interface called when recieve the data.</en></param>
+        /// <param name="receiver"><ja>ãƒ‡ãƒ¼ã‚¿ã‚’å—ä¿¡ã™ã‚‹ã¨ãã«å‘¼ã³å‡ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹</ja><en>Interface called when recieve the data.</en></param>
         /// <remarks>
         /// <ja>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ÍA•¡”‰ñŒÄ‚Ño‚µ‚ÄA‘½”‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ“o˜^‚·‚é‚±‚Æ‚Í‚Å‚«‚Ü‚¹‚ñB‚Ü‚½“o˜^‚µ‚½ƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ‰ğœ‚·‚é•û–@‚à
-        /// —pˆÓ‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã€è¤‡æ•°å›å‘¼ã³å‡ºã—ã¦ã€å¤šæ•°ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’ç™»éŒ²ã™ã‚‹ã“ã¨ã¯ã§ãã¾ã›ã‚“ã€‚ã¾ãŸç™»éŒ²ã—ãŸã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’è§£é™¤ã™ã‚‹æ–¹æ³•ã‚‚
+        /// ç”¨æ„ã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
         /// This method cannot register a lot of interfaces by calling it two or more times. Moreover, the method of releasing the registered interface is not prepared. 
@@ -44,7 +44,7 @@ namespace Poderosa.Protocols {
         void RepeatAsyncRead(IByteAsyncInputStream receiver);
         /// <summary>
         /// <ja>
-        /// ƒf[ƒ^‚ğóM‚·‚é‚±‚Æ‚ª‚Å‚«‚é‚©‚Ç‚¤‚©‚ğ¦‚µ‚Ü‚·Bfalse‚Ì‚Æ‚«‚É‚Íƒf[ƒ^‚ğóM‚Å‚«‚Ü‚¹‚ñB
+        /// ãƒ‡ãƒ¼ã‚¿ã‚’å—ä¿¡ã™ã‚‹ã“ã¨ãŒã§ãã‚‹ã‹ã©ã†ã‹ã‚’ç¤ºã—ã¾ã™ã€‚falseã®ã¨ãã«ã¯ãƒ‡ãƒ¼ã‚¿ã‚’å—ä¿¡ã§ãã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
         /// It shows whether to receive the data. At false, it is not possible to receive the data. 
@@ -55,7 +55,7 @@ namespace Poderosa.Protocols {
         }
         /// <summary>
         /// <ja>
-        /// ÅI“I‚ÈƒNƒŠ[ƒ“ƒAƒbƒv‚ğ‚µ‚Ü‚·Bƒ\ƒPƒbƒgAPI‚É‚ÍDisconnect, Shutdown, Close“™‚ª‚ ‚è‚Ü‚·‚ª‚»‚ê‚É‚æ‚ç‚¸‚ÉŠ®‘S‚È”jŠü‚ğÀs‚µ‚Ü‚·B
+        /// æœ€çµ‚çš„ãªã‚¯ãƒªãƒ¼ãƒ³ã‚¢ãƒƒãƒ—ã‚’ã—ã¾ã™ã€‚ã‚½ã‚±ãƒƒãƒˆAPIã«ã¯Disconnect, Shutdown, Closeç­‰ãŒã‚ã‚Šã¾ã™ãŒãã‚Œã«ã‚ˆã‚‰ãšã«å®Œå…¨ãªç ´æ£„ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// A final cleanup is done. A complete annulment is executed without depending on it though socket API includes Disconnect, Shutdown, and Close, etc.
@@ -64,10 +64,10 @@ namespace Poderosa.Protocols {
         void ForceDisposed();
     }
 
-    //’[––‚Æ‚µ‚Ä‚Ìo—ÍB‹ŒTerminalConnection‚Ì‚¢‚­‚Â‚©‚Ìƒƒ\ƒbƒh‚ğ”²‚«o‚µ‚½
+    //ç«¯æœ«ã¨ã—ã¦ã®å‡ºåŠ›ã€‚æ—§TerminalConnectionã®ã„ãã¤ã‹ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‚’æŠœãå‡ºã—ãŸ
     /// <summary>
     /// <ja>
-    /// ’[––ŒÅ—L‚Ìƒf[ƒ^‚ğo—Í‚·‚é‹@”\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// ç«¯æœ«å›ºæœ‰ã®ãƒ‡ãƒ¼ã‚¿ã‚’å‡ºåŠ›ã™ã‚‹æ©Ÿèƒ½ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Offer the function to output peculiar data to the terminal.
@@ -76,7 +76,7 @@ namespace Poderosa.Protocols {
     public interface ITerminalOutput {
         /// <summary>
         /// <ja>
-        /// ƒuƒŒ[ƒNM†‚ğ‘—M‚µ‚Ü‚·B
+        /// ãƒ–ãƒ¬ãƒ¼ã‚¯ä¿¡å·ã‚’é€ä¿¡ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Send break.
@@ -85,7 +85,7 @@ namespace Poderosa.Protocols {
         void SendBreak();
         /// <summary>
         /// <ja>
-        /// ƒL[ƒvƒAƒ‰ƒCƒuƒf[ƒ^‚ğ‘—M‚µ‚Ü‚·B
+        /// ã‚­ãƒ¼ãƒ—ã‚¢ãƒ©ã‚¤ãƒ–ãƒ‡ãƒ¼ã‚¿ã‚’é€ä¿¡ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Send keep alive data.
@@ -94,29 +94,29 @@ namespace Poderosa.Protocols {
         void SendKeepAliveData();
         /// <summary>
         /// <ja>
-        /// AreYouThere‚ğ‘—M‚µ‚Ü‚·B
+        /// AreYouThereã‚’é€ä¿¡ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Send AreYouThere.
         /// </en>
         /// </summary>
-        void AreYouThere(); //Telnet only‚©‚à‚æ
+        void AreYouThere(); //Telnet onlyã‹ã‚‚ã‚ˆ
         /// <summary>
         /// <ja>
-        /// ’[––‚ÌƒTƒCƒY‚ğ•ÏX‚·‚éƒRƒ}ƒ“ƒh‚ğ‘—M‚µ‚Ü‚·B
+        /// ç«¯æœ«ã®ã‚µã‚¤ã‚ºã‚’å¤‰æ›´ã™ã‚‹ã‚³ãƒãƒ³ãƒ‰ã‚’é€ä¿¡ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Send the command to which the size of the terminal is changed.
         /// </en>
         /// </summary>
-        /// <param name="width"><ja>•ÏXŒã‚Ì•i•¶š’PˆÊj</ja><en>Width after it changes(unit of character)</en></param>
-        /// <param name="height"><ja>•ÏXŒã‚Ì‚‚³i•¶š’PˆÊj</ja><en>Height after it changes(unit of character)</en></param>
+        /// <param name="width"><ja>å¤‰æ›´å¾Œã®å¹…ï¼ˆæ–‡å­—å˜ä½ï¼‰</ja><en>Width after it changes(unit of character)</en></param>
+        /// <param name="height"><ja>å¤‰æ›´å¾Œã®é«˜ã•ï¼ˆæ–‡å­—å˜ä½ï¼‰</ja><en>Height after it changes(unit of character)</en></param>
         void Resize(int width, int height);
     }
 
     /// <summary>
     /// <ja>
-    /// ƒ^[ƒ~ƒiƒ‹ƒRƒlƒNƒVƒ‡ƒ“‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that show the terminal connection.
@@ -124,9 +124,9 @@ namespace Poderosa.Protocols {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍA<seealso cref="Poderosa.Sessions.ITerminalSession">ITerminalSession</seealso>‚Ì
-    /// <see cref="Poderosa.Sessions.ITerminalSession.TerminalConnection">TerminalConnectionƒvƒƒpƒeƒB‚Å</see>
-    /// æ“¾‚Å‚«‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€<seealso cref="Poderosa.Sessions.ITerminalSession">ITerminalSession</seealso>ã®
+    /// <see cref="Poderosa.Sessions.ITerminalSession.TerminalConnection">TerminalConnectionãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã§</see>
+    /// å–å¾—ã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// This interface can be got in the <see cref="Poderosa.Sessions.ITerminalSession.TerminalConnection">TerminalConnection property</see> of <seealso cref="Poderosa.Sessions.ITerminalSession">ITerminalSession</seealso>. 
@@ -135,7 +135,7 @@ namespace Poderosa.Protocols {
     public interface ITerminalConnection : IAdaptable {
         /// <summary>
         /// <ja>
-        /// Ú‘±æî•ñ‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+        /// æ¥ç¶šå…ˆæƒ…å ±ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Interface that show the connection information.
@@ -146,8 +146,8 @@ namespace Poderosa.Protocols {
         }
         /// <summary>
         /// <ja>
-        /// ƒuƒŒ[ƒNM†‚Ì‘—M‚âAreYouThereA
-        /// ƒ^[ƒ~ƒiƒ‹ƒTƒCƒY•ÏX‚Ì’Ê’m‚È‚ÇAƒ^[ƒ~ƒiƒ‹‚É“Áê§Œä‚·‚éƒƒ\ƒbƒh‚ğ‚à‚ÂITerminalOutput‚Å‚·B
+        /// ãƒ–ãƒ¬ãƒ¼ã‚¯ä¿¡å·ã®é€ä¿¡ã‚„AreYouThereã€
+        /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚µã‚¤ã‚ºå¤‰æ›´ã®é€šçŸ¥ãªã©ã€ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã«ç‰¹æ®Šåˆ¶å¾¡ã™ã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ã‚’ã‚‚ã¤ITerminalOutputã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is ITerminalOutput with the method of the special control in terminals of the transmission of the break, AreYouThere, and the notification of the change of the size of the terminal, etc.
@@ -158,7 +158,7 @@ namespace Poderosa.Protocols {
         }
         /// <summary>
         /// <ja>
-        /// ƒ^[ƒ~ƒiƒ‹‚Ö‚Ì‘—óM‹@”\‚ğ‚à‚ÂIPoderosaSocket‚Å‚·B
+        /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã¸ã®é€å—ä¿¡æ©Ÿèƒ½ã‚’ã‚‚ã¤IPoderosaSocketã§ã™ã€‚
         /// </ja>
         /// <en>
         /// IPoderosaSocket with transmitting and receiving function to terminal.
@@ -169,7 +169,7 @@ namespace Poderosa.Protocols {
         }
         /// <summary>
         /// <ja>
-        /// Ú‘±‚ª•Â‚¶‚Ä‚¢‚é‚©‚Ç‚¤‚©‚ğ¦‚µ‚Ü‚·Btrue‚Ì‚Æ‚«Ú‘±‚Í•Â‚¶‚Ä‚¢‚Ü‚·B
+        /// æ¥ç¶šãŒé–‰ã˜ã¦ã„ã‚‹ã‹ã©ã†ã‹ã‚’ç¤ºã—ã¾ã™ã€‚trueã®ã¨ãæ¥ç¶šã¯é–‰ã˜ã¦ã„ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is shown whether the connection closes. The connection close at true. 
@@ -180,13 +180,13 @@ namespace Poderosa.Protocols {
         }
 
         /// <summary>
-        /// <ja>Ú‘±‚ğ•Â‚¶‚Ü‚·B</ja>
+        /// <ja>æ¥ç¶šã‚’é–‰ã˜ã¾ã™ã€‚</ja>
         /// <en>Close the connection.</en>
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ‚±‚ÌƒRƒlƒNƒVƒ‡ƒ“‚ªƒ^[ƒ~ƒiƒ‹ƒZƒbƒVƒ‡ƒ“‚Æ‚µ‚Äg‚í‚ê‚Ä‚¢‚éê‡‚É‚ÍA’¼Ú‚±‚Ìƒƒ\ƒbƒh‚ğŒÄ‚Ño‚³‚¸A
-        /// ƒ^[ƒ~ƒiƒ‹ƒZƒbƒVƒ‡ƒ“‘¤‚©‚çØ’f‚µ‚Ä‚­‚¾‚³‚¢B
+        /// ã“ã®ã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ãŒã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚»ãƒƒã‚·ãƒ§ãƒ³ã¨ã—ã¦ä½¿ã‚ã‚Œã¦ã„ã‚‹å ´åˆã«ã¯ã€ç›´æ¥ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‚’å‘¼ã³å‡ºã•ãšã€
+        /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚»ãƒƒã‚·ãƒ§ãƒ³å´ã‹ã‚‰åˆ‡æ–­ã—ã¦ãã ã•ã„ã€‚
         /// </ja>
         /// <en>
         /// Please do not call this method directly when this connection is used as a terminal session, and cut it from the terminal session side. 

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,7 +34,7 @@ namespace Poderosa.Preferences {
         private IPoderosaApplication _poderosaApplication;
         private StructuredText _rootNote;
 
-        //Note static‚È‚Ì‚Í‚¿‚å‚Á‚Æ‚¢‚â‚ç‚µ‚¢
+        //Note staticãªã®ã¯ã¡ã‚‡ã£ã¨ã„ã‚„ã‚‰ã—ã„
         private static IPreferenceSupplier _testSupplier;
         public static IPreferenceSupplier CurrentTestSupplier {
             get {
@@ -105,7 +105,7 @@ namespace Poderosa.Preferences {
 
         [TestFixtureSetUp]
         public void Init() {
-            //TODO PluginManifest‚Ì‚¢‚­‚Â‚©‚Í‚±‚±‚É“ü‚ê‚é‚±‚Æ‚Å‚«‚»‚¤
+            //TODO PluginManifestã®ã„ãã¤ã‹ã¯ã“ã“ã«å…¥ã‚Œã‚‹ã“ã¨ã§ããã†
         }
 
         [Test]
@@ -121,7 +121,7 @@ namespace Poderosa.Preferences {
             InitPreference(supplier, null);
             supplier.SetI(12);
             _poderosaApplication.Shutdown();
-            Assert.AreEqual("unittest {\r\n  i=12\r\n}\r\n", Dump(_rootNote)); //ƒfƒtƒHƒ‹ƒg’l‚Í‹L˜^‚³‚ê‚È‚¢‚±‚Æ‚É’ˆÓ
+            Assert.AreEqual("unittest {\r\n  i=12\r\n}\r\n", Dump(_rootNote)); //ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤ã¯è¨˜éŒ²ã•ã‚Œãªã„ã“ã¨ã«æ³¨æ„
         }
 
         [Test]
@@ -224,7 +224,7 @@ namespace Poderosa.Preferences {
             }
 
             public override object QueryAdapter(IPreferenceFolder folder, Type adapter) {
-                //Snapshot‚É‘Î‚·‚éƒAƒNƒVƒ‡ƒ“‚ª‚ ‚é‚Ì‚ÅAfolder==_folder‚Ì”äŠr‚Å‚ÍƒAƒEƒg
+                //Snapshotã«å¯¾ã™ã‚‹ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ãŒã‚ã‚‹ã®ã§ã€folder==_folderã®æ¯”è¼ƒã§ã¯ã‚¢ã‚¦ãƒˆ
                 if (adapter == typeof(IUserFriendlyInterface)) {
                     if (_folder == folder)
                         return this;
@@ -232,7 +232,7 @@ namespace Poderosa.Preferences {
                         return this.CloneFor(folder);
                 }
 
-                //¸”sƒP[ƒX
+                //å¤±æ•—ã‚±ãƒ¼ã‚¹
                 return null;
             }
         }
@@ -243,22 +243,22 @@ namespace Poderosa.Preferences {
             InitPreference(supplier, null);
 
             Assert.AreEqual(0, supplier._validatedI);
-            Assert.AreEqual(0, supplier._validatedS); //initial value‚Å‰Šú‰»‚³‚ê‚½‚Í‚¸
+            Assert.AreEqual(0, supplier._validatedS); //initial valueã§åˆæœŸåŒ–ã•ã‚ŒãŸã¯ãš
 
             supplier.SetI(5);
             supplier.SetS("aaaaa");
             Assert.AreEqual(1, supplier._validatedI);
-            Assert.AreEqual(1, supplier._validatedS); //‚»‚ê‚¼‚êŒÄ‚Î‚ê‚½‚Í‚¸
+            Assert.AreEqual(1, supplier._validatedS); //ãã‚Œãã‚Œå‘¼ã°ã‚ŒãŸã¯ãš
         }
         [Test]
         public void TestValidators2() {
             ValidatingSupplier supplier = new ValidatingSupplier();
-            InitPreference(supplier, "unittest {\r\n  s=vieri\r\n  i=30\r\n}\r\n"); //‡”Ô‚¢‚ê‚©‚¦‚Ä‚İ‚½
+            InitPreference(supplier, "unittest {\r\n  s=vieri\r\n  i=30\r\n}\r\n"); //é †ç•ªã„ã‚Œã‹ãˆã¦ã¿ãŸ
 
             Assert.AreEqual(1, supplier._validatedI);
-            Assert.AreEqual(1, supplier._validatedS); //ƒp[ƒX‚µ‚½’l‚ğValidate‚µ‚½‚Í‚¸
+            Assert.AreEqual(1, supplier._validatedS); //ãƒ‘ãƒ¼ã‚¹ã—ãŸå€¤ã‚’Validateã—ãŸã¯ãš
 
-            Assert.AreEqual(10, supplier.GetI()); //’l‚ÌƒGƒ‰[‚É‚æ‚è‰Šú‰»‚³‚ê‚½‚Í‚¸
+            Assert.AreEqual(10, supplier.GetI()); //å€¤ã®ã‚¨ãƒ©ãƒ¼ã«ã‚ˆã‚ŠåˆæœŸåŒ–ã•ã‚ŒãŸã¯ãš
 
         }
         [Test]
@@ -275,12 +275,12 @@ namespace Poderosa.Preferences {
                 caught = true;
                 result = ex.Result;
             }
-            Assert.AreEqual(true, caught); //ƒGƒ‰[‚É‚È‚ç‚È‚¢‚Æ‚¨‚©‚µ‚¢
+            Assert.AreEqual(true, caught); //ã‚¨ãƒ©ãƒ¼ã«ãªã‚‰ãªã„ã¨ãŠã‹ã—ã„
             supplier.SetS("aaaaa");
             Assert.AreEqual(1, supplier._validatedI);
-            Assert.AreEqual(1, supplier._validatedS); //‚»‚ê‚¼‚êŒÄ‚Î‚ê‚½‚Í‚¸
+            Assert.AreEqual(1, supplier._validatedS); //ãã‚Œãã‚Œå‘¼ã°ã‚ŒãŸã¯ãš
 
-            Assert.AreEqual("must be 0-10", result.ErrorMessage); //‘¼‚ğValidation‚µ‚Ä‚àƒRƒs[‚ªc‚Á‚Ä‚¢‚È‚¢‚Æƒ_ƒ
+            Assert.AreEqual("must be 0-10", result.ErrorMessage); //ä»–ã‚’Validationã—ã¦ã‚‚ã‚³ãƒ”ãƒ¼ãŒæ®‹ã£ã¦ã„ãªã„ã¨ãƒ€ãƒ¡
         }
         private class ValidatingSupplier : EmptyPreferenceSupplier {
             private IIntPreferenceItem _i;
@@ -327,15 +327,15 @@ namespace Poderosa.Preferences {
             Assert.IsTrue(if1 != if2);
 
             Assert.AreEqual(20, if2.i);
-            Assert.AreEqual("vieri", if2.s); //’l‚ªƒRƒs[‚³‚ê‚½‚±‚Æ‚ğŠm”F
+            Assert.AreEqual("vieri", if2.s); //å€¤ãŒã‚³ãƒ”ãƒ¼ã•ã‚ŒãŸã“ã¨ã‚’ç¢ºèª
 
             if2.i = 10;
             Assert.AreEqual(10, if2.i);
-            Assert.AreEqual(20, if1.i); //•Ğ•û‚¾‚¯•ÏX‚³‚ê‚½‚±‚Æ‚ğŠm”F
+            Assert.AreEqual(20, if1.i); //ç‰‡æ–¹ã ã‘å¤‰æ›´ã•ã‚ŒãŸã“ã¨ã‚’ç¢ºèª
 
             supplier.RootFolder.Import(cl);
             Assert.AreEqual(10, if2.i);
-            Assert.AreEqual(10, if1.i); //ƒCƒ“ƒ|[ƒg‚³‚ê‚½‚±‚Æ‚ğŠm”F
+            Assert.AreEqual(10, if1.i); //ã‚¤ãƒ³ãƒãƒ¼ãƒˆã•ã‚ŒãŸã“ã¨ã‚’ç¢ºèª
         }
 
         [Test]
@@ -349,7 +349,7 @@ namespace Poderosa.Preferences {
             IPreferenceFolder f = supplier.RootFolder.Clone();
             supplier.RootFolder.Import(f);
             Assert.AreEqual(1, l._count);
-            //‚à‚¤‚¿‚å‚Á‚ÆŠm”F‚µ‚½‚¢
+            //ã‚‚ã†ã¡ã‚‡ã£ã¨ç¢ºèªã—ãŸã„
 
         }
 
@@ -377,7 +377,7 @@ namespace Poderosa.Preferences {
 
             Assert.AreEqual(2, array.Folders.Length);
             IPreferenceFolder foo1 = array.Folders[0];
-            Assert.AreEqual("vieri", ((IStringPreferenceItem)foo1.FindItem("s")).Value); //ToDo •¶š—ñŒŸõ‚Í‚¢‚â‚ç‚µ‚¢
+            Assert.AreEqual("vieri", ((IStringPreferenceItem)foo1.FindItem("s")).Value); //ToDo æ–‡å­—åˆ—æ¤œç´¢ã¯ã„ã‚„ã‚‰ã—ã„
             IPreferenceFolder foo2 = array.Folders[1];
             Assert.AreEqual("bobo", ((IStringPreferenceItem)foo2.FindItem("s")).Value);
         }

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  Copyright (c) 2005 Poderosa Project, All Rights Reserved.
 
  $Id: connectionmanager.cs,v 1.2 2011/10/27 23:21:57 kzmi Exp $
@@ -15,7 +15,7 @@ using Granados;
 using Poderosa.Toolkit;
 
 namespace Poderosa.PortForwarding {
-    //ƒzƒXƒg–¼/IPƒAƒhƒŒƒX‚©‚çSSH‚ÌƒRƒlƒNƒVƒ‡ƒ“‚Ö‚Ìƒ}ƒbƒv‚ğŠÇ—‚·‚é
+    //ãƒ›ã‚¹ãƒˆå/IPã‚¢ãƒ‰ãƒ¬ã‚¹ã‹ã‚‰SSHã®ã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ã¸ã®ãƒãƒƒãƒ—ã‚’ç®¡ç†ã™ã‚‹
     internal class ConnectionManager {
         private Hashtable _profileToConnection;
         private ArrayList _manualClosingConnections;
@@ -25,9 +25,9 @@ namespace Poderosa.PortForwarding {
             _manualClosingConnections = new ArrayList();
         }
 
-        //prof‚É‘Î‰‚µ‚½SSHConnection‚ğ•Ô‚·BÚ‘±‚ª‚È‚¯‚ê‚Îparent‚ğe‚É”FØƒ_ƒCƒAƒƒO‚ğo‚µ‚Ä”FØ‚·‚é
+        //profã«å¯¾å¿œã—ãŸSSHConnectionã‚’è¿”ã™ã€‚æ¥ç¶šãŒãªã‘ã‚Œã°parentã‚’è¦ªã«èªè¨¼ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ã‚’å‡ºã—ã¦èªè¨¼ã™ã‚‹
         public SSHConnection GetOrCreateConnection(ChannelProfile prof, Form parent) {
-            //ƒzƒXƒg–¼‚ÆƒAƒJƒEƒ“ƒg‚ÌƒyƒA‚©‚çƒRƒlƒNƒVƒ‡ƒ“‚ğ‹¤—L‚·‚éd‘g‚İ‚ª‚ ‚é‚Æ‚æ‚¢‚©‚à
+            //ãƒ›ã‚¹ãƒˆåã¨ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã®ãƒšã‚¢ã‹ã‚‰ã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ã‚’å…±æœ‰ã™ã‚‹ä»•çµ„ã¿ãŒã‚ã‚‹ã¨ã‚ˆã„ã‹ã‚‚
             SSHConnection c = (SSHConnection)_profileToConnection[prof];
             if (c != null)
                 return c;
@@ -103,7 +103,7 @@ namespace Poderosa.PortForwarding {
 
         private delegate void RefreshProfileStatusDelegate(ChannelProfile prof);
 
-        //I—¹‚Ìƒnƒ“ƒhƒŠƒ“ƒO ”ñ“¯Šú‚É•ÊƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é‚Ì‚Å’ˆÓ
+        //çµ‚äº†ã®ãƒãƒ³ãƒ‰ãƒªãƒ³ã‚° éåŒæœŸã«åˆ¥ã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰å‘¼ã°ã‚Œã‚‹ã®ã§æ³¨æ„
         public void ConnectionClosed(SSHConnection connection) {
             IDictionaryEnumerator e = _profileToConnection.GetEnumerator();
             while (e.MoveNext()) {
@@ -176,7 +176,7 @@ namespace Poderosa.PortForwarding {
                 */
                 _result.FixConnection(c);
                 if (Env.Options.RetainsPassphrase)
-                    _profile.Passphrase = _password; //Ú‘±¬Œ÷‚Ì‚İƒZƒbƒg
+                    _profile.Passphrase = _password; //æ¥ç¶šæˆåŠŸæ™‚ã®ã¿ã‚»ãƒƒãƒˆ
             }
             else {
                 throw new IOException(Env.Strings.GetString("Message.ConnectionManager.ConnectionCancelled"));
@@ -189,7 +189,7 @@ namespace Poderosa.PortForwarding {
         }
 
         private bool CheckKey(SSHConnectionInfo ci) {
-            SetIgnoreTimeout(); //‚±‚ê‚ªŒÄ‚Î‚ê‚é‚Æ‚¢‚¤‚±‚Æ‚Í“r’†‚Ü‚ÅSSH‚ÌƒlƒSƒVƒG[ƒg‚ª‚Å‚«‚Ä‚¢‚é‚Ì‚Åƒ^ƒCƒ€ƒAƒEƒg‚Í‚µ‚È‚¢‚æ‚¤‚É‚·‚é
+            SetIgnoreTimeout(); //ã“ã‚ŒãŒå‘¼ã°ã‚Œã‚‹ã¨ã„ã†ã“ã¨ã¯é€”ä¸­ã¾ã§SSHã®ãƒã‚´ã‚·ã‚¨ãƒ¼ãƒˆãŒã§ãã¦ã„ã‚‹ã®ã§ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆã¯ã—ãªã„ã‚ˆã†ã«ã™ã‚‹
             return _keycheck(ci);
         }
 

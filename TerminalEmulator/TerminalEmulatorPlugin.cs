@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,7 @@ using Poderosa.Commands;
 namespace Poderosa.Terminal {
     /// <summary>
     /// <ja>
-    /// TerminalEmulatorPluginƒvƒ‰ƒOƒCƒ“‚ª’ñ‹Ÿ‚·‚éŠg’£ƒ|ƒCƒ“ƒg‚Å‚·B
+    /// TerminalEmulatorPluginãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒæä¾›ã™ã‚‹æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Extension point that TerminalEmulatorPlugin plug-in offers.
@@ -57,7 +57,7 @@ namespace Poderosa.Terminal {
         private ShellSchemeCollection _shellSchemeCollection;
         private PromptCheckerWithTimer _promptCheckerWithTimer;
 
-        private bool _laterInitialized; //’x‰„‰Šú‰»—pƒtƒ‰ƒO
+        private bool _laterInitialized; //é…å»¶åˆæœŸåŒ–ç”¨ãƒ•ãƒ©ã‚°
 
         private static TerminalEmulatorPlugin _instance;
         public static TerminalEmulatorPlugin Instance {
@@ -92,13 +92,13 @@ namespace Poderosa.Terminal {
             //PromptChecker
             _promptCheckerWithTimer = new PromptCheckerWithTimer();
 
-            //Edit Menu‚É’Ç‰Á
+            //Edit Menuã«è¿½åŠ 
             IExtensionPoint editmenu = pm.FindExtensionPoint("org.poderosa.menu.edit");
             editmenu.RegisterExtension(new AdvancedCopyPasteMenuGroup());
             editmenu.RegisterExtension(new TerminalBufferMenuGroup());
             editmenu.RegisterExtension(new SelectionMenuGroup());
 
-            //Console Menu : ‚±‚ê‚Íˆ’u‚É¢‚é‚Æ‚±‚ë‚¾‚ªI
+            //Console Menu : ã“ã‚Œã¯å‡¦ç½®ã«å›°ã‚‹ã¨ã“ã‚ã ãŒï¼
             IExtensionPoint consolemenu = pm.FindExtensionPoint("org.poderosa.menu.console");
             consolemenu.RegisterExtension(new TerminalSettingMenuGroup());
             consolemenu.RegisterExtension(new IntelliSenseMenuGroup());
@@ -109,7 +109,7 @@ namespace Poderosa.Terminal {
             _contextMenu.RegisterExtension(new TerminalSettingMenuGroup());
             _contextMenu.RegisterExtension(new IntelliSenseMenuGroup());
 
-            //ƒ^ƒu‚ÌƒRƒ“ƒeƒLƒXƒgƒƒjƒ…[
+            //ã‚¿ãƒ–ã®ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼
             _documentContextMenu = pm.CreateExtensionPoint(TerminalEmulatorConstants.DOCUMENT_CONTEXT_MENU_EXTENSIONPOINT, typeof(IPoderosaMenuGroup), this);
             _documentContextMenu.RegisterExtension(new PoderosaMenuGroupImpl(new PoderosaMenuItemImpl(
                 cs.CommandManager.Find("org.poderosa.core.session.closedocument"), GEnv.Strings, "Menu.DocumentClose")));
@@ -120,7 +120,7 @@ namespace Poderosa.Terminal {
             toolbar.RegisterExtension(terminaltoolbar);
             GetSessionManager().AddActiveDocumentChangeListener(terminaltoolbar);
 
-            //‚»‚Ì‘¼ Extension
+            //ãã®ä»– Extension
             _intelliSenseExtension = pm.CreateExtensionPoint(TerminalEmulatorConstants.INTELLISENSE_CANDIDATE_EXTENSIONPOINT, typeof(IIntelliSenseCandidateExtension), this);
             _autoLogFileFormatter = pm.CreateExtensionPoint(TerminalEmulatorConstants.LOG_FILENAME_FORMATTER_EXTENSIONPOINT, typeof(IAutoLogFileFormatter), this);
             _dynamicCaptionFormatter = pm.CreateExtensionPoint(TerminalEmulatorConstants.DYNAMIC_CAPTION_FORMATTER_EXTENSIONPOINT, typeof(IDynamicCaptionFormatter), this);
@@ -239,7 +239,7 @@ namespace Poderosa.Terminal {
         private FixedStyleKeyFunction _keyFunction;
 
         public void Reset(ITerminalEmulatorOptions opt) {
-            //TODO ‚±‚±‚ÍPeripheralPanel‚Æ‚©‚Ô‚Á‚Ä‚¢‚éB‚È‚ñ‚Æ‚©‚µ‚½‚¢
+            //TODO ã“ã“ã¯PeripheralPanelã¨ã‹ã¶ã£ã¦ã„ã‚‹ã€‚ãªã‚“ã¨ã‹ã—ãŸã„
             StringBuilder bld = new StringBuilder();
             if (opt.Send0x7FByDel)
                 bld.Append("Delete=0x7F");
@@ -267,16 +267,16 @@ namespace Poderosa.Terminal {
                 bld.Append(opt.CustomKeySettings);
             }
 
-            //dã‚°Bƒp[ƒXƒGƒ‰[‚ª‚¿‚å‚Á‚ÆƒAƒŒ‚¾
+            //ä»•ä¸Šã’ã€‚ãƒ‘ãƒ¼ã‚¹ã‚¨ãƒ©ãƒ¼ãŒã¡ã‚‡ã£ã¨ã‚¢ãƒ¬ã 
             _keyFunction = KeyFunction.Parse(bld.ToString()).ToFixedStyle();
         }
 
         public char[] Scan(Keys key) {
-            //TODO ‚±‚ÌÀ‘•‚¾‚ÆAƒp[ƒXƒGƒ‰[‚Ì‚ ‚é‚Æ‚«AƒL[‚ğ‰Ÿ‚µ‚½“_‚ÅƒGƒ‰[‚É‚È‚éB‚±‚ê‚Í‚Ü‚¸‚¢BPreferenceListener‚Éƒ[ƒhŠ®—¹’Ê’m‚ª—~‚µ‚¢
+            //TODO ã“ã®å®Ÿè£…ã ã¨ã€ãƒ‘ãƒ¼ã‚¹ã‚¨ãƒ©ãƒ¼ã®ã‚ã‚‹ã¨ãã€ã‚­ãƒ¼ã‚’æŠ¼ã—ãŸæ™‚ç‚¹ã§ã‚¨ãƒ©ãƒ¼ã«ãªã‚‹ã€‚ã“ã‚Œã¯ã¾ãšã„ã€‚PreferenceListenerã«ãƒ­ãƒ¼ãƒ‰å®Œäº†é€šçŸ¥ãŒæ¬²ã—ã„
             if (_keyFunction == null)
                 Reset(GEnv.Options);
 
-            //Às•p“x‚‚¢‚Ì‚ÅA‚¢‚¿‚¨‚¤AIEnumeratorg‚í‚È‚¢B
+            //å®Ÿè¡Œé »åº¦é«˜ã„ã®ã§ã€ã„ã¡ãŠã†ã€IEnumeratorä½¿ã‚ãªã„ã€‚
             for (int i = 0; i < _keyFunction._keys.Length; i++) {
                 if (_keyFunction._keys[i] == key)
                     return _keyFunction._datas[i];
@@ -285,11 +285,11 @@ namespace Poderosa.Terminal {
         }
     }
 
-    //ƒ^ƒCƒ}[‚Åƒvƒƒ“ƒvƒg”F¯
+    //ã‚¿ã‚¤ãƒãƒ¼ã§ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆèªè­˜
     internal class PromptCheckerWithTimer {
         //private ITimerSite _timerSite;
         public PromptCheckerWithTimer() {
-            //IntelliSense‚É•›ì—p‚ ‚é‚Ì‚Åˆê’â~’†
+            //IntelliSenseã«å‰¯ä½œç”¨ã‚ã‚‹ã®ã§ä¸€æ™‚åœæ­¢ä¸­
             //_timerSite = TerminalEmulatorPlugin.Instance.GetWinFormsService().CreateTimer(1000, new TimerDelegate(OnTimer));
         }
         public void Close() {
@@ -297,10 +297,10 @@ namespace Poderosa.Terminal {
         }
 
         private void OnTimer() {
-            //‘Sƒ^[ƒ~ƒiƒ‹‚ÉˆêÄˆ’u
+            //å…¨ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã«ä¸€æ–‰å‡¦ç½®
             ISessionManager sm = TerminalEmulatorPlugin.Instance.GetSessionManager();
             foreach (ISession s in sm.AllSessions) {
-                //‚¿‚å‚Á‚Æ— ‹Z“I‚¾‚ª
+                //ã¡ã‚‡ã£ã¨è£æŠ€çš„ã ãŒ
                 ITerminalControlHost tc = (ITerminalControlHost)s.GetAdapter(typeof(ITerminalControlHost));
                 if (tc != null) {
                     tc.Terminal.PromptRecognizer.CheckIfUpdated();

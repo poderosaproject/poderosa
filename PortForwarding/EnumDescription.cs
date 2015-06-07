@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright (c) 2005 Poderosa Project, All Rights Reserved.
 * $Id: EnumDescription.cs,v 1.3 2012/03/18 12:05:53 kzmi Exp $
 */

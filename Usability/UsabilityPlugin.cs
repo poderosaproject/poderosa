@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -79,7 +79,7 @@ namespace Poderosa.Usability {
     }
 
 #if false
-    //UsabilityPlugin‚ÌƒIƒvƒVƒ‡ƒ“BGUI‚Å‚Ìİ’è‚Í‚È‚¢‚Ì‚ÅŠy‚ÈÀ‘•
+    //UsabilityPluginã®ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã€‚GUIã§ã®è¨­å®šã¯ãªã„ã®ã§æ¥½ãªå®Ÿè£…
     internal class UsabilityPluginPreference : IPreferenceSupplier {
         private IStringPreferenceItem _knownHostsPath;
 

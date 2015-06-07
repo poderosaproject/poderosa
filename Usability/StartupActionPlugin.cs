@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
@@ -96,7 +96,7 @@ namespace Poderosa.Usability {
         }
         #endregion
 
-        //ƒƒCƒ““®ì
+        //ãƒ¡ã‚¤ãƒ³å‹•ä½œ
         public void DoAction(ICommandTarget target, StartupAction act) {
             switch (act) {
                 case StartupAction.TelnetSSHDialog:
@@ -111,7 +111,7 @@ namespace Poderosa.Usability {
         }
 
         public void OpenFile(ICommandTarget target, string filename) {
-            //«—ˆ“I‚É‚ÍƒVƒ‡[ƒgƒJƒbƒgƒtƒ@ƒCƒ‹ˆÈŠO‚ğŠJ‚­‚±‚Æ‚à‚ ‚é‚©‚à‚µ‚ê‚È‚¢‚ª...
+            //å°†æ¥çš„ã«ã¯ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆãƒ•ã‚¡ã‚¤ãƒ«ä»¥å¤–ã‚’é–‹ãã“ã¨ã‚‚ã‚ã‚‹ã‹ã‚‚ã—ã‚Œãªã„ãŒ...
             _sessionService.TerminalSessionStartCommand.OpenShortcutFile(target, filename);
         }
     }

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  Copyright (c) 2005 Poderosa Project, All Rights Reserved.
 
  $Id: MainForm.cs,v 1.2 2011/10/27 23:21:57 kzmi Exp $
@@ -13,7 +13,7 @@ using System.Net.Sockets;
 
 namespace Poderosa.PortForwarding {
     /// <summary>
-    /// MainForm ‚ÌŠT—v‚Ìà–¾‚Å‚·B
+    /// MainForm ã®æ¦‚è¦ã®èª¬æ˜ã§ã™ã€‚
     /// </summary>
     internal class MainForm : System.Windows.Forms.Form {
         private Hashtable _menuMap;
@@ -53,13 +53,13 @@ namespace Poderosa.PortForwarding {
 
         public MainForm() {
             //
-            // Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Å‚·B
+            // Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ã§ã™ã€‚
             //
             InitializeComponent();
             InitializeText();
 
             //
-            // TODO: InitializeComponent ŒÄ‚Ño‚µ‚ÌŒã‚ÉAƒRƒ“ƒXƒgƒ‰ƒNƒ^ ƒR[ƒh‚ğ’Ç‰Á‚µ‚Ä‚­‚¾‚³‚¢B
+            // TODO: InitializeComponent å‘¼ã³å‡ºã—ã®å¾Œã«ã€ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ ã‚³ãƒ¼ãƒ‰ã‚’è¿½åŠ ã—ã¦ãã ã•ã„ã€‚
             //
             InitMenuShortcut();
 
@@ -67,7 +67,7 @@ namespace Poderosa.PortForwarding {
         }
 
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -78,10 +78,10 @@ namespace Poderosa.PortForwarding {
             base.Dispose(disposing);
         }
 
-        #region Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi‚Å¶¬‚³‚ê‚½ƒR[ƒh
+        #region Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠã§ç”Ÿæˆã•ã‚ŒãŸã‚³ãƒ¼ãƒ‰
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
@@ -317,7 +317,7 @@ namespace Poderosa.PortForwarding {
         public void ReloadLanguage() {
             InitializeText();
             /*
-            //‚±‚¤‚·‚é‚±‚Æ‚Åƒƒjƒ…[•‚ª’²®‚³‚ê‚é
+            //ã“ã†ã™ã‚‹ã“ã¨ã§ãƒ¡ãƒ‹ãƒ¥ãƒ¼å¹…ãŒèª¿æ•´ã•ã‚Œã‚‹
             MainMenu mm = new MainMenu();
             while (_mainMenu.Items.Count > 0) {
                 mm.Items.Add(_mainMenu.Items[0]);
@@ -413,7 +413,7 @@ namespace Poderosa.PortForwarding {
 
 
         private void OnMenu(object sender, EventArgs args) {
-            //MenuMap‚É‚ ‚ê‚Î•ÏŠ·B‚±‚ê‚ÅContext Menu‚ğˆ—
+            //MenuMapã«ã‚ã‚Œã°å¤‰æ›ã€‚ã“ã‚Œã§Context Menuã‚’å‡¦ç†
             object t = _menuMap[sender];
             if (t != null)
                 sender = t;
@@ -501,7 +501,7 @@ namespace Poderosa.PortForwarding {
             return null;
         }
 
-        //ƒRƒ“ƒeƒLƒXƒgƒƒjƒ…[‚Æ‘o•û‚Åg—p‚·‚é
+        //ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼ã¨åŒæ–¹ã§ä½¿ç”¨ã™ã‚‹
         private void AdjustMenu(ToolStripItemCollection items, ChannelProfile prof) {
             bool connected = prof != null && Env.Connections.IsConnected(prof);
 
@@ -534,13 +534,13 @@ namespace Poderosa.PortForwarding {
 
         protected override void OnActivated(EventArgs e) {
             base.OnActivated(e);
-            //ŠO•”‚©‚çShowWindow‚ÅƒAƒNƒeƒBƒu‚É‚·‚é‚Æ‚È‚º‚©ƒŠƒXƒgƒrƒ…[‚ª‚¨‚©‚µ‚­‚È‚é
+            //å¤–éƒ¨ã‹ã‚‰ShowWindowã§ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ã™ã‚‹ã¨ãªãœã‹ãƒªã‚¹ãƒˆãƒ“ãƒ¥ãƒ¼ãŒãŠã‹ã—ããªã‚‹
             this.Visible = true;
             this.WindowState = FormWindowState.Normal;
             this.ShowInTaskbar = Env.Options.ShowInTaskBar;
         }
 
-        //•ÊƒXƒŒƒbƒh‚©‚ç‚ÌŒx
+        //åˆ¥ã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰ã®è­¦å‘Š
         public void ShowError(string msg) {
             Util.Warning(this, msg);
         }

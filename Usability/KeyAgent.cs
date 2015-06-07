@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,19 +22,19 @@ using Poderosa.Forms;
 using Poderosa.Util.Collections;
 
 namespace Poderosa.Usability {
-    //ŠeŒ®‚Ìó‘Ô
+    //å„éµã®çŠ¶æ…‹
     internal enum PrivateKeyStatus {
-        OK, //—LŒø‚ÈŒ®
-        PassphraseRequired, //ƒpƒXƒtƒŒ[ƒY‚ª‹‚ß‚ç‚ê‚é
-        FileError, //ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚ç‚È‚¢A—LŒø‚ÈŒ`®‚Å‚È‚¢
-        Initial //–¢ˆ—
+        OK, //æœ‰åŠ¹ãªéµ
+        PassphraseRequired, //ãƒ‘ã‚¹ãƒ•ãƒ¬ãƒ¼ã‚ºãŒæ±‚ã‚ã‚‰ã‚Œã‚‹
+        FileError, //ãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚‰ãªã„ã€æœ‰åŠ¹ãªå½¢å¼ã§ãªã„
+        Initial //æœªå‡¦ç†
     }
 
-    //ŒÂX‚ÌŒ®
+    //å€‹ã€…ã®éµ
     internal class AgentPrivateKey {
         private string _filename;
         private PrivateKeyStatus _status;
-        private SSH2UserAuthKey _key; //—LŒø‰»‚·‚é‚Ü‚Å‚Ínull
+        private SSH2UserAuthKey _key; //æœ‰åŠ¹åŒ–ã™ã‚‹ã¾ã§ã¯null
 
         public AgentPrivateKey(string filename) {
             _filename = filename;
@@ -58,17 +58,17 @@ namespace Poderosa.Usability {
             }
         }
 
-        //ó‘ÔXV ƒpƒXƒtƒŒ[ƒY“ü—Íƒ_ƒCƒAƒƒO‚©‚ç
+        //çŠ¶æ…‹æ›´æ–° ãƒ‘ã‚¹ãƒ•ãƒ¬ãƒ¼ã‚ºå…¥åŠ›ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ã‹ã‚‰
         public void SetStatus(PrivateKeyStatus st, SSH2UserAuthKey key) {
             _status = st;
             _key = key;
         }
 
-        //ƒpƒXƒtƒŒ[ƒY“ü—Í‚Ü‚Å‚Í‚¢‚¯‚»‚¤‚©‚Ç‚¤‚©‚ğ”»’è‚µAstatus‚àXV‚·‚é
-        public bool GuessValidKeyFileOrWarn(IPoderosaForm form) { //•ÊƒXƒŒƒbƒh‚©‚çŒÄ‚Ô”Å
+        //ãƒ‘ã‚¹ãƒ•ãƒ¬ãƒ¼ã‚ºå…¥åŠ›ã¾ã§ã¯ã„ã‘ãã†ã‹ã©ã†ã‹ã‚’åˆ¤å®šã—ã€statusã‚‚æ›´æ–°ã™ã‚‹
+        public bool GuessValidKeyFileOrWarn(IPoderosaForm form) { //åˆ¥ã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰å‘¼ã¶ç‰ˆ
             return InternalGuessValidKeyFileOrWarn(form, null);
         }
-        public bool GuessValidKeyFileOrWarn(Form form) { //’¼Ú‚ÌWinForm”Å
+        public bool GuessValidKeyFileOrWarn(Form form) { //ç›´æ¥ã®WinFormç‰ˆ
             return InternalGuessValidKeyFileOrWarn(null, form);
         }
         private bool InternalGuessValidKeyFileOrWarn(IPoderosaForm pf, Form wf) {
@@ -102,12 +102,12 @@ namespace Poderosa.Usability {
     }
 
 
-    //Œ®‚ÌŠÇ—‚ğ‚·‚éBƒvƒ‰ƒOƒCƒ“‚Ì‹æ•ª‚Æ‚µ‚Ä‚ÍSSHUtilPlugin“à
+    //éµã®ç®¡ç†ã‚’ã™ã‚‹ã€‚ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®åŒºåˆ†ã¨ã—ã¦ã¯SSHUtilPluginå†…
     internal class KeyAgent : IPreferenceSupplier, IAgentForward, IConnectionResultEventHandler {
         private KeyAgentOptions _originalOptions;
         private List<AgentPrivateKey> _keys;
         private IPreferenceFolder _originalFolder;
-        private bool _loadRequiredFlag; //ƒtƒ@ƒCƒ‹–¼ƒŠƒXƒg‚©‚ç‚à‚Á‚Ä‚­‚é•K—v‚Ì—L–³
+        private bool _loadRequiredFlag; //ãƒ•ã‚¡ã‚¤ãƒ«åãƒªã‚¹ãƒˆã‹ã‚‰ã‚‚ã£ã¦ãã‚‹å¿…è¦ã®æœ‰ç„¡
 
         public KeyAgent() {
             _keys = new List<AgentPrivateKey>();
@@ -117,13 +117,13 @@ namespace Poderosa.Usability {
         public List<AgentPrivateKey> GetCurrentKeys() {
             if (_loadRequiredFlag)
                 LoadKeys();
-            return new List<AgentPrivateKey>(_keys); //ƒfƒB[ƒvƒRƒs[‚Å‚Í‚È‚¢A’ˆÓ
+            return new List<AgentPrivateKey>(_keys); //ãƒ‡ã‚£ãƒ¼ãƒ—ã‚³ãƒ”ãƒ¼ã§ã¯ãªã„ã€æ³¨æ„
         }
-        //Œ®ƒŠƒXƒgŠÇ—ƒ_ƒCƒAƒƒO‚ªŒÄ‚Ô
+        //éµãƒªã‚¹ãƒˆç®¡ç†ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ãŒå‘¼ã¶
         public void SetKeyList(List<AgentPrivateKey> keys) {
             _keys = keys;
             _loadRequiredFlag = false;
-            //preference‚É”½‰f
+            //preferenceã«åæ˜ 
             StringBuilder bld = new StringBuilder();
             foreach (AgentPrivateKey k in keys) {
                 if (bld.Length > 0)
@@ -170,8 +170,8 @@ namespace Poderosa.Usability {
             List<SSH2UserAuthKey> keys = new List<SSH2UserAuthKey>();
             foreach (AgentPrivateKey key in _keys) {
                 if (key.Status == PrivateKeyStatus.OK)
-                    keys.Add(key.Key); //—LŒø‚Å‚ ‚ê‚Î’Ç‰Á
-                else if (key.Status != PrivateKeyStatus.FileError) { //ƒtƒ@ƒCƒ‹ƒGƒ‰[‚¾‚Á‚½‚çÄs‚Í‚µ‚È‚¢
+                    keys.Add(key.Key); //æœ‰åŠ¹ã§ã‚ã‚Œã°è¿½åŠ 
+                else if (key.Status != PrivateKeyStatus.FileError) { //ãƒ•ã‚¡ã‚¤ãƒ«ã‚¨ãƒ©ãƒ¼ã ã£ãŸã‚‰å†è©¦è¡Œã¯ã—ãªã„
                     if (key.GuessValidKeyFileOrWarn(form)) {
                         form.AsForm().Invoke(new InputPassphraseDelegate(OpenInputPassphraseDialog), form, key);
                         if (key.Status == PrivateKeyStatus.OK)
@@ -190,7 +190,7 @@ namespace Poderosa.Usability {
         }
 
         public void NotifyPublicKeyDidNotMatch() {
-            //‚±‚±‚ÅƒƒO‚Éo‚µ‚Ä‚à‚¢‚¢‚©‚à
+            //ã“ã“ã§ãƒ­ã‚°ã«å‡ºã—ã¦ã‚‚ã„ã„ã‹ã‚‚
         }
 
         public void OnError(Exception ex) {
@@ -208,10 +208,10 @@ namespace Poderosa.Usability {
         public void BeforeAsyncConnect(ITerminalParameter tp) {
             ISSHLoginParameter ssh = (ISSHLoginParameter)tp.GetAdapter(typeof(ISSHLoginParameter));
             if (ssh == null)
-                return; //SSHˆÈŠO‚Í‹»–¡‚È‚µ
+                return; //SSHä»¥å¤–ã¯èˆˆå‘³ãªã—
 
             if (ssh.Method == SSHProtocol.SSH2 && _originalOptions.EnableKeyAgent) {
-                ssh.AgentForward = this; //©•ª‚ğƒnƒ“ƒhƒ‹‚·‚é‚æ‚¤‚Éİ’è
+                ssh.AgentForward = this; //è‡ªåˆ†ã‚’ãƒãƒ³ãƒ‰ãƒ«ã™ã‚‹ã‚ˆã†ã«è¨­å®š
             }
         }
 
@@ -232,7 +232,7 @@ namespace Poderosa.Usability {
         }
     }
 
-    //Preference—pƒCƒ“ƒ^ƒtƒF[ƒX
+    //Preferenceç”¨ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹
     internal interface IKeyAgentOptions {
         bool EnableKeyAgent {
             get;
@@ -240,7 +240,7 @@ namespace Poderosa.Usability {
         }
         string PrivateKeyFileNames {
             get;
-        } //æ“¾‚Ì‚İ
+        } //å–å¾—ã®ã¿
     }
 
     internal class KeyAgentOptions : SnapshotAwarePreferenceBase, IKeyAgentOptions {

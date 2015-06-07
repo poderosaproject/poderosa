@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@ using Poderosa.Forms;
 using Poderosa.Sessions;
 
 namespace Poderosa.Commands {
-    //ƒEƒBƒ“ƒhƒEƒƒjƒ…[‚Ì‰º‚É—ˆ‚éAŠeƒhƒLƒ…ƒƒ“ƒg‚ğƒAƒNƒeƒBƒx[ƒg‚·‚éƒRƒ}ƒ“ƒh
+    //ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®ä¸‹ã«æ¥ã‚‹ã€å„ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’ã‚¢ã‚¯ãƒ†ã‚£ãƒ™ãƒ¼ãƒˆã™ã‚‹ã‚³ãƒãƒ³ãƒ‰
     internal class DocActivationCommand : IPoderosaCommand {
         public CommandResult InternalExecute(ICommandTarget target, params IAdaptable[] args) {
             IPoderosaDocument doc = (IPoderosaDocument)args[0].GetAdapter(typeof(IPoderosaDocument));
@@ -39,13 +39,13 @@ namespace Poderosa.Commands {
         #region IPoderosaMenuGroup
         public IPoderosaMenu[] ChildMenus {
             get {
-                IPoderosaMainWindow w = WindowManagerPlugin.Instance.ActiveWindow; //TODO@–{“–‚ÍƒCƒ}ƒCƒ`‚¾‚ªA‚±‚±‚Éˆø”‚ÅCommandTarget‚ğ–á‚Á‚Ä‚­‚é‚Ì‚àƒgƒ‚¢‚µ‚È
+                IPoderosaMainWindow w = WindowManagerPlugin.Instance.ActiveWindow; //TODOã€€æœ¬å½“ã¯ã‚¤ãƒã‚¤ãƒã ãŒã€ã“ã“ã«å¼•æ•°ã§CommandTargetã‚’è²°ã£ã¦ãã‚‹ã®ã‚‚ãƒˆãƒ­ã„ã—ãª
                 if (w == null)
                     return new IPoderosaMenu[0];
 
                 List<DocActivationMenuItem> result = new List<DocActivationMenuItem>();
                 for (int i = 0; i < w.DocumentTabFeature.DocumentCount; i++)
-                    result.Add(new DocActivationMenuItem(i, w, w.DocumentTabFeature.GetAtOrNull(i))); //foreachg‚¦‚é‚æ‚¤‚É‚·‚×‚«‚©‚È
+                    result.Add(new DocActivationMenuItem(i, w, w.DocumentTabFeature.GetAtOrNull(i))); //foreachä½¿ãˆã‚‹ã‚ˆã†ã«ã™ã¹ãã‹ãª
                 return result.ToArray();
             }
         }
@@ -68,7 +68,7 @@ namespace Poderosa.Commands {
         #endregion
 
         #region IPositionDesignation
-        //•ªŠ„ƒƒjƒ…[‚ÌŸ
+        //åˆ†å‰²ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®æ¬¡
         public IAdaptable DesignationTarget {
             get {
                 return null;
@@ -108,7 +108,7 @@ namespace Poderosa.Commands {
 
         public string Text {
             get {
-                //9”Ô–Ú‚Ü‚Å‚É‚Í1...9‚Ìƒj[ƒ‚ƒjƒbƒN
+                //9ç•ªç›®ã¾ã§ã«ã¯1...9ã®ãƒ‹ãƒ¼ãƒ¢ãƒ‹ãƒƒã‚¯
                 return String.Format("{0}{1} {2}", _index < 9 ? "&" : "", _index + 1, _document.Caption);
             }
         }

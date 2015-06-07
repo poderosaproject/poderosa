@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  Copyright (c) 2005 Poderosa Project, All Rights Reserved.
 
  $Id: ConfigColorAttr.cs,v 1.2 2011/10/27 23:21:56 kzmi Exp $
@@ -10,7 +10,7 @@ using System.Drawing;
 
 namespace Poderosa {
 #if false
-    //Color‚ğ’¼ÚAttribute‚Ì’è‹`‚Ég‚¤‚±‚Æ‚Í‚Å‚«‚È‚¢I
+    //Colorã‚’ç›´æ¥Attributeã®å®šç¾©ã«ä½¿ã†ã“ã¨ã¯ã§ããªã„ï¼
     public enum LateBindColors {
         Empty,
         Window,

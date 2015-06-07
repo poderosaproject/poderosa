@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@ namespace Poderosa {
     /// <exclude/>
     public class Win32 {
 
-        //ŠÖ”
+        //é–¢æ•°
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr FindWindowEx(
             IntPtr hwndParent,      // handle to parent window
@@ -81,7 +81,7 @@ namespace Poderosa {
 
 
 
-        //•`‰æ‚ğƒlƒCƒeƒBƒuƒR[ƒh‚É
+        //æç”»ã‚’ãƒã‚¤ãƒ†ã‚£ãƒ–ã‚³ãƒ¼ãƒ‰ã«
         [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
         public static extern unsafe int TextOut(IntPtr hdc, int x, int y, char* text, int length);
         [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
@@ -117,7 +117,7 @@ namespace Poderosa {
         [DllImport("kernel32.dll")]
         public static extern bool FlushFileBuffers(IntPtr handle);
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Ansi)] //WinExec‚ÍLPCSTR‚¾‚Á‚½B"T"‚ª‚È‚¢B
+        [DllImport("kernel32.dll", CharSet = CharSet.Ansi)] //WinExecã¯LPCSTRã ã£ãŸã€‚"T"ãŒãªã„ã€‚
         public static extern int WinExec(string command, int uCmdShow);
 
         [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
@@ -151,10 +151,10 @@ namespace Poderosa {
         [DllImport("msvcr71.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int _controlfp(int n, int mask);
         public static void ClearFPUOverflowFlag() {
-            _controlfp(0x9001f, 0xfffff); //JSPager–â‘è‚Ì‘Î‰Bî•ñ‚Íhttp://support.microsoft.com/default.aspx?scid=kb;en-us;326219
+            _controlfp(0x9001f, 0xfffff); //JSPagerå•é¡Œã®å¯¾å¿œã€‚æƒ…å ±ã¯http://support.microsoft.com/default.aspx?scid=kb;en-us;326219
         }
 
-        //’è”
+        //å®šæ•°
         public const int WM_COPYDATA = 0x4A;
         public const int WM_NOTIFY = 0x4E;
         public const int WM_NCACTIVATE = 0x0086;
@@ -233,7 +233,7 @@ namespace Poderosa {
         #define SW_MAX              11
         */
 
-        //\‘¢‘Ì
+        //æ§‹é€ ä½“
         /// <summary>
         /// 
         /// </summary>
@@ -245,7 +245,7 @@ namespace Poderosa {
             public void* lpData;
         }
 
-        //WM_COPYDATA‚Åƒtƒ@ƒCƒ‹‚ğŠJ‚­‚Æ‚«‚ÌƒƒbƒZ[ƒW ”’l©‘Ì‚ÉˆÓ–¡‚Í‚È‚¢B•Ê‚ÌƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Æ‹ô‘R‚©‚Ô‚ç‚È‚¢‚æ‚¤‚É‚·‚é‚±‚Æ‚¾‚¯‚ª–Ú“I
+        //WM_COPYDATAã§ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ãã¨ãã®ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ æ•°å€¤è‡ªä½“ã«æ„å‘³ã¯ãªã„ã€‚åˆ¥ã®ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã¨å¶ç„¶ã‹ã¶ã‚‰ãªã„ã‚ˆã†ã«ã™ã‚‹ã“ã¨ã ã‘ãŒç›®çš„
         public const int PODEROSA_OPEN_FILE_REQUEST = 7964;
         public const int PODEROSA_OPEN_FILE_OK = 485;
 
@@ -262,7 +262,7 @@ namespace Poderosa {
         }
 
 
-        //Font#ToLogFont‚É“n‚·‚½‚ß‚É‚Ístruct‚Å‚Í‚¾‚ß‚Åclass‚É‚µ‚È‚¢‚Æ‚¢‚©‚ñ
+        //Font#ToLogFontã«æ¸¡ã™ãŸã‚ã«ã¯structã§ã¯ã ã‚ã§classã«ã—ãªã„ã¨ã„ã‹ã‚“
         /// <summary>
         /// 
         /// </summary>

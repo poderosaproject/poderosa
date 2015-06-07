@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -75,7 +75,7 @@ namespace Poderosa.Sessions {
         public PrepareCloseResult PrepareCloseDocument(IPoderosaDocument document) {
             Debug.Assert(document==_document);
 
-            //•Â‚¶‚é‚Ì‚ğƒLƒƒƒ“ƒZƒ‹‚·‚éƒeƒXƒg
+            //é–‰ã˜ã‚‹ã®ã‚’ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã™ã‚‹ãƒ†ã‚¹ãƒˆ
             IPoderosaForm f = _host.GetParentFormFor(document);
             DialogResult r = f.AskUserYesNo("Close?");
             return r==DialogResult.Yes? PrepareCloseResult.ContinueSession : PrepareCloseResult.Cancel;
@@ -83,7 +83,7 @@ namespace Poderosa.Sessions {
             //return PrepareCloseResult.TerminateSession;
         }
         public PrepareCloseResult PrepareCloseSession() {
-            //•Â‚¶‚é‚Ì‚ğƒLƒƒƒ“ƒZƒ‹‚·‚éƒeƒXƒg
+            //é–‰ã˜ã‚‹ã®ã‚’ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã™ã‚‹ãƒ†ã‚¹ãƒˆ
             IPoderosaForm f = _host.GetParentFormFor(_document);
             DialogResult r = f.AskUserYesNo("Close?");
             return r==DialogResult.Yes? PrepareCloseResult.TerminateSession : PrepareCloseResult.Cancel;
@@ -98,7 +98,7 @@ namespace Poderosa.Sessions {
             viewbridge.Attach(this, _document);
             Debug.WriteLine("Replace DUMMYSESSION");
 
-            //‹ê‚µ‚¢ğŒ‚¾‚ªACtrl+Shift‚È‚çƒLƒƒƒvƒVƒ‡ƒ“•ÏX‚ğƒeƒXƒg
+            //è‹¦ã—ã„æ¡ä»¶ã ãŒã€Ctrl+Shiftãªã‚‰ã‚­ãƒ£ãƒ—ã‚·ãƒ§ãƒ³å¤‰æ›´ã‚’ãƒ†ã‚¹ãƒˆ
             Keys m = Control.ModifierKeys;
             if(m==(Keys.Control|Keys.Shift)) {
                 _caption += "P";
@@ -133,7 +133,7 @@ namespace Poderosa.Sessions {
             private IContentReplaceableView _outer;
 
             public ViewBridge() {
-                _viewer = new CharacterDocumentViewer(); //ƒZƒbƒVƒ‡ƒ“ŒÅ—LƒRƒ“ƒgƒ[ƒ‹‚Æ‚·‚é
+                _viewer = new CharacterDocumentViewer(); //ã‚»ãƒƒã‚·ãƒ§ãƒ³å›ºæœ‰ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã¨ã™ã‚‹
                 _viewer.SetPrivateRenderProfile(TerminalEmulatorPlugin.Instance.TerminalEmulatorOptions.CreateRenderProfile());
             }
 
@@ -277,7 +277,7 @@ namespace Poderosa.Sessions {
             ITerminalSessionStartCommand s = ((ITerminalSessionsService)pm.FindPlugin("org.poderosa.terminalsessions", typeof(ITerminalSessionsService))).TerminalSessionStartCommand;
             ITerminalEmulatorService es = (ITerminalEmulatorService)pm.FindPlugin("org.poderosa.terminalemulator", typeof(ITerminalEmulatorService));
             ITerminalSettings ts = es.CreateDefaultTerminalSettings("LOOPBACK", null);
-            //‰üs‚ÍCRLF‚ª‚¢‚¢‚Á‚·‚Ë
+            //æ”¹è¡Œã¯CRLFãŒã„ã„ã£ã™ã­
             ts.BeginUpdate();
             ts.TransmitNL = Poderosa.ConnectionParam.NewLine.CRLF;
             ts.EndUpdate();

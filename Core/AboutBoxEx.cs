@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@ using Poderosa.Plugins;
 
 namespace Poderosa.Forms {
 
-    //ˆê‰OEM‚Æ‚©‚ ‚é‚©‚à‚ÈA‚Æ‚¢‚¤ƒ^ƒeƒ}ƒG‚¾‚ª‚¨‚»‚ç‚­ƒQƒoƒ‰ƒ‚[ƒhê—p‹@”\B–¼‘O‰ü‘P‚µ‚½‚¢
+    //ä¸€å¿œOEMã¨ã‹ã‚ã‚‹ã‹ã‚‚ãªã€ã¨ã„ã†ã‚¿ãƒ†ãƒã‚¨ã ãŒãŠãã‚‰ãã‚²ãƒãƒ©ãƒ¢ãƒ¼ãƒ‰å°‚ç”¨æ©Ÿèƒ½ã€‚åå‰æ”¹å–„ã—ãŸã„
     /// <summary>
     /// 
     /// </summary>
@@ -40,7 +40,7 @@ namespace Poderosa.Forms {
         }
     }
 
-    //ŠeíAboutBox‚ª‹¤’Ê‚µ‚Äg‚¤‚Å‚ ‚ë‚¤‹@”\
+    //å„ç¨®AboutBoxãŒå…±é€šã—ã¦ä½¿ã†ã§ã‚ã‚ã†æ©Ÿèƒ½
     /// <summary>
     /// 
     /// </summary>
@@ -59,7 +59,7 @@ namespace Poderosa.Forms {
             return s;
         }
 
-        //ExtensionPoint‚ÆPreferenceB•ÊƒNƒ‰ƒX‚É•ª—£‚µ‚ÄWindowManager‚Ìƒƒ“ƒo‚É“ü‚ê‚æ‚¤‚©‚ÈH
+        //ExtensionPointã¨Preferenceã€‚åˆ¥ã‚¯ãƒ©ã‚¹ã«åˆ†é›¢ã—ã¦WindowManagerã®ãƒ¡ãƒ³ãƒã«å…¥ã‚Œã‚ˆã†ã‹ãªï¼Ÿ
         private static IStringPreferenceItem _aboutBoxID;
         public static IStringPreferenceItem AboutBoxID {
             get {
@@ -74,7 +74,7 @@ namespace Poderosa.Forms {
             _aboutBoxID = builder.DefineStringValue(window_root, "aboutBoxFactoryID", "default", null);
         }
         public static IPoderosaAboutBoxFactory GetCurrentAboutBoxFactory() {
-            //AboutBoxÀ‘•‚ğŒ©‚Â‚¯‚é
+            //AboutBoxå®Ÿè£…ã‚’è¦‹ã¤ã‘ã‚‹
             if (AboutBoxUtil.AboutBoxID == null)
                 return null;
             string factory_id = AboutBoxUtil.AboutBoxID.Value;
@@ -85,8 +85,8 @@ namespace Poderosa.Forms {
                     found_factory = f;
                     break;
                 }
-                else if (f.AboutBoxID == DEFAULT_ABOUTBOX_ID) { //TODO ‚¿‚á‚ñ‚Æ‚µ‚½const stringQÆ
-                    found_factory = f; //‚±‚Ì‚ ‚Æ‚Ìƒ‹[ƒv‚Å³®‚Éˆê’v‚·‚é‚â‚Â‚ªŒ©‚Â‚©‚Á‚½‚çã‘‚«‚³‚ê‚é‚±‚Æ‚É’ˆÓ
+                else if (f.AboutBoxID == DEFAULT_ABOUTBOX_ID) { //TODO ã¡ã‚ƒã‚“ã¨ã—ãŸconst stringå‚ç…§
+                    found_factory = f; //ã“ã®ã‚ã¨ã®ãƒ«ãƒ¼ãƒ—ã§æ­£å¼ã«ä¸€è‡´ã™ã‚‹ã‚„ã¤ãŒè¦‹ã¤ã‹ã£ãŸã‚‰ä¸Šæ›¸ãã•ã‚Œã‚‹ã“ã¨ã«æ³¨æ„
                 }
             }
 
@@ -99,7 +99,7 @@ namespace Poderosa.Forms {
         public static void ResetKeyBufferInAboutBox() {
             _keyBufferInAboutBox = new StringBuilder();
         }
-        //ƒ_ƒCƒAƒƒOƒ{ƒbƒNƒX“à‚Å‚ÌƒL[“ü—Íˆ—
+        //ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ãƒœãƒƒã‚¯ã‚¹å†…ã§ã®ã‚­ãƒ¼å…¥åŠ›å‡¦ç†
         public static bool ProcessDialogChar(char charCode) {
             if ('A' <= charCode && charCode <= 'Z')
                 charCode = (char)('a' + charCode - 'A');
@@ -108,11 +108,11 @@ namespace Poderosa.Forms {
             IPoderosaAboutBoxFactory[] factories = (IPoderosaAboutBoxFactory[])WindowManagerPlugin.Instance.PoderosaWorld.PluginManager.FindExtensionPoint("org.poderosa.window.aboutbox").GetExtensions();
             foreach (IPoderosaAboutBoxFactory f in factories) {
                 if (t == f.AboutBoxID) {
-                    if (_aboutBoxID.Value == f.AboutBoxID) { //ƒŠƒZƒbƒg
+                    if (_aboutBoxID.Value == f.AboutBoxID) { //ãƒªã‚»ãƒƒãƒˆ
                         MessageBox.Show(f.ExitMessage, "Poderosa", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         _aboutBoxID.Value = DEFAULT_ABOUTBOX_ID;
                     }
-                    else { //ƒ‚[ƒh•ÏX
+                    else { //ãƒ¢ãƒ¼ãƒ‰å¤‰æ›´
                         MessageBox.Show(f.EnterMessage, "Poderosa", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         _aboutBoxID.Value = f.AboutBoxID;
                     }

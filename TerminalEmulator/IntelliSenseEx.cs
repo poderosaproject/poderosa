@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,7 +39,7 @@ namespace Poderosa.Terminal {
         void OnShellSchemeCollectionChanged(IShellScheme[] values, TypedHashtable<IShellScheme, IShellScheme> table);
     }
 
-    //NOTE: æ“¾ê—p‚Æİ’è‰Â”\‚Æ‚ÅƒCƒ“ƒ^ƒtƒF[ƒX•ª‚¯‚Ä‚à‚¢‚¢
+    //NOTE: å–å¾—å°‚ç”¨ã¨è¨­å®šå¯èƒ½ã¨ã§ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹åˆ†ã‘ã¦ã‚‚ã„ã„
     /// <summary>
     /// 
     /// </summary>
@@ -100,7 +100,7 @@ namespace Poderosa.Terminal {
         IIntelliSenseItem Clone();
     }
 
-    //€–ÚŠg’£ExtensionPoint‚ª‚ç‚İ
+    //é …ç›®æ‹¡å¼µExtensionPointãŒã‚‰ã¿
     /// <summary>
     /// 
     /// </summary>

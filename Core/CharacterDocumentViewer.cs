@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,12 +27,12 @@ using Poderosa.Commands;
 
 namespace Poderosa.View {
     /*
-     * CharacterDocument‚Ì•\¦‚ğs‚¤ƒRƒ“ƒgƒ[ƒ‹B‹@”\‚Æ‚µ‚Ä‚ÍŸ‚ª‚ ‚éB
-     * @c•ûŒü‚Ì‚İƒXƒNƒ[ƒ‹ƒo[‚ğƒTƒ|[ƒg
-     * @Ä•`‰æ‚ÌÅ“K‰»
-     * @ƒLƒƒƒŒƒbƒg‚Ì•\¦B‚½‚¾‚µƒLƒƒƒŒƒbƒg‚ğ“KØ‚ÉˆÚ“®‚·‚é‹@”\‚ÍŠÜ‚Ü‚ê‚È‚¢
+     * CharacterDocumentã®è¡¨ç¤ºã‚’è¡Œã†ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã€‚æ©Ÿèƒ½ã¨ã—ã¦ã¯æ¬¡ãŒã‚ã‚‹ã€‚
+     * ã€€ç¸¦æ–¹å‘ã®ã¿ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ãƒãƒ¼ã‚’ã‚µãƒãƒ¼ãƒˆ
+     * ã€€å†æç”»ã®æœ€é©åŒ–
+     * ã€€ã‚­ãƒ£ãƒ¬ãƒƒãƒˆã®è¡¨ç¤ºã€‚ãŸã ã—ã‚­ãƒ£ãƒ¬ãƒƒãƒˆã‚’é©åˆ‡ã«ç§»å‹•ã™ã‚‹æ©Ÿèƒ½ã¯å«ã¾ã‚Œãªã„
      * 
-     * @¡Œã‚ ‚Á‚Ä‚à‚¢‚¢‚©‚à‚µ‚ê‚È‚¢‹@”\‚ÍAsŠÔ‚âPadding(HTML—pŒê‚Ì)As”Ô†•\¦‚Æ‚¢‚Á‚½‚Æ‚±‚ë
+     * ã€€ä»Šå¾Œã‚ã£ã¦ã‚‚ã„ã„ã‹ã‚‚ã—ã‚Œãªã„æ©Ÿèƒ½ã¯ã€è¡Œé–“ã‚„Padding(HTMLç”¨èªã®)ã€è¡Œç•ªå·è¡¨ç¤ºã¨ã„ã£ãŸã¨ã“ã‚
      */
     /// <summary>
     /// 
@@ -40,21 +40,21 @@ namespace Poderosa.View {
     /// <exclude/>
     public class CharacterDocumentViewer : Control, IPoderosaControl, ISelectionListener, SplitMarkSupport.ISite {
 
-        public const int BORDER = 2; //“à‘¤‚Ì˜gü‚ÌƒTƒCƒY
-        internal const int TIMER_INTERVAL = 50; //Ä•`‰æÅ“K‰»‚ÆƒLƒƒƒŒƒbƒgˆ—‚ğs‚¤ƒ^ƒCƒ}[‚ÌŠÔŠu
+        public const int BORDER = 2; //å†…å´ã®æ ç·šã®ã‚µã‚¤ã‚º
+        internal const int TIMER_INTERVAL = 50; //å†æç”»æœ€é©åŒ–ã¨ã‚­ãƒ£ãƒ¬ãƒƒãƒˆå‡¦ç†ã‚’è¡Œã†ã‚¿ã‚¤ãƒãƒ¼ã®é–“éš”
 
         private CharacterDocument _document;
         private bool _errorRaisedInDrawing;
-        private List<GLine> _transientLines; //Ä•`‰æ‚·‚éGLine‚ğˆê“I‚É•ÛŠÇ‚·‚é
+        private List<GLine> _transientLines; //å†æç”»ã™ã‚‹GLineã‚’ä¸€æ™‚çš„ã«ä¿ç®¡ã™ã‚‹
         private TextSelection _textSelection;
         private SplitMarkSupport _splitMark;
-        private bool _enabled; //ƒhƒLƒ…ƒƒ“ƒg‚ªƒAƒ^ƒbƒ`‚³‚ê‚Ä‚¢‚È‚¢‚Æ‚«‚ğ¦‚· •ÏX‚·‚é‚Æ‚«‚ÍEnabledExƒvƒƒpƒeƒB‚ÅI
+        private bool _enabled; //ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒã‚¢ã‚¿ãƒƒãƒã•ã‚Œã¦ã„ãªã„ã¨ãã‚’ç¤ºã™ å¤‰æ›´ã™ã‚‹ã¨ãã¯EnabledExãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã§ï¼
 
         private Cursor _documentCursor = Cursors.IBeam;
 
         protected MouseHandlerManager _mouseHandlerManager;
         protected VScrollBar _VScrollBar;
-        protected bool _enableAutoScrollBarAdjustment; //ƒŠƒTƒCƒY‚É©“®“I‚É_VScrollBar‚Ì’l‚ğ’²®‚·‚é‚©‚Ç‚¤‚©
+        protected bool _enableAutoScrollBarAdjustment; //ãƒªã‚µã‚¤ã‚ºæ™‚ã«è‡ªå‹•çš„ã«_VScrollBarã®å€¤ã‚’èª¿æ•´ã™ã‚‹ã‹ã©ã†ã‹
         protected Caret _caret;
         protected ITimerSite _timer;
         protected int _tickCount;
@@ -122,9 +122,9 @@ namespace Poderosa.View {
             }
             set {
                 _enabled = value;
-                _VScrollBar.Visible = value; //ƒXƒNƒ[ƒ‹ƒo[‚Æ‚Í˜A“®
-                _splitMark.Pen.Color = value ? SystemColors.ControlDark : SystemColors.Window; //‚±‚ÌBackColor‚Æ‹t‚Å
-                this.Cursor = GetDocumentCursor(); //Splitter.ISite‚ğ‰‡—p
+                _VScrollBar.Visible = value; //ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ãƒãƒ¼ã¨ã¯é€£å‹•
+                _splitMark.Pen.Color = value ? SystemColors.ControlDark : SystemColors.Window; //ã“ã®BackColorã¨é€†ã§
+                this.Cursor = GetDocumentCursor(); //Splitter.ISiteã‚’æ´ç”¨
                 this.BackColor = value ? GetRenderProfile().BackColor : SystemColors.ControlDark;
                 this.ImeMode = value ? ImeMode.NoControl : ImeMode.Disable;
             }
@@ -186,7 +186,7 @@ namespace Poderosa.View {
 
         #endregion
 
-        //”h¶Œ^‚Å‚ ‚é‚±‚Æ‚ğ‹­§‚·‚é‚±‚Æ‚È‚Ç‚Ì‚½‚ß‚Éoverride‚·‚é‚±‚Æ‚ğ‹–‚·
+        //æ´¾ç”Ÿå‹ã§ã‚ã‚‹ã“ã¨ã‚’å¼·åˆ¶ã™ã‚‹ã“ã¨ãªã©ã®ãŸã‚ã«overrideã™ã‚‹ã“ã¨ã‚’è¨±ã™
         public virtual void SetContent(CharacterDocument doc) {
             RenderProfile prof = GetRenderProfile();
             this.BackColor = prof.BackColor;
@@ -203,7 +203,7 @@ namespace Poderosa.View {
             if (_enableAutoScrollBarAdjustment)
                 AdjustScrollBar();
         }
-        //ƒ^ƒCƒ}[‚ÌóM
+        //ã‚¿ã‚¤ãƒãƒ¼ã®å—ä¿¡
         private void CaretTick() {
             if (_enabled && _caret.Blink) {
                 _caret.Tick();
@@ -212,7 +212,7 @@ namespace Poderosa.View {
             }
         }
         protected virtual void OnWindowManagerTimer() {
-            //ƒ^ƒCƒ}[‚ÍTIMER_INTERVAL‚²‚Æ‚ÉƒJƒEƒ“ƒg‚³‚ê‚é‚Ì‚ÅB
+            //ã‚¿ã‚¤ãƒãƒ¼ã¯TIMER_INTERVALã”ã¨ã«ã‚«ã‚¦ãƒ³ãƒˆã•ã‚Œã‚‹ã®ã§ã€‚
             int q = WindowManagerPlugin.Instance.WindowPreference.OriginalPreference.CaretInterval / TIMER_INTERVAL;
             if (q == 0)
                 q = 1;
@@ -221,13 +221,13 @@ namespace Poderosa.View {
         }
 
 
-        //©ŒÈƒTƒCƒY‚©‚çScrollBar‚ğ“KØ‚É‚¢‚¶‚é
+        //è‡ªå·±ã‚µã‚¤ã‚ºã‹ã‚‰ScrollBarã‚’é©åˆ‡ã«ã„ã˜ã‚‹
         public void AdjustScrollBar() {
             if (_document == null)
                 return;
             RenderProfile prof = GetRenderProfile();
             float ch = prof.Pitch.Height + prof.LineSpacing;
-            int largechange = (int)Math.Floor((this.ClientSize.Height - BORDER * 2 + prof.LineSpacing) / ch); //‚«‚¿‚ñ‚Æ•\¦‚Å‚«‚és”‚ğLargeChange‚ÉƒZƒbƒg
+            int largechange = (int)Math.Floor((this.ClientSize.Height - BORDER * 2 + prof.LineSpacing) / ch); //ãã¡ã‚“ã¨è¡¨ç¤ºã§ãã‚‹è¡Œæ•°ã‚’LargeChangeã«ã‚»ãƒƒãƒˆ
             int current = GetTopLine().ID - _document.FirstLineNumber;
             int size = Math.Max(_document.Size, current + largechange);
             if (size <= largechange) {
@@ -236,26 +236,26 @@ namespace Poderosa.View {
             else {
                 _VScrollBar.Enabled = true;
                 _VScrollBar.LargeChange = largechange;
-                _VScrollBar.Maximum = size - 1; //‚±‚Ì-1‚ª•K—v‚È‚Ì‚ª–­‚Èd—l‚¾
+                _VScrollBar.Maximum = size - 1; //ã“ã®-1ãŒå¿…è¦ãªã®ãŒå¦™ãªä»•æ§˜ã 
             }
         }
 
-        //‚±‚Ì‚ ‚½‚è‚Ìˆ’u’è‚Ü‚Á‚Ä‚¢‚È‚¢
+        //ã“ã®ã‚ãŸã‚Šã®å‡¦ç½®å®šã¾ã£ã¦ã„ãªã„
         private RenderProfile _privateRenderProfile = null;
         public void SetPrivateRenderProfile(RenderProfile prof) {
             _privateRenderProfile = prof;
         }
 
-        //override‚µ‚Ä•Ê‚Ì•û–@‚ÅRenderProfile‚ğæ“¾‚·‚é‚±‚Æ‚à‚ ‚é
+        //overrideã—ã¦åˆ¥ã®æ–¹æ³•ã§RenderProfileã‚’å–å¾—ã™ã‚‹ã“ã¨ã‚‚ã‚ã‚‹
         public virtual RenderProfile GetRenderProfile() {
             return _privateRenderProfile;
         }
 
         protected virtual void CommitTransientScrollBar() {
-            //Viewer‚ÍUI‚É‚æ‚Á‚Ä‚µ‚©Ø‚èæ‚ê‚È‚¢‚©‚ç‚±‚±‚Å‚Í‰½‚à‚µ‚È‚­‚Ä‚¢‚¢
+            //Viewerã¯UIã«ã‚ˆã£ã¦ã—ã‹åˆ‡ã‚Šå–ã‚Œãªã„ã‹ã‚‰ã“ã“ã§ã¯ä½•ã‚‚ã—ãªãã¦ã„ã„
         }
 
-        //s”‚Å•\¦‰Â”\‚È‚‚³‚ğ•Ô‚·
+        //è¡Œæ•°ã§è¡¨ç¤ºå¯èƒ½ãªé«˜ã•ã‚’è¿”ã™
         protected virtual int GetHeightInLines() {
             RenderProfile prof = GetRenderProfile();
             float ch = prof.Pitch.Height + prof.LineSpacing;
@@ -263,7 +263,7 @@ namespace Poderosa.View {
             return (height > 0) ? height : 0;
         }
 
-        //_document‚Ì‚¤‚¿‚Ç‚ê‚ğæ“ª(1s–Ú)‚Æ‚µ‚Ä•\¦‚·‚é‚©‚ğ•Ô‚·
+        //_documentã®ã†ã¡ã©ã‚Œã‚’å…ˆé ­(1è¡Œç›®)ã¨ã—ã¦è¡¨ç¤ºã™ã‚‹ã‹ã‚’è¿”ã™
         public virtual GLine GetTopLine() {
             return _document.FindLine(_document.FirstLine.ID + _VScrollBar.Value);
         }
@@ -280,18 +280,18 @@ namespace Poderosa.View {
             textY = (int)Math.Floor((mouseY - CharacterDocumentViewer.BORDER) / (pitch.Height + GetRenderProfile().LineSpacing));
         }
 
-        //_VScrollBar.ValueChangedƒCƒxƒ“ƒg
+        //_VScrollBar.ValueChangedã‚¤ãƒ™ãƒ³ãƒˆ
         protected virtual void VScrollBarValueChanged() {
             if (_enableAutoScrollBarAdjustment)
                 Invalidate();
         }
 
-        //ƒLƒƒƒŒƒbƒg‚ÌÀ•Wİ’èA•\¦‚Ì‰Â”Û‚ğİ’è
+        //ã‚­ãƒ£ãƒ¬ãƒƒãƒˆã®åº§æ¨™è¨­å®šã€è¡¨ç¤ºã®å¯å¦ã‚’è¨­å®š
         protected virtual void AdjustCaret(Caret caret) {
         }
 
-        //_document‚ÌXVó‹µ‚ğŒ©‚Ä“KØ‚È—Ìˆæ‚ÌControl.Invalidate()‚ğŒÄ‚ÔB
-        //‚Ü‚½AƒRƒ“ƒgƒ[ƒ‹‚ğŠ—L‚µ‚Ä‚¢‚È‚¢ƒXƒŒƒbƒh‚©‚çŒÄ‚ñ‚Å‚àOK‚È‚æ‚¤‚É‚È‚Á‚Ä‚¢‚éB
+        //_documentã®æ›´æ–°çŠ¶æ³ã‚’è¦‹ã¦é©åˆ‡ãªé ˜åŸŸã®Control.Invalidate()ã‚’å‘¼ã¶ã€‚
+        //ã¾ãŸã€ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã‚’æ‰€æœ‰ã—ã¦ã„ãªã„ã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰å‘¼ã‚“ã§ã‚‚OKãªã‚ˆã†ã«ãªã£ã¦ã„ã‚‹ã€‚
         protected void InvalidateEx() {
             if (this.IsDisposed)
                 return;
@@ -385,13 +385,13 @@ namespace Poderosa.View {
             Invalidate();
         }
 
-        //NOTE ©•ª‚ÌDock‚ªTop‚©Left‚Ì‚Æ‚«AƒXƒNƒ[ƒ‹ƒo[‚ÌˆÊ’u‚ª’Ç‚µ‚Ä‚­‚ê‚È‚¢‚İ‚½‚¢
+        //NOTE è‡ªåˆ†ã®DockãŒTopã‹Leftã®ã¨ãã€ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ãƒãƒ¼ã®ä½ç½®ãŒè¿½éšã—ã¦ãã‚Œãªã„ã¿ãŸã„
         private void AdjustScrollBarPosition() {
             _VScrollBar.Height = this.ClientSize.Height;
             _VScrollBar.Left = this.ClientSize.Width - _VScrollBar.Width;
         }
 
-        //•`‰æ‚Ì–{‘Ì
+        //æç”»ã®æœ¬ä½“
         protected override sealed void OnPaint(PaintEventArgs e) {
 #if ONPAINT_TIME_MEASUREMENT
             Stopwatch onPaintSw = (_onPaintTimeObserver != null) ? Stopwatch.StartNew() : null;
@@ -433,10 +433,10 @@ namespace Poderosa.View {
                         }
                     }
 
-                    //•`‰æ—p‚Éƒeƒ“ƒ|ƒ‰ƒŠ‚ÌGLine‚ğì‚èA•`‰æ’†‚Édocument‚ğƒƒbƒN‚µ‚È‚¢‚æ‚¤‚É‚·‚é
-                    //!!‚±‚±‚ÍÀs•p“x‚ª‚‚¢‚Ì‚Ånew‚ğ–ˆ‰ñ‚·‚é‚Ì‚Í”ğ‚¯‚½‚¢‚Æ‚±‚ë‚¾
+                    //æç”»ç”¨ã«ãƒ†ãƒ³ãƒãƒ©ãƒªã®GLineã‚’ä½œã‚Šã€æç”»ä¸­ã«documentã‚’ãƒ­ãƒƒã‚¯ã—ãªã„ã‚ˆã†ã«ã™ã‚‹
+                    //!!ã“ã“ã¯å®Ÿè¡Œé »åº¦ãŒé«˜ã„ã®ã§newã‚’æ¯å›ã™ã‚‹ã®ã¯é¿ã‘ãŸã„ã¨ã“ã‚ã 
                     RenderParameter param = new RenderParameter();
-                    _caret.Enabled = _caret.Enabled && this.Focused; //TODO ‚³‚ç‚ÉIME‹N“®’†‚ÍƒLƒƒƒŒƒbƒg‚ğ•\¦‚µ‚È‚¢‚æ‚¤‚É. TerminalControl‚¾‚Á‚½‚çAdjustCaret‚ÅIME‚ğ‚İ‚Ä‚é‚Ì‚Å–â‘è‚Í‚È‚¢
+                    _caret.Enabled = _caret.Enabled && this.Focused; //TODO ã•ã‚‰ã«IMEèµ·å‹•ä¸­ã¯ã‚­ãƒ£ãƒ¬ãƒƒãƒˆã‚’è¡¨ç¤ºã—ãªã„ã‚ˆã†ã«. TerminalControlã ã£ãŸã‚‰AdjustCaretã§IMEã‚’ã¿ã¦ã‚‹ã®ã§å•é¡Œã¯ãªã„
                     lock (_document) {
                         CommitTransientScrollBar();
                         BuildTransientDocument(e, param);
@@ -444,18 +444,18 @@ namespace Poderosa.View {
 
                     DrawLines(g, param, backColor);
 
-                    if (_caret.Enabled && (!_caret.Blink || _caret.IsActiveTick)) { //“_–Å‚µ‚È‚¯‚ê‚ÎEnabled‚É‚æ‚Á‚Ä‚Ì‚İŒˆ‚Ü‚é
+                    if (_caret.Enabled && (!_caret.Blink || _caret.IsActiveTick)) { //ç‚¹æ»…ã—ãªã‘ã‚Œã°Enabledã«ã‚ˆã£ã¦ã®ã¿æ±ºã¾ã‚‹
                         if (_caret.Style == CaretType.Line)
                             DrawBarCaret(g, param, _caret.X, _caret.Y);
                         else if (_caret.Style == CaretType.Underline)
                             DrawUnderLineCaret(g, param, _caret.X, _caret.Y);
                     }
                 }
-                //ƒ}[ƒN‚Ì•`‰æ
+                //ãƒãƒ¼ã‚¯ã®æç”»
                 _splitMark.OnPaint(e);
             }
             catch (Exception ex) {
-                if (!_errorRaisedInDrawing) { //‚±‚Ì’†‚Åˆê“x—áŠO‚ª”­¶‚·‚é‚ÆŒJ‚è•Ô‚µ‹N‚±‚Á‚Ä‚µ‚Ü‚¤‚±‚Æ‚ª‚Ü‚Ü‚ ‚éB‚È‚Ì‚Å‰‰ñ‚Ì‚İ•\¦‚µ‚Ä‚Æ‚è‚ ‚¦‚¸Ø‚è”²‚¯‚é
+                if (!_errorRaisedInDrawing) { //ã“ã®ä¸­ã§ä¸€åº¦ä¾‹å¤–ãŒç™ºç”Ÿã™ã‚‹ã¨ç¹°ã‚Šè¿”ã—èµ·ã“ã£ã¦ã—ã¾ã†ã“ã¨ãŒã¾ã¾ã‚ã‚‹ã€‚ãªã®ã§åˆå›ã®ã¿è¡¨ç¤ºã—ã¦ã¨ã‚Šã‚ãˆãšåˆ‡ã‚ŠæŠœã‘ã‚‹
                     _errorRaisedInDrawing = true;
                     RuntimeUtil.ReportException(ex);
                 }
@@ -478,7 +478,7 @@ namespace Poderosa.View {
 
             //Win32.SystemMetrics sm = GEnv.SystemMetrics;
             //param.TargetRect = new Rectangle(sm.ControlBorderWidth+1, sm.ControlBorderHeight,
-            //	this.Width - _VScrollBar.Width - sm.ControlBorderWidth + 8, //‚±‚Ì‚W‚ª‚È‚¢’l‚ª³“–‚¾‚ªA.NET‚Ì•¶šƒTƒCƒYŠÛ‚ß–â‘è‚Ì‚½‚ßs‚ÌÅI•¶š‚ª•\¦‚³‚ê‚È‚¢‚±‚Æ‚ª‚ ‚éB‚±‚ê‚ğ‰ñ”ğ‚·‚é‚½‚ß‚É‚¿‚å‚Á‚Æ‘‚â‚·
+            //	this.Width - _VScrollBar.Width - sm.ControlBorderWidth + 8, //ã“ã®ï¼˜ãŒãªã„å€¤ãŒæ­£å½“ã ãŒã€.NETã®æ–‡å­—ã‚µã‚¤ã‚ºä¸¸ã‚å•é¡Œã®ãŸã‚è¡Œã®æœ€çµ‚æ–‡å­—ãŒè¡¨ç¤ºã•ã‚Œãªã„ã“ã¨ãŒã‚ã‚‹ã€‚ã“ã‚Œã‚’å›é¿ã™ã‚‹ãŸã‚ã«ã¡ã‚‡ã£ã¨å¢—ã‚„ã™
             //	this.Height - sm.ControlBorderHeight);
             param.TargetRect = this.ClientRectangle;
 
@@ -497,24 +497,24 @@ namespace Poderosa.View {
             GLine l = _document.FindLineOrNull(topline_id + param.LineFrom);
             if (l != null) {
                 for (int i = param.LineFrom; i < param.LineFrom + param.LineCount; i++) {
-                    _transientLines.Add(l.Clone()); //TODO ƒNƒ[ƒ“‚Í‚«‚Â‚¢‚æ‚È‚ @‚¾‚ª•`‰æ‚Ì•û‚ªŠÔ‚©‚©‚é‚Ì‚ÅA‚»‚ÌŠÔƒƒbƒN‚ğ‚µ‚È‚¢‚½‚ß‚É‚Íd•û‚È‚¢“_‚à‚ ‚é
+                    _transientLines.Add(l.Clone()); //TODO ã‚¯ãƒ­ãƒ¼ãƒ³ã¯ãã¤ã„ã‚ˆãªã‚ã€€ã ãŒæç”»ã®æ–¹ãŒæ™‚é–“ã‹ã‹ã‚‹ã®ã§ã€ãã®é–“ãƒ­ãƒƒã‚¯ã‚’ã—ãªã„ãŸã‚ã«ã¯ä»•æ–¹ãªã„ç‚¹ã‚‚ã‚ã‚‹
                     l = l.NextLine;
                     if (l == null)
                         break;
                 }
             }
 
-            //ˆÈ‰ºA_transientLines‚É‚Íparam.LineFrom‚©‚ç¦‚³‚ê‚é’l‚ª“ü‚Á‚Ä‚¢‚é‚±‚Æ‚É’ˆÓ
+            //ä»¥ä¸‹ã€_transientLinesã«ã¯param.LineFromã‹ã‚‰ç¤ºã•ã‚Œã‚‹å€¤ãŒå…¥ã£ã¦ã„ã‚‹ã“ã¨ã«æ³¨æ„
 
-            //‘I‘ğ—Ìˆæ‚Ì•`‰æ
+            //é¸æŠé ˜åŸŸã®æç”»
             if (!_textSelection.IsEmpty) {
                 TextSelection.TextPoint from = _textSelection.HeadPoint;
                 TextSelection.TextPoint to = _textSelection.TailPoint;
                 l = _document.FindLineOrNull(from.Line);
                 GLine t = _document.FindLineOrNull(to.Line);
-                if (l != null && t != null) { //–{“–‚Íl‚ªnull‚Å‚Í‚¢‚¯‚È‚¢‚Í‚¸‚¾‚ªA‚»‚ê‚ğ¦´‚·‚éƒoƒOƒŒƒ|[ƒg‚ª‚ ‚Á‚½‚Ì‚Å”O‚Ì‚½‚ß
+                if (l != null && t != null) { //æœ¬å½“ã¯lãŒnullã§ã¯ã„ã‘ãªã„ã¯ãšã ãŒã€ãã‚Œã‚’ç¤ºå”†ã™ã‚‹ãƒã‚°ãƒ¬ãƒãƒ¼ãƒˆãŒã‚ã£ãŸã®ã§å¿µã®ãŸã‚
                     t = t.NextLine;
-                    int pos = from.Column; //‚½‚Æ‚¦‚Î¶’[‚ğ‰z‚¦‚Äƒhƒ‰ƒbƒO‚µ‚½‚Æ‚«‚Ì‘I‘ğ”ÍˆÍ‚Í‘Os––‚É‚È‚é‚Ì‚Å pos==TerminalWidth‚Æ‚È‚éƒP[ƒX‚ª‚ ‚éB
+                    int pos = from.Column; //ãŸã¨ãˆã°å·¦ç«¯ã‚’è¶Šãˆã¦ãƒ‰ãƒ©ãƒƒã‚°ã—ãŸã¨ãã®é¸æŠç¯„å›²ã¯å‰è¡Œæœ«ã«ãªã‚‹ã®ã§ pos==TerminalWidthã¨ãªã‚‹ã‚±ãƒ¼ã‚¹ãŒã‚ã‚‹ã€‚
                     do {
                         int index = l.ID - (topline_id + param.LineFrom);
                         if (pos >= 0 && pos < l.DisplayLength && index >= 0 && index < _transientLines.Count) {
@@ -530,7 +530,7 @@ namespace Poderosa.View {
                                 _transientLines[index] = r;
                             }
                         }
-                        pos = 0; //‚Qs–Ú‚©‚ç‚Ì‘I‘ğ‚Ís“ª‚©‚ç
+                        pos = 0; //ï¼’è¡Œç›®ã‹ã‚‰ã®é¸æŠã¯è¡Œé ­ã‹ã‚‰
                         l = l.NextLine;
                     } while (l != t);
                 }
@@ -539,9 +539,9 @@ namespace Poderosa.View {
             AdjustCaret(_caret);
             _caret.Enabled = _caret.Enabled && (param.LineFrom <= _caret.Y && _caret.Y < param.LineFrom + param.LineCount);
 
-            //Caret‰æ–ÊŠO‚É‚ ‚é‚È‚çˆ—‚Í‚µ‚È‚­‚Ä‚æ‚¢B‚Q”Ô–Ú‚ÌğŒ‚ÍAAttach-ResizeTerminal‚Ì—¬‚ê‚Ì’†‚Å‚±‚ÌOnPaint‚ğÀs‚µ‚½ê‡‚ÉTerminalHeight>lines.Count‚É‚È‚éƒP[ƒX‚ª‚ ‚é‚Ì‚ğ–h~‚·‚é‚½‚ß
+            //Caretç”»é¢å¤–ã«ã‚ã‚‹ãªã‚‰å‡¦ç†ã¯ã—ãªãã¦ã‚ˆã„ã€‚ï¼’ç•ªç›®ã®æ¡ä»¶ã¯ã€Attach-ResizeTerminalã®æµã‚Œã®ä¸­ã§ã“ã®OnPaintã‚’å®Ÿè¡Œã—ãŸå ´åˆã«TerminalHeight>lines.Countã«ãªã‚‹ã‚±ãƒ¼ã‚¹ãŒã‚ã‚‹ã®ã‚’é˜²æ­¢ã™ã‚‹ãŸã‚
             if (_caret.Enabled) {
-                //ƒqƒNƒqƒN–â‘è‚Ì‚½‚ßAƒLƒƒƒŒƒbƒg‚ğ•\¦‚µ‚È‚¢‚Æ‚«‚Å‚à‚±‚Ì‘€ì‚ÍÈ‚¯‚È‚¢
+                //ãƒ’ã‚¯ãƒ’ã‚¯å•é¡Œã®ãŸã‚ã€ã‚­ãƒ£ãƒ¬ãƒƒãƒˆã‚’è¡¨ç¤ºã—ãªã„ã¨ãã§ã‚‚ã“ã®æ“ä½œã¯çœã‘ãªã„
                 if (_caret.Style == CaretType.Box) {
                     int y = _caret.Y - param.LineFrom;
                     if (y >= 0 && y < _transientLines.Count)
@@ -648,7 +648,7 @@ namespace Poderosa.View {
             //if(offset_x < BORDER) offset_x = BORDER;
             //if(offset_y < BORDER) offset_y = BORDER;
 
-            //‰æ‘œ“à‚ÌƒRƒs[ŠJnÀ•W
+            //ç”»åƒå†…ã®ã‚³ãƒ”ãƒ¼é–‹å§‹åº§æ¨™
             Rectangle target = Rectangle.Intersect(new Rectangle(clip.Left - offset_x, clip.Top - offset_y, clip.Width, clip.Height), new Rectangle(0, 0, img.Width, img.Height));
             if (target != Rectangle.Empty)
                 g.DrawImage(img, new Rectangle(target.Left + offset_x, target.Top + offset_y, target.Width, target.Height), target, GraphicsUnit.Pixel);
@@ -659,13 +659,13 @@ namespace Poderosa.View {
             return this;
         }
 
-        //ƒ}ƒEƒXƒzƒC[ƒ‹‚Å‚ÌƒXƒNƒ[ƒ‹
+        //ãƒã‚¦ã‚¹ãƒ›ã‚¤ãƒ¼ãƒ«ã§ã®ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«
         protected virtual void OnMouseWheelCore(MouseEventArgs e) {
             if (!this.EnabledEx)
                 return;
 
-            int d = e.Delta / 120; //ŠJ”­ŠÂ‹«‚¾‚ÆDelta‚É120B‚±‚ê‚Å1‚©-1‚ª“ü‚é‚Í‚¸
-            d *= 3; //‰Â•Ï‚É‚µ‚Ä‚à‚¢‚¢‚©‚à
+            int d = e.Delta / 120; //é–‹ç™ºç’°å¢ƒã ã¨Deltaã«120ã€‚ã“ã‚Œã§1ã‹-1ãŒå…¥ã‚‹ã¯ãš
+            d *= 3; //å¯å¤‰ã«ã—ã¦ã‚‚ã„ã„ã‹ã‚‚
 
             int newval = _VScrollBar.Value - d;
             if (newval < 0)
@@ -681,7 +681,7 @@ namespace Poderosa.View {
         }
 
 
-        //SplitMarkŠÖŒW
+        //SplitMarké–¢ä¿‚
         #region SplitMark.ISite
         protected override void OnMouseLeave(EventArgs e) {
             base.OnMouseLeave(e);
@@ -767,7 +767,7 @@ namespace Poderosa.View {
     }
 
     /*
-     * ‰½s–Ú‚©‚ç‰½s–Ú‚Ü‚Å‚ğ•`‰æ‚·‚×‚«‚©‚Ìî•ñ‚ğû˜^
+     * ä½•è¡Œç›®ã‹ã‚‰ä½•è¡Œç›®ã¾ã§ã‚’æç”»ã™ã¹ãã‹ã®æƒ…å ±ã‚’åéŒ²
      */
     internal class RenderParameter {
         private int _linefrom;
@@ -801,7 +801,7 @@ namespace Poderosa.View {
         }
     }
 
-    //ƒeƒLƒXƒg‘I‘ğ‚Ìƒnƒ“ƒhƒ‰
+    //ãƒ†ã‚­ã‚¹ãƒˆé¸æŠã®ãƒãƒ³ãƒ‰ãƒ©
     internal class TextSelectionUIHandler : DefaultMouseHandler {
         private CharacterDocumentViewer _viewer;
         public TextSelectionUIHandler(CharacterDocumentViewer v)
@@ -813,7 +813,7 @@ namespace Poderosa.View {
             if (args.Button != MouseButtons.Left || !_viewer.EnabledEx)
                 return UIHandleResult.Pass;
 
-            //ƒeƒLƒXƒg‘I‘ğ‚Å‚Í‚È‚¢‚Ì‚Å‚¿‚å‚Á‚Æ•¿ˆ«‚¢‚ªBUserControl->Control‚Ì’u‚«Š·‚¦‚É”º‚¤
+            //ãƒ†ã‚­ã‚¹ãƒˆé¸æŠã§ã¯ãªã„ã®ã§ã¡ã‚‡ã£ã¨æŸ„æ‚ªã„ãŒã€‚UserControl->Controlã®ç½®ãæ›ãˆã«ä¼´ã†
             if (!_viewer.Focused)
                 _viewer.Focus();
 
@@ -825,25 +825,25 @@ namespace Poderosa.View {
                 int target_id = _viewer.GetTopLine().ID + row;
                 TextSelection sel = _viewer.TextSelection;
                 if (sel.State == SelectionState.Fixed)
-                    sel.Clear(); //•Ï‚È‚Æ‚±‚ë‚ÅMouseDown‚µ‚½‚Æ‚µ‚Ä‚àClear‚¾‚¯‚Í‚·‚é
+                    sel.Clear(); //å¤‰ãªã¨ã“ã‚ã§MouseDownã—ãŸã¨ã—ã¦ã‚‚Clearã ã‘ã¯ã™ã‚‹
                 if (target_id <= document.LastLineNumber) {
                     //if(InFreeSelectionMode) ExitFreeSelectionMode();
                     //if(InAutoSelectionMode) ExitAutoSelectionMode();
                     RangeType rt;
                     //Debug.WriteLine(String.Format("MouseDown {0} {1}", sel.State, sel.PivotType));
 
-                    //“¯‚¶êŠ‚Åƒ|ƒ`ƒ|ƒ`‚Æ‰Ÿ‚·‚ÆChar->Word->Line->Char‚Æƒ‚[ƒh•Ï‰»‚·‚é
+                    //åŒã˜å ´æ‰€ã§ãƒãƒãƒãƒã¨æŠ¼ã™ã¨Char->Word->Line->Charã¨ãƒ¢ãƒ¼ãƒ‰å¤‰åŒ–ã™ã‚‹
                     if (sel.StartX != args.X || sel.StartY != args.Y)
                         rt = RangeType.Char;
                     else
                         rt = sel.PivotType == RangeType.Char ? RangeType.Word : sel.PivotType == RangeType.Word ? RangeType.Line : RangeType.Char;
 
-                    //ƒ}ƒEƒX‚ğ“®‚©‚µ‚Ä‚¢‚È‚­‚Ä‚àAMouseDown‚Æ‚Æ‚à‚ÉMouseMove‚ª—ˆ‚Ä‚µ‚Ü‚¤‚æ‚¤‚¾
+                    //ãƒã‚¦ã‚¹ã‚’å‹•ã‹ã—ã¦ã„ãªãã¦ã‚‚ã€MouseDownã¨ã¨ã‚‚ã«MouseMoveãŒæ¥ã¦ã—ã¾ã†ã‚ˆã†ã 
                     GLine tl = document.FindLine(target_id);
                     sel.StartSelection(tl, col, rt, args.X, args.Y);
                 }
             }
-            _viewer.Invalidate(); //NOTE ‘I‘ğó‘Ô‚É•Ï‰»‚Ì‚ ‚Á‚½s‚Ì‚İXV‚·‚ê‚Î‚È‚¨‚æ‚µ
+            _viewer.Invalidate(); //NOTE é¸æŠçŠ¶æ…‹ã«å¤‰åŒ–ã®ã‚ã£ãŸè¡Œã®ã¿æ›´æ–°ã™ã‚Œã°ãªãŠã‚ˆã—
             return UIHandleResult.Capture;
         }
         public override UIHandleResult OnMouseMove(MouseEventArgs args) {
@@ -852,7 +852,7 @@ namespace Poderosa.View {
             TextSelection sel = _viewer.TextSelection;
             if (sel.State == SelectionState.Fixed || sel.State == SelectionState.Empty)
                 return UIHandleResult.Pass;
-            //ƒNƒŠƒbƒN‚¾‚¯‚Å‚à‚È‚º‚©MouseDown‚Ì’¼Œã‚ÉMouseMoveƒCƒxƒ“ƒg‚ª—ˆ‚é‚Ì‚Å‚±‚Ì‚æ‚¤‚É‚µ‚ÄƒK[ƒhB‚Å‚È‚¢‚Æ’P”­ƒNƒŠƒbƒN‚Å‚à‘I‘ğó‘Ô‚É‚È‚Á‚Ä‚µ‚Ü‚¤
+            //ã‚¯ãƒªãƒƒã‚¯ã ã‘ã§ã‚‚ãªãœã‹MouseDownã®ç›´å¾Œã«MouseMoveã‚¤ãƒ™ãƒ³ãƒˆãŒæ¥ã‚‹ã®ã§ã“ã®ã‚ˆã†ã«ã—ã¦ã‚¬ãƒ¼ãƒ‰ã€‚ã§ãªã„ã¨å˜ç™ºã‚¯ãƒªãƒƒã‚¯ã§ã‚‚é¸æŠçŠ¶æ…‹ã«ãªã£ã¦ã—ã¾ã†
             if (sel.StartX == args.X && sel.StartY == args.Y)
                 return UIHandleResult.Capture;
 
@@ -870,11 +870,11 @@ namespace Poderosa.View {
 
                 point.Line = RuntimeUtil.AdjustIntRange(point.Line, document.FirstLineNumber, document.LastLineNumber);
 
-                if (_viewer.VScrollBar.Enabled) { //ƒXƒNƒ[ƒ‹‰Â”\‚È‚Æ‚«‚Í
+                if (_viewer.VScrollBar.Enabled) { //ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«å¯èƒ½ãªã¨ãã¯
                     VScrollBar vsc = _viewer.VScrollBar;
-                    if (target_id < topline_id) //‘O•ûƒXƒNƒ[ƒ‹
+                    if (target_id < topline_id) //å‰æ–¹ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«
                         vsc.Value = point.Line - document.FirstLineNumber;
-                    else if (point.Line >= topline_id + vsc.LargeChange) { //Œã•ûƒXƒNƒ[ƒ‹
+                    else if (point.Line >= topline_id + vsc.LargeChange) { //å¾Œæ–¹ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«
                         int newval = point.Line - document.FirstLineNumber - vsc.LargeChange + 1;
                         if (newval < 0)
                             newval = 0;
@@ -883,9 +883,9 @@ namespace Poderosa.View {
                         vsc.Value = newval;
                     }
                 }
-                else { //ƒXƒNƒ[ƒ‹•s‰Â”\‚È‚Æ‚«‚ÍŒ©‚¦‚Ä‚¢‚é”ÍˆÍ‚Å
+                else { //ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ä¸å¯èƒ½ãªã¨ãã¯è¦‹ãˆã¦ã„ã‚‹ç¯„å›²ã§
                     point.Line = RuntimeUtil.AdjustIntRange(point.Line, topline_id, topline_id + viewheight - 1);
-                } //‚±‚±‚³‚Ú‚Á‚Ä‚¢‚é
+                } //ã“ã“ã•ã¼ã£ã¦ã„ã‚‹
                 //Debug.WriteLine(String.Format("MouseMove {0} {1} {2}", sel.State, sel.PivotType, args.X));
                 RangeType rt = sel.PivotType;
                 if ((Control.ModifierKeys & Keys.Control) != Keys.None)
@@ -896,7 +896,7 @@ namespace Poderosa.View {
                 GLine tl = document.FindLine(point.Line);
                 sel.ExpandTo(tl, point.Column, rt);
             }
-            _viewer.Invalidate(); //TODO ‘I‘ğó‘Ô‚É•Ï‰»‚Ì‚ ‚Á‚½s‚Ì‚İXV‚·‚é‚æ‚¤‚É‚·‚ê‚Î‚È‚¨‚æ‚µ
+            _viewer.Invalidate(); //TODO é¸æŠçŠ¶æ…‹ã«å¤‰åŒ–ã®ã‚ã£ãŸè¡Œã®ã¿æ›´æ–°ã™ã‚‹ã‚ˆã†ã«ã™ã‚Œã°ãªãŠã‚ˆã—
             return UIHandleResult.Capture;
 
         }
@@ -913,7 +913,7 @@ namespace Poderosa.View {
         }
     }
 
-    //ƒXƒvƒŠƒbƒgƒ}[ƒN‚Ìƒnƒ“ƒhƒ‰
+    //ã‚¹ãƒ—ãƒªãƒƒãƒˆãƒãƒ¼ã‚¯ã®ãƒãƒ³ãƒ‰ãƒ©
     internal class SplitMarkUIHandler : DefaultMouseHandler {
         private SplitMarkSupport _splitMark;
         public SplitMarkUIHandler(SplitMarkSupport split)
@@ -928,13 +928,13 @@ namespace Poderosa.View {
             bool v = _splitMark.IsSplitMarkVisible;
             if (v || WindowManagerPlugin.Instance.WindowPreference.OriginalPreference.ViewSplitModifier == Control.ModifierKeys)
                 _splitMark.OnMouseMove(args);
-            //’¼‘O‚ÉƒLƒƒƒvƒ`ƒƒ[‚µ‚Ä‚¢‚½‚çEndCapture
+            //ç›´å‰ã«ã‚­ãƒ£ãƒ—ãƒãƒ£ãƒ¼ã—ã¦ã„ãŸã‚‰EndCapture
             return _splitMark.IsSplitMarkVisible ? UIHandleResult.Capture : v ? UIHandleResult.EndCapture : UIHandleResult.Pass;
         }
         public override UIHandleResult OnMouseUp(MouseEventArgs args) {
             bool visible = _splitMark.IsSplitMarkVisible;
             if (visible) {
-                //—á‚¦‚ÎAƒ}[ƒN•\¦ˆÊ’u‚©‚ç‘I‘ğ‚µ‚½‚¢‚æ‚¤‚Èê‡‚ğl—¶‚µAƒ}[ƒNã‚Å‰EƒNƒŠƒbƒN‚·‚é‚Æ‘I‘ğ‚ªÁ‚¦‚é‚æ‚¤‚É‚·‚éB
+                //ä¾‹ãˆã°ã€ãƒãƒ¼ã‚¯è¡¨ç¤ºä½ç½®ã‹ã‚‰é¸æŠã—ãŸã„ã‚ˆã†ãªå ´åˆã‚’è€ƒæ…®ã—ã€ãƒãƒ¼ã‚¯ä¸Šã§å³ã‚¯ãƒªãƒƒã‚¯ã™ã‚‹ã¨é¸æŠãŒæ¶ˆãˆã‚‹ã‚ˆã†ã«ã™ã‚‹ã€‚
                 _splitMark.OnMouseUp(args);
                 return UIHandleResult.EndCapture;
             }

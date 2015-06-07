@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@ namespace Poderosa.Usability {
         private IShellSchemeCollection _schemeCollection;
         private ItemTag _current;
         private List<ItemTag> _tags;
-        private List<ItemTag> _removing; //•ÒW’†‚Éíœ‚µ‚½‚â‚Â‚Í‚±‚ÌƒRƒŒƒNƒVƒ‡ƒ“‚É•ú‚è‚ñ‚Å‚¨‚¢‚ÄA‚ ‚Æ‚Åƒ}ƒbƒv‚ğˆø‚©‚¹‚é
+        private List<ItemTag> _removing; //ç·¨é›†ä¸­ã«å‰Šé™¤ã—ãŸã‚„ã¤ã¯ã“ã®ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã«æ”¾ã‚Šè¾¼ã‚“ã§ãŠã„ã¦ã€ã‚ã¨ã§ãƒãƒƒãƒ—ã‚’å¼•ã‹ã›ã‚‹
         private bool _blockUIEvent;
 
         private class ItemTag {
@@ -74,7 +74,7 @@ namespace Poderosa.Usability {
             }
             _blockUIEvent = false;
 
-            //‚±‚ê‚Å‰Šú‰»
+            //ã“ã‚Œã§åˆæœŸåŒ–
             _schemeComboBox.SelectedIndex = current_index;
         }
         private void InitializeText() {
@@ -114,7 +114,7 @@ namespace Poderosa.Usability {
             _tags.Add(tag);
             _schemeComboBox.Items.Add(name);
             Debug.Assert(_tags.Count == _schemeComboBox.Items.Count);
-            _schemeComboBox.SelectedIndex = _tags.Count - 1; //‚±‚ê‚Å‘I‘ğ
+            _schemeComboBox.SelectedIndex = _tags.Count - 1; //ã“ã‚Œã§é¸æŠ
         }
         private void OnDeleteScheme(object sender, EventArgs args) {
             int index = _schemeComboBox.SelectedIndex;
@@ -217,7 +217,7 @@ namespace Poderosa.Usability {
             }
         }
 
-        //UI‚Ì’²®
+        //UIã®èª¿æ•´
         private void SelectScheme(ItemTag tag) {
             _current = tag;
             IShellScheme ss = tag.ShellScheme;

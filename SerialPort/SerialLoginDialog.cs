@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,19 +62,19 @@ namespace Poderosa.SerialPort {
         private TextBox _autoExecMacroPathBox;
         private Button _selectAutoExecMacroButton;
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.Container components = null;
 
         public SerialLoginDialog() {
             //
-            // Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Å‚·B
+            // Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ã§ã™ã€‚
             //
             InitializeComponent();
 
             StringResource sr = SerialPortPlugin.Instance.Strings;
             this._serialGroup.Text = sr.GetString("Form.SerialLoginDialog._serialGroup");
-            //ˆÈ‰ºASerialConfig‚ÆƒeƒLƒXƒg‚ğ‹¤—p
+            //ä»¥ä¸‹ã€SerialConfigã¨ãƒ†ã‚­ã‚¹ãƒˆã‚’å…±ç”¨
             this._portLabel.Text = sr.GetString("Form.SerialConfig._portLabel");
             this._baudRateLabel.Text = sr.GetString("Form.SerialConfig._baudRateLabel");
             this._dataBitsLabel.Text = sr.GetString("Form.SerialConfig._dataBitsLabel");
@@ -114,7 +114,7 @@ namespace Poderosa.SerialPort {
         }
 
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -127,8 +127,8 @@ namespace Poderosa.SerialPort {
 
         #region Windows Form Designer generated code
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this._serialGroup = new System.Windows.Forms.GroupBox();
@@ -535,10 +535,10 @@ namespace Poderosa.SerialPort {
         }
 
         private void InitUI() {
-            // ƒVƒŠƒAƒ‹ƒ|[ƒg–¼‚ğ‚»‚Ì‚Ü‚ÜƒAƒCƒeƒ€‚Æ‚·‚éB
+            // ã‚·ãƒªã‚¢ãƒ«ãƒãƒ¼ãƒˆåã‚’ãã®ã¾ã¾ã‚¢ã‚¤ãƒ†ãƒ ã¨ã™ã‚‹ã€‚
             _portBox.Items.AddRange(System.IO.Ports.SerialPort.GetPortNames());
             if (_portBox.Items.Count <= 0) {
-                // ƒ|[ƒg‚ª1‚Â‚à–³‚¢ê‡‚ÍOK‚ğ–³Œø‰»‚µ‚Ä‚¨‚­B
+                // ãƒãƒ¼ãƒˆãŒ1ã¤ã‚‚ç„¡ã„å ´åˆã¯OKã‚’ç„¡åŠ¹åŒ–ã—ã¦ãŠãã€‚
                 _loginButton.Enabled = false;
             }
 
@@ -556,13 +556,13 @@ namespace Poderosa.SerialPort {
             _terminalParam = param == null ? new SerialTerminalParam() : param;
             _terminalSettings = settings == null ? SerialPortUtil.CreateDefaultSerialTerminalSettings(_terminalParam.PortName) : settings;
 
-            // İ’è‚Ìƒ|[ƒg–¼Ì‚ÌƒAƒCƒeƒ€‚ğ‘I‘ğB‚»‚ê‚ª‘I‘ğ‚Å‚«‚È‚¯‚ê‚ÎÅ‰‚Ì€–Ú‚ğ‘I‘ğB
+            // è¨­å®šã®ãƒãƒ¼ãƒˆåç§°ã®ã‚¢ã‚¤ãƒ†ãƒ ã‚’é¸æŠã€‚ãã‚ŒãŒé¸æŠã§ããªã‘ã‚Œã°æœ€åˆã®é …ç›®ã‚’é¸æŠã€‚
             _portBox.SelectedItem = _terminalParam.PortName;
             if (_portBox.SelectedItem == null && 0 < _portBox.Items.Count) {
                 _portBox.SelectedIndex = 0;
             }
 
-            //‚±‚ê‚ç‚ÌSelectedIndex‚Ìİ’è‚ÍƒRƒ“ƒ{ƒ{ƒbƒNƒX‚Éİ’è‚µ‚½€–Ú‡‚ÉˆË‘¶‚µ‚Ä‚¢‚é‚Ì‚Å’ˆÓ[‚­‚·‚é‚±‚Æ
+            //ã“ã‚Œã‚‰ã®SelectedIndexã®è¨­å®šã¯ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ã«è¨­å®šã—ãŸé …ç›®é †ã«ä¾å­˜ã—ã¦ã„ã‚‹ã®ã§æ³¨æ„æ·±ãã™ã‚‹ã“ã¨
             _baudRateBox.SelectedIndex = _baudRateBox.FindStringExact(_terminalSettings.BaudRate.ToString());
             _dataBitsBox.SelectedIndex = _terminalSettings.ByteSize == 7 ? 0 : 1;
             _parityBox.SelectedItem = _terminalSettings.Parity;             // select EnumListItem<T> by T
@@ -615,7 +615,7 @@ namespace Poderosa.SerialPort {
                 if (logtype != LogType.None) {
                     logsettings = CreateSimpleLogSettings(logtype, _logFileBox.Text);
                     if (logsettings == null)
-                        return false; //“®ìƒLƒƒƒ“ƒZƒ‹
+                        return false; //å‹•ä½œã‚­ãƒ£ãƒ³ã‚»ãƒ«
                 }
 
                 param.PortName = _portBox.SelectedItem as string;
@@ -666,7 +666,7 @@ namespace Poderosa.SerialPort {
             AdjustUI();
         }
 
-        //ƒƒOİ’è‚ğì‚éB’Pˆêƒtƒ@ƒCƒ‹”ÅB
+        //ãƒ­ã‚°è¨­å®šã‚’ä½œã‚‹ã€‚å˜ä¸€ãƒ•ã‚¡ã‚¤ãƒ«ç‰ˆã€‚
         protected ISimpleLogSettings CreateSimpleLogSettings(LogType logtype, string path) {
             ISimpleLogSettings logsettings = SerialPortPlugin.Instance.TerminalEmulatorService.CreateDefaultSimpleLogSettings();
             logsettings.LogPath = path;

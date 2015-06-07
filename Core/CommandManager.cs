@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,7 @@ using Poderosa.Util;
 [assembly: PluginDeclaration(typeof(Poderosa.Commands.CommandManagerPlugin))]
 
 namespace Poderosa.Commands {
-    //NOTE public‚É¸ŠiH
+    //NOTE publicã«æ˜‡æ ¼ï¼Ÿ
     internal interface IKeyBindChangeListener {
         void OnKeyBindChanged(IKeyBinds newvalues);
     }
@@ -31,7 +31,7 @@ namespace Poderosa.Commands {
         public const string PLUGIN_ID = "org.poderosa.core.commands";
         private static CommandManagerPlugin _instance;
 
-        private List<IGeneralCommand> _commands; //“o˜^‡‚É•À‚×‚é
+        private List<IGeneralCommand> _commands; //ç™»éŒ²é †ã«ä¸¦ã¹ã‚‹
         private TypedHashtable<string, IGeneralCommand> _idToCommand;
         private KeyBindConfiguration _keyBind;
         private IPreferenceLooseNode _keyBindNode;
@@ -56,13 +56,13 @@ namespace Poderosa.Commands {
             if (id == null || id.Length == 0)
                 throw new ArgumentException("command id must be defined");
             if (Find(id) != null)
-                throw new ArgumentException(String.Format("command id {0} is duplicated", id)); //“o˜^”‚ª‘½‚¢‚ÆƒI[ƒoƒwƒbƒh‚É‚È‚è‚©‚Ë‚È‚¢
+                throw new ArgumentException(String.Format("command id {0} is duplicated", id)); //ç™»éŒ²æ•°ãŒå¤šã„ã¨ã‚ªãƒ¼ãƒãƒ˜ãƒƒãƒ‰ã«ãªã‚Šã‹ã­ãªã„
 
             _commands.Add(command);
             _idToCommand.Add(id, command);
         }
 
-        //ƒRƒ}ƒ“ƒhÀs@Œã‚ÉÀs‚ÌƒƒO‚ğæ‚é‚æ‚¤‚Èd‘g‚İ‚ª‚ ‚é‚©‚à
+        //ã‚³ãƒãƒ³ãƒ‰å®Ÿè¡Œã€€å¾Œã«å®Ÿè¡Œã®ãƒ­ã‚°ã‚’å–ã‚‹ã‚ˆã†ãªä»•çµ„ã¿ãŒã‚ã‚‹ã‹ã‚‚
         public CommandResult Execute(IPoderosaCommand command, ICommandTarget target, params IAdaptable[] args) {
             return command.InternalExecute(target, args);
         }
@@ -99,7 +99,7 @@ namespace Poderosa.Commands {
             }
         }
 
-        //TODO QueryAdapterŒo—R‚É‚·‚×‚«H
+        //TODO QueryAdapterçµŒç”±ã«ã™ã¹ãï¼Ÿ
         public IKeyBinds GetKeyBinds(IPreferenceFolder folder) {
             return GetKeyBindInternal(folder);
         }
@@ -154,7 +154,7 @@ namespace Poderosa.Commands {
     }
 
     internal class KeyBindConfiguration : IPreferenceLooseNodeContent, IKeyBinds {
-        private List<Tag> _data; //ƒRƒ}ƒ“ƒh‚ªCommandManagerPlugin‚Ì“o˜^‡‚É‚È‚é‚æ‚¤‚É
+        private List<Tag> _data; //ã‚³ãƒãƒ³ãƒ‰ãŒCommandManagerPluginã®ç™»éŒ²é †ã«ãªã‚‹ã‚ˆã†ã«
         private TypedHashtable<Keys, Tag> _keyToTag;
         private TypedHashtable<IGeneralCommand, Tag> _commandToTag;
 
@@ -197,11 +197,11 @@ namespace Poderosa.Commands {
             _commandToTag = new TypedHashtable<IGeneralCommand, Tag>();
         }
 
-        //keyToTag‚Í‹ó‚Ìó‘Ô‚Å‰Šú‰»BClone‚·‚é‚Æ‚«‚Í‚»‚Ì’†‚Å‰Šú‰»‚·‚é‚Ì‚ÅInit‚Í•s—vB
+        //keyToTagã¯ç©ºã®çŠ¶æ…‹ã§åˆæœŸåŒ–ã€‚Cloneã™ã‚‹ã¨ãã¯ãã®ä¸­ã§åˆæœŸåŒ–ã™ã‚‹ã®ã§Initã¯ä¸è¦ã€‚
         public void Init() {
             _data.Clear();
             _keyToTag.Clear();
-            //“o˜^‡‚ÉƒT[ƒ`‚µ‚Ä‚¢‚­
+            //ç™»éŒ²é †ã«ã‚µãƒ¼ãƒã—ã¦ã„ã
             int index = 0;
             foreach (IGeneralCommand command in CommandManagerPlugin.Instance.Commands) {
                 Keys key = command.DefaultShortcutKey;
@@ -221,7 +221,7 @@ namespace Poderosa.Commands {
             Tag tag = _commandToTag[command];
             return tag == null ? Keys.None : tag.Key;
         }
-        //“¯ˆêƒL[‚Éd•¡“o˜^‚Í‹–‚³‚È‚¢
+        //åŒä¸€ã‚­ãƒ¼ã«é‡è¤‡ç™»éŒ²ã¯è¨±ã•ãªã„
         public void SetKey(IGeneralCommand command, Keys key) {
             Tag tag = _commandToTag[command];
             if (key != Keys.None) {
@@ -231,7 +231,7 @@ namespace Poderosa.Commands {
                     _keyToTag.Remove(tag.Key);
                 _keyToTag.Add(key, tag);
             }
-            else { //Keys.None‚Ìİ’è
+            else { //Keys.Noneã®è¨­å®š
                 if (tag.Key != Keys.None) {
                     Debug.Assert(_keyToTag.Contains(tag.Key));
                     _keyToTag.Remove(tag.Key);
@@ -263,7 +263,7 @@ namespace Poderosa.Commands {
             _data.Clear();
             _keyToTag.Clear();
             _commandToTag.Clear();
-            KeyBindConfiguration src = (KeyBindConfiguration)keybinds; //ˆÙ‚È‚éIKeyBindsÀ‘•‚à‚ ‚é‚©‚à‚µ‚ê‚È‚¢‚ª
+            KeyBindConfiguration src = (KeyBindConfiguration)keybinds; //ç•°ãªã‚‹IKeyBindså®Ÿè£…ã‚‚ã‚ã‚‹ã‹ã‚‚ã—ã‚Œãªã„ãŒ
             foreach (Tag tag in src._data) {
                 Tag newtag = tag.Clone();
                 _data.Add(newtag);

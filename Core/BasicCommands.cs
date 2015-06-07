@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -66,7 +66,7 @@ namespace Poderosa.Commands {
         }
     }
 
-    // ƒRƒ}ƒ“ƒhŒQ
+    // ã‚³ãƒãƒ³ãƒ‰ç¾¤
     internal class BasicCommand : GeneralCommandImpl {
 
         public BasicCommand(string id, string description, CommandCategory category, Keys defaultkey, ExecuteDelegate body, CanExecuteDelegate enabled)
@@ -87,7 +87,7 @@ namespace Poderosa.Commands {
         private static BasicCommand _closeAll;
         private static DocActivationCommand _docActivationCommand;
 
-        //‚±‚Ì‚Q‚Â‚Í‚È‚º—v‚é‚ñ‚¾‚Á‚¯
+        //ã“ã®ï¼’ã¤ã¯ãªãœè¦ã‚‹ã‚“ã ã£ã‘
         public static BasicCommand CloseAll {
             get {
                 return _closeAll;
@@ -131,7 +131,7 @@ namespace Poderosa.Commands {
         private static CommandCategory _window;
         private static CommandCategory _dialog;
 
-        //CoreƒRƒ“ƒ|[ƒlƒ“ƒg‚Å
+        //Coreã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã§
         public static void Build() {
             CreateCategories();
 
@@ -174,7 +174,7 @@ namespace Poderosa.Commands {
             cm.Register(new BasicCommand("org.poderosa.core.application.openweb",
                 "Command.PoderosaWeb", _dialog, Keys.None, new ExecuteDelegate(CmdOpenWeb)));
 
-            //‚±‚ê‚ÍGeneralCommand‚Å‚Í‚È‚¢
+            //ã“ã‚Œã¯GeneralCommandã§ã¯ãªã„
             _docActivationCommand = new DocActivationCommand();
         }
 
@@ -196,7 +196,7 @@ namespace Poderosa.Commands {
             Form f = window.AsForm();
             Rectangle location = f.WindowState == FormWindowState.Normal ? f.DesktopBounds : f.RestoreBounds;
             location.X += 20;
-            location.Y += 20; //­‚µ‰E‰º‚É•\¦
+            location.Y += 20; //å°‘ã—å³ä¸‹ã«è¡¨ç¤º
             MainWindowArgument arg = new MainWindowArgument(location, FormWindowState.Normal, "", "", 1);
             WindowManagerPlugin.Instance.CreateNewWindow(arg);
             return CommandResult.Succeeded;
@@ -249,7 +249,7 @@ namespace Poderosa.Commands {
             if (result == PrepareCloseResult.Cancel)
                 return CommandResult.Cancelled;
 
-            //“¯‚¶ƒrƒ…[‚É•Ê‚ÌƒhƒLƒ…ƒƒ“ƒg‚ª—ˆ‚Ä‚¢‚ê‚Î‚»‚ê‚ğƒAƒNƒeƒBƒu‚É
+            //åŒã˜ãƒ“ãƒ¥ãƒ¼ã«åˆ¥ã®ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒæ¥ã¦ã„ã‚Œã°ãã‚Œã‚’ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«
             if (was_active) {
                 IPoderosaDocument newdoc = view.Document;
                 if (newdoc != null)
@@ -309,7 +309,7 @@ namespace Poderosa.Commands {
                 ISessionManagerForViewSplitter smp = SessionManagerPlugin.Instance;
                 smp.ChangeLastAttachedViewForAllDocuments(view, next);
 
-                //Ÿ‚ÌƒtƒH[ƒJƒX‚ÌƒhƒLƒ…ƒƒ“ƒg‚ª‚È‚¯‚ê‚Î‹ŒƒhƒLƒ…ƒƒ“ƒg‚ğˆÚsB‚»‚µ‚Änext‚ÌƒhƒLƒ…ƒƒ“ƒg‚ğƒAƒNƒeƒBƒu‚É
+                //æ¬¡ã®ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã®ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒãªã‘ã‚Œã°æ—§ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’ç§»è¡Œã€‚ãã—ã¦nextã®ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«
                 if (document_unifying != null && next.Document == null) {
                     sm.AttachDocumentAndView(document_unifying, next);
                     Debug.Assert(next.Document == document_unifying);
@@ -376,7 +376,7 @@ namespace Poderosa.Commands {
             return CommandResult.Succeeded;
         }
 
-        //ƒvƒ‰ƒOƒCƒ“ƒŠƒXƒg•\¦‚Ìƒƒjƒ…[‚ÆƒRƒ}ƒ“ƒh
+        //ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãƒªã‚¹ãƒˆè¡¨ç¤ºã®ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã¨ã‚³ãƒãƒ³ãƒ‰
         private static CommandResult CmdPluginList(ICommandTarget target) {
             IPoderosaMainWindow window = CommandTargetUtil.AsWindow(target);
             if (window == null)
@@ -396,7 +396,7 @@ namespace Poderosa.Commands {
             return CommandResult.Succeeded;
         }
 
-        //AboutBox•\¦‚Ìƒƒjƒ…[‚ÆƒRƒ}ƒ“ƒh
+        //AboutBoxè¡¨ç¤ºã®ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã¨ã‚³ãƒãƒ³ãƒ‰
         private static CommandResult CmdAboutBox(ICommandTarget target) {
             IPoderosaMainWindow window = CommandTargetUtil.AsWindow(target);
             if (window == null)
@@ -439,7 +439,7 @@ namespace Poderosa.Commands {
             }
         }
 
-        //ƒL[‚Ìƒ‚ƒfƒBƒtƒ@ƒCƒA
+        //ã‚­ãƒ¼ã®ãƒ¢ãƒ‡ã‚£ãƒ•ã‚¡ã‚¤ã‚¢
         private static Keys Alt(Keys key) {
             return Keys.Alt | key;
         }
@@ -449,10 +449,10 @@ namespace Poderosa.Commands {
     }
 
 
-    //ƒƒCƒ“ƒƒjƒ…[‚Ì€–Ú‚ÍAICommandTargetŒo—R‚Å‹N“®Œ³‚ÌƒtƒH[ƒ€‚ªæ‚ê‚é‚æ‚¤‚É‚È‚Á‚Ä‚¢‚éB
+    //ãƒ¡ã‚¤ãƒ³ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®é …ç›®ã¯ã€ICommandTargetçµŒç”±ã§èµ·å‹•å…ƒã®ãƒ•ã‚©ãƒ¼ãƒ ãŒå–ã‚Œã‚‹ã‚ˆã†ã«ãªã£ã¦ã„ã‚‹ã€‚
     /// <summary>
     /// <ja>
-    /// ƒRƒ}ƒ“ƒh‚ÌÀs‚É“n‚³‚ê‚éƒ^[ƒQƒbƒg‚ğ‚³‚Ü‚´‚Ü‚ÈŒ^‚É•ÏŠ·‚·‚éÃ“I‚Èƒƒ\ƒbƒh‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰ã®å®Ÿè¡Œæ™‚ã«æ¸¡ã•ã‚Œã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’ã•ã¾ã–ã¾ãªå‹ã«å¤‰æ›ã™ã‚‹é™çš„ãªãƒ¡ã‚½ãƒƒãƒ‰ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// A static method of converting the target passed when the command is executed into various types is offered. 
@@ -461,13 +461,13 @@ namespace Poderosa.Commands {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ƒƒCƒ“ƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚©‚çŒÄ‚Ño‚³‚ê‚éê‡Aƒ^[ƒQƒbƒg‚ÍƒƒCƒ“ƒEƒBƒ“ƒhƒE‚ğ¦‚·<seealso cref="IPoderosaMainWindow">IPoderosaMainWindow</seealso>‚Å‚·B
+    /// ãƒ¡ã‚¤ãƒ³ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹å ´åˆã€ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã¯ãƒ¡ã‚¤ãƒ³ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ç¤ºã™<seealso cref="IPoderosaMainWindow">IPoderosaMainWindow</seealso>ã§ã™ã€‚
     /// </para>
     /// <para>
-    /// ƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE‚©‚çŒÄ‚Ño‚³‚ê‚éê‡Aƒ^[ƒQƒbƒg‚Íƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE‚ğ¦‚·<seealso cref="IPoderosaPopupWindow">IPoderosaPopupWindow</seealso>‚Å‚·B
+    /// ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹å ´åˆã€ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã¯ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ç¤ºã™<seealso cref="IPoderosaPopupWindow">IPoderosaPopupWindow</seealso>ã§ã™ã€‚
     /// </para>
     /// <para>
-    /// ‚±‚ÌƒNƒ‰ƒX‚ÉÀ‘•‚³‚ê‚Ä‚¢‚éÃ“I‚Èƒƒ\ƒbƒh‚ğ—p‚¢‚é‚±‚Æ‚ÅA“n‚³‚ê‚½ƒ^[ƒQƒbƒg‚ğ<seealso cref="IPoderosaMainWindow">IPoderosaMainWindow</seealso>A<seealso cref="IPoderosaView">IPoderosaView</seealso>‚È‚Ç‚Ö‚Æ•ÏŠ·‚Å‚«‚Ü‚·B
+    /// ã“ã®ã‚¯ãƒ©ã‚¹ã«å®Ÿè£…ã•ã‚Œã¦ã„ã‚‹é™çš„ãªãƒ¡ã‚½ãƒƒãƒ‰ã‚’ç”¨ã„ã‚‹ã“ã¨ã§ã€æ¸¡ã•ã‚ŒãŸã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’<seealso cref="IPoderosaMainWindow">IPoderosaMainWindow</seealso>ã€<seealso cref="IPoderosaView">IPoderosaView</seealso>ãªã©ã¸ã¨å¤‰æ›ã§ãã¾ã™ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -484,7 +484,7 @@ namespace Poderosa.Commands {
     /// </remarks>
     /// <example>
     /// <ja>
-    /// ƒRƒ}ƒ“ƒhÀs‚É“n‚³‚ê‚½<var>target</var>‚ğ—LŒø‚Èƒrƒ…[‚Ö‚Æ•ÏŠ·‚µ‚Ü‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰å®Ÿè¡Œæ™‚ã«æ¸¡ã•ã‚ŒãŸ<var>target</var>ã‚’æœ‰åŠ¹ãªãƒ“ãƒ¥ãƒ¼ã¸ã¨å¤‰æ›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// <var>target</var> passed when the command is executed is converted into an effective view. 
@@ -510,23 +510,23 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ƒEƒBƒ“ƒhƒE‚Ö‚Æ•ÏŠ·‚µ‚Ü‚·B
+        /// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã¸ã¨å¤‰æ›ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Convert to the window.
         /// </en>
         /// </summary>
         /// <param name="target">
-        /// <ja>‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja>
+        /// <ja>å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja>
         /// <en>It is a target that becomes an object. </en>
         /// </param>
         /// <returns>
-        /// <ja>•ÏŠ·‚µ‚½ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B•ÏŠ·‚Å‚«‚È‚¢‚Æ‚«‚É‚Ínull‚ª–ß‚è‚Ü‚·B</ja>
+        /// <ja>å¤‰æ›ã—ãŸã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚å¤‰æ›ã§ããªã„ã¨ãã«ã¯nullãŒæˆ»ã‚Šã¾ã™ã€‚</ja>
         /// <en>It is a converted interface. Null returns when it is not possible to convert it. </en>
         /// </returns>
         /// <remarks>
         /// <ja>
-        /// ƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚Ìƒ{ƒ^ƒ“‚©‚çŒÄ‚Ño‚³‚ê‚½ƒRƒ}ƒ“ƒh‚Éˆø‚«“n‚³‚ê‚½<paramref name="target">target</paramref>‚Ìê‡A‚±‚ÌŒÄ‚Ño‚µ‚Í¬Œ÷‚µ‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã®ãƒœã‚¿ãƒ³ã‹ã‚‰å‘¼ã³å‡ºã•ã‚ŒãŸã‚³ãƒãƒ³ãƒ‰ã«å¼•ãæ¸¡ã•ã‚ŒãŸ<paramref name="target">target</paramref>ã®å ´åˆã€ã“ã®å‘¼ã³å‡ºã—ã¯æˆåŠŸã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// This call succeeds for <paramref name="target">target</paramref> handed over to the command called from the button of the menu and the toolbar. 
@@ -540,18 +540,18 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// ƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE‚Ö‚Æ•ÏŠ·‚µ‚Ü‚·B
+        /// ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã¸ã¨å¤‰æ›ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Convert to the popup window.
         /// </en>
         /// </summary>
         /// <param name="target">
-        /// <ja>‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja>
+        /// <ja>å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja>
         /// <en>It is a target that becomes an object. </en>
         /// </param>
         /// <returns>
-        /// <ja>•ÏŠ·‚µ‚½ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B•ÏŠ·‚Å‚«‚È‚¢‚Æ‚«‚É‚Ínull‚ª–ß‚è‚Ü‚·B</ja>
+        /// <ja>å¤‰æ›ã—ãŸã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚å¤‰æ›ã§ããªã„ã¨ãã«ã¯nullãŒæˆ»ã‚Šã¾ã™ã€‚</ja>
         /// <en>It is a converted interface. Null returns when it is not possible to convert it. </en>
         /// </returns>
         public static IPoderosaPopupWindow AsPopupWindow(ICommandTarget target) {
@@ -562,29 +562,29 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// ÅŒã‚ÉƒAƒNƒeƒBƒu‚É‚È‚Á‚½ƒrƒ…[‚Ö‚Æ•ÏŠ·‚µ‚Ü‚·B
+        /// æœ€å¾Œã«ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ãŸãƒ“ãƒ¥ãƒ¼ã¸ã¨å¤‰æ›ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Convert it into the view that became active at the end. 
         /// </en>
         /// </summary>
         /// <param name="target">
-        /// <ja>‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja>
+        /// <ja>å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja>
         /// <en>It is a target that becomes an object. </en>
         /// </param>
         /// <returns>
-        /// <ja>•ÏŠ·‚µ‚½ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B•ÏŠ·‚Å‚«‚È‚¢‚Æ‚«‚É‚Ínull‚ª–ß‚è‚Ü‚·B</ja>
+        /// <ja>å¤‰æ›ã—ãŸã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚å¤‰æ›ã§ããªã„ã¨ãã«ã¯nullãŒæˆ»ã‚Šã¾ã™ã€‚</ja>
         /// <en>It is a converted interface. Null returns when it is not possible to convert it. </en>
         /// </returns>
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ƒEƒBƒ“ƒhƒE‚Ìê‡‚É‚ÍA<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>‚Ì
-        /// <see cref="IPoderosaMainWindow.LastActivatedView">LastActivatedViewƒvƒƒpƒeƒB</see>‚ğ—p‚¢‚Äƒrƒ…[‚Ö‚Æ•ÏŠ·‚µ‚Ü‚·B
+        /// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®å ´åˆã«ã¯ã€<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>ã®
+        /// <see cref="IPoderosaMainWindow.LastActivatedView">LastActivatedViewãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>ã‚’ç”¨ã„ã¦ãƒ“ãƒ¥ãƒ¼ã¸ã¨å¤‰æ›ã—ã¾ã™ã€‚
         /// </para>
         /// <para>
-        /// ƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE‚Ìê‡‚É‚ÍA<see cref="IPoderosaPopupWindow">IPoderosaPopupWindow</see>‚Ì
-        /// <see cref="IPoderosaPopupWindow.InternalView">InternalViewƒvƒƒpƒeƒB</see>‚ğ—p‚¢‚Äƒrƒ…[‚Ö‚Æ•ÏŠ·‚µ‚Ü‚·B
+        /// ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®å ´åˆã«ã¯ã€<see cref="IPoderosaPopupWindow">IPoderosaPopupWindow</see>ã®
+        /// <see cref="IPoderosaPopupWindow.InternalView">InternalViewãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>ã‚’ç”¨ã„ã¦ãƒ“ãƒ¥ãƒ¼ã¸ã¨å¤‰æ›ã—ã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -611,27 +611,27 @@ namespace Poderosa.Commands {
             }
         }
 
-        //‚¿‚å‚Á‚Æœ“ˆÓ“I‚¾‚ªAƒrƒ…[’¼Ú‚Ü‚½‚ÍLastActivatedView‚Å
+        //ã¡ã‚‡ã£ã¨æ£æ„çš„ã ãŒã€ãƒ“ãƒ¥ãƒ¼ç›´æ¥ã¾ãŸã¯LastActivatedViewã§
         /// <summary>
         /// <ja>
-        /// ƒrƒ…[‚Ü‚½‚ÍÅŒã‚ÉƒAƒNƒeƒBƒu‚Å‚ ‚Á‚½ƒrƒ…[‚É•ÏŠ·‚µ‚Ü‚·B
+        /// ãƒ“ãƒ¥ãƒ¼ã¾ãŸã¯æœ€å¾Œã«ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã§ã‚ã£ãŸãƒ“ãƒ¥ãƒ¼ã«å¤‰æ›ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It converts it into an active view at the view or the end. 
         /// </en>
         /// </summary>
         /// <param name="target">
-        /// <ja>‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja>
+        /// <ja>å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja>
         /// <en>It is a target that becomes an object. </en>
         /// </param>
         /// <returns>
-        /// <ja>•ÏŠ·‚µ‚½ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B•ÏŠ·‚Å‚«‚È‚¢‚Æ‚«‚É‚Ínull‚ª–ß‚è‚Ü‚·B</ja>
+        /// <ja>å¤‰æ›ã—ãŸã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚å¤‰æ›ã§ããªã„ã¨ãã«ã¯nullãŒæˆ»ã‚Šã¾ã™ã€‚</ja>
         /// <en>It is a converted interface. Null returns when it is not possible to convert it. </en>
         /// </returns>
         /// <remarks>
         /// <ja>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ÍA‚Ü‚¸A<paramref name="target"/>‚ğIPoderosaView‚É•ÏŠ·‚µ‚æ‚¤‚Æ‚µA•ÏŠ·‚Å‚«‚½‚È‚ç‚»‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ•Ô‚µ‚Ü‚·B
-        /// •ÏŠ·‚Å‚«‚È‚¢ê‡‚É‚ÍA<see cref="AsLastActivatedView">AsLastActivatedViewƒƒ\ƒbƒh</see>‚Ì–ß‚è’l‚ğ‚»‚Ì‚Ü‚Ü•Ô‚µ‚Ü‚·B
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã€ã¾ãšã€<paramref name="target"/>ã‚’IPoderosaViewã«å¤‰æ›ã—ã‚ˆã†ã¨ã—ã€å¤‰æ›ã§ããŸãªã‚‰ãã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’è¿”ã—ã¾ã™ã€‚
+        /// å¤‰æ›ã§ããªã„å ´åˆã«ã¯ã€<see cref="AsLastActivatedView">AsLastActivatedViewãƒ¡ã‚½ãƒƒãƒ‰</see>ã®æˆ»ã‚Šå€¤ã‚’ãã®ã¾ã¾è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// If it tries to convert <paramref name="target"/> into IPoderosaView first of all, and it was possible to convert it, this method returns the interface. 
@@ -643,33 +643,33 @@ namespace Poderosa.Commands {
                 return null;
             IPoderosaView view = (IPoderosaView)target.GetAdapter(typeof(IPoderosaView));
             if (view != null)
-                return view; //¬Œ÷
+                return view; //æˆåŠŸ
             else
                 return AsLastActivatedView(target);
         }
 
-        //ƒhƒLƒ…ƒƒ“ƒg’¼Úw’è‚©AView‚©AƒEƒBƒ“ƒhƒE‚ÌÅŒã‚ÉƒAƒNƒeƒBƒu‚É‚È‚Á‚½ƒhƒLƒ…ƒƒ“ƒg
+        //ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆç›´æ¥æŒ‡å®šã‹ã€Viewã‹ã€ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®æœ€å¾Œã«ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ãŸãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆ
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚Ü‚½‚ÍÅŒã‚ÉƒAƒNƒeƒBƒu‚Å‚ ‚Á‚½ƒhƒLƒ…ƒƒ“ƒg‚É•ÏŠ·‚µ‚Ü‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã¾ãŸã¯æœ€å¾Œã«ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã§ã‚ã£ãŸãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã«å¤‰æ›ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It converts it at the document or the end into an active document. 
         /// </en>
         /// </summary>
         /// <param name="target">
-        /// <ja>‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒgB</ja>
+        /// <ja>å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã€‚</ja>
         /// <en>It is a target that becomes an object. </en>
         /// </param>
         /// <returns>
-        /// <ja>•ÏŠ·‚µ‚½ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B•ÏŠ·‚Å‚«‚È‚¢‚Æ‚«‚É‚Ínull‚ª–ß‚è‚Ü‚·B</ja>
+        /// <ja>å¤‰æ›ã—ãŸã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚å¤‰æ›ã§ããªã„ã¨ãã«ã¯nullãŒæˆ»ã‚Šã¾ã™ã€‚</ja>
         /// <en>It is a converted interface. Null returns when it is not possible to convert it. </en>
         /// </returns>
         /// <remarks>
         /// <ja>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ÍA‚Ü‚¸A<paramref name="target"/>‚ğIPoderosaDocument‚É•ÏŠ·‚µ‚æ‚¤‚Æ‚µA•ÏŠ·‚Å‚«‚½‚È‚ç‚»‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ•Ô‚µ‚Ü‚·B
-        /// •ÏŠ·‚Å‚«‚È‚¢ê‡‚É‚ÍA<see cref="AsViewOrLastActivatedView">AsViewOrLastActivatedViewƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚µ‚Ä“¾‚½ƒrƒ…[‚Ì<see cref="IPoderosaView.Document">DocumentƒvƒƒpƒeƒB</see>
-        /// ‚©‚çƒhƒLƒ…ƒƒ“ƒg‚ğ“¾‚Ü‚·B
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã€ã¾ãšã€<paramref name="target"/>ã‚’IPoderosaDocumentã«å¤‰æ›ã—ã‚ˆã†ã¨ã—ã€å¤‰æ›ã§ããŸãªã‚‰ãã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’è¿”ã—ã¾ã™ã€‚
+        /// å¤‰æ›ã§ããªã„å ´åˆã«ã¯ã€<see cref="AsViewOrLastActivatedView">AsViewOrLastActivatedViewãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã—ã¦å¾—ãŸãƒ“ãƒ¥ãƒ¼ã®<see cref="IPoderosaView.Document">Documentãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>
+        /// ã‹ã‚‰ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’å¾—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// If it tries to convert <paramref name="target"/> into IPoderosaDocument first of all, and it was possible to convert it, this method returns the interface. 
@@ -699,7 +699,7 @@ namespace Poderosa.Commands {
                 return null;
             IContentReplaceableViewSite view = (IContentReplaceableViewSite)target.GetAdapter(typeof(IContentReplaceableViewSite));
             if (view != null)
-                return view.CurrentContentReplaceableView; //¬Œ÷
+                return view.CurrentContentReplaceableView; //æˆåŠŸ
             else {
                 IContentReplaceableView view2 = (IContentReplaceableView)target.GetAdapter(typeof(IContentReplaceableView));
                 if (view2 != null)
@@ -714,25 +714,25 @@ namespace Poderosa.Commands {
             }
         }
 
-        //View‚Ü‚½‚ÍLastActivatedView‚©‚çcopyƒRƒ}ƒ“ƒh‚ª‚ ‚ê‚Îæ“¾
+        //Viewã¾ãŸã¯LastActivatedViewã‹ã‚‰copyã‚³ãƒãƒ³ãƒ‰ãŒã‚ã‚Œã°å–å¾—
         /// <summary>
         /// <ja>
-        /// •W€“I‚Èƒrƒ…[‚ÌƒRƒ}ƒ“ƒh‚ğ‚à‚Â<seealso cref="IGeneralViewCommands">IGeneralViewCommands</seealso>‚Ö‚Æ•ÏŠ·‚µ‚Ü‚·B
+        /// æ¨™æº–çš„ãªãƒ“ãƒ¥ãƒ¼ã®ã‚³ãƒãƒ³ãƒ‰ã‚’ã‚‚ã¤<seealso cref="IGeneralViewCommands">IGeneralViewCommands</seealso>ã¸ã¨å¤‰æ›ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It converts it into <seealso cref="IGeneralViewCommands">IGeneralViewCommands</seealso> with the command of a standard view. 
         /// </en>
         /// </summary>
         /// <param name="target">
-        /// <ja>‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒgB</ja>
+        /// <ja>å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã€‚</ja>
         /// <en>It is a target that becomes an object. </en>
         /// </param>
         /// <returns>
-        /// <ja>•ÏŠ·‚µ‚½ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B•ÏŠ·‚Å‚«‚È‚¢‚Æ‚«‚É‚Ínull‚ª–ß‚è‚Ü‚·B</ja>
+        /// <ja>å¤‰æ›ã—ãŸã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚å¤‰æ›ã§ããªã„ã¨ãã«ã¯nullãŒæˆ»ã‚Šã¾ã™ã€‚</ja>
         /// <en>It is a converted interface. Null returns when it is not possible to convert it. </en>
         /// </returns>
         /// <remarks>
-        /// <ja>‚±‚Ìƒƒ\ƒbƒh‚ÍA<see cref="AsViewOrLastActivatedView">AsViewOrLastActivatedViewƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚µ‚Ä“¾‚½ƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğIGeneralViewCommands‚Ö‚Æ•ÏŠ·‚µ‚Ü‚·B</ja>
+        /// <ja>ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã€<see cref="AsViewOrLastActivatedView">AsViewOrLastActivatedViewãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã—ã¦å¾—ãŸã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’IGeneralViewCommandsã¸ã¨å¤‰æ›ã—ã¾ã™ã€‚</ja>
         /// <en>This method converts the interface that calls the <see cref="AsViewOrLastActivatedView">AsViewOrLastActivatedView method</see> and obtains it into IGeneralViewCommands. </en>
         /// </remarks>
         public static IGeneralViewCommands AsGeneralViewCommands(ICommandTarget target) {
@@ -744,7 +744,7 @@ namespace Poderosa.Commands {
         }
     }
 
-    //CharacterDocumentViewer‚É‘Î‚µ‚Ä‹N“®‚·‚éƒeƒLƒXƒgƒRƒs[ƒRƒ}ƒ“ƒh
+    //CharacterDocumentViewerã«å¯¾ã—ã¦èµ·å‹•ã™ã‚‹ãƒ†ã‚­ã‚¹ãƒˆã‚³ãƒ”ãƒ¼ã‚³ãƒãƒ³ãƒ‰
     internal class SelectedTextCopyCommand : IPoderosaCommand {
         public SelectedTextCopyCommand() {
         }

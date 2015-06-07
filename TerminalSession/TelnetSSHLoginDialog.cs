@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -88,7 +88,7 @@ namespace Poderosa.Sessions {
             _initializing = true;
             //_history = GApp.ConnectionHistory;
             //
-            // Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Å‚·B
+            // Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ã§ã™ã€‚
             //
             InitializeComponent();
             InitializeText();
@@ -97,7 +97,7 @@ namespace Poderosa.Sessions {
             _initializing = false;
         }
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -110,8 +110,8 @@ namespace Poderosa.Sessions {
 
         #region Windows Form Designer generated code
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this._hostLabel = new System.Windows.Forms.Label();
@@ -613,7 +613,7 @@ namespace Poderosa.Sessions {
         }
 
         private void InitializeLoginParams() {
-            //ì‚Á‚Ä‚¨‚­
+            //ä½œã£ã¦ãŠã
             AdjustLoginDialogUISupport("org.poderosa.terminalsessions.loginDialogUISupport", "telnetSSHLoginDialogUISupport");
 
             LoginDialogInitializeInfo info = new LoginDialogInitializeInfo();
@@ -621,7 +621,7 @@ namespace Poderosa.Sessions {
             Debug.Assert(extp != null);
             ITelnetSSHLoginDialogInitializer[] suppliers = (ITelnetSSHLoginDialogInitializer[])extp.GetExtensions();
 
-            //‡˜‚ğ–â‚í‚¸‘S•”“Ë‚Á‚Ş
+            //é †åºã‚’å•ã‚ãšå…¨éƒ¨çªã£è¾¼ã‚€
             foreach (ITelnetSSHLoginDialogInitializer s in suppliers)
                 s.ApplyLoginDialogInfo(info);
 
@@ -638,7 +638,7 @@ namespace Poderosa.Sessions {
             foreach (int p in info.Ports)
                 _portBox.Items.Add(PortDescription(p));
 
-            //TODO ‚±‚±‚ğEXTP‰»‚µ‚ÄAƒƒO‚Ì‰Šúİ’è‚ğs‚¦‚é‚æ‚¤‚É‚·‚é
+            //TODO ã“ã“ã‚’EXTPåŒ–ã—ã¦ã€ãƒ­ã‚°ã®åˆæœŸè¨­å®šã‚’è¡Œãˆã‚‹ã‚ˆã†ã«ã™ã‚‹
             _logTypeBox.SelectedItem = LogType.None;    // select EnumListItem<T> by T
         }
 
@@ -665,7 +665,7 @@ namespace Poderosa.Sessions {
             _telnetNewLine.Enabled = (protocol == ConnectionMethod.Telnet) && isCRLF;
         }
 
-        //Šg’£ƒ|ƒCƒ“ƒg‚©‚çæ‚Á‚½ƒCƒ“ƒ^ƒtƒF[ƒX‚ğg‚Á‚ÄApplyParamB‚È‚¯‚ê‚ÎƒfƒtƒHƒ‹ƒg‚Å
+        //æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã‹ã‚‰å–ã£ãŸã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹ã‚’ä½¿ã£ã¦ApplyParamã€‚ãªã‘ã‚Œã°ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§
         public void ApplyParam() {
             ITerminalParameter parameter = null;
             ITerminalSettings settings = null;
@@ -739,7 +739,7 @@ namespace Poderosa.Sessions {
             ITerminalParameter parameter = null;
             ITerminalSettings settings = null;
             _loginDialogUISupport.FillCorrespondingDestination(typeof(ITCPParameter), _hostBox.Text, out parameter, out settings);
-            if (parameter != null && settings != null) { //Œ´—“I‚É‚Í•Ğ•û‚Ì‚İ‚Ì“K—p‚à‚ ‚é‚ª
+            if (parameter != null && settings != null) { //åŸç†çš„ã«ã¯ç‰‡æ–¹ã®ã¿ã®é©ç”¨ã‚‚ã‚ã‚‹ãŒ
                 ISSHLoginParameter ssh = (ISSHLoginParameter)parameter.GetAdapter(typeof(ISSHLoginParameter));
                 ITCPParameter tcp = (ITCPParameter)parameter.GetAdapter(typeof(ITCPParameter));
                 if (ssh != null) {
@@ -753,7 +753,7 @@ namespace Poderosa.Sessions {
         }
 
         private static int ParsePort(string text) {
-            //•po‚Ì‚â‚Â
+            //é »å‡ºã®ã‚„ã¤
             if (text.IndexOf("(22)") != -1)
                 return 22;
             if (text.IndexOf("(23)") != -1)
@@ -781,7 +781,7 @@ namespace Poderosa.Sessions {
             string fn = TerminalUtil.SelectPrivateKeyFileByDialog(this);
             if (fn != null)
                 _privateKeyFile.Text = fn;
-            _privateKeySelect.Focus(); //‚Ç‚Á‚¿‚É‚µ‚Ä‚àŸ‚ÌƒtƒH[ƒJƒX‚ÍŒ®‘I‘ğƒ{ƒ^ƒ“‚Ö
+            _privateKeySelect.Focus(); //ã©ã£ã¡ã«ã—ã¦ã‚‚æ¬¡ã®ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã¯éµé¸æŠãƒœã‚¿ãƒ³ã¸
         }
 
         protected override ITerminalParameter PrepareTerminalParameter() {
@@ -801,7 +801,7 @@ namespace Poderosa.Sessions {
                 ClearConnectingState();
         }
 
-        //“ü—Í“à—e‚ÉŒë‚è‚ª‚ ‚ê‚Î‚»‚ê‚ğŒx‚µ‚Änull‚ğ•Ô‚·B‚È‚¯‚ê‚Î•K—v‚È‚Æ‚±‚ë‚ğ–„‚ß‚½TCPTerminalParam‚ğ•Ô‚·
+        //å…¥åŠ›å†…å®¹ã«èª¤ã‚ŠãŒã‚ã‚Œã°ãã‚Œã‚’è­¦å‘Šã—ã¦nullã‚’è¿”ã™ã€‚ãªã‘ã‚Œã°å¿…è¦ãªã¨ã“ã‚ã‚’åŸ‹ã‚ãŸTCPTerminalParamã‚’è¿”ã™
         private ITerminalParameter ValidateContent() {
             string msg = null;
             ITCPParameter tcp = null;
@@ -833,13 +833,13 @@ namespace Poderosa.Sessions {
                 if (_hostBox.Text.Length == 0)
                     msg = TEnv.Strings.GetString("Message.LoginDialog.HostIsEmpty");
 
-                //ƒƒOİ’è
+                //ãƒ­ã‚°è¨­å®š
                 LogType logtype = ((EnumListItem<LogType>)_logTypeBox.SelectedItem).Value;
                 ISimpleLogSettings logsettings = null;
                 if (logtype != LogType.None) {
                     logsettings = CreateSimpleLogSettings(logtype, _logFileBox.Text);
                     if (logsettings == null)
-                        return null; //“®ìƒLƒƒƒ“ƒZƒ‹
+                        return null; //å‹•ä½œã‚­ãƒ£ãƒ³ã‚»ãƒ«
                 }
 
                 ITerminalParameter param = (ITerminalParameter)tcp.GetAdapter(typeof(ITerminalParameter));

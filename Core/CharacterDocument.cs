@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,10 +17,10 @@ using Poderosa.Sessions;
 using Poderosa.Commands;
 
 namespace Poderosa.Document {
-    //•¶šƒx[ƒX‚ÌƒhƒLƒ…ƒƒ“ƒgB‰æ–Ê•\¦‚Ì‚İB
+    //æ–‡å­—ãƒ™ãƒ¼ã‚¹ã®ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã€‚ç”»é¢è¡¨ç¤ºã®ã¿ã€‚
     /// <summary>
     /// <ja>
-    /// •¶šƒx[ƒX‚ÌƒhƒLƒ…ƒƒ“ƒg‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// æ–‡å­—ãƒ™ãƒ¼ã‚¹ã®ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The document of the character base is offered.
@@ -28,7 +28,7 @@ namespace Poderosa.Document {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚±‚ÌƒNƒ‰ƒX‚É‚Â‚¢‚Ä‚Ì‰ğà‚ÍA‚Ü‚¾‚ ‚è‚Ü‚¹‚ñB
+    /// ã“ã®ã‚¯ãƒ©ã‚¹ã«ã¤ã„ã¦ã®è§£èª¬ã¯ã€ã¾ã ã‚ã‚Šã¾ã›ã‚“ã€‚
     /// </ja>
     /// <en>
     /// This class has not explained yet. 
@@ -42,7 +42,7 @@ namespace Poderosa.Document {
         protected InvalidatedRegion _invalidatedRegion;
         protected GLine _firstLine;
         protected GLine _lastLine;
-        protected int _size; //ƒTƒCƒY‚Í_firstLine/lastLine‚©‚çŒvZ‰Â”\‚¾‚ª‚æ‚­g‚¤‚Ì‚ÅƒLƒƒƒbƒVƒ…
+        protected int _size; //ã‚µã‚¤ã‚ºã¯_firstLine/lastLineã‹ã‚‰è¨ˆç®—å¯èƒ½ã ãŒã‚ˆãä½¿ã†ã®ã§ã‚­ãƒ£ãƒƒã‚·ãƒ¥
 
         protected Color _appModeBgColor = Color.Empty;
         protected bool _bApplicationMode;
@@ -126,9 +126,9 @@ namespace Poderosa.Document {
             _firstLine = FindLineOrEdge(id);
         }
 
-        //®”ƒCƒ“ƒfƒNƒX‚©‚çŒ©‚Â‚¯‚é@CurrentLine‚©‚ç‚»‚¤‰“‚­‚È‚¢ˆÊ’u‚¾‚ë‚¤‚Æ‚ ‚½‚è‚ğ‚Â‚¯‚é
+        //æ•´æ•°ã‚¤ãƒ³ãƒ‡ã‚¯ã‚¹ã‹ã‚‰è¦‹ã¤ã‘ã‚‹ã€€CurrentLineã‹ã‚‰ãã†é ããªã„ä½ç½®ã ã‚ã†ã¨ã‚ãŸã‚Šã‚’ã¤ã‘ã‚‹
         public virtual GLine FindLine(int index) {
-            //current‚Ætop‚Ì‹ß‚¢•û‚©‚ç‡‚É‚İ‚Ä‚¢‚­
+            //currentã¨topã®è¿‘ã„æ–¹ã‹ã‚‰é †ã«ã¿ã¦ã„ã
             int d1 = Math.Abs(index - _lastLine.ID);
             int d2 = Math.Abs(index - _firstLine.ID);
             if (d1 < d2)
@@ -137,7 +137,7 @@ namespace Poderosa.Document {
                 return FindLineByHint(index, _firstLine);
         }
 
-        //TODO ƒhƒLƒ…ƒƒ“ƒg‚ª‚Å‚©‚­‚È‚é‚Æ‚±‚ê‚Å‚Í’x‚­‚È‚è‚»‚¤
+        //TODO ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒã§ã‹ããªã‚‹ã¨ã“ã‚Œã§ã¯é…ããªã‚Šãã†
         protected GLine FindLineByHint(int index, GLine hintLine) {
             int h = hintLine.ID;
             GLine l = hintLine;
@@ -164,7 +164,7 @@ namespace Poderosa.Document {
             return l;
         }
 
-        //FindLineByHint‚Í‚µ‚Î‚µ‚Î¸”s‚·‚é‚Ì‚ÅƒfƒoƒbƒO—p‚ÉŒ»İó‘Ô‚ğƒ_ƒ“ƒv
+        //FindLineByHintã¯ã—ã°ã—ã°å¤±æ•—ã™ã‚‹ã®ã§ãƒ‡ãƒãƒƒã‚°ç”¨ã«ç¾åœ¨çŠ¶æ…‹ã‚’ãƒ€ãƒ³ãƒ—
         protected void FindLineByHintFailed(int index, GLine hintLine) {
 #if DEBUG
             Debug.WriteLine(String.Format("FindLine {0}, hint_id={1}", index, hintLine.ID));
@@ -182,16 +182,16 @@ namespace Poderosa.Document {
             _owner = owner;
         }
 
-        //––”ö‚É’Ç‰Á
+        //æœ«å°¾ã«è¿½åŠ 
         public virtual void AddLine(GLine line) {
-            if (_firstLine == null) { //‹ó‚¾‚Á‚½
+            if (_firstLine == null) { //ç©ºã ã£ãŸ
                 _firstLine = line;
                 _lastLine = line;
                 _size = 1;
                 line.ID = 0;
                 _invalidatedRegion.InvalidateLine(0);
             }
-            else { //’Êí‚Ì’Ç‰Á
+            else { //é€šå¸¸ã®è¿½åŠ 
                 Debug.Assert(_lastLine.NextLine == null);
                 int lastID = _lastLine.ID;
                 _lastLine.NextLine = line;
@@ -207,7 +207,7 @@ namespace Poderosa.Document {
             _invalidatedRegion.InvalidatedAll = true;
         }
 
-        //TODO ˆÈ‰º‚Qƒƒ\ƒbƒh‚ÍIDƒƒ“ƒeƒiƒ“ƒX‚ğ•Ê“rs‚¤‚±‚Æ‚ğ‘O’ñ‚É‚µ‚Ä‚¢‚éB
+        //TODO ä»¥ä¸‹ï¼’ãƒ¡ã‚½ãƒƒãƒ‰ã¯IDãƒ¡ãƒ³ãƒ†ãƒŠãƒ³ã‚¹ã‚’åˆ¥é€”è¡Œã†ã“ã¨ã‚’å‰æã«ã—ã¦ã„ã‚‹ã€‚
 
         protected void InsertBefore(GLine pos, GLine line) {
             if (pos.PrevLine != null)
@@ -268,7 +268,7 @@ namespace Poderosa.Document {
         }
 #endif
 
-        //ƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚©‚ç“Ç‚İo‚·B‘•ü‚Íƒ€ƒŠ‚¾‚¯‚Ç
+        //ãƒ†ã‚­ã‚¹ãƒˆãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰èª­ã¿å‡ºã™ã€‚è£…é£¾ã¯ãƒ ãƒªã ã‘ã©
         public void LoadForTest(string filename) {
             StreamReader r = null;
             try {
@@ -285,7 +285,7 @@ namespace Poderosa.Document {
                     r.Close();
             }
         }
-        //’Pˆês‚©‚ç‚Ìì¬
+        //å˜ä¸€è¡Œã‹ã‚‰ã®ä½œæˆ
         public static CharacterDocument SingleLine(string content) {
             CharacterDocument doc = new CharacterDocument();
             doc.AddLine(GLine.CreateSimpleGLine(content, TextDecoration.Default));
@@ -316,7 +316,7 @@ namespace Poderosa.Document {
         #endregion
     }
 
-    //•`‰æ‚Ì•K—v‚Ì‚ ‚éID‚Ì”ÍˆÍ
+    //æç”»ã®å¿…è¦ã®ã‚ã‚‹IDã®ç¯„å›²
     /// <exclude/>
     public class InvalidatedRegion {
         private const int NOT_SET = -1;
@@ -353,7 +353,7 @@ namespace Poderosa.Document {
             set {
                 lock (this) {
                     _empty = false;
-                    _invalidatedAll = value; //‚±‚ê‚ª—§‚Á‚Ä‚¢‚é‚Æ‚«‚Í–³ğŒ‚Å‘S•`‰æ@³‚µ‚¢Invalidate”ÍˆÍ‚ÌŒvZ‚ª–Ê“|‚È‚Æ‚«‚Í‚±‚ê
+                    _invalidatedAll = value; //ã“ã‚ŒãŒç«‹ã£ã¦ã„ã‚‹ã¨ãã¯ç„¡æ¡ä»¶ã§å…¨æç”»ã€€æ­£ã—ã„Invalidateç¯„å›²ã®è¨ˆç®—ãŒé¢å€’ãªã¨ãã¯ã“ã‚Œ
                 }
             }
         }

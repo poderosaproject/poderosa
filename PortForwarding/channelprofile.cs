@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 * Copyright (c) 2005 Poderosa Project, All Rights Reserved.
 * $Id: channelprofile.cs,v 1.2 2011/10/27 23:21:57 kzmi Exp $
 */
@@ -71,10 +71,10 @@ namespace Poderosa.PortForwarding {
         }
     }
 
-    //Ú‘±ƒpƒ‰ƒ[ƒ^
+    //æ¥ç¶šãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
     internal abstract class ChannelProfile {
 
-        protected string _sshHost; //SSHƒT[ƒo‚ÌƒzƒXƒg
+        protected string _sshHost; //SSHã‚µãƒ¼ãƒã®ãƒ›ã‚¹ãƒˆ
         protected ushort _sshPort;
         protected string _sshAccount;
         protected AuthenticationType _authType;
@@ -169,7 +169,7 @@ namespace Poderosa.PortForwarding {
             }
         }
 
-        //‚±‚ê‚ÍTCPAUDP‚Ì‚Ç‚¿‚ç‚©
+        //ã“ã‚Œã¯TCPã€UDPã®ã©ã¡ã‚‰ã‹
         public ProtocolType ProtocolType {
             get {
                 return _protocol;

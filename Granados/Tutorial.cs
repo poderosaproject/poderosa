@@ -1,4 +1,4 @@
-/*s
+ï»¿/*s
  Copyright (c) 2005 Poderosa Project, All Rights Reserved.
  This file is a part of the Granados SSH Client Library that is subject to
  the license included in the distributed package.
@@ -325,14 +325,14 @@ namespace Granados.Tutorial {
                     param.RemoteFilename = args[5];  // remote file
                 }
 
-                // “]‘—Œ³‚Ìw’èiƒ[ƒJƒ‹ƒtƒ@ƒCƒ‹‚¨‚æ‚Ñƒ[ƒJƒ‹ƒƒ‚ƒŠ‚ğ‘I‘ğj
+                // è»¢é€å…ƒã®æŒ‡å®šï¼ˆãƒ­ãƒ¼ã‚«ãƒ«ãƒ•ã‚¡ã‚¤ãƒ«ãŠã‚ˆã³ãƒ­ãƒ¼ã‚«ãƒ«ãƒ¡ãƒ¢ãƒªã‚’é¸æŠï¼‰
                 if (args[4] != null) {
-                    // ƒ[ƒJƒ‹ƒtƒ@ƒCƒ‹‚Ì“]‘—
+                    // ãƒ­ãƒ¼ã‚«ãƒ«ãƒ•ã‚¡ã‚¤ãƒ«ã®è»¢é€
                     param.LocalSource = args[4]; // src file
 
                 }
                 else {
-                    // ƒIƒ“ƒ‰ƒCƒ“ƒƒ‚ƒŠ‚Ì“]‘—
+                    // ã‚ªãƒ³ãƒ©ã‚¤ãƒ³ãƒ¡ãƒ¢ãƒªã®è»¢é€
                     //param.IoStream = new MemoryStream(256);
                     param.IoStream = new MemoryStream(8192);
                     for (int i = 0; i < 8192; i++) {
@@ -348,13 +348,13 @@ namespace Granados.Tutorial {
             else {  // Remote to Local
                 param.RemoteFilename = args[4]; // remote file
 
-                // “]‘—Œ³‚Ìw’èiƒ[ƒJƒ‹ƒtƒ@ƒCƒ‹‚¨‚æ‚Ñƒ[ƒJƒ‹ƒƒ‚ƒŠ‚ğ‘I‘ğj
+                // è»¢é€å…ƒã®æŒ‡å®šï¼ˆãƒ­ãƒ¼ã‚«ãƒ«ãƒ•ã‚¡ã‚¤ãƒ«ãŠã‚ˆã³ãƒ­ãƒ¼ã‚«ãƒ«ãƒ¡ãƒ¢ãƒªã‚’é¸æŠï¼‰
                 if (args[5] != null) {
-                    // ƒ[ƒJƒ‹ƒtƒ@ƒCƒ‹‚Ì“]‘—
+                    // ãƒ­ãƒ¼ã‚«ãƒ«ãƒ•ã‚¡ã‚¤ãƒ«ã®è»¢é€
                     param.LocalSource = args[5];
                 }
                 else {
-                    // ƒIƒ“ƒ‰ƒCƒ“ƒƒ‚ƒŠ‚Ì“]‘—
+                    // ã‚ªãƒ³ãƒ©ã‚¤ãƒ³ãƒ¡ãƒ¢ãƒªã®è»¢é€
                     param.IoStream = null;
                 }
                 param.Direction = false;

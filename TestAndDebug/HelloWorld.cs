@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,37 +32,37 @@ namespace Poderosa {
             base.InitializePlugin(poderosa);
 
 #if USING_GENERIC_COMMAND
-            //"ƒ_ƒCƒAƒƒO"ƒRƒ}ƒ“ƒhƒJƒeƒSƒŠ‚ğæ“¾
+            //"ãƒ€ã‚¤ã‚¢ãƒ­ã‚°"ã‚³ãƒãƒ³ãƒ‰ã‚«ãƒ†ã‚´ãƒªã‚’å–å¾—
             ICoreServices cs = (ICoreServices)poderosa.GetAdapter(typeof(ICoreServices));
             ICommandCategory dialog = cs.CommandManager.CommandCategories.Dialogs;
 
-            //ƒRƒ}ƒ“ƒhì¬
+            //ã‚³ãƒãƒ³ãƒ‰ä½œæˆ
             GeneralCommandImpl cmd = new GeneralCommandImpl("org.poderosa.helloworld", "Hello World Command", dialog, delegate(ICommandTarget target) {
-                //ƒRƒ}ƒ“ƒh‚ÌÀ‘•
-                //‚±‚ÌƒRƒ}ƒ“ƒh‚ÍƒƒCƒ“ƒƒjƒ…[‚©‚ç‹N“®‚·‚é‚Ì‚ÅACommandTarget‚©‚çƒEƒBƒ“ƒhƒE‚ªæ“¾‚Å‚«‚é‚Í‚¸
+                //ã‚³ãƒãƒ³ãƒ‰ã®å®Ÿè£…
+                //ã“ã®ã‚³ãƒãƒ³ãƒ‰ã¯ãƒ¡ã‚¤ãƒ³ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‹ã‚‰èµ·å‹•ã™ã‚‹ã®ã§ã€CommandTargetã‹ã‚‰ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãŒå–å¾—ã§ãã‚‹ã¯ãš
                 IPoderosaMainWindow window = (IPoderosaMainWindow)target.GetAdapter(typeof(IPoderosaMainWindow));
                 Debug.Assert(window!=null);
                 MessageBox.Show(window.AsForm(), "Hello World", "HelloWorld Plugin");
                 return CommandResult.Succeeded;
             });
-            //ƒRƒ}ƒ“ƒhƒ}ƒl[ƒWƒƒ‚Ö‚Ì“o˜^
+            //ã‚³ãƒãƒ³ãƒ‰ãƒãƒãƒ¼ã‚¸ãƒ£ã¸ã®ç™»éŒ²
             cs.CommandManager.Register(cmd);
 
-            //ƒwƒ‹ƒvƒƒjƒ…[‚É“o˜^
+            //ãƒ˜ãƒ«ãƒ—ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã«ç™»éŒ²
             IExtensionPoint helpmenu = poderosa.PluginManager.FindExtensionPoint("org.poderosa.menu.help");
             helpmenu.RegisterExtension(new PoderosaMenuGroupImpl(new PoderosaMenuItemImpl("org.poderosa.helloworld", "Hello World")));
-#else //’P‚È‚éIPoderosaCommand”Å
-            //ƒRƒ}ƒ“ƒhì¬
+#else //å˜ãªã‚‹IPoderosaCommandç‰ˆ
+            //ã‚³ãƒãƒ³ãƒ‰ä½œæˆ
             PoderosaCommandImpl cmd = new PoderosaCommandImpl(delegate(ICommandTarget target) {
-                //ƒRƒ}ƒ“ƒh‚ÌÀ‘•
-                //‚±‚ÌƒRƒ}ƒ“ƒh‚ÍƒƒCƒ“ƒƒjƒ…[‚©‚ç‹N“®‚·‚é‚Ì‚ÅACommandTarget‚©‚çƒEƒBƒ“ƒhƒE‚ªæ“¾‚Å‚«‚é‚Í‚¸
+                //ã‚³ãƒãƒ³ãƒ‰ã®å®Ÿè£…
+                //ã“ã®ã‚³ãƒãƒ³ãƒ‰ã¯ãƒ¡ã‚¤ãƒ³ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‹ã‚‰èµ·å‹•ã™ã‚‹ã®ã§ã€CommandTargetã‹ã‚‰ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãŒå–å¾—ã§ãã‚‹ã¯ãš
                 IPoderosaMainWindow window = (IPoderosaMainWindow)target.GetAdapter(typeof(IPoderosaMainWindow));
                 Debug.Assert(window!=null);
                 MessageBox.Show(window.AsForm(), "Hello World", "HelloWorld Plugin");
                 return CommandResult.Succeeded;
             });
 
-            //ƒwƒ‹ƒvƒƒjƒ…[‚É“o˜^
+            //ãƒ˜ãƒ«ãƒ—ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã«ç™»éŒ²
             IExtensionPoint helpmenu = poderosa.PluginManager.FindExtensionPoint("org.poderosa.menu.help");
             helpmenu.RegisterExtension(new PoderosaMenuGroupImpl(new PoderosaMenuItemImpl(cmd, "Hello World")));
 #endif

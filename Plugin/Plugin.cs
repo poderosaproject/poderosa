@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,7 @@ using Poderosa.Boot;
 namespace Poderosa.Plugins {
     /// <summary>
     /// <ja>
-    /// ƒvƒ‰ƒOƒCƒ“‚ÌƒXƒe[ƒ^ƒX‚ğ¦‚µ‚Ü‚·B
+    /// ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã‚’ç¤ºã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Return the status of the plug-in.
@@ -27,25 +27,25 @@ namespace Poderosa.Plugins {
     /// </summary>
     public enum PluginStatus {
         /// <summary>
-        /// <ja>–¼‘O‚ÅQÆ‚³‚ê‚½‚¾‚¯‚Ìó‘Ô</ja>
+        /// <ja>åå‰ã§å‚ç…§ã•ã‚ŒãŸã ã‘ã®çŠ¶æ…‹</ja>
         /// <en>State only declared.</en>
         /// </summary>
-        Declared,  //–¼‘O‚ÅQÆ‚³‚ê‚½‚¾‚¯‚Ìó‘Ô
+        Declared,  //åå‰ã§å‚ç…§ã•ã‚ŒãŸã ã‘ã®çŠ¶æ…‹
         /// <summary>
-        /// <ja>ƒNƒ‰ƒX‚Æ‚µ‚Äƒ[ƒh‚Å‚«‚½ó‘Ô</ja>
+        /// <ja>ã‚¯ãƒ©ã‚¹ã¨ã—ã¦ãƒ­ãƒ¼ãƒ‰ã§ããŸçŠ¶æ…‹</ja>
         /// <en>Loaded as class.</en>
         /// </summary>
-        Loaded,    //ƒNƒ‰ƒX‚Æ‚µ‚Äƒ[ƒh‚Å‚«‚½ó‘Ô
+        Loaded,    //ã‚¯ãƒ©ã‚¹ã¨ã—ã¦ãƒ­ãƒ¼ãƒ‰ã§ããŸçŠ¶æ…‹
         /// <summary>
-        /// <ja>ƒ[ƒh‚Í‚Å‚«‚½‚ªˆË‘¶æ•s–¾‚È‚Ç‚Å–³Œø‰»‚³‚ê‚½ó‘Ô</ja>
+        /// <ja>ãƒ­ãƒ¼ãƒ‰ã¯ã§ããŸãŒä¾å­˜å…ˆä¸æ˜ãªã©ã§ç„¡åŠ¹åŒ–ã•ã‚ŒãŸçŠ¶æ…‹</ja>
         /// <en>It was nullified by the uncertainty etc. dependence ahead though it was possible to load.</en>
         /// </summary>
-        Disabled,  //ƒ[ƒh‚Í‚Å‚«‚½‚ªˆË‘¶æ•s–¾‚È‚Ç‚Å–³Œø‰»‚³‚ê‚½ó‘Ô
+        Disabled,  //ãƒ­ãƒ¼ãƒ‰ã¯ã§ããŸãŒä¾å­˜å…ˆä¸æ˜ãªã©ã§ç„¡åŠ¹åŒ–ã•ã‚ŒãŸçŠ¶æ…‹
         /// <summary>
-        /// <ja>³í‚É“Ç‚İ‚Ü‚êA‰Ò“­Ï‚İ‚Ìó‘Ô</ja>
+        /// <ja>æ­£å¸¸ã«èª­ã¿è¾¼ã¾ã‚Œã€ç¨¼åƒæ¸ˆã¿ã®çŠ¶æ…‹</ja>
         /// <en>Loaded successfully and activated.</en>
         /// </summary>
-        Activated  //‰Ò“®Ï‚İ‚Ìó‘Ô
+        Activated  //ç¨¼å‹•æ¸ˆã¿ã®çŠ¶æ…‹
     }
 
     internal class Plugin : IPluginInfo {
@@ -182,7 +182,7 @@ namespace Poderosa.Plugins {
             return r;
         }
 
-        //‹N“®‚É‚æ‚Ô
+        //èµ·å‹•æ™‚ã«ã‚ˆã¶
         public void InitializePlugins(PoderosaStartupContext sc) {
             try {
                 _tracer = sc.Tracer;
@@ -200,9 +200,9 @@ namespace Poderosa.Plugins {
             }
         }
 
-        //I—¹
+        //çµ‚äº†
         public void Shutdown() {
-            //‹t‡‚ÅI—¹
+            //é€†é †ã§çµ‚äº†
             for (int i = _orderedPlugins.Count - 1; i >= 0; i--) {
                 try {
                     Plugin p = _orderedPlugins[i];
@@ -228,7 +228,7 @@ namespace Poderosa.Plugins {
         }
 
         public IExtensionPoint CreateExtensionPoint(string id, Type requiredInterface, IPlugin owner) {
-            if (_currentInitializingPlugin == null && id != ExtensionPoint.ROOT) //ƒ‹[ƒg‚¾‚¯‚Í
+            if (_currentInitializingPlugin == null && id != ExtensionPoint.ROOT) //ãƒ«ãƒ¼ãƒˆã ã‘ã¯
                 throw new InvalidOperationException(InternalPoderosaWorld.Strings.GetString("PluginManager.Messages.NewExtensionPointOutsideInit"));
             if (_idToExtensionPoint.Contains(id))
                 throw new ArgumentException(InternalPoderosaWorld.Strings.GetString("PluginManager.Messages.DuplicatedExtensionPointID"));
@@ -319,12 +319,12 @@ namespace Poderosa.Plugins {
             List<Plugin> unordered = new List<Plugin>();
             _orderedPlugins = new List<Plugin>();
 
-            //TODO ŠÈ’P‚Ì‚½‚ß‚ÉƒRƒA•”•ª‚Ì‡”Ô‚ÍƒYƒ‹‚µ‚Äİ’è‚µ‚½‚¢@‚½‚Æ‚¦‚ÎAid‚ªorg.poderosa.core‚Ån‚Ü‚é‚à‚Ì‚Í—Dæ‚·‚é‚È‚Ç
+            //TODO ç°¡å˜ã®ãŸã‚ã«ã‚³ã‚¢éƒ¨åˆ†ã®é †ç•ªã¯ã‚ºãƒ«ã—ã¦è¨­å®šã—ãŸã„ã€€ãŸã¨ãˆã°ã€idãŒorg.poderosa.coreã§å§‹ã¾ã‚‹ã‚‚ã®ã¯å„ªå…ˆã™ã‚‹ãªã©
             foreach (Plugin p in _allPlugins) {
                 if (p.Status == PluginStatus.Loaded) {
                     string d = p.PluginInfo.Dependencies;
                     if (d == null || d.Length == 0) {
-                        _orderedPlugins.Add(p); //‰½‚É‚àˆË‘¶‚µ‚Ä‚¢‚È‚¢“z‚Íæ‚É“ü‚ê‚Ä‚¨‚­
+                        _orderedPlugins.Add(p); //ä½•ã«ã‚‚ä¾å­˜ã—ã¦ã„ãªã„å¥´ã¯å…ˆã«å…¥ã‚Œã¦ãŠã
                         continue;
                     }
 
@@ -332,7 +332,7 @@ namespace Poderosa.Plugins {
                     Plugin[] dependencies = new Plugin[t.Length];
                     bool failed = false;
                     for (int i = 0; i < t.Length; i++) {
-                        //TODO ƒo[ƒWƒ‡ƒ“w’è‚Â‚«‚ğƒTƒ|[ƒgH
+                        //TODO ãƒãƒ¼ã‚¸ãƒ§ãƒ³æŒ‡å®šã¤ãã‚’ã‚µãƒãƒ¼ãƒˆï¼Ÿ
                         Plugin r = _idToPlugin[t[i]];
                         if (r == null || r.Status == PluginStatus.Disabled) {
                             _tracer.Trace("PluginManager.Messages.DependencyNotFound", p.TypeName, t[i]);
@@ -352,7 +352,7 @@ namespace Poderosa.Plugins {
                 }
             }
 
-            //‡”Ô‚Ìì¬
+            //é †ç•ªã®ä½œæˆ
             while (unordered.Count > 0) {
                 bool found = false;
                 for (int i = 0; i < unordered.Count; i++) {
@@ -360,22 +360,22 @@ namespace Poderosa.Plugins {
                     Plugin dep = FindDisabledPlugin(p.Dependencies);
                     if (dep != null) {
                         _tracer.Trace("PluginManager.Messages.DependencyNotFound", p.TypeName, dep.PluginInfo.ID);
-                        unordered.RemoveAt(i); //‚¾‚ß‚È‚Ì‚ª“ü‚Á‚Ä‚¢‚é‚±‚Æ‚à‚ ‚éB‚»‚Ì‚Æ‚«‚Íordered‚É‚Í‚¢‚ê‚¸‚É”²‚¯‚é
+                        unordered.RemoveAt(i); //ã ã‚ãªã®ãŒå…¥ã£ã¦ã„ã‚‹ã“ã¨ã‚‚ã‚ã‚‹ã€‚ãã®ã¨ãã¯orderedã«ã¯ã„ã‚Œãšã«æŠœã‘ã‚‹
                         found = true;
-                        break; //for•¶‚ğ”²‚¯‚é
+                        break; //foræ–‡ã‚’æŠœã‘ã‚‹
                     }
 
                     if (AllContainedInOrderedPlugins(p.Dependencies)) {
                         unordered.RemoveAt(i);
                         _orderedPlugins.Add(p);
                         found = true;
-                        break; //for•¶‚ğ”²‚¯‚é
+                        break; //foræ–‡ã‚’æŠœã‘ã‚‹
                     }
                 }
 
-                if (!found) { //ˆê„‚µ‚Äœ‹‚Å‚«‚È‚©‚Á‚½‚çzŠÂˆË‘¶‚ª‚ ‚é
+                if (!found) { //ä¸€å·¡ã—ã¦é™¤å»ã§ããªã‹ã£ãŸã‚‰å¾ªç’°ä¾å­˜ãŒã‚ã‚‹
                     _tracer.Trace("PluginManager.Messages.DependencyLoopError", FormatIDs(unordered));
-                    break; //while‚ğ”²‚¯‚é
+                    break; //whileã‚’æŠœã‘ã‚‹
                 }
             }
         }

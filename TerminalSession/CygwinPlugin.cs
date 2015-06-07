@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,7 @@ using Poderosa.MacroEngine;
 [assembly: PluginDeclaration(typeof(Poderosa.Sessions.CygwinPlugin))]
 
 namespace Poderosa.Sessions {
-    //TODO ƒVƒŠƒAƒ‹ƒ|[ƒg‚ªˆÊ’uw’è‚·‚é‚½‚ß‚Épublic‚É‚µ‚½‚ªA•¶š—ñ‚ÅŒŸõ‚Å‚«‚é‚æ‚¤‚É‚·‚×‚«
+    //TODO ã‚·ãƒªã‚¢ãƒ«ãƒãƒ¼ãƒˆãŒä½ç½®æŒ‡å®šã™ã‚‹ãŸã‚ã«publicã«ã—ãŸãŒã€æ–‡å­—åˆ—ã§æ¤œç´¢ã§ãã‚‹ã‚ˆã†ã«ã™ã¹ã
     /// <summary>
     /// 
     /// </summary>
@@ -86,7 +86,7 @@ namespace Poderosa.Sessions {
 
             public bool ShowSeparator {
                 get {
-                    return false; //Cygwin‚ÍTelnet/SSHÚ‘±‚Ì’¼Œã‚É—ˆ‚éBƒZƒpƒŒ[ƒ^•s—v
+                    return false; //Cygwinã¯Telnet/SSHæ¥ç¶šã®ç›´å¾Œã«æ¥ã‚‹ã€‚ã‚»ãƒ‘ãƒ¬ãƒ¼ã‚¿ä¸è¦
                 }
             }
 

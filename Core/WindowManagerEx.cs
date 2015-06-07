@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,10 +20,10 @@ using Poderosa.Util;
 
 namespace Poderosa.Forms {
 
-    //System.Windows.Forms.Control‚Æ“¯“™‚¾‚ªA•K—v‚È‚à‚Ì‚Ì‚İ‚ğ’Šo‚µ‚½‚â‚Â
+    //System.Windows.Forms.Controlã¨åŒç­‰ã ãŒã€å¿…è¦ãªã‚‚ã®ã®ã¿ã‚’æŠ½å‡ºã—ãŸã‚„ã¤
     /// <summary>
     /// <ja>
-    /// ƒEƒBƒ“ƒhƒE‚ğ.NET Framework‚ÌƒRƒ“ƒgƒ[ƒ‹‚Æ‚µ‚Äˆµ‚¤‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’.NET Frameworkã®ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã¨ã—ã¦æ‰±ã†ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface to treat the window as a control of .NET Framework. 
@@ -31,16 +31,16 @@ namespace Poderosa.Forms {
     /// </summary>
     public interface IPoderosaControl : IAdaptable {
         /// <summary>
-        /// <ja>.NET Framework‚ÌControlƒIƒuƒWƒFƒNƒg‚É•ÏŠ·‚µ‚Ü‚·B</ja>
+        /// <ja>.NET Frameworkã®Controlã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«å¤‰æ›ã—ã¾ã™ã€‚</ja>
         /// <en>Convert to the Control object of .NET Framework</en>
         /// </summary>
-        /// <returns><ja>•ÏŠ·‚³‚ê‚½ControlƒIƒuƒWƒFƒNƒg</ja><en>Converted Control object.</en></returns>
+        /// <returns><ja>å¤‰æ›ã•ã‚ŒãŸControlã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>Converted Control object.</en></returns>
         Control AsControl();
     }
 
     /// <summary>
     /// <ja>
-    /// ƒEƒBƒ“ƒhƒE‚ğ.NET Framework‚ÌƒtƒH[ƒ€‚Æ‚µ‚Äˆµ‚¤‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’.NET Frameworkã®ãƒ•ã‚©ãƒ¼ãƒ ã¨ã—ã¦æ‰±ã†ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface to treat the window as a form of .NET Framework. 
@@ -49,25 +49,25 @@ namespace Poderosa.Forms {
     public interface IPoderosaForm : IPoderosaControl, ICommandTarget {
         /// <summary>
         /// <ja>
-        /// .NET Framework‚ÌFormƒIƒuƒWƒFƒNƒg‚É•ÏŠ·‚µ‚Ü‚·B
+        /// .NET Frameworkã®Formã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«å¤‰æ›ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>Convert to the Form object of .NET Framework</en>
         /// </summary>
-        /// <returns><ja>•ÏŠ·‚³‚ê‚½FormƒIƒuƒWƒFƒNƒg</ja><en>Converted Form object.</en></returns>
+        /// <returns><ja>å¤‰æ›ã•ã‚ŒãŸFormã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>Converted Form object.</en></returns>
         Form AsForm();
         /// <summary>
         /// <ja>
-        /// ƒEƒBƒ“ƒhƒE‚ğ•Â‚¶‚Ü‚·B
+        /// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’é–‰ã˜ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Close the window.
         /// </en>
         /// </summary>
-        /// <returns><ja>•Â‚¶‚ç‚ê‚½‚©‚Ç‚¤‚©‚ğ¦‚µ‚Ü‚·B³í‚É•Â‚¶‚ç‚ê‚½ê‡ACommandResult.Succeeded‚ª•Ô‚³‚ê‚Ü‚·B</ja><en>Whether it was closed is shown. CommandResult.Succeeded is returned when close normally. </en></returns>
+        /// <returns><ja>é–‰ã˜ã‚‰ã‚ŒãŸã‹ã©ã†ã‹ã‚’ç¤ºã—ã¾ã™ã€‚æ­£å¸¸ã«é–‰ã˜ã‚‰ã‚ŒãŸå ´åˆã€CommandResult.SucceededãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja><en>Whether it was closed is shown. CommandResult.Succeeded is returned when close normally. </en></returns>
         /// <remarks>
         /// <ja>
-        /// ƒZƒbƒVƒ‡ƒ“‚Ìˆ—‚É‚æ‚Á‚Ä‚ÍAƒ†[ƒU[‚É•Â‚¶‚Ä‚à‚æ‚¢‚©‚Ç‚¤‚©‚ğ–â‚¢‡‚í‚¹‚é‚±‚Æ‚ª‚Å‚«‚é‚½‚ßA•Â‚¶‚é“®ì‚ªƒLƒƒƒ“ƒZƒ‹‚³‚ê‚é‚±‚Æ‚à‚ ‚è‚Ü‚·B
-        /// ƒLƒƒƒ“ƒZƒ‹‚³‚ê‚½‚©‚Ç‚¤‚©‚ÍA–ß‚è’l‚Å”»’f‚µ‚Ä‚­‚¾‚³‚¢B
+        /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ã®å‡¦ç†ã«ã‚ˆã£ã¦ã¯ã€ãƒ¦ãƒ¼ã‚¶ãƒ¼ã«é–‰ã˜ã¦ã‚‚ã‚ˆã„ã‹ã©ã†ã‹ã‚’å•ã„åˆã‚ã›ã‚‹ã“ã¨ãŒã§ãã‚‹ãŸã‚ã€é–‰ã˜ã‚‹å‹•ä½œãŒã‚­ãƒ£ãƒ³ã‚»ãƒ«ã•ã‚Œã‚‹ã“ã¨ã‚‚ã‚ã‚Šã¾ã™ã€‚
+        /// ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã•ã‚ŒãŸã‹ã©ã†ã‹ã¯ã€æˆ»ã‚Šå€¤ã§åˆ¤æ–­ã—ã¦ãã ã•ã„ã€‚
         /// </ja>
         /// <en>
         /// Because it can be inquired whether I may close to the user according to the processing of the session, the closing operation might be canceled. 
@@ -76,38 +76,38 @@ namespace Poderosa.Forms {
         /// </remarks>
         CommandResult CancellableClose();
 
-        //ƒ|ƒbƒvƒAƒbƒvƒƒjƒ…[
+        //ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ãƒ¡ãƒ‹ãƒ¥ãƒ¼
         /// <summary>
         /// <ja>
-        /// ƒ|ƒbƒvƒAƒbƒvƒƒjƒ…[iƒRƒ“ƒeƒLƒXƒgƒƒjƒ…[j‚ğ•\¦‚µ‚Ü‚·B
+        /// ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ãƒ¡ãƒ‹ãƒ¥ãƒ¼ï¼ˆã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼ï¼‰ã‚’è¡¨ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Show the popup menu (context menu).
         /// </en>
         /// </summary>
-        /// <param name="menus"><ja>•\¦‚·‚éƒƒjƒ…[‚ğ¦‚·ƒƒjƒ…[ƒOƒ‹[ƒv‚Å‚·B</ja><en>It is a menu group that shows the displayed menu. </en></param>
-        /// <param name="target"><ja>ƒƒjƒ…[‚Ìƒ^[ƒQƒbƒg‚Å‚·B</ja><en>It is a target of the menu. </en></param>
-        /// <param name="point_screen"><ja>•\¦‚·‚éˆÊ’u‚Å‚·B</ja><en>It is a displayed position. </en></param>
-        /// <param name="flags"><ja>ƒƒjƒ…[‚ğ•\¦‚·‚é‚Æ‚«‚Éæ“ª‚Ì€–Ú‚ğ‘I‘ğó‘Ô‚É‚·‚é‚©‚Ç‚¤‚©‚Ìƒtƒ‰ƒO‚Å‚·</ja><en>Flag whether to put the first item into state of selection when menu is displayed</en></param>
+        /// <param name="menus"><ja>è¡¨ç¤ºã™ã‚‹ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’ç¤ºã™ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã§ã™ã€‚</ja><en>It is a menu group that shows the displayed menu. </en></param>
+        /// <param name="target"><ja>ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja><en>It is a target of the menu. </en></param>
+        /// <param name="point_screen"><ja>è¡¨ç¤ºã™ã‚‹ä½ç½®ã§ã™ã€‚</ja><en>It is a displayed position. </en></param>
+        /// <param name="flags"><ja>ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’è¡¨ç¤ºã™ã‚‹ã¨ãã«å…ˆé ­ã®é …ç›®ã‚’é¸æŠçŠ¶æ…‹ã«ã™ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°ã§ã™</ja><en>Flag whether to put the first item into state of selection when menu is displayed</en></param>
         void ShowContextMenu(IPoderosaMenuGroup[] menus, ICommandTarget target, Point point_screen, ContextMenuFlags flags);
 
-        //ƒ†[ƒU‚É‘Î‚·‚éŒxŒnB‚±‚ÌForm‚ğŠ—L‚µ‚Ä‚¢‚È‚¢ƒXƒŒƒbƒh‚©‚ç‚àŒÄ‚Î‚ê‚é‚±‚Æ‚ğl—¶‚·‚é‚±‚Æ Note: •ÊƒCƒ“ƒ^ƒtƒF[ƒX‚É•ª—£‚·‚é‚©H
+        //ãƒ¦ãƒ¼ã‚¶ã«å¯¾ã™ã‚‹è­¦å‘Šç³»ã€‚ã“ã®Formã‚’æ‰€æœ‰ã—ã¦ã„ãªã„ã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰ã‚‚å‘¼ã°ã‚Œã‚‹ã“ã¨ã‚’è€ƒæ…®ã™ã‚‹ã“ã¨ Note: åˆ¥ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹ã«åˆ†é›¢ã™ã‚‹ã‹ï¼Ÿ
         /// <summary>
         /// <ja>
-        /// ŒxƒƒbƒZ[ƒWƒ{ƒbƒNƒX‚ğ•\¦‚µ‚Ü‚·B
+        /// è­¦å‘Šãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã‚’è¡¨ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Show the message box of warning.
         /// </en>
         /// </summary>
-        /// <param name="msg"><ja>•\¦‚·‚éƒƒbƒZ[ƒW‚Å‚·B</ja><en>message to display</en></param>
+        /// <param name="msg"><ja>è¡¨ç¤ºã™ã‚‹ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã§ã™ã€‚</ja><en>message to display</en></param>
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ÍAƒtƒH[ƒ€‚ğŠ—L‚·‚éƒXƒŒƒbƒhˆÈŠO‚©‚çŒÄ‚Ño‚µ‚Ä‚à‚©‚Ü‚¢‚Ü‚¹‚ñB
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã€ãƒ•ã‚©ãƒ¼ãƒ ã‚’æ‰€æœ‰ã™ã‚‹ã‚¹ãƒ¬ãƒƒãƒ‰ä»¥å¤–ã‹ã‚‰å‘¼ã³å‡ºã—ã¦ã‚‚ã‹ã¾ã„ã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// ‚½‚¾‚µƒIƒuƒWƒFƒNƒg‚Ö‚ÌƒƒbƒN‚ğ‚à‚Á‚½‚Ü‚ÜŒÄ‚Ño‚·‚ÆA‚»‚ÌƒƒbƒN‚ÍƒƒbƒZ[ƒWƒ{ƒbƒNƒX‚ğ•Â‚¶‚é‚Ü‚Å‰ğ•ú‚³‚ê‚Ü‚¹‚ñB
+        /// ãŸã ã—ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¸ã®ãƒ­ãƒƒã‚¯ã‚’ã‚‚ã£ãŸã¾ã¾å‘¼ã³å‡ºã™ã¨ã€ãã®ãƒ­ãƒƒã‚¯ã¯ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã‚’é–‰ã˜ã‚‹ã¾ã§è§£æ”¾ã•ã‚Œã¾ã›ã‚“ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -122,20 +122,20 @@ namespace Poderosa.Forms {
         void Warning(string msg);
         /// <summary>
         /// <ja>
-        /// î•ñƒƒbƒZ[ƒWƒ{ƒbƒNƒX‚ğ•\¦‚µ‚Ü‚·B
+        /// æƒ…å ±ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã‚’è¡¨ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Show the message box of information.
         /// </en>
         /// </summary>
-        /// <param name="msg"><ja>•\¦‚·‚éƒƒbƒZ[ƒW‚Å‚·B</ja><en>message to display</en></param>
+        /// <param name="msg"><ja>è¡¨ç¤ºã™ã‚‹ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã§ã™ã€‚</ja><en>message to display</en></param>
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ÍAƒtƒH[ƒ€‚ğŠ—L‚·‚éƒXƒŒƒbƒhˆÈŠO‚©‚çŒÄ‚Ño‚µ‚Ä‚à‚©‚Ü‚¢‚Ü‚¹‚ñB
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã€ãƒ•ã‚©ãƒ¼ãƒ ã‚’æ‰€æœ‰ã™ã‚‹ã‚¹ãƒ¬ãƒƒãƒ‰ä»¥å¤–ã‹ã‚‰å‘¼ã³å‡ºã—ã¦ã‚‚ã‹ã¾ã„ã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// ‚½‚¾‚µƒIƒuƒWƒFƒNƒg‚Ö‚ÌƒƒbƒN‚ğ‚à‚Á‚½‚Ü‚ÜŒÄ‚Ño‚·‚ÆA‚»‚ÌƒƒbƒN‚ÍƒƒbƒZ[ƒWƒ{ƒbƒNƒX‚ğ•Â‚¶‚é‚Ü‚Å‰ğ•ú‚³‚ê‚Ü‚¹‚ñB
+        /// ãŸã ã—ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¸ã®ãƒ­ãƒƒã‚¯ã‚’ã‚‚ã£ãŸã¾ã¾å‘¼ã³å‡ºã™ã¨ã€ãã®ãƒ­ãƒƒã‚¯ã¯ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã‚’é–‰ã˜ã‚‹ã¾ã§è§£æ”¾ã•ã‚Œã¾ã›ã‚“ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -150,21 +150,21 @@ namespace Poderosa.Forms {
         void Information(string msg);
         /// <summary>
         /// <ja>
-        /// m‚Í‚¢n‚©m‚¢‚¢‚¦n‚©‚ğq‚Ë‚éƒƒbƒZ[ƒWƒ{ƒbƒNƒX‚ğ•\¦‚µ‚Ü‚·B
+        /// ï¼»ã¯ã„ï¼½ã‹ï¼»ã„ã„ãˆï¼½ã‹ã‚’å°‹ã­ã‚‹ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã‚’è¡¨ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Show the messaage box that asks "Yes" or "No".
         /// </en>
         /// </summary>
-        /// <param name="msg"><ja>•\¦‚·‚éƒƒbƒZ[ƒW‚Å‚·B</ja><en>message to display</en></param>
-        /// <returns><ja>‚Ç‚Ìƒ{ƒ^ƒ“‚ª‰Ÿ‚³‚ê‚½‚Ì‚©‚ğ¦‚·’l‚Å‚·Bm‚Í‚¢n‚Ì‚Æ‚«‚É‚ÍDialogResult.YesAm‚¢‚¢‚¦n‚Ì‚Æ‚«‚É‚ÍDialogResult.No‚Æ‚È‚è‚Ü‚·B</ja><en>It is a value in which which button was pushed is shown.When DialogResult.Yes getting it at "Yes", at the time of good it becomes DialogResult.No. </en></returns>
+        /// <param name="msg"><ja>è¡¨ç¤ºã™ã‚‹ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã§ã™ã€‚</ja><en>message to display</en></param>
+        /// <returns><ja>ã©ã®ãƒœã‚¿ãƒ³ãŒæŠ¼ã•ã‚ŒãŸã®ã‹ã‚’ç¤ºã™å€¤ã§ã™ã€‚ï¼»ã¯ã„ï¼½ã®ã¨ãã«ã¯DialogResult.Yesã€ï¼»ã„ã„ãˆï¼½ã®ã¨ãã«ã¯DialogResult.Noã¨ãªã‚Šã¾ã™ã€‚</ja><en>It is a value in which which button was pushed is shown.When DialogResult.Yes getting it at "Yes", at the time of good it becomes DialogResult.No. </en></returns>
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ÍAƒtƒH[ƒ€‚ğŠ—L‚·‚éƒXƒŒƒbƒhˆÈŠO‚©‚çŒÄ‚Ño‚µ‚Ä‚à‚©‚Ü‚¢‚Ü‚¹‚ñB
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã€ãƒ•ã‚©ãƒ¼ãƒ ã‚’æ‰€æœ‰ã™ã‚‹ã‚¹ãƒ¬ãƒƒãƒ‰ä»¥å¤–ã‹ã‚‰å‘¼ã³å‡ºã—ã¦ã‚‚ã‹ã¾ã„ã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// ‚½‚¾‚µƒIƒuƒWƒFƒNƒg‚Ö‚ÌƒƒbƒN‚ğ‚à‚Á‚½‚Ü‚ÜŒÄ‚Ño‚·‚ÆA‚»‚ÌƒƒbƒN‚ÍƒƒbƒZ[ƒWƒ{ƒbƒNƒX‚ğ•Â‚¶‚é‚Ü‚Å‰ğ•ú‚³‚ê‚Ü‚¹‚ñB
+        /// ãŸã ã—ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¸ã®ãƒ­ãƒƒã‚¯ã‚’ã‚‚ã£ãŸã¾ã¾å‘¼ã³å‡ºã™ã¨ã€ãã®ãƒ­ãƒƒã‚¯ã¯ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã‚’é–‰ã˜ã‚‹ã¾ã§è§£æ”¾ã•ã‚Œã¾ã›ã‚“ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -181,7 +181,7 @@ namespace Poderosa.Forms {
 
     /// <summary>
     /// <ja>
-    /// ƒRƒ“ƒeƒLƒXƒgƒƒjƒ…[‚ğ•\¦‚·‚é‚Æ‚«‚Ìƒtƒ‰ƒO‚ğ¦‚µ‚Ü‚·B
+    /// ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’è¡¨ç¤ºã™ã‚‹ã¨ãã®ãƒ•ãƒ©ã‚°ã‚’ç¤ºã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The flag when the context menu is displayed is shown. 
@@ -191,7 +191,7 @@ namespace Poderosa.Forms {
     public enum ContextMenuFlags {
         /// <summary>
         /// <ja>
-        /// •\¦‚É‰½‚à‚µ‚Ü‚¹‚ñB
+        /// è¡¨ç¤ºæ™‚ã«ä½•ã‚‚ã—ã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
         /// Do nothing when displayed.
@@ -200,7 +200,7 @@ namespace Poderosa.Forms {
         None = 0,
         /// <summary>
         /// <ja>
-        /// •\¦‚Éæ“ª‚Ì€–Ú‚ğ‘I‘ğ‚³‚ê‚½ó‘Ô‚É‚µ‚Ü‚·B
+        /// è¡¨ç¤ºæ™‚ã«å…ˆé ­ã®é …ç›®ã‚’é¸æŠã•ã‚ŒãŸçŠ¶æ…‹ã«ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It puts it into the state that the first item was selected when displaying it. 
@@ -211,7 +211,7 @@ namespace Poderosa.Forms {
 
     /// <summary>
     /// <ja>
-    /// ƒEƒBƒ“ƒhƒEƒ}ƒl[ƒWƒƒ‚ÌID‚Å‚·B
+    /// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒãƒ¼ã‚¸ãƒ£ã®IDã§ã™ã€‚
     /// </ja>
     /// <en>
     /// ID of Window manager.
@@ -227,10 +227,10 @@ namespace Poderosa.Forms {
         public const string FILEDROPHANDLER_ID = "org.poderosa.core.window.fileDropHandler";
     }
 
-    //WindowManager‘S‘Ì
+    //WindowManagerå…¨ä½“
     /// <summary>
     /// <ja>
-    /// ƒEƒBƒ“ƒhƒEƒ}ƒl[ƒWƒƒ‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒãƒ¼ã‚¸ãƒ£ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that show the window manager.
@@ -239,15 +239,15 @@ namespace Poderosa.Forms {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ƒEƒBƒ“ƒhƒEƒ}ƒl[ƒWƒƒ‚ÍAƒvƒ‰ƒOƒCƒ“IDu<c>org.poderosa.core.window</c>v‚ğ‚à‚Âƒvƒ‰ƒOƒCƒ“‚Å’ñ‹Ÿ‚³‚ê‚Ä‚¢‚Ü‚·B
+    /// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒãƒ¼ã‚¸ãƒ£ã¯ã€ãƒ—ãƒ©ã‚°ã‚¤ãƒ³IDã€Œ<c>org.poderosa.core.window</c>ã€ã‚’ã‚‚ã¤ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã§æä¾›ã•ã‚Œã¦ã„ã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// Ÿ‚Ì‚æ‚¤‚É<seealso cref="Poderosa.Plugins.ICoreServices">ICoreServices</seealso>‚ğŒo—R‚µ‚Äæ“¾‚Å‚«‚Ü‚·B
+    /// æ¬¡ã®ã‚ˆã†ã«<seealso cref="Poderosa.Plugins.ICoreServices">ICoreServices</seealso>ã‚’çµŒç”±ã—ã¦å–å¾—ã§ãã¾ã™ã€‚
     /// </para>
     /// <code>
-    /// // ICoreServices‚ğæ“¾
+    /// // ICoreServicesã‚’å–å¾—
     /// ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
-    /// // IWindowManager‚ğæ“¾
+    /// // IWindowManagerã‚’å–å¾—
     /// IWindowManager wm = cs.WindowManager;
     /// </code>
     /// </ja>
@@ -256,7 +256,7 @@ namespace Poderosa.Forms {
     /// Window manager is offered as the plug-in with plug-in ID [<c>org.poderosa.core.window</c>].
     /// </para>
     /// <para>
-    /// <ja>Ÿ‚Ì‚æ‚¤‚É<seealso cref="Poderosa.Plugins.ICoreServices">ICoreServices</seealso>‚ğŒo—R‚µ‚Äæ“¾‚Å‚«‚Ü‚·B</ja><en>It is possible to acquire it via <seealso cref="Poderosa.Plugins.ICoreServices">ICoreServices</seealso> as follows. </en>
+    /// <ja>æ¬¡ã®ã‚ˆã†ã«<seealso cref="Poderosa.Plugins.ICoreServices">ICoreServices</seealso>ã‚’çµŒç”±ã—ã¦å–å¾—ã§ãã¾ã™ã€‚</ja><en>It is possible to acquire it via <seealso cref="Poderosa.Plugins.ICoreServices">ICoreServices</seealso> as follows. </en>
     /// </para>
     /// <code>
     /// // Get ICoreServices
@@ -269,7 +269,7 @@ namespace Poderosa.Forms {
     public interface IWindowManager : IAdaptable {
         /// <summary>
         /// <ja>
-        /// ‚·‚×‚Ä‚ÌƒƒCƒ“ƒEƒBƒ“ƒhƒE‚ğ¦‚·”z—ñ‚Å‚·B
+        /// ã™ã¹ã¦ã®ãƒ¡ã‚¤ãƒ³ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ç¤ºã™é…åˆ—ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Array that shows all the main windows.
@@ -280,7 +280,7 @@ namespace Poderosa.Forms {
         }
         /// <summary>
         /// <ja>
-        /// ƒAƒNƒeƒBƒu‚ÈƒEƒBƒ“ƒhƒE‚ğ¦‚µ‚Ü‚·B
+        /// ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Show the active window.
@@ -292,7 +292,7 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒIƒuƒWƒFƒNƒg‚Ì‘I‘ğ‚ÆƒRƒs[‚ÉŠÖ‚·‚éƒAƒNƒZƒX‚ğ’ñ‹Ÿ‚·‚éISelectionService‚ğ•Ô‚µ‚Ü‚·B
+        /// ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®é¸æŠã¨ã‚³ãƒ”ãƒ¼ã«é–¢ã™ã‚‹ã‚¢ã‚¯ã‚»ã‚¹ã‚’æä¾›ã™ã‚‹ISelectionServiceã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// ISelectionService that offers the selection of the object and the access concerning the copy is returned. 
@@ -302,22 +302,22 @@ namespace Poderosa.Forms {
             get;
         }
 
-        //PopupViewì¬ : ƒRƒŒ‚Åì¬‚µ‚½ƒrƒ…[‚ÍAƒZƒbƒVƒ‡ƒ“ƒ}ƒl[ƒWƒƒ‚ÌAttachDocAndView->Activate‚ğ‚·‚é‚±‚Æ‚Å‰‚ß‚ÄŒ©‚¦‚é‚æ‚¤‚É‚È‚éBCreatePopupView‚¾‚¯‚Å‚ÍŒ©‚¦‚é‚æ‚¤‚É‚Í‚È‚ç‚È‚¢‚±‚Æ‚É’ˆÓ
+        //PopupViewä½œæˆ : ã‚³ãƒ¬ã§ä½œæˆã—ãŸãƒ“ãƒ¥ãƒ¼ã¯ã€ã‚»ãƒƒã‚·ãƒ§ãƒ³ãƒãƒãƒ¼ã‚¸ãƒ£ã®AttachDocAndView->Activateã‚’ã™ã‚‹ã“ã¨ã§åˆã‚ã¦è¦‹ãˆã‚‹ã‚ˆã†ã«ãªã‚‹ã€‚CreatePopupViewã ã‘ã§ã¯è¦‹ãˆã‚‹ã‚ˆã†ã«ã¯ãªã‚‰ãªã„ã“ã¨ã«æ³¨æ„
         /// <summary>
         /// <ja>
-        /// ƒ|ƒbƒvƒAƒbƒvƒrƒ…[‚ğì¬‚µ‚Ü‚·B
+        /// ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ãƒ“ãƒ¥ãƒ¼ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create the popup view.
         /// </en>
         /// </summary>
-        /// <param name="viewcreation"><ja>ƒ|ƒbƒvƒAƒbƒvƒrƒ…[‚ğì¬‚·‚éÛ‚Ìƒpƒ‰ƒ[ƒ^‚Å‚·</ja><en>It is a parameter when the pop up view is made. </en></param>
-        /// <returns><ja>ì¬‚³‚ê‚½ƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE‚ª•Ô‚³‚ê‚Ü‚·B</ja><en>Return the made pop up window.</en></returns>
+        /// <param name="viewcreation"><ja>ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ãƒ“ãƒ¥ãƒ¼ã‚’ä½œæˆã™ã‚‹éš›ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã§ã™</ja><en>It is a parameter when the pop up view is made. </en></param>
+        /// <returns><ja>ä½œæˆã•ã‚ŒãŸãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja><en>Return the made pop up window.</en></returns>
         /// <remarks>
         /// <ja>
-        /// ì¬‚³‚ê‚½ƒrƒ…[‚ÍAƒZƒbƒVƒ‡ƒ“ƒ}ƒl[ƒWƒƒi<seealso cref="ISessionManager">ISessionManager</seealso>j‚Ì
-        /// <see cref="ISessionManager.AttachDocumentAndView">AttachDocumentAndViewƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚µ‚ÄƒhƒLƒ…ƒƒ“ƒg‚Æƒrƒ…[‚ğƒAƒ^ƒbƒ`‚µ‚Ä‚©‚çA
-        /// ƒAƒNƒeƒBƒx[ƒg‚·‚é‚±‚Æ‚ÅA‰‚ß‚ÄŒ©‚¦‚é‚æ‚¤‚É‚È‚è‚Ü‚·B‚±‚Ìƒƒ\ƒbƒh‚Åì¬‚µ‚½‚¾‚¯‚Å‚ÍŒ©‚¦‚é‚æ‚¤‚É‚Í‚È‚è‚Ü‚¹‚ñB
+        /// ä½œæˆã•ã‚ŒãŸãƒ“ãƒ¥ãƒ¼ã¯ã€ã‚»ãƒƒã‚·ãƒ§ãƒ³ãƒãƒãƒ¼ã‚¸ãƒ£ï¼ˆ<seealso cref="ISessionManager">ISessionManager</seealso>ï¼‰ã®
+        /// <see cref="ISessionManager.AttachDocumentAndView">AttachDocumentAndViewãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã—ã¦ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã¨ãƒ“ãƒ¥ãƒ¼ã‚’ã‚¢ã‚¿ãƒƒãƒã—ã¦ã‹ã‚‰ã€
+        /// ã‚¢ã‚¯ãƒ†ã‚£ãƒ™ãƒ¼ãƒˆã™ã‚‹ã“ã¨ã§ã€åˆã‚ã¦è¦‹ãˆã‚‹ã‚ˆã†ã«ãªã‚Šã¾ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã§ä½œæˆã—ãŸã ã‘ã§ã¯è¦‹ãˆã‚‹ã‚ˆã†ã«ã¯ãªã‚Šã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
         /// It comes to see the made view for the first time by the activate after session manager(<seealso cref="ISessionManager">ISessionManager</seealso>)'s <see cref="ISessionManager.AttachDocumentAndView">AttachDocumentAndView method</see> is called and the document and the view are activated. It doesn't come to see it only by making it by this method. 
@@ -329,7 +329,7 @@ namespace Poderosa.Forms {
         //Reload
         /// <summary>
         /// <ja>
-        /// ƒƒjƒ…[‚ğƒŠƒ[ƒh‚µ‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’ãƒªãƒ­ãƒ¼ãƒ‰ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Reload the menu.
@@ -337,16 +337,16 @@ namespace Poderosa.Forms {
         /// </summary>
         void ReloadMenu();
 
-        //PreferenceŒn‚ÌƒŠƒ[ƒh
+        //Preferenceç³»ã®ãƒªãƒ­ãƒ¼ãƒ‰
         /// <summary>
-        /// <ja>w’è‚µ‚½ƒAƒZƒ“ƒuƒŠ‚ÉŠÖ‚·‚éƒ†[ƒU[İ’è’liPreferencej‚ğÄ“Ç‚µ‚Ü‚·B</ja>
+        /// <ja>æŒ‡å®šã—ãŸã‚¢ã‚»ãƒ³ãƒ–ãƒªã«é–¢ã™ã‚‹ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ï¼ˆPreferenceï¼‰ã‚’å†èª­è¾¼ã—ã¾ã™ã€‚</ja>
         /// <en>User setting value (Preference) concerning the specified assembly is read again. </en>
         /// </summary>
-        /// <param name="preference"><ja>Ä“Ç‚µ‚½‚¢ICoreServicePreference</ja><en>ICoreServicePreference to read again.</en></param>
+        /// <param name="preference"><ja>å†èª­è¾¼ã—ãŸã„ICoreServicePreference</ja><en>ICoreServicePreference to read again.</en></param>
         /// <overloads>
         /// <summary>
         /// <ja>
-        /// ƒ†[ƒU[İ’è’liPreferencej‚ğÄ“Ç‚µ‚Ü‚·B
+        /// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ï¼ˆPreferenceï¼‰ã‚’å†èª­è¾¼ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// User setting value (Preference) is read again. 
@@ -357,7 +357,7 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒ†[ƒU[İ’è’liPreferencej‚ğÄ“Ç‚µ‚Ü‚·B
+        /// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ï¼ˆPreferenceï¼‰ã‚’å†èª­è¾¼ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// User setting value (Preference) is read again. 
@@ -366,7 +366,7 @@ namespace Poderosa.Forms {
         void ReloadPreference();
     }
 
-    //ƒAƒvƒŠ‘S‘Ì‚ÉŠÖŒW‚µA‚©‚Âsystem.Windows.Forms‚ª‚ç‚İ
+    //ã‚¢ãƒ—ãƒªå…¨ä½“ã«é–¢ä¿‚ã—ã€ã‹ã¤system.Windows.FormsãŒã‚‰ã¿
     /// <summary>
     /// 
     /// </summary>
@@ -389,7 +389,7 @@ namespace Poderosa.Forms {
         void OnLastMainWindowUnloaded(IPoderosaMainWindow window);
     }
 
-    //File Drop : ƒtƒ@ƒCƒ‹ˆÈŠO‚ğˆµ‚¤‚±‚Æ‚Í‚Ü‚¸‚È‚¢‚¾‚ë‚¤‚©‚çl‚¦‚È‚¢B‚»‚Ì‚Æ‚«‚Í‚Ü‚½•Ê‚ÌƒCƒ“ƒ^ƒtƒF[ƒX‚ÅB
+    //File Drop : ãƒ•ã‚¡ã‚¤ãƒ«ä»¥å¤–ã‚’æ‰±ã†ã“ã¨ã¯ã¾ãšãªã„ã ã‚ã†ã‹ã‚‰è€ƒãˆãªã„ã€‚ãã®ã¨ãã¯ã¾ãŸåˆ¥ã®ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹ã§ã€‚
     public interface IFileDropHandler : IAdaptable {
         bool CanAccept(ICommandTarget target, string[] filenames);
         void DoDropAction(ICommandTarget target, string[] filenames);
@@ -409,7 +409,7 @@ namespace Poderosa.Forms {
 
     /// <summary>
     /// <ja>
-    /// Poderosa‚ÌƒƒCƒ“ƒEƒBƒ“ƒhƒE‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// Poderosaã®ãƒ¡ã‚¤ãƒ³ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that show the main window of Poderosa.
@@ -417,16 +417,16 @@ namespace Poderosa.Forms {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚©‚çŒÄ‚Ño‚³‚ê‚éƒRƒ}ƒ“ƒh‚Å‚ÍAƒ^[ƒQƒbƒg‚ÍƒƒCƒ“ƒEƒBƒ“ƒhƒE‚Å‚·B‚»‚Ì‚½‚ßGetAdapterƒƒ\ƒbƒh‚ğŒÄ‚Ño‚·‚±‚Æ‚ÅAIPoderosaMainWindow‚Ö‚Æ•ÏŠ·‚Å‚«‚Ü‚·B
+    /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ã‚³ãƒãƒ³ãƒ‰ã§ã¯ã€ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã¯ãƒ¡ã‚¤ãƒ³ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã§ã™ã€‚ãã®ãŸã‚GetAdapterãƒ¡ã‚½ãƒƒãƒ‰ã‚’å‘¼ã³å‡ºã™ã“ã¨ã§ã€IPoderosaMainWindowã¸ã¨å¤‰æ›ã§ãã¾ã™ã€‚
     /// <code>
-    /// // <var>target</var>‚ÍƒRƒ}ƒ“ƒh‚Éˆø‚«“n‚³‚ê‚½ƒ^[ƒQƒbƒg‚Å‚ ‚é‚Æ‘z’è‚µ‚Ü‚·B
+    /// // <var>target</var>ã¯ã‚³ãƒãƒ³ãƒ‰ã«å¼•ãæ¸¡ã•ã‚ŒãŸã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã‚ã‚‹ã¨æƒ³å®šã—ã¾ã™ã€‚
     /// IPoderosaMainWindow window = 
     ///     (IPoderosaMainWindow)target.GetAdapter(typeof(IPoderosaMainWindow));
     /// </code>
-    /// ‚à‚µ‚­‚ÍƒEƒBƒ“ƒhƒEƒ}ƒl[ƒWƒƒi<seealso cref="IWindowManager">IWindowManager</seealso>j‚Ì<see cref="IWindowManager.ActiveWindow">ActiveWindowƒvƒƒpƒeƒB</see>‚ğ
-    /// g‚Á‚ÄAƒAƒNƒeƒBƒu‚ÈƒEƒBƒ“ƒhƒE‚ğæ“¾‚·‚é‚±‚Æ‚à‚Å‚«‚Ü‚·B
+    /// ã‚‚ã—ãã¯ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒãƒ¼ã‚¸ãƒ£ï¼ˆ<seealso cref="IWindowManager">IWindowManager</seealso>ï¼‰ã®<see cref="IWindowManager.ActiveWindow">ActiveWindowãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>ã‚’
+    /// ä½¿ã£ã¦ã€ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’å–å¾—ã™ã‚‹ã“ã¨ã‚‚ã§ãã¾ã™ã€‚
     /// <code>
-    /// // cs‚Í<seealso cref="Poderosa.Plugins.ICoreServices">ICoreServices</seealso>‚ğ¦‚µ‚Ä‚¢‚é‚Æ‘z’è‚µ‚Ü‚·B
+    /// // csã¯<seealso cref="Poderosa.Plugins.ICoreServices">ICoreServices</seealso>ã‚’ç¤ºã—ã¦ã„ã‚‹ã¨æƒ³å®šã—ã¾ã™ã€‚
     /// IPoderosaMainWindow mainwin = cs.WindowManager.ActiveWindow;
     /// </code>
     /// </ja>
@@ -447,7 +447,7 @@ namespace Poderosa.Forms {
     public interface IPoderosaMainWindow : IPoderosaForm {
         /// <summary>
         /// <ja>
-        /// ƒrƒ…[ƒ}ƒl[ƒWƒƒ‚ğ•Ô‚µ‚Ü‚·B
+        /// ãƒ“ãƒ¥ãƒ¼ãƒãƒãƒ¼ã‚¸ãƒ£ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the view manager.
@@ -459,7 +459,7 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒgƒ^ƒu‚ğ¦‚·ƒIƒuƒWƒFƒNƒg‚ğ•Ô‚µ‚Ü‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚¿ãƒ–ã‚’ç¤ºã™ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the object which show the document tab.
@@ -470,7 +470,7 @@ namespace Poderosa.Forms {
         }
         /// <summary>
         /// <ja>
-        /// ƒc[ƒ‹ƒo[‚ğ¦‚·ƒIƒuƒWƒFƒNƒg‚ğ•Ô‚µ‚Ü‚·B
+        /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‚’ç¤ºã™ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the object which show the toolbar.
@@ -482,7 +482,7 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒXƒe[ƒ^ƒXƒo[‚ğ¦‚·ƒIƒuƒWƒFƒNƒg‚ğ•Ô‚µ‚Ü‚·B
+        /// ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒãƒ¼ã‚’ç¤ºã™ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the object which show the status bar.
@@ -494,7 +494,7 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ÅŒã‚ÉƒAƒNƒeƒBƒu‚É‚È‚Á‚½ƒrƒ…[‚ğ•Ô‚µ‚Ü‚·B
+        /// æœ€å¾Œã«ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ãŸãƒ“ãƒ¥ãƒ¼ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the view that last active.
@@ -507,7 +507,7 @@ namespace Poderosa.Forms {
 
     /// <summary>
     /// <ja>
-    /// ƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows pop up window.
@@ -516,7 +516,7 @@ namespace Poderosa.Forms {
     public interface IPoderosaPopupWindow : IPoderosaForm {
         /// <summary>
         /// <ja>
-        /// ƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE“à‚Ìƒrƒ…[‚ğ¦‚µ‚Ü‚·B
+        /// ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦å†…ã®ãƒ“ãƒ¥ãƒ¼ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The view in the pop up window is shown. 
@@ -527,7 +527,7 @@ namespace Poderosa.Forms {
         }
         /// <summary>
         /// <ja>
-        /// ƒXƒe[ƒ^ƒX‚ğXV‚µ‚Ü‚·B
+        /// ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã‚’æ›´æ–°ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Update the status.
@@ -537,10 +537,10 @@ namespace Poderosa.Forms {
     }
 
 
-    //TabBar‘Š“–
+    //TabBarç›¸å½“
     /// <summary>
     /// <ja>
-    /// ƒƒCƒ“ƒEƒBƒ“ƒhƒE‚ÌƒhƒLƒ…ƒƒ“ƒgƒ^ƒu‚ğ¦‚µ‚Ü‚·B
+    /// ãƒ¡ã‚¤ãƒ³ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚¿ãƒ–ã‚’ç¤ºã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The document tab in the main window is shown. 
@@ -548,9 +548,9 @@ namespace Poderosa.Forms {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍA<seealso cref="IPoderosaMainWindow">IPoderosaMainWindow</seealso>‚Ì
-    /// <see cref="IPoderosaMainWindow.DocumentTabFeature">DocumentTabFeatureƒvƒƒpƒeƒB</see>‚©‚ç
-    /// æ“¾‚Å‚«‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€<seealso cref="IPoderosaMainWindow">IPoderosaMainWindow</seealso>ã®
+    /// <see cref="IPoderosaMainWindow.DocumentTabFeature">DocumentTabFeatureãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>ã‹ã‚‰
+    /// å–å¾—ã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// This interface can be got from the <see cref="IPoderosaMainWindow.DocumentTabFeature">
@@ -560,47 +560,47 @@ namespace Poderosa.Forms {
     public interface IDocumentTabFeature : IAdaptable {
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚ğ’Ç‰Á‚µ‚Ü‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’è¿½åŠ ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Add the document
         /// </en>
         /// </summary>
-        /// <param name="document"><ja>’Ç‰Á‚·‚éƒhƒLƒ…ƒƒ“ƒg‚Å‚·B</ja><en>Document to add.</en></param>
+        /// <param name="document"><ja>è¿½åŠ ã™ã‚‹ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã§ã™ã€‚</ja><en>Document to add.</en></param>
         void Add(IPoderosaDocument document);
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚ğíœ‚µ‚Ü‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’å‰Šé™¤ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Remove the document
         /// </en>
         /// </summary>
-        /// <param name="document"><ja>íœ‚·‚éƒhƒLƒ…ƒƒ“ƒg‚Å‚·B</ja><en>Document to remove.</en></param>
+        /// <param name="document"><ja>å‰Šé™¤ã™ã‚‹ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã§ã™ã€‚</ja><en>Document to remove.</en></param>
         void Remove(IPoderosaDocument document);
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚ğXV‚µ‚Ü‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’æ›´æ–°ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Update the document
         /// </en>
         /// </summary>
-        /// <param name="document"><ja>XV‚µ‚½‚¢ƒhƒLƒ…ƒƒ“ƒg‚Å‚·B</ja><en>Document to be update.</en></param>
+        /// <param name="document"><ja>æ›´æ–°ã—ãŸã„ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã§ã™ã€‚</ja><en>Document to be update.</en></param>
         void Update(IPoderosaDocument document);
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚ğƒAƒNƒeƒBƒu‚É‚µ‚Ü‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Activate the document
         /// </en>
         /// </summary>
-        /// <param name="document"><ja>ƒAƒNƒeƒBƒu‚É‚µ‚½‚¢ƒhƒLƒ…ƒƒ“ƒg‚Å‚·B</ja><en>Document to active.</en></param>
+        /// <param name="document"><ja>ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ã—ãŸã„ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã§ã™ã€‚</ja><en>Document to active.</en></param>
         void Activate(IPoderosaDocument document);
         /// <summary>
         /// <ja>
-        /// ƒAƒNƒeƒBƒu‚ÈƒhƒLƒ…ƒƒ“ƒg‚ğ•Ô‚µ‚Ü‚·B
+        /// ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the active document.
@@ -612,7 +612,7 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚Ì”‚ğ•Ô‚µ‚Ü‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã®æ•°ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the conut of the document.
@@ -623,28 +623,28 @@ namespace Poderosa.Forms {
         }
         /// <summary>
         /// <ja>
-        /// w’èˆÊ’u‚ÌƒhƒLƒ…ƒƒ“ƒg‚ğ•Ô‚µ‚Ü‚·B
+        /// æŒ‡å®šä½ç½®ã®ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the document at a specified position.
         /// </en>
         /// </summary>
-        /// <param name="index"><ja>æ“¾‚µ‚½‚¢ƒhƒLƒ…ƒƒ“ƒg‚ÌƒCƒ“ƒfƒbƒNƒXˆÊ’u‚Å‚·B</ja><en>It is an index position of the document that wants to be got. </en></param>
-        /// <returns><ja>ƒhƒLƒ…ƒƒ“ƒg‚ª‚ ‚ê‚Î‚»‚ÌƒhƒLƒ…ƒƒ“ƒg‚ğAƒhƒLƒ…ƒƒ“ƒg‚ª‚È‚¢ê‡‚É‚Ínull‚ª–ß‚è‚Ü‚·B</ja><en>Null returns in the document when there is no document if there is a document. </en></returns>
+        /// <param name="index"><ja>å–å¾—ã—ãŸã„ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ä½ç½®ã§ã™ã€‚</ja><en>It is an index position of the document that wants to be got. </en></param>
+        /// <returns><ja>ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒã‚ã‚Œã°ãã®ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’ã€ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒãªã„å ´åˆã«ã¯nullãŒæˆ»ã‚Šã¾ã™ã€‚</ja><en>Null returns in the document when there is no document if there is a document. </en></returns>
         IPoderosaDocument GetAtOrNull(int index);
         /// <summary>
         /// <ja>
-        /// w’è‚µ‚½ƒhƒLƒ…ƒƒ“ƒg‚ÌƒCƒ“ƒfƒbƒNƒXˆÊ’u‚ğ•Ô‚µ‚Ü‚·B
+        /// æŒ‡å®šã—ãŸãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ä½ç½®ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the index position of the specified document.
         /// </en>
         /// </summary>
-        /// <param name="document"><ja>ƒCƒ“ƒfƒbƒNƒXˆÊ’u‚ğ’m‚è‚½‚¢ƒhƒLƒ…ƒƒ“ƒg</ja><en>Document that wants to know index position</en></param>
-        /// <returns><ja>ƒhƒLƒ…ƒƒ“ƒg‚ª‚ ‚ê‚Î‚»‚ÌƒhƒLƒ…ƒƒ“ƒgˆÊ’uBƒhƒLƒ…ƒƒ“ƒg‚ªŒ©‚Â‚©‚ç‚È‚¢ê‡‚É‚Í-1‚ª–ß‚è‚Ü‚·B</ja><en>It is the document position if there is a document. -1 returns when the document is not found. </en></returns>
+        /// <param name="document"><ja>ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ä½ç½®ã‚’çŸ¥ã‚ŠãŸã„ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆ</ja><en>Document that wants to know index position</en></param>
+        /// <returns><ja>ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒã‚ã‚Œã°ãã®ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆä½ç½®ã€‚ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒè¦‹ã¤ã‹ã‚‰ãªã„å ´åˆã«ã¯-1ãŒæˆ»ã‚Šã¾ã™ã€‚</ja><en>It is the document position if there is a document. -1 returns when the document is not found. </en></returns>
         int IndexOf(IPoderosaDocument document);
 
-        //ƒ^ƒuŠÖŒW
+        //ã‚¿ãƒ–é–¢ä¿‚
         int TabRowCount {
             get;
         }
@@ -664,7 +664,7 @@ namespace Poderosa.Forms {
     //StatusBar
     /// <summary>
     /// <ja>
-    /// ƒXƒe[ƒ^ƒXƒo[‚ğ¦‚µ‚Ü‚·B
+    /// ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒãƒ¼ã‚’ç¤ºã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The status bar is shown. 
@@ -673,18 +673,18 @@ namespace Poderosa.Forms {
     public interface IPoderosaStatusBar {
         /// <summary>
         /// <ja>
-        /// ƒXƒe[ƒ^ƒXƒo[‚ÌƒeƒLƒXƒg‚ğİ’è‚µ‚Ü‚·B
+        /// ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒãƒ¼ã®ãƒ†ã‚­ã‚¹ãƒˆã‚’è¨­å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The text of the status bar is set. 
         /// </en>
         /// </summary>
-        /// <param name="msg"><ja>İ’è‚·‚éƒeƒLƒXƒg</ja><en>Text to set.</en></param>
+        /// <param name="msg"><ja>è¨­å®šã™ã‚‹ãƒ†ã‚­ã‚¹ãƒˆ</ja><en>Text to set.</en></param>
         void SetMainText(string msg);
         /// <summary>
-        /// <ja>ƒXƒe[ƒ^ƒXƒo[‚ÌƒAƒCƒRƒ“‚ğİ’è‚µ‚Ü‚·B</ja><en>Set the icon of the status bar.</en>
+        /// <ja>ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒãƒ¼ã®ã‚¢ã‚¤ã‚³ãƒ³ã‚’è¨­å®šã—ã¾ã™ã€‚</ja><en>Set the icon of the status bar.</en>
         /// </summary>
-        /// <param name="icon"><ja>İ’è‚·‚éƒAƒCƒRƒ“</ja><en>Icon to set.</en></param>
+        /// <param name="icon"><ja>è¨­å®šã™ã‚‹ã‚¢ã‚¤ã‚³ãƒ³</ja><en>Icon to set.</en></param>
         void SetStatusIcon(Image icon);
     }
 
@@ -706,7 +706,7 @@ namespace Poderosa.Forms {
 
     /// <summary>
     /// <ja>
-    /// Œ¾Œê‚ğ¦‚µ‚Ü‚·B
+    /// è¨€èªã‚’ç¤ºã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The language is shown. 
@@ -715,14 +715,14 @@ namespace Poderosa.Forms {
     public enum Language {
         /// <summary>
         /// <ja>
-        /// ‰pŒê</ja>
+        /// è‹±èª</ja>
         /// <en>
         /// English</en>
         /// </summary>
         [EnumValue(Description = "Enum.Language.English")]
         English,
         /// <summary>
-        /// <ja>“ú–{Œê</ja>
+        /// <ja>æ—¥æœ¬èª</ja>
         /// <en>Japanese</en>
         /// </summary>
         [EnumValue(Description = "Enum.Language.Japanese")]
@@ -735,17 +735,17 @@ namespace Poderosa.Forms {
         int WindowCount {
             get;
         }
-        //WindowŒÂ•Ê
+        //Windowå€‹åˆ¥
         string WindowPositionAt(int index);
         string WindowSplitFormatAt(int index);
         string ToolBarFormatAt(int index);
         int TabRowCountAt(int index);
     }
 
-    //‚±‚ÌƒAƒZƒ“ƒuƒŠ“à‚ÌPreference
+    //ã“ã®ã‚¢ã‚»ãƒ³ãƒ–ãƒªå†…ã®Preference
     /// <summary>
     /// <ja>
-    /// ‚±‚ÌƒAƒZƒ“ƒuƒŠ“à‚ÌPreference‚ğ¦‚µ‚Ü‚·B
+    /// ã“ã®ã‚¢ã‚»ãƒ³ãƒ–ãƒªå†…ã®Preferenceã‚’ç¤ºã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The Preference in this assembly is shown.
@@ -753,7 +753,7 @@ namespace Poderosa.Forms {
     /// </summary>
     /// <exclude/>
     public interface ICoreServicePreference {
-        //‘S‘Ì‹¤’Ê
+        //å…¨ä½“å…±é€š
         bool ShowsToolBar {
             get;
             set;
@@ -771,22 +771,22 @@ namespace Poderosa.Forms {
             set;
         }
 
-        //”ñGUI
+        //éGUI
         int SplitLimitCount {
             get;
         }
 
-        //“®“I•ÏX‰Â”\Œ¾Œê
+        //å‹•çš„å¤‰æ›´å¯èƒ½è¨€èª
         Language Language {
             get;
             set;
         }
     }
 
-    //PopupViewì¬ƒpƒ‰ƒ[ƒ^
+    //PopupViewä½œæˆãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
     /// <summary>
     /// <ja>
-    /// PopupView‚ğì¬‚·‚éÛ‚Ìƒpƒ‰ƒ[ƒ^‚Æ‚È‚éƒIƒuƒWƒFƒNƒg‚Å‚·B
+    /// PopupViewã‚’ä½œæˆã™ã‚‹éš›ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã¨ãªã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Object that becomes parameter when PopupView is made.
@@ -794,8 +794,8 @@ namespace Poderosa.Forms {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚±‚Ìƒpƒ‰ƒ[ƒ^‚ÍA<seealso cref="IWindowManager">IWindowManager</seealso>‚Ì
-    /// <see cref="IWindowManager.CreatePopupView">CreatePopupViewƒƒ\ƒbƒh</see>‚Ìˆø”‚Æ‚µ‚Äg‚í‚ê‚Ü‚·B
+    /// ã“ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã¯ã€<seealso cref="IWindowManager">IWindowManager</seealso>ã®
+    /// <see cref="IWindowManager.CreatePopupView">CreatePopupViewãƒ¡ã‚½ãƒƒãƒ‰</see>ã®å¼•æ•°ã¨ã—ã¦ä½¿ã‚ã‚Œã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// This parameter is used as an argument of the <see cref="IWindowManager.CreatePopupView">CreatePopupView method</see> of <seealso cref="IWindowManager">IWindowManager</seealso>. 

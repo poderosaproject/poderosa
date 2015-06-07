@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -211,7 +211,7 @@ namespace Poderosa.Forms {
             InitKeyConfigUI();
         }
         public bool Commit(IKeyBinds keybinds) {
-            //’€Ÿ_keybinds‚ğ•ÏX‚µ‚Ä‚¢‚é‚Ì‚Å“¯ˆêƒCƒ“ƒXƒ^ƒ“ƒX‚È‚ç‰½‚à‚µ‚È‚­‚Ä‚¢‚¢
+            //é€æ¬¡_keybindsã‚’å¤‰æ›´ã—ã¦ã„ã‚‹ã®ã§åŒä¸€ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ãªã‚‰ä½•ã‚‚ã—ãªãã¦ã„ã„
             if (keybinds != _keybinds)
                 keybinds.Import(_keybinds);
             return true;
@@ -220,7 +220,7 @@ namespace Poderosa.Forms {
         private void InitKeyConfigUI() {
             _keyConfigList.Items.Clear();
 
-            //—ñ‹“‚µ‚Äƒ\[ƒg
+            //åˆ—æŒ™ã—ã¦ã‚½ãƒ¼ãƒˆ
             TypedHashtable<ICommandCategory, List<IGeneralCommand>> category_list = new TypedHashtable<ICommandCategory, List<IGeneralCommand>>();
             foreach (IGeneralCommand cmd in _keybinds.Commands) {
                 ICommandCategory cat = cmd.CommandCategory;
@@ -270,15 +270,15 @@ namespace Poderosa.Forms {
             Keys key = _hotKey.Key;
 
             IGeneralCommand existing = _keybinds.FindCommand(key);
-            if (existing != null && existing != cmd) { //•ÊƒRƒ}ƒ“ƒh‚Ö‚ÌŠ„“–‚ª‚ ‚Á‚½‚ç
+            if (existing != null && existing != cmd) { //åˆ¥ã‚³ãƒãƒ³ãƒ‰ã¸ã®å‰²å½“ãŒã‚ã£ãŸã‚‰
                 if (GUtil.AskUserYesNo(this, String.Format(sr.GetString("Message.OptionDialog.AskOverwriteCommand"), existing.Description)) == DialogResult.No)
                     return;
 
-                _keybinds.SetKey(existing, Keys.None); //Šù‘¶‚Ì‚â‚Â‚ÉŠ„“–‚ğƒNƒŠƒA
+                _keybinds.SetKey(existing, Keys.None); //æ—¢å­˜ã®ã‚„ã¤ã«å‰²å½“ã‚’ã‚¯ãƒªã‚¢
                 FindItemFromTag(existing).SubItems[2].Text = "";
             }
 
-            //İ’è‚ğ‘‚«Š·‚¦
+            //è¨­å®šã‚’æ›¸ãæ›ãˆ
             _keybinds.SetKey(cmd, key);
             _keyConfigList.SelectedItems[0].SubItems[2].Text = FormatKey(key);
         }

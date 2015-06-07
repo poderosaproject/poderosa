@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -106,7 +106,7 @@ namespace Poderosa.Terminal {
                     _defaultScheme = ss;
             }
 
-            //•ÏX’Ê’m ‚±‚ê‚Í_data‚ÌXVŒã‚Å‚È‚¢‚ÆAƒnƒ“ƒhƒ‰‚©‚çÄŒŸõ“™‚«‚½‚Æ‚«‚É¢‚é
+            //å¤‰æ›´é€šçŸ¥ ã“ã‚Œã¯_dataã®æ›´æ–°å¾Œã§ãªã„ã¨ã€ãƒãƒ³ãƒ‰ãƒ©ã‹ã‚‰å†æ¤œç´¢ç­‰ããŸã¨ãã«å›°ã‚‹
             foreach (IShellSchemeDynamicChangeListener l in _listeners)
                 l.OnShellSchemeCollectionChanged(values, table);
 
@@ -132,7 +132,7 @@ namespace Poderosa.Terminal {
                     _preferenceFolderArray.ConvertItem(content, _promptPreference).AsString().Value);
                 string bs = _preferenceFolderArray.ConvertItem(content, _backspacePreference).AsString().Value;
                 if (bs == "7F")
-                    ss.BackSpaceChar = ss.BackSpaceChar = (char)0x7F; //TODO ƒp[ƒX‚ªè”²‚«
+                    ss.BackSpaceChar = ss.BackSpaceChar = (char)0x7F; //TODO ãƒ‘ãƒ¼ã‚¹ãŒæ‰‹æŠœã
                 ss.SetCommandList(_preferenceFolderArray.ConvertItem(content, _commandListPreference).AsString().Value);
                 _data.Add(ss);
             }
@@ -140,7 +140,7 @@ namespace Poderosa.Terminal {
             _defaultScheme = FindShellScheme(DEFAULT_SCHEME_NAME) as GenericShellScheme;
 
             if (_defaultScheme == null) {
-                _defaultScheme = new GenericShellScheme(DEFAULT_SCHEME_NAME, GenericShellScheme.DEFAULT_PROMPT_REGEX); //‚È‚¯‚ê‚Î‚±‚ê‚Å
+                _defaultScheme = new GenericShellScheme(DEFAULT_SCHEME_NAME, GenericShellScheme.DEFAULT_PROMPT_REGEX); //ãªã‘ã‚Œã°ã“ã‚Œã§
                 _data.Add(_defaultScheme);
             }
         }
@@ -168,7 +168,7 @@ namespace Poderosa.Terminal {
         private StringBuilder _buffer;
         private string _name;
         private string _promptExpression;
-        private string _commandList; //’x‰„•]‰¿—p
+        private string _commandList; //é…å»¶è©•ä¾¡ç”¨
         private char _backSpaceChar;
         private IntelliSenseItemCollection _intelliSenseItemCollection;
 
@@ -253,9 +253,9 @@ namespace Poderosa.Terminal {
             return r;
         }
 
-        //src‚Ìcursor•¶š–Ú‚©‚çƒp[ƒX‚µ‚Ä‚PƒRƒ}ƒ“ƒh•ª‚¾‚¯•Ô‚·
+        //srcã®cursoræ–‡å­—ç›®ã‹ã‚‰ãƒ‘ãƒ¼ã‚¹ã—ã¦ï¼‘ã‚³ãƒãƒ³ãƒ‰åˆ†ã ã‘è¿”ã™
         private string ParseWord(string src, ref int cursor) {
-            char quote = '\0'; //ƒ_ƒuƒ‹ƒNƒI[ƒe[ƒVƒ‡ƒ“‚È‚Ç‚ÌˆÍ‚İ”»’èBˆÍ‚Ü‚ê‚Ä‚¢‚È‚¢‚Æ‚«‚Í\0
+            char quote = '\0'; //ãƒ€ãƒ–ãƒ«ã‚¯ã‚ªãƒ¼ãƒ†ãƒ¼ã‚·ãƒ§ãƒ³ãªã©ã®å›²ã¿åˆ¤å®šã€‚å›²ã¾ã‚Œã¦ã„ãªã„ã¨ãã¯\0
 
             _buffer.Remove(0, _buffer.Length);
             bool in_element = false;
@@ -264,9 +264,9 @@ namespace Poderosa.Terminal {
                 if (in_element) {
                     bool end = quote == '\0' ? IsDelimiter(ch) : quote == ch;
                     if (!end || quote != '\0')
-                        _buffer.Append(ch); //ˆÍ‚İ‚Ì‚ ‚é‚Æ‚«‚Í‚»‚ê‚ğ“ü‚ê‚é
+                        _buffer.Append(ch); //å›²ã¿ã®ã‚ã‚‹ã¨ãã¯ãã‚Œã‚’å…¥ã‚Œã‚‹
 
-                    if (end) { //‹æØ‚è‚ªŒ©‚Â‚©‚Á‚½‚Ì‚Å‘¦ƒŠƒ^[ƒ“
+                    if (end) { //åŒºåˆ‡ã‚ŠãŒè¦‹ã¤ã‹ã£ãŸã®ã§å³æ™‚ãƒªã‚¿ãƒ¼ãƒ³
                         cursor++;
                         return _buffer.ToString();
                     }
@@ -294,7 +294,7 @@ namespace Poderosa.Terminal {
             return _buffer.ToString();
         }
 
-        //•Û‘¶—p
+        //ä¿å­˜ç”¨
         public string FormatCommandList() {
             StringBuilder bld = new StringBuilder();
             foreach (IntelliSenseItem item in _intelliSenseItemCollection.Items) {
@@ -302,7 +302,7 @@ namespace Poderosa.Terminal {
                     bld.Append(';');
 
                 string t = item.Format(this.DefaultDelimiter);
-                if (t.IndexOf(';') != -1) { //‚¿‚å‚Á‚Æ‹ê‚µ‚¢‚ª
+                if (t.IndexOf(';') != -1) { //ã¡ã‚‡ã£ã¨è‹¦ã—ã„ãŒ
                     if (t[0] != '\\') {
                         if (t.IndexOf(']') == -1)
                             WriteEscaping(bld, '[', ']', t);
@@ -311,7 +311,7 @@ namespace Poderosa.Terminal {
                         else if (t.IndexOf('}') == -1)
                             WriteEscaping(bld, '{', '}', t);
                     }
-                    //‚±‚ê‚Å‚à‚¾‚ß‚È‚â‚Â‚Í–³‹A‚Ü‚ ‚¢‚¢‚¾‚ë‚¤
+                    //ã“ã‚Œã§ã‚‚ã ã‚ãªã‚„ã¤ã¯ç„¡è¦–ã€ã¾ã‚ã„ã„ã ã‚ã†
                 }
                 else
                     bld.Append(t);
@@ -319,13 +319,13 @@ namespace Poderosa.Terminal {
             return bld.ToString();
         }
         private void WriteEscaping(StringBuilder bld, char start, char end, string value) {
-            bld.Append('\\'); //ƒGƒXƒP[ƒvƒ}[ƒN
+            bld.Append('\\'); //ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—ãƒãƒ¼ã‚¯
             bld.Append(start);
             bld.Append(value);
             bld.Append(end);
         }
         public void SetCommandList(string value) {
-            _commandList = value; //’x‰„ƒp[ƒX
+            _commandList = value; //é…å»¶ãƒ‘ãƒ¼ã‚¹
         }
         private void ParseCommandList(string value) {
             Debug.WriteLineIf(DebugOpt.IntelliSense, "ParseCommand");
@@ -337,7 +337,7 @@ namespace Poderosa.Terminal {
                 if (delim == -1)
                     delim = value.Length;
                 if (mark != ';')
-                    cursor += 2; // "\\["“™‚Ì•ª
+                    cursor += 2; // "\\["ç­‰ã®åˆ†
                 string command = value.Substring(cursor, delim - cursor);
                 _intelliSenseItemCollection.AddLast(new IntelliSenseItem(this.ParseCommandInput(command)));
                 cursor = delim + 1;
@@ -395,7 +395,7 @@ namespace Poderosa.Terminal {
             g.SetCommandList(input);
             IntelliSenseItemCollection col = (IntelliSenseItemCollection)g.CommandHistory;
             Confirm(col.ToStringArray(), expected);
-            Assert.AreEqual(input, g.FormatCommandList()); //ÄƒtƒH[ƒ}ƒbƒg
+            Assert.AreEqual(input, g.FormatCommandList()); //å†ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆ
         }
 
     }

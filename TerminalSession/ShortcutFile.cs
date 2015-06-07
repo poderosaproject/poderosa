@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,7 +43,7 @@ namespace Poderosa.Sessions {
             ISerializeService ss = TerminalSessionsPlugin.Instance.SerializeService;
             StructuredText settings_text = ss.Serialize(_settings);
             StructuredText parameter_text = ss.Serialize(_param);
-            //VŒ`®‚Å
+            //æ–°å½¢å¼ã§
             StructuredText root = new StructuredText("poderosa-shortcut");
             root.Set("version", "4.0");
             root.AddChild(settings_text);
@@ -71,7 +71,7 @@ namespace Poderosa.Sessions {
         private static ShortcutFileContent ParseV4(XmlElement root) {
             XmlElement first = null;
             XmlElement second = null;
-            //‚¿‚å‚Á‚Æ‚¢‚¢‚©‚°‚ñ‚¾‚ªAÅ‰‚ÌElementA‚QŒÂ–Ú‚ÌElement‚ğB
+            //ã¡ã‚‡ã£ã¨ã„ã„ã‹ã’ã‚“ã ãŒã€æœ€åˆã®Elementã€ï¼’å€‹ç›®ã®Elementã‚’ã€‚
             foreach (XmlNode node in root.ChildNodes) {
                 XmlElement e = node as XmlElement;
                 if (e != null) {
@@ -100,12 +100,12 @@ namespace Poderosa.Sessions {
             return new ShortcutFileContent(setting, param);
         }
 
-        //‹Œƒo[ƒWƒ‡ƒ“ƒtƒH[ƒ}ƒbƒg‚Ì“Ç‚İ‚İ
+        //æ—§ãƒãƒ¼ã‚¸ãƒ§ãƒ³ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã®èª­ã¿è¾¼ã¿
         private static ShortcutFileContent ParseOldFormat(XmlElement root) {
             if (root.GetAttribute("type") != "tcp")
                 throw new FormatException("Unknown File Format");
 
-            //account‚Ì—L–³‚ÅTelnet/SSH‚ğØ‚è‘Ö‚¦
+            //accountã®æœ‰ç„¡ã§Telnet/SSHã‚’åˆ‡ã‚Šæ›¿ãˆ
             ITerminalParameter param;
             ISSHLoginParameter ssh = null;
             ITCPParameter tcp = null;
@@ -122,7 +122,7 @@ namespace Poderosa.Sessions {
             ITerminalSettings settings = TerminalSessionsPlugin.Instance.TerminalEmulatorService.CreateDefaultTerminalSettings("", null);
 
             settings.BeginUpdate();
-            //ƒAƒgƒŠƒrƒ…[ƒgär‚ß‚Äİ’è
+            //ã‚¢ãƒˆãƒªãƒ“ãƒ¥ãƒ¼ãƒˆèˆã‚ã¦è¨­å®š
             foreach (XmlAttribute attr in root.Attributes) {
                 switch (attr.Name) {
                     case "auth":

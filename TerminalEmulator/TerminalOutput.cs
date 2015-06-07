@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,10 +19,10 @@ using Poderosa.Protocols;
 using Poderosa.Forms;
 
 namespace Poderosa.Terminal {
-    //‚à‚ÆTerminalControl‚ÆAbstractTerminal‚É‚²‚¿‚á‚²‚¿‚á‚µ‚Ä‚¢‚½‘—M‹@”\‚ğ”²‚«o‚µ
+    //ã‚‚ã¨TerminalControlã¨AbstractTerminalã«ã”ã¡ã‚ƒã”ã¡ã‚ƒã—ã¦ã„ãŸé€ä¿¡æ©Ÿèƒ½ã‚’æŠœãå‡ºã—
     /// <summary>
     /// <ja>
-    /// ƒ^[ƒ~ƒiƒ‹‚Ö‚Æ‘—M‚·‚é‹@”\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã¸ã¨é€ä¿¡ã™ã‚‹æ©Ÿèƒ½ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Offer the function to transmit to the terminal.
@@ -51,7 +51,7 @@ namespace Poderosa.Terminal {
 
         /// <summary>
         /// <ja>
-        /// ƒ^[ƒ~ƒiƒ‹‚ÌƒRƒlƒNƒVƒ‡ƒ“‚ğ¦‚µ‚Ü‚·B
+        /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã®ã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Show the connection of terminal.
@@ -63,19 +63,19 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //‰üs‚Í“ü‚Á‚Ä‚¢‚È‚¢‘O’ñ‚Å
+        //æ”¹è¡Œã¯å…¥ã£ã¦ã„ãªã„å‰æã§
         /// <summary>
         /// <ja>
-        /// CharŒ^‚Ì”z—ñ‚ğ‘—M‚µ‚Ü‚·B
+        /// Charå‹ã®é…åˆ—ã‚’é€ä¿¡ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Send a array of Char type.
         /// </en>
         /// </summary>
-        /// <param name="chars"><ja>‘—M‚·‚é•¶š”z—ñ</ja><en>String array to send</en></param>
+        /// <param name="chars"><ja>é€ä¿¡ã™ã‚‹æ–‡å­—é…åˆ—</ja><en>String array to send</en></param>
         /// <remarks>
         /// <ja>
-        /// •¶š‚ÍŒ»İ‚ÌƒGƒ“ƒR[ƒhİ’è‚É‚æ‚èƒGƒ“ƒR[ƒh‚³‚ê‚Ä‚©‚ç‘—M‚³‚ê‚Ü‚·B
+        /// æ–‡å­—ã¯ç¾åœ¨ã®ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰è¨­å®šã«ã‚ˆã‚Šã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã•ã‚Œã¦ã‹ã‚‰é€ä¿¡ã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// After it is encoded by a present encode setting, the character is transmitted. 
@@ -87,7 +87,7 @@ namespace Poderosa.Terminal {
         }
         /// <summary>
         /// <ja>
-        /// ‰üs‚ğ‘—M‚µ‚Ü‚·B
+        /// æ”¹è¡Œã‚’é€ä¿¡ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Transmit line feed.
@@ -95,7 +95,7 @@ namespace Poderosa.Terminal {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ÀÛ‚É‘—‚éƒf[ƒ^‚Í‰üsİ’è‚É‚æ‚èAuCRvuLFvuCR+LFv‚Ì‚¢‚¸‚ê‚©‚É‚È‚è‚Ü‚·B
+        /// å®Ÿéš›ã«é€ã‚‹ãƒ‡ãƒ¼ã‚¿ã¯æ”¹è¡Œè¨­å®šã«ã‚ˆã‚Šã€ã€ŒCRã€ã€ŒLFã€ã€ŒCR+LFã€ã®ã„ãšã‚Œã‹ã«ãªã‚Šã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The data actually sent becomes either of "CR" "LF" "CR+LF" by the changing line setting. 
@@ -107,29 +107,29 @@ namespace Poderosa.Terminal {
         }
         /// <summary>
         /// <ja>
-        /// ƒ^[ƒ~ƒiƒ‹‚ÌƒTƒCƒY‚ğ•ÏX‚µ‚Ü‚·B
+        /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã®ã‚µã‚¤ã‚ºã‚’å¤‰æ›´ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Change terminal size.
         /// </en>
         /// </summary>
-        /// <param name="width"><ja>ƒ^[ƒ~ƒiƒ‹‚Ì•</ja><en>Width of terminal.</en></param>
-        /// <param name="height"><ja>ƒ^[ƒ~ƒiƒ‹‚Ì‚‚³</ja><en>Height of terminal</en></param>
+        /// <param name="width"><ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã®å¹…</ja><en>Width of terminal.</en></param>
+        /// <param name="height"><ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã®é«˜ã•</ja><en>Height of terminal</en></param>
         public void Resize(int width, int height) {
-            //TODO Transmit()‚Æ“¯—l‚Ìtry...catch
-            if (_connection.TerminalOutput != null) //keyboard-interactive”FØ’†‚È‚ÇAƒTƒCƒY•ÏX‚Å‚«‚È‚¢‹Ç–Ê‚à‚ ‚é
+            //TODO Transmit()ã¨åŒæ§˜ã®try...catch
+            if (_connection.TerminalOutput != null) //keyboard-interactiveèªè¨¼ä¸­ãªã©ã€ã‚µã‚¤ã‚ºå¤‰æ›´ã§ããªã„å±€é¢ã‚‚ã‚ã‚‹
                 _connection.TerminalOutput.Resize(width, height);
         }
 
         /// <summary>
         /// <ja>
-        /// ƒoƒCƒg”z—ñ‚ğ‘—M‚µ‚Ü‚·B
+        /// ãƒã‚¤ãƒˆé…åˆ—ã‚’é€ä¿¡ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Send array of byte.
         /// </en>
         /// </summary>
-        /// <param name="data"><ja>‘—M‚·‚éƒf[ƒ^‚ªŠi”[‚³‚ê‚½ƒoƒCƒg”z—ñ</ja><en>Byte array that contains data to send.</en></param>
+        /// <param name="data"><ja>é€ä¿¡ã™ã‚‹ãƒ‡ãƒ¼ã‚¿ãŒæ ¼ç´ã•ã‚ŒãŸãƒã‚¤ãƒˆé…åˆ—</ja><en>Byte array that contains data to send.</en></param>
         public void Transmit(byte[] data) {
             TransmitInternal(data, 0, data.Length, true);
         }
@@ -190,23 +190,23 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //å‚ÉPaste—p•¡”s‘—MBI—¹ŒãƒNƒ[ƒY
+        //ä¸»ã«Pasteç”¨è¤‡æ•°è¡Œé€ä¿¡ã€‚çµ‚äº†å¾Œã‚¯ãƒ­ãƒ¼ã‚º
         /// <summary>
         /// <ja>
-        /// TextStream‚©‚ç“Ç‚İæ‚Á‚½ƒf[ƒ^‚ğ‘—M‚µ‚Ü‚·B
+        /// TextStreamã‹ã‚‰èª­ã¿å–ã£ãŸãƒ‡ãƒ¼ã‚¿ã‚’é€ä¿¡ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Transmit the data read from TextStream.
         /// </en>
         /// </summary>
-        /// <param name="reader"><ja>“Ç‚İæ‚éTextStream</ja><en>Read TextStream</en></param>
-        /// <param name="send_linebreak_last"><ja>ÅŒã‚É‰üs‚ğ•t‚¯‚é‚©‚Ç‚¤‚©‚ğw’è‚·‚éƒtƒ‰ƒOBtrue‚Ì‚Æ‚«AÅŒã‚É‰üs‚ª•t—^‚³‚ê‚Ü‚·B</ja><en>Flag that specifies whether to put changing line at the end. Line feed is given at the end at true. </en></param>
+        /// <param name="reader"><ja>èª­ã¿å–ã‚‹TextStream</ja><en>Read TextStream</en></param>
+        /// <param name="send_linebreak_last"><ja>æœ€å¾Œã«æ”¹è¡Œã‚’ä»˜ã‘ã‚‹ã‹ã©ã†ã‹ã‚’æŒ‡å®šã™ã‚‹ãƒ•ãƒ©ã‚°ã€‚trueã®ã¨ãã€æœ€å¾Œã«æ”¹è¡ŒãŒä»˜ä¸ã•ã‚Œã¾ã™ã€‚</ja><en>Flag that specifies whether to put changing line at the end. Line feed is given at the end at true. </en></param>
         /// <remarks>
         /// <para>
-        /// <ja>ƒf[ƒ^‚ÍŒ»İ‚ÌƒGƒ“ƒR[ƒhİ’è‚É‚æ‚èAƒGƒ“ƒR[ƒh‚³‚ê‚Ä‚©‚ç‘—M‚³‚ê‚Ü‚·B</ja><en>After it is encoded by a present encode setting, data is transmitted. </en>
+        /// <ja>ãƒ‡ãƒ¼ã‚¿ã¯ç¾åœ¨ã®ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰è¨­å®šã«ã‚ˆã‚Šã€ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã•ã‚Œã¦ã‹ã‚‰é€ä¿¡ã•ã‚Œã¾ã™ã€‚</ja><en>After it is encoded by a present encode setting, data is transmitted. </en>
         /// </para>
         /// <para>
-        /// <ja><paramref name="reader"/>‚Íƒf[ƒ^‚Ì‘—MŒã‚É•Â‚¶‚ç‚ê‚Ü‚·iCloseƒƒ\ƒbƒh‚ªŒÄ‚Ño‚³‚ê‚Ü‚·jB</ja><en>After data is transmitted, <paramref name="reader"/> is closed (The Close method is called). </en>
+        /// <ja><paramref name="reader"/>ã¯ãƒ‡ãƒ¼ã‚¿ã®é€ä¿¡å¾Œã«é–‰ã˜ã‚‰ã‚Œã¾ã™ï¼ˆCloseãƒ¡ã‚½ãƒƒãƒ‰ãŒå‘¼ã³å‡ºã•ã‚Œã¾ã™ï¼‰ã€‚</ja><en>After data is transmitted, <paramref name="reader"/> is closed (The Close method is called). </en>
         /// </para>
         /// </remarks>
         public void SendTextStream(TextReader reader, bool send_linebreak_last) {
@@ -214,8 +214,8 @@ namespace Poderosa.Terminal {
             while (line != null) {
                 SendString(line.ToCharArray());
 
-                //‚Â‚Ã‚«‚Ìs‚ª‚ ‚é‚È‚ç‚ÎA‰üs‚Í•K‚¸‘—‚éBÅIs‚Å‚ ‚é‚È‚ç‚ÎA‚»‚ê‚ª‰üs•¶š‚ÅI‚í‚Á‚Ä‚¢‚éê‡‚Ì‚İ‰üs‚ğ‘—‚éB
-                //‘—‚é‰üs‚ÍƒNƒŠƒbƒvƒ{[ƒh‚Ì“à—e‚ÉŠÖ‚í‚ç‚¸ƒ^[ƒ~ƒiƒ‹‚Ìİ’è‚ÉŠî‚Ã‚­‚±‚Æ‚É’ˆÓ
+                //ã¤ã¥ãã®è¡ŒãŒã‚ã‚‹ãªã‚‰ã°ã€æ”¹è¡Œã¯å¿…ãšé€ã‚‹ã€‚æœ€çµ‚è¡Œã§ã‚ã‚‹ãªã‚‰ã°ã€ãã‚ŒãŒæ”¹è¡Œæ–‡å­—ã§çµ‚ã‚ã£ã¦ã„ã‚‹å ´åˆã®ã¿æ”¹è¡Œã‚’é€ã‚‹ã€‚
+                //é€ã‚‹æ”¹è¡Œã¯ã‚¯ãƒªãƒƒãƒ—ãƒœãƒ¼ãƒ‰ã®å†…å®¹ã«é–¢ã‚ã‚‰ãšã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã®è¨­å®šã«åŸºã¥ãã“ã¨ã«æ³¨æ„
                 bool last = reader.Peek() == -1;
                 bool linebreak = last ? send_linebreak_last : true;
                 if (linebreak)
@@ -226,7 +226,7 @@ namespace Poderosa.Terminal {
             reader.Close();
         }
 
-        //•œŠˆ
+        //å¾©æ´»
         /// <exclude/>
         public void Revive(ITerminalConnection connection, int terminal_width, int terminal_height) {
             _connection = connection;

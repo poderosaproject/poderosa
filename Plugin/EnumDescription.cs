@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,7 @@ using System.Diagnostics;
 
 namespace Poderosa.Util {
 
-    //®”‚Ìenum’l‚É•\‹L‚ğ‚Â‚¯‚½‚è‘ŠŒİ•ÏŠ·‚µ‚½‚è‚·‚é@\‘¢ã
+    //æ•´æ•°ã®enumå€¤ã«è¡¨è¨˜ã‚’ã¤ã‘ãŸã‚Šç›¸äº’å¤‰æ›ã—ãŸã‚Šã™ã‚‹ã€€æ§‹é€ ä¸Š
     /// <summary>
     /// 
     /// </summary>

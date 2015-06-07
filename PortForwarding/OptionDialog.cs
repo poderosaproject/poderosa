@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 * Copyright (c) 2005 Poderosa Project, All Rights Reserved.
 * $Id: OptionDialog.cs,v 1.4 2012/03/18 12:05:53 kzmi Exp $
 */
@@ -15,10 +15,10 @@ using Granados.PKI;
 
 namespace Poderosa.PortForwarding {
     /// <summary>
-    /// OptionDialog ‚ÌŠT—v‚Ìà–¾‚Å‚·B
+    /// OptionDialog ã®æ¦‚è¦ã®èª¬æ˜ã§ã™ã€‚
     /// </summary>
     internal class OptionDialog : System.Windows.Forms.Form {
-        //Ä“xŠJ‚¢‚½‚Æ‚«‚ÉŠJ‚­ƒ^ƒu‚ğ‹L‰¯
+        //å†åº¦é–‹ã„ãŸã¨ãã«é–‹ãã‚¿ãƒ–ã‚’è¨˜æ†¶
         private static int _FIRSTTABPAGE = 0;
 
         private Options _options;
@@ -66,30 +66,30 @@ namespace Poderosa.PortForwarding {
 
 
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.Container components = null;
 
         public OptionDialog() {
             //
-            // Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Å‚·B
+            // Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ã§ã™ã€‚
             //
             InitializeComponent();
 
             //
-            // TODO: InitializeComponent ŒÄ‚Ño‚µ‚ÌŒã‚ÉAƒRƒ“ƒXƒgƒ‰ƒNƒ^ ƒR[ƒh‚ğ’Ç‰Á‚µ‚Ä‚­‚¾‚³‚¢B
+            // TODO: InitializeComponent å‘¼ã³å‡ºã—ã®å¾Œã«ã€ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ ã‚³ãƒ¼ãƒ‰ã‚’è¿½åŠ ã—ã¦ãã ã•ã„ã€‚
             //
             _tabControl.SelectedIndex = _FIRSTTABPAGE;
             _optionPreservePlace.Items.AddRange(EnumListItem<OptionPreservePlace>.GetListItems());
             _languageBox.Items.AddRange(EnumListItem<Language>.GetListItems());
             InitializeText();
 
-            //TODO SOCKS‚ÆOptionPreservePlace‚Ü‚í‚è‚Í–¢ƒTƒ|[ƒg
+            //TODO SOCKSã¨OptionPreservePlaceã¾ã‚ã‚Šã¯æœªã‚µãƒãƒ¼ãƒˆ
             _useSocks.Enabled = false;
         }
 
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -102,8 +102,8 @@ namespace Poderosa.PortForwarding {
 
         #region Windows Form Designer generated code
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this._okButton = new System.Windows.Forms.Button();
@@ -577,12 +577,12 @@ namespace Poderosa.PortForwarding {
             string[] co = _options.CipherAlgorithmOrder;
             foreach (string c in co)
                 _cipherOrderList.Items.Add(c);
-            _hostKeyBox.SelectedIndex = SSHUtil.ParsePublicKeyAlgorithm(_options.HostKeyAlgorithmOrder[0]) == PublicKeyAlgorithm.DSA ? 0 : 1; //‚±‚ê‚ÍDSA/RSA‚Ì‚Ç‚¿‚ç‚©‚µ‚©‚È‚¢
+            _hostKeyBox.SelectedIndex = SSHUtil.ParsePublicKeyAlgorithm(_options.HostKeyAlgorithmOrder[0]) == PublicKeyAlgorithm.DSA ? 0 : 1; //ã“ã‚Œã¯DSA/RSAã®ã©ã¡ã‚‰ã‹ã—ã‹ãªã„
             _windowSizeBox.Text = _options.SSHWindowSize.ToString();
             _retainsPassphrase.Checked = _options.RetainsPassphrase;
             _sshCheckMAC.Checked = _options.SSHCheckMAC;
 
-            //Ú‘±
+            //æ¥ç¶š
             _useSocks.Checked = _options.UseSocks;
             _socksServerBox.Text = _options.SocksServer;
             _socksPortBox.Text = _options.SocksPort.ToString();
@@ -590,7 +590,7 @@ namespace Poderosa.PortForwarding {
             _socksPasswordBox.Text = _options.SocksPassword;
             _socksNANetworksBox.Text = _options.SocksNANetworks;
 
-            //ˆê”Ê
+            //ä¸€èˆ¬
             _showInTaskBarOption.Checked = _options.ShowInTaskBar;
             _warningOnExit.Checked = _options.WarningOnExit;
             _optionPreservePlace.SelectedItem = _options.OptionPreservePlace;   // select EnumListItem<T> by T
@@ -636,7 +636,7 @@ namespace Poderosa.PortForwarding {
         }
 
         private bool CommitSSHOptions() {
-            //ˆÃ†ƒAƒ‹ƒSƒŠƒYƒ€‡˜‚Í_options‚ğ’¼Ú‚¢‚¶‚Á‚Ä‚¢‚é‚Ì‚Å‚±‚±‚Å‚Í‰½‚à‚µ‚È‚­‚Ä‚æ‚¢
+            //æš—å·ã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ é †åºã¯_optionsã‚’ç›´æ¥ã„ã˜ã£ã¦ã„ã‚‹ã®ã§ã“ã“ã§ã¯ä½•ã‚‚ã—ãªãã¦ã‚ˆã„
             try {
                 PublicKeyAlgorithm[] pa = new PublicKeyAlgorithm[2];
                 if (_hostKeyBox.SelectedIndex == 0) {
@@ -725,11 +725,11 @@ namespace Poderosa.PortForwarding {
         }
 
 
-        //SSHƒIƒvƒVƒ‡ƒ“ŠÖŒW
+        //SSHã‚ªãƒ—ã‚·ãƒ§ãƒ³é–¢ä¿‚
         private void OnCipherAlgorithmOrderUp(object sender, EventArgs args) {
             int i = _cipherOrderList.SelectedIndex;
             if (i == -1 || i == 0)
-                return; //‘I‘ğ‚³‚ê‚Ä‚¢‚È‚¢‚©Šù‚Éƒgƒbƒv‚È‚ç‰½‚à‚µ‚È‚¢
+                return; //é¸æŠã•ã‚Œã¦ã„ãªã„ã‹æ—¢ã«ãƒˆãƒƒãƒ—ãªã‚‰ä½•ã‚‚ã—ãªã„
 
             string temp1 = _options.CipherAlgorithmOrder[i];
             _options.CipherAlgorithmOrder[i] = _options.CipherAlgorithmOrder[i - 1];
@@ -744,7 +744,7 @@ namespace Poderosa.PortForwarding {
         private void OnCipherAlgorithmOrderDown(object sender, EventArgs args) {
             int i = _cipherOrderList.SelectedIndex;
             if (i == -1 || i == _cipherOrderList.Items.Count - 1)
-                return; //‘I‘ğ‚³‚ê‚Ä‚¢‚È‚¯‚ê‚Î‰½‚à‚µ‚È‚¢
+                return; //é¸æŠã•ã‚Œã¦ã„ãªã‘ã‚Œã°ä½•ã‚‚ã—ãªã„
 
             string temp1 = _options.CipherAlgorithmOrder[i];
             _options.CipherAlgorithmOrder[i] = _options.CipherAlgorithmOrder[i + 1];
@@ -764,7 +764,7 @@ namespace Poderosa.PortForwarding {
             _optionPreservePlacePath.Text = Env.GetOptionDirectory(p);
         }
 
-        //SOCKS‚ÌUI
+        //SOCKSã®UI
         private void OnUseSocksOptionChanged(object sender, EventArgs args) {
             bool e = _useSocks.Checked;
             _socksServerBox.Enabled = e;

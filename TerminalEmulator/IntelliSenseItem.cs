@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@ using Poderosa.Util.Collections;
 namespace Poderosa.Terminal {
 
     internal class IntelliSenseItemCollection : IIntelliSenseItemCollection {
-        private LinkedList<IIntelliSenseItem> _items; //V‚µ‚¢“ü—Í‚Ù‚Çæ“ª
+        private LinkedList<IIntelliSenseItem> _items; //æ–°ã—ã„å…¥åŠ›ã»ã©å…ˆé ­
         public IntelliSenseItemCollection() {
             _items = new LinkedList<IIntelliSenseItem>();
         }
@@ -36,7 +36,7 @@ namespace Poderosa.Terminal {
             while (e.MoveNext()) {
                 IntelliSenseItem item = e.Current as IntelliSenseItem;
                 if (item.CompareTo(newitem) == 0) {
-                    //æ“ª‚É‚Á‚Ä‚«‚ÄƒŠƒ^[ƒ“
+                    //å…ˆé ­ã«æŒã£ã¦ãã¦ãƒªã‚¿ãƒ¼ãƒ³
                     _items.Remove(item);
                     _items.AddFirst(newitem);
                     return;
@@ -82,7 +82,7 @@ namespace Poderosa.Terminal {
             _items.Clear();
         }
         public void RemoveAt(int index) {
-            CollectionUtil.RemoveItemFromLinkedList(_items, index); //TODO €–Ú”‘½‚¢‚Æ‚«‚à‚¢
+            CollectionUtil.RemoveItemFromLinkedList(_items, index); //TODO é …ç›®æ•°å¤šã„ã¨ãã‚‚ã„
         }
         public int Count {
             get {
@@ -116,9 +116,9 @@ namespace Poderosa.Terminal {
             PartialChar
         }
 
-        private IntelliSenseItem _originalItem; //•”•ª•âŠ®‚Ì‚Æ‚«AŒ³‚Ì—v‘f‚ğ•Û
+        private IntelliSenseItem _originalItem; //éƒ¨åˆ†è£œå®Œã®ã¨ãã€å…ƒã®è¦ç´ ã‚’ä¿æŒ
         private string[] _text;
-        private int _startIndex; //_text‚Ì_startIndex”Ô–ÚˆÈ~‚Ì—v‘f‚ğo‚·BƒqƒXƒgƒŠ‚ª’¼Ú‚Â‚â‚Â‚Í‚±‚ê‚Í0ŒÅ’è
+        private int _startIndex; //_textã®_startIndexç•ªç›®ä»¥é™ã®è¦ç´ ã‚’å‡ºã™ã€‚ãƒ’ã‚¹ãƒˆãƒªãŒç›´æ¥æŒã¤ã‚„ã¤ã¯ã“ã‚Œã¯0å›ºå®š
 
         public IntelliSenseItem(string[] text) {
             _text = text;
@@ -159,14 +159,14 @@ namespace Poderosa.Terminal {
             return bld.ToString();
         }
 
-        //‘O•ûˆê’vƒ`ƒFƒbƒN
+        //å‰æ–¹ä¸€è‡´ãƒã‚§ãƒƒã‚¯
         public MatchForwardResult MatchForward(string[] src) {
             if (src.Length == 0)
                 return MatchForwardResult.PartialArg;
             if (this.Length < src.Length)
                 return MatchForwardResult.None;
 
-            for (int i = 0; i < src.Length - 1; i++) { //ÅI€ˆÈŠO‚ÍAŠ®‘Sˆê’v‚Å‚È‚¢‚Æ
+            for (int i = 0; i < src.Length - 1; i++) { //æœ€çµ‚é …ä»¥å¤–ã¯ã€å®Œå…¨ä¸€è‡´ã§ãªã„ã¨
                 if (src[i] != _text[_startIndex + i])
                     return MatchForwardResult.None;
             }
@@ -174,7 +174,7 @@ namespace Poderosa.Terminal {
             string last = src[src.Length - 1];
             string this_ = _text[_startIndex + src.Length - 1];
 
-            //‚±‚Ì”»’è‚â‚â‚±‚µ‚¢‚æ
+            //ã“ã®åˆ¤å®šã‚„ã‚„ã“ã—ã„ã‚ˆ
             if (last == this_)
                 return src.Length == this.Length ? MatchForwardResult.None : MatchForwardResult.PartialArg;
             else
@@ -193,7 +193,7 @@ namespace Poderosa.Terminal {
                     return r;
             }
 
-            return this.Length - other.Length; //’·‚¢‚Ù‚¤‚ªŒã
+            return this.Length - other.Length; //é•·ã„ã»ã†ãŒå¾Œ
         }
 
         public IAdaptable GetAdapter(Type adapter) {

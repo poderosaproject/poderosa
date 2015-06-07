@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,11 +28,11 @@ namespace Poderosa.Executable {
 #else
             _poderosaApplication = PoderosaStartup.CreatePoderosaApplication(args);
 #endif
-            if (_poderosaApplication != null) //ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ªì¬‚³‚ê‚È‚¯‚ê‚Î
+            if (_poderosaApplication != null) //ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ãŒä½œæˆã•ã‚Œãªã‘ã‚Œã°
                 _poderosaApplication.Start();
         }
 
-        //ÀsŠJn
+        //å®Ÿè¡Œé–‹å§‹
         [STAThread]
         public static void Main(string[] args) {
             try {

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,10 +11,10 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace Poderosa.Protocols {
-    //ƒf[ƒ^‘—óM‚Ìˆø”ƒZƒbƒg(byte[], int, int)‚Ì‘©
+    //ãƒ‡ãƒ¼ã‚¿é€å—ä¿¡ã®å¼•æ•°ã‚»ãƒƒãƒˆ(byte[], int, int)ã®æŸ
     /// <summary>
     /// <ja>
-    /// ƒf[ƒ^‘—óM‚Ìˆø”ƒZƒbƒg‚ğæ‚èˆµ‚¤ƒNƒ‰ƒX‚Å‚·B
+    /// ãƒ‡ãƒ¼ã‚¿é€å—ä¿¡ã®å¼•æ•°ã‚»ãƒƒãƒˆã‚’å–ã‚Šæ‰±ã†ã‚¯ãƒ©ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Class that handles set of argument of data transmitting and receiving.
@@ -22,7 +22,7 @@ namespace Poderosa.Protocols {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚±‚ÌƒNƒ‰ƒX‚ÍAuƒoƒCƒgƒf[ƒ^vuƒIƒtƒZƒbƒgvu’·‚³v‚ğƒZƒbƒg‚Æ‚µ‚Äˆµ‚¤‚à‚Ì‚ÅAƒf[ƒ^‚ğ‘—óM‚·‚éÛ‚Ìˆø”‚Æ‚µ‚Äg‚í‚ê‚Ü‚·B
+    /// ã“ã®ã‚¯ãƒ©ã‚¹ã¯ã€ã€Œãƒã‚¤ãƒˆãƒ‡ãƒ¼ã‚¿ã€ã€Œã‚ªãƒ•ã‚»ãƒƒãƒˆã€ã€Œé•·ã•ã€ã‚’ã‚»ãƒƒãƒˆã¨ã—ã¦æ‰±ã†ã‚‚ã®ã§ã€ãƒ‡ãƒ¼ã‚¿ã‚’é€å—ä¿¡ã™ã‚‹éš›ã®å¼•æ•°ã¨ã—ã¦ä½¿ã‚ã‚Œã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// This class is used as an argument when data is transmit and received by the one to treat "Byte data", "Offset", and "Length" as a set. 
@@ -35,7 +35,7 @@ namespace Poderosa.Protocols {
 
         /// <summary>
         /// <ja>
-        /// ƒf[ƒ^‘—óMƒZƒbƒg‚ğì¬‚µ‚Ü‚·B
+        /// ãƒ‡ãƒ¼ã‚¿é€å—ä¿¡ã‚»ãƒƒãƒˆã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create a set of data transmitting / recieving.
@@ -45,30 +45,30 @@ namespace Poderosa.Protocols {
         }
         /// <summary>
         /// <ja>
-        /// uƒf[ƒ^vuƒIƒtƒZƒbƒgvu’·‚³v‚ğw’è‚µ‚Äƒf[ƒ^‘—óMƒZƒbƒg‚ğì¬‚µ‚Ü‚·B
+        /// ã€Œãƒ‡ãƒ¼ã‚¿ã€ã€Œã‚ªãƒ•ã‚»ãƒƒãƒˆã€ã€Œé•·ã•ã€ã‚’æŒ‡å®šã—ã¦ãƒ‡ãƒ¼ã‚¿é€å—ä¿¡ã‚»ãƒƒãƒˆã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// This class is used as an argument when data is transmit and received by the one to treat "Byte data", "Offset", and "Length" as a set. 
         /// </en>
         /// </summary>
-        /// <param name="data"><ja>‘—óM‚³‚ê‚éƒf[ƒ^‚ğ¦‚·”z—ñ‚Å‚·B</ja><en>It is an array that shows the transmit and received data. </en></param>
-        /// <param name="offset"><ja>‘—óMæ‚ğ¦‚·<paramref name="data"/>‚ÌƒIƒtƒZƒbƒgˆÊ’u‚Å‚·B</ja><en>It is an offset position of <paramref name="data"/> that shows the transmitting and receiving destination. </en></param>
-        /// <param name="length"><ja>‘—óM‚·‚é’·‚³‚Å‚·B</ja><en>It is sent and received length. </en></param>
+        /// <param name="data"><ja>é€å—ä¿¡ã•ã‚Œã‚‹ãƒ‡ãƒ¼ã‚¿ã‚’ç¤ºã™é…åˆ—ã§ã™ã€‚</ja><en>It is an array that shows the transmit and received data. </en></param>
+        /// <param name="offset"><ja>é€å—ä¿¡å…ˆã‚’ç¤ºã™<paramref name="data"/>ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆä½ç½®ã§ã™ã€‚</ja><en>It is an offset position of <paramref name="data"/> that shows the transmitting and receiving destination. </en></param>
+        /// <param name="length"><ja>é€å—ä¿¡ã™ã‚‹é•·ã•ã§ã™ã€‚</ja><en>It is sent and received length. </en></param>
         public ByteDataFragment(byte[] data, int offset, int length) {
             Set(data, offset, length);
         }
 
         /// <summary>
         /// <ja>
-        /// uƒf[ƒ^vuƒIƒtƒZƒbƒgvu’·‚³v‚ğİ’è‚µ‚Ü‚·B
+        /// ã€Œãƒ‡ãƒ¼ã‚¿ã€ã€Œã‚ªãƒ•ã‚»ãƒƒãƒˆã€ã€Œé•·ã•ã€ã‚’è¨­å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Set "Data", "Offset", "Length".
         /// </en>
         /// </summary>
-        /// <param name="buffer"><ja>‘—óM‚³‚ê‚éƒf[ƒ^‚ğ¦‚·”z—ñ‚Å‚·B</ja><en>It is an array that shows the tranmit and received data. </en></param>
-        /// <param name="offset"><ja>‘—óMæ‚ğ¦‚·<paramref name="buffer"/>‚Ö‚ÌƒIƒtƒZƒbƒgˆÊ’u‚Å‚·B</ja><en>It is an offset position to <paramref name="buffer"/> that shows the transmitting and receiving destination. </en></param>
-        /// <param name="length"><ja>‘—óM‚·‚é’·‚³‚Å‚·B</ja><en>It is transmit and received length. </en></param>
+        /// <param name="buffer"><ja>é€å—ä¿¡ã•ã‚Œã‚‹ãƒ‡ãƒ¼ã‚¿ã‚’ç¤ºã™é…åˆ—ã§ã™ã€‚</ja><en>It is an array that shows the tranmit and received data. </en></param>
+        /// <param name="offset"><ja>é€å—ä¿¡å…ˆã‚’ç¤ºã™<paramref name="buffer"/>ã¸ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆä½ç½®ã§ã™ã€‚</ja><en>It is an offset position to <paramref name="buffer"/> that shows the transmitting and receiving destination. </en></param>
+        /// <param name="length"><ja>é€å—ä¿¡ã™ã‚‹é•·ã•ã§ã™ã€‚</ja><en>It is transmit and received length. </en></param>
         /// <returns></returns>
         public ByteDataFragment Set(byte[] buffer, int offset, int length) {
             _buffer = buffer;
@@ -78,12 +78,12 @@ namespace Poderosa.Protocols {
         }
 
         /// <summary>
-        /// <ja>‘—óMƒoƒbƒtƒ@‚Å‚·B</ja>
+        /// <ja>é€å—ä¿¡ãƒãƒƒãƒ•ã‚¡ã§ã™ã€‚</ja>
         /// <en>Tranmit / recieve buffer</en>
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ‘—óMƒf[ƒ^‚Í‚±‚±‚ÉŠi”[‚µ‚Ü‚·B
+        /// é€å—ä¿¡ãƒ‡ãƒ¼ã‚¿ã¯ã“ã“ã«æ ¼ç´ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Tranmit / Recieved data stored here.
@@ -97,7 +97,7 @@ namespace Poderosa.Protocols {
 
         /// <summary>
         /// <ja>
-        /// ‘—óM‚ÌƒIƒtƒZƒbƒg‚Å‚·B
+        /// é€å—ä¿¡ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Offset of tranmitting and receiving. 
@@ -111,7 +111,7 @@ namespace Poderosa.Protocols {
 
         /// <summary>
         /// <ja>
-        /// ‘—óM‚·‚é’·‚³‚Å‚·B
+        /// é€å—ä¿¡ã™ã‚‹é•·ã•ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Length of tranmitting and receiving. 
@@ -124,10 +124,10 @@ namespace Poderosa.Protocols {
         }
     }
 
-    //byte[]ƒx[ƒX‚Ìo—ÍB‹ŒAbstractGuevaraSocket
+    //byte[]ãƒ™ãƒ¼ã‚¹ã®å‡ºåŠ›ã€‚æ—§AbstractGuevaraSocket
     /// <summary>
     /// <ja>
-    /// ƒf[ƒ^‚ğ‘—M‚·‚é‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ‡ãƒ¼ã‚¿ã‚’é€ä¿¡ã™ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface to transmit data.
@@ -136,17 +136,17 @@ namespace Poderosa.Protocols {
     public interface IByteOutputStream {
         /// <summary>
         /// <ja>
-        /// ByteDataFragmentƒIƒuƒWƒFƒNƒg‚ğw’è‚µ‚Äƒf[ƒ^‚ğ‘—M‚µ‚Ü‚·B
+        /// ByteDataFragmentã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æŒ‡å®šã—ã¦ãƒ‡ãƒ¼ã‚¿ã‚’é€ä¿¡ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Data is transmitted specifying the ByteDataFragment object. 
         /// </en>
         /// </summary>
-        /// <param name="data"><ja>‘—M‚·‚éƒf[ƒ^‚ª“ü‚Á‚Ä‚¢‚éƒIƒuƒWƒFƒNƒg‚Å‚·B</ja><en>Object with transmitted data</en></param>
+        /// <param name="data"><ja>é€ä¿¡ã™ã‚‹ãƒ‡ãƒ¼ã‚¿ãŒå…¥ã£ã¦ã„ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚</ja><en>Object with transmitted data</en></param>
         /// <overloads>
         /// <summary>
         /// <ja>
-        /// ƒf[ƒ^‚ğ‘—M‚µ‚Ü‚·B
+        /// ãƒ‡ãƒ¼ã‚¿ã‚’é€ä¿¡ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Transmitting data.
@@ -156,19 +156,19 @@ namespace Poderosa.Protocols {
         void Transmit(ByteDataFragment data);
         /// <summary>
         /// <ja>
-        /// uƒoƒCƒg”z—ñvuƒIƒtƒZƒbƒgvu’·‚³v‚ğw’è‚µ‚Äƒf[ƒ^‚ğ‘—M‚µ‚Ü‚·B
+        /// ã€Œãƒã‚¤ãƒˆé…åˆ—ã€ã€Œã‚ªãƒ•ã‚»ãƒƒãƒˆã€ã€Œé•·ã•ã€ã‚’æŒ‡å®šã—ã¦ãƒ‡ãƒ¼ã‚¿ã‚’é€ä¿¡ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Data is transmitted specifying "Byte array", "Offset", and "Length". 
         /// </en>
         /// </summary>
-        /// <param name="data"><ja>ƒf[ƒ^‚ª“ü‚Á‚Ä‚¢‚éƒoƒCƒg”z—ñ</ja><en>Byte array with data</en></param>
-        /// <param name="offset"><ja>ƒf[ƒ^‚ğ‘—M‚·‚éˆÊ’u‚ğ¦‚µ‚½ƒIƒtƒZƒbƒg</ja><en>Offset that showed position in which data is transmitted</en></param>
-        /// <param name="length"><ja>‘—M‚·‚é’·‚³</ja><en>Transmitted length</en></param>
+        /// <param name="data"><ja>ãƒ‡ãƒ¼ã‚¿ãŒå…¥ã£ã¦ã„ã‚‹ãƒã‚¤ãƒˆé…åˆ—</ja><en>Byte array with data</en></param>
+        /// <param name="offset"><ja>ãƒ‡ãƒ¼ã‚¿ã‚’é€ä¿¡ã™ã‚‹ä½ç½®ã‚’ç¤ºã—ãŸã‚ªãƒ•ã‚»ãƒƒãƒˆ</ja><en>Offset that showed position in which data is transmitted</en></param>
+        /// <param name="length"><ja>é€ä¿¡ã™ã‚‹é•·ã•</ja><en>Transmitted length</en></param>
         void Transmit(byte[] data, int offset, int length);
         /// <summary>
         /// <ja>
-        /// Ú‘±‚ğ•Â‚¶‚Ü‚·B
+        /// æ¥ç¶šã‚’é–‰ã˜ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Close the connection.
@@ -176,11 +176,11 @@ namespace Poderosa.Protocols {
         /// </summary>
         void Close();
     }
-    //byte[]ƒx[ƒX‚Ì”ñ“¯Šú“ü—ÍB‹ŒIDataReceiver
+    //byte[]ãƒ™ãƒ¼ã‚¹ã®éåŒæœŸå…¥åŠ›ã€‚æ—§IDataReceiver
     /// <summary>
     /// <ja>
-    /// <seealso cref="IPoderosaSocket">IPoderosaSocket</seealso>‚ğ’Ê‚¶‚Äƒf[ƒ^‚ğ”ñ“¯Šú‚Å
-    /// óM‚·‚é‚Æ‚«‚É—p‚¢‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// <seealso cref="IPoderosaSocket">IPoderosaSocket</seealso>ã‚’é€šã˜ã¦ãƒ‡ãƒ¼ã‚¿ã‚’éåŒæœŸã§
+    /// å—ä¿¡ã™ã‚‹ã¨ãã«ç”¨ã„ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that 	used when data is asynchronously received through <seealso cref="IPoderosaSocket">IPoderosaSocket</seealso>. 
@@ -188,9 +188,9 @@ namespace Poderosa.Protocols {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ƒf[ƒ^‚ğóM‚µ‚½‚¢ƒvƒ‰ƒOƒCƒ“‚ÍA‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğÀ‘•‚µ‚½ƒIƒuƒWƒFƒNƒg‚ğ—pˆÓ‚µA
-    /// <seealso cref="IPoderosaSocket">IPoderosaSocket</seealso>‚Ì<see cref="IPoderosaSocket.RepeatAsyncRead">
-    /// RepeatAsyncReadƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚µ‚Ä“o˜^‚µ‚Ü‚·B
+    /// ãƒ‡ãƒ¼ã‚¿ã‚’å—ä¿¡ã—ãŸã„ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã¯ã€ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’å®Ÿè£…ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”¨æ„ã—ã€
+    /// <seealso cref="IPoderosaSocket">IPoderosaSocket</seealso>ã®<see cref="IPoderosaSocket.RepeatAsyncRead">
+    /// RepeatAsyncReadãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã—ã¦ç™»éŒ²ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The object that implements this interface is prepared, and the plug-in that wants to receive the data calls and registers the <see cref="IPoderosaSocket.RepeatAsyncRead">
@@ -200,17 +200,17 @@ namespace Poderosa.Protocols {
     public interface IByteAsyncInputStream {
         /// <summary>
         /// <ja>
-        /// ƒf[ƒ^‚ª“Í‚¢‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// ãƒ‡ãƒ¼ã‚¿ãŒå±Šã„ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Called when data recieves
         /// </en>
         /// </summary>
-        /// <param name="data"><ja>óMƒf[ƒ^‚ğ¦‚·ƒIƒuƒWƒFƒNƒg</ja><en>Object that show the recieved data.</en></param>
+        /// <param name="data"><ja>å—ä¿¡ãƒ‡ãƒ¼ã‚¿ã‚’ç¤ºã™ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>Object that show the recieved data.</en></param>
         void OnReception(ByteDataFragment data);
         /// <summary>
         /// <ja>
-        /// Ú‘±‚ª’Êí‚ÌØ’fè‡‚ÅI—¹‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// æ¥ç¶šãŒé€šå¸¸ã®åˆ‡æ–­æ‰‹é †ã§çµ‚äº†ã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When the connection terminates normally, it is called. 
@@ -219,21 +219,21 @@ namespace Poderosa.Protocols {
         void OnNormalTermination();
         /// <summary>
         /// <ja>
-        /// Ú‘±‚ªƒGƒ‰[‚È‚Ç‚ÌˆÙí‚É‚æ‚Á‚ÄI—¹‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// æ¥ç¶šãŒã‚¨ãƒ©ãƒ¼ãªã©ã®ç•°å¸¸ã«ã‚ˆã£ã¦çµ‚äº†ã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When the connection terminates due to abnormality of the error etc. , it is called. 
         /// </en>
         /// </summary>
-        /// <param name="message"><ja>Ø’f‚³‚ê‚½——R‚ğ¦‚·•¶š—ñ</ja><en>String that shows closed reason</en></param>
+        /// <param name="message"><ja>åˆ‡æ–­ã•ã‚ŒãŸç†ç”±ã‚’ç¤ºã™æ–‡å­—åˆ—</ja><en>String that shows closed reason</en></param>
         void OnAbnormalTermination(string message);
     }
 
-    //Ú‘±‚Ì¬Œ÷E¸”s‚Ì’Ê’mB‚½‚Æ‚¦‚ÎMRUƒRƒ“ƒ|[ƒlƒ“ƒg‚ª‚±‚ê‚ğóM‚µ‚Ä©g‚Ìî•ñ‚ğXV‚·‚é
-    //Interrupt‚³‚ê‚½ê‡‚Í’Ê’m‚È‚µ
+    //æ¥ç¶šã®æˆåŠŸãƒ»å¤±æ•—ã®é€šçŸ¥ã€‚ãŸã¨ãˆã°MRUã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒã“ã‚Œã‚’å—ä¿¡ã—ã¦è‡ªèº«ã®æƒ…å ±ã‚’æ›´æ–°ã™ã‚‹
+    //Interruptã•ã‚ŒãŸå ´åˆã¯é€šçŸ¥ãªã—
     /// <summary>
     /// <ja>
-    /// Ú‘±‚Ì¬Œ÷E¸”s‚Ì’Ê’m‚ğó‚¯æ‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// æ¥ç¶šã®æˆåŠŸãƒ»å¤±æ•—ã®é€šçŸ¥ã‚’å—ã‘å–ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that receives notification of success and failure of connection
@@ -241,7 +241,7 @@ namespace Poderosa.Protocols {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍAProtocolsƒvƒ‰ƒOƒCƒ“‚ÌŠg’£ƒ|ƒCƒ“ƒguorg.poderosa.protocols.resultEventHandlerv‚É‚æ‚Á‚Ä’ñ‹Ÿ‚³‚ê‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€Protocolsãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã€Œorg.poderosa.protocols.resultEventHandlerã€ã«ã‚ˆã£ã¦æä¾›ã•ã‚Œã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// This interface is offered with the extension point (org.poderosa.protocols.resultEventHandler) of the Protocols plug-in. 
@@ -250,29 +250,29 @@ namespace Poderosa.Protocols {
     public interface IConnectionResultEventHandler {
         /// <summary>
         /// <ja>
-        /// Ú‘±‚ª¬Œ÷‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// æ¥ç¶šãŒæˆåŠŸã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When the connection succeeds, it is called. 
         /// </en>
         /// </summary>
-        /// <param name="param"><ja>Ú‘±ƒpƒ‰ƒ[ƒ^‚Å‚·</ja><en>Connection parameter.</en></param>
+        /// <param name="param"><ja>æ¥ç¶šãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã§ã™</ja><en>Connection parameter.</en></param>
         void OnSucceeded(ITerminalParameter param);
         /// <summary>
         /// <ja>
-        /// Ú‘±‚ª¸”s‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// æ¥ç¶šãŒå¤±æ•—ã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When the connection fails, it is called. 
         /// </en>
         /// </summary>
-        /// <param name="param"><ja>Ú‘±ƒpƒ‰ƒ[ƒ^‚Å‚·</ja><en>Connection parameter.</en></param>
-        /// <param name="msg"><ja>¸”s‚µ‚½——R‚ªŠÜ‚Ü‚ê‚éƒƒbƒZ[ƒW‚Å‚·</ja><en>Message being included for failing reason</en></param>
+        /// <param name="param"><ja>æ¥ç¶šãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã§ã™</ja><en>Connection parameter.</en></param>
+        /// <param name="msg"><ja>å¤±æ•—ã—ãŸç†ç”±ãŒå«ã¾ã‚Œã‚‹ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã§ã™</ja><en>Message being included for failing reason</en></param>
         void OnFailed(ITerminalParameter param, string msg);
 
         /// <summary>
         /// <ja>
-        /// ”ñ“¯ŠúÚ‘±ŠJn‘O‚ÉŒÄ‚Î‚ê‚Ü‚·
+        /// éåŒæœŸæ¥ç¶šé–‹å§‹å‰ã«å‘¼ã°ã‚Œã¾ã™
         /// </ja>
         /// <en>
         /// Called before the asynchronous connection starts

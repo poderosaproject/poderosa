@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,7 @@ namespace Poderosa.Terminal {
 
     /// <summary>
     /// <ja>
-    /// ƒVƒFƒ‹‚ÖƒRƒ}ƒ“ƒh‚ğ©“®Às‚·‚é‹N“_‚Å‚·B
+    /// ã‚·ã‚§ãƒ«ã¸ã‚³ãƒãƒ³ãƒ‰ã‚’è‡ªå‹•å®Ÿè¡Œã™ã‚‹èµ·ç‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Starting point to the shell that executes the command automatically. 
@@ -31,7 +31,7 @@ namespace Poderosa.Terminal {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚±‚ÌƒCƒ“ƒ^ƒtƒF[ƒX‚Ì‰ğà‚ÍA‚Ü‚¾‚ ‚è‚Ü‚¹‚ñB
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹ã®è§£èª¬ã¯ã€ã¾ã ã‚ã‚Šã¾ã›ã‚“ã€‚
     /// </ja>
     /// <en>
     /// It has not explained this interface yet. 
@@ -46,7 +46,7 @@ namespace Poderosa.Terminal {
     }
 
 
-    //ƒRƒ}ƒ“ƒh‚Ìƒx[ƒX
+    //ã‚³ãƒãƒ³ãƒ‰ã®ãƒ™ãƒ¼ã‚¹
     internal abstract class CommandResultProcessorBase : ICommandResultProcessor, ICommandResultProcessorMenuItem {
         protected string _textID;
         protected string _executingCommand;
@@ -77,12 +77,12 @@ namespace Poderosa.Terminal {
         }
 
         protected static void AsyncResultQuickHack(TerminalControl tc, IAsyncResult ar) {
-            if (ar.AsyncWaitHandle.WaitOne(100, false)) //IntelliSense‚Æ“¯—l‚Ì——R‚ÅŠÔ§ŒÀ‚Â‚«‚ÌWait
+            if (ar.AsyncWaitHandle.WaitOne(100, false)) //IntelliSenseã¨åŒæ§˜ã®ç†ç”±ã§æ™‚é–“åˆ¶é™ã¤ãã®Wait
                 tc.EndInvoke(ar);
         }
     }
 
-    //ƒRƒ}ƒ“ƒhŒ‹‰Ê‚ğVƒZƒbƒVƒ‡ƒ“‚Æ‚µ‚Äƒ|ƒbƒvƒAƒbƒv
+    //ã‚³ãƒãƒ³ãƒ‰çµæœã‚’æ–°ã‚»ãƒƒã‚·ãƒ§ãƒ³ã¨ã—ã¦ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—
     internal class PopupCommandResult : CommandResultProcessorBase {
         public PopupCommandResult() {
             _textID = "Menu.PopupCommandResult";
@@ -103,7 +103,7 @@ namespace Poderosa.Terminal {
         }
     }
 
-    //ƒRƒ}ƒ“ƒhŒ‹‰Ê‚ğƒNƒŠƒbƒvƒ{[ƒh‚É
+    //ã‚³ãƒãƒ³ãƒ‰çµæœã‚’ã‚¯ãƒªãƒƒãƒ—ãƒœãƒ¼ãƒ‰ã«
     internal class CopyCommandResult : CommandResultProcessorBase {
         public CopyCommandResult() {
             _textID = "Menu.CopyCommandResult";
@@ -122,7 +122,7 @@ namespace Poderosa.Terminal {
             }
 
             if (bld.Length > 0) {
-                //ƒRƒs[‚ÍƒƒCƒ“ƒXƒŒƒbƒh‚Å‚â‚ç‚ñ‚Æ
+                //ã‚³ãƒ”ãƒ¼ã¯ãƒ¡ã‚¤ãƒ³ã‚¹ãƒ¬ãƒƒãƒ‰ã§ã‚„ã‚‰ã‚“ã¨
                 TerminalControl tc = _terminal.TerminalHost.TerminalControl;
                 if (tc == null)
                     return;
@@ -146,8 +146,8 @@ namespace Poderosa.Terminal {
     internal class CommandResultRecognizer : IPromptProcessor, IShellCommandExecutor {
         protected enum State {
             NotPrompt,
-            Prompt, //ƒvƒƒ“ƒvƒgó•t’†
-            Fetch   //ƒRƒ}ƒ“ƒh‚ÌŒ‹‰Ê‚ğóM’†
+            Prompt, //ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆå—ä»˜ä¸­
+            Fetch   //ã‚³ãƒãƒ³ãƒ‰ã®çµæœã‚’å—ä¿¡ä¸­
         }
         protected AbstractTerminal _terminal;
         protected State _state;
@@ -190,7 +190,7 @@ namespace Poderosa.Terminal {
         }
         #endregion
 
-        //ƒ|ƒbƒvƒAƒbƒv‘ÎÛ‚Ìs‚ğW‚ß‚Ä\’zB‚±‚±‚ÍóMƒXƒŒƒbƒh‚Å‚ÌÀs‚Å‚ ‚é‚±‚Æ‚É’ˆÓ
+        //ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—å¯¾è±¡ã®è¡Œã‚’é›†ã‚ã¦æ§‹ç¯‰ã€‚ã“ã“ã¯å—ä¿¡ã‚¹ãƒ¬ãƒƒãƒ‰ã§ã®å®Ÿè¡Œã§ã‚ã‚‹ã“ã¨ã«æ³¨æ„
         private void ProcessCommandResult(int end_line_id) {
             List<GLine> result = new List<GLine>();
             TerminalDocument doc = _terminal.GetDocument();
@@ -201,7 +201,7 @@ namespace Poderosa.Terminal {
                 line = line.NextLine;
             }
 
-            //‰½‚©‚Æ‚ê‚Ä‚¢‚½‚çÀs
+            //ä½•ã‹ã¨ã‚Œã¦ã„ãŸã‚‰å®Ÿè¡Œ
             if (result.Count > 0)
                 _currentProcessor.EndCommand(result);
             else
@@ -211,9 +211,9 @@ namespace Poderosa.Terminal {
         }
 
         #region IShellCommandExecutor
-        //ŠO•”‚©‚ç‚àÀs‰Â”\‚ÈƒRƒ}ƒ“ƒhˆ—ƒ|ƒCƒ“ƒg
+        //å¤–éƒ¨ã‹ã‚‰ã‚‚å®Ÿè¡Œå¯èƒ½ãªã‚³ãƒãƒ³ãƒ‰å‡¦ç†ãƒã‚¤ãƒ³ãƒˆ
         public void StartCommandResultProcessor(ICommandResultProcessor processor, bool start_with_linebreak) {
-            StartCommandResultProcessor(processor, null, start_with_linebreak); //‰üs‚Ì‚İ‚ÅƒXƒ^[ƒg
+            StartCommandResultProcessor(processor, null, start_with_linebreak); //æ”¹è¡Œã®ã¿ã§ã‚¹ã‚¿ãƒ¼ãƒˆ
         }
         public void StartCommandResultProcessor(ICommandResultProcessor processor, string command_body, bool start_with_linebreak) {
             _currentProcessor = processor;
@@ -224,9 +224,9 @@ namespace Poderosa.Terminal {
                 _terminal.TerminalHost.TerminalTransmission.SendString(command.ToCharArray());
             }
 
-            _state = State.Fetch; //ƒRƒ}ƒ“ƒh–{‘Ì‘—M‚µ‚½“_‚Åæ“¾‚ğŠJn
+            _state = State.Fetch; //ã‚³ãƒãƒ³ãƒ‰æœ¬ä½“é€ä¿¡ã—ãŸæ™‚ç‚¹ã§å–å¾—ã‚’é–‹å§‹
             processor.StartCommand(_terminal, command, _lastPromptLine);
-            //Enter‚ğ‘—M‚µ‚ÄƒRƒ}ƒ“ƒhÀsŠJn
+            //Enterã‚’é€ä¿¡ã—ã¦ã‚³ãƒãƒ³ãƒ‰å®Ÿè¡Œé–‹å§‹
             if (start_with_linebreak)
                 _terminal.TerminalHost.TerminalTransmission.SendLineBreak();
         }
@@ -243,12 +243,12 @@ namespace Poderosa.Terminal {
 
     }
 
-    //ƒvƒƒ“ƒvƒg”F¯‚µ‚ÄAƒ|ƒbƒvƒAƒbƒv‚µ‚½‚èƒRƒ}ƒ“ƒhÀs‚µ‚½‚è
+    //ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆèªè­˜ã—ã¦ã€ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã—ãŸã‚Šã‚³ãƒãƒ³ãƒ‰å®Ÿè¡Œã—ãŸã‚Š
     internal class PopupStyleCommandResultRecognizer : CommandResultRecognizer {
 
         public const string POPUP_MENU_EXTENSION_POINT = "org.poderosa.terminalemulator.commandProcessorPopupMenu";
 
-        //ExtPì¬‚ÆƒfƒtƒHƒ‹ƒg‚Ì“o˜^
+        //ExtPä½œæˆã¨ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ç™»éŒ²
         public static void CreateExtensionPointAndDefaultCommands(IPluginManager pm) {
             IExtensionPoint pt = pm.CreateExtensionPoint(POPUP_MENU_EXTENSION_POINT, typeof(ICommandResultProcessorMenuItem), TerminalEmulatorPlugin.Instance);
             pt.RegisterExtension(new PopupCommandResult());
@@ -260,7 +260,7 @@ namespace Poderosa.Terminal {
             : base(terminal) {
         }
 
-        //TerminalControl‚©‚ç—ˆ‚é‚â‚Â
+        //TerminalControlã‹ã‚‰æ¥ã‚‹ã‚„ã¤
         public bool ProcessKey(Keys modifiers, Keys keybody) {
             if (_state == State.Prompt && _lastCommand.Length > 0 && TerminalEmulatorPlugin.Instance.TerminalEmulatorOptions.CommandPopupKey == (modifiers | keybody)) {
                 ShowMenu();
@@ -279,7 +279,7 @@ namespace Poderosa.Terminal {
 
             IPoderosaForm f = tc.FindForm() as IPoderosaForm;
             Debug.Assert(f != null);
-            //EXTP‚É‚µ‚Ä‚à‚¢‚¢‚ñ‚¾‚¯‚Ç
+            //EXTPã«ã—ã¦ã‚‚ã„ã„ã‚“ã ã‘ã©
             f.ShowContextMenu(new IPoderosaMenuGroup[] { new PoderosaMenuGroupImpl(CreatePopupMenuItems()) },
                 (ICommandTarget)tc.GetAdapter(typeof(ICommandTarget)),
                 tc.PointToScreen(popup),

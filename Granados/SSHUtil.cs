@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  Copyright (c) 2005 Poderosa Project, All Rights Reserved.
  This file is a part of the Granados SSH Client Library that is subject to
  the license included in the distributed package.
@@ -36,7 +36,7 @@ namespace Granados {
     }
 
     /// <summary>
-    /// <ja>SSHƒvƒƒgƒRƒ‹‚Ìí—Ş‚ğ¦‚µ‚Ü‚·</ja>
+    /// <ja>SSHãƒ—ãƒ­ãƒˆã‚³ãƒ«ã®ç¨®é¡ã‚’ç¤ºã—ã¾ã™</ja>
     /// <en>Kind of SSH protocol</en>
     /// </summary>
     public enum SSHProtocol {
@@ -54,7 +54,7 @@ namespace Granados {
 
     /// <summary>
     /// <ja>
-    /// ƒAƒ‹ƒSƒŠƒYƒ€‚Ìí—Ş‚ğ¦‚µ‚Ü‚·B
+    /// ã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ ã®ç¨®é¡ã‚’ç¤ºã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Kind of algorithm
@@ -70,54 +70,54 @@ namespace Granados {
         /// </summary>
         Blowfish = 6,
         /// <summary>
-        /// <ja>AES128iSSH2‚Ì‚İ—LŒøj</ja>
-        /// <en>AES128iSSH2 onlyj</en>
+        /// <ja>AES128ï¼ˆSSH2ã®ã¿æœ‰åŠ¹ï¼‰</ja>
+        /// <en>AES128ï¼ˆSSH2 onlyï¼‰</en>
         /// </summary>
         AES128 = 10,
         /// <summary>
-        /// <ja>AES192iSSH2‚Ì‚İ—LŒøj</ja>
-        /// <en>AES192iSSH2 onlyj</en>
+        /// <ja>AES192ï¼ˆSSH2ã®ã¿æœ‰åŠ¹ï¼‰</ja>
+        /// <en>AES192ï¼ˆSSH2 onlyï¼‰</en>
         /// </summary>
         AES192 = 11,
         /// <summary>
-        /// <ja>AES256iSSH2‚Ì‚İ—LŒøj</ja>
-        /// <en>AES256iSSH2 onlyj</en>
+        /// <ja>AES256ï¼ˆSSH2ã®ã¿æœ‰åŠ¹ï¼‰</ja>
+        /// <en>AES256ï¼ˆSSH2 onlyï¼‰</en>
         /// </summary>
         AES256 = 12,
         /// <summary>
-        /// <ja>AES128-CTRiSSH2‚Ì‚İ—LŒøj</ja>
-        /// <en>AES128-CTRiSSH2 onlyj</en>
+        /// <ja>AES128-CTRï¼ˆSSH2ã®ã¿æœ‰åŠ¹ï¼‰</ja>
+        /// <en>AES128-CTRï¼ˆSSH2 onlyï¼‰</en>
         /// </summary>
         AES128CTR = 13,
         /// <summary>
-        /// <ja>AES192-CTRiSSH2‚Ì‚İ—LŒøj</ja>
-        /// <en>AES192-CTRiSSH2 onlyj</en>
+        /// <ja>AES192-CTRï¼ˆSSH2ã®ã¿æœ‰åŠ¹ï¼‰</ja>
+        /// <en>AES192-CTRï¼ˆSSH2 onlyï¼‰</en>
         /// </summary>
         AES192CTR = 14,
         /// <summary>
-        /// <ja>AES256-CTRiSSH2‚Ì‚İ—LŒøj</ja>
-        /// <en>AES256-CTRiSSH2 onlyj</en>
+        /// <ja>AES256-CTRï¼ˆSSH2ã®ã¿æœ‰åŠ¹ï¼‰</ja>
+        /// <en>AES256-CTRï¼ˆSSH2 onlyï¼‰</en>
         /// </summary>
         AES256CTR = 15,
     }
 
     /// <summary>
-    /// <ja>”FØ•û®‚ğ¦‚µ‚Ü‚·B</ja>
+    /// <ja>èªè¨¼æ–¹å¼ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
     /// <en>Kind of authentification method</en>
     /// </summary>
     public enum AuthenticationType {
         /// <summary>
-        /// <ja>ŒöŠJŒ®•û®</ja>
+        /// <ja>å…¬é–‹éµæ–¹å¼</ja>
         /// <en>Public key cryptosystem</en>
         /// </summary>
         PublicKey = 2, //uses identity file
         /// <summary>
-        /// <ja>ƒpƒXƒ[ƒh•û®</ja>
+        /// <ja>ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰æ–¹å¼</ja>
         /// <en>Password Authentication</en>
         /// </summary>
         Password = 3,
         /// <summary>
-        /// <ja>ƒL[ƒ{[ƒhƒCƒ“ƒ^ƒ‰ƒNƒeƒBƒu</ja>
+        /// <ja>ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ã‚¤ãƒ³ã‚¿ãƒ©ã‚¯ãƒ†ã‚£ãƒ–</ja>
         /// <en>KeyboardInteractive</en>
         /// </summary>
         KeyboardInteractive = 4
@@ -125,7 +125,7 @@ namespace Granados {
 
     /// <summary>
     /// <ja>
-    /// ”FØŒ‹‰Ê‚ğ¦‚µ‚Ü‚·B
+    /// èªè¨¼çµæœã‚’ç¤ºã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Result of authentication.
@@ -133,17 +133,17 @@ namespace Granados {
     /// </summary>
     public enum AuthenticationResult {
         /// <summary>
-        /// <ja>¬Œ÷</ja>
+        /// <ja>æˆåŠŸ</ja>
         /// <en>Succeed</en>
         /// </summary>
         Success,
         /// <summary>
-        /// <ja>¸”s</ja>
+        /// <ja>å¤±æ•—</ja>
         /// <en>Failed</en>
         /// </summary>
         Failure,
         /// <summary>
-        /// <ja>ƒvƒƒ“ƒvƒg</ja>
+        /// <ja>ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆ</ja>
         /// <en>Prompt</en>
         /// </summary>
         Prompt
@@ -159,7 +159,7 @@ namespace Granados {
     }
 
     /// <summary>
-    /// <ja>Œ®ŒğŠ·ƒAƒ‹ƒSƒŠƒYƒ€</ja>
+    /// <ja>éµäº¤æ›ã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ </ja>
     /// <en>key exchange algorighm</en>
     /// </summary>
     /// <exclude/>
@@ -195,7 +195,7 @@ namespace Granados.Util {
             return ret;
         }
         /**
-        * Network-byte-order‚Å32ƒrƒbƒg’l‚ğ‘‚«‚ŞB
+        * Network-byte-orderã§32ãƒ“ãƒƒãƒˆå€¤ã‚’æ›¸ãè¾¼ã‚€ã€‚
         */
         public static void WriteIntToByteArray(byte[] dst, int pos, int data) {
             uint udata = (uint)data;

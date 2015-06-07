@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,7 +54,7 @@ namespace Poderosa.Usability {
 
             toolmenu.RegisterExtension(_optionDialogMenuGroup);
 
-            //Šî–{‚ÌƒIƒvƒVƒ‡ƒ“ƒpƒlƒ‹‚ğ“o˜^
+            //åŸºæœ¬ã®ã‚ªãƒ—ã‚·ãƒ§ãƒ³ãƒ‘ãƒãƒ«ã‚’ç™»éŒ²
             panel_ext.RegisterExtension(new DisplayOptionPanelExtension());
             panel_ext.RegisterExtension(new TerminalOptionPanelExtension());
             panel_ext.RegisterExtension(new PeripheralOptionPanelExtension());
@@ -98,7 +98,7 @@ namespace Poderosa.Usability {
 
         public void OnCultureChanged(System.Globalization.CultureInfo newculture) {
             _stringResource.OnCultureChanged(newculture);
-            //‚³‚ç‚ÉAƒLƒƒƒbƒVƒ…‚µ‚Ä‚¢‚éƒIƒvƒVƒ‡ƒ“ƒpƒlƒ‹‚ğƒNƒŠƒA‚·‚é
+            //ã•ã‚‰ã«ã€ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã—ã¦ã„ã‚‹ã‚ªãƒ—ã‚·ãƒ§ãƒ³ãƒ‘ãƒãƒ«ã‚’ã‚¯ãƒªã‚¢ã™ã‚‹
             IOptionPanelExtension[] es = (IOptionPanelExtension[])_poderosaWorld.PluginManager.FindExtensionPoint(OPTION_PANEL_ID).GetExtensions();
             foreach (IOptionPanelExtension e in es)
                 e.Dispose();
@@ -121,13 +121,13 @@ namespace Poderosa.Usability {
         }
         Control ContentPanel {
             get;
-        } // BorderStyle‚ªİ’è‚Å‚«‚é‚à‚Ì(UserControl or Panel)
-        void InitiUI(IPreferenceFolder[] values); //ƒRƒ“ƒgƒ[ƒ‹‚ÍADispose‚³‚ê‚é‚Ü‚Å‚ÍÄ—˜—p‰Â
+        } // BorderStyleãŒè¨­å®šã§ãã‚‹ã‚‚ã®(UserControl or Panel)
+        void InitiUI(IPreferenceFolder[] values); //ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã¯ã€Disposeã•ã‚Œã‚‹ã¾ã§ã¯å†åˆ©ç”¨å¯
         bool Commit(IPreferenceFolder[] values);
         void Dispose();
     }
 
-    //Šî–{À‘•
+    //åŸºæœ¬å®Ÿè£…
     internal abstract class OptionPanelExtensionBase : IOptionPanelExtension {
         private string _captionID;
         private int _iconIndex;
@@ -170,7 +170,7 @@ namespace Poderosa.Usability {
     }
 
 
-    //ƒIƒvƒVƒ‡ƒ“ƒ_ƒCƒAƒƒO‚ÆÚ×Preference‚ğŠJ‚­ƒRƒ}ƒ“ƒh‚Æƒƒjƒ…[
+    //ã‚ªãƒ—ã‚·ãƒ§ãƒ³ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ã¨è©³ç´°Preferenceã‚’é–‹ãã‚³ãƒãƒ³ãƒ‰ã¨ãƒ¡ãƒ‹ãƒ¥ãƒ¼
     internal class OptionDialogCommand {
 
         public static CommandResult OpenOptionDialog(ICommandTarget target) {

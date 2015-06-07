@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -224,7 +224,7 @@ namespace Poderosa.Forms {
             string[] co = options.CipherAlgorithmOrder;
             foreach (string c in co)
                 _cipherOrderList.Items.Add(c);
-            _hostKeyBox.SelectedIndex = ParsePublicKeyAlgorithm(options.HostKeyAlgorithmOrder[0]) == PublicKeyAlgorithm.DSA ? 0 : 1; //‚±‚ê‚ÍDSA/RSA‚Ì‚Ç‚¿‚ç‚©‚µ‚©‚È‚¢
+            _hostKeyBox.SelectedIndex = ParsePublicKeyAlgorithm(options.HostKeyAlgorithmOrder[0]) == PublicKeyAlgorithm.DSA ? 0 : 1; //ã“ã‚Œã¯DSA/RSAã®ã©ã¡ã‚‰ã‹ã—ã‹ãªã„
             _windowSizeBox.Text = options.SSHWindowSize.ToString();
             _retainsPassphrase.Checked = options.RetainsPassphrase;
             _sshCheckMAC.Checked = options.SSHCheckMAC;
@@ -234,7 +234,7 @@ namespace Poderosa.Forms {
         }
         public bool Commit(IProtocolOptions options, IKeyAgentOptions agent) {
             StringResource sr = OptionDialogPlugin.Instance.Strings;
-            //ˆÃ†ƒAƒ‹ƒSƒŠƒYƒ€‡˜‚Íoptions‚ğ’¼Ú‚¢‚¶‚Á‚Ä‚¢‚é‚Ì‚Å‚±‚±‚Å‚Í‰½‚à‚µ‚È‚­‚Ä‚æ‚¢
+            //æš—å·ã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ é †åºã¯optionsã‚’ç›´æ¥ã„ã˜ã£ã¦ã„ã‚‹ã®ã§ã“ã“ã§ã¯ä½•ã‚‚ã—ãªãã¦ã‚ˆã„
             try {
                 PublicKeyAlgorithm[] pa = new PublicKeyAlgorithm[2];
                 if (_hostKeyBox.SelectedIndex == 0) {
@@ -269,11 +269,11 @@ namespace Poderosa.Forms {
             }
         }
 
-        //SSHƒIƒvƒVƒ‡ƒ“ŠÖŒW
+        //SSHã‚ªãƒ—ã‚·ãƒ§ãƒ³é–¢ä¿‚
         private void OnCipherAlgorithmOrderUp(object sender, EventArgs args) {
             int i = _cipherOrderList.SelectedIndex;
             if (i == -1 || i == 0)
-                return; //‘I‘ğ‚³‚ê‚Ä‚¢‚È‚¢‚©Šù‚Éƒgƒbƒv‚È‚ç‰½‚à‚µ‚È‚¢
+                return; //é¸æŠã•ã‚Œã¦ã„ãªã„ã‹æ—¢ã«ãƒˆãƒƒãƒ—ãªã‚‰ä½•ã‚‚ã—ãªã„
 
             string temp1 = _cipherAlgorithmOrder[i];
             _cipherAlgorithmOrder[i] = _cipherAlgorithmOrder[i - 1];
@@ -288,7 +288,7 @@ namespace Poderosa.Forms {
         private void OnCipherAlgorithmOrderDown(object sender, EventArgs args) {
             int i = _cipherOrderList.SelectedIndex;
             if (i == -1 || i == _cipherOrderList.Items.Count - 1)
-                return; //‘I‘ğ‚³‚ê‚Ä‚¢‚È‚¯‚ê‚Î‰½‚à‚µ‚È‚¢
+                return; //é¸æŠã•ã‚Œã¦ã„ãªã‘ã‚Œã°ä½•ã‚‚ã—ãªã„
 
             string temp1 = _cipherAlgorithmOrder[i];
             _cipherAlgorithmOrder[i] = _cipherAlgorithmOrder[i + 1];

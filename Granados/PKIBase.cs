@@ -1,4 +1,4 @@
-/*
+﻿/*
  Copyright (c) 2005 Poderosa Project, All Rights Reserved.
  This file is a part of the Granados SSH Client Library that is subject to
  the license included in the distributed package.

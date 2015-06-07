@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +30,7 @@ namespace Poderosa.Terminal {
             }
 
             if (!first && _prevInterval == interval)
-                return; //Šù‘¶İ’è‚Æ•ÏX‚Ì‚È‚¢ê‡‚Í‰½‚à‚µ‚È‚¢
+                return; //æ—¢å­˜è¨­å®šã¨å¤‰æ›´ã®ãªã„å ´åˆã¯ä½•ã‚‚ã—ãªã„
 
             if (interval > 0) {
                 _timer.Interval = interval;
@@ -44,7 +44,7 @@ namespace Poderosa.Terminal {
 
 
         private void OnTimer(object sender, EventArgs args) {
-            //TODO ƒAƒvƒŠƒP[ƒVƒ‡ƒ““à•”ƒCƒxƒ“ƒgƒƒO‚Å‚àì‚Á‚Ä‚±‚¤‚¢‚¤‚Ì‚Í‹L˜^‚µ‚Ä‚¢‚­‚Ì‚ª‚¢‚¢‚Ì‚©H
+            //TODO ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³å†…éƒ¨ã‚¤ãƒ™ãƒ³ãƒˆãƒ­ã‚°ã§ã‚‚ä½œã£ã¦ã“ã†ã„ã†ã®ã¯è¨˜éŒ²ã—ã¦ã„ãã®ãŒã„ã„ã®ã‹ï¼Ÿ
             foreach (ISession s in TerminalEmulatorPlugin.Instance.GetSessionManager().AllSessions) {
                 IAbstractTerminalHost ts = (IAbstractTerminalHost)s.GetAdapter(typeof(IAbstractTerminalHost));
                 if (ts != null && ts.TerminalConnection != null && ts.TerminalConnection.TerminalOutput != null) {

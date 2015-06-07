@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,24 +20,24 @@ namespace Poderosa.Forms {
         private System.Windows.Forms.Button _okButton;
         private System.Windows.Forms.Label _mainPanel;
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.Container components = null;
 
         public Credits() {
             //
-            // Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Å‚·B
+            // Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ã§ã™ã€‚
             //
             InitializeComponent();
             _okButton.Text = CoreUtil.Strings.GetString("Common.OK");
 
-            //AboutBox‚©‚çØ‚è‚é
+            //AboutBoxã‹ã‚‰å€Ÿã‚Šã‚‹
             System.Resources.ResourceManager resources = new System.Resources.ResourceManager(typeof(AboutBox));
             this._pictureBox.Image = ((System.Drawing.Image)(resources.GetObject("_pictureBox.Image")));
         }
 
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -49,10 +49,10 @@ namespace Poderosa.Forms {
             base.Dispose(disposing);
         }
 
-        #region Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi‚Å¶¬‚³‚ê‚½ƒR[ƒh
+        #region Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠã§ç”Ÿæˆã•ã‚ŒãŸã‚³ãƒ¼ãƒ‰
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this._pictureBox = new System.Windows.Forms.PictureBox();
@@ -138,11 +138,11 @@ namespace Poderosa.Forms {
                 new Entry[0]));
             _creditGroups.Add(new CreditGroup(
                 "Project Leader & Chief Developer",
-                new Entry("Daisuke OKAJIMA", "‰ª“ˆ ‘å‰î")));
+                new Entry("Daisuke OKAJIMA", "å²¡å¶‹ å¤§ä»‹")));
             _creditGroups.Add(new CreditGroup(
                 "Developer",
-                new Entry("Yutaka Hirata", "•½“c –L"),
-                new Entry("Shintaro UNO", "‰F–ì M‘¾˜Y")));
+                new Entry("Yutaka Hirata", "å¹³ç”° è±Š"),
+                new Entry("Shintaro UNO", "å®‡é‡ ä¿¡å¤ªéƒ")));
             _creditGroups.Add(new CreditGroup(
                 "Website Manager",
                 new Entry("Hiroshi Taketazu", "Hiroshi Taketazu"),
@@ -178,7 +178,7 @@ namespace Poderosa.Forms {
 
         private void OnTimer(object sender, EventArgs args) {
             if (_creditIndex == 0) {
-                //Å‰‚Ì•\¦‚ğo‚·‚Ü‚Å‚É‚â‚âŠÔ‚ğ‹ó‚¯‚é
+                //æœ€åˆã®è¡¨ç¤ºã‚’å‡ºã™ã¾ã§ã«ã‚„ã‚„é–“ã‚’ç©ºã‘ã‚‹
                 if (++_creditStep == 30) {
                     _creditIndex++;
                     _creditStep = 0;

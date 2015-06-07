@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -117,7 +117,7 @@ namespace Poderosa.UI {
         }
 
         /// <summary>
-        /// ‘S‘Ì‚ÌƒŠƒTƒCƒY‚È‚Ç‚ÅŒ³‚ÌƒTƒCƒY‚ğ•Û‚·‚é‚±‚Æ‚ª‚Å‚«‚È‚­‚È‚Á‚½‚Æ‚«‚É‚±‚ê‚ğŒÄ‚ñ‚Å‚¨‚­
+        /// å…¨ä½“ã®ãƒªã‚µã‚¤ã‚ºãªã©ã§å…ƒã®ã‚µã‚¤ã‚ºã‚’ä¿æŒã™ã‚‹ã“ã¨ãŒã§ããªããªã£ãŸã¨ãã«ã“ã‚Œã‚’å‘¼ã‚“ã§ãŠã
         /// </summary>
         public void ClearSavedSize() {
             if (this.IsHSplitter)
@@ -185,7 +185,7 @@ namespace Poderosa.UI {
                 }
             }
 
-            //ƒJ[ƒ\ƒ‹‚Í•Ï‚¦‚È‚¢
+            //ã‚«ãƒ¼ã‚½ãƒ«ã¯å¤‰ãˆãªã„
             if (!_targetControl.Visible)
                 this.Cursor = Cursors.Default;
             else // Changed in v1.2 to support Horizontal Splitters
@@ -283,7 +283,7 @@ namespace Poderosa.UI {
         }
 
         // this method was borrowed from the RichUI Control library by Sajith M
-        //TODO: Util‰»
+        //TODO: UtilåŒ–
         private static Color CalculateColor(Color front, Color back, int alpha) {
             // solid color obtained as a result of alpha-blending
 
@@ -309,7 +309,7 @@ namespace Poderosa.UI {
 
     }
 
-    //•ªŠ„ƒ}[ƒN‚Ì•`‰æŒn
+    //åˆ†å‰²ãƒãƒ¼ã‚¯ã®æç”»ç³»
     /// <summary>
     /// 
     /// </summary>
@@ -344,7 +344,7 @@ namespace Poderosa.UI {
             void RevertCursor();
         }
 
-        //VisualStyleElement‚ÆScrollButton‚ÌƒyƒA
+        //VisualStyleElementã¨ScrollButtonã®ãƒšã‚¢
         private struct ArrowElement {
             public VisualStyleElement VSElement;
             public ScrollButton ScrollButton;
@@ -352,7 +352,7 @@ namespace Poderosa.UI {
             public ArrowElement(ScrollButton sb) {
                 this.ScrollButton = sb;
                 VSElement = null;
-                if (VisualStyleInformation.IsSupportedByOS) { //OS‚ÅƒTƒ|[ƒg‚ª‚È‚¯‚ê‚ÎVisualStyle‚Íİ’è‚µ‚È‚¢
+                if (VisualStyleInformation.IsSupportedByOS) { //OSã§ã‚µãƒãƒ¼ãƒˆãŒãªã‘ã‚Œã°VisualStyleã¯è¨­å®šã—ãªã„
                     if (sb == ScrollButton.Left)
                         VSElement = VisualStyleElement.Spin.DownHorizontal.Hot;
                     else if (sb == ScrollButton.Right)
@@ -365,21 +365,21 @@ namespace Poderosa.UI {
             }
         }
 
-        private const int MIN_DISTANCE = 12; //ƒ^[ƒQƒbƒg‚Ì“_‚©‚ç‚±‚ê‚¾‚¯ˆÈ‰º‚Ì‹——£‚¾‚Á‚½‚çó‘Ô•ÏX
+        private const int MIN_DISTANCE = 12; //ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã®ç‚¹ã‹ã‚‰ã“ã‚Œã ã‘ä»¥ä¸‹ã®è·é›¢ã ã£ãŸã‚‰çŠ¶æ…‹å¤‰æ›´
 
         private bool _enabled;
         private Pen _pen;
         private Control _target;
         private MarkState _state;
         private ISite _output;
-        private bool _markCancelling; //‘I‘ğ‚µ‚½‚­‚È‚Á‚½‚Æ‚«‚Æ‚ÌŒ“‚Ë‡‚¢‚ÅAƒ}[ƒN•\¦’†‚É“Á’è‘€ì(‰EƒNƒŠƒbƒN)‚Åƒ}[ƒN”ñ•\¦‚É‚·‚é
+        private bool _markCancelling; //é¸æŠã—ãŸããªã£ãŸã¨ãã¨ã®å…¼ã­åˆã„ã§ã€ãƒãƒ¼ã‚¯è¡¨ç¤ºä¸­ã«ç‰¹å®šæ“ä½œ(å³ã‚¯ãƒªãƒƒã‚¯)ã§ãƒãƒ¼ã‚¯éè¡¨ç¤ºã«ã™ã‚‹
 
         private static ArrowElement _elementTop;
         private static ArrowElement _elementBottom;
         private static ArrowElement _elementLeft;
         private static ArrowElement _elementRight;
 
-        //ˆê“x‚¾‚¯ŒvZ
+        //ä¸€åº¦ã ã‘è¨ˆç®—
         private static Size _markSizeTopBottom;
         private static Size _markSizeLeftRight;
 
@@ -427,7 +427,7 @@ namespace Poderosa.UI {
         }
 
 
-        //•`‰æ
+        //æç”»
         public void OnPaint(PaintEventArgs args) {
             if (_state == MarkState.None)
                 return;
@@ -456,12 +456,12 @@ namespace Poderosa.UI {
 
         private void DrawMark(Graphics g, ArrowElement element, Rectangle rect) {
             if (VisualStyleInformation.IsEnabledByUser) {
-                VisualStyleRenderer renderer = new VisualStyleRenderer(element.VSElement); //TODO new”ğ‚¯‚é
+                VisualStyleRenderer renderer = new VisualStyleRenderer(element.VSElement); //TODO newé¿ã‘ã‚‹
                 renderer.DrawBackground(g, rect);
-                //”wŒi‚ªSystemColors.Control‚Å‚ ‚é‚±‚Æ‚ğVisualStyle‚Í‘z’è‚µ‚Ä‚¢‚é‚ç‚µ‚­A˜g‚ªŒ©‚¦‚ÄŒ©‹ê‚µ‚¢‚±‚Æ‚ª‚ ‚éB
-                //VisualStyleRenderer‚É”wŒiF‚ğw¦‚·‚é•û–@‚Í‚È‚¢‚İ‚½‚¢‚È‚Ì‚Åè“®‚ÅB
+                //èƒŒæ™¯ãŒSystemColors.Controlã§ã‚ã‚‹ã“ã¨ã‚’VisualStyleã¯æƒ³å®šã—ã¦ã„ã‚‹ã‚‰ã—ãã€æ ãŒè¦‹ãˆã¦è¦‹è‹¦ã—ã„ã“ã¨ãŒã‚ã‚‹ã€‚
+                //VisualStyleRendererã«èƒŒæ™¯è‰²ã‚’æŒ‡ç¤ºã™ã‚‹æ–¹æ³•ã¯ãªã„ã¿ãŸã„ãªã®ã§æ‰‹å‹•ã§ã€‚
 
-                //TODO •ûŒü‚É‚æ‚èˆÙ‚È‚éO•Ó‚ğ“h‚é•K—v‚ª‚ ‚é‚æ‚¤‚¾B‚ß‚ñ‚Ç‚¤‚­‚³‚¢!
+                //TODO æ–¹å‘ã«ã‚ˆã‚Šç•°ãªã‚‹ä¸‰è¾ºã‚’å¡—ã‚‹å¿…è¦ãŒã‚ã‚‹ã‚ˆã†ã ã€‚ã‚ã‚“ã©ã†ãã•ã„!
                 /*Pen pen = new Pen(_target.BackColor);
                 g.DrawRectangle(pen, rect.X, rect.Y, rect.Width-1, rect.Height-1);
                 pen.Dispose();*/
@@ -471,7 +471,7 @@ namespace Poderosa.UI {
             }
         }
 
-        //ƒ}ƒEƒX‚Ì“®‚«‚É]‚Á‚Äó‘Ô’Ê’m
+        //ãƒã‚¦ã‚¹ã®å‹•ãã«å¾“ã£ã¦çŠ¶æ…‹é€šçŸ¥
         public void OnMouseMove(MouseEventArgs args) {
             MarkState previous = _state;
 
@@ -489,14 +489,14 @@ namespace Poderosa.UI {
                     _state = MarkState.LeftRight;
 
                 if (_state == MarkState.None)
-                    _markCancelling = false; //ƒ}ƒEƒXˆÚ“®‚ÌŒ‹‰Ê•ªŠ„—pˆÓ‚Å‚È‚­‚È‚Á‚½ê‡ƒLƒƒƒ“ƒZƒ‹‰ğœ
+                    _markCancelling = false; //ãƒã‚¦ã‚¹ç§»å‹•ã®çµæœåˆ†å‰²ç”¨æ„ã§ãªããªã£ãŸå ´åˆã‚­ãƒ£ãƒ³ã‚»ãƒ«è§£é™¤
                 else if (_markCancelling)
-                    _state = MarkState.None; //ƒLƒƒƒ“ƒZƒ‹”­“®’†
+                    _state = MarkState.None; //ã‚­ãƒ£ãƒ³ã‚»ãƒ«ç™ºå‹•ä¸­
             }
 
-            //ó‘Ô•Ï‰»‚ª‚ ‚Á‚½‚ç
+            //çŠ¶æ…‹å¤‰åŒ–ãŒã‚ã£ãŸã‚‰
             if (previous != _state) {
-                _target.Invalidate(); //Ä•`‰æ‚ğ‘£‚·
+                _target.Invalidate(); //å†æç”»ã‚’ä¿ƒã™
                 if (_state == MarkState.None)
                     _output.RevertCursor();
                 else
@@ -535,7 +535,7 @@ namespace Poderosa.UI {
                 _markSizeLeftRight = renderer.GetPartSize(g, ThemeSizeType.True);
             }
             else {
-                _markSizeTopBottom = new Size(16, 16); //‚±‚ÌƒTƒCƒY‚Å‚Íİ’è‚É‚æ‚Á‚Ä‚Íƒ_ƒ‚©‚à
+                _markSizeTopBottom = new Size(16, 16); //ã“ã®ã‚µã‚¤ã‚ºã§ã¯è¨­å®šã«ã‚ˆã£ã¦ã¯ãƒ€ãƒ¡ã‹ã‚‚
                 _markSizeLeftRight = new Size(16, 16);
             }
         }

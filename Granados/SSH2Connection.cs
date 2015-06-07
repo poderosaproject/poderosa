@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  Copyright (c) 2005 Poderosa Project, All Rights Reserved.
  This file is a part of the Granados SSH Client Library that is subject to
  the license included in the distributed package.
@@ -534,7 +534,7 @@ namespace Granados.SSH2 {
             wr.WriteString(msg);
             wr.WriteString(""); //language
             TransmitPacket(packet);
-            //!!TODO ƒNƒ‰ƒCƒAƒ“ƒg‚©‚ç‚ÌØ’fƒŠƒNƒGƒXƒgó‘Ô‚ÉØ‚è‘Ö‚¦‚é
+            //!!TODO ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã‹ã‚‰ã®åˆ‡æ–­ãƒªã‚¯ã‚¨ã‚¹ãƒˆçŠ¶æ…‹ã«åˆ‡ã‚Šæ›¿ãˆã‚‹
             Close();
         }
 

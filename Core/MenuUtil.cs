@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,39 +24,39 @@ namespace Poderosa.Forms {
             ui_menu.Text = item.Text;
             ui_menu.Tag = new MenuItemTag(null, item, target);
             ui_menu.Enabled = true;
-            //ƒƒjƒ…[€–Ú‚ğ’x‰„ì¬‚³‚¹‚é‚½‚ßDropDownOpeningƒCƒxƒ“ƒg‚ğg‚Á‚½‚ªA‚±‚ÌƒCƒxƒ“ƒg‚Í
-            //uqƒƒjƒ…[€–Ú‚ª‚È‚­AƒL[ƒ{[ƒh‚Åƒƒjƒ…[‚ª‘I‘ğ‚³‚ê‚½‚Æ‚«v‚É‚Í”­¶‚µ‚È‚¢BŒ‹‰ÊAƒL[ƒ{[ƒh‚Å‚Ìƒƒjƒ…[‘I‘ğ‚Éxá‚ªo‚éB
-            //ˆê‰ƒ_ƒ~[€–Ú‚ğƒZƒbƒg‚·‚é‚È‚Ç‚Å‰ñ”ğ‚Å‚«‚»‚¤‚¾‚ªA–Ê“|‚È‚Ì‚Å‚±‚±‚Åˆê‰ñ©‘O‚ÅƒCƒxƒ“ƒg‚ğo‚µ‚Ä
+            //ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’é…å»¶ä½œæˆã•ã›ã‚‹ãŸã‚DropDownOpeningã‚¤ãƒ™ãƒ³ãƒˆã‚’ä½¿ã£ãŸãŒã€ã“ã®ã‚¤ãƒ™ãƒ³ãƒˆã¯
+            //ã€Œå­ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ãŒãªãã€ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ã§ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒé¸æŠã•ã‚ŒãŸã¨ãã€ã«ã¯ç™ºç”Ÿã—ãªã„ã€‚çµæœã€ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ã§ã®ãƒ¡ãƒ‹ãƒ¥ãƒ¼é¸æŠã«æ”¯éšœãŒå‡ºã‚‹ã€‚
+            //ä¸€å¿œãƒ€ãƒŸãƒ¼é …ç›®ã‚’ã‚»ãƒƒãƒˆã™ã‚‹ãªã©ã§å›é¿ã§ããã†ã ãŒã€é¢å€’ãªã®ã§ã“ã“ã§ä¸€å›è‡ªå‰ã§ã‚¤ãƒ™ãƒ³ãƒˆã‚’å‡ºã—ã¦
             OnRootPopupMenu(ui_menu, null);
 
             return ui_menu;
         }
 
-        //Šù‘¶ƒƒjƒ…[‚Ì’†g‚ğ\’zFMainMenuItem‚¨‚æ‚Ñq‚Ìfolder—p
+        //æ—¢å­˜ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®ä¸­èº«ã‚’æ§‹ç¯‰ï¼šMainMenuItemãŠã‚ˆã³å­ã®folderç”¨
         public static void BuildMenuContents(ToolStripMenuItem menuitem, IPoderosaMenuFolder contents) {
             ICommandTarget target = ((MenuItemTag)menuitem.Tag).CommandTarget;
             int count = 0;
             foreach (IPoderosaMenuGroup grp in contents.ChildGroups) {
                 if (count > 0 && grp.ShowSeparator)
-                    menuitem.DropDownItems.Add(CreateBar()); //’¼‘O‚ÌƒOƒ‹[ƒv‚É—v‘f‚ª‚ ‚é‚È‚çƒfƒŠƒ~ƒ^‚ğ“ü‚ê‚é
+                    menuitem.DropDownItems.Add(CreateBar()); //ç›´å‰ã®ã‚°ãƒ«ãƒ¼ãƒ—ã«è¦ç´ ãŒã‚ã‚‹ãªã‚‰ãƒ‡ãƒªãƒŸã‚¿ã‚’å…¥ã‚Œã‚‹
                 count = BuildMenuContentsForGroup(menuitem.DropDownItems.Count, target, menuitem.DropDownItems, grp);
             }
         }
 
-        //ƒRƒ“ƒeƒLƒXƒgƒƒjƒ…[‚Ì\’z
+        //ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®æ§‹ç¯‰
         public static void BuildContextMenu(ContextMenuStrip cm, IEnumerable<IPoderosaMenuGroup> groups, ICommandTarget target) {
             cm.Tag = new MenuItemTag(null, null, target);
             int count = 0;
             foreach (IPoderosaMenuGroup grp in groups) {
                 if (count > 0 && grp.ShowSeparator)
-                    cm.Items.Add(CreateBar()); //’¼‘O‚ÌƒOƒ‹[ƒv‚É—v‘f‚ª‚ ‚é‚È‚çƒfƒŠƒ~ƒ^‚ğ“ü‚ê‚é
+                    cm.Items.Add(CreateBar()); //ç›´å‰ã®ã‚°ãƒ«ãƒ¼ãƒ—ã«è¦ç´ ãŒã‚ã‚‹ãªã‚‰ãƒ‡ãƒªãƒŸã‚¿ã‚’å…¥ã‚Œã‚‹
                 count = BuildMenuContentsForGroup(cm.Items.Count, target, cm.Items, grp);
             }
 
         }
 
         public static void RefreshMenuContents(ToolStripMenuItem menuitem, IPoderosaMenuFolder contents) {
-            //áŠ±è”²‚«‚¾‚ªAVolatileContents‚Æ¬‡‚µ‚Ä‚¢‚é‚Æ”äŠr‚ª–Ê“|B‚È‚Ì‚Åˆê‚Â‚Å‚àVolatile‚È‚çƒŠƒrƒ‹ƒh‚µ‚Ä‚µ‚Ü‚¤
+            //è‹¥å¹²æ‰‹æŠœãã ãŒã€VolatileContentsã¨æ··åˆã—ã¦ã„ã‚‹ã¨æ¯”è¼ƒãŒé¢å€’ã€‚ãªã®ã§ä¸€ã¤ã§ã‚‚Volatileãªã‚‰ãƒªãƒ“ãƒ«ãƒ‰ã—ã¦ã—ã¾ã†
             bool contains_volatile = false;
             foreach (IPoderosaMenuGroup grp in contents.ChildGroups) {
                 if (grp.IsVolatileContent) {
@@ -72,7 +72,7 @@ namespace Poderosa.Forms {
             else {
                 foreach (ToolStripItem mi in menuitem.DropDownItems) {
                     MenuItemTag tag = mi.Tag as MenuItemTag;
-                    if (tag != null) { //Bar‚Å‚ÍTag‚È‚µ‚¾
+                    if (tag != null) { //Barã§ã¯Tagãªã—ã 
                         ToolStripMenuItem mi2 = mi as ToolStripMenuItem;
                         Debug.Assert(mi2 != null);
                         mi2.Enabled = tag.Menu.IsEnabled(tag.CommandTarget);
@@ -86,11 +86,11 @@ namespace Poderosa.Forms {
             int count = 0;
             foreach (IPoderosaMenu m in grp.ChildMenus) {
                 ToolStripMenuItem mi = new ToolStripMenuItem();
-                children.Insert(index++, mi); //“r’†‘}“ü‚Ì‚±‚Æ‚à
+                children.Insert(index++, mi); //é€”ä¸­æŒ¿å…¥ã®ã“ã¨ã‚‚
                 mi.DropDownOpening += new EventHandler(OnPopupMenu);
                 mi.Enabled = m.IsEnabled(target);
                 mi.Checked = mi.Enabled ? m.IsChecked(target) : false;
-                mi.Text = m.Text; //Enabled‚ğæ‚É
+                mi.Text = m.Text; //Enabledã‚’å…ˆã«
                 mi.Tag = new MenuItemTag(grp, m, target);
 
                 IPoderosaMenuFolder folder;
@@ -121,7 +121,7 @@ namespace Poderosa.Forms {
             try {
                 ToolStripMenuItem mi = sender as ToolStripMenuItem;
                 if (mi.DropDownItems.Count == 0)
-                    return; //q‚ª‚È‚­‚Ä‚àƒCƒxƒ“ƒg‚Í”­¶‚µ‚Ä‚µ‚Ü‚¤–Í—l
+                    return; //å­ãŒãªãã¦ã‚‚ã‚¤ãƒ™ãƒ³ãƒˆã¯ç™ºç”Ÿã—ã¦ã—ã¾ã†æ¨¡æ§˜
                 IPoderosaMenuFolder folder = ((MenuItemTag)mi.Tag).Menu as IPoderosaMenuFolder;
                 Debug.Assert(folder != null);
                 RefreshMenuContents(mi, folder);
@@ -130,7 +130,7 @@ namespace Poderosa.Forms {
                 RuntimeUtil.ReportException(ex);
             }
         }
-        //ƒƒCƒ“ƒƒjƒ…[—p ’x‰„ì¬
+        //ãƒ¡ã‚¤ãƒ³ãƒ¡ãƒ‹ãƒ¥ãƒ¼ç”¨ é…å»¶ä½œæˆ
         private static void OnRootPopupMenu(object sender, EventArgs args) {
             ToolStripMenuItem mi = sender as ToolStripMenuItem;
             MenuItemTag tag = (MenuItemTag)mi.Tag;
@@ -139,7 +139,7 @@ namespace Poderosa.Forms {
                 tag.Created = true;
                 return;
             }
-            OnPopupMenu(sender, args); //’Êí‚Ìƒ|ƒbƒvƒAƒbƒv“®ì
+            OnPopupMenu(sender, args); //é€šå¸¸ã®ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—å‹•ä½œ
         }
         private static void OnClickMenu(object sender, EventArgs args) {
             try {

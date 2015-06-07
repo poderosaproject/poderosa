@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,8 +24,8 @@ using NUnit.Framework;
 
 namespace Poderosa.Protocols
 {
-    //TerminalConnection‚É‚Â‚¢‚Ä‚ÌƒeƒXƒg
-    //@]‚Á‚ÄAÚ‘±‚ğŠm—§‚·‚é‚Ü‚Å‚ÍƒNƒŠƒA‚µ‚Ä‚¢‚é‚Æ‚¢‚¤‘O’ñ‚Å‚ ‚éB
+    //TerminalConnectionã«ã¤ã„ã¦ã®ãƒ†ã‚¹ãƒˆ
+    //ã€€å¾“ã£ã¦ã€æ¥ç¶šã‚’ç¢ºç«‹ã™ã‚‹ã¾ã§ã¯ã‚¯ãƒªã‚¢ã—ã¦ã„ã‚‹ã¨ã„ã†å‰æã§ã‚ã‚‹ã€‚
 
     [TestFixture]
     public class TerminalConnectionTests {
@@ -46,12 +46,12 @@ namespace Poderosa.Protocols
                 _mainThread = Thread.CurrentThread;
             }
 
-            //¬Œ÷‚µ‚Ä‚¢‚é‚±‚Æ‚ğŠm”F‚µAClose‚·‚é
+            //æˆåŠŸã—ã¦ã„ã‚‹ã“ã¨ã‚’ç¢ºèªã—ã€Closeã™ã‚‹
             public void AssertNormalTerminate() {
                 Assert.AreEqual(1, _normalTerminateCount);
                 Assert.AreEqual(0, _abnormalTerminateCount);
             }
-            //¸”s‚µ‚Ä‚¢‚é‚±‚Æ‚ÌŠm”F
+            //å¤±æ•—ã—ã¦ã„ã‚‹ã“ã¨ã®ç¢ºèª
             public void AssertAbnormalTerminate() {
                 Assert.AreEqual(0, _normalTerminateCount);
                 Assert.AreEqual(1, _abnormalTerminateCount);
@@ -60,7 +60,7 @@ namespace Poderosa.Protocols
             }
 
 
-            //‚±‚Á‚¿‚Í”ñ“¯Šú‚Å‚ ‚é‚±‚Æ‚ğŠm”F
+            //ã“ã£ã¡ã¯éåŒæœŸã§ã‚ã‚‹ã“ã¨ã‚’ç¢ºèª
             public void OnReception(ByteDataFragment data) {
                 Assert.AreNotEqual(Thread.CurrentThread, _mainThread);
             }
@@ -95,20 +95,20 @@ namespace Poderosa.Protocols
             _poderosaApplication.Shutdown();
         }
 
-        //ˆÈ‰º‚ÍCreateXXXConnectionŒn‚ÅƒZƒbƒg‚³‚ê‚é
+        //ä»¥ä¸‹ã¯CreateXXXConnectionç³»ã§ã‚»ãƒƒãƒˆã•ã‚Œã‚‹
         private Socket _rawsocket;
         private TestReceiver _testReceiver;
 
         [Test]
         public void T00_TelnetClose() {
             ITerminalConnection con = CreateTelnetConnection();
-            Thread.Sleep(100); //Telnet‚ÍƒlƒSƒVƒG[ƒVƒ‡ƒ“‚ª“ü‚é‚Ì‚ÅA­‚µ‘Ò‚Á‚Ä“r’†‚Ü‚Åi‚Ü‚¹‚é
+            Thread.Sleep(100); //Telnetã¯ãƒã‚´ã‚·ã‚¨ãƒ¼ã‚·ãƒ§ãƒ³ãŒå…¥ã‚‹ã®ã§ã€å°‘ã—å¾…ã£ã¦é€”ä¸­ã¾ã§é€²ã¾ã›ã‚‹
 
             con.Close();
             Assert.IsTrue(con.IsClosed);
-            Thread.Sleep(100); //”ñ“¯Šú‚È‚Ì‚Å‚¿‚å‚Á‚Æ‘Ò‚Â
+            Thread.Sleep(100); //éåŒæœŸãªã®ã§ã¡ã‚‡ã£ã¨å¾…ã¤
             _testReceiver.AssertNormalTerminate();
-            Assert.IsFalse(_rawsocket.Connected); //Ø‚ê‚½‚±‚ÆŠm”F
+            Assert.IsFalse(_rawsocket.Connected); //åˆ‡ã‚ŒãŸã“ã¨ç¢ºèª
         }
 
         [Test]
@@ -116,8 +116,8 @@ namespace Poderosa.Protocols
             ITerminalConnection con = CreateTelnetConnection();
             Thread.Sleep(100); 
 
-            _rawsocket.Close(); //ƒlƒbƒgƒ[ƒNƒGƒ‰[‚ğ‘z’è
-            Thread.Sleep(100); //”ñ“¯Šú‚È‚Ì‚Å‚¿‚å‚Á‚Æ‘Ò‚Â
+            _rawsocket.Close(); //ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã‚¨ãƒ©ãƒ¼ã‚’æƒ³å®š
+            Thread.Sleep(100); //éåŒæœŸãªã®ã§ã¡ã‚‡ã£ã¨å¾…ã¤
             _testReceiver.AssertAbnormalTerminate();
             Assert.IsTrue(con.IsClosed);
         }
@@ -128,9 +128,9 @@ namespace Poderosa.Protocols
 
             con.Close();
             Assert.IsTrue(con.IsClosed);
-            Thread.Sleep(100); //”ñ“¯Šú‚È‚Ì‚Å‚¿‚å‚Á‚Æ‘Ò‚Â
+            Thread.Sleep(100); //éåŒæœŸãªã®ã§ã¡ã‚‡ã£ã¨å¾…ã¤
             _testReceiver.AssertNormalTerminate();
-            //Assert.IsFalse(_rawsocket.Connected); //Ø‚ê‚½‚±‚ÆŠm”F //‚±‚±’Ê‚Á‚Ä‚È‚¢B‚¿‚å‚Á‚ÆŒã‰ñ‚µ
+            //Assert.IsFalse(_rawsocket.Connected); //åˆ‡ã‚ŒãŸã“ã¨ç¢ºèª //ã“ã“é€šã£ã¦ãªã„ã€‚ã¡ã‚‡ã£ã¨å¾Œå›ã—
         }
 
         [Test]
@@ -138,7 +138,7 @@ namespace Poderosa.Protocols
             ITerminalConnection con = CreateSSHConnection(SSHProtocol.SSH2);
 
             _rawsocket.Close();
-            Thread.Sleep(100); //”ñ“¯Šú‚È‚Ì‚Å‚¿‚å‚Á‚Æ‘Ò‚Â
+            Thread.Sleep(100); //éåŒæœŸãªã®ã§ã¡ã‚‡ã£ã¨å¾…ã¤
             Assert.IsTrue(con.IsClosed);
             _testReceiver.AssertAbnormalTerminate();
         }
@@ -149,9 +149,9 @@ namespace Poderosa.Protocols
 
             con.Close();
             Assert.IsTrue(con.IsClosed);
-            Thread.Sleep(100); //”ñ“¯Šú‚È‚Ì‚Å‚¿‚å‚Á‚Æ‘Ò‚Â
+            Thread.Sleep(100); //éåŒæœŸãªã®ã§ã¡ã‚‡ã£ã¨å¾…ã¤
             _testReceiver.AssertNormalTerminate();
-            Assert.IsFalse(_rawsocket.Connected); //Ø‚ê‚½‚±‚ÆŠm”F
+            Assert.IsFalse(_rawsocket.Connected); //åˆ‡ã‚ŒãŸã“ã¨ç¢ºèª
         }
 
         [Test]
@@ -159,16 +159,16 @@ namespace Poderosa.Protocols
             ITerminalConnection con = CreateSSHConnection(SSHProtocol.SSH1);
 
             _rawsocket.Close();
-            Thread.Sleep(100); //”ñ“¯Šú‚È‚Ì‚Å‚¿‚å‚Á‚Æ‘Ò‚Â
+            Thread.Sleep(100); //éåŒæœŸãªã®ã§ã¡ã‚‡ã£ã¨å¾…ã¤
             Assert.IsTrue(con.IsClosed);
             _testReceiver.AssertAbnormalTerminate();
         }
 
-        //TODO ƒVƒŠƒAƒ‹—pƒeƒXƒgƒP[ƒX‚Í’Ç‰Á•K—vBCygwin‚ÍTelnet‚Æ“¯‚¶‚È‚Ì‚Å‚Ü‚ ‚¢‚¢‚¾‚ë‚¤
+        //TODO ã‚·ãƒªã‚¢ãƒ«ç”¨ãƒ†ã‚¹ãƒˆã‚±ãƒ¼ã‚¹ã¯è¿½åŠ å¿…è¦ã€‚Cygwinã¯Telnetã¨åŒã˜ãªã®ã§ã¾ã‚ã„ã„ã ã‚ã†
 
-        //TODO ITerminalOutput‚ÌƒeƒXƒgB³‚µ‚­‘—M‚³‚ê‚½‚©‚ğŠm”F‚·‚é‚Ì‚Í“ï‚µ‚¢Š´‚¶‚à‚·‚é‚ª
+        //TODO ITerminalOutputã®ãƒ†ã‚¹ãƒˆã€‚æ­£ã—ãé€ä¿¡ã•ã‚ŒãŸã‹ã‚’ç¢ºèªã™ã‚‹ã®ã¯é›£ã—ã„æ„Ÿã˜ã‚‚ã™ã‚‹ãŒ
 
-        //TODO ReproduceƒTƒ|[ƒg‚ÌŒãASSH2‚Å1Connection-•¡”Channel‚ğŠJ‚«AŒÂ•Ê‚ÉŠJ•Â‚µ‚Ä‚İ‚é
+        //TODO Reproduceã‚µãƒãƒ¼ãƒˆã®å¾Œã€SSH2ã§1Connection-è¤‡æ•°Channelã‚’é–‹ãã€å€‹åˆ¥ã«é–‹é–‰ã—ã¦ã¿ã‚‹
 
         private ITerminalConnection CreateTelnetConnection() {
             ITCPParameter tcp = _protocolService.CreateDefaultTelnetParameter();
@@ -179,7 +179,7 @@ namespace Poderosa.Protocols
             IInterruptable t = _protocolService.AsyncTelnetConnect(sc.InterruptableConnectorClient, tcp);
             ITerminalConnection con =  sc.WaitConnection(t, 5000);
 
-            //Assert.ReferenceEquals(con.Destination, tcp); //‚È‚º‚©¬—§‚µ‚È‚¢
+            //Assert.ReferenceEquals(con.Destination, tcp); //ãªãœã‹æˆç«‹ã—ãªã„
             Debug.Assert(con.Destination==tcp);
             _rawsocket = ((InterruptableConnector)t).RawSocket;
             _testReceiver = new TestReceiver();

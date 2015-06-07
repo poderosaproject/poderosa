@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@ using Poderosa.Forms;
 
 namespace Poderosa.MacroInternal {
     /// <summary>
-    /// MacroList ‚ÌŠT—v‚Ìà–¾‚Å‚·B
+    /// MacroList ã®æ¦‚è¦ã®èª¬æ˜ã§ã™ã€‚
     /// </summary>
     internal class MacroList : System.Windows.Forms.Form, IMacroEventListener {
         private System.Windows.Forms.Button _runButton;
@@ -35,21 +35,21 @@ namespace Poderosa.MacroInternal {
         private System.Windows.Forms.Button _downButton;
         private System.Windows.Forms.Button _upButton;
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.Container components = null;
 
-        //‡˜‚ª‚©‚í‚Á‚½‚ç‰ŠúÀsƒ}ƒNƒ‚Íœ‹
+        //é †åºãŒã‹ã‚ã£ãŸã‚‰åˆæœŸå®Ÿè¡Œãƒã‚¯ãƒ­ã¯é™¤å»
         //private bool _macroOrderUpdated;
 
 
         public MacroList() {
             //
-            // Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Å‚·B
+            // Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ã§ã™ã€‚
             //
             InitializeComponent();
 
-            //”p~
+            //å»ƒæ­¢
             _environmentButton.Visible = false;
 
             StringResource sr = MacroPlugin.Instance.Strings;
@@ -74,7 +74,7 @@ namespace Poderosa.MacroInternal {
         }
 
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -86,7 +86,7 @@ namespace Poderosa.MacroInternal {
         }
 
         /*
-        //ƒ}ƒNƒ•ÒWƒtƒH[ƒ€‚©‚çŒÄ‚Î‚ê‚éBkey‚ÉŠ„‚è“–‚ÄÏ‚İ‚ÌƒRƒ}ƒ“ƒh–¼‚ª‚ ‚é‚È‚ç‚»‚ê‚ğ•Ô‚µA‚È‚¯‚ê‚Înull‚ğ•Ô‚·B
+        //ãƒã‚¯ãƒ­ç·¨é›†ãƒ•ã‚©ãƒ¼ãƒ ã‹ã‚‰å‘¼ã°ã‚Œã‚‹ã€‚keyã«å‰²ã‚Šå½“ã¦æ¸ˆã¿ã®ã‚³ãƒãƒ³ãƒ‰åãŒã‚ã‚‹ãªã‚‰ãã‚Œã‚’è¿”ã—ã€ãªã‘ã‚Œã°nullã‚’è¿”ã™ã€‚
         public string FindCommandDescription(Keys key) {
             MacroModule mod = (MacroModule)_keyToModule[key];
             if (mod != null)
@@ -103,8 +103,8 @@ namespace Poderosa.MacroInternal {
 
         #region Windows Form Designer generated code
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this._list = new System.Windows.Forms.ListView();
@@ -374,13 +374,13 @@ namespace Poderosa.MacroInternal {
                 AdjustUI();
             }
         }
-        protected override void OnClosing(CancelEventArgs args) { //‚±‚ê‚ğ•Â‚¶‚é‚Æ‚«–³ğŒ‚ÅXV‚·‚é‚ªA‚¢‚¢‚Ì‚©H OK/Cancel•û®‚É‚·‚×‚«H
+        protected override void OnClosing(CancelEventArgs args) { //ã“ã‚Œã‚’é–‰ã˜ã‚‹ã¨ãç„¡æ¡ä»¶ã§æ›´æ–°ã™ã‚‹ãŒã€ã„ã„ã®ã‹ï¼Ÿ OK/Cancelæ–¹å¼ã«ã™ã¹ãï¼Ÿ
             base.OnClosed(args);
 
             MacroPlugin.Instance.MacroManager.SetMacroEventListener(null);
         }
 
-        //‚±‚ê‚ç‚Íƒ}ƒNƒƒXƒŒƒbƒh‚ÅÀs‚³‚ê‚é‚±‚Æ‚à‚ ‚é‚Ì‚Å
+        //ã“ã‚Œã‚‰ã¯ãƒã‚¯ãƒ­ã‚¹ãƒ¬ãƒƒãƒ‰ã§å®Ÿè¡Œã•ã‚Œã‚‹ã“ã¨ã‚‚ã‚ã‚‹ã®ã§
         public void IndicateMacroStarted() {
             if (this.InvokeRequired)
                 this.Invoke(new IndicateMacro(IndicateMacroStarted_));
@@ -406,7 +406,7 @@ namespace Poderosa.MacroInternal {
 
 
         private string GetInfoString(MacroModule mod) {
-            return mod.DebugMode ? MacroPlugin.Instance.Strings.GetString("Caption.MacroList.Trace") : ""; //‚Æ‚è‚ ‚¦‚¸‚ÍƒfƒoƒbƒO‚©‚Ç‚¤‚©‚¾‚¯
+            return mod.DebugMode ? MacroPlugin.Instance.Strings.GetString("Caption.MacroList.Trace") : ""; //ã¨ã‚Šã‚ãˆãšã¯ãƒ‡ãƒãƒƒã‚°ã‹ã©ã†ã‹ã ã‘
         }
 
     }

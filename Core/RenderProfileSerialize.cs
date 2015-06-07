@@ -1,4 +1,4 @@
-/*
+Ôªø/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -93,7 +93,7 @@ namespace Poderosa.View {
         public void Test1() {
             RenderProfile prof1 = new RenderProfile();
             prof1.FontName = "console";
-            prof1.JapaneseFontName = "ÇlÇr ÉSÉVÉbÉN";
+            prof1.JapaneseFontName = "Ôº≠Ôº≥ „Ç¥„Ç∑„ÉÉ„ÇØ";
             prof1.UseClearType = true;
             prof1.FontSize = 12;
             prof1.BackColor = Color.FromKnownColor(KnownColor.Yellow);
@@ -104,7 +104,7 @@ namespace Poderosa.View {
             prof1.ESColorSet[1] = Color.Pink;
 
             StructuredText storage = _renderProfileSerializer.Serialize(prof1);
-            //ämîF
+            //Á¢∫Ë™ç
             StringWriter wr = new StringWriter();
             new TextStructuredTextWriter(wr).Write(storage);
             wr.Close();

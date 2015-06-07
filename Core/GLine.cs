@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,31 +26,31 @@ using Poderosa.Forms;
 using Poderosa.View;
 
 namespace Poderosa.Document {
-    // GLine‚Ì\¬—v‘fB‚P‚Â‚ÌGWord‚Í“¯‚¶•`‰æ‚ª‚È‚³‚êAƒVƒ“ƒOƒ‹ƒŠƒ“ƒNƒŠƒXƒg‚É‚È‚Á‚Ä‚¢‚éB
+    // GLineã®æ§‹æˆè¦ç´ ã€‚ï¼‘ã¤ã®GWordã¯åŒã˜æç”»ãŒãªã•ã‚Œã€ã‚·ãƒ³ã‚°ãƒ«ãƒªãƒ³ã‚¯ãƒªã‚¹ãƒˆã«ãªã£ã¦ã„ã‚‹ã€‚
     /// <summary>
     /// 
     /// </summary>
     /// <exclude/>
     public sealed class GWord {
-        private readonly TextDecoration _decoration; //•`‰æî•ñ
-        private readonly int _offset;                //ƒRƒ“ƒeƒi‚ÌGLine‚Ì‰½•¶š–Ú‚©‚çn‚Ü‚Á‚Ä‚¢‚é‚©
-        private readonly CharGroup _charGroup;       //•¶šƒOƒ‹[ƒv
-        private GWord _next;                //Ÿ‚ÌGWord
+        private readonly TextDecoration _decoration; //æç”»æƒ…å ±
+        private readonly int _offset;                //ã‚³ãƒ³ãƒ†ãƒŠã®GLineã®ä½•æ–‡å­—ç›®ã‹ã‚‰å§‹ã¾ã£ã¦ã„ã‚‹ã‹
+        private readonly CharGroup _charGroup;       //æ–‡å­—ã‚°ãƒ«ãƒ¼ãƒ—
+        private GWord _next;                //æ¬¡ã®GWord
 
-        /// •\¦—p‚Ì‘•ü
+        /// è¡¨ç¤ºç”¨ã®è£…é£¾
         internal TextDecoration Decoration {
             get {
                 return _decoration;
             }
         }
-        /// Š‘®‚·‚éGLine‚Ì’†‚Å‰½•¶š–Ú‚©‚çn‚Ü‚Á‚Ä‚¢‚é‚©
+        /// æ‰€å±ã™ã‚‹GLineã®ä¸­ã§ä½•æ–‡å­—ç›®ã‹ã‚‰å§‹ã¾ã£ã¦ã„ã‚‹ã‹
         public int Offset {
             get {
                 return _offset;
             }
         }
 
-        ///Ÿ‚ÌWord
+        ///æ¬¡ã®Word
         public GWord Next {
             get {
                 return _next;
@@ -66,7 +66,7 @@ namespace Poderosa.Document {
             }
         }
 
-        /// •¶š—ñAƒfƒRƒŒ[ƒVƒ‡ƒ“AƒIƒtƒZƒbƒg‚ğw’è‚·‚éƒRƒ“ƒXƒgƒ‰ƒNƒ^B
+        /// æ–‡å­—åˆ—ã€ãƒ‡ã‚³ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ã€ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’æŒ‡å®šã™ã‚‹ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚
         public GWord(TextDecoration d, int o, CharGroup chargroup) {
             Debug.Assert(d != null);
             _offset = o;
@@ -75,7 +75,7 @@ namespace Poderosa.Document {
             _charGroup = chargroup;
         }
 
-        //Next‚Ì’lˆÈŠO‚ğƒRƒs[‚·‚é
+        //Nextã®å€¤ä»¥å¤–ã‚’ã‚³ãƒ”ãƒ¼ã™ã‚‹
         internal GWord StandAloneClone() {
             return new GWord(_decoration, _offset, _charGroup);
         }
@@ -90,8 +90,8 @@ namespace Poderosa.Document {
     }
 
 
-    /// ‚Ps‚Ìƒf[ƒ^
-    /// GWord‚Ö‚Ì•ª‰ğ‚Í’x‰„•]‰¿‚³‚ê‚éB—¼—×‚Ìs‚Íƒ_ƒuƒ‹ƒŠƒ“ƒNƒŠƒXƒg
+    /// ï¼‘è¡Œã®ãƒ‡ãƒ¼ã‚¿
+    /// GWordã¸ã®åˆ†è§£ã¯é…å»¶è©•ä¾¡ã•ã‚Œã‚‹ã€‚ä¸¡éš£ã®è¡Œã¯ãƒ€ãƒ–ãƒ«ãƒªãƒ³ã‚¯ãƒªã‚¹ãƒˆ
     /// <exclude/>
     public sealed class GLine {
 
@@ -107,7 +107,7 @@ namespace Poderosa.Document {
 
         internal const char WIDECHAR_PAD = '\uFFFF';
 
-        private char[] _text; //–{‘ÌF\0‚Ís––‚ğ¦‚·
+        private char[] _text; //æœ¬ä½“ï¼š\0ã¯è¡Œæœ«ã‚’ç¤ºã™
         private int _displayLength;
         private EOLType _eolType;
         private int _id;
@@ -148,7 +148,7 @@ namespace Poderosa.Document {
             }
         }
 
-        //ID, —×Ús‚Ìİ’è@‚±‚Ì•ÏX‚ÍTd‚³•K—vI
+        //ID, éš£æ¥è¡Œã®è¨­å®šã€€ã“ã®å¤‰æ›´ã¯æ…é‡ã•å¿…è¦ï¼
         public int ID {
             get {
                 return _id;
@@ -193,7 +193,7 @@ namespace Poderosa.Document {
             _id = -1;
         }
 
-        //GLineManipulator‚È‚Ç‚Ì‚½‚ß‚ÌƒRƒ“ƒXƒgƒ‰ƒNƒ^
+        //GLineManipulatorãªã©ã®ãŸã‚ã®ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
         internal GLine(char[] data, int dataLength, GWord firstWord) {
             _text = data;
             _displayLength = dataLength;
@@ -233,14 +233,14 @@ namespace Poderosa.Document {
 
         public void Clear(TextDecoration dec) {
             TextDecoration fillDec = (dec != null) ? dec.RetainBackColor() : TextDecoration.Default;
-            char fill = fillDec.IsDefault ? '\0' : ' '; // Fw’è•t‚«‚Ì‚±‚Æ‚ª‚ ‚é‚Ì‚ÅƒXƒy[ƒX
+            char fill = fillDec.IsDefault ? '\0' : ' '; // è‰²æŒ‡å®šä»˜ãã®ã“ã¨ãŒã‚ã‚‹ã®ã§ã‚¹ãƒšãƒ¼ã‚¹
             for (int i = 0; i < _text.Length; i++)
                 _text[i] = fill;
             _displayLength = fillDec.IsDefault ? 0 : _text.Length;
             _firstWord = new GWord(fillDec, 0, CharGroup.LatinHankaku);
         }
 
-        //‘OŒã‚Ì’PŒê‹æØ‚è‚ğŒ©‚Â‚¯‚éB•Ô‚·ˆÊ’u‚ÍApos‚ÆGetWordBreakGroup‚Ì’l‚ªˆê’v‚·‚é’†‚Å‰“‚¢’n“_
+        //å‰å¾Œã®å˜èªåŒºåˆ‡ã‚Šã‚’è¦‹ã¤ã‘ã‚‹ã€‚è¿”ã™ä½ç½®ã¯ã€posã¨GetWordBreakGroupã®å€¤ãŒä¸€è‡´ã™ã‚‹ä¸­ã§é ã„åœ°ç‚¹
         public int FindPrevWordBreak(int pos) {
             int v = ToCharGroupForWordBreak(_text[pos]);
             while (pos >= 0) {
@@ -264,9 +264,9 @@ namespace Poderosa.Document {
         private static int ToCharGroupForWordBreak(char ch) {
             if (ch < 0x80)
                 return ASCIIWordBreakTable.Default.GetAt(ch);
-            else if (ch == '\u3000') //‘SŠpƒXƒy[ƒX
+            else if (ch == '\u3000') //å…¨è§’ã‚¹ãƒšãƒ¼ã‚¹
                 return ASCIIWordBreakTable.SPACE;
-            else //‚³‚ç‚É‚±‚±‚ğUnicodeCategory“™‚ğ‚İ‚Ä“K“–‚É‚±‚µ‚ç‚¦‚é‚±‚Æ‚à‚Å‚«‚é‚ª
+            else //ã•ã‚‰ã«ã“ã“ã‚’UnicodeCategoryç­‰ã‚’ã¿ã¦é©å½“ã«ã“ã—ã‚‰ãˆã‚‹ã“ã¨ã‚‚ã§ãã‚‹ãŒ
                 return ASCIIWordBreakTable.NOT_ASCII;
         }
 
@@ -299,7 +299,7 @@ namespace Poderosa.Document {
 
         internal void Render(IntPtr hdc, RenderProfile prof, Color baseBackColor, int x, int y) {
             if (_text.Length == 0 || _text[0] == '\0')
-                return; //‰½‚à•`‚©‚È‚­‚Ä‚æ‚¢B‚±‚ê‚Í‚æ‚­‚ ‚éƒP[ƒX
+                return; //ä½•ã‚‚æã‹ãªãã¦ã‚ˆã„ã€‚ã“ã‚Œã¯ã‚ˆãã‚ã‚‹ã‚±ãƒ¼ã‚¹
 
             float fx0 = (float)x;
             float fx1 = fx0;
@@ -393,7 +393,7 @@ namespace Poderosa.Document {
         }
 
         private void DrawUnderline(IntPtr hdc, uint col, int x, int y, int length) {
-            //Underline‚ª‚Â‚­‚±‚Æ‚Í‚ ‚Ü‚è‚È‚¢‚¾‚ë‚¤‚©‚ç–ˆ‰ñPen‚ğì‚éB–â‘è‚É‚È‚è‚»‚¤‚¾‚Á‚½‚ç‚»‚Ì‚Æ‚«‚Él‚¦‚æ‚¤
+            //UnderlineãŒã¤ãã“ã¨ã¯ã‚ã¾ã‚Šãªã„ã ã‚ã†ã‹ã‚‰æ¯å›Penã‚’ä½œã‚‹ã€‚å•é¡Œã«ãªã‚Šãã†ã ã£ãŸã‚‰ãã®ã¨ãã«è€ƒãˆã‚ˆã†
             IntPtr pen = Win32.CreatePen(0, 1, col);
             IntPtr prev = Win32.SelectObject(hdc, pen);
             Win32.MoveToEx(hdc, x, y, IntPtr.Zero);
@@ -425,7 +425,7 @@ namespace Poderosa.Document {
         /// <param name="doInvert">Whether inversion is really applied.</param>
         /// <param name="color">Background color of the inverted character.</param>
         internal void InvertCharacter(int index, bool doInvert, Color color) {
-            //æ‚Éƒf[ƒ^‚Ì‚ ‚é‚Æ‚±‚ë‚æ‚èæ‚ÌˆÊ’u‚ğw’è‚³‚ê‚½‚çƒoƒbƒtƒ@‚ğL‚°‚Ä‚¨‚­
+            //å…ˆã«ãƒ‡ãƒ¼ã‚¿ã®ã‚ã‚‹ã¨ã“ã‚ã‚ˆã‚Šå…ˆã®ä½ç½®ã‚’æŒ‡å®šã•ã‚ŒãŸã‚‰ãƒãƒƒãƒ•ã‚¡ã‚’åºƒã’ã¦ãŠã
             if (index >= _displayLength) {
                 int prevLength = _displayLength;
                 ExpandBuffer(index + 1);
@@ -445,18 +445,18 @@ namespace Poderosa.Document {
                 if (word.Offset <= index && index < nextoffset) {
                     GWord next = word.Next;
 
-                    //ƒLƒƒƒŒƒbƒg‚Ì”½“]
+                    //ã‚­ãƒ£ãƒ¬ãƒƒãƒˆã®åè»¢
                     TextDecoration inv_dec = word.Decoration;
                     if (doInvert)
                         inv_dec = inv_dec.GetInvertedCopyForCaret(color);
 
-                    //GWord‚ÍÅ‘å‚R‚Â(head:index‚Ì‘OAmiddle:indexAtail:index‚ÌŸ)‚É•ªŠ„‚³‚ê‚é
+                    //GWordã¯æœ€å¤§ï¼“ã¤(head:indexã®å‰ã€middle:indexã€tail:indexã®æ¬¡)ã«åˆ†å‰²ã•ã‚Œã‚‹
                     GWord head = word.Offset < index ? new GWord(word.Decoration, word.Offset, word.CharGroup) : null;
                     GWord mid = new GWord(inv_dec, index, word.CharGroup);
                     int nextIndex = index + CharGroupUtil.GetColumnsPerCharacter(word.CharGroup);
                     GWord tail = nextIndex < nextoffset ? new GWord(word.Decoration, nextIndex, word.CharGroup) : null;
 
-                    //˜AŒ‹ head,tail‚Ínull‚Ì‚±‚Æ‚à‚ ‚é‚Ì‚Å‚â‚â‚±‚µ‚¢
+                    //é€£çµ head,tailã¯nullã®ã“ã¨ã‚‚ã‚ã‚‹ã®ã§ã‚„ã‚„ã“ã—ã„
                     List<GWord> list = new List<GWord>(3);
                     if (head != null) {
                         list.Add(head);
@@ -469,7 +469,7 @@ namespace Poderosa.Document {
                     if (tail != null)
                         list.Add(tail);
 
-                    //‘OŒã‚Æ‚Ì˜AŒ‹
+                    //å‰å¾Œã¨ã®é€£çµ
                     if (prev == null)
                         _firstWord = list[0];
                     else
@@ -492,7 +492,7 @@ namespace Poderosa.Document {
         /// <param name="to">end column index of the range. (exclusive)</param>
         /// <returns>new instance</returns>
         internal GLine CreateInvertedClone(int from, int to) {
-            ExpandBuffer(Math.Max(from + 1, to)); //Œƒ‚µ‚­ƒŠƒTƒCƒY‚µ‚½‚Æ‚«‚È‚Ç‚É‚±‚ÌğŒ‚ª–‚½‚¹‚È‚¢‚±‚Æ‚ª‚ ‚é
+            ExpandBuffer(Math.Max(from + 1, to)); //æ¿€ã—ããƒªã‚µã‚¤ã‚ºã—ãŸã¨ããªã©ã«ã“ã®æ¡ä»¶ãŒæº€ãŸã›ãªã„ã“ã¨ãŒã‚ã‚‹
             Debug.Assert(from >= 0 && from < _text.Length);
             if (from < _text.Length && _text[from] == WIDECHAR_PAD)
                 from--;
@@ -650,7 +650,7 @@ namespace Poderosa.Document {
 
     /// <summary>
     /// <ja>
-    /// <seealso cref="GLine">GLine</seealso>‚É‘Î‚µ‚ÄA•¶š‚Ì’Ç‰Á^íœ‚È‚Ç‚ğ‘€ì‚µ‚Ü‚·B
+    /// <seealso cref="GLine">GLine</seealso>ã«å¯¾ã—ã¦ã€æ–‡å­—ã®è¿½åŠ ï¼å‰Šé™¤ãªã©ã‚’æ“ä½œã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Addition/deletion of the character etc. are operated for <seealso cref="GLine">GLine</seealso>. 
@@ -658,7 +658,7 @@ namespace Poderosa.Document {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚±‚ÌƒNƒ‰ƒX‚ÍA‚½‚Æ‚¦‚Îƒ^[ƒ~ƒiƒ‹‚ªƒhƒLƒ…ƒƒ“ƒg‚Ì“Á’è‚ÌGline‚ğ’u‚«Š·‚¦‚éê‡‚È‚Ç‚Ég‚¢‚Ü‚·B
+    /// ã“ã®ã‚¯ãƒ©ã‚¹ã¯ã€ãŸã¨ãˆã°ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ãŒãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã®ç‰¹å®šã®Glineã‚’ç½®ãæ›ãˆã‚‹å ´åˆãªã©ã«ä½¿ã„ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// When the terminal replaces specific Gline of the document for instance, this class uses it. 
@@ -685,7 +685,7 @@ namespace Poderosa.Document {
 
         /// <summary>
         /// <ja>
-        /// ƒoƒbƒtƒ@ƒTƒCƒY‚Å‚·B
+        /// ãƒãƒƒãƒ•ã‚¡ã‚µã‚¤ã‚ºã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Buffer size.
@@ -699,7 +699,7 @@ namespace Poderosa.Document {
 
         /// <summary>
         /// <ja>
-        /// ƒLƒƒƒŒƒbƒgˆÊ’u‚ğæ“¾^İ’è‚µ‚Ü‚·B
+        /// ã‚­ãƒ£ãƒ¬ãƒƒãƒˆä½ç½®ã‚’å–å¾—ï¼è¨­å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Get / set the position of the caret.
@@ -722,7 +722,7 @@ namespace Poderosa.Document {
 
         /// <summary>
         /// <ja>
-        /// ƒLƒƒƒŠƒbƒWƒŠƒ^[ƒ“‚ğ‘}“ü‚µ‚Ü‚·B
+        /// ã‚­ãƒ£ãƒªãƒƒã‚¸ãƒªã‚¿ãƒ¼ãƒ³ã‚’æŒ¿å…¥ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Insert the carriage return.
@@ -735,7 +735,7 @@ namespace Poderosa.Document {
 
         /// <summary>
         /// <ja>
-        /// “à—e‚ª‹ó‚©‚Ç‚¤‚©‚ğ¦‚µ‚Ü‚·Btrue‚Å‚ ‚ê‚Î‹óAfalse‚È‚ç‰½‚ç‚©‚Ì•¶š‚ª“ü‚Á‚Ä‚¢‚Ü‚·B
+        /// å†…å®¹ãŒç©ºã‹ã©ã†ã‹ã‚’ç¤ºã—ã¾ã™ã€‚trueã§ã‚ã‚Œã°ç©ºã€falseãªã‚‰ä½•ã‚‰ã‹ã®æ–‡å­—ãŒå…¥ã£ã¦ã„ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is shown whether the content is empty. Return false if here are some characters in it. True retuens if it is empty.
@@ -743,13 +743,13 @@ namespace Poderosa.Document {
         /// </summary>
         public bool IsEmpty {
             get {
-                //_text‚ğ‘S•”Œ©‚é•K—v‚Í‚È‚¢‚¾‚ë‚¤
+                //_textã‚’å…¨éƒ¨è¦‹ã‚‹å¿…è¦ã¯ãªã„ã ã‚ã†
                 return _caretColumn == 0 && _text[0] == '\0';
             }
         }
         /// <summary>
         /// <ja>
-        /// ƒeƒLƒXƒg‚Ì•`‰æî•ñ‚ğæ“¾^İ’è‚µ‚Ü‚·B
+        /// ãƒ†ã‚­ã‚¹ãƒˆã®æç”»æƒ…å ±ã‚’å–å¾—ï¼è¨­å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Drawing information in the text is get/set. 
@@ -764,16 +764,16 @@ namespace Poderosa.Document {
             }
         }
 
-        // ‘S“à—e‚ğ”jŠü‚·‚é
+        // å…¨å†…å®¹ã‚’ç ´æ£„ã™ã‚‹
         /// <summary>
         /// <ja>
-        /// •Û‚µ‚Ä‚¢‚éƒeƒLƒXƒg‚ğƒNƒŠƒA‚µ‚Ü‚·B
+        /// ä¿æŒã—ã¦ã„ã‚‹ãƒ†ã‚­ã‚¹ãƒˆã‚’ã‚¯ãƒªã‚¢ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Clear the held text.
         /// </en>
         /// </summary>
-        /// <param name="length"><ja>ƒNƒŠƒA‚·‚é’·‚³</ja><en>Length to clear</en></param>
+        /// <param name="length"><ja>ã‚¯ãƒªã‚¢ã™ã‚‹é•·ã•</ja><en>Length to clear</en></param>
         public void Clear(int length) {
             if (_text == null || length != _text.Length) {
                 _text = new char[length];
@@ -791,11 +791,11 @@ namespace Poderosa.Document {
             _eolType = EOLType.Continue;
         }
 
-        /// ˆø”‚Æ“¯‚¶“à—e‚Å‰Šú‰»‚·‚éBline‚Ì“à—e‚Í”j‰ó‚³‚ê‚È‚¢B
-        /// ˆø”‚ªnull‚Ì‚Æ‚«‚Íˆø”‚È‚µ‚ÌƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Æ“¯‚¶Œ‹‰Ê‚É‚È‚éB
+        /// å¼•æ•°ã¨åŒã˜å†…å®¹ã§åˆæœŸåŒ–ã™ã‚‹ã€‚lineã®å†…å®¹ã¯ç ´å£Šã•ã‚Œãªã„ã€‚
+        /// å¼•æ•°ãŒnullã®ã¨ãã¯å¼•æ•°ãªã—ã®ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã¨åŒã˜çµæœã«ãªã‚‹ã€‚
         /// <summary>
         /// <ja>
-        /// ˆø”‚Æ“¯‚¶“à—e‚Å‰Šú‰»‚µ‚Ü‚·B
+        /// å¼•æ•°ã¨åŒã˜å†…å®¹ã§åˆæœŸåŒ–ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Initialize same as argument.
@@ -803,26 +803,26 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="cc">
         /// <ja>
-        /// İ’è‚·‚éƒLƒƒƒŒƒbƒgˆÊ’u
+        /// è¨­å®šã™ã‚‹ã‚­ãƒ£ãƒ¬ãƒƒãƒˆä½ç½®
         /// </ja>
         /// <en>
         /// The caret position to set.
         /// </en>
         /// </param>
         /// <param name="line">
-        /// <ja>ƒRƒs[Œ³‚Æ‚È‚éGLineƒIƒuƒWƒFƒNƒg</ja>
+        /// <ja>ã‚³ãƒ”ãƒ¼å…ƒã¨ãªã‚‹GLineã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja>
         /// <en>GLine object that becomes copy origin</en>
         /// </param>
         /// <remarks>
         /// <ja>
-        /// <paramref name="line"/>‚ªnull‚Ì‚Æ‚«‚É‚ÍAˆø”‚È‚µ‚ÌƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Æ“¯‚¶Œ‹‰Ê‚É‚È‚è‚Ü‚·B
+        /// <paramref name="line"/>ãŒnullã®ã¨ãã«ã¯ã€å¼•æ•°ãªã—ã®ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã¨åŒã˜çµæœã«ãªã‚Šã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The same results with the constructor who doesn't have the argument when <paramref name="line"/> is null. 
         /// </en>
         /// </remarks>
         public void Load(GLine line, int cc) {
-            if (line == null) { //‚±‚ê‚ªnull‚É‚È‚Á‚Ä‚¢‚é‚Æ‚µ‚©v‚¦‚È‚¢ƒNƒ‰ƒbƒVƒ…ƒŒƒ|[ƒg‚ª‚ ‚Á‚½B–{—ˆ‚Í‚È‚¢‚Í‚¸‚È‚ñ‚¾‚ª...
+            if (line == null) { //ã“ã‚ŒãŒnullã«ãªã£ã¦ã„ã‚‹ã¨ã—ã‹æ€ãˆãªã„ã‚¯ãƒ©ãƒƒã‚·ãƒ¥ãƒ¬ãƒãƒ¼ãƒˆãŒã‚ã£ãŸã€‚æœ¬æ¥ã¯ãªã„ã¯ãšãªã‚“ã ãŒ...
                 Clear(80);
                 return;
             }
@@ -842,7 +842,7 @@ namespace Poderosa.Document {
 
             _eolType = line.EOLType;
             ExpandBuffer(cc + 1);
-            this.CaretColumn = cc; //' '‚Å–„‚ß‚é‚±‚Æ‚à‚ ‚é‚Ì‚ÅƒvƒƒpƒeƒBƒZƒbƒg‚ğg‚¤
+            this.CaretColumn = cc; //' 'ã§åŸ‹ã‚ã‚‹ã“ã¨ã‚‚ã‚ã‚‹ã®ã§ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚»ãƒƒãƒˆã‚’ä½¿ã†
         }
 #if UNITTEST
         public void Load(char[] text, int cc) {
@@ -860,7 +860,7 @@ namespace Poderosa.Document {
 
         /// <summary>
         /// <ja>
-        /// ƒoƒbƒtƒ@‚ğŠg’£‚µ‚Ü‚·B
+        /// ãƒãƒƒãƒ•ã‚¡ã‚’æ‹¡å¼µã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Expand the buffer.
@@ -882,14 +882,14 @@ namespace Poderosa.Document {
 
         /// <summary>
         /// <ja>
-        /// w’èˆÊ’u‚É1•¶š‘‚«‚İ‚Ü‚·B
+        /// æŒ‡å®šä½ç½®ã«1æ–‡å­—æ›¸ãè¾¼ã¿ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Write one character to specified position.
         /// </en>
         /// </summary>
-        /// <param name="ch"><ja>‘‚«‚Ş•¶š</ja><en>Character to write.</en></param>
-        /// <param name="dec"><ja>ƒeƒLƒXƒg‘®‚ğw’è‚·‚éTextDecorationƒIƒuƒWƒFƒNƒg</ja>
+        /// <param name="ch"><ja>æ›¸ãè¾¼ã‚€æ–‡å­—</ja><en>Character to write.</en></param>
+        /// <param name="dec"><ja>ãƒ†ã‚­ã‚¹ãƒˆæ›¸å¼ã‚’æŒ‡å®šã™ã‚‹TextDecorationã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja>
         /// <en>TextDecoration object that specifies text format
         /// </en></param>
         public void PutChar(char ch, TextDecoration dec) {
@@ -904,12 +904,12 @@ namespace Poderosa.Document {
             bool onZenkakuRight = (_text[_caretColumn] == GLine.WIDECHAR_PAD);
 
             if (onZenkaku) {
-                //‘SŠp‚Ìã‚É‘‚­
+                //å…¨è§’ã®ä¸Šã«æ›¸ã
                 if (!onZenkakuRight) {
                     _text[_caretColumn] = originalChar;
                     _attrs[_caretColumn] = new CharAttr(dec, charGroup);
                     if (CharGroupUtil.GetColumnsPerCharacter(charGroup) == 1) {
-                        //‘SŠp‚Ìã‚É”¼Šp‚ğ‘‚¢‚½ê‡A—×‚ÉƒXƒy[ƒX‚ğ“ü‚ê‚È‚¢‚Æ•\¦‚ª—‚ê‚é
+                        //å…¨è§’ã®ä¸Šã«åŠè§’ã‚’æ›¸ã„ãŸå ´åˆã€éš£ã«ã‚¹ãƒšãƒ¼ã‚¹ã‚’å…¥ã‚Œãªã„ã¨è¡¨ç¤ºãŒä¹±ã‚Œã‚‹
                         _caretColumn++;
                         if (_caretColumn < _text.Length) {
                             _text[_caretColumn] = ' ';
@@ -942,11 +942,11 @@ namespace Poderosa.Document {
                     }
                 }
             }
-            else { //”¼Šp‚Ìã‚É‘‚­
+            else { //åŠè§’ã®ä¸Šã«æ›¸ã
                 _text[_caretColumn] = originalChar;
                 _attrs[_caretColumn] = new CharAttr(dec, charGroup);
                 if (CharGroupUtil.GetColumnsPerCharacter(charGroup) == 2) {
-                    if (CharGroupUtil.GetColumnsPerCharacter(_attrs[_caretColumn + 1].CharGroup) == 2) { //”¼ŠpA‘SŠp‚Æ‚È‚Á‚Ä‚¢‚é‚Æ‚±‚ë‚É‘SŠp‚ğ‘‚¢‚½‚ç
+                    if (CharGroupUtil.GetColumnsPerCharacter(_attrs[_caretColumn + 1].CharGroup) == 2) { //åŠè§’ã€å…¨è§’ã¨ãªã£ã¦ã„ã‚‹ã¨ã“ã‚ã«å…¨è§’ã‚’æ›¸ã„ãŸã‚‰
                         if (_caretColumn + 2 < _text.Length) {
                             _text[_caretColumn + 2] = ' ';
                             _attrs[_caretColumn + 2].CharGroup = CharGroup.LatinHankaku;
@@ -957,20 +957,20 @@ namespace Poderosa.Document {
                     _caretColumn += 2;
                 }
                 else {
-                    _caretColumn++; //‚±‚ê‚ªÅ‚àcommon‚ÈƒP[ƒX‚¾‚ª
+                    _caretColumn++; //ã“ã‚ŒãŒæœ€ã‚‚commonãªã‚±ãƒ¼ã‚¹ã ãŒ
                 }
             }
         }
 
         /// <summary>
         /// <ja>
-        /// ƒeƒLƒXƒg‘®‚ğw’è‚·‚éTextDecorationƒIƒuƒWƒFƒNƒg‚ğİ’è‚µ‚Ü‚·B
+        /// ãƒ†ã‚­ã‚¹ãƒˆæ›¸å¼ã‚’æŒ‡å®šã™ã‚‹TextDecorationã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¨­å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Set the TextDecoration object that specifies the text format.
         /// </en>
         /// </summary>
-        /// <param name="dec"><ja>İ’è‚·‚éTextDecorationƒIƒuƒWƒFƒNƒg</ja><en>Set TextDecoration object</en></param>
+        /// <param name="dec"><ja>è¨­å®šã™ã‚‹TextDecorationã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>Set TextDecoration object</en></param>
         public void SetDecoration(TextDecoration dec) {
             if (_caretColumn < _attrs.Length)
                 _attrs[_caretColumn].Decoration = dec;
@@ -978,33 +978,33 @@ namespace Poderosa.Document {
 
         /// <summary>
         /// <ja>
-        /// ƒLƒƒƒŒƒbƒg‚ğ‚Ğ‚Æ‚Âè‘O‚É–ß‚µ‚Ü‚·B
+        /// ã‚­ãƒ£ãƒ¬ãƒƒãƒˆã‚’ã²ã¨ã¤æ‰‹å‰ã«æˆ»ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Move the caret to the left of one character. 
         /// </en>
         /// </summary>
         /// <remarks>
-        /// <ja>ƒLƒƒƒŒƒbƒg‚ª‚·‚Å‚ÉÅ¶’[‚É‚ ‚é‚Æ‚«‚É‚ÍA‰½‚à‚µ‚Ü‚¹‚ñB</ja>
+        /// <ja>ã‚­ãƒ£ãƒ¬ãƒƒãƒˆãŒã™ã§ã«æœ€å·¦ç«¯ã«ã‚ã‚‹ã¨ãã«ã¯ã€ä½•ã‚‚ã—ã¾ã›ã‚“ã€‚</ja>
         /// <en>Nothing is done when there is already a caret at the high order end. </en>
         /// </remarks>
         public void BackCaret() {
-            if (_caretColumn > 0) { //Å¶’[‚É‚ ‚é‚Æ‚«‚Í‰½‚à‚µ‚È‚¢
+            if (_caretColumn > 0) { //æœ€å·¦ç«¯ã«ã‚ã‚‹ã¨ãã¯ä½•ã‚‚ã—ãªã„
                 _caretColumn--;
             }
         }
 
         /// <summary>
         /// <ja>
-        /// w’è”ÍˆÍ‚ğ”¼ŠpƒXƒy[ƒX‚Å–„‚ß‚Ü‚·B
+        /// æŒ‡å®šç¯„å›²ã‚’åŠè§’ã‚¹ãƒšãƒ¼ã‚¹ã§åŸ‹ã‚ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Fill the range of specification with space. 
         /// </en>
         /// </summary>
-        /// <param name="from"><ja>–„‚ß‚éŠJnˆÊ’ui‚±‚ÌˆÊ’u‚ğŠÜ‚İ‚Ü‚·j</ja><en>Start position(include this position)</en></param>
-        /// <param name="to"><ja>–„‚ß‚éI—¹ˆÊ’ui‚±‚ÌˆÊ’u‚ÍŠÜ‚İ‚Ü‚¹‚ñj</ja><en>End position(exclude this position)</en></param>
-        /// <param name="dec"><ja>ƒeƒLƒXƒg‘®‚ğw’è‚·‚éTextDecorationƒIƒuƒWƒFƒNƒg</ja><en>TextDecoration object that specifies text format
+        /// <param name="from"><ja>åŸ‹ã‚ã‚‹é–‹å§‹ä½ç½®ï¼ˆã“ã®ä½ç½®ã‚’å«ã¿ã¾ã™ï¼‰</ja><en>Start position(include this position)</en></param>
+        /// <param name="to"><ja>åŸ‹ã‚ã‚‹çµ‚äº†ä½ç½®ï¼ˆã“ã®ä½ç½®ã¯å«ã¿ã¾ã›ã‚“ï¼‰</ja><en>End position(exclude this position)</en></param>
+        /// <param name="dec"><ja>ãƒ†ã‚­ã‚¹ãƒˆæ›¸å¼ã‚’æŒ‡å®šã™ã‚‹TextDecorationã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>TextDecoration object that specifies text format
         /// </en></param>
         public void FillSpace(int from, int to, TextDecoration dec) {
             if (to > _text.Length)
@@ -1020,18 +1020,18 @@ namespace Poderosa.Document {
                 _attrs[i] = new CharAttr(fillDec, CharGroup.LatinHankaku);
             }
         }
-        //start‚©‚çcount•¶š‚ğÁ‹‚µ‚Ä‹l‚ß‚éB‰E’[‚É‚Ínull‚ğ“ü‚ê‚é
+        //startã‹ã‚‰countæ–‡å­—ã‚’æ¶ˆå»ã—ã¦è©°ã‚ã‚‹ã€‚å³ç«¯ã«ã¯nullã‚’å…¥ã‚Œã‚‹
         /// <summary>
         /// <ja>
-        /// w’è‚³‚ê‚½êŠ‚©‚çw’è‚³‚ê‚½•¶š”‚ğíœ‚µA‚»‚ÌŒã‚ë‚ğ‹l‚ß‚Ü‚·B
+        /// æŒ‡å®šã•ã‚ŒãŸå ´æ‰€ã‹ã‚‰æŒ‡å®šã•ã‚ŒãŸæ–‡å­—æ•°ã‚’å‰Šé™¤ã—ã€ãã®å¾Œã‚ã‚’è©°ã‚ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The number of characters specified from the specified place is deleted, and the furnace is packed afterwards. 
         /// </en>
         /// </summary>
-        /// <param name="start"><ja>íœ‚·‚éŠJnˆÊ’u</ja><en>Start position</en></param>
-        /// <param name="count"><ja>íœ‚·‚é•¶š”</ja><en>Count to delete</en></param>
-        /// <param name="dec"><ja>––”ö‚ÌV‚µ‚¢‹ó”’—Ìˆæ‚ÌƒeƒLƒXƒg‘•ü</ja><en>text decoration for the new empty spaces at the tail of the line</en></param>
+        /// <param name="start"><ja>å‰Šé™¤ã™ã‚‹é–‹å§‹ä½ç½®</ja><en>Start position</en></param>
+        /// <param name="count"><ja>å‰Šé™¤ã™ã‚‹æ–‡å­—æ•°</ja><en>Count to delete</en></param>
+        /// <param name="dec"><ja>æœ«å°¾ã®æ–°ã—ã„ç©ºç™½é ˜åŸŸã®ãƒ†ã‚­ã‚¹ãƒˆè£…é£¾</ja><en>text decoration for the new empty spaces at the tail of the line</en></param>
         public void DeleteChars(int start, int count, TextDecoration dec) {
             char fillChar;
             TextDecoration fillDec = dec;
@@ -1062,12 +1062,12 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
-        /// <ja>w’èˆÊ’u‚Éw’è‚³‚ê‚½”‚¾‚¯‚Ì”¼ŠpƒXƒy[ƒX‚ğ‘}“ü‚µ‚Ü‚·B</ja>
+        /// <ja>æŒ‡å®šä½ç½®ã«æŒ‡å®šã•ã‚ŒãŸæ•°ã ã‘ã®åŠè§’ã‚¹ãƒšãƒ¼ã‚¹ã‚’æŒ¿å…¥ã—ã¾ã™ã€‚</ja>
         /// <en>The half angle space only of the number specified for a specified position is inserted. </en>
         /// </summary>
-        /// <param name="start"><ja>íœ‚·‚éŠJnˆÊ’u</ja><en>Start position</en></param>
-        /// <param name="count"><ja>‘}“ü‚·‚é”¼ŠpƒXƒy[ƒX‚Ì”</ja><en>Count space to insert</en></param>
-        /// <param name="dec"><ja>‹ó”’—Ìˆæ‚ÌƒeƒLƒXƒg‘•ü</ja><en>text decoration for the new empty spaces</en></param>
+        /// <param name="start"><ja>å‰Šé™¤ã™ã‚‹é–‹å§‹ä½ç½®</ja><en>Start position</en></param>
+        /// <param name="count"><ja>æŒ¿å…¥ã™ã‚‹åŠè§’ã‚¹ãƒšãƒ¼ã‚¹ã®æ•°</ja><en>Count space to insert</en></param>
+        /// <param name="dec"><ja>ç©ºç™½é ˜åŸŸã®ãƒ†ã‚­ã‚¹ãƒˆè£…é£¾</ja><en>text decoration for the new empty spaces</en></param>
         public void InsertBlanks(int start, int count, TextDecoration dec) {
             TextDecoration fillDec = dec;
             if (fillDec != null) {
@@ -1090,13 +1090,13 @@ namespace Poderosa.Document {
 
         /// <summary>
         /// <ja>
-        /// ƒf[ƒ^‚ğƒGƒNƒXƒ|[ƒg‚µ‚Ü‚·B
+        /// ãƒ‡ãƒ¼ã‚¿ã‚’ã‚¨ã‚¯ã‚¹ãƒãƒ¼ãƒˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Export the data.
         /// </en>
         /// </summary>
-        /// <returns><ja>ƒGƒNƒXƒ|[ƒg‚³‚ê‚½GLineƒIƒuƒWƒFƒNƒg</ja><en>Exported GLine object</en></returns>
+        /// <returns><ja>ã‚¨ã‚¯ã‚¹ãƒãƒ¼ãƒˆã•ã‚ŒãŸGLineã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>Exported GLine object</en></returns>
         public GLine Export() {
             GWord firstWord;
             GWord lastWord;
@@ -1144,31 +1144,31 @@ namespace Poderosa.Document {
 
         [Test]
         public void PutChar1() {
-            Assert.AreEqual("‚¢aaz", TestPutChar("aaaaz", 0, '‚¢'));
+            Assert.AreEqual("ã„aaz", TestPutChar("aaaaz", 0, 'ã„'));
         }
         [Test]
         public void PutChar2() {
-            Assert.AreEqual("‚¢ az", TestPutChar("a‚ az", 0, '‚¢'));
+            Assert.AreEqual("ã„ az", TestPutChar("aã‚az", 0, 'ã„'));
         }
         [Test]
         public void PutChar3() {
-            Assert.AreEqual("b ‚ z", TestPutChar("‚ ‚ z", 0, 'b'));
+            Assert.AreEqual("b ã‚z", TestPutChar("ã‚ã‚z", 0, 'b'));
         }
         [Test]
         public void PutChar4() {
-            Assert.AreEqual("‚¢‚ z", TestPutChar("‚ ‚ z", 0, '‚¢'));
+            Assert.AreEqual("ã„ã‚z", TestPutChar("ã‚ã‚z", 0, 'ã„'));
         }
         [Test]
         public void PutChar5() {
-            Assert.AreEqual(" b‚ z", TestPutChar("‚ ‚ z", 1, 'b'));
+            Assert.AreEqual(" bã‚z", TestPutChar("ã‚ã‚z", 1, 'b'));
         }
         [Test]
         public void PutChar6() {
-            Assert.AreEqual(" ‚¢az", TestPutChar("‚ aaz", 1, '‚¢'));
+            Assert.AreEqual(" ã„az", TestPutChar("ã‚aaz", 1, 'ã„'));
         }
         [Test]
         public void PutChar7() {
-            Assert.AreEqual(" ‚¢ z", TestPutChar("‚ ‚ z", 1, '‚¢'));
+            Assert.AreEqual(" ã„ z", TestPutChar("ã‚ã‚z", 1, 'ã„'));
         }
 
         private static string TestPutChar(string initial, int col, char ch) {
@@ -1184,7 +1184,7 @@ namespace Poderosa.Document {
 
     /// <summary>
     /// <ja>
-    /// ‰üsƒR[ƒh‚Ìí—Ş‚ğ¦‚µ‚Ü‚·B
+    /// æ”¹è¡Œã‚³ãƒ¼ãƒ‰ã®ç¨®é¡ã‚’ç¤ºã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Kind of Line feed code
@@ -1192,25 +1192,25 @@ namespace Poderosa.Document {
     /// </summary>
     public enum EOLType {
         /// <summary>
-        /// <ja>‰üs‚¹‚¸‚ÉŒp‘±‚µ‚Ü‚·B</ja><en>It continues without changing line.</en>
+        /// <ja>æ”¹è¡Œã›ãšã«ç¶™ç¶šã—ã¾ã™ã€‚</ja><en>It continues without changing line.</en>
         /// </summary>
         Continue,
         /// <summary>
-        /// <ja>CRLF‚Å‰üs‚µ‚Ü‚·B</ja><en>It changes line with CRLF. </en>
+        /// <ja>CRLFã§æ”¹è¡Œã—ã¾ã™ã€‚</ja><en>It changes line with CRLF. </en>
         /// </summary>
         CRLF,
         /// <summary>
-        /// <ja>CR‚Å‰üs‚µ‚Ü‚·B</ja><en>It changes line with CR. </en>
+        /// <ja>CRã§æ”¹è¡Œã—ã¾ã™ã€‚</ja><en>It changes line with CR. </en>
         /// </summary>
         CR,
         /// <summary>
-        /// <ja>LF‚Å‰üs‚µ‚Ü‚·B</ja><en>It changes line with LF. </en>
+        /// <ja>LFã§æ”¹è¡Œã—ã¾ã™ã€‚</ja><en>It changes line with LF. </en>
         /// </summary>
         LF
     }
 
     /// <summary>
-    /// <ja>•¶š‚ª‚Ç‚Ì‚æ‚¤‚É•\¦‚³‚ê‚é‚©‚ğ¦‚µ‚Ü‚·B</ja>
+    /// <ja>æ–‡å­—ãŒã©ã®ã‚ˆã†ã«è¡¨ç¤ºã•ã‚Œã‚‹ã‹ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
     /// <en>Represents how the characters will be displayed.</en>
     /// </summary>
     /// <remarks>
@@ -1222,17 +1222,17 @@ namespace Poderosa.Document {
     /// </remarks>
     public enum CharGroup {
         /// <summary>
-        /// <ja>ƒƒCƒ“ƒtƒHƒ“ƒg‚Å•\¦‚³‚ê‚é”¼Šp•¶šB</ja>
+        /// <ja>ãƒ¡ã‚¤ãƒ³ãƒ•ã‚©ãƒ³ãƒˆã§è¡¨ç¤ºã•ã‚Œã‚‹åŠè§’æ–‡å­—ã€‚</ja>
         /// <en>Hankaku characters to be displayed using main font.</en>
         /// </summary>
         LatinHankaku,
         /// <summary>
-        /// <ja>CJKƒtƒHƒ“ƒg‚Å•\¦‚³‚ê‚é”¼Šp•¶šB</ja>
+        /// <ja>CJKãƒ•ã‚©ãƒ³ãƒˆã§è¡¨ç¤ºã•ã‚Œã‚‹åŠè§’æ–‡å­—ã€‚</ja>
         /// <en>Hankaku characters to be displayed using CJK font.</en>
         /// </summary>
         CJKHankaku,
         /// <summary>
-        /// <ja>CJKƒtƒHƒ“ƒg‚Å•\¦‚³‚ê‚é‘SŠp•¶šB</ja>
+        /// <ja>CJKãƒ•ã‚©ãƒ³ãƒˆã§è¡¨ç¤ºã•ã‚Œã‚‹å…¨è§’æ–‡å­—ã€‚</ja>
         /// <en>Zenkaku characters to be displayed using CJK font.</en>
         /// </summary>
         CJKZenkaku,
@@ -1252,7 +1252,7 @@ namespace Poderosa.Document {
     }
 
 
-    //’PŒê‹æØ‚èİ’èB‚Ü‚ Preference‚É‚·‚éŠÔ‚Å‚à‚È‚¢‚¾‚ë‚¤
+    //å˜èªåŒºåˆ‡ã‚Šè¨­å®šã€‚ã¾ã‚Preferenceã«ã™ã‚‹é–“ã§ã‚‚ãªã„ã ã‚ã†
     /// <exclude/>
     public class ASCIIWordBreakTable {
         public const int LETTER = 0;
@@ -1267,13 +1267,13 @@ namespace Poderosa.Document {
             Reset();
         }
 
-        public void Reset() { //’Êíİ’è‚É‚·‚é
-            //§Œä•¶šƒp[ƒg
+        public void Reset() { //é€šå¸¸è¨­å®šã«ã™ã‚‹
+            //åˆ¶å¾¡æ–‡å­—ãƒ‘ãƒ¼ãƒˆ
             for (int i = 0; i <= 0x20; i++)
                 _data[i] = SPACE;
             _data[0x7F] = SPACE; //DEL
 
-            //’Êí•¶šƒp[ƒg
+            //é€šå¸¸æ–‡å­—ãƒ‘ãƒ¼ãƒˆ
             for (int i = 0x21; i <= 0x7E; i++) {
                 char c = (char)i;
                 if (('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c == '_')
@@ -1288,13 +1288,13 @@ namespace Poderosa.Document {
             return _data[(int)ch];
         }
 
-        //ˆê•¶šİ’è
+        //ä¸€æ–‡å­—è¨­å®š
         public void Set(char ch, int type) {
             Debug.Assert(ch < 0x80);
             _data[(int)ch] = type;
         }
 
-        //ƒCƒ“ƒXƒ^ƒ“ƒX
+        //ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹
         private static ASCIIWordBreakTable _instance;
 
         public static ASCIIWordBreakTable Default {

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@ using System.Text;
 namespace Poderosa {
     /// <summary>
     /// <ja>
-    /// ƒo[ƒWƒ‡ƒ“î•ñ‚ğ•Ô‚µ‚Ü‚·B
+    /// ãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±ã‚’è¿”ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Return the version information.
@@ -23,7 +23,7 @@ namespace Poderosa {
     public class VersionInfo {
         /// <summary>
         /// <ja>
-        /// ƒo[ƒWƒ‡ƒ“”Ô†‚Å‚·B
+        /// ãƒãƒ¼ã‚¸ãƒ§ãƒ³ç•ªå·ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Version number.
@@ -32,7 +32,7 @@ namespace Poderosa {
         public const string PODEROSA_VERSION = "4.3.14b";
         /// <summary>
         /// <ja>
-        /// ƒvƒƒWƒFƒNƒg–¼‚Å‚·B
+        /// ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆåã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Project name.

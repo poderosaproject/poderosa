@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2011 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,7 @@ namespace Poderosa.MacroEngine {
 
     /// <summary>
     /// <ja>
-    /// ƒ}ƒNƒÀsƒTƒ|[ƒg‚Ì‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒã‚¯ãƒ­å®Ÿè¡Œã‚µãƒãƒ¼ãƒˆã®ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface for supporting executing macro.
@@ -24,36 +24,36 @@ namespace Poderosa.MacroEngine {
 
         /// <summary>
         /// <ja>
-        /// ƒZƒbƒVƒ‡ƒ“‚ğw’è‚µ‚Äƒ}ƒNƒ‚ğÀs‚·‚éB
+        /// ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’æŒ‡å®šã—ã¦ãƒã‚¯ãƒ­ã‚’å®Ÿè¡Œã™ã‚‹ã€‚
         /// </ja>
         /// <en>
         /// Run a macro with specifying session.
         /// </en>
         /// </summary>
         /// <param name="path">
-        /// <ja>ƒ}ƒNƒ‚ÌƒpƒX</ja>
+        /// <ja>ãƒã‚¯ãƒ­ã®ãƒ‘ã‚¹</ja>
         /// <en>Path of a macro to execute.</en>
         /// </param>
         /// <param name="session">
-        /// <ja>ƒZƒbƒVƒ‡ƒ“</ja>
+        /// <ja>ã‚»ãƒƒã‚·ãƒ§ãƒ³</ja>
         /// <en>Session.</en>
         /// </param>
         void RunMacro(string path, ISession session);
 
         /// <summary>
         /// <ja>
-        /// ƒ}ƒNƒ‘I‘ğƒ_ƒCƒAƒƒO‚ğ•\¦‚·‚éB
+        /// ãƒã‚¯ãƒ­é¸æŠãƒ€ã‚¤ã‚¢ãƒ­ã‚°ã‚’è¡¨ç¤ºã™ã‚‹ã€‚
         /// </ja>
         /// <en>
         /// Show a dialog for selecting macro.
         /// </en>
         /// </summary>
         /// <param name="owner">
-        /// <ja>ƒI[ƒi[ƒtƒH[ƒ€</ja>
+        /// <ja>ã‚ªãƒ¼ãƒŠãƒ¼ãƒ•ã‚©ãƒ¼ãƒ </ja>
         /// <en>Owner form</en>
         /// </param>
         /// <returns>
-        /// <ja>‘I‘ğ‚µ‚½ƒ}ƒNƒ‚ÌƒpƒXB‘I‘ğ‚µ‚Ä‚¢‚È‚¯‚ê‚ÎnullB</ja>
+        /// <ja>é¸æŠã—ãŸãƒã‚¯ãƒ­ã®ãƒ‘ã‚¹ã€‚é¸æŠã—ã¦ã„ãªã‘ã‚Œã°nullã€‚</ja>
         /// <en>Path of the selected macro. Null if no macro was selected.</en>
         /// </returns>
         string SelectMacro(Form owner);
@@ -62,7 +62,7 @@ namespace Poderosa.MacroEngine {
 
     /// <summary>
     /// <ja>
-    /// ƒvƒƒpƒeƒB’l‚ªƒ}ƒNƒŠÂ‹«‚ÅÚ‘±ƒpƒ‰ƒ[ƒ^‚Æ‚µ‚Äæ“¾‚Å‚«‚é‚±‚Æ‚ğ¦‚µ‚Ü‚·B
+    /// ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£å€¤ãŒãƒã‚¯ãƒ­ç’°å¢ƒã§æ¥ç¶šãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã¨ã—ã¦å–å¾—ã§ãã‚‹ã“ã¨ã‚’ç¤ºã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Represents the property value can be obtained as a connection parameter in the macro environment. 
@@ -70,7 +70,7 @@ namespace Poderosa.MacroEngine {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚±‚Ì‘®«‚Í<see cref="Poderosa.Protocols.ITerminalParameter"/>A‚Ü‚½‚Í<see cref="Poderosa.Terminal.ITerminalSettings"/>À‘•ƒNƒ‰ƒX‚ÌƒvƒƒpƒeƒB‚Éw’è‚µ‚Ü‚·B
+    /// ã“ã®å±æ€§ã¯<see cref="Poderosa.Protocols.ITerminalParameter"/>ã€ã¾ãŸã¯<see cref="Poderosa.Terminal.ITerminalSettings"/>å®Ÿè£…ã‚¯ãƒ©ã‚¹ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã«æŒ‡å®šã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// This attribute must be specified to a property of a class which implements <see cref="Poderosa.Protocols.ITerminalParameter"/> or <see cref="Poderosa.Terminal.ITerminalSettings"/>.

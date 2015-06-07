@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +17,8 @@ namespace Poderosa.Plugins {
         private IPlugin _ownerPlugin;
         private string _id;
         private Type _extensionType;
-        private ArrayList _extensions; //ToArray()‚ÌŒ^•t‚«‚ğl—¶‚µ‚ÄArrayList
-        private bool _isDirty; //_extensions‚Ì’†g‚ª•Ï‰»‚·‚é‚Æ—§‚Âƒtƒ‰ƒO
+        private ArrayList _extensions; //ToArray()ã®å‹ä»˜ãã‚’è€ƒæ…®ã—ã¦ArrayList
+        private bool _isDirty; //_extensionsã®ä¸­èº«ãŒå¤‰åŒ–ã™ã‚‹ã¨ç«‹ã¤ãƒ•ãƒ©ã‚°
         private Array _extensionArray;
 
         public ExtensionPoint(string id, Type extensionType, IPlugin owner) {

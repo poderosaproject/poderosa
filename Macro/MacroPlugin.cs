@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -226,7 +226,7 @@ namespace Poderosa.MacroInternal {
             }
         }
 
-        //ŒÂX‚Ìƒ}ƒNƒ‚ÌƒAƒCƒeƒ€‚ğ‹Lq
+        //å€‹ã€…ã®ãƒã‚¯ãƒ­ã®ã‚¢ã‚¤ãƒ†ãƒ ã‚’è¨˜è¿°
         private class MacroItemsMenuGroup : IPoderosaMenuGroup {
             public IPoderosaMenu[] ChildMenus {
                 get {

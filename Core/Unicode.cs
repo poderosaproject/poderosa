@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2011 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,7 +11,7 @@ using System;
 namespace Poderosa.Document {
 
     /// <summary>
-    /// <ja>“Á•Ê‚Èˆ—‚ğs‚¤‚½‚ßA“Á’è‚Ì•¶š‚ğ„—p—Ìˆæ(U+E000-U+F8FF)‚Éƒ}ƒbƒv‚·‚éB</ja>
+    /// <ja>ç‰¹åˆ¥ãªå‡¦ç†ã‚’è¡Œã†ãŸã‚ã€ç‰¹å®šã®æ–‡å­—ã‚’ç§ç”¨é ˜åŸŸ(U+E000-U+F8FF)ã«ãƒãƒƒãƒ—ã™ã‚‹ã€‚</ja>
     /// <en>This class maps some characters to the private use area (U+E000-U+F8FF) for handling them specially.</en>
     /// </summary>
     public static class Unicode {

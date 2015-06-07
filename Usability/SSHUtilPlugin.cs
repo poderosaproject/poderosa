@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,7 +47,7 @@ namespace Poderosa.Usability {
         }
         public StringResource Strings {
             get {
-                return UsabilityPlugin.Strings; //‹¤—p
+                return UsabilityPlugin.Strings; //å…±ç”¨
             }
         }
         public ICommandManager CommandManager {
@@ -67,7 +67,7 @@ namespace Poderosa.Usability {
         }
     }
 
-    //ƒ|ƒWƒVƒ‡ƒ“‚Ídontcare‚Å‚¢‚¢‚â
+    //ãƒã‚¸ã‚·ãƒ§ãƒ³ã¯dontcareã§ã„ã„ã‚„
     internal class SSHUtilCommandCategory : ICommandCategory {
         public string Name {
             get {
@@ -85,7 +85,7 @@ namespace Poderosa.Usability {
             return SSHUtilPlugin.Instance.PoderosaWorld.AdapterManager.GetAdapter(this, adapter);
         }
 
-        public static SSHUtilCommandCategory _instance = new SSHUtilCommandCategory(); //‚±‚êˆêŒÂ‚Å\•ª
+        public static SSHUtilCommandCategory _instance = new SSHUtilCommandCategory(); //ã“ã‚Œä¸€å€‹ã§ååˆ†
     }
 
     internal class SSHUtilCommand : IGeneralCommand {

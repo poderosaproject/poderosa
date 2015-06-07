@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,7 @@ using Granados.PKI;
 
 
 namespace Poderosa.Protocols {
-    //Granados‚ğg‚¤‚â‚Â‚Í‚±‚¿‚ç@‹N“®‚É‚Íƒ[ƒh‚µ‚È‚¢‚æ‚¤‚É‚·‚é‚½‚ß
+    //Granadosã‚’ä½¿ã†ã‚„ã¤ã¯ã“ã¡ã‚‰ã€€èµ·å‹•æ™‚ã«ã¯ãƒ­ãƒ¼ãƒ‰ã—ãªã„ã‚ˆã†ã«ã™ã‚‹ãŸã‚
     internal class LocalSSHUtil {
         public static CipherAlgorithm ParseCipherAlgorithm(string t) {
             if (t == "AES128")
@@ -82,7 +82,7 @@ namespace Poderosa.Protocols {
             if ((t.Length % 16) != 0) {
                 byte[] t2 = new byte[t.Length + (16 - (t.Length % 16))];
                 Array.Copy(t, 0, t2, 0, t.Length);
-                for (int i = t.Length + 1; i < t2.Length; i++) //c‚è‚Íƒ_ƒ~[
+                for (int i = t.Length + 1; i < t2.Length; i++) //æ®‹ã‚Šã¯ãƒ€ãƒŸãƒ¼
                     t2[i] = t[i % t.Length];
                 t = t2;
             }
@@ -105,29 +105,29 @@ namespace Poderosa.Protocols {
             byte[] d = new byte[t.Length];
             rijndael.decryptCBC(t, 0, t.Length, d, 0);
 
-            return Encoding.ASCII.GetString(d); //ƒpƒfƒBƒ“ƒO‚ª‚ ‚Á‚Ä‚àNULL•¶š‚É‚È‚é‚Ì‚Åœ‹‚³‚ê‚é‚Í‚¸
+            return Encoding.ASCII.GetString(d); //ãƒ‘ãƒ‡ã‚£ãƒ³ã‚°ãŒã‚ã£ã¦ã‚‚NULLæ–‡å­—ã«ãªã‚‹ã®ã§é™¤å»ã•ã‚Œã‚‹ã¯ãš
         }
     }
 
-    //Œ®‚Ìƒ`ƒFƒbƒNŠÖŒW
+    //éµã®ãƒã‚§ãƒƒã‚¯é–¢ä¿‚
     /// <summary>
     /// <ja>
-    /// Œ®‚Ìƒ`ƒFƒbƒNó‹µ‚ğ¦‚µ‚Ü‚·B
+    /// éµã®ãƒã‚§ãƒƒã‚¯çŠ¶æ³ã‚’ç¤ºã—ã¾ã™ã€‚
     /// </ja>
     /// </summary>
     internal enum KeyCheckResult {
         /// <summary>
-        /// <ja>³‚µ‚¢Œ®</ja>
+        /// <ja>æ­£ã—ã„éµ</ja>
         /// <en>Correct key.</en>
         /// </summary>
         OK,
         /// <summary>
-        /// <ja>•Û‚µ‚Ä‚¢‚é“à—e‚ÆˆÙ‚È‚éŒ®</ja>
+        /// <ja>ä¿æŒã—ã¦ã„ã‚‹å†…å®¹ã¨ç•°ãªã‚‹éµ</ja>
         /// <en>Key is different from held one.</en>
         /// </summary>
         Different,
         /// <summary>
-        /// <ja>Œ®î•ñ‚ªŒ©‚Â‚©‚ç‚È‚¢</ja>
+        /// <ja>éµæƒ…å ±ãŒè¦‹ã¤ã‹ã‚‰ãªã„</ja>
         /// <en>Key is not exist.</en>
         /// </summary>
         NotExists

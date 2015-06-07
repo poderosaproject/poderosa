@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +38,7 @@ namespace Poderosa.Protocols {
             }
             internal override TerminalConnection Result {
                 get {
-                    return null; //ƒeƒXƒg‚Å‚Ínull‚Å‚æ‚¢
+                    return null; //ãƒ†ã‚¹ãƒˆã§ã¯nullã§ã‚ˆã„
                 }
             }
         }
@@ -128,7 +128,7 @@ namespace Poderosa.Protocols {
         public void T03_NotConnectable1() {
             TestConnector c = new TestConnector();
             TestClient t= new TestClient();
-            c.AsyncConnect(t, new TelnetParameter(GetUnreachableIP(), GetConnectablePort())); //‘¶İ‚µ‚È‚¢ƒzƒXƒg
+            c.AsyncConnect(t, new TelnetParameter(GetUnreachableIP(), GetConnectablePort())); //å­˜åœ¨ã—ãªã„ãƒ›ã‚¹ãƒˆ
             t.WaitAndClose();
 
             Assert.IsFalse(c.Succeeded);
@@ -139,7 +139,7 @@ namespace Poderosa.Protocols {
         public void T04_NotConnectable2() {
             TestConnector c = new TestConnector();
             TestClient t= new TestClient();
-            c.AsyncConnect(t, new TelnetParameter(GetUnknownDNSName(), GetConnectablePort())); //DNSƒGƒ‰[
+            c.AsyncConnect(t, new TelnetParameter(GetUnknownDNSName(), GetConnectablePort())); //DNSã‚¨ãƒ©ãƒ¼
             t.WaitAndClose();
 
             Assert.IsFalse(c.Succeeded);
@@ -150,7 +150,7 @@ namespace Poderosa.Protocols {
         public void T05_NotConnectable3() {
             TestConnector c = new TestConnector();
             TestClient t= new TestClient();
-            c.AsyncConnect(t, new TelnetParameter(GetConnectableDNSName(), GetClosedPort())); //ƒzƒXƒg‚Í‚ ‚é‚ªƒ|[ƒg‚ªŠJ‚¢‚Ä‚È‚¢
+            c.AsyncConnect(t, new TelnetParameter(GetConnectableDNSName(), GetClosedPort())); //ãƒ›ã‚¹ãƒˆã¯ã‚ã‚‹ãŒãƒãƒ¼ãƒˆãŒé–‹ã„ã¦ãªã„
             t.WaitAndClose();
 
             Assert.IsFalse(c.Succeeded);
@@ -180,10 +180,10 @@ namespace Poderosa.Protocols {
 
             Assert.IsTrue(c.Interrupted);
             Assert.IsFalse(c.Succeeded);
-            Assert.IsFalse(t.Notified); //Client‚É‚Í¬Œ÷E¸”s‚Æ‚à’Ê’m‚³‚ê‚È‚¢‚Í‚¸
+            Assert.IsFalse(t.Notified); //Clientã«ã¯æˆåŠŸãƒ»å¤±æ•—ã¨ã‚‚é€šçŸ¥ã•ã‚Œãªã„ã¯ãš
         }
 
-        //TODO SOCKSƒTƒ|[ƒg
+        //TODO SOCKSã‚µãƒãƒ¼ãƒˆ
     }
 }
 #endif

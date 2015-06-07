@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +18,10 @@ using Poderosa.Sessions;
 using Poderosa.Boot;
 
 namespace Poderosa.Plugins {
-    //•po‹@”\‚Ö‚ÌƒAƒNƒZƒTBPoderosaWorld‚©‚çGetAdapter‚Å‚«‚é‚æ‚¤‚É‚µ‚Ä‚µ‚Ü‚¤‚æI
+    //é »å‡ºæ©Ÿèƒ½ã¸ã®ã‚¢ã‚¯ã‚»ã‚µã€‚PoderosaWorldã‹ã‚‰GetAdapterã§ãã‚‹ã‚ˆã†ã«ã—ã¦ã—ã¾ã†ã‚ˆï¼
     /// <summary>
     /// <ja>
-    /// •W€ƒvƒ‰ƒOƒCƒ“‚ª”õ‚¦‚é‘ã•\“I‚ÈƒCƒ“ƒ^[ƒtƒFƒCƒX‚âŠg’£ƒ|ƒCƒ“ƒg‚ğ•Ô‚·ƒvƒƒpƒeƒB‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// æ¨™æº–ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒå‚™ãˆã‚‹ä»£è¡¨çš„ãªã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚„æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã‚’è¿”ã™ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Property that returns a typical interface and the extension point with which a standard plug-in provides is offered. 
@@ -29,8 +29,8 @@ namespace Poderosa.Plugins {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ICoreServicesƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍA<seealso cref="IPoderosaWorld">IPoderosaWorldƒCƒ“ƒ^[ƒtƒFƒCƒX</seealso>
-    /// ‚Ì<see cref="IAdaptable.GetAdapter">GetAdapterƒƒ\ƒbƒh</see>‚Åæ“¾‚Å‚«‚Ü‚·B
+    /// ICoreServicesã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€<seealso cref="IPoderosaWorld">IPoderosaWorldã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹</seealso>
+    /// ã®<see cref="IAdaptable.GetAdapter">GetAdapterãƒ¡ã‚½ãƒƒãƒ‰</see>ã§å–å¾—ã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The ICoreServices interface can be got in the <see cref="IAdaptable.GetAdapter">GetAdapter method</see> of the <seealso cref="IPoderosaWorld">IPoderosaWorld interface</seealso>. 
@@ -38,10 +38,10 @@ namespace Poderosa.Plugins {
     /// </remarks>
     /// <example>
     /// <ja>
-    /// ICoreServices‚ğæ“¾‚µ‚Ü‚·B
+    /// ICoreServicesã‚’å–å¾—ã—ã¾ã™ã€‚
     /// <code>
     /// ICoreServices cs = PoderosaWorld.GetAdapter(typeof(ICoreServices));
-    /// // IWindowManagerƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğæ“¾‚µ‚Ü‚·
+    /// // IWindowManagerã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’å–å¾—ã—ã¾ã™
     /// IWindowManager wm = cs.WindowManager;
     /// </code>
     /// </ja>
@@ -57,7 +57,7 @@ namespace Poderosa.Plugins {
     public interface ICoreServices : IAdaptable {
         /// <summary>
         /// <ja>
-        /// IWindowManagerƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ•Ô‚µ‚Ü‚·B
+        /// IWindowManagerã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return IWindowManager interface.
@@ -65,8 +65,8 @@ namespace Poderosa.Plugins {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// <seealso cref="IPluginManager">IPluginManager</seealso>‚Ì<see cref="IPluginManager.FindPlugin">FindPluginƒƒ\ƒbƒh</see>
-        /// ‚ğg‚Á‚Äuorg.poderosa.core.windowsv‚ğŒŸõ‚·‚é‚Ì‚Æ“¯‚¶‚Å‚·B
+        /// <seealso cref="IPluginManager">IPluginManager</seealso>ã®<see cref="IPluginManager.FindPlugin">FindPluginãƒ¡ã‚½ãƒƒãƒ‰</see>
+        /// ã‚’ä½¿ã£ã¦ã€Œorg.poderosa.core.windowsã€ã‚’æ¤œç´¢ã™ã‚‹ã®ã¨åŒã˜ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is the same as the retrieval of "org.poderosa.core.windows" by using the <see cref="IPluginManager.FindPlugin">FindPlugin method</see> of <seealso cref="IPluginManager">IPluginManager</seealso>. 
@@ -77,7 +77,7 @@ namespace Poderosa.Plugins {
         }
         /// <summary>
         /// <ja>
-        /// IPreferencesƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ•Ô‚µ‚Ü‚·B
+        /// IPreferencesã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return IPreferences interface.
@@ -85,8 +85,8 @@ namespace Poderosa.Plugins {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// <seealso cref="IPluginManager">IPluginManager</seealso>‚Ì<see cref="IPluginManager.FindPlugin">FindPluginƒƒ\ƒbƒh</see>
-        /// ‚ğg‚Á‚Äuorg.poderosa.core.preferencesv‚ğŒŸõ‚·‚é‚Ì‚Æ“¯‚¶‚Å‚·B
+        /// <seealso cref="IPluginManager">IPluginManager</seealso>ã®<see cref="IPluginManager.FindPlugin">FindPluginãƒ¡ã‚½ãƒƒãƒ‰</see>
+        /// ã‚’ä½¿ã£ã¦ã€Œorg.poderosa.core.preferencesã€ã‚’æ¤œç´¢ã™ã‚‹ã®ã¨åŒã˜ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is the same as the retrieval of "org.poderosa.core.preferences" by using the <see cref="IPluginManager.FindPlugin">FindPlugin method</see> of <seealso cref="IPluginManager">IPluginManager</seealso>. 
@@ -97,7 +97,7 @@ namespace Poderosa.Plugins {
         }
         /// <summary>
         /// <ja>
-        /// ICommandManagerƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ•Ô‚µ‚Ü‚·B
+        /// ICommandManagerã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return ICommandManager interface.
@@ -105,8 +105,8 @@ namespace Poderosa.Plugins {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// <seealso cref="IPluginManager">IPluginManager</seealso>‚Ì<see cref="IPluginManager.FindPlugin">FindPluginƒƒ\ƒbƒh</see>
-        /// ‚ğg‚Á‚Äuorg.poderosa.core.commandsv‚ğŒŸõ‚·‚é‚Ì‚Æ“¯‚¶‚Å‚·B
+        /// <seealso cref="IPluginManager">IPluginManager</seealso>ã®<see cref="IPluginManager.FindPlugin">FindPluginãƒ¡ã‚½ãƒƒãƒ‰</see>
+        /// ã‚’ä½¿ã£ã¦ã€Œorg.poderosa.core.commandsã€ã‚’æ¤œç´¢ã™ã‚‹ã®ã¨åŒã˜ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is the same as the retrieval of "org.poderosa.core.commands" by using the <see cref="IPluginManager.FindPlugin">FindPlugin method</see> of <seealso cref="IPluginManager">IPluginManager</seealso>. 
@@ -117,7 +117,7 @@ namespace Poderosa.Plugins {
         }
         /// <summary>
         /// <ja>
-        /// ISessionManagerƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ•Ô‚µ‚Ü‚·B
+        /// ISessionManagerã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return ISessionManager interface.
@@ -125,8 +125,8 @@ namespace Poderosa.Plugins {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// <seealso cref="IPluginManager">IPluginManager</seealso>‚Ì<see cref="IPluginManager.FindPlugin">FindPluginƒƒ\ƒbƒh</see>
-        /// ‚ğg‚Á‚Äuorg.poderosa.core.sessionsv‚ğŒŸõ‚·‚é‚Ì‚Æ“¯‚¶‚Å‚·B
+        /// <seealso cref="IPluginManager">IPluginManager</seealso>ã®<see cref="IPluginManager.FindPlugin">FindPluginãƒ¡ã‚½ãƒƒãƒ‰</see>
+        /// ã‚’ä½¿ã£ã¦ã€Œorg.poderosa.core.sessionsã€ã‚’æ¤œç´¢ã™ã‚‹ã®ã¨åŒã˜ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is the same as the retrieval of "org.poderosa.core.sessions" by using the <see cref="IPluginManager.FindPlugin">FindPlugin method</see> of <seealso cref="IPluginManager">IPluginManager</seealso>. 
@@ -137,7 +137,7 @@ namespace Poderosa.Plugins {
         }
         /// <summary>
         /// <ja>
-        /// ISerializeServiceƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ•Ô‚µ‚Ü‚·B
+        /// ISerializeServiceã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return ISerializeService interface.
@@ -145,8 +145,8 @@ namespace Poderosa.Plugins {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// <seealso cref="IPluginManager">IPluginManager</seealso>‚Ì<see cref="IPluginManager.FindPlugin">FindPluginƒƒ\ƒbƒh</see>
-        /// ‚ğg‚Á‚Äuorg.poderosa.core.serializingv‚ğŒŸõ‚·‚é‚Ì‚Æ“¯‚¶‚Å‚·B
+        /// <seealso cref="IPluginManager">IPluginManager</seealso>ã®<see cref="IPluginManager.FindPlugin">FindPluginãƒ¡ã‚½ãƒƒãƒ‰</see>
+        /// ã‚’ä½¿ã£ã¦ã€Œorg.poderosa.core.serializingã€ã‚’æ¤œç´¢ã™ã‚‹ã®ã¨åŒã˜ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is the same as the retrieval of "org.poderosa.core.serializing" by using the <see cref="IPluginManager.FindPlugin">FindPlugin method</see> of <seealso cref="IPluginManager">IPluginManager</seealso>. 
@@ -156,10 +156,10 @@ namespace Poderosa.Plugins {
             get;
         }
 
-        //ˆÈ‰º‚Í•poExtensionPoint
+        //ä»¥ä¸‹ã¯é »å‡ºExtensionPoint
         /// <summary>
         /// <ja>
-        /// PreferencePluginƒvƒ‰ƒOƒCƒ“‚ª’ñ‹Ÿ‚·‚éŠg’£ƒ|ƒCƒ“ƒg‚ğ•Ô‚µ‚Ü‚·B
+        /// PreferencePluginãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒæä¾›ã™ã‚‹æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the extension point of the PreferencePlugin plug-in.
@@ -167,8 +167,8 @@ namespace Poderosa.Plugins {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// <seealso cref="IPluginManager">IPluginManager</seealso>‚Ì<see cref="IPluginManager.FindExtensionPoint">FindExtensionPointƒƒ\ƒbƒh</see>
-        /// ‚ğg‚Á‚Äuorg.poderosa.core.preferencesv‚ğŒŸõ‚·‚é‚Ì‚Æ“¯‚¶‚Å‚·B
+        /// <seealso cref="IPluginManager">IPluginManager</seealso>ã®<see cref="IPluginManager.FindExtensionPoint">FindExtensionPointãƒ¡ã‚½ãƒƒãƒ‰</see>
+        /// ã‚’ä½¿ã£ã¦ã€Œorg.poderosa.core.preferencesã€ã‚’æ¤œç´¢ã™ã‚‹ã®ã¨åŒã˜ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is the same as the retrieval of "org.poderosa.core.preferences" by using the <see cref="IPluginManager.FindExtensionPoint">FindExtensionPoint method</see> of <seealso cref="IPluginManager">IPluginManager</seealso>. 
@@ -179,7 +179,7 @@ namespace Poderosa.Plugins {
         }
         /// <summary>
         /// <ja>
-        /// SerializeServicePluginƒvƒ‰ƒOƒCƒ“‚ª’ñ‹Ÿ‚·‚éŠg’£ƒ|ƒCƒ“ƒg‚ğ•Ô‚µ‚Ü‚·B
+        /// SerializeServicePluginãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒæä¾›ã™ã‚‹æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the extension point of the SerializeServicePlugin plug-in.
@@ -187,8 +187,8 @@ namespace Poderosa.Plugins {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// <seealso cref="IPluginManager">IPluginManager</seealso>‚Ì<see cref="IPluginManager.FindExtensionPoint">FindExtensionPointƒƒ\ƒbƒh</see>
-        /// ‚ğg‚Á‚Äuorg.poderosa.core.serializeElementv‚ğŒŸõ‚·‚é‚Ì‚Æ“¯‚¶‚Å‚·B
+        /// <seealso cref="IPluginManager">IPluginManager</seealso>ã®<see cref="IPluginManager.FindExtensionPoint">FindExtensionPointãƒ¡ã‚½ãƒƒãƒ‰</see>
+        /// ã‚’ä½¿ã£ã¦ã€Œorg.poderosa.core.serializeElementã€ã‚’æ¤œç´¢ã™ã‚‹ã®ã¨åŒã˜ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is the same as the retrieval of "org.poderosa.core.serializeElement" by using the <see cref="IPluginManager.FindExtensionPoint">FindExtensionPoint method</see> of <seealso cref="IPluginManager">IPluginManager</seealso>. 
@@ -199,7 +199,7 @@ namespace Poderosa.Plugins {
         }
     }
 
-    //‚»‚ÌÀ‘•‚Æ“o˜^
+    //ãã®å®Ÿè£…ã¨ç™»éŒ²
     internal class CoreServices : ICoreServices {
         private IPoderosaWorld _world;
         private AF _adapterFactory;
@@ -301,7 +301,7 @@ namespace Poderosa.Plugins {
                 }
             }
 
-            //ˆê‚Â‚µ‚©ƒCƒ“ƒXƒ^ƒ“ƒX‚ª‚È‚¢‚Ì‚ğ‚¢‚¢‚±‚Æ‚É—Bˆê‚Ì‚ğ•Ô‚·
+            //ä¸€ã¤ã—ã‹ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ãŒãªã„ã®ã‚’ã„ã„ã“ã¨ã«å”¯ä¸€ã®ã‚’è¿”ã™
             public IAdaptable GetAdapter(IAdaptable obj) {
                 return _coreServices;
             }

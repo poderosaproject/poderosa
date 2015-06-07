@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@ using Granados;
 namespace Poderosa.Protocols {
     /// <summary>
     /// <ja>
-    /// ƒ^[ƒ~ƒiƒ‹Ú‘±‚Ì‚½‚ß‚Ìƒpƒ‰ƒ[ƒ^‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«æ¥ç¶šã®ãŸã‚ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows parameter for terminal connection.
@@ -25,10 +25,10 @@ namespace Poderosa.Protocols {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// <seealso cref="ITCPParameter">ITCPParameter</seealso>A
+    /// <seealso cref="ITCPParameter">ITCPParameter</seealso>ã€
     /// <seealso cref="ISSHLoginParameter">ISSHLoginParameter</seealso>
-    /// <seealso cref="ICygwinParameter">ICygwinParameter</seealso>‚ÍAGetAdapterƒƒ\ƒbƒh‚ğg‚Á‚Ä
-    /// ‚±‚ÌITerminalParameter‚Ö‚Æ•ÏŠ·‚Å‚«‚Ü‚·B
+    /// <seealso cref="ICygwinParameter">ICygwinParameter</seealso>ã¯ã€GetAdapterãƒ¡ã‚½ãƒƒãƒ‰ã‚’ä½¿ã£ã¦
+    /// ã“ã®ITerminalParameterã¸ã¨å¤‰æ›ã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// <seealso cref="ITCPParameter">ITCPParameter</seealso>,
@@ -39,7 +39,7 @@ namespace Poderosa.Protocols {
     public interface ITerminalParameter : IAdaptable, ICloneable {
         /// <summary>
         /// <ja>
-        /// “à•”•‚Å‚·B
+        /// å†…éƒ¨å¹…ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Internal width.
@@ -50,7 +50,7 @@ namespace Poderosa.Protocols {
         }
         /// <summary>
         /// <ja>
-        /// “à•”‚‚³‚Å‚·B
+        /// å†…éƒ¨é«˜ã•ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Internal height.
@@ -60,48 +60,48 @@ namespace Poderosa.Protocols {
             get;
         }
         /// <summary>
-        /// <ja>ƒ^[ƒ~ƒiƒ‹ƒ^ƒCƒv‚Å‚·B</ja>
+        /// <ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚¿ã‚¤ãƒ—ã§ã™ã€‚</ja>
         /// <en>Terminal type.</en>
         /// </summary>
         string TerminalType {
             get;
         }
         /// <summary>
-        /// <ja>ƒ^[ƒ~ƒiƒ‹–¼‚ğİ’è‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«åã‚’è¨­å®šã—ã¾ã™ã€‚</ja>
         /// <en>Set the terminal name.</en>
         /// </summary>
-        /// <param name="terminaltype"><ja>İ’è‚·‚éƒ^[ƒ~ƒiƒ‹–¼</ja><en>Terminal name to set.</en></param>
+        /// <param name="terminaltype"><ja>è¨­å®šã™ã‚‹ã‚¿ãƒ¼ãƒŸãƒŠãƒ«å</ja><en>Terminal name to set.</en></param>
         void SetTerminalName(string terminaltype);
         /// <summary>
         /// <ja>
-        /// ƒ^[ƒ~ƒiƒ‹‚ÌƒTƒCƒY‚ğ•ÏX‚µ‚Ü‚·B
+        /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã®ã‚µã‚¤ã‚ºã‚’å¤‰æ›´ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Change the terminal size.
         /// </en>
         /// </summary>
-        /// <param name="width"><ja>•ÏXŒã‚Ì•</ja><en>Width after it changes</en></param>
-        /// <param name="height"><ja>•ÏXŒã‚Ì‚‚³</ja><en>Height after it changes</en></param>
+        /// <param name="width"><ja>å¤‰æ›´å¾Œã®å¹…</ja><en>Width after it changes</en></param>
+        /// <param name="height"><ja>å¤‰æ›´å¾Œã®é«˜ã•</ja><en>Height after it changes</en></param>
         void SetTerminalSize(int width, int height);
 
         /// <summary>
         /// <ja>
-        /// 2‚Â‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ªuŒ©‚½–Ú‚Æ‚µ‚Äv“¯‚¶‚Å‚ ‚é‚©‚Ç‚¤‚©‚ğ’²‚×‚Ü‚·B
+        /// 2ã¤ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ãŒã€Œè¦‹ãŸç›®ã¨ã—ã¦ã€åŒã˜ã§ã‚ã‚‹ã‹ã©ã†ã‹ã‚’èª¿ã¹ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Comparing two interfaces examine and "Externals" examines be the same. 
         /// </en>
         /// </summary>
-        /// <param name="t"><ja>”äŠr‘ÎÛ‚Æ‚È‚éƒIƒuƒWƒFƒNƒg</ja><en>Object to exemine</en></param>
-        /// <returns><en>Result of comparing. If it is equal, return true. </en><ja>”äŠrŒ‹‰ÊB“™‚µ‚¢‚È‚çtrue</ja></returns>
+        /// <param name="t"><ja>æ¯”è¼ƒå¯¾è±¡ã¨ãªã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>Object to exemine</en></param>
+        /// <returns><en>Result of comparing. If it is equal, return true. </en><ja>æ¯”è¼ƒçµæœã€‚ç­‰ã—ã„ãªã‚‰true</ja></returns>
         /// <remarks>
         /// <ja>
         /// <para>
-        /// uŒ©‚½–Ú‚Æ‚µ‚Äv‚Æ‚ÍASSHƒvƒƒgƒRƒ‹‚Ìƒo[ƒWƒ‡ƒ“‚Ìˆá‚¢‚È‚ÇAuÚ‘±æ‚ğ”äŠr‚·‚éê‡v
-        /// ‚Ì“¯ˆê‹‚ğˆÓ–¡‚µ‚Ü‚·B
+        /// ã€Œè¦‹ãŸç›®ã¨ã—ã¦ã€ã¨ã¯ã€SSHãƒ—ãƒ­ãƒˆã‚³ãƒ«ã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã®é•ã„ãªã©ã€ã€Œæ¥ç¶šå…ˆã‚’æ¯”è¼ƒã™ã‚‹å ´åˆã€
+        /// ã®åŒä¸€è¦–ã‚’æ„å‘³ã—ã¾ã™ã€‚
         /// </para>
         /// <para>
-        /// MRUƒvƒ‰ƒOƒCƒ“‚Å‚Í‚±‚Ìƒƒ\ƒbƒh‚ğ—˜—p‚µ‚ÄA±×‚Èˆá‚¢‚Ì€–Ú‚ª•¡”ŒÂAÅ‹ßg‚Á‚½Ú‘±‚Ì•”•ª‚É•\¦‚³‚ê‚Ä‚µ‚Ü‚¤‚±‚Æ‚ğ–h‚¢‚Å‚¢‚Ü‚·B
+        /// MRUãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã§ã¯ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‚’åˆ©ç”¨ã—ã¦ã€äº›ç´°ãªé•ã„ã®é …ç›®ãŒè¤‡æ•°å€‹ã€æœ€è¿‘ä½¿ã£ãŸæ¥ç¶šã®éƒ¨åˆ†ã«è¡¨ç¤ºã•ã‚Œã¦ã—ã¾ã†ã“ã¨ã‚’é˜²ã„ã§ã„ã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -118,7 +118,7 @@ namespace Poderosa.Protocols {
 
     /// <summary>
     /// <ja>
-    /// Telnet‚Ü‚½‚ÍSSHÚ‘±‚Ì‹¤’Ê‚Ìƒpƒ‰ƒ[ƒ^‚Å‚·B
+    /// Telnetã¾ãŸã¯SSHæ¥ç¶šã®å…±é€šã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Common parameters for the telnet or the SSH connection.
@@ -135,19 +135,19 @@ namespace Poderosa.Protocols {
     /// </en>
     /// <ja>
     /// <para>
-    /// ƒfƒtƒHƒ‹ƒg‚ÌTelnetÚ‘±ƒpƒ‰ƒ[ƒ^‚ÍA<seealso cref="IProtocolService">IProtocolService</seealso>‚Ì
-    /// <see cref="Poderosa.Protocols.IProtocolService.CreateDefaultTelnetParameter">CreateDefaultTelnetParameterƒƒ\ƒbƒh</see>‚ğg‚Á‚Äæ“¾‚Å‚«‚Ü‚·B
+    /// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®Telnetæ¥ç¶šãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã¯ã€<seealso cref="IProtocolService">IProtocolService</seealso>ã®
+    /// <see cref="Poderosa.Protocols.IProtocolService.CreateDefaultTelnetParameter">CreateDefaultTelnetParameterãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’ä½¿ã£ã¦å–å¾—ã§ãã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍAGetAdapterƒƒ\ƒbƒh‚ğg‚¤‚±‚Æ‚ÅA<seealso cref="ITerminalParameter">ITerminalParameter</seealso>
-    /// ‚Ö‚Æ•ÏŠ·‚Å‚«‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€GetAdapterãƒ¡ã‚½ãƒƒãƒ‰ã‚’ä½¿ã†ã“ã¨ã§ã€<seealso cref="ITerminalParameter">ITerminalParameter</seealso>
+    /// ã¸ã¨å¤‰æ›ã§ãã¾ã™ã€‚
     /// </para>
     /// </ja>
     /// </remarks>
     public interface ITCPParameter : IAdaptable, ICloneable {
         /// <summary>
         /// <ja>
-        /// Ú‘±æ‚ÌƒzƒXƒg–¼i‚Ü‚½‚ÍIPƒAƒhƒŒƒXj‚Å‚·B
+        /// æ¥ç¶šå…ˆã®ãƒ›ã‚¹ãƒˆåï¼ˆã¾ãŸã¯IPã‚¢ãƒ‰ãƒ¬ã‚¹ï¼‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Hostname or IP Address to connect.
@@ -159,7 +159,7 @@ namespace Poderosa.Protocols {
         }
         /// <summary>
         /// <ja>
-        /// Ú‘±æ‚Ìƒ|[ƒg”Ô†‚Å‚·B
+        /// æ¥ç¶šå…ˆã®ãƒãƒ¼ãƒˆç•ªå·ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Port number to connect.
@@ -187,7 +187,7 @@ namespace Poderosa.Protocols {
 
     /// <summary>
     /// <ja>
-    /// SSHÚ‘±‚ÌƒƒOƒCƒ“ƒpƒ‰ƒ[ƒ^‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// SSHæ¥ç¶šæ™‚ã®ãƒ­ã‚°ã‚¤ãƒ³ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Inteface that show the login parameter on SSH connection.
@@ -196,16 +196,16 @@ namespace Poderosa.Protocols {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ƒfƒtƒHƒ‹ƒg‚ÌSSHÚ‘±ƒpƒ‰ƒ[ƒ^‚ÍA<seealso cref="IProtocolService">IProtocolService</seealso>‚Ì
-    /// <see cref="IProtocolService.CreateDefaultSSHParameter">CreateDefaultSSHParameterƒƒ\ƒbƒh</see>‚ğg‚Á‚Äæ“¾‚Å‚«‚Ü‚·B
+    /// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®SSHæ¥ç¶šãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã¯ã€<seealso cref="IProtocolService">IProtocolService</seealso>ã®
+    /// <see cref="IProtocolService.CreateDefaultSSHParameter">CreateDefaultSSHParameterãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’ä½¿ã£ã¦å–å¾—ã§ãã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// Ú‘±æ‚ÌƒzƒXƒg–¼‚âƒ|[ƒg”Ô†‚ÍAGetAdapterƒƒ\ƒbƒh‚ğ—p‚¢‚Ä<seealso cref="ITCPParameter">ITCPParameter</seealso>‚Ö‚Æ
-    /// •ÏŠ·‚µ‚Äİ’è‚µ‚Ü‚·B
+    /// æ¥ç¶šå…ˆã®ãƒ›ã‚¹ãƒˆåã‚„ãƒãƒ¼ãƒˆç•ªå·ã¯ã€GetAdapterãƒ¡ã‚½ãƒƒãƒ‰ã‚’ç”¨ã„ã¦<seealso cref="ITCPParameter">ITCPParameter</seealso>ã¸ã¨
+    /// å¤‰æ›ã—ã¦è¨­å®šã—ã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍAGetAdapterƒƒ\ƒbƒh‚ğg‚¤‚±‚Æ‚ÅA<seealso cref="ITerminalParameter">ITerminalParameter</seealso>
-    /// ‚Ö‚Æ•ÏŠ·‚Å‚«‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€GetAdapterãƒ¡ã‚½ãƒƒãƒ‰ã‚’ä½¿ã†ã“ã¨ã§ã€<seealso cref="ITerminalParameter">ITerminalParameter</seealso>
+    /// ã¸ã¨å¤‰æ›ã§ãã¾ã™ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -222,7 +222,7 @@ namespace Poderosa.Protocols {
     /// </remarks>
     public interface ISSHLoginParameter : IAdaptable, ICloneable {
         /// <summary>
-        /// <ja>SSHƒvƒƒgƒRƒ‹‚Ìƒo[ƒWƒ‡ƒ“‚Å‚·B</ja>
+        /// <ja>SSHãƒ—ãƒ­ãƒˆã‚³ãƒ«ã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã§ã™ã€‚</ja>
         /// <en>Version of the SSH protocol.</en>
         /// </summary>
         SSHProtocol Method {
@@ -231,7 +231,7 @@ namespace Poderosa.Protocols {
         }
         /// <summary>
         /// <ja>
-        /// ”FØ•û®‚Å‚·B
+        /// èªè¨¼æ–¹å¼ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Authentification method.
@@ -243,7 +243,7 @@ namespace Poderosa.Protocols {
         }
         /// <summary>
         /// <ja>
-        /// ƒƒOƒCƒ“‚·‚éƒAƒJƒEƒ“ƒg–¼iƒ†[ƒU[–¼j‚Å‚·B
+        /// ãƒ­ã‚°ã‚¤ãƒ³ã™ã‚‹ã‚¢ã‚«ã‚¦ãƒ³ãƒˆåï¼ˆãƒ¦ãƒ¼ã‚¶ãƒ¼åï¼‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Account name (User name) to login.
@@ -254,12 +254,12 @@ namespace Poderosa.Protocols {
             set;
         }
         /// <summary>
-        /// <ja>ƒ†[ƒU‚Ì”FØ‚Ég—p‚·‚é”é–§Œ®‚Ìƒtƒ@ƒCƒ‹–¼‚Å‚·B</ja>
+        /// <ja>ãƒ¦ãƒ¼ã‚¶ã®èªè¨¼ã«ä½¿ç”¨ã™ã‚‹ç§˜å¯†éµã®ãƒ•ã‚¡ã‚¤ãƒ«åã§ã™ã€‚</ja>
         /// <en>Private key file name to use to user authentification.</en>
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ‚±‚ÌƒvƒƒpƒeƒB‚ÍAAuthenticationType‚ªAutehnticationType.PublicKey‚Ì‚Æ‚«‚Ì‚İg‚í‚ê‚Ü‚·B
+        /// ã“ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã¯ã€AuthenticationTypeãŒAutehnticationType.PublicKeyã®ã¨ãã®ã¿ä½¿ã‚ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// This property is used when AuthenticationType is AutehnticationType.PublicKey only.
@@ -271,7 +271,7 @@ namespace Poderosa.Protocols {
         }
         /// <summary>
         /// <ja>
-        /// ƒpƒXƒ[ƒh‚Ü‚½‚ÍƒpƒXƒtƒŒ[ƒY‚Å‚·B
+        /// ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã¾ãŸã¯ãƒ‘ã‚¹ãƒ•ãƒ¬ãƒ¼ã‚ºã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Password or passphrase
@@ -279,9 +279,9 @@ namespace Poderosa.Protocols {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// AuthenticationTypeƒvƒƒpƒeƒB‚ªAuthenticationType.Password‚Ì‚Æ‚«‚É‚ÍuƒpƒXƒ[ƒhv‚ğA
-        /// AuthenticationType.PublicKey‚Ì‚Æ‚«‚É‚ÍuƒpƒXƒtƒŒ[ƒYv‚ğİ’è‚µ‚Ü‚·B
-        /// AuthenticationType.KeyboardInteractive‚Ì‚Æ‚«‚É‚ÍA‚±‚ÌƒvƒƒpƒeƒB‚Í–³‹‚³‚ê‚Ü‚·B
+        /// AuthenticationTypeãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ãŒAuthenticationType.Passwordã®ã¨ãã«ã¯ã€Œãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã€ã‚’ã€
+        /// AuthenticationType.PublicKeyã®ã¨ãã«ã¯ã€Œãƒ‘ã‚¹ãƒ•ãƒ¬ãƒ¼ã‚ºã€ã‚’è¨­å®šã—ã¾ã™ã€‚
+        /// AuthenticationType.KeyboardInteractiveã®ã¨ãã«ã¯ã€ã“ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã¯ç„¡è¦–ã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Set password when AuthenticationType is AuthenticationType.Password, and, set passphrase when AuthenticationType.PublicKey.
@@ -292,17 +292,17 @@ namespace Poderosa.Protocols {
             get;
             set;
         }
-        //ƒ†[ƒU‚ÉƒpƒXƒ[ƒh‚ğ“ü—Í‚³‚¹‚é‚©‚Ç‚¤‚©Btrue‚Ì‚Æ‚«‚ÍPasswordOrPassphrase‚Íg—p‚µ‚È‚¢
+        //ãƒ¦ãƒ¼ã‚¶ã«ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã‚’å…¥åŠ›ã•ã›ã‚‹ã‹ã©ã†ã‹ã€‚trueã®ã¨ãã¯PasswordOrPassphraseã¯ä½¿ç”¨ã—ãªã„
         /// <summary>
         /// <ja>
-        /// ƒ†[ƒU[‚É ƒpƒXƒ[ƒh‚ğ“ü—Í‚³‚¹‚é‚©‚Ç‚¤‚©‚Ìƒtƒ‰ƒO‚Å‚·B
+        /// ãƒ¦ãƒ¼ã‚¶ãƒ¼ã« ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã‚’å…¥åŠ›ã•ã›ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Flag whether to make user input password
         /// </en>
         /// </summary>
         /// <remarks>
-        /// <ja>true‚Ìê‡APasswordOrPassphraseƒvƒƒpƒeƒB‚Íg‚í‚ê‚Ü‚¹‚ñB</ja><en>If it is true, PasswordOrPassphrase property is not used.</en>
+        /// <ja>trueã®å ´åˆã€PasswordOrPassphraseãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã¯ä½¿ã‚ã‚Œã¾ã›ã‚“ã€‚</ja><en>If it is true, PasswordOrPassphrase property is not used.</en>
         /// </remarks>
         /// <exclude/>
         bool LetUserInputPassword {
@@ -332,7 +332,7 @@ namespace Poderosa.Protocols {
 
     /// <summary>
     /// <ja>
-    /// CygwinÚ‘±‚·‚é‚Æ‚«‚Ég‚í‚ê‚éƒpƒ‰ƒ[ƒ^‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// Cygwinæ¥ç¶šã™ã‚‹ã¨ãã«ä½¿ã‚ã‚Œã‚‹ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that show the parameter using on Cygwin connection.
@@ -341,13 +341,13 @@ namespace Poderosa.Protocols {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍA<seealso cref="IProtocolService">IProtocolService</seealso>‚Ì
-    /// <see cref="IProtocolService.CreateDefaultCygwinParameter">CreateDefaultCygwinParameterƒƒ\ƒbƒh</see>
-    /// ‚ğŒÄ‚Ño‚·‚±‚Æ‚Åæ“¾‚Å‚«‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€<seealso cref="IProtocolService">IProtocolService</seealso>ã®
+    /// <see cref="IProtocolService.CreateDefaultCygwinParameter">CreateDefaultCygwinParameterãƒ¡ã‚½ãƒƒãƒ‰</see>
+    /// ã‚’å‘¼ã³å‡ºã™ã“ã¨ã§å–å¾—ã§ãã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍAGetAdapterƒƒ\ƒbƒh‚ğg‚¤‚±‚Æ‚ÅA<seealso cref="ITerminalParameter">ITerminalParameter</seealso>
-    /// ‚Ö‚Æ•ÏŠ·‚Å‚«‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€GetAdapterãƒ¡ã‚½ãƒƒãƒ‰ã‚’ä½¿ã†ã“ã¨ã§ã€<seealso cref="ITerminalParameter">ITerminalParameter</seealso>
+    /// ã¸ã¨å¤‰æ›ã§ãã¾ã™ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -362,7 +362,7 @@ namespace Poderosa.Protocols {
     public interface ICygwinParameter : IAdaptable, ICloneable {
         /// <summary>
         /// <ja>
-        /// ƒVƒFƒ‹‚Ì–¼‘O‚ğæ“¾^İ’è‚µ‚Ü‚·B
+        /// ã‚·ã‚§ãƒ«ã®åå‰ã‚’å–å¾—ï¼è¨­å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Get / set shell name.
@@ -374,7 +374,7 @@ namespace Poderosa.Protocols {
         }
         /// <summary>
         /// <ja>
-        /// ƒz[ƒ€ƒfƒBƒŒƒNƒgƒŠ‚ğæ“¾^İ’è‚µ‚Ü‚·B
+        /// ãƒ›ãƒ¼ãƒ ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’å–å¾—ï¼è¨­å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Get / set the home directory.
@@ -386,7 +386,7 @@ namespace Poderosa.Protocols {
         }
         /// <summary>
         /// <ja>
-        /// ƒVƒFƒ‹‚©‚çˆø”•”•ª‚ğæ‚èœ‚¢‚½ƒRƒ}ƒ“ƒh•”•ª‚¾‚¯‚ğ•Ô‚µ‚Ü‚·B
+        /// ã‚·ã‚§ãƒ«ã‹ã‚‰å¼•æ•°éƒ¨åˆ†ã‚’å–ã‚Šé™¤ã„ãŸã‚³ãƒãƒ³ãƒ‰éƒ¨åˆ†ã ã‘ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Only the command part where the argument part was removed from the shell is returned. 
@@ -397,8 +397,8 @@ namespace Poderosa.Protocols {
         }
         /// <summary>
         /// <ja>
-        /// Cygwin‚ÌêŠ‚ğæ“¾^İ’è‚µ‚Ü‚·B
-        /// İ’è‚³‚ê‚È‚¢ê‡‚ÍƒŒƒWƒXƒgƒŠ‚©‚çŒŸo‚µ‚Ü‚·B
+        /// Cygwinã®å ´æ‰€ã‚’å–å¾—ï¼è¨­å®šã—ã¾ã™ã€‚
+        /// è¨­å®šã•ã‚Œãªã„å ´åˆã¯ãƒ¬ã‚¸ã‚¹ãƒˆãƒªã‹ã‚‰æ¤œå‡ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Get or Set path where Cygwin is installed.
@@ -413,7 +413,7 @@ namespace Poderosa.Protocols {
 
     /// <summary>
     /// <ja>
-    /// ƒ}ƒNƒ‚Ì©“®Às‚Ìƒpƒ‰ƒ[ƒ^‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒã‚¯ãƒ­ã®è‡ªå‹•å®Ÿè¡Œã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// This interface represents parameters for macro auto execution.
@@ -422,7 +422,7 @@ namespace Poderosa.Protocols {
     public interface IAutoExecMacroParameter : IAdaptable, ICloneable {
         /// <summary>
         /// <ja>
-        /// Ú‘±Œã‚É©“®Às‚·‚éƒ}ƒNƒ‚ÌƒpƒXB–¢w’è‚Ì‚Æ‚«‚ÍnullB
+        /// æ¥ç¶šå¾Œã«è‡ªå‹•å®Ÿè¡Œã™ã‚‹ãƒã‚¯ãƒ­ã®ãƒ‘ã‚¹ã€‚æœªæŒ‡å®šã®ã¨ãã¯nullã€‚
         /// </ja>
         /// <en>
         /// Path to a macro which will be run automatically after the connection was established.

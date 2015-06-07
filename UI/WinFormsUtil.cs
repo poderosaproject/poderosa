@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,12 +29,12 @@ namespace Poderosa.Util {
                 switch(key) {
                     case Keys.None:
                         return "";
-                    //“Áêˆµ‚¢ƒOƒ‹[ƒv
+                    //ç‰¹æ®Šæ‰±ã„ã‚°ãƒ«ãƒ¼ãƒ—
                     case Keys.Prior:
                         return "PageUp";
                     case Keys.Next:
                         return "PageDown";
-                        //Oem‚Ù‚É‚á‚ç‚ç‚ª‚¤‚´‚Á‚½‚¢
+                        //Oemã»ã«ã‚ƒã‚‰ã‚‰ãŒã†ã–ã£ãŸã„
                     case Keys.OemBackslash:
                         return "Backslash";
                     case Keys.OemCloseBrackets:
@@ -66,7 +66,7 @@ namespace Poderosa.Util {
             }
         }
 
-        //KeyString‚Ì‹t•ÏŠ·@KeyConverter‚ÌÀ‘•‚Í€‚Ê‚Ù‚Ç’x‚¢
+        //KeyStringã®é€†å¤‰æ›ã€€KeyConverterã®å®Ÿè£…ã¯æ­»ã¬ã»ã©é…ã„
         public static Keys ParseSingleKey(string s) {
             if (s.Length == 0)
                 return Keys.None;
@@ -78,7 +78,7 @@ namespace Poderosa.Util {
                     return (Keys)Enum.Parse(typeof(Keys), s);
             }
             else {
-                //‚Q•¶šˆÈã‚¾‚Á‚½‚ç‘½­try...catch‚ ‚Á‚Ä‚à‚¢‚¢‚¾‚ë‚¤
+                //ï¼’æ–‡å­—ä»¥ä¸Šã ã£ãŸã‚‰å¤šå°‘try...catchã‚ã£ã¦ã‚‚ã„ã„ã ã‚ã†
                 try {
                     return (Keys)Enum.Parse(typeof(Keys), s);
                 }
@@ -95,9 +95,9 @@ namespace Poderosa.Util {
         public static Keys ParseKey(string value) {
             return ParseKey(value.Split('+'));
         }
-        public static Keys ParseKey(string[] value) { //modifier‚İ‚Åƒp[ƒX
+        public static Keys ParseKey(string[] value) { //modifierè¾¼ã¿ã§ãƒ‘ãƒ¼ã‚¹
             Keys modifier = Keys.None;
-            for (int i = 0; i < value.Length - 1; i++) { //ÅŒãˆÈŠO
+            for (int i = 0; i < value.Length - 1; i++) { //æœ€å¾Œä»¥å¤–
                 string m = value[i];
                 modifier |= ParseModifier(m);
             }

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@ using Poderosa.View;
 using Poderosa.Commands;
 using Poderosa.Sessions;
 
-//‘I‘ğ—Ìˆæ‚ÌŠÇ—‚ÆA‘I‘ğ‚µ‚½‚à‚Ì‚ÉŠÖ‚í‚éŠî–{ƒRƒ}ƒ“ƒhiƒRƒs[‚È‚Çj‚ÌÀ‘•
+//é¸æŠé ˜åŸŸã®ç®¡ç†ã¨ã€é¸æŠã—ãŸã‚‚ã®ã«é–¢ã‚ã‚‹åŸºæœ¬ã‚³ãƒãƒ³ãƒ‰ï¼ˆã‚³ãƒ”ãƒ¼ãªã©ï¼‰ã®å®Ÿè£…
 
 namespace Poderosa.Forms {
     internal class SelectionService : ISelectionService {

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@ using Poderosa.Protocols;
 namespace Poderosa.Terminal {
     /// <summary>
     /// <ja>
-    /// ‘—óMƒf[ƒ^‚ğƒtƒbƒN‚µ‚Ä‰ÁH‚·‚éÛ‚É—p‚¢‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// é€å—ä¿¡ãƒ‡ãƒ¼ã‚¿ã‚’ãƒ•ãƒƒã‚¯ã—ã¦åŠ å·¥ã™ã‚‹éš›ã«ç”¨ã„ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface used when hook is done and transmitting and receiving data is processed.
@@ -24,7 +24,7 @@ namespace Poderosa.Terminal {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚Ì‰ğà‚ÍA‚Ü‚¾‚ ‚è‚Ü‚¹‚ñB
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã®è§£èª¬ã¯ã€ã¾ã ã‚ã‚Šã¾ã›ã‚“ã€‚
     /// </ja>
     /// <en>
     /// It has not explained this interface yet. 
@@ -40,7 +40,7 @@ namespace Poderosa.Terminal {
         }
         void NotifyEndOfPacket();
     }
-    //ƒ}ƒNƒ‚È‚ÇAcharƒx[ƒX‚Ì‚â‚è‚Æ‚è‚ğ‚·‚é‚à‚Ì
+    //ãƒã‚¯ãƒ­ãªã©ã€charãƒ™ãƒ¼ã‚¹ã®ã‚„ã‚Šã¨ã‚Šã‚’ã™ã‚‹ã‚‚ã®
     /// <summary>
     /// 
     /// </summary>
@@ -57,7 +57,7 @@ namespace Poderosa.Terminal {
         void Complete();
         void Cancel(string msg);
         void Update();
-        void SendEnter(); //XMODEM/ZMODEM‚Å‚ÍóMƒRƒ}ƒ“ƒh‚ªEnterƒL[‚ğ‘—M‚·‚é‚ÆŒü‚±‚¤‚ÌÄ‘—‚ğ‘Ò‚½‚È‚­‚Ä‚æ‚­‚È‚é
+        void SendEnter(); //XMODEM/ZMODEMã§ã¯å—ä¿¡ã‚³ãƒãƒ³ãƒ‰ãŒEnterã‚­ãƒ¼ã‚’é€ä¿¡ã™ã‚‹ã¨å‘ã“ã†ã®å†é€ã‚’å¾…ãŸãªãã¦ã‚ˆããªã‚‹
         IPoderosaMainWindow MainWindow {
             get;
         }

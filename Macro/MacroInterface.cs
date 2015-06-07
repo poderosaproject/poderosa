@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,18 +18,18 @@ using Poderosa.MacroInternal;
 namespace Poderosa.Macro {
 
     /// <summary>
-    /// <ja>ƒ}ƒNƒ‹@”\‚Ìƒ‹[ƒg‚É‚È‚éƒNƒ‰ƒX‚Å‚·B</ja>
+    /// <ja>ãƒã‚¯ãƒ­æ©Ÿèƒ½ã®ãƒ«ãƒ¼ãƒˆã«ãªã‚‹ã‚¯ãƒ©ã‚¹ã§ã™ã€‚</ja>
     /// <en>This class is the root of the macro functionality.</en>
     /// </summary>
     /// <remarks>
-    /// <ja>ƒ}ƒNƒ‚©‚ç‚±‚ÌƒNƒ‰ƒX‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ğì¬‚µ‚ÄAŠeƒvƒƒpƒeƒBEƒƒ\ƒbƒh‚ÉƒAƒNƒZƒX‚µ‚Ä‚­‚¾‚³‚¢B</ja>
+    /// <ja>ãƒã‚¯ãƒ­ã‹ã‚‰ã“ã®ã‚¯ãƒ©ã‚¹ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’ä½œæˆã—ã¦ã€å„ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ãƒ»ãƒ¡ã‚½ãƒƒãƒ‰ã«ã‚¢ã‚¯ã‚»ã‚¹ã—ã¦ãã ã•ã„ã€‚</ja>
     /// <en>Use properties and methods after the macro creates an instance of this class. </en>
     /// </remarks>
     /// <exclude/>
     public sealed class Environment : MarshalByRefObject {
 
         /// <summary>
-        /// <ja><see cref="ConnectionList"/>ƒIƒuƒWƒFƒNƒg‚ğæ“¾‚µ‚Ü‚·B</ja>
+        /// <ja><see cref="ConnectionList"/>ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—ã—ã¾ã™ã€‚</ja>
         /// <en>Gets the <see cref="ConnectionList"/> object.</en>
         /// </summary>
         public ConnectionList Connections {
@@ -39,7 +39,7 @@ namespace Poderosa.Macro {
         }
 
         /// <summary>
-        /// <ja><see cref="Util"/>ƒIƒuƒWƒFƒNƒg‚ğæ“¾‚µ‚Ü‚·B</ja>
+        /// <ja><see cref="Util"/>ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—ã—ã¾ã™ã€‚</ja>
         /// <en>Gets the <see cref="Util"/> object.</en>
         /// </summary>
         public Util Util {
@@ -49,7 +49,7 @@ namespace Poderosa.Macro {
         }
 
         /// <summary>
-        /// <ja>ƒ}ƒNƒ‚ÌƒfƒoƒbƒO‚ğ•â•‚·‚é‚½‚ß‚Ì<see cref="DebugService"/>ƒIƒuƒWƒFƒNƒg‚ğæ“¾‚µ‚Ü‚·B</ja>
+        /// <ja>ãƒã‚¯ãƒ­ã®ãƒ‡ãƒãƒƒã‚°ã‚’è£œåŠ©ã™ã‚‹ãŸã‚ã®<see cref="DebugService"/>ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—ã—ã¾ã™ã€‚</ja>
         /// <en>Gets the <see cref="DebugService"/> object for debugging the macro.</en>
         /// </summary>
         public DebugService Debug {
@@ -59,7 +59,7 @@ namespace Poderosa.Macro {
         }
 
         /// <summary>
-        /// <ja>Poderosa‚ÌƒCƒ“ƒXƒg[ƒ‹‚³‚ê‚½ƒfƒBƒŒƒNƒgƒŠ–¼‚ğæ“¾‚µ‚Ü‚·B––”ö‚É‚Í \ ‚ª‚Â‚¢‚Ä‚¢‚Ü‚·B</ja>
+        /// <ja>Poderosaã®ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã•ã‚ŒãŸãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªåã‚’å–å¾—ã—ã¾ã™ã€‚æœ«å°¾ã«ã¯ \ ãŒã¤ã„ã¦ã„ã¾ã™ã€‚</ja>
         /// <en>Gets the directory the Poderosa is installed. The tail of the string is a '\'.</en>
         /// </summary>
         public string InstalledDir {
@@ -70,15 +70,15 @@ namespace Poderosa.Macro {
 
 #if OLD_PODEROSA_FEATURE
         /// <summary>
-        /// <ja>PoderosaŠÂ‹«•Ï”‚ğæ“¾‚µ‚Ü‚·B</ja>
+        /// <ja>Poderosaç’°å¢ƒå¤‰æ•°ã‚’å–å¾—ã—ã¾ã™ã€‚</ja>
         /// <en>Gets the Poderosa environment variable.</en>
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// <para>@PoderosaŠÂ‹«•Ï”‚ÍAƒ†[ƒU‚ÌŠÂ‹«‚ÉˆË‘¶‚·‚é•”•ª‚ğƒ}ƒNƒ‚©‚ç•ª—£‚·‚é‚½‚ß‚É—pˆÓ‚³‚ê‚½‹@”\‚Å‚·B
-        /// ŠÂ‹«•Ï”‚Ì’è‹`‚ÍAƒƒjƒ…[‚©‚çƒc[ƒ‹ - ƒ}ƒNƒ - ŠÂ‹«İ’è‚ğ‘I‚ÑA‚»‚Ì’†‚ÅŠÂ‹«•Ï”ƒ{ƒ^ƒ“‚É‚æ‚Á‚ÄŠm”F‚Æ•ÒW‚ª‚Å‚«‚Ü‚·B</para>
-        /// <para>@‚½‚Æ‚¦‚ÎAƒeƒLƒXƒgƒGƒfƒBƒ^‚ÌƒpƒX‚ğ‚±‚±‚É“o˜^‚³‚¹‚Ä‚¨‚¢‚ÄAƒ}ƒNƒ‚©‚ç‹N“®‚·‚é‚±‚Æ‚ª‚Å‚«‚Ü‚·B</para>
-        /// <para>@‚È‚¨APoderosaŠÂ‹«•Ï”‚ÍOS‚ÌŠÂ‹«•Ï”‚Æ‚ÍŠÖŒW‚ ‚è‚Ü‚¹‚ñB</para>
+        /// <para>ã€€Poderosaç’°å¢ƒå¤‰æ•°ã¯ã€ãƒ¦ãƒ¼ã‚¶ã®ç’°å¢ƒã«ä¾å­˜ã™ã‚‹éƒ¨åˆ†ã‚’ãƒã‚¯ãƒ­ã‹ã‚‰åˆ†é›¢ã™ã‚‹ãŸã‚ã«ç”¨æ„ã•ã‚ŒãŸæ©Ÿèƒ½ã§ã™ã€‚
+        /// ç’°å¢ƒå¤‰æ•°ã®å®šç¾©ã¯ã€ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‹ã‚‰ãƒ„ãƒ¼ãƒ« - ãƒã‚¯ãƒ­ - ç’°å¢ƒè¨­å®šã‚’é¸ã³ã€ãã®ä¸­ã§ç’°å¢ƒå¤‰æ•°ãƒœã‚¿ãƒ³ã«ã‚ˆã£ã¦ç¢ºèªã¨ç·¨é›†ãŒã§ãã¾ã™ã€‚</para>
+        /// <para>ã€€ãŸã¨ãˆã°ã€ãƒ†ã‚­ã‚¹ãƒˆã‚¨ãƒ‡ã‚£ã‚¿ã®ãƒ‘ã‚¹ã‚’ã“ã“ã«ç™»éŒ²ã•ã›ã¦ãŠã„ã¦ã€ãƒã‚¯ãƒ­ã‹ã‚‰èµ·å‹•ã™ã‚‹ã“ã¨ãŒã§ãã¾ã™ã€‚</para>
+        /// <para>ã€€ãªãŠã€Poderosaç’°å¢ƒå¤‰æ•°ã¯OSã®ç’°å¢ƒå¤‰æ•°ã¨ã¯é–¢ä¿‚ã‚ã‚Šã¾ã›ã‚“ã€‚</para>
         /// </ja>
         /// <en>
         /// <para> The Poderosa environment variable feature intends to separate configurations which depend on the environment of users from the macro.</para>
@@ -95,8 +95,8 @@ namespace Poderosa.Macro {
         /// env.Util.Exec(env.GetVariable("tools.texteditor") + " " + filename);
         /// </code>
         /// </example>
-        /// <param name="key"><ja>ŠÂ‹«•Ï”‚Ì–¼‘O</ja><en>the name of varialbe</en></param>
-        /// <returns><ja>ŠÂ‹«•Ï”‚ª’è‹`‚³‚ê‚Ä‚¢‚ê‚Î‚»‚Ì’lA’è‹`‚³‚ê‚Ä‚¢‚È‚¯‚ê‚Înull</ja><en>If the variable is defined, returns the value. Otherwise, returns null.</en></returns>
+        /// <param name="key"><ja>ç’°å¢ƒå¤‰æ•°ã®åå‰</ja><en>the name of varialbe</en></param>
+        /// <returns><ja>ç’°å¢ƒå¤‰æ•°ãŒå®šç¾©ã•ã‚Œã¦ã„ã‚Œã°ãã®å€¤ã€å®šç¾©ã•ã‚Œã¦ã„ãªã‘ã‚Œã°null</ja><en>If the variable is defined, returns the value. Otherwise, returns null.</en></returns>
         public string GetVariable(string key) {
 #if MACRODOC
             return null;
@@ -105,12 +105,12 @@ namespace Poderosa.Macro {
 #endif
         }
         /// <summary>
-        /// <ja>PoderosaŠÂ‹«•Ï”‚ğæ“¾‚µ‚Ü‚·B</ja>
+        /// <ja>Poderosaç’°å¢ƒå¤‰æ•°ã‚’å–å¾—ã—ã¾ã™ã€‚</ja>
         /// <en>Gets a Poderosa environment variable.</en>
         /// </summary>
-        /// <param name="key"><ja>ŠÂ‹«•Ï”‚Ì–¼‘O</ja><en>the name of varialbe</en></param>
-        /// <param name="def"><ja>Œ©‚Â‚©‚ç‚È‚©‚Á‚½‚Æ‚«‚É•Ô‚·ƒfƒtƒHƒ‹ƒg’l</ja><en>the default value in case that the key is not found</en></param>
-        /// <returns><ja>ŠÂ‹«•Ï”‚ª’è‹`‚³‚ê‚Ä‚¢‚ê‚Î‚»‚Ì’lA’è‹`‚³‚ê‚Ä‚¢‚È‚¯‚ê‚Îdef‚Ì’l</ja><en>If the variable is defined, returns the value. Otherwise, returns the value of def.</en></returns>
+        /// <param name="key"><ja>ç’°å¢ƒå¤‰æ•°ã®åå‰</ja><en>the name of varialbe</en></param>
+        /// <param name="def"><ja>è¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸã¨ãã«è¿”ã™ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤</ja><en>the default value in case that the key is not found</en></param>
+        /// <returns><ja>ç’°å¢ƒå¤‰æ•°ãŒå®šç¾©ã•ã‚Œã¦ã„ã‚Œã°ãã®å€¤ã€å®šç¾©ã•ã‚Œã¦ã„ãªã‘ã‚Œã°defã®å€¤</ja><en>If the variable is defined, returns the value. Otherwise, returns the value of def.</en></returns>
         public string GetVariable(string key, string def) {
 #if MACRODOC
             return null;
@@ -137,14 +137,14 @@ namespace Poderosa.Macro {
     }
 
     /// <summary>
-    /// <ja><see cref="Connection"/>ƒIƒuƒWƒFƒNƒg‚ÌƒRƒŒƒNƒVƒ‡ƒ“‚Å‚·B</ja>
+    /// <ja><see cref="Connection"/>ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã§ã™ã€‚</ja>
     /// <en>A collection of <see cref="Connection"/> objects.</en>
     /// </summary>
     /// <exclude/>
     public abstract class ConnectionList : MarshalByRefObject, IEnumerable {
 #if OLD_PODEROSA_FEATURE
         /// <summary>
-        /// <ja>ƒRƒlƒNƒVƒ‡ƒ“‚Ì”‚Å‚·B</ja>
+        /// <ja>ã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ã®æ•°ã§ã™ã€‚</ja>
         /// <en>Gets the number of connections.</en>
         /// </summary>
         public abstract int Count {
@@ -153,15 +153,15 @@ namespace Poderosa.Macro {
 #endif
 
         /// <summary>
-        /// <ja><see cref="Connection"/>ƒIƒuƒWƒFƒNƒg‚ğ—ñ‹“‚µ‚Ü‚·B</ja>
+        /// <ja><see cref="Connection"/>ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’åˆ—æŒ™ã—ã¾ã™ã€‚</ja>
         /// <en>Enumerates each <see cref="Connection"/> objects.</en>
         /// </summary>
         public abstract IEnumerator GetEnumerator();
 
         /// <summary>
-        /// <ja>ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ÅƒAƒNƒeƒBƒu‚É‚È‚Á‚Ä‚¢‚éÚ‘±‚ğ•Ô‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã§ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ã¦ã„ã‚‹æ¥ç¶šã‚’è¿”ã—ã¾ã™ã€‚</ja>
         /// <en>Returns the active connection of Poderosa.</en>
-        /// <ja>ƒAƒNƒeƒBƒu‚ÈÚ‘±‚ª‚È‚¢‚Æ‚«‚Ínull‚ğ•Ô‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªæ¥ç¶šãŒãªã„ã¨ãã¯nullã‚’è¿”ã—ã¾ã™ã€‚</ja>
         /// <en>If there are no active connections, returns null.</en>
         /// </summary>
         public abstract Connection ActiveConnection {
@@ -169,11 +169,11 @@ namespace Poderosa.Macro {
         }
 
         /// <summary>
-        /// <ja>V‚µ‚¢Ú‘±‚ğŠJ‚«‚Ü‚·B</ja>
+        /// <ja>æ–°ã—ã„æ¥ç¶šã‚’é–‹ãã¾ã™ã€‚</ja>
         /// <en>Opens a new connection.</en>
         /// </summary>
         /// <remarks>
-        /// <ja>¸”s‚µ‚½‚Æ‚«‚ÍƒƒbƒZ[ƒWƒ{ƒbƒNƒX‚Å’Ê’m‚ğ‚µ‚½ã‚Ånull‚ª•Ô‚è‚Ü‚·B</ja>
+        /// <ja>å¤±æ•—ã—ãŸã¨ãã¯ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã§é€šçŸ¥ã‚’ã—ãŸä¸Šã§nullãŒè¿”ã‚Šã¾ã™ã€‚</ja>
         /// <en>If the connection fails, Poderosa shows an error message box and returns null to the macro.</en>
         /// </remarks>
         /// <seealso cref="TerminalParam"/>
@@ -183,42 +183,42 @@ namespace Poderosa.Macro {
         /// <seealso cref="SerialTerminalParam"/>
         /// -->
         /// <seealso cref="SSHTerminalParam"/>
-        /// <param name="param"><ja>Ú‘±‚É•K—v‚Èƒpƒ‰ƒ[ƒ^‚ğû˜^‚µ‚½<see cref="TerminalParam"/>ƒIƒuƒWƒFƒNƒg</ja><en>The <see cref="TerminalParam"/> object that contains parameters for the connection.</en></param>
-        /// <returns><ja>V‚µ‚­ŠJ‚©‚ê‚½<see cref="Connection"/>ƒIƒuƒWƒFƒNƒg</ja><en>A <see cref="Connection"/> object that describes the new connection.</en></returns>
+        /// <param name="param"><ja>æ¥ç¶šã«å¿…è¦ãªãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’åéŒ²ã—ãŸ<see cref="TerminalParam"/>ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>The <see cref="TerminalParam"/> object that contains parameters for the connection.</en></param>
+        /// <returns><ja>æ–°ã—ãé–‹ã‹ã‚ŒãŸ<see cref="Connection"/>ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>A <see cref="Connection"/> object that describes the new connection.</en></returns>
         public abstract Connection Open(TerminalParam param);
 
 #if OLD_PODEROSA_FEATURE
         /// <summary>
-        /// <ja>ƒVƒ‡[ƒgƒJƒbƒgƒtƒ@ƒCƒ‹‚ğŠJ‚«‚Ü‚·</ja>
+        /// <ja>ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ãã¾ã™</ja>
         /// <en>Opens a shortcut file</en>
         /// </summary>
         /// <remarks>
-        /// <ja>Ú‘±‚ª¸”s‚µ‚½‚èAƒ†[ƒU‚ªƒLƒƒƒ“ƒZƒ‹‚·‚é‚Ænull‚ª•Ô‚è‚Ü‚·B</ja>
+        /// <ja>æ¥ç¶šãŒå¤±æ•—ã—ãŸã‚Šã€ãƒ¦ãƒ¼ã‚¶ãŒã‚­ãƒ£ãƒ³ã‚»ãƒ«ã™ã‚‹ã¨nullãŒè¿”ã‚Šã¾ã™ã€‚</ja>
         /// <en>If the connection is failed or the user cancelled, this method returns null.</en>
         /// </remarks>
-        /// <param name="filename"><ja>Ú‘±‚É•K—v‚Èƒpƒ‰ƒ[ƒ^‚ğû˜^‚µ‚½ƒVƒ‡[ƒgƒJƒbƒgƒtƒ@ƒCƒ‹–¼</ja><en>A shortcut file that contains parameters for the connection.</en></param>
-        /// <returns><ja>V‚µ‚­ŠJ‚©‚ê‚½<see cref="Connection"/>ƒIƒuƒWƒFƒNƒg</ja><en>A <see cref="Connection"/> object that describes the new connection.</en></returns>
+        /// <param name="filename"><ja>æ¥ç¶šã«å¿…è¦ãªãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’åéŒ²ã—ãŸã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆãƒ•ã‚¡ã‚¤ãƒ«å</ja><en>A shortcut file that contains parameters for the connection.</en></param>
+        /// <returns><ja>æ–°ã—ãé–‹ã‹ã‚ŒãŸ<see cref="Connection"/>ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>A <see cref="Connection"/> object that describes the new connection.</en></returns>
         public abstract Connection OpenShortcutFile(string filename);
 #endif
     }
 
 
     /// <summary>
-    /// <ja>‚P–{‚ÌÚ‘±‚ğ•\‚µ‚Ü‚·B</ja>
+    /// <ja>ï¼‘æœ¬ã®æ¥ç¶šã‚’è¡¨ã—ã¾ã™ã€‚</ja>
     /// <en>Describes a connection.</en>
     /// </summary>
     /// <exclude/>
     public abstract class Connection : MarshalByRefObject {
 #if OLD_PODEROSA_FEATURE
         /// <summary>
-        /// <ja>‚±‚ÌÚ‘±‚Éİ’è‚³‚ê‚½‰æ–Ê‚Ì•‚ğ•¶š’PˆÊ‚Åæ“¾‚µ‚Ü‚·B</ja>
+        /// <ja>ã“ã®æ¥ç¶šã«è¨­å®šã•ã‚ŒãŸç”»é¢ã®å¹…ã‚’æ–‡å­—å˜ä½ã§å–å¾—ã—ã¾ã™ã€‚</ja>
         /// <en>Gets the width of the console in characters.</en>
         /// </summary>
         public abstract int TerminalWidth {
             get;
         }
         /// <summary>
-        /// <ja>‚±‚ÌÚ‘±‚Éİ’è‚³‚ê‚½‰æ–Ê‚Ì‚‚³‚ğ•¶š’PˆÊ‚Åæ“¾‚µ‚Ü‚·B</ja>
+        /// <ja>ã“ã®æ¥ç¶šã«è¨­å®šã•ã‚ŒãŸç”»é¢ã®é«˜ã•ã‚’æ–‡å­—å˜ä½ã§å–å¾—ã—ã¾ã™ã€‚</ja>
         /// <en>Gets the height of the console in characters.</en>
         /// </summary>
         public abstract int TerminalHeight {
@@ -226,21 +226,21 @@ namespace Poderosa.Macro {
         }
 #endif
         /// <summary>
-        /// <ja>‚±‚ÌÚ‘±‚ğƒAƒNƒeƒBƒu‚É‚µAÅ‘O–Ê‚É‚Á‚Ä‚¢‚«‚Ü‚·B</ja>
+        /// <ja>ã“ã®æ¥ç¶šã‚’ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ã—ã€æœ€å‰é¢ã«æŒã£ã¦ã„ãã¾ã™ã€‚</ja>
         /// <en>Activates this connection and brings to the front of application.</en>
         /// </summary>
         public abstract void Activate();
 
         /// <summary>
-        /// <ja>Ú‘±‚ğ•Â‚¶‚Ü‚·B</ja>
+        /// <ja>æ¥ç¶šã‚’é–‰ã˜ã¾ã™ã€‚</ja>
         /// <en>Closes this connection.</en>
         /// </summary>
         public abstract void Close();
 
         /// <summary>
-        /// <ja>ƒf[ƒ^‚ğ‘—M‚µ‚Ü‚·B</ja>
+        /// <ja>ãƒ‡ãƒ¼ã‚¿ã‚’é€ä¿¡ã—ã¾ã™ã€‚</ja>
         /// <en>Transmits data.</en>
-        /// <ja>•¶š—ñ‚Í‚±‚ÌÚ‘±‚Éİ’è‚³‚ê‚½ƒGƒ“ƒR[ƒfƒBƒ“ƒO‚É]‚Á‚ÄƒoƒCƒg—ñ‚ÉƒGƒ“ƒR[ƒh‚³‚ê‚Ü‚·B</ja>
+        /// <ja>æ–‡å­—åˆ—ã¯ã“ã®æ¥ç¶šã«è¨­å®šã•ã‚ŒãŸã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°ã«å¾“ã£ã¦ãƒã‚¤ãƒˆåˆ—ã«ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>The string is encoded in accord with the encoding of this connection.</en>
         /// </summary>
         /// <example>
@@ -253,17 +253,17 @@ namespace Poderosa.Macro {
         /// connection.TransmitLn("-la");
         /// </code>
         /// </example>
-        /// <param name="data">‘—M‚µ‚½‚¢•¶š—ñ</param>
+        /// <param name="data">é€ä¿¡ã—ãŸã„æ–‡å­—åˆ—</param>
         public abstract void Transmit(string data);
 
         /// <summary>
-        /// <ja>ƒf[ƒ^‚É‚Â‚Ã‚¯‚Ä‰üs‚ğ‘—M‚µ‚Ü‚·B</ja>
+        /// <ja>ãƒ‡ãƒ¼ã‚¿ã«ã¤ã¥ã‘ã¦æ”¹è¡Œã‚’é€ä¿¡ã—ã¾ã™ã€‚</ja>
         /// <en>Transmits data followed by new line character.</en>
         /// </summary>
         /// <remarks>
-        /// <ja>•¶š—ñ‚Í‚±‚ÌÚ‘±‚Éİ’è‚³‚ê‚½ƒGƒ“ƒR[ƒfƒBƒ“ƒO‚É]‚Á‚ÄƒoƒCƒg—ñ‚ÉƒGƒ“ƒR[ƒh‚³‚ê‚Ü‚·B</ja>
+        /// <ja>æ–‡å­—åˆ—ã¯ã“ã®æ¥ç¶šã«è¨­å®šã•ã‚ŒãŸã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°ã«å¾“ã£ã¦ãƒã‚¤ãƒˆåˆ—ã«ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>The string is encoded in accord with the encoding of this connection.</en>
-        /// <ja>‚±‚Ìƒƒ\ƒbƒh‚Í•¶š—ñ‚Ì“ü—Í‚É‚Â‚Ã‚¢‚ÄEnterƒL[‚ğ‰Ÿ‚·‚Ì‚Æ“¯‚¶Œø‰Ê‚ª‚ ‚è‚Ü‚·B</ja>
+        /// <ja>ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯æ–‡å­—åˆ—ã®å…¥åŠ›ã«ã¤ã¥ã„ã¦Enterã‚­ãƒ¼ã‚’æŠ¼ã™ã®ã¨åŒã˜åŠ¹æœãŒã‚ã‚Šã¾ã™ã€‚</ja>
         /// <en>This method has the same effect as pressing the Enter key following the input of the string.</en>
         /// </remarks>
         /// <example>
@@ -275,30 +275,30 @@ namespace Poderosa.Macro {
         /// connection.TransmitLn("-la");
         /// </code>
         /// </example>
-        /// <param name="data"><ja>“ü—Íƒf[ƒ^</ja><en>The input data</en></param>
+        /// <param name="data"><ja>å…¥åŠ›ãƒ‡ãƒ¼ã‚¿</ja><en>The input data</en></param>
         public abstract void TransmitLn(string data);
 
         /// <summary>
-        /// <ja>‚±‚ÌÚ‘±‚É‘Î‚µ‚ÄBreakM†‚ğ‘—‚è‚Ü‚·B</ja>
+        /// <ja>ã“ã®æ¥ç¶šã«å¯¾ã—ã¦Breakä¿¡å·ã‚’é€ã‚Šã¾ã™ã€‚</ja>
         /// <en>Send a break signal to this connection.</en>
         /// </summary>
         /// <remarks>
-        /// <ja>SSH1‚Å‚ÍBreakM†‚ğ‘—‚é‚±‚Æ‚Í‚Å‚«‚Ü‚¹‚ñB</ja>
+        /// <ja>SSH1ã§ã¯Breakä¿¡å·ã‚’é€ã‚‹ã“ã¨ã¯ã§ãã¾ã›ã‚“ã€‚</ja>
         /// <en>SSH1 does not support the break signal.</en>
         /// </remarks>
         public abstract void SendBreak();
 
         /// <summary>
-        /// <ja>‚Ps‚Ìƒf[ƒ^‚ğóM‚µ‚Ü‚·B</ja>
+        /// <ja>ï¼‘è¡Œã®ãƒ‡ãƒ¼ã‚¿ã‚’å—ä¿¡ã—ã¾ã™ã€‚</ja>
         /// <en>Receives a line from the connection.</en>
         /// </summary>
         /// <remarks>
-        /// <para><ja>@ƒzƒXƒg‚©‚çƒf[ƒ^‚ª–¢“’…‚¾‚Á‚½‚ès‚ªI‚í‚Á‚Ä‚¢‚È‚¢‚Æ‚«‚ÍA‚Ps‚ÌI—¹‚ªŠm”F‚Å‚«‚é‚Ü‚Åƒƒ\ƒbƒh‚ÍƒuƒƒbƒN‚µ‚Ü‚·B</ja>
+        /// <para><ja>ã€€ãƒ›ã‚¹ãƒˆã‹ã‚‰ãƒ‡ãƒ¼ã‚¿ãŒæœªåˆ°ç€ã ã£ãŸã‚Šè¡ŒãŒçµ‚ã‚ã£ã¦ã„ãªã„ã¨ãã¯ã€ï¼‘è¡Œã®çµ‚äº†ãŒç¢ºèªã§ãã‚‹ã¾ã§ãƒ¡ã‚½ãƒƒãƒ‰ã¯ãƒ–ãƒ­ãƒƒã‚¯ã—ã¾ã™ã€‚</ja>
         /// <en> When no data is available or the new line characters are not received, the execution of this method is blocked.</en></para>
-        /// <para><ja>@“Á‚Éƒvƒƒ“ƒvƒg•¶š—ñ‚Í‰üs‚ğŠÜ‚Ü‚È‚¢‚Ì‚ÅAƒvƒƒ“ƒvƒg‚ğ‘Ò‚Â‚½‚ß‚É‚±‚Ìƒƒ\ƒbƒh‚ğg‚í‚È‚¢‚æ‚¤‚É‚µ‚Ä‚­‚¾‚³‚¢Bƒvƒƒ“ƒvƒg‚Ì”»’è‚ğ‚·‚é‚æ‚¤‚Èê‡‚É‚Í‚©‚í‚è‚É<see cref="ReceiveData()"/>‚Ü‚½‚Í<see cref="ReceiveData(int)"/>‚ğg‚Á‚Ä‚­‚¾‚³‚¢B</ja>
+        /// <para><ja>ã€€ç‰¹ã«ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆæ–‡å­—åˆ—ã¯æ”¹è¡Œã‚’å«ã¾ãªã„ã®ã§ã€ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã‚’å¾…ã¤ãŸã‚ã«ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‚’ä½¿ã‚ãªã„ã‚ˆã†ã«ã—ã¦ãã ã•ã„ã€‚ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã®åˆ¤å®šã‚’ã™ã‚‹ã‚ˆã†ãªå ´åˆã«ã¯ã‹ã‚ã‚Šã«<see cref="ReceiveData()"/>ã¾ãŸã¯<see cref="ReceiveData(int)"/>ã‚’ä½¿ã£ã¦ãã ã•ã„ã€‚</ja>
         /// <en> Especially note that this method could not be used to wait a prompt string since it does not contain new line characters. To wait a prompt, use <see cref="ReceiveData()"/> or <see cref="ReceiveData(int)"/> instead of ReceiveLine method.</en>
         /// </para>
-        /// <para><ja>@‚Ü‚½AƒzƒXƒg‚©‚ç—ˆ‚éƒf[ƒ^‚Ì‚¤‚¿ACR‚ÆNUL‚Í–³‹‚³‚ê‚Ü‚·B</ja>
+        /// <para><ja>ã€€ã¾ãŸã€ãƒ›ã‚¹ãƒˆã‹ã‚‰æ¥ã‚‹ãƒ‡ãƒ¼ã‚¿ã®ã†ã¡ã€CRã¨NULã¯ç„¡è¦–ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en> Additionally, CR and NUL are ignored in the data from the host.</en></para>
         /// <seealso cref="ReceiveLine(int)"/>
         /// <seealso cref="ReceiveData()"/>
@@ -321,20 +321,20 @@ namespace Poderosa.Macro {
         /// 
         /// </code>
         /// </example>
-        /// <returns><ja>óM‚µ‚½•¶š—ñ‚Å‚·B‰üs•¶š‚ÍŠÜ‚İ‚Ü‚¹‚ñB</ja><en>The received line without new line characters.</en></returns>
+        /// <returns><ja>å—ä¿¡ã—ãŸæ–‡å­—åˆ—ã§ã™ã€‚æ”¹è¡Œæ–‡å­—ã¯å«ã¿ã¾ã›ã‚“ã€‚</ja><en>The received line without new line characters.</en></returns>
         public abstract string ReceiveLine();
 
         /// <summary>
-        /// <ja>‚Ps‚Ìƒf[ƒ^‚ğóM‚µ‚Ü‚·B</ja>
+        /// <ja>ï¼‘è¡Œã®ãƒ‡ãƒ¼ã‚¿ã‚’å—ä¿¡ã—ã¾ã™ã€‚</ja>
         /// <en>Receives a line from the connection.</en>
         /// </summary>
         /// <remarks>
-        /// <para><ja>@ƒzƒXƒg‚©‚çƒf[ƒ^‚ª–¢“’…‚¾‚Á‚½‚ès‚ªI‚í‚Á‚Ä‚¢‚È‚¢‚Æ‚«‚ÍA‚Ps‚ÌI—¹‚ªŠm”F‚Å‚«‚½‚©Aw’è‚µ‚½ƒ^ƒCƒ€ƒAƒEƒgŠÔ‚ªŒo‰ß‚·‚é‚Ü‚ÅAƒƒ\ƒbƒh‚ÍƒuƒƒbƒN‚µ‚Ü‚·B</ja>
+        /// <para><ja>ã€€ãƒ›ã‚¹ãƒˆã‹ã‚‰ãƒ‡ãƒ¼ã‚¿ãŒæœªåˆ°ç€ã ã£ãŸã‚Šè¡ŒãŒçµ‚ã‚ã£ã¦ã„ãªã„ã¨ãã¯ã€ï¼‘è¡Œã®çµ‚äº†ãŒç¢ºèªã§ããŸã‹ã€æŒ‡å®šã—ãŸã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆæ™‚é–“ãŒçµŒéã™ã‚‹ã¾ã§ã€ãƒ¡ã‚½ãƒƒãƒ‰ã¯ãƒ–ãƒ­ãƒƒã‚¯ã—ã¾ã™ã€‚</ja>
         /// <en> When no data is available or the new line characters are not received, the execution of this method is blocked until the end of line has been detected or the specified time has elapsed.</en></para>
-        /// <para><ja>@“Á‚Éƒvƒƒ“ƒvƒg•¶š—ñ‚Í‰üs‚ğŠÜ‚Ü‚È‚¢‚Ì‚ÅAƒvƒƒ“ƒvƒg‚ğ‘Ò‚Â‚½‚ß‚É‚±‚Ìƒƒ\ƒbƒh‚ğg‚í‚È‚¢‚æ‚¤‚É‚µ‚Ä‚­‚¾‚³‚¢Bƒvƒƒ“ƒvƒg‚Ì”»’è‚ğ‚·‚é‚æ‚¤‚Èê‡‚É‚Í‚©‚í‚è‚É<see cref="ReceiveData()"/>‚Ü‚½‚Í<see cref="ReceiveData(int)"/>‚ğg‚Á‚Ä‚­‚¾‚³‚¢B</ja>
+        /// <para><ja>ã€€ç‰¹ã«ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆæ–‡å­—åˆ—ã¯æ”¹è¡Œã‚’å«ã¾ãªã„ã®ã§ã€ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã‚’å¾…ã¤ãŸã‚ã«ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‚’ä½¿ã‚ãªã„ã‚ˆã†ã«ã—ã¦ãã ã•ã„ã€‚ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã®åˆ¤å®šã‚’ã™ã‚‹ã‚ˆã†ãªå ´åˆã«ã¯ã‹ã‚ã‚Šã«<see cref="ReceiveData()"/>ã¾ãŸã¯<see cref="ReceiveData(int)"/>ã‚’ä½¿ã£ã¦ãã ã•ã„ã€‚</ja>
         /// <en> Especially note that this method could not be used to wait a prompt string since it does not contain new line characters. To wait a prompt, use <see cref="ReceiveData()"/> or <see cref="ReceiveData(int)"/> instead of ReceiveLine method.</en>
         /// </para>
-        /// <para><ja>@‚Ü‚½AƒzƒXƒg‚©‚ç—ˆ‚éƒf[ƒ^‚Ì‚¤‚¿ACR‚ÆNUL‚Í–³‹‚³‚ê‚Ü‚·B</ja>
+        /// <para><ja>ã€€ã¾ãŸã€ãƒ›ã‚¹ãƒˆã‹ã‚‰æ¥ã‚‹ãƒ‡ãƒ¼ã‚¿ã®ã†ã¡ã€CRã¨NULã¯ç„¡è¦–ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en> Additionally, CR and NUL are ignored in the data from the host.</en></para>
         /// <seealso cref="ReceiveLine()"/>
         /// <seealso cref="ReceiveData()"/>
@@ -361,25 +361,25 @@ namespace Poderosa.Macro {
         /// 
         /// </code>
         /// </example>
-        /// <param name="timeoutMillisecs"><ja>ƒ^ƒCƒ€ƒAƒEƒgŠÔ ƒ~ƒŠ•b</ja><en>Timeout in milliseconds</en></param>
+        /// <param name="timeoutMillisecs"><ja>ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆæ™‚é–“ ãƒŸãƒªç§’</ja><en>Timeout in milliseconds</en></param>
         /// <returns>
-        /// <ja>óM‚µ‚½•¶š—ñ‚Å‚·B‰üs•¶š‚ÍŠÜ‚İ‚Ü‚¹‚ñBƒ^ƒCƒ€ƒAƒEƒg‚Ìê‡‚Ínull‚Æ‚È‚è‚Ü‚·B</ja>
+        /// <ja>å—ä¿¡ã—ãŸæ–‡å­—åˆ—ã§ã™ã€‚æ”¹è¡Œæ–‡å­—ã¯å«ã¿ã¾ã›ã‚“ã€‚ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆã®å ´åˆã¯nullã¨ãªã‚Šã¾ã™ã€‚</ja>
         /// <en>The received line without new line characters. If timeout has occurred, returns null.</en>
         /// </returns>
         public abstract string ReceiveLine(int timeoutMillisecs);
 
         /// <summary>
-        /// <ja>ƒf[ƒ^‚ğóM‚µ‚Ü‚·B</ja>
+        /// <ja>ãƒ‡ãƒ¼ã‚¿ã‚’å—ä¿¡ã—ã¾ã™ã€‚</ja>
         /// <en>Receives data from the connection.</en>
         /// </summary>
         /// <remarks>
-        /// <para><ja>@ƒzƒXƒg‚©‚çƒf[ƒ^‚ª–¢“’…‚Ì‚Æ‚«‚ÍA“’…‚·‚é‚Ü‚Åƒ}ƒNƒ‚ÌÀs‚ÍƒuƒƒbƒN‚µ‚Ü‚·B</ja>
+        /// <para><ja>ã€€ãƒ›ã‚¹ãƒˆã‹ã‚‰ãƒ‡ãƒ¼ã‚¿ãŒæœªåˆ°ç€ã®ã¨ãã¯ã€åˆ°ç€ã™ã‚‹ã¾ã§ãƒã‚¯ãƒ­ã®å®Ÿè¡Œã¯ãƒ–ãƒ­ãƒƒã‚¯ã—ã¾ã™ã€‚</ja>
         /// <en>  When no data is available, the execution of this method is blocked.</en>
         /// </para>
-        /// <para><ja>@ƒf[ƒ^‚ª“’…Ï‚İ‚Ì‚Æ‚«‚ÍA‘O‰ñ‚ÌReceiveData‚ÌŒÄ‚Ño‚µˆÈ~‚É—ˆ‚½ƒf[ƒ^‚ğˆêŠ‡‚µ‚Äæ“¾‚µ‚Ü‚·Bs‚ÉØ‚è•ª‚¯‚éì‹Æ‚Íƒ}ƒNƒ‘¤‚Ås‚¤•K—v‚ª‚ ‚è‚Ü‚·‚ªA‰üs‚ÅI‚í‚Á‚Ä‚¢‚È‚¢ƒf[ƒ^‚àæ“¾‚Å‚«‚é—˜“_‚ª‚ ‚è‚Ü‚·B <see cref="ReceiveLine()"/>‚Æg‚¢•ª‚¯‚Ä‚­‚¾‚³‚¢B</ja>
+        /// <para><ja>ã€€ãƒ‡ãƒ¼ã‚¿ãŒåˆ°ç€æ¸ˆã¿ã®ã¨ãã¯ã€å‰å›ã®ReceiveDataã®å‘¼ã³å‡ºã—ä»¥é™ã«æ¥ãŸãƒ‡ãƒ¼ã‚¿ã‚’ä¸€æ‹¬ã—ã¦å–å¾—ã—ã¾ã™ã€‚è¡Œã«åˆ‡ã‚Šåˆ†ã‘ã‚‹ä½œæ¥­ã¯ãƒã‚¯ãƒ­å´ã§è¡Œã†å¿…è¦ãŒã‚ã‚Šã¾ã™ãŒã€æ”¹è¡Œã§çµ‚ã‚ã£ã¦ã„ãªã„ãƒ‡ãƒ¼ã‚¿ã‚‚å–å¾—ã§ãã‚‹åˆ©ç‚¹ãŒã‚ã‚Šã¾ã™ã€‚ <see cref="ReceiveLine()"/>ã¨ä½¿ã„åˆ†ã‘ã¦ãã ã•ã„ã€‚</ja>
         /// <en> This method returns the whole data from the previous call of the ReceiveData method. Though this method can obtain the data even if it does not contain new line characters, the split into lines is responsible for the macro. Please compare to the <see cref="ReceiveLine()"/> method.</en>
         /// </para>
-        /// <para><ja>@‚Ü‚½AƒzƒXƒg‚©‚ç—ˆ‚éƒf[ƒ^‚Ì‚¤‚¿ACR‚ÆNUL‚Í–³‹‚³‚ê‚Ü‚·B‰üs‚ÍLF‚É‚æ‚Á‚Ä”»•Ê‚µ‚Ü‚·B</ja>
+        /// <para><ja>ã€€ã¾ãŸã€ãƒ›ã‚¹ãƒˆã‹ã‚‰æ¥ã‚‹ãƒ‡ãƒ¼ã‚¿ã®ã†ã¡ã€CRã¨NULã¯ç„¡è¦–ã•ã‚Œã¾ã™ã€‚æ”¹è¡Œã¯LFã«ã‚ˆã£ã¦åˆ¤åˆ¥ã—ã¾ã™ã€‚</ja>
         /// <en> CR and NUL are ignored in the data from the host. The line breaks are determined by LF.</en></para>
         /// <seealso cref="ReceiveData(int)"/>
         /// <seealso cref="ReceiveLine()"/>
@@ -397,21 +397,21 @@ namespace Poderosa.Macro {
         ///	  ...
         /// </code>
         /// </example>
-        /// <returns><ja>óM‚µ‚½•¶š—ñ‚Å‚·B</ja><en>The received data.</en></returns>
+        /// <returns><ja>å—ä¿¡ã—ãŸæ–‡å­—åˆ—ã§ã™ã€‚</ja><en>The received data.</en></returns>
         public abstract string ReceiveData();
 
         /// <summary>
-        /// <ja>ƒf[ƒ^‚ğóM‚µ‚Ü‚·B</ja>
+        /// <ja>ãƒ‡ãƒ¼ã‚¿ã‚’å—ä¿¡ã—ã¾ã™ã€‚</ja>
         /// <en>Receives data from the connection.</en>
         /// </summary>
         /// <remarks>
-        /// <para><ja>@ƒzƒXƒg‚©‚çƒf[ƒ^‚ª–¢“’…‚Ì‚Æ‚«‚ÍAƒf[ƒ^‚ª“’…‚·‚é‚©Aw’è‚µ‚½ƒ^ƒCƒ€ƒAƒEƒgŠÔ‚ªŒo‰ß‚·‚é‚Ü‚ÅAƒƒ\ƒbƒh‚ÍƒuƒƒbƒN‚µ‚Ü‚·B</ja>
+        /// <para><ja>ã€€ãƒ›ã‚¹ãƒˆã‹ã‚‰ãƒ‡ãƒ¼ã‚¿ãŒæœªåˆ°ç€ã®ã¨ãã¯ã€ãƒ‡ãƒ¼ã‚¿ãŒåˆ°ç€ã™ã‚‹ã‹ã€æŒ‡å®šã—ãŸã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆæ™‚é–“ãŒçµŒéã™ã‚‹ã¾ã§ã€ãƒ¡ã‚½ãƒƒãƒ‰ã¯ãƒ–ãƒ­ãƒƒã‚¯ã—ã¾ã™ã€‚</ja>
         /// <en>  When no data is available, the execution of this method is blocked until incoming data has been received or the specified time has elapsed.</en>
         /// </para>
-        /// <para><ja>@ƒf[ƒ^‚ª“’…Ï‚İ‚Ì‚Æ‚«‚ÍA‘O‰ñ‚ÌReceiveData‚ÌŒÄ‚Ño‚µˆÈ~‚É—ˆ‚½ƒf[ƒ^‚ğˆêŠ‡‚µ‚Äæ“¾‚µ‚Ü‚·Bs‚ÉØ‚è•ª‚¯‚éì‹Æ‚Íƒ}ƒNƒ‘¤‚Ås‚¤•K—v‚ª‚ ‚è‚Ü‚·‚ªA‰üs‚ÅI‚í‚Á‚Ä‚¢‚È‚¢ƒf[ƒ^‚àæ“¾‚Å‚«‚é—˜“_‚ª‚ ‚è‚Ü‚·B <see cref="ReceiveLine(int)"/>‚Æg‚¢•ª‚¯‚Ä‚­‚¾‚³‚¢B</ja>
+        /// <para><ja>ã€€ãƒ‡ãƒ¼ã‚¿ãŒåˆ°ç€æ¸ˆã¿ã®ã¨ãã¯ã€å‰å›ã®ReceiveDataã®å‘¼ã³å‡ºã—ä»¥é™ã«æ¥ãŸãƒ‡ãƒ¼ã‚¿ã‚’ä¸€æ‹¬ã—ã¦å–å¾—ã—ã¾ã™ã€‚è¡Œã«åˆ‡ã‚Šåˆ†ã‘ã‚‹ä½œæ¥­ã¯ãƒã‚¯ãƒ­å´ã§è¡Œã†å¿…è¦ãŒã‚ã‚Šã¾ã™ãŒã€æ”¹è¡Œã§çµ‚ã‚ã£ã¦ã„ãªã„ãƒ‡ãƒ¼ã‚¿ã‚‚å–å¾—ã§ãã‚‹åˆ©ç‚¹ãŒã‚ã‚Šã¾ã™ã€‚ <see cref="ReceiveLine(int)"/>ã¨ä½¿ã„åˆ†ã‘ã¦ãã ã•ã„ã€‚</ja>
         /// <en> This method returns the whole data from the previous call of the ReceiveData method. Though this method can obtain the data even if it does not contain new line characters, the split into lines is responsible for the macro. Please compare to the <see cref="ReceiveLine(int)"/> method.</en>
         /// </para>
-        /// <para><ja>@‚Ü‚½AƒzƒXƒg‚©‚ç—ˆ‚éƒf[ƒ^‚Ì‚¤‚¿ACR‚ÆNUL‚Í–³‹‚³‚ê‚Ü‚·B‰üs‚ÍLF‚É‚æ‚Á‚Ä”»•Ê‚µ‚Ü‚·B</ja>
+        /// <para><ja>ã€€ã¾ãŸã€ãƒ›ã‚¹ãƒˆã‹ã‚‰æ¥ã‚‹ãƒ‡ãƒ¼ã‚¿ã®ã†ã¡ã€CRã¨NULã¯ç„¡è¦–ã•ã‚Œã¾ã™ã€‚æ”¹è¡Œã¯LFã«ã‚ˆã£ã¦åˆ¤åˆ¥ã—ã¾ã™ã€‚</ja>
         /// <en> CR and NUL are ignored in the data from the host. The line breaks are determined by LF.</en></para>
         /// <seealso cref="ReceiveData()"/>
         /// <seealso cref="ReceiveLine()"/>
@@ -434,15 +434,15 @@ namespace Poderosa.Macro {
         /// }
         /// </code>
         /// </example>
-        /// <param name="timeoutMillisecs"><ja>ƒ^ƒCƒ€ƒAƒEƒgŠÔ ƒ~ƒŠ•b</ja><en>Timeout in milliseconds</en></param>
+        /// <param name="timeoutMillisecs"><ja>ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆæ™‚é–“ ãƒŸãƒªç§’</ja><en>Timeout in milliseconds</en></param>
         /// <returns>
-        /// <ja>óM‚µ‚½•¶š—ñ‚Å‚·Bƒ^ƒCƒ€ƒAƒEƒg‚Ìê‡‚Ínull‚Æ‚È‚è‚Ü‚·B</ja>
+        /// <ja>å—ä¿¡ã—ãŸæ–‡å­—åˆ—ã§ã™ã€‚ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆã®å ´åˆã¯nullã¨ãªã‚Šã¾ã™ã€‚</ja>
         /// <en>The received data. If timeout has occurred, returns null.</en>
         /// </returns>
         public abstract string ReceiveData(int timeoutMillisecs);
 
         /// <summary>
-        /// <ja>ƒƒO‚ÉƒRƒƒ“ƒg‚ğ‘‚«‚Ü‚·BÚ‘±‚ªƒƒO‚ğæ‚é‚æ‚¤‚Éİ’è‚³‚ê‚Ä‚¢‚È‚¢ê‡‚Í‰½‚à‚µ‚Ü‚¹‚ñB</ja>
+        /// <ja>ãƒ­ã‚°ã«ã‚³ãƒ¡ãƒ³ãƒˆã‚’æ›¸ãã¾ã™ã€‚æ¥ç¶šãŒãƒ­ã‚°ã‚’å–ã‚‹ã‚ˆã†ã«è¨­å®šã•ã‚Œã¦ã„ãªã„å ´åˆã¯ä½•ã‚‚ã—ã¾ã›ã‚“ã€‚</ja>
         /// <en>Writes a comment to the log. If the connection is not set to record the log, this method does nothing.</en>
         /// </summary>
         /// <example>
@@ -454,12 +454,12 @@ namespace Poderosa.Macro {
         /// connection.WriteComment("starting macro...");
         /// </code>
         /// </example>
-        /// <param name="comment"><ja>ƒRƒƒ“ƒg•¶š—ñ</ja><en>The comment string</en></param>
+        /// <param name="comment"><ja>ã‚³ãƒ¡ãƒ³ãƒˆæ–‡å­—åˆ—</ja><en>The comment string</en></param>
         public abstract void WriteComment(string comment);
 
         /// <summary>
         /// <ja>
-        /// Ú‘±ƒpƒ‰ƒ[ƒ^‚ÌƒRƒŒƒNƒVƒ‡ƒ“‚ğæ“¾‚µ‚Ü‚·B
+        /// æ¥ç¶šãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã®ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã‚’å–å¾—ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Gets a collection of the connection parameters.
@@ -473,7 +473,7 @@ namespace Poderosa.Macro {
 
     /// <summary>
     /// <ja>
-    /// Ú‘±ƒpƒ‰ƒ[ƒ^‚ÌƒRƒŒƒNƒVƒ‡ƒ“
+    /// æ¥ç¶šãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã®ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³
     /// </ja>
     /// <en>
     /// Collection of the connection parameters.
@@ -482,21 +482,21 @@ namespace Poderosa.Macro {
     public abstract class ConnectionParameterCollection : MarshalByRefObject {
 
         /// <summary>
-        /// <ja>w’è‚µ‚½ƒpƒ‰ƒ[ƒ^‚ªŠÜ‚Ü‚ê‚Ä‚¢‚é‚©‚Ç‚¤‚©‚ğæ“¾‚µ‚Ü‚·B</ja>
+        /// <ja>æŒ‡å®šã—ãŸãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãŒå«ã¾ã‚Œã¦ã„ã‚‹ã‹ã©ã†ã‹ã‚’å–å¾—ã—ã¾ã™ã€‚</ja>
         /// <en>Gets whether this collection contains the specified parameter.</en>
         /// </summary>
         /// <param name="name">
-        /// <ja>ƒpƒ‰ƒ[ƒ^–¼</ja>
+        /// <ja>ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿å</ja>
         /// <en>parameter's name</en>
         /// </param>
         /// <returns>
-        /// <ja>ƒpƒ‰ƒ[ƒ^‚ª‘¶İ‚·‚ê‚ÎtrueB</ja>
+        /// <ja>ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãŒå­˜åœ¨ã™ã‚Œã°trueã€‚</ja>
         /// <en>true if the parameter exists.</en>
         /// </returns>
         public abstract bool Contains(string name);
 
         /// <summary>
-        /// <ja>ƒpƒ‰ƒ[ƒ^–¼‚ÌƒRƒŒƒNƒVƒ‡ƒ“‚ğæ“¾‚µ‚Ü‚·B</ja>
+        /// <ja>ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿åã®ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã‚’å–å¾—ã—ã¾ã™ã€‚</ja>
         /// <en>Gets a collection of the parameter names.</en>
         /// </summary>
         public abstract ICollection<string> Names {
@@ -504,7 +504,7 @@ namespace Poderosa.Macro {
         }
 
         /// <summary>
-        /// <ja>ƒpƒ‰ƒ[ƒ^–¼‚Åƒpƒ‰ƒ[ƒ^’l‚ğæ“¾‚µ‚Ü‚·B</ja>
+        /// <ja>ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿åã§ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿å€¤ã‚’å–å¾—ã—ã¾ã™ã€‚</ja>
         /// <en>Gets a parameter value from its name.</en>
         /// </summary>
         public abstract object this[string name] {
@@ -512,7 +512,7 @@ namespace Poderosa.Macro {
         }
 
         /// <summary>
-        /// <ja>ƒCƒ“ƒfƒbƒNƒX‚Åƒpƒ‰ƒ[ƒ^’l‚ğæ“¾‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã§ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿å€¤ã‚’å–å¾—ã—ã¾ã™ã€‚</ja>
         /// <en>Gets a parameter value from its index.</en>
         /// </summary>
         public abstract object this[int index] {
@@ -520,7 +520,7 @@ namespace Poderosa.Macro {
         }
 
         /// <summary>
-        /// <ja>ƒpƒ‰ƒ[ƒ^”‚ğæ“¾‚µ‚Ü‚·B</ja>
+        /// <ja>ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿æ•°ã‚’å–å¾—ã—ã¾ã™ã€‚</ja>
         /// <en>Gets parameter count.</en>
         /// </summary>
         public abstract int Count {
@@ -529,13 +529,13 @@ namespace Poderosa.Macro {
     }
 
     /// <summary>
-    /// <ja>ƒ}ƒNƒ‚©‚çŒÄ‚Ño‚·‚½‚ß‚ÌA”äŠr“I‚æ‚­g‚¢‚»‚¤‚È‹@”\‚ğû˜^‚µ‚½ƒIƒuƒWƒFƒNƒg‚Å‚·B</ja>
+    /// <ja>ãƒã‚¯ãƒ­ã‹ã‚‰å‘¼ã³å‡ºã™ãŸã‚ã®ã€æ¯”è¼ƒçš„ã‚ˆãä½¿ã„ãã†ãªæ©Ÿèƒ½ã‚’åéŒ²ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚</ja>
     /// <en>Implements several utility functions for macros.</en>
     /// </summary>
     /// <exclude/>
     public abstract class Util : MarshalByRefObject {
         /// <summary>
-        /// <ja>ƒƒbƒZ[ƒWƒ{ƒbƒNƒX‚ğ•\¦‚µ‚Ü‚·B</ja>
+        /// <ja>ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã‚’è¡¨ç¤ºã—ã¾ã™ã€‚</ja>
         /// <en>Shows a message box.</en>
         /// </summary>
         /// <example>
@@ -546,18 +546,18 @@ namespace Poderosa.Macro {
         /// env.Util.MessageBox(String.Format("This file is {0}", env.MacroFileName));
         /// </code>
         /// </example>
-        /// <param name="msg"><ja>•\¦‚µ‚½‚¢ƒƒbƒZ[ƒW</ja><en>The message to be shown.</en></param>
+        /// <param name="msg"><ja>è¡¨ç¤ºã—ãŸã„ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸</ja><en>The message to be shown.</en></param>
         public abstract void MessageBox(string msg);
 
         /// <summary>
-        /// <ja>ƒtƒ@ƒCƒ‹‚ğŠJ‚­Aˆóü‚·‚é‚Æ‚¢‚Á‚½‘€ì‚ğ‚µ‚Ü‚·B</ja>
+        /// <ja>ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ãã€å°åˆ·ã™ã‚‹ã¨ã„ã£ãŸæ“ä½œã‚’ã—ã¾ã™ã€‚</ja>
         /// <en>Performs actions to the file such as open or print.</en>
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// —§‚¿ã‚ª‚éƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Íƒtƒ@ƒCƒ‹‚ÌŠg’£q‚Æverbˆø”‚É‚æ‚Á‚ÄŒˆ‚Ü‚è‚Ü‚·B
-        /// ‚½‚Æ‚¦‚ÎŠg’£q‚ªtxt‚Å‚ ‚ê‚ÎƒeƒLƒXƒgƒGƒfƒBƒ^‚ª‹N“®‚µ‚Ü‚·B
-        /// “à•”“I‚É‚ÍA‚±‚Ìƒƒ\ƒbƒh‚ÍWin32‚ÌShellExecute API‚ğŒÄ‚Ño‚µ‚Ü‚·B
+        /// ç«‹ã¡ä¸ŠãŒã‚‹ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã¯ãƒ•ã‚¡ã‚¤ãƒ«ã®æ‹¡å¼µå­ã¨verbå¼•æ•°ã«ã‚ˆã£ã¦æ±ºã¾ã‚Šã¾ã™ã€‚
+        /// ãŸã¨ãˆã°æ‹¡å¼µå­ãŒtxtã§ã‚ã‚Œã°ãƒ†ã‚­ã‚¹ãƒˆã‚¨ãƒ‡ã‚£ã‚¿ãŒèµ·å‹•ã—ã¾ã™ã€‚
+        /// å†…éƒ¨çš„ã«ã¯ã€ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯Win32ã®ShellExecute APIã‚’å‘¼ã³å‡ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The application is decided by the extension and the verb argument.
@@ -577,16 +577,16 @@ namespace Poderosa.Macro {
         /// env.Util.ShellExecute("open", filename);
         /// </code>
         /// </example>
-        /// <param name="verb"><ja>ƒtƒ@ƒCƒ‹‚É‘Î‚µ‚Äs‚¤“®ì‚Å‚·B"open","print"‚È‚Ç‚Å‚·B</ja><en>The action to the file such as "open" or "print".</en></param>
-        /// <param name="filename"><ja>ŠJ‚­ƒtƒ@ƒCƒ‹‚ğƒtƒ‹ƒpƒX‚Åw’è‚µ‚Ü‚·B</ja><en>The full path of the file name.</en></param>
+        /// <param name="verb"><ja>ãƒ•ã‚¡ã‚¤ãƒ«ã«å¯¾ã—ã¦è¡Œã†å‹•ä½œã§ã™ã€‚"open","print"ãªã©ã§ã™ã€‚</ja><en>The action to the file such as "open" or "print".</en></param>
+        /// <param name="filename"><ja>é–‹ããƒ•ã‚¡ã‚¤ãƒ«ã‚’ãƒ•ãƒ«ãƒ‘ã‚¹ã§æŒ‡å®šã—ã¾ã™ã€‚</ja><en>The full path of the file name.</en></param>
         public abstract void ShellExecute(string verb, string filename);
 
         /// <summary>
-        /// <ja>”CˆÓ‚ÌƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ğ‹N“®‚µ‚Ü‚·B</ja>
+        /// <ja>ä»»æ„ã®ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã‚’èµ·å‹•ã—ã¾ã™ã€‚</ja>
         /// <en>Starts other applications.</en>
         /// </summary>
         /// <remarks>
-        /// <ja>“à•”“I‚É‚ÍA‚±‚Ìƒƒ\ƒbƒh‚ÍWin32‚ÌWinExec API‚ğŒÄ‚Ño‚µ‚Ü‚·B</ja>
+        /// <ja>å†…éƒ¨çš„ã«ã¯ã€ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯Win32ã®WinExec APIã‚’å‘¼ã³å‡ºã—ã¾ã™ã€‚</ja>
         /// <en>This method calls WinExec API of Win32 internally.</en>
         /// </remarks>
         /// <example>
@@ -597,16 +597,16 @@ namespace Poderosa.Macro {
         /// env.Util.Exec("notepad.exe");
         /// </code>
         /// </example>
-        /// <param name="command"><ja>‹N“®‚µ‚½‚¢ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Ì–¼‘O‚Å‚·B•K—v‚Å‚ ‚ê‚Îˆø”‚ğ‚Â‚¯‚é‚±‚Æ‚à‚Å‚«‚Ü‚·B</ja><en>The name of the application to be started. Arguments are allowed if necessary.</en></param>
+        /// <param name="command"><ja>èµ·å‹•ã—ãŸã„ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã®åå‰ã§ã™ã€‚å¿…è¦ã§ã‚ã‚Œã°å¼•æ•°ã‚’ã¤ã‘ã‚‹ã“ã¨ã‚‚ã§ãã¾ã™ã€‚</ja><en>The name of the application to be started. Arguments are allowed if necessary.</en></param>
         public abstract void Exec(string command);
     }
 
     /// <summary>
-    /// <ja>ƒ}ƒNƒ‚ÌƒeƒXƒg‚ÆƒfƒoƒbƒO‚É•K—v‚È‹@”\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B</ja>
+    /// <ja>ãƒã‚¯ãƒ­ã®ãƒ†ã‚¹ãƒˆã¨ãƒ‡ãƒãƒƒã‚°ã«å¿…è¦ãªæ©Ÿèƒ½ã‚’æä¾›ã—ã¾ã™ã€‚</ja>
     /// <en>Implements features for testing and debugging the macro.</en>
     /// </summary>
     /// <remarks>
-    /// <para><ja>@ƒ}ƒNƒ‚ÌƒvƒƒpƒeƒB‰æ–Ê‚É‚¨‚¢‚ÄAuƒgƒŒ[ƒXƒEƒBƒ“ƒhƒE‚ğ•\¦‚·‚évƒIƒvƒVƒ‡ƒ“‚ğ‚Â‚¯‚Ä‚¨‚­‚ÆA‚»‚Ìƒ}ƒNƒ‚ğ‹N“®‚·‚é‚Æ‚«‚ÉƒgƒŒ[ƒXƒEƒBƒ“ƒhƒE‚ªg‚¦‚é‚æ‚¤‚É‚È‚è‚Ü‚·B</ja>
+    /// <para><ja>ã€€ãƒã‚¯ãƒ­ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ç”»é¢ã«ãŠã„ã¦ã€ã€Œãƒˆãƒ¬ãƒ¼ã‚¹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’è¡¨ç¤ºã™ã‚‹ã€ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚’ã¤ã‘ã¦ãŠãã¨ã€ãã®ãƒã‚¯ãƒ­ã‚’èµ·å‹•ã™ã‚‹ã¨ãã«ãƒˆãƒ¬ãƒ¼ã‚¹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãŒä½¿ãˆã‚‹ã‚ˆã†ã«ãªã‚Šã¾ã™ã€‚</ja>
     /// <en> The macro trace window is displayed when the "shows trace window" option is checked in the dialog box of the macro property.</en>
     /// </para>
     /// </remarks>
@@ -614,19 +614,19 @@ namespace Poderosa.Macro {
     public abstract class DebugService : MarshalByRefObject {
 
         /// <summary>
-        /// <ja>ƒgƒŒ[ƒXƒEƒBƒ“ƒhƒE‚ğ•\¦‚µ‚Ü‚·B‚·‚Å‚É•\¦‚³‚ê‚Ä‚¢‚ê‚Î‰½‚à‚µ‚Ü‚¹‚ñB</ja>
+        /// <ja>ãƒˆãƒ¬ãƒ¼ã‚¹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’è¡¨ç¤ºã—ã¾ã™ã€‚ã™ã§ã«è¡¨ç¤ºã•ã‚Œã¦ã„ã‚Œã°ä½•ã‚‚ã—ã¾ã›ã‚“ã€‚</ja>
         /// <en>Show a trace window. Do nothing if a trace window is already visible.</en>
         /// </summary>
         public abstract void ShowTraceWindow();
 
         /// <summary>
-        /// <ja>ƒgƒŒ[ƒXƒEƒBƒ“ƒhƒE‚ğ”ñ•\¦‚É‚µ‚Ü‚·B‚·‚Å‚É•\¦‚³‚ê‚Ä‚¢‚È‚¯‚ê‚Î‰½‚à‚µ‚Ü‚¹‚ñB</ja>
+        /// <ja>ãƒˆãƒ¬ãƒ¼ã‚¹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’éè¡¨ç¤ºã«ã—ã¾ã™ã€‚ã™ã§ã«è¡¨ç¤ºã•ã‚Œã¦ã„ãªã‘ã‚Œã°ä½•ã‚‚ã—ã¾ã›ã‚“ã€‚</ja>
         /// <en>Hide a trace window. Do nothing if a trace window is already invisible.</en>
         /// </summary>
         public abstract void HideTraceWindow();
 
         /// <summary>
-        /// <ja>ƒgƒŒ[ƒXƒEƒBƒ“ƒhƒE‚É‚Ps‚Ìƒf[ƒ^‚ğ•\¦‚µ‚Ü‚·B</ja>
+        /// <ja>ãƒˆãƒ¬ãƒ¼ã‚¹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã«ï¼‘è¡Œã®ãƒ‡ãƒ¼ã‚¿ã‚’è¡¨ç¤ºã—ã¾ã™ã€‚</ja>
         /// <en>Outputs a line to the trace window.</en>
         /// </summary>
         /// <example>
@@ -638,11 +638,11 @@ namespace Poderosa.Macro {
         /// env.Debug.Trace(String.Format("i={0}", i));
         /// </code>
         /// </example>
-        /// <param name="msg"><ja>•\¦‚µ‚½‚¢ƒf[ƒ^</ja><en>The data to be displayed.</en></param>
+        /// <param name="msg"><ja>è¡¨ç¤ºã—ãŸã„ãƒ‡ãƒ¼ã‚¿</ja><en>The data to be displayed.</en></param>
         public abstract void Trace(string msg);
 
         /// <summary>
-        /// <ja>ŒÄ‚Ño‚µ‚½“_‚Å‚ÌƒXƒ^ƒbƒNƒgƒŒ[ƒX‚ğ•\¦‚µ‚Ü‚·B</ja>
+        /// <ja>å‘¼ã³å‡ºã—ãŸæ™‚ç‚¹ã§ã®ã‚¹ã‚¿ãƒƒã‚¯ãƒˆãƒ¬ãƒ¼ã‚¹ã‚’è¡¨ç¤ºã—ã¾ã™ã€‚</ja>
         /// <en>Outputs the stack trace to the trace window.</en>
         /// </summary>
         public abstract void PrintStackTrace();

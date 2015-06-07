@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,7 @@ using Poderosa.Util;
 using Poderosa.Document;
 
 namespace Poderosa.Terminal {
-    //encodingŠÖŒW
+    //encodingé–¢ä¿‚
     internal abstract class EncodingProfile {
 
         private Encoding _encoding;
@@ -27,18 +27,18 @@ namespace Poderosa.Terminal {
         protected EncodingProfile(EncodingType t, Encoding enc) {
             _type = t;
             _encoding = enc;
-            _buffer = new byte[3]; //¡‚Í‚P•¶š‚ÍÅ‘å‚RƒoƒCƒg
+            _buffer = new byte[3]; //ä»Šã¯ï¼‘æ–‡å­—ã¯æœ€å¤§ï¼“ãƒã‚¤ãƒˆ
             _cursor = 0;
-            _tempOneCharArray = new char[1]; //API‚Ì“s‡‚Å’·‚³‚P‚Ìchar[]‚ª•K—v‚È‚Æ‚«g‚¤
+            _tempOneCharArray = new char[1]; //APIã®éƒ½åˆã§é•·ã•ï¼‘ã®char[]ãŒå¿…è¦ãªã¨ãä½¿ã†
         }
 
         //Check if the byte is the first byte of a character which should be converted the character code.
         protected abstract bool IsLeadByte(byte b);
 
-        //æ“ªƒoƒCƒg‚©‚çA•¶š‚ª‰½ƒoƒCƒg‚Å\¬‚³‚ê‚Ä‚¢‚é‚©‚ğ•Ô‚·
+        //å…ˆé ­ãƒã‚¤ãƒˆã‹ã‚‰ã€æ–‡å­—ãŒä½•ãƒã‚¤ãƒˆã§æ§‹æˆã•ã‚Œã¦ã„ã‚‹ã‹ã‚’è¿”ã™
         protected abstract int GetCharLength(byte b);
 
-        //UTF‚ÌBOM‚È‚ÇAƒfƒR[ƒh‚ÌŒ‹‰Êo‚Ä‚«‚Ä‚à–³‹‚·‚×‚«•¶š‚©‚ğ”»’è
+        //UTFã®BOMãªã©ã€ãƒ‡ã‚³ãƒ¼ãƒ‰ã®çµæœå‡ºã¦ãã¦ã‚‚ç„¡è¦–ã™ã¹ãæ–‡å­—ã‹ã‚’åˆ¤å®š
         protected abstract bool IsIgnoreableChar(char c);
 
         // Do mapping from original character to alternative character
@@ -66,15 +66,15 @@ namespace Poderosa.Terminal {
             return _encoding.GetBytes(chars);
         }
 
-        //NOTE öİ“I‚É‚Í_tempOneCharArray‚Ìg—p‚Åƒ}ƒ‹ƒ`ƒXƒŒƒbƒh‚Å‚ÌŠëŒ¯‚ª‚ ‚éB
+        //NOTE æ½œåœ¨çš„ã«ã¯_tempOneCharArrayã®ä½¿ç”¨ã§ãƒãƒ«ãƒã‚¹ãƒ¬ãƒƒãƒ‰ã§ã®å±é™ºãŒã‚ã‚‹ã€‚
         public byte[] GetBytes(char ch) {
             _tempOneCharArray[0] = ch;
             return _encoding.GetBytes(_tempOneCharArray);
         }
 
         public bool IsInterestingByte(byte b) {
-            //"b>=33"‚Ì‚Æ‚±‚ë‚Í‚à‚¤‚¿‚å‚Á‚Æ‚Ü‚¶‚ß‚É”»’è‚·‚é‚×‚«B
-            //•¶š‚ÌŠÔ‚ÉƒGƒXƒP[ƒvƒV[ƒPƒ“ƒX‚ª“ü‚éƒP[ƒX‚Ö‚Ì‘Î‰B
+            //"b>=33"ã®ã¨ã“ã‚ã¯ã‚‚ã†ã¡ã‚‡ã£ã¨ã¾ã˜ã‚ã«åˆ¤å®šã™ã‚‹ã¹ãã€‚
+            //æ–‡å­—ã®é–“ã«ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ãŒå…¥ã‚‹ã‚±ãƒ¼ã‚¹ã¸ã®å¯¾å¿œã€‚
             return _cursor == 0 ? IsLeadByte(b) : b >= 33;
         }
 
@@ -175,7 +175,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //NOTE ‚±‚ê‚ç‚Íƒƒ\ƒbƒh‚Ìoverride‚Å‚È‚­delegate‚Å‚Ü‚í‚µ‚½‚Ù‚¤‚ªŒø—¦‚ÍáŠ±‚æ‚¢‚Ì‚©‚à
+        //NOTE ã“ã‚Œã‚‰ã¯ãƒ¡ã‚½ãƒƒãƒ‰ã®overrideã§ãªãdelegateã§ã¾ã‚ã—ãŸã»ã†ãŒåŠ¹ç‡ã¯è‹¥å¹²ã‚ˆã„ã®ã‹ã‚‚
         private class ISO8859_1Profile : DirectMapEncodingProfile {
             public ISO8859_1Profile()
                 : base(EncodingType.ISO8859_1, Encoding.GetEncoding("iso-8859-1")) {

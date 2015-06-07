@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +31,7 @@ namespace Poderosa.Terminal {
 
     /// <summary>
     /// <ja>
-    /// ƒ^[ƒ~ƒiƒ‹‚ğ¦‚·ƒRƒ“ƒgƒ[ƒ‹‚Å‚·B
+    /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚’ç¤ºã™ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Control to show the terminal.
@@ -60,13 +60,13 @@ namespace Poderosa.Terminal {
 
         private delegate void AdjustIMECompositionDelegate();
 
-        private bool _inIMEComposition; //IME‚É‚æ‚é•¶š“ü—Í‚ÌÅ’†‚Å‚ ‚ê‚Îtrue‚É‚È‚é
+        private bool _inIMEComposition; //IMEã«ã‚ˆã‚‹æ–‡å­—å…¥åŠ›ã®æœ€ä¸­ã§ã‚ã‚Œã°trueã«ãªã‚‹
         private bool _ignoreValueChangeEvent;
 
         private bool _escForVI;
 
-        //Ä•`‰æ‚Ìó‘ÔŠÇ—
-        private int _drawOptimizingState = 0; //‚±‚Ìó‘ÔŠÇ—‚ÍOnWindowManagerTimer(), SmartInvalidate()QÆ
+        //å†æç”»ã®çŠ¶æ…‹ç®¡ç†
+        private int _drawOptimizingState = 0; //ã“ã®çŠ¶æ…‹ç®¡ç†ã¯OnWindowManagerTimer(), SmartInvalidate()å‚ç…§
 
         internal TerminalDocument GetDocument() {
             // FIXME: In rare case, _session may be null...
@@ -91,7 +91,7 @@ namespace Poderosa.Terminal {
 
 
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.Container components = null;
 
@@ -101,7 +101,7 @@ namespace Poderosa.Terminal {
             _escForVI = false;
             this.EnabledEx = false;
 
-            // ‚±‚ÌŒÄ‚Ño‚µ‚ÍAWindows.Forms ƒtƒH[ƒ€ ƒfƒUƒCƒi‚Å•K—v‚Å‚·B
+            // ã“ã®å‘¼ã³å‡ºã—ã¯ã€Windows.Forms ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠã§å¿…è¦ã§ã™ã€‚
             InitializeComponent();
 
             _mouseWheelHandler = new MouseWheelHandler(this, _VScrollBar);
@@ -110,7 +110,7 @@ namespace Poderosa.Terminal {
             _mouseHandlerManager.AddFirstHandler(_mouseTrackingHandler);    // mouse tracking handler become first handler
             _terminalEmulatorMouseHandler = new TerminalEmulatorMouseHandler(this);
             _mouseHandlerManager.AddLastHandler(_terminalEmulatorMouseHandler);
-            //TODO ƒ^ƒCƒ}[‚Í‹¤—p‰»H
+            //TODO ã‚¿ã‚¤ãƒãƒ¼ã¯å…±ç”¨åŒ–ï¼Ÿ
             _sizeTipTimer = new System.Windows.Forms.Timer();
             _sizeTipTimer.Interval = 2000;
             _sizeTipTimer.Tick += new EventHandler(this.OnHideSizeTip);
@@ -130,10 +130,10 @@ namespace Poderosa.Terminal {
             _caret.Style = opt.CaretType;
             _caret.Reset();
 
-            //KeepAliveƒ^ƒCƒ}‹N“®‚ÍÅ‚à’x‚ç‚¹‚½ê‡‚ÅƒRƒR
+            //KeepAliveã‚¿ã‚¤ãƒèµ·å‹•ã¯æœ€ã‚‚é…ã‚‰ã›ãŸå ´åˆã§ã‚³ã‚³
             TerminalEmulatorPlugin.Instance.KeepAlive.Refresh(opt.KeepAliveInterval);
 
-            //ASCIIWordBreakTable : ¡‚Í‹¤—Lİ’è‚¾‚ªASessionŒÅ—L‚Éƒf[ƒ^‚ğ‚Â‚æ‚¤‚É‚·‚é‚©‚à‚µ‚ê‚È‚¢ŠÜ‚İ‚ğ‚½‚¹‚ÄB
+            //ASCIIWordBreakTable : ä»Šã¯å…±æœ‰è¨­å®šã ãŒã€Sessionå›ºæœ‰ã«ãƒ‡ãƒ¼ã‚¿ã‚’æŒã¤ã‚ˆã†ã«ã™ã‚‹ã‹ã‚‚ã—ã‚Œãªã„å«ã¿ã‚’æŒãŸã›ã¦ã€‚
             ASCIIWordBreakTable table = ASCIIWordBreakTable.Default;
             table.Reset();
             foreach (char ch in opt.AdditionalWordElement)
@@ -147,7 +147,7 @@ namespace Poderosa.Terminal {
                 if (!IsConnectionClosed()) {
                     Size ts = CalcTerminalSize(GetRenderProfile());
 
-                    //TODO ƒlƒSŠJn‘O‚Í‚±‚±‚ğ—}§‚µ‚½‚¢
+                    //TODO ãƒã‚´é–‹å§‹å‰ã¯ã“ã“ã‚’æŠ‘åˆ¶ã—ãŸã„
                     if (ts.Width != GetDocument().TerminalWidth || ts.Height != GetDocument().TerminalHeight)
                         ResizeTerminal(ts.Width, ts.Height);
                 }
@@ -169,7 +169,7 @@ namespace Poderosa.Terminal {
         }
 
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -244,21 +244,21 @@ namespace Poderosa.Terminal {
         }
 
         /*
-         * «  óMƒXƒŒƒbƒh‚É‚æ‚éÀs‚ÌƒGƒŠƒA
+         * â†“  å—ä¿¡ã‚¹ãƒ¬ãƒƒãƒ‰ã«ã‚ˆã‚‹å®Ÿè¡Œã®ã‚¨ãƒªã‚¢
          */
 
         public void DataArrived() {
-            //‚æ‚­‚İ‚é‚ÆA‚±‚±‚ğÀs‚µ‚Ä‚¢‚é‚Æ‚«‚Ídocument‚ğƒƒbƒN’†‚È‚Ì‚ÅAã‚Ìƒpƒ^[ƒ“‚Ì‚æ‚¤‚ÉSendMessage‚ğg‚¤‚ÆƒfƒbƒhƒƒbƒN‚ÌŠëŒ¯‚ª‚ ‚é
+            //ã‚ˆãã¿ã‚‹ã¨ã€ã“ã“ã‚’å®Ÿè¡Œã—ã¦ã„ã‚‹ã¨ãã¯documentã‚’ãƒ­ãƒƒã‚¯ä¸­ãªã®ã§ã€ä¸Šã®ãƒ‘ã‚¿ãƒ¼ãƒ³ã®ã‚ˆã†ã«SendMessageã‚’ä½¿ã†ã¨ãƒ‡ãƒƒãƒ‰ãƒ­ãƒƒã‚¯ã®å±é™ºãŒã‚ã‚‹
             InternalDataArrived();
         }
 
         private void InternalDataArrived() {
             if (_session == null)
-                return;	// ƒyƒCƒ“‚ğ•Â‚¶‚é‚É _tag ‚ª null ‚É‚È‚Á‚Ä‚¢‚é‚±‚Æ‚ª‚ ‚é
+                return;	// ãƒšã‚¤ãƒ³ã‚’é–‰ã˜ã‚‹æ™‚ã« _tag ãŒ null ã«ãªã£ã¦ã„ã‚‹ã“ã¨ãŒã‚ã‚‹
 
             TerminalDocument document = GetDocument();
             if (!this.ITextSelection.IsEmpty) {
-                document.InvalidatedRegion.InvalidatedAll = true; //–Ê“|‚¾‚µ
+                document.InvalidatedRegion.InvalidatedAll = true; //é¢å€’ã ã—
                 this.ITextSelection.Clear();
             }
             //Debug.WriteLine(String.Format("v={0} l={1} m={2}", _VScrollBar.Value, _VScrollBar.LargeChange, _VScrollBar.Maximum));
@@ -266,7 +266,7 @@ namespace Poderosa.Terminal {
                 DrawingPerformance.MarkReceiveData(GetDocument().InvalidatedRegion);
             SmartInvalidate();
 
-            //•”•ª•ÏŠ·’†‚Å‚ ‚Á‚½‚Æ‚«‚Ì‚½‚ß‚Ì’²®
+            //éƒ¨åˆ†å¤‰æ›ä¸­ã§ã‚ã£ãŸã¨ãã®ãŸã‚ã®èª¿æ•´
             if (_inIMEComposition) {
                 if (this.InvokeRequired)
                     this.Invoke(new AdjustIMECompositionDelegate(AdjustIMEComposition));
@@ -276,8 +276,8 @@ namespace Poderosa.Terminal {
         }
 
         private void SmartInvalidate() {
-            //‚±‚±‚ÅDrawOptimizeState‚ğ‚¢‚¶‚éB‹ßÚ‚µ‚Ä“’…‚·‚éƒf[ƒ^‚É‚æ‚é‰ßè‚ÈÄ•`‰æ‚ğ‰ñ”ğ‚µ‚Â‚ÂAƒ^ƒCƒ}[‚Åˆê’èŠÔŒã‚É‚ÍŠmÀ‚É•`‰æ‚³‚ê‚é‚æ‚¤‚É‚·‚éB
-            //ó‘Ô‘JˆÚ‚ÍAƒf[ƒ^“’…‚Æƒ^ƒCƒ}[‚ğƒgƒŠƒK‚Æ‚·‚é‚Ró‘Ô‚ÌŠÈ’P‚ÈƒI[ƒgƒ}ƒgƒ“‚Å‚ ‚éB
+            //ã“ã“ã§DrawOptimizeStateã‚’ã„ã˜ã‚‹ã€‚è¿‘æ¥ã—ã¦åˆ°ç€ã™ã‚‹ãƒ‡ãƒ¼ã‚¿ã«ã‚ˆã‚‹éå‰°ãªå†æç”»ã‚’å›é¿ã—ã¤ã¤ã€ã‚¿ã‚¤ãƒãƒ¼ã§ä¸€å®šæ™‚é–“å¾Œã«ã¯ç¢ºå®Ÿã«æç”»ã•ã‚Œã‚‹ã‚ˆã†ã«ã™ã‚‹ã€‚
+            //çŠ¶æ…‹é·ç§»ã¯ã€ãƒ‡ãƒ¼ã‚¿åˆ°ç€ã¨ã‚¿ã‚¤ãƒãƒ¼ã‚’ãƒˆãƒªã‚¬ã¨ã™ã‚‹ï¼“çŠ¶æ…‹ã®ç°¡å˜ãªã‚ªãƒ¼ãƒˆãƒãƒˆãƒ³ã§ã‚ã‚‹ã€‚
             switch (_drawOptimizingState) {
                 case 0:
                     _drawOptimizingState = 1;
@@ -285,7 +285,7 @@ namespace Poderosa.Terminal {
                     break;
                 case 1:
                     if (_session.TerminalConnection.Socket.Available)
-                        Interlocked.Exchange(ref _drawOptimizingState, 2); //ŠÔˆø‚«ƒ‚[ƒh‚Ö
+                        Interlocked.Exchange(ref _drawOptimizingState, 2); //é–“å¼•ããƒ¢ãƒ¼ãƒ‰ã¸
                     else
                         InvalidateEx();
                     break;
@@ -295,9 +295,9 @@ namespace Poderosa.Terminal {
         }
 
         /*
-         * ª  óMƒXƒŒƒbƒh‚É‚æ‚éÀs‚ÌƒGƒŠƒA
+         * â†‘  å—ä¿¡ã‚¹ãƒ¬ãƒƒãƒ‰ã«ã‚ˆã‚‹å®Ÿè¡Œã®ã‚¨ãƒªã‚¢
          * -------------------------------
-         * «  UIƒXƒŒƒbƒh‚É‚æ‚éÀs‚ÌƒGƒŠƒA
+         * â†“  UIã‚¹ãƒ¬ãƒƒãƒ‰ã«ã‚ˆã‚‹å®Ÿè¡Œã®ã‚¨ãƒªã‚¢
          */
 
         protected override void OnWindowManagerTimer() {
@@ -309,7 +309,7 @@ namespace Poderosa.Terminal {
                 case 1:
                     Interlocked.CompareExchange(ref _drawOptimizingState, 0, 1);
                     break;
-                case 2: //–Z‚µ‚­‚Ä‚à‹ô‚É‚Í•`‰æ
+                case 2: //å¿™ã—ãã¦ã‚‚å¶ã«ã¯æç”»
                     _drawOptimizingState = 1;
                     InvalidateEx();
                     break;
@@ -337,16 +337,16 @@ namespace Poderosa.Terminal {
             }
         }
 
-        /* ƒL[ƒ{[ƒhˆ—Œn‚É‚Â‚¢‚Ä
-         * @‘—M‚ÍÅI“I‚É‚ÍSendChar/String‚Ös‚­B
+        /* ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰å‡¦ç†ç³»ã«ã¤ã„ã¦
+         * ã€€é€ä¿¡ã¯æœ€çµ‚çš„ã«ã¯SendChar/Stringã¸è¡Œãã€‚
          * 
-         * @‚»‚±‚ÉŠ‚é‰ß’ö‚Å‚ÍA
-         *  ProcessCmdKey: AltƒL[‚Ìİ’èŸ‘æ‚ÅAƒx[ƒXƒNƒ‰ƒX‚É“n‚·iƒRƒ}ƒ“ƒh‹N“®‚ğ‚İ‚éj‚©‚Ç‚¤‚©Œˆ‚ß‚é
-         *  ProcessDialogKey: •¶šƒL[ˆÈŠO‚ÍŠî–{“I‚É‚±‚±‚Åˆ—B
-         *  OnKeyPress: •¶š‚Ì‘—M
+         * ã€€ãã“ã«è‡³ã‚‹éç¨‹ã§ã¯ã€
+         *  ProcessCmdKey: Altã‚­ãƒ¼ã®è¨­å®šæ¬¡ç¬¬ã§ã€ãƒ™ãƒ¼ã‚¹ã‚¯ãƒ©ã‚¹ã«æ¸¡ã™ï¼ˆï¼ã‚³ãƒãƒ³ãƒ‰èµ·å‹•ã‚’è©¦ã¿ã‚‹ï¼‰ã‹ã©ã†ã‹æ±ºã‚ã‚‹
+         *  ProcessDialogKey: æ–‡å­—ã‚­ãƒ¼ä»¥å¤–ã¯åŸºæœ¬çš„ã«ã“ã“ã§å‡¦ç†ã€‚
+         *  OnKeyPress: æ–‡å­—ã®é€ä¿¡
          */
         private byte[] _sendCharBuffer = new byte[1];
-        public void SendChar(char ch) { //IS‚©‚ç‚ÌƒR[ƒ‹ƒoƒbƒN‚ ‚é‚Ì‚Å
+        public void SendChar(char ch) { //ISã‹ã‚‰ã®ã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯ã‚ã‚‹ã®ã§
             if (ch < 0x80) {
                 //Debug.WriteLine("SendChar " + (int)ch);
                 _sendCharBuffer[0] = (byte)ch;
@@ -364,7 +364,7 @@ namespace Poderosa.Terminal {
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
             Keys modifiers = keyData & Keys.Modifiers;
-            if (IsAcceptableUserInput() && (modifiers & Keys.Alt) != Keys.None) { //AltƒL[‚Ì‰¡æ‚èˆ—‚ğŠJn
+            if (IsAcceptableUserInput() && (modifiers & Keys.Alt) != Keys.None) { //Altã‚­ãƒ¼ã®æ¨ªå–ã‚Šå‡¦ç†ã‚’é–‹å§‹
                 Keys keybody = keyData & Keys.KeyCode;
                 if (GEnv.Options.LeftAltKey != AltKeyAction.Menu && (Win32.GetKeyState(Win32.VK_LMENU) & 0x8000) != 0) {
                     ProcessSpecialAltKey(GEnv.Options.LeftAltKey, modifiers, keybody);
@@ -376,7 +376,7 @@ namespace Poderosa.Terminal {
                 }
             }
 
-            //‚±‚ê‚Ü‚Å‚Åˆ—‚Å‚«‚È‚¯‚ê‚ÎãˆÊ‚Ö“n‚·
+            //ã“ã‚Œã¾ã§ã§å‡¦ç†ã§ããªã‘ã‚Œã°ä¸Šä½ã¸æ¸¡ã™
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
@@ -393,10 +393,10 @@ namespace Poderosa.Terminal {
             Keys modifiers = key & Keys.Modifiers;
             Keys keybody = key & Keys.KeyCode;
 
-            //Ú‘±’†‚Å‚È‚¢‚Æ‚¾‚ß‚ÈƒL[
+            //æ¥ç¶šä¸­ã§ãªã„ã¨ã ã‚ãªã‚­ãƒ¼
             if (IsAcceptableUserInput()) {
-                //TODO Enter,Space,SequenceKeyŒn‚àƒJƒXƒ^ƒ€ƒL[‚É“ü‚ê‚Ä‚µ‚Ü‚¢‚½‚¢
-                char[] custom = TerminalEmulatorPlugin.Instance.CustomKeySettings.Scan(key); //ƒJƒXƒ^ƒ€ƒL[
+                //TODO Enter,Space,SequenceKeyç³»ã‚‚ã‚«ã‚¹ã‚¿ãƒ ã‚­ãƒ¼ã«å…¥ã‚Œã¦ã—ã¾ã„ãŸã„
+                char[] custom = TerminalEmulatorPlugin.Instance.CustomKeySettings.Scan(key); //ã‚«ã‚¹ã‚¿ãƒ ã‚­ãƒ¼
                 if (custom != null) {
                     SendCharArray(custom);
                     return true;
@@ -409,7 +409,7 @@ namespace Poderosa.Terminal {
                     SendCharArray(TerminalUtil.NewLineChars(GetTerminalSettings().TransmitNL));
                     return true;
                 }
-                else if (keybody == Keys.Space && modifiers == Keys.Control) { //‚±‚ê‚ÍOnKeyPress‚É‚í‚½‚Á‚Ä‚­‚ê‚È‚¢
+                else if (keybody == Keys.Space && modifiers == Keys.Control) { //ã“ã‚Œã¯OnKeyPressã«ã‚ãŸã£ã¦ãã‚Œãªã„
                     SendChar('\0');
                     return true;
                 }
@@ -423,8 +423,8 @@ namespace Poderosa.Terminal {
                 }
             }
 
-            //í‚É‘—‚ê‚éƒL[
-            if (keybody == Keys.Apps) { //ƒRƒ“ƒeƒLƒXƒgƒƒjƒ…[
+            //å¸¸ã«é€ã‚Œã‚‹ã‚­ãƒ¼
+            if (keybody == Keys.Apps) { //ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼
                 TerminalDocument document = GetDocument();
                 int x = document.CaretColumn;
                 int y = document.CurrentLineNumber - document.TopLineNumber;
@@ -463,10 +463,10 @@ namespace Poderosa.Terminal {
                 return;
             char ch = KeyboardInfo.Scan(body, (modifiers & Keys.Shift) != Keys.None);
             if (ch == '\0')
-                return; //Š„‚è“–‚Ä‚ç‚ê‚Ä‚¢‚È‚¢‚â‚Â‚Í–³‹
+                return; //å‰²ã‚Šå½“ã¦ã‚‰ã‚Œã¦ã„ãªã„ã‚„ã¤ã¯ç„¡è¦–
 
             if ((modifiers & Keys.Control) != Keys.None)
-                ch = (char)((int)ch % 32); //Control‚ğ‰Ÿ‚µ‚½‚ç§Œä•¶š
+                ch = (char)((int)ch % 32); //Controlã‚’æŠ¼ã—ãŸã‚‰åˆ¶å¾¡æ–‡å­—
 
             if (act == AltKeyAction.ESC) {
                 byte[] t = new byte[2];
@@ -491,10 +491,10 @@ namespace Poderosa.Terminal {
             }
             if (!IsAcceptableUserInput())
                 return;
-            /* ‚±‚±‚Ìˆ—‚É‚Â‚¢‚Ä
-             * @IME‚Å“ü—Í•¶š‚ğŠm’è‚·‚é‚Æi•”•ªŠm’è‚Å‚Í‚È‚¢jAWM_IME_CHARAWM_ENDCOMPOSITIONAWM_CHAR‚Ì‡‚ÅƒƒbƒZ[ƒW‚ª‘—‚ç‚ê‚Ä‚­‚éBControl‚Í‚»‚Ì—¼•û‚ÅKeyPressƒCƒxƒ“ƒg‚ğ
-             * @”­¶‚³‚¹‚é‚Ì‚ÅAIME‚Ì“ü—Í‚ª‚Q‰ñ‘—M‚³‚ê‚Ä‚µ‚Ü‚¤B
-             * @ˆê•û•”•ªŠm’è‚Ì‚Æ‚«‚ÍWM_IME_CHAR‚Ì‚İ‚Å‚ ‚éB
+            /* ã“ã“ã®å‡¦ç†ã«ã¤ã„ã¦
+             * ã€€IMEã§å…¥åŠ›æ–‡å­—ã‚’ç¢ºå®šã™ã‚‹ã¨ï¼ˆéƒ¨åˆ†ç¢ºå®šã§ã¯ãªã„ï¼‰ã€WM_IME_CHARã€WM_ENDCOMPOSITIONã€WM_CHARã®é †ã§ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãŒé€ã‚‰ã‚Œã¦ãã‚‹ã€‚Controlã¯ãã®ä¸¡æ–¹ã§KeyPressã‚¤ãƒ™ãƒ³ãƒˆã‚’
+             * ã€€ç™ºç”Ÿã•ã›ã‚‹ã®ã§ã€IMEã®å…¥åŠ›ãŒï¼’å›é€ä¿¡ã•ã‚Œã¦ã—ã¾ã†ã€‚
+             * ã€€ä¸€æ–¹éƒ¨åˆ†ç¢ºå®šã®ã¨ãã¯WM_IME_CHARã®ã¿ã§ã‚ã‚‹ã€‚
              */
             //if((int)e.KeyChar>=100) {
             //    if(_currentMessage.Msg!=Win32.WM_IME_CHAR) return;
@@ -512,7 +512,7 @@ namespace Poderosa.Terminal {
         private void SendBytes(byte[] data) {
             TerminalDocument doc = GetDocument();
             lock (doc) {
-                //ƒL[‚ğ‰Ÿ‚µ‚Á‚Ï‚È‚µ‚É‚µ‚½‚Æ‚«‚ÉƒLƒƒƒŒƒbƒg‚ªƒuƒŠƒ“ƒN‚·‚é‚Ì‚Í‚¿‚å‚Á‚ÆŒ©‹ê‚µ‚¢‚Ì‚ÅƒL[“ü—Í‚ª‚ ‚é‚½‚Ñ‚Éƒ^ƒCƒ}‚ğƒŠƒZƒbƒg
+                //ã‚­ãƒ¼ã‚’æŠ¼ã—ã£ã±ãªã—ã«ã—ãŸã¨ãã«ã‚­ãƒ£ãƒ¬ãƒƒãƒˆãŒãƒ–ãƒªãƒ³ã‚¯ã™ã‚‹ã®ã¯ã¡ã‚‡ã£ã¨è¦‹è‹¦ã—ã„ã®ã§ã‚­ãƒ¼å…¥åŠ›ãŒã‚ã‚‹ãŸã³ã«ã‚¿ã‚¤ãƒã‚’ãƒªã‚»ãƒƒãƒˆ
                 _caret.KeepActiveUntilNextTick();
 
                 MakeCurrentLineVisible();
@@ -520,7 +520,7 @@ namespace Poderosa.Terminal {
             GetTerminalTransmission().Transmit(data);
         }
         private bool IsAcceptableUserInput() {
-            //TODO: ModalTerminalTask‚Ì‘¶İ‚ª——R‚Å‹‘”Û‚·‚é‚Æ‚«‚ÍƒXƒe[ƒ^ƒXƒo[‚©‰½‚©‚Éo‚·‚Ì‚ª‚æ‚¢‚©‚à
+            //TODO: ModalTerminalTaskã®å­˜åœ¨ãŒç†ç”±ã§æ‹’å¦ã™ã‚‹ã¨ãã¯ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒãƒ¼ã‹ä½•ã‹ã«å‡ºã™ã®ãŒã‚ˆã„ã‹ã‚‚
             if (!this.EnabledEx || IsConnectionClosed() || _session.Terminal.CurrentModalTerminalTask != null)
                 return false;
             else
@@ -558,7 +558,7 @@ namespace Poderosa.Terminal {
             else if (newvalue > _VScrollBar.Maximum + 1 - _VScrollBar.LargeChange)
                 newvalue = _VScrollBar.Maximum + 1 - _VScrollBar.LargeChange;
 
-            _VScrollBar.Value = newvalue; //‚±‚ê‚ÅƒCƒxƒ“ƒg‚à”­¶‚·‚é‚Ì‚Åƒ}ƒEƒX‚Å“®‚©‚µ‚½ê‡‚Æ“¯‚¶‹““®‚É‚È‚é
+            _VScrollBar.Value = newvalue; //ã“ã‚Œã§ã‚¤ãƒ™ãƒ³ãƒˆã‚‚ç™ºç”Ÿã™ã‚‹ã®ã§ãƒã‚¦ã‚¹ã§å‹•ã‹ã—ãŸå ´åˆã¨åŒã˜æŒ™å‹•ã«ãªã‚‹
         }
 
         private void ProcessSequenceKey(Keys modifier, Keys body) {
@@ -570,11 +570,11 @@ namespace Poderosa.Terminal {
         private void MakeCurrentLineVisible() {
 
             TerminalDocument document = GetDocument();
-            if (document.CurrentLineNumber - document.FirstLineNumber < _VScrollBar.Value) { //ã‚É‰B‚ê‚½
+            if (document.CurrentLineNumber - document.FirstLineNumber < _VScrollBar.Value) { //ä¸Šã«éš ã‚ŒãŸ
                 document.TopLineNumber = document.CurrentLineNumber;
                 _session.Terminal.TransientScrollBarValues.Value = document.TopLineNumber - document.FirstLineNumber;
             }
-            else if (_VScrollBar.Value + document.TerminalHeight <= document.CurrentLineNumber - document.FirstLineNumber) { //‰º‚É‰B‚ê‚½
+            else if (_VScrollBar.Value + document.TerminalHeight <= document.CurrentLineNumber - document.FirstLineNumber) { //ä¸‹ã«éš ã‚ŒãŸ
                 int n = document.CurrentLineNumber - document.FirstLineNumber - document.TerminalHeight + 1;
                 if (n < 0)
                     n = 0;
@@ -588,7 +588,7 @@ namespace Poderosa.Terminal {
 
             //Debug.WriteLine(String.Format("TC RESIZE {0} {1} {2},{3}", _resizeCount++, DateTime.Now.ToString(), this.Size.Width, this.Size.Height));
             //Debug.WriteLine(new StackTrace(true).ToString());
-            //Å¬‰»‚É‚Í‚È‚º‚©©g‚Ì•‚¾‚¯‚ª‚O‚É‚È‚Á‚Ä‚µ‚Ü‚¤
+            //æœ€å°åŒ–æ™‚ã«ã¯ãªãœã‹è‡ªèº«ã®å¹…ã ã‘ãŒï¼ã«ãªã£ã¦ã—ã¾ã†
             if (this.DesignMode || this.FindForm() == null || this.FindForm().WindowState == FormWindowState.Minimized || _session == null)
                 return;
 
@@ -618,15 +618,15 @@ namespace Poderosa.Terminal {
                 return GEnv.DefaultRenderProfile;
         }
         protected override void CommitTransientScrollBar() {
-            if (_session != null) {	// TerminalPane‚ğ•Â‚¶‚éƒ^ƒCƒ~ƒ“ƒO‚Å‚±‚Ìƒƒ\ƒbƒh‚ªŒÄ‚Î‚ê‚½‚Æ‚«‚ÉNullReferenceException‚É‚È‚é‚Ì‚ğ–h‚®
+            if (_session != null) {	// TerminalPaneã‚’é–‰ã˜ã‚‹ã‚¿ã‚¤ãƒŸãƒ³ã‚°ã§ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ãŒå‘¼ã°ã‚ŒãŸã¨ãã«NullReferenceExceptionã«ãªã‚‹ã®ã‚’é˜²ã
                 _ignoreValueChangeEvent = true;
-                GetTerminal().CommitScrollBar(_VScrollBar, true);	//!! ‚±‚±iƒXƒNƒ[ƒ‹ƒo[j‚Ìˆ—‚Íd‚¢
+                GetTerminal().CommitScrollBar(_VScrollBar, true);	//!! ã“ã“ï¼ˆã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ãƒãƒ¼ï¼‰ã®å‡¦ç†ã¯é‡ã„
                 _ignoreValueChangeEvent = false;
             }
         }
 
         public override GLine GetTopLine() {
-            //TODO Pane“à‚ÌƒNƒ‰ƒXƒ`ƒFƒ“ƒW‚ª‚Å‚«‚é‚æ‚¤‚É‚È‚Á‚½‚ç‚±‚±‚ğ‰ü‘P
+            //TODO Paneå†…ã®ã‚¯ãƒ©ã‚¹ãƒã‚§ãƒ³ã‚¸ãŒã§ãã‚‹ã‚ˆã†ã«ãªã£ãŸã‚‰ã“ã“ã‚’æ”¹å–„
             return _session == null ? base.GetTopLine() : GetDocument().TopLine;
         }
 
@@ -650,7 +650,7 @@ namespace Poderosa.Terminal {
             int width = (int)Math.Floor((float)(this.ClientSize.Width - sm.ScrollBarWidth - CharacterDocumentViewer.BORDER * 2) / charPitch.Width);
             int height = (int)Math.Floor((float)(this.ClientSize.Height - CharacterDocumentViewer.BORDER * 2 + prof.LineSpacing) / (charPitch.Height + prof.LineSpacing));
             if (width <= 0)
-                width = 1; //‹É’[‚ÈƒŠƒTƒCƒY‚ğ‚·‚é‚Æ•‰‚Ì’l‚É‚È‚é‚±‚Æ‚ª‚ ‚é
+                width = 1; //æ¥µç«¯ãªãƒªã‚µã‚¤ã‚ºã‚’ã™ã‚‹ã¨è² ã®å€¤ã«ãªã‚‹ã“ã¨ãŒã‚ã‚‹
             if (height <= 0)
                 height = 1;
             return new Size(width, height);
@@ -661,7 +661,7 @@ namespace Poderosa.Terminal {
         private void ShowSizeTip(int width, int height) {
             const int MARGIN = 8;
             //Form form = GEnv.Frame.AsForm();
-            //if(form==null || !form.Visible) return; //‹N“®‚É‚Í•\¦‚µ‚È‚¢
+            //if(form==null || !form.Visible) return; //èµ·å‹•æ™‚ã«ã¯è¡¨ç¤ºã—ãªã„
             if (!this.Visible)
                 return;
 
@@ -674,7 +674,7 @@ namespace Poderosa.Terminal {
             _sizeTipTimer.Stop();
             _sizeTipTimer.Start();
         }
-        //ƒsƒNƒZƒ‹’PˆÊ‚ÌƒTƒCƒY‚ğó‚¯æ‚èAƒ`ƒbƒv‚ğ•\¦
+        //ãƒ”ã‚¯ã‚»ãƒ«å˜ä½ã®ã‚µã‚¤ã‚ºã‚’å—ã‘å–ã‚Šã€ãƒãƒƒãƒ—ã‚’è¡¨ç¤º
         public void SplitterDragging(int width, int height) {
             SizeF charSize = GetRenderProfile().Pitch;
             Win32.SystemMetrics sm = GEnv.SystemMetrics;
@@ -686,12 +686,12 @@ namespace Poderosa.Terminal {
         private void ResizeTerminal(int width, int height) {
             //Debug.WriteLine(String.Format("Resize {0} {1}", width, height));
 
-            //Document‚Ö’Ê’m
+            //Documentã¸é€šçŸ¥
             GetDocument().Resize(width, height);
 
             if (_session.Terminal.CurrentModalTerminalTask != null)
-                return; //•Êƒ^ƒXƒN‚ª‘–‚Á‚Ä‚¢‚é‚Æ‚«‚Í–³‹
-            if (GetTerminal().TerminalMode == TerminalMode.Application) //ƒŠƒTƒCƒY‚µ‚Ä‚àƒXƒNƒ[ƒ‹ƒŠ[ƒWƒ‡ƒ“‚àXV‚³‚ê‚é‚©‚Í•ª‚©‚ç‚È‚¢‚ªAˆê‰‘S‰æ–Ê‚ğXV‚·‚é
+                return; //åˆ¥ã‚¿ã‚¹ã‚¯ãŒèµ°ã£ã¦ã„ã‚‹ã¨ãã¯ç„¡è¦–
+            if (GetTerminal().TerminalMode == TerminalMode.Application) //ãƒªã‚µã‚¤ã‚ºã—ã¦ã‚‚ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ãƒªãƒ¼ã‚¸ãƒ§ãƒ³ã‚‚æ›´æ–°ã•ã‚Œã‚‹ã‹ã¯åˆ†ã‹ã‚‰ãªã„ãŒã€ä¸€å¿œå…¨ç”»é¢ã‚’æ›´æ–°ã™ã‚‹
                 GetDocument().SetScrollingRegion(0, height - 1);
             GetTerminal().Reset();
             if (_VScrollBar.Enabled) {
@@ -701,11 +701,11 @@ namespace Poderosa.Terminal {
                     MakeCurrentLineVisible();
             }
 
-            //Ú‘±æ‚Ö’Ê’m
+            //æ¥ç¶šå…ˆã¸é€šçŸ¥
             GetTerminalTransmission().Resize(width, height);
             InvalidateEx();
         }
-        //Œ»İs‚ªŒ©‚¦‚é‚æ‚¤‚É©“®“I‚É’Ç‚µ‚Ä‚¢‚­‚×‚«‚©‚Ç‚¤‚©‚Ì”»’è
+        //ç¾åœ¨è¡ŒãŒè¦‹ãˆã‚‹ã‚ˆã†ã«è‡ªå‹•çš„ã«è¿½éšã—ã¦ã„ãã¹ãã‹ã©ã†ã‹ã®åˆ¤å®š
         private bool IsAutoScrollMode() {
             TerminalDocument doc = GetDocument();
             return GetTerminal().TerminalMode == TerminalMode.Normal &&
@@ -714,13 +714,13 @@ namespace Poderosa.Terminal {
         }
 
 
-        //IME‚ÌˆÊ’u‡‚í‚¹‚È‚ÇB“ú–{Œê“ü—ÍŠJnAŒ»İ‚ÌƒLƒƒƒŒƒbƒgˆÊ’u‚©‚çIME‚ğƒXƒ^[ƒg‚³‚¹‚éB
+        //IMEã®ä½ç½®åˆã‚ã›ãªã©ã€‚æ—¥æœ¬èªå…¥åŠ›é–‹å§‹æ™‚ã€ç¾åœ¨ã®ã‚­ãƒ£ãƒ¬ãƒƒãƒˆä½ç½®ã‹ã‚‰IMEã‚’ã‚¹ã‚¿ãƒ¼ãƒˆã•ã›ã‚‹ã€‚
         private void AdjustIMEComposition() {
             TerminalDocument document = GetDocument();
             IntPtr hIMC = Win32.ImmGetContext(this.Handle);
             RenderProfile prof = GetRenderProfile();
 
-            //ƒtƒHƒ“ƒg‚ÌƒZƒbƒg‚Í‚P‰ñ‚â‚ê‚Î‚æ‚¢‚Ì‚©H
+            //ãƒ•ã‚©ãƒ³ãƒˆã®ã‚»ãƒƒãƒˆã¯ï¼‘å›ã‚„ã‚Œã°ã‚ˆã„ã®ã‹ï¼Ÿ
             Win32.LOGFONT lf = new Win32.LOGFONT();
             prof.CalcFont(null, CharGroup.CJKZenkaku).ToLogFont(lf);
             Win32.ImmSetCompositionFont(hIMC, lf);
@@ -779,9 +779,9 @@ namespace Poderosa.Terminal {
                 TransmitDirect(data, 0, data.Length);
             }
 
-            if (this.CharacterDocument != null) { //‰Šú‰»‰ß’ö‚Ì‚Æ‚«‚Í–³‹
+            if (this.CharacterDocument != null) { //åˆæœŸåŒ–éç¨‹ã®ã¨ãã¯ç„¡è¦–
 
-                //NOTE TerminalControl‚ÍSession‚É‚Â‚¢‚Ä‚Í–³’mA‚Æ‚¢‚¤‘O’ñ‚É‚µ‚½‚Ù‚¤‚ª‚¢‚¢‚Ì‚©‚à‚µ‚ê‚È‚¢
+                //NOTE TerminalControlã¯Sessionã«ã¤ã„ã¦ã¯ç„¡çŸ¥ã€ã¨ã„ã†å‰æã«ã—ãŸã»ã†ãŒã„ã„ã®ã‹ã‚‚ã—ã‚Œãªã„
                 TerminalEmulatorPlugin.Instance.GetSessionManager().ActivateDocument(this.CharacterDocument, ActivateReason.ViewGotFocus);
 
             }
@@ -799,7 +799,7 @@ namespace Poderosa.Terminal {
             if (_inIMEComposition)
                 ClearIMEComposition();
         }
-        //Drag&DropŠÖŒW
+        //Drag&Dropé–¢ä¿‚
         protected override void OnDragEnter(DragEventArgs args) {
             base.OnDragEnter(args);
             try {
@@ -858,20 +858,20 @@ namespace Poderosa.Terminal {
 
 
         /*
-         * ‚±‚Ìü•Ó‚Åg‚¢‚»‚¤‚ÈƒfƒoƒbƒO—p‚ÌƒR[ƒh’f•Ğ
+         * ã“ã®å‘¨è¾ºã§ä½¿ã„ãã†ãªãƒ‡ãƒãƒƒã‚°ç”¨ã®ã‚³ãƒ¼ãƒ‰æ–­ç‰‡
          private static bool _IMEFlag;
          private static int _callnest;
          
             _callnest++;
             if(_IMEFlag) {
-                if(msg.Msg!=13 && msg.Msg!=14 && msg.Msg!=15 && msg.Msg!=0x14 && msg.Msg!=0x85 && msg.Msg!=0x20 && msg.Msg!=0x84) //‚¤‚´‚¢‚Ì‚Í‚«‚é
+                if(msg.Msg!=13 && msg.Msg!=14 && msg.Msg!=15 && msg.Msg!=0x14 && msg.Msg!=0x85 && msg.Msg!=0x20 && msg.Msg!=0x84) //ã†ã–ã„ã®ã¯ãã‚‹
                     Debug.WriteLine(String.Format("{0} Msg {1:X} WP={2:X} LP={3:X}", _callnest, msg.Msg, msg.WParam.ToInt32(), msg.LParam.ToInt32()));
             }
             base.WndProc(ref msg);
             _callnest--;
          */
         private bool _lastCompositionFlag;
-        //IMEŠÖŒW‚ğˆ—‚·‚é‚½‚ß‚É‚©‚È‚è‚Ì‹ê˜JB‚È‚º‚±‚¤‚È‚Ì‚©‚É‚Â‚¢‚Ä‚Í•ÊƒhƒLƒ…ƒƒ“ƒgQÆ
+        //IMEé–¢ä¿‚ã‚’å‡¦ç†ã™ã‚‹ãŸã‚ã«ã‹ãªã‚Šã®è‹¦åŠ´ã€‚ãªãœã“ã†ãªã®ã‹ã«ã¤ã„ã¦ã¯åˆ¥ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆå‚ç…§
         protected override void WndProc(ref Message msg) {
             if (_lastCompositionFlag) {
                 LastCompositionWndProc(ref msg);
@@ -880,18 +880,18 @@ namespace Poderosa.Terminal {
 
             int m = msg.Msg;
             if (m == Win32.WM_IME_COMPOSITION) {
-                if ((msg.LParam.ToInt32() & 0xFF) == 0) { //ÅIŠm’è‚Ì“Áêˆ—‚Ö‰I‰ñ‚³‚¹‚éƒtƒ‰ƒO‚ğ—§‚Ä‚é
+                if ((msg.LParam.ToInt32() & 0xFF) == 0) { //æœ€çµ‚ç¢ºå®šæ™‚ã®ç‰¹æ®Šå‡¦ç†ã¸è¿‚å›ã•ã›ã‚‹ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
                     _lastCompositionFlag = true;
-                    base.WndProc(ref msg); //‚±‚Ì’†‚Å‘—‚ç‚ê‚Ä‚­‚éWM_IME_CHAR‚Í–³‹
+                    base.WndProc(ref msg); //ã“ã®ä¸­ã§é€ã‚‰ã‚Œã¦ãã‚‹WM_IME_CHARã¯ç„¡è¦–
                     _lastCompositionFlag = false;
                     return;
                 }
             }
 
-            base.WndProc(ref msg); //’Êí
+            base.WndProc(ref msg); //é€šå¸¸æ™‚
 
             if (m == Win32.WM_IME_STARTCOMPOSITION) {
-                _inIMEComposition = true; //_inIMEComposition‚ÍWM_IME_STARTCOMPOSITION‚Å‚µ‚©ƒZƒbƒg‚µ‚È‚¢
+                _inIMEComposition = true; //_inIMECompositionã¯WM_IME_STARTCOMPOSITIONã§ã—ã‹ã‚»ãƒƒãƒˆã—ãªã„
                 AdjustIMEComposition();
             }
             else if (m == Win32.WM_IME_ENDCOMPOSITION) {
@@ -952,7 +952,7 @@ namespace Poderosa.Terminal {
             }
 
             if (_scrollBar.Enabled) {
-                int d = args.Delta / 120; //ŠJ”­ŠÂ‹«‚¾‚ÆDelta‚É120B‚±‚ê‚Å1‚©-1‚ª“ü‚é‚Í‚¸
+                int d = args.Delta / 120; //é–‹ç™ºç’°å¢ƒã ã¨Deltaã«120ã€‚ã“ã‚Œã§1ã‹-1ãŒå…¥ã‚‹ã¯ãš
                 d *= GEnv.Options.WheelAmount;
 
                 int newval = _scrollBar.Value - d;
@@ -1241,12 +1241,12 @@ namespace Poderosa.Terminal {
                 ITerminalEmulatorOptions opt = TerminalEmulatorPlugin.Instance.TerminalEmulatorOptions;
                 MouseButtonAction act = args.Button == MouseButtons.Right ? opt.RightButtonAction : opt.MiddleButtonAction;
                 if (act != MouseButtonAction.None) {
-                    if (Control.ModifierKeys == Keys.Shift ^ act == MouseButtonAction.ContextMenu) //ƒVƒtƒgƒL[‚Å“®ì”½“]
+                    if (Control.ModifierKeys == Keys.Shift ^ act == MouseButtonAction.ContextMenu) //ã‚·ãƒ•ãƒˆã‚­ãƒ¼ã§å‹•ä½œåè»¢
                         ShowContextMenu(new Point(args.X, args.Y));
                     else { //Paste
                         IGeneralViewCommands vc = (IGeneralViewCommands)_control.GetAdapter(typeof(IGeneralViewCommands));
                         TerminalEmulatorPlugin.Instance.GetCommandManager().Execute(vc.Paste, (ICommandTarget)vc.GetAdapter(typeof(ICommandTarget)));
-                        //ƒy[ƒXƒgŒã‚ÍƒtƒH[ƒJƒX
+                        //ãƒšãƒ¼ã‚¹ãƒˆå¾Œã¯ãƒ•ã‚©ãƒ¼ã‚«ã‚¹
                         if (!_control.Focused)
                             _control.Focus();
                     }
@@ -1261,13 +1261,13 @@ namespace Poderosa.Terminal {
         public void ShowContextMenu(Point pt) {
             IPoderosaView view = (IPoderosaView)_control.GetAdapter(typeof(IPoderosaView));
             view.ParentForm.ShowContextMenu(TerminalEmulatorPlugin.Instance.ContextMenu, view, _control.PointToScreen(pt), ContextMenuFlags.None);
-            //ƒRƒ}ƒ“ƒhÀsŒã©•ª‚ÉƒtƒH[ƒJƒX
+            //ã‚³ãƒãƒ³ãƒ‰å®Ÿè¡Œå¾Œè‡ªåˆ†ã«ãƒ•ã‚©ãƒ¼ã‚«ã‚¹
             if (!_control.Focused)
                 _control.Focus();
         }
     }
 
-    //•`‰æƒpƒtƒH[ƒ}ƒ“ƒX’²¸—pƒNƒ‰ƒX
+    //æç”»ãƒ‘ãƒ•ã‚©ãƒ¼ãƒãƒ³ã‚¹èª¿æŸ»ç”¨ã‚¯ãƒ©ã‚¹
     internal static class DrawingPerformance {
         private static int _receiveDataCount;
         private static long _lastReceivedTime;

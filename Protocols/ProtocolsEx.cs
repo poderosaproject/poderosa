@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@ namespace Poderosa.Protocols {
 
     /// <summary>
     /// <ja>
-    /// V‹K‚Éƒ^[ƒ~ƒiƒ‹Ú‘±‚ğ‚µ‚½‚Æ‚«A‚»‚ê‚ğƒLƒƒƒ“ƒZƒ‹‚·‚é‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// æ–°è¦ã«ã‚¿ãƒ¼ãƒŸãƒŠãƒ«æ¥ç¶šã‚’ã—ãŸã¨ãã€ãã‚Œã‚’ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã™ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface to cancel it when terminal was newly connected.
@@ -24,10 +24,10 @@ namespace Poderosa.Protocols {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍA<seealso cref="IProtocolService">IProtocolService</seealso>‚Ì
-    /// <see cref="IProtocolService.AsyncCygwinConnect">AsyncCygwinConnectƒƒ\ƒbƒh</see>A
-    /// <see cref="IProtocolService.AsyncTelnetConnect">AsyncTelnetConnectƒƒ\ƒbƒh</see>A
-    /// <see cref="IProtocolService.AsyncSSHConnect">AsyncSSHConnectƒƒ\ƒbƒh</see>‚Ì–ß‚è’l‚Æ‚µ‚Äg‚í‚ê‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€<seealso cref="IProtocolService">IProtocolService</seealso>ã®
+    /// <see cref="IProtocolService.AsyncCygwinConnect">AsyncCygwinConnectãƒ¡ã‚½ãƒƒãƒ‰</see>ã€
+    /// <see cref="IProtocolService.AsyncTelnetConnect">AsyncTelnetConnectãƒ¡ã‚½ãƒƒãƒ‰</see>ã€
+    /// <see cref="IProtocolService.AsyncSSHConnect">AsyncSSHConnectãƒ¡ã‚½ãƒƒãƒ‰</see>ã®æˆ»ã‚Šå€¤ã¨ã—ã¦ä½¿ã‚ã‚Œã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// This interface is used as a return value of the <see cref="IProtocolService.AsyncCygwinConnect">AsyncCygwinConnect method</see> and the method of <seealso cref="IProtocolService">IProtocolService</seealso> of <see cref="IProtocolService.AsyncTelnetConnect">AsyncTelnetConnect method</see>, <see cref="IProtocolService.AsyncSSHConnect">AsyncSSHConnect method</see>. 
@@ -36,15 +36,15 @@ namespace Poderosa.Protocols {
     public interface IInterruptable {
         /// <summary>
         /// <ja>
-        /// Ú‘±‚ğ’†~‚µ‚Ü‚·B
+        /// æ¥ç¶šã‚’ä¸­æ­¢ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Interrupt the connection.
         /// </en>
         /// <remarks>
         /// <ja>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ğŒÄ‚Ño‚·‚ÆA<seealso cref="IInterruptableConnectorClient">IInterruptableConnectorClient</seealso>‚É
-        /// À‘•‚µ‚½ƒƒ\ƒbƒh‚ÍŒÄ‚Ño‚³‚ê‚¸‚ÉAÚ‘±‚ª’†~‚³‚ê‚Ü‚·B
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‚’å‘¼ã³å‡ºã™ã¨ã€<seealso cref="IInterruptableConnectorClient">IInterruptableConnectorClient</seealso>ã«
+        /// å®Ÿè£…ã—ãŸãƒ¡ã‚½ãƒƒãƒ‰ã¯å‘¼ã³å‡ºã•ã‚Œãšã«ã€æ¥ç¶šãŒä¸­æ­¢ã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The connection is discontinued without calling the method of implementing on <seealso cref="IInterruptableConnectorClient">IInterruptableConnectorClient</seealso> when this method is called. 
@@ -56,7 +56,7 @@ namespace Poderosa.Protocols {
 
     /// <summary>
     /// <ja>
-    /// V‹K‚Éƒ^[ƒ~ƒiƒ‹ƒRƒlƒNƒVƒ‡ƒ“‚ğ”ñ“¯Šú‚Åì¬‚·‚é‚Æ‚«AÚ‘±‚Ì¬Œ÷‚â¸”s‚Ìó‘Ô‚ğó‚¯æ‚é‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// æ–°è¦ã«ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ã‚’éåŒæœŸã§ä½œæˆã™ã‚‹ã¨ãã€æ¥ç¶šã®æˆåŠŸã‚„å¤±æ•—ã®çŠ¶æ…‹ã‚’å—ã‘å–ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface to receive state of success and failure of connection when terminal connection is asynchronously newly made
@@ -65,17 +65,17 @@ namespace Poderosa.Protocols {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍA<seealso cref="IProtocolService">IProtocolService</seealso>‚Ì
-    /// <see cref="IProtocolService.AsyncCygwinConnect">AsyncCygwinConnectƒƒ\ƒbƒh</see>A
-    /// <see cref="IProtocolService.AsyncTelnetConnect">AsyncTelnetConnectƒƒ\ƒbƒh</see>A
-    /// <see cref="IProtocolService.AsyncSSHConnect">AsyncSSHConnectƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚µ‚ÄA”ñ“¯Šú‚ÌÚ‘±‚ğ‚·‚éÛA
-    /// ¬Œ÷‚â¸”s‚Ìó‘Ô‚ğó‚¯æ‚é‚½‚ß‚É—p‚¢‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€<seealso cref="IProtocolService">IProtocolService</seealso>ã®
+    /// <see cref="IProtocolService.AsyncCygwinConnect">AsyncCygwinConnectãƒ¡ã‚½ãƒƒãƒ‰</see>ã€
+    /// <see cref="IProtocolService.AsyncTelnetConnect">AsyncTelnetConnectãƒ¡ã‚½ãƒƒãƒ‰</see>ã€
+    /// <see cref="IProtocolService.AsyncSSHConnect">AsyncSSHConnectãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã—ã¦ã€éåŒæœŸã®æ¥ç¶šã‚’ã™ã‚‹éš›ã€
+    /// æˆåŠŸã‚„å¤±æ•—ã®çŠ¶æ…‹ã‚’å—ã‘å–ã‚‹ãŸã‚ã«ç”¨ã„ã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ŠÈˆÕ“I‚È“¯ŠúÚ‘±‚ğ‚·‚é‚Ì‚Å‚ ‚ê‚ÎA‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğÀ‘•‚µ‚½ƒIƒuƒWƒFƒNƒg‚ğ—pˆÓ‚·‚é‘ã‚í‚è‚ÉA
-    /// <seealso cref="IProtocolService">IProtocolService</seealso>‚Ì<see cref="IProtocolService.CreateFormBasedSynchronozedConnector">CreateFormBasedSynchronozedConnectorƒƒ\ƒbƒh</see>
-    /// ‚ğŒÄ‚Ño‚µA‚»‚Ì<see cref="ISynchronizedConnector.InterruptableConnectorClient">InterruptableConnectorClientƒvƒƒpƒeƒB</see>‚Ì
-    /// ’l‚ğg‚¤‚±‚Æ‚à‚Å‚«‚Ü‚·B
+    /// ç°¡æ˜“çš„ãªåŒæœŸæ¥ç¶šã‚’ã™ã‚‹ã®ã§ã‚ã‚Œã°ã€ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’å®Ÿè£…ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”¨æ„ã™ã‚‹ä»£ã‚ã‚Šã«ã€
+    /// <seealso cref="IProtocolService">IProtocolService</seealso>ã®<see cref="IProtocolService.CreateFormBasedSynchronozedConnector">CreateFormBasedSynchronozedConnectorãƒ¡ã‚½ãƒƒãƒ‰</see>
+    /// ã‚’å‘¼ã³å‡ºã—ã€ãã®<see cref="ISynchronizedConnector.InterruptableConnectorClient">InterruptableConnectorClientãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>ã®
+    /// å€¤ã‚’ä½¿ã†ã“ã¨ã‚‚ã§ãã¾ã™ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -90,16 +90,16 @@ namespace Poderosa.Protocols {
     public interface IInterruptableConnectorClient {
         /// <summary>
         /// <ja>
-        /// Ú‘±‚ª¬Œ÷‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// æ¥ç¶šãŒæˆåŠŸã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Called when the connection is succeeded.
         /// </en>
         /// </summary>
-        /// <param name="result"><ja>Ú‘±‚ªŠ®—¹‚µ‚½ƒRƒlƒNƒVƒ‡ƒ“‚Å‚·B</ja><en>Connection that connection is completed.</en></param>
+        /// <param name="result"><ja>æ¥ç¶šãŒå®Œäº†ã—ãŸã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ã§ã™ã€‚</ja><en>Connection that connection is completed.</en></param>
         /// <remarks>
         /// <ja>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ªŒÄ‚Ño‚³‚ê‚½‚çÚ‘±‚ÍŠ®—¹‚µ‚Ä‚¢‚Ü‚·BˆÈ~A<paramref name="result"/>‚ğ’Ê‚¶‚Äƒf[ƒ^‚ğ‘—óM‚Å‚«‚Ü‚·B
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ãŒå‘¼ã³å‡ºã•ã‚ŒãŸã‚‰æ¥ç¶šã¯å®Œäº†ã—ã¦ã„ã¾ã™ã€‚ä»¥é™ã€<paramref name="result"/>ã‚’é€šã˜ã¦ãƒ‡ãƒ¼ã‚¿ã‚’é€å—ä¿¡ã§ãã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// If this method is called, the connection is completed. Data can be sent and received at the following through <paramref name="result"/>. 
@@ -108,13 +108,13 @@ namespace Poderosa.Protocols {
         void SuccessfullyExit(ITerminalConnection result);
         /// <summary>
         /// <ja>
-        /// Ú‘±‚ª¸”s‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// æ¥ç¶šãŒå¤±æ•—ã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Called when the connection is failed.
         /// </en>
         /// </summary>
-        /// <param name="message"><ja>¸”s‚ğ‚°‚éƒƒbƒZ[ƒW‚Å‚·B</ja><en>Message to report failure</en></param>
+        /// <param name="message"><ja>å¤±æ•—ã‚’å‘Šã’ã‚‹ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã§ã™ã€‚</ja><en>Message to report failure</en></param>
         void ConnectionFailed(string message);
     }
 
@@ -134,8 +134,8 @@ namespace Poderosa.Protocols {
 
     /// <summary>
     /// <ja>
-    /// ŠÈˆÕ“I‚È“¯ŠúÚ‘±‹@”\‚Ì‚½‚ß‚Ì<see cref="IInterruptableConnectorClient">IInterruptableConnectorClient</see>‚ğ’ñ‹Ÿ‚µA
-    /// Ú‘±‚ÌŠ®—¹‚Ü‚½‚ÍƒGƒ‰[‚Ì”­¶‚Ü‚½‚Íƒ^ƒCƒ€ƒAƒEƒg‚Ü‚ÅAÚ‘±Š®—¹‚ğ‘Ò‚Â‹@”\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// ç°¡æ˜“çš„ãªåŒæœŸæ¥ç¶šæ©Ÿèƒ½ã®ãŸã‚ã®<see cref="IInterruptableConnectorClient">IInterruptableConnectorClient</see>ã‚’æä¾›ã—ã€
+    /// æ¥ç¶šã®å®Œäº†ã¾ãŸã¯ã‚¨ãƒ©ãƒ¼ã®ç™ºç”Ÿã¾ãŸã¯ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆã¾ã§ã€æ¥ç¶šå®Œäº†ã‚’å¾…ã¤æ©Ÿèƒ½ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// <see cref="IInterruptableConnectorClient">IInterruptableConnectorClient</see> for a simple synchronization and the connection functions is offered, and the function to wait for connected completion is offered until generation or the time-out of completion or the error of the connection. 
@@ -144,14 +144,14 @@ namespace Poderosa.Protocols {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ŠJ”­Ò‚ÍŸ‚Ì‚æ‚¤‚É‚·‚é‚±‚Æ‚ÅAÚ‘±‚ªŠ®—¹‚·‚é‚Ü‚Å‘Ò‚Â‚±‚Æ‚ª‚Å‚«‚Ü‚·B
+    /// é–‹ç™ºè€…ã¯æ¬¡ã®ã‚ˆã†ã«ã™ã‚‹ã“ã¨ã§ã€æ¥ç¶šãŒå®Œäº†ã™ã‚‹ã¾ã§å¾…ã¤ã“ã¨ãŒã§ãã¾ã™ã€‚
     /// </para>
     /// <code>
-    /// // <value>form</value>‚Íƒ†[ƒU[‚É•\¦‚·‚éƒtƒH[ƒ€‚Å‚·
+    /// // <value>form</value>ã¯ãƒ¦ãƒ¼ã‚¶ãƒ¼ã«è¡¨ç¤ºã™ã‚‹ãƒ•ã‚©ãƒ¼ãƒ ã§ã™
     /// ISynchronizedConnector sc = protocolservice.CreateFormBasedSynchronozedConnector(<value>form</value>);
-    /// // <value>sshparam</value>‚ÍSSHÚ‘±‚Ìƒpƒ‰ƒ[ƒ^‚Å‚·
+    /// // <value>sshparam</value>ã¯SSHæ¥ç¶šã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã§ã™
     /// IInterrutable t = protocol_service.AsyncSSHConnect(sc.InterruptableConnectorClient, sshparam);
-    /// // 30•bŠÔ‘Ò‚Â
+    /// // 30ç§’é–“å¾…ã¤
     /// int timeout = 30 * 1000;
     /// ITerminalConnection connection = sc.WaitConnection(t, timeout);
     /// </code>
@@ -174,7 +174,7 @@ namespace Poderosa.Protocols {
     public interface ISynchronizedConnector {
         /// <summary>
         /// <ja>
-        /// Ú‘±‚ğ‘Ò‚Â‹@”\‚ğ‚à‚Â<see cref="IInterruptableConnectorClient">IInterruptableConnectorClient</see>‚ğ•Ô‚µ‚Ü‚·B
+        /// æ¥ç¶šã‚’å¾…ã¤æ©Ÿèƒ½ã‚’ã‚‚ã¤<see cref="IInterruptableConnectorClient">IInterruptableConnectorClient</see>ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// <see cref="IInterruptableConnectorClient">IInterruptableConnectorClient</see> that waits for the connection is returned. 
@@ -185,23 +185,23 @@ namespace Poderosa.Protocols {
         }
         /// <summary>
         /// <ja>
-        /// Ú‘±Š®—¹‚Ü‚½‚ÍÚ‘±ƒGƒ‰[‚Ü‚½‚Íƒ^ƒCƒ€ƒAƒEƒg‚ª”­¶‚·‚é‚Ü‚Å‘Ò‚¿‚Ü‚·B
+        /// æ¥ç¶šå®Œäº†ã¾ãŸã¯æ¥ç¶šã‚¨ãƒ©ãƒ¼ã¾ãŸã¯ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆãŒç™ºç”Ÿã™ã‚‹ã¾ã§å¾…ã¡ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It waits until connected completion or connected error or the time-out occurs. 
         /// </en>
         /// </summary>
-        /// <param name="connector"><ja>Ú‘±‚ğ~‚ß‚é‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX</ja><en>Interface to stop connection</en></param>
-        /// <param name="timeout"><ja>ƒ^ƒCƒ€ƒAƒEƒg’liƒ~ƒŠ•bjBSystem.Threading.Timeout.Infinite‚ğw’è‚µ‚ÄA–³ŠúŒÀ‚É‘Ò‚Â‚±‚Æ‚à‚Å‚«‚Ü‚·B</ja><en>Time-out value (millisecond). It is possible to wait indefinitely by specifying System.Threading.Timeout.Infinite. </en></param>
-        /// <returns><ja>Ú‘±‚ªŠ®—¹‚µ‚½<seealso cref="ITerminalConnection">ITerminalConnection</seealso>BÚ‘±‚É¸”s‚µ‚½‚Æ‚«‚É‚Ínull</ja><en><seealso cref="ITerminalConnection">ITerminalConnection</seealso> that completes connection. When failing in the connection, return null. </en></returns>
+        /// <param name="connector"><ja>æ¥ç¶šã‚’æ­¢ã‚ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹</ja><en>Interface to stop connection</en></param>
+        /// <param name="timeout"><ja>ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆå€¤ï¼ˆãƒŸãƒªç§’ï¼‰ã€‚System.Threading.Timeout.Infiniteã‚’æŒ‡å®šã—ã¦ã€ç„¡æœŸé™ã«å¾…ã¤ã“ã¨ã‚‚ã§ãã¾ã™ã€‚</ja><en>Time-out value (millisecond). It is possible to wait indefinitely by specifying System.Threading.Timeout.Infinite. </en></param>
+        /// <returns><ja>æ¥ç¶šãŒå®Œäº†ã—ãŸ<seealso cref="ITerminalConnection">ITerminalConnection</seealso>ã€‚æ¥ç¶šã«å¤±æ•—ã—ãŸã¨ãã«ã¯null</ja><en><seealso cref="ITerminalConnection">ITerminalConnection</seealso> that completes connection. When failing in the connection, return null. </en></returns>
         /// <remarks>
         /// <para>
         /// <ja>
-        /// <paramref name="connector"/>‚É‚ÍA<seealso cref="IProtocolService">IProtocolService</seealso>‚Ì
-        /// <see cref="IProtocolService.AsyncCygwinConnect">AsyncCygwinConnectƒƒ\ƒbƒh</see>A
-        /// <see cref="IProtocolService.AsyncTelnetConnect">AsyncTelnetConnectƒƒ\ƒbƒh</see>A
-        /// <see cref="IProtocolService.AsyncSSHConnect">AsyncSSHConnectƒƒ\ƒbƒh</see>
-        /// ‚©‚ç‚Ì–ß‚è’l‚ğ“n‚µ‚Ü‚·B
+        /// <paramref name="connector"/>ã«ã¯ã€<seealso cref="IProtocolService">IProtocolService</seealso>ã®
+        /// <see cref="IProtocolService.AsyncCygwinConnect">AsyncCygwinConnectãƒ¡ã‚½ãƒƒãƒ‰</see>ã€
+        /// <see cref="IProtocolService.AsyncTelnetConnect">AsyncTelnetConnectãƒ¡ã‚½ãƒƒãƒ‰</see>ã€
+        /// <see cref="IProtocolService.AsyncSSHConnect">AsyncSSHConnectãƒ¡ã‚½ãƒƒãƒ‰</see>
+        /// ã‹ã‚‰ã®æˆ»ã‚Šå€¤ã‚’æ¸¡ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The return value from the <see cref="IProtocolService.AsyncCygwinConnect">AsyncCygwinConnect method</see>, the <see cref="IProtocolService.AsyncTelnetConnect">AsyncTelnetConnect method</see>, and the <see cref="IProtocolService.AsyncSSHConnect">AsyncSSHConnect method</see> of <seealso cref="IProtocolService">IProtocolService</seealso> is passed to connector. 
@@ -213,7 +213,7 @@ namespace Poderosa.Protocols {
 
     /// <summary>
     /// <ja>
-    /// V‹KÚ‘±‹@”\‚ğ’ñ‹Ÿ‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// æ–°è¦æ¥ç¶šæ©Ÿèƒ½ã‚’æä¾›ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that offers new connection function.
@@ -221,7 +221,7 @@ namespace Poderosa.Protocols {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍAProtocolsƒvƒ‰ƒOƒCƒ“iƒvƒ‰ƒOƒCƒ“IDuorg.poderosa.protocolsvj‚ª’ñ‹Ÿ‚µ‚Ü‚·BŸ‚Ì‚æ‚¤‚É‚µ‚Äæ“¾‚Å‚«‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€Protocolsãƒ—ãƒ©ã‚°ã‚¤ãƒ³ï¼ˆãƒ—ãƒ©ã‚°ã‚¤ãƒ³IDã€Œorg.poderosa.protocolsã€ï¼‰ãŒæä¾›ã—ã¾ã™ã€‚æ¬¡ã®ã‚ˆã†ã«ã—ã¦å–å¾—ã§ãã¾ã™ã€‚
     /// <code>
     /// IProtocolService protocolservice = 
     ///  (IProtocolService)PoderosaWorld.PluginManager.FindPlugin(
@@ -242,63 +242,63 @@ namespace Poderosa.Protocols {
     public interface IProtocolService {
         /// <summary>
         /// <ja>
-        /// CygwinÚ‘±‚ÌƒfƒtƒHƒ‹ƒgƒpƒ‰ƒ[ƒ^‚ğŠi”[‚µ‚½ƒIƒuƒWƒFƒNƒg‚ğ¶¬‚µ‚Ü‚·B
+        /// Cygwinæ¥ç¶šã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’æ ¼ç´ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”Ÿæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create the object stored default parameter of Cygwin connection.
         /// </en>
         /// </summary>
-        /// <returns><ja>ƒfƒtƒHƒ‹ƒgƒpƒ‰ƒ[ƒ^‚ªŠi”[‚³‚ê‚½ƒIƒuƒWƒFƒNƒg</ja><en>Object with default parameter.</en></returns>
+        /// <returns><ja>ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãŒæ ¼ç´ã•ã‚ŒãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>Object with default parameter.</en></returns>
         ICygwinParameter CreateDefaultCygwinParameter();
         /// <summary>
         /// <ja>
-        /// TelnetÚ‘±‚ÌƒfƒtƒHƒ‹ƒgƒpƒ‰ƒ[ƒ^‚ğŠi”[‚µ‚½ƒIƒuƒWƒFƒNƒg‚ğ¶¬‚µ‚Ü‚·B
+        /// Telnetæ¥ç¶šã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’æ ¼ç´ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”Ÿæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create the object stored default parameter of telnet connection.
         /// </en>
         /// </summary>
-        /// <returns><ja>ƒfƒtƒHƒ‹ƒgƒpƒ‰ƒ[ƒ^‚ªŠi”[‚³‚ê‚½ƒIƒuƒWƒFƒNƒg</ja>
+        /// <returns><ja>ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãŒæ ¼ç´ã•ã‚ŒãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja>
         /// <en>Object that stored default parameter.</en>
         /// </returns>
         ITCPParameter CreateDefaultTelnetParameter();
         /// <summary>
         /// <ja>
-        /// SSHÚ‘±‚ÌƒfƒtƒHƒ‹ƒgƒpƒ‰ƒ[ƒ^‚ğŠi”[‚µ‚½ƒIƒuƒWƒFƒNƒg‚ğ¶¬‚µ‚Ü‚·B
+        /// SSHæ¥ç¶šã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’æ ¼ç´ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”Ÿæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create the object stored default parameter of SSH connection.
         /// </en>
         /// </summary>
-        /// <returns><ja>ƒfƒtƒHƒ‹ƒgƒpƒ‰ƒ[ƒ^‚ªŠi”[‚³‚ê‚½ƒIƒuƒWƒFƒNƒg</ja><en>Object with default parameter.</en></returns>
+        /// <returns><ja>ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãŒæ ¼ç´ã•ã‚ŒãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>Object with default parameter.</en></returns>
         ISSHLoginParameter CreateDefaultSSHParameter();
 
         /// <summary>
         /// <ja>
-        /// SSHÚ‘±‚ÌƒTƒuƒVƒXƒeƒ€w’è•t‚«ƒpƒ‰ƒ[ƒ^‚ğŠi”[‚µ‚½ƒIƒuƒWƒFƒNƒg‚ğ¶¬‚µ‚Ü‚·B
+        /// SSHæ¥ç¶šã®ã‚µãƒ–ã‚·ã‚¹ãƒ†ãƒ æŒ‡å®šä»˜ããƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’æ ¼ç´ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”Ÿæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create the object stored default parameter of SSH connection with subsystem designation.
         /// </en>
         /// </summary>
-        /// <returns><ja>ƒfƒtƒHƒ‹ƒgƒpƒ‰ƒ[ƒ^‚ªŠi”[‚³‚ê‚½ƒIƒuƒWƒFƒNƒg</ja><en>Object with default parameter.</en></returns>
+        /// <returns><ja>ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãŒæ ¼ç´ã•ã‚ŒãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>Object with default parameter.</en></returns>
         ISSHSubsystemParameter CreateDefaultSSHSubsystemParameter();
 
         /// <summary>
         /// <ja>
-        /// ”ñ“¯ŠúÚ‘±‚ÅCygwinÚ‘±‚Ìƒ^[ƒ~ƒiƒ‹ƒRƒlƒNƒVƒ‡ƒ“‚ğì‚è‚Ü‚·B
+        /// éåŒæœŸæ¥ç¶šã§Cygwinæ¥ç¶šã®ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ã‚’ä½œã‚Šã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The terminal connection of the Cygwin connection is made for an asynchronous connection. 
         /// </en>
         /// </summary>
-        /// <param name="result_client"><ja>Ú‘±‚Ì¬”Û‚ğó‚¯æ‚éƒCƒ“ƒ^[ƒtƒFƒCƒX</ja><en>Interface that receives success or failure of connection</en></param>
-        /// <param name="destination"><ja>Ú‘±‚Ìƒpƒ‰ƒ[ƒ^</ja><en>Connecting parameter.</en></param>
-        /// <returns><ja>Ú‘±‘€ì‚ğƒLƒƒƒ“ƒZƒ‹‚·‚é‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX</ja><en>Interface to cancel connected operation</en></returns>
+        /// <param name="result_client"><ja>æ¥ç¶šã®æˆå¦ã‚’å—ã‘å–ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹</ja><en>Interface that receives success or failure of connection</en></param>
+        /// <param name="destination"><ja>æ¥ç¶šæ™‚ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿</ja><en>Connecting parameter.</en></param>
+        /// <returns><ja>æ¥ç¶šæ“ä½œã‚’ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã™ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹</ja><en>Interface to cancel connected operation</en></returns>
         /// <remarks>
         /// <ja>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ÍƒuƒƒbƒN‚¹‚¸‚ÉA‚½‚¾‚¿‚É§Œä‚ğ–ß‚µ‚Ü‚·BÚ‘±‚ª¬Œ÷‚·‚é‚Æ<paramref name="result_client"/>‚Ì
-        /// <see cref="IInterruptableConnectorClient.SuccessfullyExit">SuccessfullyExitƒƒ\ƒbƒh</see>‚ªŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ãƒ–ãƒ­ãƒƒã‚¯ã›ãšã«ã€ãŸã ã¡ã«åˆ¶å¾¡ã‚’æˆ»ã—ã¾ã™ã€‚æ¥ç¶šãŒæˆåŠŸã™ã‚‹ã¨<paramref name="result_client"/>ã®
+        /// <see cref="IInterruptableConnectorClient.SuccessfullyExit">SuccessfullyExitãƒ¡ã‚½ãƒƒãƒ‰</see>ãŒå‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The control is returned at once without blocking this method. When the connection succeeds, the <see cref="IInterruptableConnectorClient.SuccessfullyExit">SuccessfullyExit method</see> of <paramref name="result_client"/> is called. 
@@ -307,7 +307,7 @@ namespace Poderosa.Protocols {
         IInterruptable AsyncCygwinConnect(IInterruptableConnectorClient result_client, ICygwinParameter destination);
         /// <summary>
         /// <ja>
-        /// ”ñ“¯ŠúÚ‘±‚ÅTelnetÚ‘±‚Ìƒ^[ƒ~ƒiƒ‹ƒRƒlƒNƒVƒ‡ƒ“‚ğì‚è‚Ü‚·B
+        /// éåŒæœŸæ¥ç¶šã§Telnetæ¥ç¶šã®ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ã‚’ä½œã‚Šã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create a terminal connection of the Telnet connection by an asynchronous connection. 
@@ -316,13 +316,13 @@ namespace Poderosa.Protocols {
         /// <en>
         /// The terminal connection of the telnet connection is made for an asynchronous connection. 
         /// </en>
-        /// <param name="result_client"><ja>Ú‘±‚Ì¬”Û‚ğó‚¯æ‚éƒCƒ“ƒ^[ƒtƒFƒCƒX</ja><en>Interface that receives success or failure of connection</en></param>
-        /// <param name="destination"><ja>Ú‘±‚Ìƒpƒ‰ƒ[ƒ^</ja><en>Connecting parameter.</en></param>
-        /// <returns><ja>Ú‘±‘€ì‚ğƒLƒƒƒ“ƒZƒ‹‚·‚é‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX</ja><en>Interface to cancel connected operation</en></returns>
+        /// <param name="result_client"><ja>æ¥ç¶šã®æˆå¦ã‚’å—ã‘å–ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹</ja><en>Interface that receives success or failure of connection</en></param>
+        /// <param name="destination"><ja>æ¥ç¶šæ™‚ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿</ja><en>Connecting parameter.</en></param>
+        /// <returns><ja>æ¥ç¶šæ“ä½œã‚’ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã™ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹</ja><en>Interface to cancel connected operation</en></returns>
         /// <remarks>
         /// <ja>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ÍƒuƒƒbƒN‚¹‚¸‚ÉA‚½‚¾‚¿‚É§Œä‚ğ–ß‚µ‚Ü‚·BÚ‘±‚ª¬Œ÷‚·‚é‚Æ<paramref name="result_client"/>‚Ì
-        /// <see cref="IInterruptableConnectorClient.SuccessfullyExit">SuccessfullyExitƒƒ\ƒbƒh</see>‚ªŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ãƒ–ãƒ­ãƒƒã‚¯ã›ãšã«ã€ãŸã ã¡ã«åˆ¶å¾¡ã‚’æˆ»ã—ã¾ã™ã€‚æ¥ç¶šãŒæˆåŠŸã™ã‚‹ã¨<paramref name="result_client"/>ã®
+        /// <see cref="IInterruptableConnectorClient.SuccessfullyExit">SuccessfullyExitãƒ¡ã‚½ãƒƒãƒ‰</see>ãŒå‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The control is returned at once without blocking this method. When the connection succeeds, the <see cref="IInterruptableConnectorClient.SuccessfullyExit">SuccessfullyExit method</see> of <paramref name="result_client"/> is called. 
@@ -331,21 +331,21 @@ namespace Poderosa.Protocols {
         IInterruptable AsyncTelnetConnect(IInterruptableConnectorClient result_client, ITCPParameter destination);
         /// <summary>
         /// <ja>
-        /// ”ñ“¯ŠúÚ‘±‚ÅSSHÚ‘±‚Ìƒ^[ƒ~ƒiƒ‹ƒRƒlƒNƒVƒ‡ƒ“‚ğì‚è‚Ü‚·B
+        /// éåŒæœŸæ¥ç¶šã§SSHæ¥ç¶šã®ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ã‚’ä½œã‚Šã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The terminal connection of the SSH connection is made for an asynchronous connection. 
         /// </en>
         /// </summary>
-        /// <param name="result_client"><ja>Ú‘±‚Ì¬”Û‚ğó‚¯æ‚éƒCƒ“ƒ^[ƒtƒFƒCƒX</ja><en>Interface that receives success or failure of connection</en></param>
-        /// <param name="destination"><ja>Ú‘±‚Ìƒpƒ‰ƒ[ƒ^</ja><en>Connecting parameter.</en></param>
-        /// <returns><ja>Ú‘±‘€ì‚ğƒLƒƒƒ“ƒZƒ‹‚·‚é‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX</ja>
+        /// <param name="result_client"><ja>æ¥ç¶šã®æˆå¦ã‚’å—ã‘å–ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹</ja><en>Interface that receives success or failure of connection</en></param>
+        /// <param name="destination"><ja>æ¥ç¶šæ™‚ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿</ja><en>Connecting parameter.</en></param>
+        /// <returns><ja>æ¥ç¶šæ“ä½œã‚’ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã™ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹</ja>
         /// <en>Interface to cancel connection operation.</en>
         /// </returns>
         /// <remarks>
         /// <ja>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ÍƒuƒƒbƒN‚¹‚¸‚ÉA‚½‚¾‚¿‚É§Œä‚ğ–ß‚µ‚Ü‚·BÚ‘±‚ª¬Œ÷‚·‚é‚Æ<paramref name="result_client"/>‚Ì
-        /// <see cref="IInterruptableConnectorClient.SuccessfullyExit">SuccessfullyExitƒƒ\ƒbƒh</see>‚ªŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ãƒ–ãƒ­ãƒƒã‚¯ã›ãšã«ã€ãŸã ã¡ã«åˆ¶å¾¡ã‚’æˆ»ã—ã¾ã™ã€‚æ¥ç¶šãŒæˆåŠŸã™ã‚‹ã¨<paramref name="result_client"/>ã®
+        /// <see cref="IInterruptableConnectorClient.SuccessfullyExit">SuccessfullyExitãƒ¡ã‚½ãƒƒãƒ‰</see>ãŒå‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The control is returned at once without blocking this method. When the connection succeeds, the <see cref="IInterruptableConnectorClient.SuccessfullyExit">SuccessfullyExit method</see> of <paramref name="result_client"/> is called. 
@@ -355,19 +355,19 @@ namespace Poderosa.Protocols {
 
         /// <summary>
         /// <ja>
-        /// ŠÈˆÕ“I‚È“¯ŠúÚ‘±‹@”\‚ğ’ñ‹Ÿ‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ•Ô‚µ‚Ü‚·B
+        /// ç°¡æ˜“çš„ãªåŒæœŸæ¥ç¶šæ©Ÿèƒ½ã‚’æä¾›ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the interface that offers a simple synchronization and the connection functions.
         /// </en>
         /// </summary>
-        /// <param name="form"><ja>Ú‘±‚Éƒ†[ƒU[‚É•\¦‚·‚éƒtƒH[ƒ€</ja><en>Form displayed to user when connecting it</en></param>
-        /// <returns><ja>“¯ŠúÚ‘±‹@”\‚ğ’ñ‹Ÿ‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX</ja><en>Interface that offers synchronization and connection functions</en></returns>
+        /// <param name="form"><ja>æ¥ç¶šæ™‚ã«ãƒ¦ãƒ¼ã‚¶ãƒ¼ã«è¡¨ç¤ºã™ã‚‹ãƒ•ã‚©ãƒ¼ãƒ </ja><en>Form displayed to user when connecting it</en></param>
+        /// <returns><ja>åŒæœŸæ¥ç¶šæ©Ÿèƒ½ã‚’æä¾›ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹</ja><en>Interface that offers synchronization and connection functions</en></returns>
         ISynchronizedConnector CreateFormBasedSynchronozedConnector(IPoderosaForm form);
 
         /// <summary>
         /// <ja>
-        /// ƒvƒƒgƒRƒ‹‚ÌƒIƒvƒVƒ‡ƒ“‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+        /// ãƒ—ãƒ­ãƒˆã‚³ãƒ«ã®ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Interface that shows option of protocol
@@ -400,7 +400,7 @@ namespace Poderosa.Protocols {
     /// </summary>
     /// <exclude/>
     public interface ISSHConnectionChecker {
-        //SSHÚ‘±‚ğ’£‚é‚Æ‚«‚É‰î“ü‚·‚é‚½‚ß‚ÌƒCƒ“ƒ^ƒtƒF[ƒX@AgentForwarding—p‚É“±“ü‚µ‚½‚à‚Ì‚¾‚ªŠg’£‚·‚é‚©‚à
+        //SSHæ¥ç¶šã‚’å¼µã‚‹ã¨ãã«ä»‹å…¥ã™ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹ã€€AgentForwardingç”¨ã«å°å…¥ã—ãŸã‚‚ã®ã ãŒæ‹¡å¼µã™ã‚‹ã‹ã‚‚
         void BeforeNewConnection(SSHConnectionParameter cp);
     }
 

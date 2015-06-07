@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -102,7 +102,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //ŠJn“_
+        //é–‹å§‹ç‚¹
         public static StartDelegate Start {
             get {
                 return _start;
@@ -114,10 +114,10 @@ namespace Poderosa.Terminal {
                 TerminalControl tc = terminal.TerminalHost.TerminalControl;
                 Debug.Assert(tc != null);
                 RenderProfile rp = (RenderProfile)tc.GetRenderProfile().Clone();
-                CommandResultSession session = new CommandResultSession(document, rp); //Œ»İ‚ÌRenderProfile‚ğg‚Á‚ÄƒZƒbƒVƒ‡ƒ“‚ğì‚é
+                CommandResultSession session = new CommandResultSession(document, rp); //ç¾åœ¨ã®RenderProfileã‚’ä½¿ã£ã¦ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’ä½œã‚‹
                 TerminalDocument terminaldoc = terminal.GetDocument();
                 PopupViewCreationParam cp = new PopupViewCreationParam(_viewFactory);
-                //Œ‹‰Ê‚ÌƒTƒCƒY‚É‡‚í‚¹‚éB‚½‚¾‚µ‚‚³‚Í20s‚ğãŒÀ‚Æ‚·‚é
+                //çµæœã®ã‚µã‚¤ã‚ºã«åˆã‚ã›ã‚‹ã€‚ãŸã ã—é«˜ã•ã¯20è¡Œã‚’ä¸Šé™ã¨ã™ã‚‹
                 cp.InitialSize = new Size(tc.ClientSize.Width, (int)(RuntimeUtil.AdjustIntRange(document.Size, 0, 20) * rp.Pitch.Height) + 2);
                 cp.OwnedByCommandTargetWindow = GEnv.Options.CommandPopupAlwaysOnTop;
                 cp.ShowInTaskBar = GEnv.Options.CommandPopupInTaskBar;
@@ -133,7 +133,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //‹N“®‚Ì‰Šú‰»
+        //èµ·å‹•æ™‚ã®åˆæœŸåŒ–
         private static CommandResultViewerFactory _viewFactory;
 
         public static void Init(IPoderosaWorld world) {
@@ -187,11 +187,11 @@ namespace Poderosa.Terminal {
 
         public IPoderosaCommand Paste {
             get {
-                return null; //ƒy[ƒXƒg•s‰Â
+                return null; //ãƒšãƒ¼ã‚¹ãƒˆä¸å¯
             }
         }
 
-        //ESC‚Å•Â‚¶‚é
+        //ESCã§é–‰ã˜ã‚‹
         protected override bool ProcessDialogKey(Keys keyData) {
             if (keyData == Keys.Escape) {
                 this.FindForm().Close();

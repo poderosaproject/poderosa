@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -53,7 +53,7 @@ namespace Poderosa.Terminal {
                 return new IToolBarElement[] {
                     new ToolBarLabelImpl(GEnv.Strings, "Form.ToolBar._newLineLabel", 60),
                     new NewLineChangeHandler(),
-                    new ToolBarLabelImpl(GEnv.Strings, "Form.ToolBar._encodingLabel", 88), //TODO ƒTƒCƒYw’è‚Í‚¢‚â‚ç‚µ‚¢‚È
+                    new ToolBarLabelImpl(GEnv.Strings, "Form.ToolBar._encodingLabel", 88), //TODO ã‚µã‚¤ã‚ºæŒ‡å®šã¯ã„ã‚„ã‚‰ã—ã„ãª
                     new EncodingChangeHandler(),
                     new LocalEchoHandler(),
                     new IntelliSenseHandler(),
@@ -68,7 +68,7 @@ namespace Poderosa.Terminal {
         }
         #endregion
 
-        //‚»‚ê‚¼‚ê‚Ì—v‘f
+        //ãã‚Œãã‚Œã®è¦ç´ 
         private class NewLineChangeHandler : ToolBarComboBoxImpl {
             public override object[] Items {
                 get {
@@ -89,7 +89,7 @@ namespace Poderosa.Terminal {
 
             public override int GetSelectedIndex(ICommandTarget target) {
                 ITerminalControlHost session = TerminalCommandTarget.AsTerminal(target);
-                NewLine val = session.TerminalSettings.TransmitNL; //TODO int‚Ö‚ÌƒLƒƒƒXƒg‚Í—–\‚¾‚È
+                NewLine val = session.TerminalSettings.TransmitNL; //TODO intã¸ã®ã‚­ãƒ£ã‚¹ãƒˆã¯ä¹±æš´ã ãª
 
                 EnumListItem<NewLine>[] items = (EnumListItem<NewLine>[])_items;
                 if (items != null) {
@@ -267,7 +267,7 @@ namespace Poderosa.Terminal {
             if (tb == null) {
                 tb = new TerminalToolBarInstance(this, window.ToolBar);
                 _toolbarInstances[window] = tb;
-                //TODO ƒRƒŒƒNƒVƒ‡ƒ“‚Ìíœ‚ª‚È‚¢I
+                //TODO ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã®å‰Šé™¤ãŒãªã„ï¼
             }
             IAbstractTerminalHost session = (IAbstractTerminalHost)document.OwnerSession.GetAdapter(typeof(IAbstractTerminalHost));
             if (session != null)

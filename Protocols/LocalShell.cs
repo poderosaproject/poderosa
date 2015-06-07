@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,13 +23,13 @@ using Poderosa.Plugins;
 namespace Poderosa.Protocols {
     internal abstract class LocalShellUtil {
 
-        //Ú‘±—pƒ\ƒPƒbƒg‚ÌƒTƒ|[ƒg
+        //æ¥ç¶šç”¨ã‚½ã‚±ãƒƒãƒˆã®ã‚µãƒãƒ¼ãƒˆ
         protected static Socket _listener;
         protected static int _localPort;
-        //“¯Šú
+        //åŒæœŸ
         protected static object _lockObject = new object();
 
-        //Ú‘±æ‚ÌSocket‚ğ€”õ‚µ‚Ä•Ô‚·B¸”s‚·‚ê‚Îparent‚ğe‚É‚µ‚ÄƒGƒ‰[‚ğ•\¦‚µAnull‚ğ•Ô‚·B
+        //æ¥ç¶šå…ˆã®Socketã‚’æº–å‚™ã—ã¦è¿”ã™ã€‚å¤±æ•—ã™ã‚Œã°parentã‚’è¦ªã«ã—ã¦ã‚¨ãƒ©ãƒ¼ã‚’è¡¨ç¤ºã—ã€nullã‚’è¿”ã™ã€‚
         internal static ITerminalConnection PrepareSocket(IPoderosaForm parent, ICygwinParameter param) {
             try {
                 return new Connector(param).Connect();
@@ -155,7 +155,7 @@ namespace Poderosa.Protocols {
                 shellparam.SetTerminalName(term.TerminalType);
                 shellparam.SetTerminalSize(term.InitialWidth, term.InitialHeight);
                 TelnetTerminalConnection r = new TelnetTerminalConnection(shellparam, neg, new PlainPoderosaSocket(sock));
-                r.Destination = (ITerminalParameter)_param.GetAdapter(typeof(ITerminalParameter)); //Telnet‚Å‚È‚­ƒIƒŠƒWƒiƒ‹‚ÌCygwinParam‚Åã‘‚«
+                r.Destination = (ITerminalParameter)_param.GetAdapter(typeof(ITerminalParameter)); //Telnetã§ãªãã‚ªãƒªã‚¸ãƒŠãƒ«ã®CygwinParamã§ä¸Šæ›¸ã
                 r.UsingSocks = false;
                 return r;
             }
@@ -204,7 +204,7 @@ namespace Poderosa.Protocols {
                 }
                 catch (Exception) {
                     if (_localPort++ == 20360)
-                        throw new Exception("port overflow!!"); //‚³‚·‚ª‚É‚±‚ê‚Í‚ß‚Á‚½‚É‚È‚¢‚Í‚¸
+                        throw new Exception("port overflow!!"); //ã•ã™ãŒã«ã“ã‚Œã¯ã‚ã£ãŸã«ãªã„ã¯ãš
                 }
             } while (true);
 
@@ -243,7 +243,7 @@ namespace Poderosa.Protocols {
         public static string DefaultHome {
             get {
                 string a = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                //ÅŒã‚Ì\‚ÌŒã‚ÉApplication Data‚ª‚ ‚é‚Ì‚Å
+                //æœ€å¾Œã®\ã®å¾Œã«Application DataãŒã‚ã‚‹ã®ã§
                 int t = a.LastIndexOf('\\');
                 char drive = a[0];
                 return "/dev/fs/" + Char.ToUpper(drive) + a.Substring(2, t - 2).Replace('\\', '/');
@@ -271,7 +271,7 @@ namespace Poderosa.Protocols {
 
     /// <summary>
     /// <ja>
-    /// CygwinÚ‘±‚Ìƒpƒ‰ƒ[ƒ^‚ğ¦‚·ƒwƒ‹ƒpƒNƒ‰ƒX‚Å‚·B
+    /// Cygwinæ¥ç¶šæ™‚ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’ç¤ºã™ãƒ˜ãƒ«ãƒ‘ã‚¯ãƒ©ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Helper class that shows parameter when Cygwin connecting.
@@ -281,7 +281,7 @@ namespace Poderosa.Protocols {
     public class CygwinUtil {
         /// <summary>
         /// <ja>
-        /// ƒfƒtƒHƒ‹ƒg‚Ìƒz[ƒ€ƒfƒBƒŒƒNƒgƒŠ‚ğ•Ô‚µ‚Ü‚·B
+        /// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ãƒ›ãƒ¼ãƒ ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the default home directory.
@@ -289,7 +289,7 @@ namespace Poderosa.Protocols {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ‚±‚ÌƒvƒƒpƒeƒB‚ÍAu"/home/"+Environment.UserNamev‚Ì’l‚ğ•Ô‚µ‚Ü‚·B
+        /// ã“ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã¯ã€ã€Œ"/home/"+Environment.UserNameã€ã®å€¤ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// This property returns a value of ["/home/"+Environment.UserName].
@@ -302,7 +302,7 @@ namespace Poderosa.Protocols {
         }
         /// <summary>
         /// <ja>
-        /// ƒfƒtƒHƒ‹ƒg‚ÌƒVƒFƒ‹‚ğ•Ô‚µ‚Ü‚·B
+        /// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ã‚·ã‚§ãƒ«ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the default shell.
@@ -310,7 +310,7 @@ namespace Poderosa.Protocols {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ‚±‚ÌƒvƒƒpƒeƒB‚ÍAu/bin/bash -i -lv‚Æ‚¢‚¤•¶š—ñ‚ğ•Ô‚µ‚Ü‚·B
+        /// ã“ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã¯ã€ã€Œ/bin/bash -i -lã€ã¨ã„ã†æ–‡å­—åˆ—ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// This property returns the string "/bin/bash -i -l".
@@ -324,7 +324,7 @@ namespace Poderosa.Protocols {
 
         /// <summary>
         /// <ja>
-        /// ƒfƒtƒHƒ‹ƒg‚ÌCygwin‚ÌƒpƒX‚ğ•Ô‚µ‚Ü‚·B
+        /// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®Cygwinã®ãƒ‘ã‚¹ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the default Cygwin path.
@@ -338,7 +338,7 @@ namespace Poderosa.Protocols {
 
         /// <summary>
         /// <ja>
-        /// ƒfƒtƒHƒ‹ƒg‚Ì’[––ƒ^ƒCƒv‚ğ•Ô‚µ‚Ü‚·B
+        /// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ç«¯æœ«ã‚¿ã‚¤ãƒ—ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the default terminal type.
@@ -352,15 +352,15 @@ namespace Poderosa.Protocols {
 
         /// <summary>
         /// <ja>
-        /// ƒŒƒWƒXƒgƒŠ‚ğŒŸõ‚µACygwin‚Ìƒ‹[ƒgƒfƒBƒŒƒNƒgƒŠ‚ğ•Ô‚µ‚Ü‚·B
+        /// ãƒ¬ã‚¸ã‚¹ãƒˆãƒªã‚’æ¤œç´¢ã—ã€Cygwinã®ãƒ«ãƒ¼ãƒˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The registry is retrieved, and the root directory of Cygwin is returned. 
         /// </en>
         /// </summary>
-        /// <returns><ja>Cygwin‚Ìƒ‹[ƒgƒfƒBƒŒƒNƒgƒŠ‚Æv‚í‚µ‚«êŠ‚ª•Ô‚³‚ê‚Ü‚·B</ja><en>A root directory of Cygwin and a satisfactory place are returned. </en></returns>
+        /// <returns><ja>Cygwinã®ãƒ«ãƒ¼ãƒˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã¨æ€ã‚ã—ãå ´æ‰€ãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja><en>A root directory of Cygwin and a satisfactory place are returned. </en></returns>
         public static string GuessRootDirectory() {
-            //HKCU -> HKLM‚Ì‡‚ÅƒT[ƒ`
+            //HKCU -> HKLMã®é †ã§ã‚µãƒ¼ãƒ
             string rootDir;
             rootDir = GetCygwinRootDirectory(Registry.CurrentUser, false);
             if (rootDir != null)
@@ -374,7 +374,7 @@ namespace Poderosa.Protocols {
                     return rootDir;
             }
 
-            //TODO •K‚¸‚µ‚àActiveForm‚Å‚¢‚¢‚Ì‚©A‚Æ‚¢‚¤‚Ì‚Í‚ ‚é‚¯‚Ç‚È
+            //TODO å¿…ãšã—ã‚‚ActiveFormã§ã„ã„ã®ã‹ã€ã¨ã„ã†ã®ã¯ã‚ã‚‹ã‘ã©ãª
             PEnv.ActiveForm.Warning(PEnv.Strings.GetString("Message.CygwinUtil.KeyNotFound"));
             return String.Empty;
         }

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +15,14 @@ using System.Diagnostics;
 namespace Poderosa.Protocols {
 
     /// <summary>
-    /// TelnetOption‚Ì‘—óM‚ğ‚·‚éB‚ ‚Ü‚è•¡G‚ÈƒTƒ|[ƒg‚ğ‚·‚é‚Â‚à‚è‚Í‚È‚¢B
-    /// Guevara‚Å•K—v‚È‚Ì‚ÍSuppressGoAhead(‘o•ûŒü), TerminalType, NAWS‚Ì‚R‚Â‚¾‚¯‚ÅA‚±‚ê‚ç‚ª¬—§‚µ‚È‚¯‚ê‚Î—áŠO‚ğ“Š‚°‚éB
-    /// ‚»‚êˆÈŠO‚ÌTelnetOption‚Í‹‘”Û‚·‚é‚ªA‹‘”Û‚ª¬—§‚µ‚È‚­‚Ä‚à_refusedOption‚ÉŠi”[‚·‚é‚¾‚¯‚ÅƒGƒ‰[‚É‚Í‚µ‚È‚¢B
-    /// ƒIƒvƒVƒ‡ƒ“‚ÌƒlƒSƒVƒG[ƒVƒ‡ƒ“‚ªI—¹‚µ‚½‚çAÅŒã‚ÉóM‚µ‚½ƒpƒPƒbƒg‚Í‚à‚¤ƒVƒFƒ‹–{‘Ì‚Å‚ ‚é‚Ì‚ÅAŒÄ‚Ño‚µ‘¤‚Í‚±‚ê‚ğg‚¤‚æ‚¤‚É‚µ‚È‚¢‚Æ‚¢‚¯‚È‚¢B
+    /// TelnetOptionã®é€å—ä¿¡ã‚’ã™ã‚‹ã€‚ã‚ã¾ã‚Šè¤‡é›‘ãªã‚µãƒãƒ¼ãƒˆã‚’ã™ã‚‹ã¤ã‚‚ã‚Šã¯ãªã„ã€‚
+    /// Guevaraã§å¿…è¦ãªã®ã¯SuppressGoAhead(åŒæ–¹å‘), TerminalType, NAWSã®ï¼“ã¤ã ã‘ã§ã€ã“ã‚Œã‚‰ãŒæˆç«‹ã—ãªã‘ã‚Œã°ä¾‹å¤–ã‚’æŠ•ã’ã‚‹ã€‚
+    /// ãã‚Œä»¥å¤–ã®TelnetOptionã¯æ‹’å¦ã™ã‚‹ãŒã€æ‹’å¦ãŒæˆç«‹ã—ãªãã¦ã‚‚_refusedOptionã«æ ¼ç´ã™ã‚‹ã ã‘ã§ã‚¨ãƒ©ãƒ¼ã«ã¯ã—ãªã„ã€‚
+    /// ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã®ãƒã‚´ã‚·ã‚¨ãƒ¼ã‚·ãƒ§ãƒ³ãŒçµ‚äº†ã—ãŸã‚‰ã€æœ€å¾Œã«å—ä¿¡ã—ãŸãƒ‘ã‚±ãƒƒãƒˆã¯ã‚‚ã†ã‚·ã‚§ãƒ«æœ¬ä½“ã§ã‚ã‚‹ã®ã§ã€å‘¼ã³å‡ºã—å´ã¯ã“ã‚Œã‚’ä½¿ã†ã‚ˆã†ã«ã—ãªã„ã¨ã„ã‘ãªã„ã€‚
     /// </summary>
     internal class TelnetNegotiator {
         private string _terminalType;
-        //•K—v‚È‚ç‚±‚±‚©‚çî•ñ‚ğ“Ç‚Ş
+        //å¿…è¦ãªã‚‰ã“ã“ã‹ã‚‰æƒ…å ±ã‚’èª­ã‚€
         private int _width;
         private int _height;
 
@@ -36,7 +36,7 @@ namespace Poderosa.Protocols {
             REAL_0xFF
         }
 
-        //Ú‘±‚ğ’†’f‚·‚é‚Ù‚Ç‚Å‚Í‚È‚¢‚ªŠú‘Ò‚Ç‚¨‚è‚Å‚È‚©‚Á‚½ê‡‚ÉŒx‚ğo‚·
+        //æ¥ç¶šã‚’ä¸­æ–­ã™ã‚‹ã»ã©ã§ã¯ãªã„ãŒæœŸå¾…ã©ãŠã‚Šã§ãªã‹ã£ãŸå ´åˆã«è­¦å‘Šã‚’å‡ºã™
         private List<string> _warnings;
         public List<string> Warnings {
             get {
@@ -99,7 +99,7 @@ namespace Poderosa.Protocols {
                         _state = TelnetCode.NA;
                     break;
                 case TelnetCode.SB:
-                    if (data != (byte)TelnetCode.SE && data != (byte)TelnetOption.NAWS) //IAC SB 0x1F ‚Æ‚«‚Ä‚»‚ê‚Á‚«‚èA‚Æ‚¢‚¤ƒP[ƒX‚ª‚ ‚Á‚½BƒzƒXƒg‘¤‚Ìd—lˆá”½‚Ì‚æ‚¤‚ÉŒ©‚¦‚é‚ªAPoderosa‚ª‰½‚©‚Ì‰“š‚ğ•Ô‚·‚í‚¯‚Å‚Í‚È‚¢‚Ì‚Å‚±‚ê‚Å‰ñ”ğ
+                    if (data != (byte)TelnetCode.SE && data != (byte)TelnetOption.NAWS) //IAC SB 0x1F ã¨ãã¦ãã‚Œã£ãã‚Šã€ã¨ã„ã†ã‚±ãƒ¼ã‚¹ãŒã‚ã£ãŸã€‚ãƒ›ã‚¹ãƒˆå´ã®ä»•æ§˜é•åã®ã‚ˆã†ã«è¦‹ãˆã‚‹ãŒã€PoderosaãŒä½•ã‹ã®å¿œç­”ã‚’è¿”ã™ã‚ã‘ã§ã¯ãªã„ã®ã§ã“ã‚Œã§å›é¿
                         _sequenceBuffer.WriteByte(data);
                     else {
                         ProcessSequence(_sequenceBuffer.ToArray());
@@ -142,14 +142,14 @@ namespace Poderosa.Protocols {
                         _warnings.Add(PEnv.Strings.GetString("Message.Telnet.FailedToSendWidnowSize"));
                     break;
                 case TelnetOption.SuppressGoAhead:
-                    if (_state != TelnetCode.WILL && _state != TelnetCode.DO) //!!—¼•û‚ª—ˆ‚½‚±‚Æ‚ğŠm”F‚·‚é
+                    if (_state != TelnetCode.WILL && _state != TelnetCode.DO) //!!ä¸¡æ–¹ãŒæ¥ãŸã“ã¨ã‚’ç¢ºèªã™ã‚‹
                         _warnings.Add(PEnv.Strings.GetString("Message.Telnet.FailedToSendSuppressGoAhead"));
                     break;
                 case TelnetOption.LocalEcho:
                     if (_state == TelnetCode.DO)
                         _optionWriter.Write(TelnetCode.WILL, option);
                     break;
-                default: //ã‹LˆÈŠO‚Í‚·‚×‚Ä‹‘”ÛBDO‚É‚ÍWON'T, WILL‚É‚ÍDON'T‚Ì‰“š‚ğ•Ô‚·B 
+                default: //ä¸Šè¨˜ä»¥å¤–ã¯ã™ã¹ã¦æ‹’å¦ã€‚DOã«ã¯WON'T, WILLã«ã¯DON'Tã®å¿œç­”ã‚’è¿”ã™ã€‚ 
                     if (_state == TelnetCode.DO)
                         _optionWriter.Write(TelnetCode.WONT, option);
                     else if (_state == TelnetCode.WILL)

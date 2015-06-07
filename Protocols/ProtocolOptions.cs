@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@ using Poderosa.Preferences;
 namespace Poderosa.Protocols {
     /// <summary>
     /// <ja>
-    /// IPv4‚ÆIPv6‚Ì—Dæ‡ˆÊ‚ğŒˆ‚ß‚Ü‚·B
+    /// IPv4ã¨IPv6ã®å„ªå…ˆé †ä½ã‚’æ±ºã‚ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Decide the priority level of IPv4 and IPv6
@@ -26,20 +26,20 @@ namespace Poderosa.Protocols {
     /// </summary>
     public enum IPVersionPriority {
         /// <summary>
-        /// <ja>IPv4‚ÆIPv6‚Ì—¼•û‚ğg‚¢‚Ü‚·B</ja>
+        /// <ja>IPv4ã¨IPv6ã®ä¸¡æ–¹ã‚’ä½¿ã„ã¾ã™ã€‚</ja>
         /// <en>Both IPv4 and IPv6 are used.</en>
         /// </summary>
         [EnumValue(Description = "Enum.IPVersionPriority.Both")]
         Both,
         /// <summary>
-        /// <ja>IPv4‚µ‚©g‚¢‚Ü‚¹‚ñB</ja>
+        /// <ja>IPv4ã—ã‹ä½¿ã„ã¾ã›ã‚“ã€‚</ja>
         /// <en>Only IPv4 is used.</en>
         /// </summary>
         [EnumValue(Description = "Enum.IPVersionPriority.V4Only")]
         V4Only,
         /// <summary>
         /// <ja>
-        /// IPv6‚µ‚©g‚¢‚Ü‚¹‚ñB
+        /// IPv6ã—ã‹ä½¿ã„ã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>Only IPv6 is used.</en>
         /// </summary>
@@ -49,14 +49,14 @@ namespace Poderosa.Protocols {
 
     /// <summary>
     /// <ja>
-    /// Ú‘±ƒIƒvƒVƒ‡ƒ“‚ğ’ñ‹Ÿ‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// æ¥ç¶šã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚’æä¾›ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// It is an interface that offers connected option. 
     /// </en>
     /// </summary>
     /// <remarks>
-    /// <ja>‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚Ì‰ğà‚ÍA‚Ü‚¾‚ ‚è‚Ü‚¹‚ñB</ja><en>It has not explained this interface yet. </en>
+    /// <ja>ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã®è§£èª¬ã¯ã€ã¾ã ã‚ã‚Šã¾ã›ã‚“ã€‚</ja><en>It has not explained this interface yet. </en>
     /// </remarks>
     public interface IProtocolOptions {
         string[] CipherAlgorithmOrder {
@@ -121,7 +121,7 @@ namespace Poderosa.Protocols {
             set;
         }
 
-        //PreferenceEditor‚Ì‚İ
+        //PreferenceEditorã®ã¿
         int SocketBufferSize {
             get;
         }
@@ -146,12 +146,12 @@ namespace Poderosa.Protocols {
         private IBoolPreferenceItem _sshCheckMAC;
         private IStringPreferenceItem _hostKeyCheckerVerifierTypeName;
 
-        //ƒ\ƒPƒbƒg
+        //ã‚½ã‚±ãƒƒãƒˆ
         private IIntPreferenceItem _socketConnectTimeout;
         private EnumPreferenceItem<IPVersionPriority> _ipVersionPriority;
         private IBoolPreferenceItem _logSSHEvents;
 
-        //SOCKSŠÖŒW
+        //SOCKSé–¢ä¿‚
         private IBoolPreferenceItem _useSocks;
         private IStringPreferenceItem _socksServer;
         private IIntPreferenceItem _socksPort;
@@ -159,7 +159,7 @@ namespace Poderosa.Protocols {
         private IStringPreferenceItem _socksPassword;
         private IStringPreferenceItem _socksNANetworks;
 
-        //PreferenceEditor‚Ì‚İ
+        //PreferenceEditorã®ã¿
         private IIntPreferenceItem _socketBufferSize;
         private IBoolPreferenceItem _readSerializedPassword;
         private IBoolPreferenceItem _savePassword;
@@ -174,7 +174,7 @@ namespace Poderosa.Protocols {
         }
 
         public override void DefineItems(IPreferenceBuilder builder) {
-            //SSHŠÖŒW
+            //SSHé–¢ä¿‚
             _retainsPassphrase = builder.DefineBoolValue(_folder, "retainPassphrase", false, null);
             //Note: Validator Required
             _cipherAlgorithmOrder = builder.DefineStringValue(_folder, "cipherAlgorithmOrder", DEFAULT_CIPHER_ALGORITHM_ORDER, null);
@@ -187,7 +187,7 @@ namespace Poderosa.Protocols {
             _socketConnectTimeout = builder.DefineIntValue(_folder, "socketConnectTimeout", 3000, PreferenceValidatorUtil.PositiveIntegerValidator);
             _ipVersionPriority = new EnumPreferenceItem<IPVersionPriority>(builder.DefineStringValue(_folder, "ipVersionPriority", "Both", null), IPVersionPriority.Both);
 
-            //SOCKSŠÖŒW
+            //SOCKSé–¢ä¿‚
             _useSocks = builder.DefineBoolValue(_folder, "useSocks", false, null);
             _socksServer = builder.DefineStringValue(_folder, "socksServer", "", null);
             _socksPort = builder.DefineIntValue(_folder, "socksPort", 1080, PreferenceValidatorUtil.PositiveIntegerValidator);
@@ -195,7 +195,7 @@ namespace Poderosa.Protocols {
             _socksPassword = builder.DefineStringValue(_folder, "socksPassword", "", null);
             _socksNANetworks = builder.DefineStringValue(_folder, "socksNANetworks", "", null);
 
-            //PreferenceEditor‚Ì‚İ
+            //PreferenceEditorã®ã¿
             _socketBufferSize = builder.DefineIntValue(_folder, "socketBufferSize", 0x1000, PreferenceValidatorUtil.PositiveIntegerValidator);
             _readSerializedPassword = builder.DefineBoolValue(_folder, "readSerializedPassword", false, null);
             _savePassword = builder.DefineBoolValue(_folder, "savePassword", false, null);
@@ -204,7 +204,7 @@ namespace Poderosa.Protocols {
         public ProtocolOptions Import(ProtocolOptions src) {
             Debug.Assert(src._folder.Id == _folder.Id);
 
-            //SSHŠÖŒW
+            //SSHé–¢ä¿‚
             _retainsPassphrase = ConvertItem(src._retainsPassphrase);
 
             _cipherAlgorithmOrder = ConvertItem(src._cipherAlgorithmOrder);
@@ -218,7 +218,7 @@ namespace Poderosa.Protocols {
             _socketConnectTimeout = ConvertItem(src._socketConnectTimeout);
             _ipVersionPriority = ConvertItem<IPVersionPriority>(src._ipVersionPriority);
 
-            //SOCKSŠÖŒW
+            //SOCKSé–¢ä¿‚
             _useSocks = ConvertItem(src._useSocks);
             _socksServer = ConvertItem(src._socksServer);
             _socksPort = ConvertItem(src._socksPort);
@@ -428,7 +428,7 @@ namespace Poderosa.Protocols {
         [ConfigBoolElement(Initial = true)]
         protected bool _sshCheckMAC;
 
-        //SOCKSŠÖŒW
+        //SOCKSé–¢ä¿‚
         [ConfigBoolElement(Initial = false)]
         protected bool _useSocks;
         [ConfigStringElement(Initial = "")]

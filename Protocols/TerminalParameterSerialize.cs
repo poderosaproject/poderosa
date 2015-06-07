@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -100,7 +100,7 @@ namespace Poderosa.Protocols {
         public SSHParameterSerializer()
             : base(typeof(SSHLoginParameter), 22) {
         }
-        //”h¶ƒNƒ‰ƒX‚©‚ç‚Ìw’è—p
+        //æ´¾ç”Ÿã‚¯ãƒ©ã‚¹ã‹ã‚‰ã®æŒ‡å®šç”¨
         protected SSHParameterSerializer(Type t)
             : base(t, 22) {
         }
@@ -224,7 +224,7 @@ namespace Poderosa.Protocols {
         }
     }
 
-    //TODO ƒVƒŠƒAƒ‹ƒ|[ƒg
+    //TODO ã‚·ãƒªã‚¢ãƒ«ãƒãƒ¼ãƒˆ
 
 #if UNITTEST
     [TestFixture]
@@ -267,7 +267,7 @@ namespace Poderosa.Protocols {
         public void SSH0() {
             SSHLoginParameter p1 = new SSHLoginParameter();
             StructuredText t = _sshSerializer.Serialize(p1);
-            //Šm”F
+            //ç¢ºèª
             StringWriter wr = new StringWriter();
             new TextStructuredTextWriter(wr).Write(t);
             wr.Close();
@@ -293,7 +293,7 @@ namespace Poderosa.Protocols {
 
             StructuredText t = _sshSerializer.Serialize(p1);
             UnitTestUtil.DumpStructuredText(t);
-            //Šm”F
+            //ç¢ºèª
             Debug.WriteLine(UnitTestUtil.DumpStructuredText(t));
 
             SSHLoginParameter p2 = (SSHLoginParameter)_sshSerializer.Deserialize(t);
@@ -303,7 +303,7 @@ namespace Poderosa.Protocols {
             Assert.AreEqual("account", p2.Account);
         }
         //TODO CYGWIN
-        //TODO StructuredText‚ğè‚Åì¬‚µA–{—ˆ‚ ‚è‚¦‚È‚¢ƒf[ƒ^‚ª“ü‚Á‚Ä‚¢‚Ä‚à‚¿‚á‚ñ‚Æ“Ç‚ß‚é‚±‚Æ‚ğƒeƒXƒg
+        //TODO StructuredTextã‚’æ‰‹ã§ä½œæˆã—ã€æœ¬æ¥ã‚ã‚Šãˆãªã„ãƒ‡ãƒ¼ã‚¿ãŒå…¥ã£ã¦ã„ã¦ã‚‚ã¡ã‚ƒã‚“ã¨èª­ã‚ã‚‹ã“ã¨ã‚’ãƒ†ã‚¹ãƒˆ
     }
 #endif
 }

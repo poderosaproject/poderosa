@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 * Copyright (c) 2005 Poderosa Project, All Rights Reserved.
 * $Id: SocketWithTimeout.cs,v 1.2 2011/10/27 23:21:57 kzmi Exp $
 */
@@ -19,7 +19,7 @@ namespace Poderosa.PortForwarding {
 
 
     /// <summary>
-    /// ƒ\ƒPƒbƒg‚ğŠJ‚«AÚ‘±‚ğŠm—§‚·‚éè‡‚ğ‚µ‚Â‚Âƒ^ƒCƒ€ƒAƒEƒg‚â“r’†‚Å’†~‚·‚é‚±‚Æ‚à‚Å‚«‚é‚½‚ß‚Ì‹@”\
+    /// ã‚½ã‚±ãƒƒãƒˆã‚’é–‹ãã€æ¥ç¶šã‚’ç¢ºç«‹ã™ã‚‹æ‰‹é †ã‚’ã—ã¤ã¤ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆã‚„é€”ä¸­ã§ä¸­æ­¢ã™ã‚‹ã“ã¨ã‚‚ã§ãã‚‹ãŸã‚ã®æ©Ÿèƒ½
     /// </summary>
     public abstract class SocketWithTimeout {
         public void AsyncConnect(ISocketWithTimeoutClient client, string host, int port) {
@@ -115,7 +115,7 @@ namespace Poderosa.PortForwarding {
                     try {
                         _socket.Close();
                     }
-                    catch (Exception) { //‚±‚±‚Å‚¿‚á‚ñ‚Æ•Â‚¶‚é‚±‚Æ‚ªo—ˆ‚È‚¢ê‡‚ª‚ ‚Á‚½
+                    catch (Exception) { //ã“ã“ã§ã¡ã‚ƒã‚“ã¨é–‰ã˜ã‚‹ã“ã¨ãŒå‡ºæ¥ãªã„å ´åˆãŒã‚ã£ãŸ
                     }
                 }
             }
@@ -123,7 +123,7 @@ namespace Poderosa.PortForwarding {
 
         protected virtual void MakeConnection() {
 #if false
-            //‚Ü‚¸SOCKS‚ğg‚¤‚×‚«‚©‚Ç‚¤‚©‚ğ”»’è‚·‚é
+            //ã¾ãšSOCKSã‚’ä½¿ã†ã¹ãã‹ã©ã†ã‹ã‚’åˆ¤å®šã™ã‚‹
             if (_socks != null) {
                 IPAddressSet a = null;
                 try {
@@ -133,11 +133,11 @@ namespace Poderosa.PortForwarding {
                     try {
                         a = new IPAddressSet(_socks.DestName);
                     }
-                    catch (Exception) { //‚±‚±‚Å–¼‘O‰ğŒˆ‚Å‚«‚¸‚Æ‚àASOCKSƒT[ƒo‚ª‰ğŒˆ‚Å‚«‚é‚©‚à‚µ‚ê‚È‚¢‚Ì‚ÅƒGƒ‰[‚É‚Í‚µ‚È‚¢
+                    catch (Exception) { //ã“ã“ã§åå‰è§£æ±ºã§ããšã¨ã‚‚ã€SOCKSã‚µãƒ¼ãƒãŒè§£æ±ºã§ãã‚‹ã‹ã‚‚ã—ã‚Œãªã„ã®ã§ã‚¨ãƒ©ãƒ¼ã«ã¯ã—ãªã„
                     }
                 }
 
-                if (a != null && !SocksApplicapable(_socks.ExcludingNetworks, a)) { //SOCKS‚ğg‚í‚È‚¢‚±‚Æ‚ªŠm’è
+                if (a != null && !SocksApplicapable(_socks.ExcludingNetworks, a)) { //SOCKSã‚’ä½¿ã‚ãªã„ã“ã¨ãŒç¢ºå®š
                     _addressSet = a;
                     _host = _socks.DestName;
                     _port = _socks.DestPort;
@@ -149,7 +149,7 @@ namespace Poderosa.PortForwarding {
             string msg = _socks == null ? GetHostDescription() : "SOCKS Server";
             if (_addressSet == null) {
                 try {
-                    _addressSet = new IPAddressSet(IPAddress.Parse(dest)); //Å‰‚©‚çIPƒAƒhƒŒƒXŒ`®‚Ì‚Æ‚«‚Íè‚Å•ÏŠ·B‚»‚¤‚Å‚È‚¢‚ÆDNS‚Ì‹tˆø‚«‚ğ‚µ‚Äƒ^ƒCƒ€ƒAƒEƒgA‚Æ‚©‚â‚â‚±‚µ‚¢‚±‚Æ‚ª‹N‚±‚é
+                    _addressSet = new IPAddressSet(IPAddress.Parse(dest)); //æœ€åˆã‹ã‚‰IPã‚¢ãƒ‰ãƒ¬ã‚¹å½¢å¼ã®ã¨ãã¯æ‰‹ã§å¤‰æ›ã€‚ãã†ã§ãªã„ã¨DNSã®é€†å¼•ãã‚’ã—ã¦ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆã€ã¨ã‹ã‚„ã‚„ã“ã—ã„ã“ã¨ãŒèµ·ã“ã‚‹
                 }
                 catch (FormatException) {
                     _errorMessage = String.Format("The {0} {1} was not found.", msg, dest);
@@ -168,7 +168,7 @@ namespace Poderosa.PortForwarding {
                 _port = _socks.DestPort;
             }
 #endif
-            //ã‹L‚Ì#if‚ğSOCKS‚È‚µ‚É‘‚«Š·‚¦
+            //ä¸Šè¨˜ã®#ifã‚’SOCKSãªã—ã«æ›¸ãæ›ãˆ
             string dest = _host;
             int port = _port;
             string msg = GetHostDescription();
@@ -177,7 +177,7 @@ namespace Poderosa.PortForwarding {
                 if (IPAddress.TryParse(dest, out address))
                     _addressSet = new IPAddressSet(address);
                 else
-                    _addressSet = new IPAddressSet(dest); //DNS‚Å
+                    _addressSet = new IPAddressSet(dest); //DNSã§
             }
             _errorMessage = String.Format("Failed to connect {0} {1}. Please check the address and the port.", msg, dest);
             _socket = NetUtil.ConnectTCPSocket(_addressSet, port);
@@ -187,14 +187,14 @@ namespace Poderosa.PortForwarding {
         }
 
 
-        //‚±‚ê‚ğƒI[ƒo[ƒ‰ƒCƒh‚µ‚ÄTCPÚ‘±Œã‚Ì“®ì‚ğ‚·‚é
+        //ã“ã‚Œã‚’ã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰ã—ã¦TCPæ¥ç¶šå¾Œã®å‹•ä½œã‚’ã™ã‚‹
         protected abstract void Negotiate();
 
         protected virtual string GetHostDescription() {
             return "";
         }
 
-        //¬Œ÷‚µ‚½‚ç‚±‚ê‚ğÀ‘•‚µ‚ÄŒ‹‰Ê‚ğ•Ô‚·
+        //æˆåŠŸã—ãŸã‚‰ã“ã‚Œã‚’å®Ÿè£…ã—ã¦çµæœã‚’è¿”ã™
         protected abstract object Result {
             get;
         }

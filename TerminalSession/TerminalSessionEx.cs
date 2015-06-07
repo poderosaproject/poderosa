@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,11 @@ using Poderosa.Forms;
 
 namespace Poderosa.Sessions {
 
-    //ƒ^[ƒ~ƒiƒ‹Ú‘±‚ÌƒZƒbƒVƒ‡ƒ“
-    //  TerminalEmulatorƒvƒ‰ƒOƒCƒ““à‚ÌƒRƒ}ƒ“ƒh‚ÍACommandTarget->View->Document->Session->TerminalSession->Terminal‚Æ’H‚Á‚ÄƒRƒ}ƒ“ƒhÀs‘ÎÛ‚ğ“¾‚éB
+    //ã‚¿ãƒ¼ãƒŸãƒŠãƒ«æ¥ç¶šã®ã‚»ãƒƒã‚·ãƒ§ãƒ³
+    //  TerminalEmulatorãƒ—ãƒ©ã‚°ã‚¤ãƒ³å†…ã®ã‚³ãƒãƒ³ãƒ‰ã¯ã€CommandTarget->View->Document->Session->TerminalSession->Terminalã¨è¾¿ã£ã¦ã‚³ãƒãƒ³ãƒ‰å®Ÿè¡Œå¯¾è±¡ã‚’å¾—ã‚‹ã€‚
     /// <summary>
     /// <ja>
-    /// ƒ^[ƒ~ƒiƒ‹ƒZƒbƒVƒ‡ƒ“‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that show the terminal session.
@@ -30,64 +30,64 @@ namespace Poderosa.Sessions {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// Poderosa‚ğ•W€‚Ìƒ^[ƒ~ƒiƒ‹ƒGƒ~ƒ…ƒŒ[ƒ^‚Æ‚µ‚Ä—p‚¢‚éê‡‚É‚ÍA<seealso cref="ISession">ISession</seealso>‚ÌÀ‘Ô‚ÍA
-    /// ‚±‚ÌITerminalSession‚Å‚ ‚èAGetAdapter‚ğg‚Á‚Äæ“¾‚Å‚«‚Ü‚·B
+    /// Poderosaã‚’æ¨™æº–ã®ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚¨ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚¿ã¨ã—ã¦ç”¨ã„ã‚‹å ´åˆã«ã¯ã€<seealso cref="ISession">ISession</seealso>ã®å®Ÿæ…‹ã¯ã€
+    /// ã“ã®ITerminalSessionã§ã‚ã‚Šã€GetAdapterã‚’ä½¿ã£ã¦å–å¾—ã§ãã¾ã™ã€‚
     /// </para>
     /// <para>
     /// <para>
-    /// ƒ^[ƒ~ƒiƒ‹ƒZƒbƒVƒ‡ƒ“‚ÍAŸ‚Ì•û–@‚Åæ“¾‚Å‚«‚Ü‚·B
+    /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚»ãƒƒã‚·ãƒ§ãƒ³ã¯ã€æ¬¡ã®æ–¹æ³•ã§å–å¾—ã§ãã¾ã™ã€‚
     /// </para>
     /// <list type="number">
     /// <item>
-    /// <term>ƒAƒNƒeƒBƒu‚ÈƒEƒBƒ“ƒhƒE^ƒrƒ…[‚©‚çæ“¾‚·‚éê‡</term>
+    /// <term>ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ï¼ãƒ“ãƒ¥ãƒ¼ã‹ã‚‰å–å¾—ã™ã‚‹å ´åˆ</term>
     /// <description>
     /// <para>
-    /// ƒEƒBƒ“ƒhƒEƒ}ƒl[ƒWƒƒ‚ÌActiveWindowƒvƒƒpƒeƒB‚ÍAƒAƒNƒeƒBƒuƒEƒBƒ“ƒhƒE‚ğ¦‚µ‚Ü‚·B
-    /// ‚±‚ÌƒAƒNƒeƒBƒuƒEƒBƒ“ƒhƒE‚©‚çƒhƒLƒ…ƒƒ“ƒgA‚»‚µ‚ÄAƒZƒbƒVƒ‡ƒ“‚Ö‚Æ‚½‚Ç‚é‚±‚Æ‚Åƒ^[ƒ~ƒiƒ‹ƒZƒbƒVƒ‡ƒ“‚ğæ“¾‚Å‚«‚Ü‚·B 
+    /// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒãƒ¼ã‚¸ãƒ£ã®ActiveWindowãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã¯ã€ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ç¤ºã—ã¾ã™ã€‚
+    /// ã“ã®ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‹ã‚‰ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã€ãã—ã¦ã€ã‚»ãƒƒã‚·ãƒ§ãƒ³ã¸ã¨ãŸã©ã‚‹ã“ã¨ã§ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’å–å¾—ã§ãã¾ã™ã€‚ 
     /// </para>
     /// <code>
-    /// // ƒEƒBƒ“ƒhƒEƒ}ƒl[ƒWƒƒ‚ğæ“¾
+    /// // ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒãƒ¼ã‚¸ãƒ£ã‚’å–å¾—
     /// ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
     /// IWindowManager wm = cs.WindowManager;
     ///
-    /// // ƒAƒNƒeƒBƒuƒEƒBƒ“ƒhƒE‚ğæ“¾
+    /// // ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’å–å¾—
     /// IPoderosaMainWindow window = wm.ActiveWindow;
     ///
-    /// // ƒrƒ…[‚ğæ“¾
+    /// // ãƒ“ãƒ¥ãƒ¼ã‚’å–å¾—
     /// IPoderosaView view = window.LastActivatedView;
     /// 
-    /// // ƒhƒLƒ…ƒƒ“ƒg‚ğæ“¾
+    /// // ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’å–å¾—
     /// IPoderosaDocument doc = view.Document;
     /// 
-    /// // ƒZƒbƒVƒ‡ƒ“‚ğæ“¾
+    /// // ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’å–å¾—
     /// ISession session = doc.OwnerSession;
     /// 
-    /// // ƒ^[ƒ~ƒiƒ‹ƒZƒbƒVƒ‡ƒ“‚Ö‚Æ•ÏŠ·
+    /// // ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚»ãƒƒã‚·ãƒ§ãƒ³ã¸ã¨å¤‰æ›
     /// ITerminalSession termsession = 
     ///   (ITerminalSession)session.GetAdapter(typeof(ITerminalSession));
     /// </code>
     /// </description>
     /// </item>
-    /// <item><term>ƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚Ìƒ^[ƒQƒbƒg‚©‚çƒ^[ƒ~ƒiƒ‹ƒZƒbƒVƒ‡ƒ“‚ğ“¾‚éê‡</term>
+    /// <item><term>ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã®ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‹ã‚‰ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’å¾—ã‚‹å ´åˆ</term>
     /// <description>
     /// <para>
-    /// ƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚©‚çƒRƒ}ƒ“ƒh‚ªˆø‚«“n‚³‚ê‚é‚Æ‚«‚É‚ÍAƒ^[ƒQƒbƒg‚Æ‚µ‚Ä‘€ì‘ÎÛ‚ÌƒEƒBƒ“ƒhƒE‚ª“¾‚ç‚ê‚Ü‚·B
-    /// ‚±‚Ìƒ^[ƒQƒbƒg‚ğ—˜—p‚µ‚Äƒ^[ƒ~ƒiƒ‹ƒZƒbƒVƒ‡ƒ“‚ğ“¾‚é‚±‚Æ‚ª‚Å‚«‚Ü‚·B 
+    /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‹ã‚‰ã‚³ãƒãƒ³ãƒ‰ãŒå¼•ãæ¸¡ã•ã‚Œã‚‹ã¨ãã«ã¯ã€ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã¨ã—ã¦æ“ä½œå¯¾è±¡ã®ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãŒå¾—ã‚‰ã‚Œã¾ã™ã€‚
+    /// ã“ã®ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’åˆ©ç”¨ã—ã¦ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’å¾—ã‚‹ã“ã¨ãŒã§ãã¾ã™ã€‚ 
     /// </para>
     /// <para>
-    /// <seealso cref="CommandTargetUtil">CommandTargetUtil</seealso>‚É‚ÍAƒAƒNƒeƒBƒu‚ÈƒhƒLƒ…ƒƒ“ƒg‚ğ“¾‚é‚½‚ß‚ÌAsDocumentOrViewOrLastActivatedDocumentƒƒ\ƒbƒh‚ª‚ ‚è‚Ü‚·B
-    /// ‚±‚Ìƒƒ\ƒbƒh‚ğg‚Á‚ÄƒhƒLƒ…ƒƒ“ƒg‚ğæ“¾‚µA‚»‚±‚©‚çITerminalSession‚Ö‚Æ•ÏŠ·‚·‚é‚±‚Æ‚ÅAƒ^[ƒQƒbƒg‚É‚È‚Á‚Ä‚¢‚éƒ^[ƒ~ƒiƒ‹ƒZƒbƒVƒ‡ƒ“‚ğæ“¾‚Å‚«‚Ü‚·B 
+    /// <seealso cref="CommandTargetUtil">CommandTargetUtil</seealso>ã«ã¯ã€ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’å¾—ã‚‹ãŸã‚ã®AsDocumentOrViewOrLastActivatedDocumentãƒ¡ã‚½ãƒƒãƒ‰ãŒã‚ã‚Šã¾ã™ã€‚
+    /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‚’ä½¿ã£ã¦ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’å–å¾—ã—ã€ãã“ã‹ã‚‰ITerminalSessionã¸ã¨å¤‰æ›ã™ã‚‹ã“ã¨ã§ã€ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã«ãªã£ã¦ã„ã‚‹ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’å–å¾—ã§ãã¾ã™ã€‚ 
     /// </para>
     /// <code>
-    /// // target‚ÍƒRƒ}ƒ“ƒh‚É“n‚³‚ê‚½ƒ^[ƒQƒbƒg‚Å‚ ‚é‚Æ‘z’è‚µ‚Ü‚·
-    /// // ƒhƒLƒ…ƒƒ“ƒg‚ğæ“¾
+    /// // targetã¯ã‚³ãƒãƒ³ãƒ‰ã«æ¸¡ã•ã‚ŒãŸã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã‚ã‚‹ã¨æƒ³å®šã—ã¾ã™
+    /// // ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’å–å¾—
     /// IPoderosaDocument doc = 
     ///   CommandTargetUtil.AsDocumentOrViewOrLastActivatedDocument(target);
     /// if (doc != null)
     /// {
-    ///   // ƒZƒbƒVƒ‡ƒ“‚ğæ“¾
+    ///   // ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’å–å¾—
     ///   ISession session = doc.OwnerSession;
-    ///   // ƒ^[ƒ~ƒiƒ‹ƒZƒbƒVƒ‡ƒ“‚Ö‚Æ•ÏŠ·
+    ///   // ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚»ãƒƒã‚·ãƒ§ãƒ³ã¸ã¨å¤‰æ›
     ///   ITerminalSession termsession = 
     ///     (ITerminalSession)session.GetAdapter(typeof(ITerminalSession));
     /// }
@@ -166,18 +166,18 @@ namespace Poderosa.Sessions {
     /// </remarks>
     public interface ITerminalSession : ISession {
         /// <summary>
-        /// <ja>ƒ^[ƒ~ƒiƒ‹‚ğŠÇ—‚·‚éƒIƒuƒWƒFƒNƒg‚Å‚·B</ja>
+        /// <ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚’ç®¡ç†ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚</ja>
         /// <en>Object that manages terminal.</en>
         /// </summary>
         /// <remarks>
-        /// <ja>‚±‚ÌƒIƒuƒWƒFƒNƒg‚ÍA‘—óM‚ğƒtƒbƒN‚µ‚½‚¢ê‡‚âƒƒO‚ğ‚Æ‚è‚½‚¢ê‡‚È‚Ç‚É—p‚¢‚Ü‚·B</ja><en>This object uses transmitting and receiving to hook and to take the log. </en>
+        /// <ja>ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¯ã€é€å—ä¿¡ã‚’ãƒ•ãƒƒã‚¯ã—ãŸã„å ´åˆã‚„ãƒ­ã‚°ã‚’ã¨ã‚ŠãŸã„å ´åˆãªã©ã«ç”¨ã„ã¾ã™ã€‚</ja><en>This object uses transmitting and receiving to hook and to take the log. </en>
         /// </remarks>
         AbstractTerminal Terminal {
             get;
         }
         /// <summary>
         /// <ja>
-        /// ƒ^[ƒ~ƒiƒ‹‚Ìƒ†[ƒU[ƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ’ñ‹Ÿ‚·‚éƒRƒ“ƒgƒ[ƒ‹‚Å‚·B
+        /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’æä¾›ã™ã‚‹ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Control that offers user interface of terminal.
@@ -187,28 +187,28 @@ namespace Poderosa.Sessions {
             get;
         }
         /// <summary>
-        /// <ja>ƒ^[ƒ~ƒiƒ‹İ’è‚ğ¦‚·ƒIƒuƒWƒFƒNƒg‚Å‚·B</ja>
+        /// <ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«è¨­å®šã‚’ç¤ºã™ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚</ja>
         /// <en>Object that shows terminal setting.</en>
         /// </summary>
         ITerminalSettings TerminalSettings {
             get;
         }
         /// <summary>
-        /// <ja>ƒ^[ƒ~ƒiƒ‹‚ÌÚ‘±‚ğ¦‚·ƒIƒuƒWƒFƒNƒg‚Å‚·B</ja>
+        /// <ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã®æ¥ç¶šã‚’ç¤ºã™ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚</ja>
         /// <en>Object that shows connection of terminal.</en>
         /// </summary>
         ITerminalConnection TerminalConnection {
             get;
         }
         /// <summary>
-        /// <ja>Š—L‚·‚éƒEƒBƒ“ƒhƒE‚ğ¦‚µ‚Ü‚·B</ja>
+        /// <ja>æ‰€æœ‰ã™ã‚‹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
         /// <en>The owned window is shown. </en>
         /// </summary>
         IPoderosaMainWindow OwnerWindow {
             get;
         }
         /// <summary>
-        /// <ja>ƒ^[ƒ~ƒiƒ‹‚Ö‚Ì‘—M‹@”\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã¸ã®é€ä¿¡æ©Ÿèƒ½ã‚’æä¾›ã—ã¾ã™ã€‚</ja>
         /// <en>The transmission function to the terminal is offered. </en>
         /// </summary>
         TerminalTransmission TerminalTransmission {
@@ -219,7 +219,7 @@ namespace Poderosa.Sessions {
 
     /// <summary>
     /// <ja>
-    /// ƒ^[ƒ~ƒiƒ‹ƒT[ƒrƒX‚ğ’ñ‹Ÿ‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚µãƒ¼ãƒ“ã‚¹ã‚’æä¾›ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that provides terminal service.
@@ -228,11 +228,11 @@ namespace Poderosa.Sessions {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍAV‹KTelnet^SSH^CygwinÚ‘±‚Ì‹@”\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€æ–°è¦Telnetï¼SSHï¼Cygwinæ¥ç¶šã®æ©Ÿèƒ½ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// TerminalSessionPluginƒvƒ‰ƒOƒCƒ“iƒvƒ‰ƒOƒCƒ“IDFuorg.poderosa.terminalsessionsvj‚É‚æ‚Á‚Ä
-    /// ’ñ‹Ÿ‚³‚ê‚Ä‚¨‚èAŸ‚Ì‚æ‚¤‚É‚µ‚Äæ“¾‚Å‚«‚Ü‚·B
+    /// TerminalSessionPluginãƒ—ãƒ©ã‚°ã‚¤ãƒ³ï¼ˆãƒ—ãƒ©ã‚°ã‚¤ãƒ³IDï¼šã€Œorg.poderosa.terminalsessionsã€ï¼‰ã«ã‚ˆã£ã¦
+    /// æä¾›ã•ã‚Œã¦ãŠã‚Šã€æ¬¡ã®ã‚ˆã†ã«ã—ã¦å–å¾—ã§ãã¾ã™ã€‚
     /// </para>
     /// <code>
     /// ITerminalSessionsService termservice = 
@@ -259,7 +259,7 @@ namespace Poderosa.Sessions {
     public interface ITerminalSessionsService : IAdaptable {
         /// <summary>
         /// <ja>
-        /// V‹Kƒ^[ƒ~ƒiƒ‹Ú‘±‚ğ‚·‚é‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ¦‚µ‚Ü‚·B
+        /// æ–°è¦ã‚¿ãƒ¼ãƒŸãƒŠãƒ«æ¥ç¶šã‚’ã™ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The interface to connect a new terminal is shown. 
@@ -270,7 +270,7 @@ namespace Poderosa.Sessions {
         }
         /// <summary>
         /// <ja>
-        /// Ú‘±ƒRƒ}ƒ“ƒh‚ÌƒJƒeƒSƒŠ‚ğ¦‚µ‚Ü‚·B
+        /// æ¥ç¶šã‚³ãƒãƒ³ãƒ‰ã®ã‚«ãƒ†ã‚´ãƒªã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The category of connected command is shown. 
@@ -283,57 +283,57 @@ namespace Poderosa.Sessions {
 
     /// <summary>
     /// <ja>
-    /// V‹Kƒ^[ƒ~ƒiƒ‹‚ÌÚ‘±‹@”\‚ğ’ñ‹Ÿ‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// æ–°è¦ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã®æ¥ç¶šæ©Ÿèƒ½ã‚’æä¾›ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that offers connected function of new terminal.
     /// </en>
     /// </summary>
     /// <remarks>
-    /// <ja>‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍA<seealso cref="Poderosa.Sessions.ITerminalSessionsService">ITerminalSessionsServicen</seealso>‚Ì
-    /// <see cref="Poderosa.Sessions.ITerminalSessionsService.TerminalSessionStartCommand">TerminalSessionStartCommandƒvƒƒpƒeƒB</see>
-    /// ‚©‚çæ“¾‚Å‚«‚Ü‚·B</ja>
+    /// <ja>ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€<seealso cref="Poderosa.Sessions.ITerminalSessionsService">ITerminalSessionsServicen</seealso>ã®
+    /// <see cref="Poderosa.Sessions.ITerminalSessionsService.TerminalSessionStartCommand">TerminalSessionStartCommandãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>
+    /// ã‹ã‚‰å–å¾—ã§ãã¾ã™ã€‚</ja>
     /// <en>This interface can be got from the <see cref="Poderosa.Sessions.ITerminalSessionsService.TerminalSessionStartCommand">TerminalSessionStartCommand property</see> of ITerminalSessionsServicen. </en>
     /// </remarks>
     public interface ITerminalSessionStartCommand : IPoderosaCommand {
         /// <summary>
-        /// <ja>Šù‘¶‚ÌÚ‘±‚ğ—p‚¢‚ÄV‹Kƒ^[ƒ~ƒiƒ‹ƒZƒbƒVƒ‡ƒ“‚ğŠJn‚µ‚Ü‚·B</ja><en>A new terminal session is begun by using an existing connection. </en>
+        /// <ja>æ—¢å­˜ã®æ¥ç¶šã‚’ç”¨ã„ã¦æ–°è¦ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’é–‹å§‹ã—ã¾ã™ã€‚</ja><en>A new terminal session is begun by using an existing connection. </en>
         /// </summary>
-        /// <param name="target"><ja>ƒ^[ƒ~ƒiƒ‹‚ÉŒ‹‚Ñ‚Â‚¯‚éƒrƒ…[‚Ü‚½‚ÍƒEƒBƒ“ƒhƒE</ja><en>View or window that ties to terminal</en></param>
-        /// <param name="existing_connection"><ja>Šù‘¶‚ÌÚ‘±ƒIƒuƒWƒFƒNƒg</ja><en>Existing connected object</en></param>
-        /// <param name="settings"><ja>ƒ^[ƒ~ƒiƒ‹İ’è‚ªŠi”[‚³‚ê‚½ƒIƒuƒWƒFƒNƒg</ja><en>Object where terminal setting is stored</en></param>
-        /// <returns><ja>ŠJn‚³‚ê‚½ƒ^[ƒ~ƒiƒ‹ƒZƒbƒVƒ‡ƒ“‚ª•Ô‚³‚ê‚Ü‚·</ja><en>The begun terminal session is returned. </en></returns>
+        /// <param name="target"><ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã«çµã³ã¤ã‘ã‚‹ãƒ“ãƒ¥ãƒ¼ã¾ãŸã¯ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦</ja><en>View or window that ties to terminal</en></param>
+        /// <param name="existing_connection"><ja>æ—¢å­˜ã®æ¥ç¶šã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>Existing connected object</en></param>
+        /// <param name="settings"><ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«è¨­å®šãŒæ ¼ç´ã•ã‚ŒãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>Object where terminal setting is stored</en></param>
+        /// <returns><ja>é–‹å§‹ã•ã‚ŒãŸã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚»ãƒƒã‚·ãƒ§ãƒ³ãŒè¿”ã•ã‚Œã¾ã™</ja><en>The begun terminal session is returned. </en></returns>
         /// <overloads>
         /// <summary>
-        /// <ja>V‹Kƒ^[ƒ~ƒiƒ‹Ú‘±‚ğŠJn‚µ‚Ü‚·B</ja><en>Start a new terminal session.</en>
+        /// <ja>æ–°è¦ã‚¿ãƒ¼ãƒŸãƒŠãƒ«æ¥ç¶šã‚’é–‹å§‹ã—ã¾ã™ã€‚</ja><en>Start a new terminal session.</en>
         /// </summary>
         /// </overloads>
         ITerminalSession StartTerminalSession(ICommandTarget target, ITerminalConnection existing_connection, ITerminalSettings settings);
-        //ITerminalParameter‚ÍATelnet/SSH/Cygwin‚Ì‚¢‚¸‚ê‚©‚Å‚ ‚é•K—v‚ª‚ ‚éB
+        //ITerminalParameterã¯ã€Telnet/SSH/Cygwinã®ã„ãšã‚Œã‹ã§ã‚ã‚‹å¿…è¦ãŒã‚ã‚‹ã€‚
         /// <summary>
         /// <ja>
-        /// Ú‘±ƒpƒ‰ƒ[ƒ^‚ğ—p‚¢‚ÄV‹KÚ‘±‚ğ‚µA‚»‚Ìƒ^[ƒ~ƒiƒ‹ƒZƒbƒVƒ‡ƒ“‚ğŠJn‚µ‚Ü‚·B
+        /// æ¥ç¶šãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’ç”¨ã„ã¦æ–°è¦æ¥ç¶šã‚’ã—ã€ãã®ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’é–‹å§‹ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It newly connects by using connected parameter, and the terminal session is begun. 
         /// </en>
         /// </summary>
-        /// <param name="target"><ja>ƒ^[ƒ~ƒiƒ‹‚ÉŒ‹‚Ñ‚Â‚¯‚éƒrƒ…[‚Ü‚½‚ÍƒEƒBƒ“ƒhƒE</ja><en>View or window that ties to terminal</en></param>
+        /// <param name="target"><ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã«çµã³ã¤ã‘ã‚‹ãƒ“ãƒ¥ãƒ¼ã¾ãŸã¯ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦</ja><en>View or window that ties to terminal</en></param>
         /// <param name="destination">
-        /// <ja>Ú‘±‚Ìƒpƒ‰ƒ[ƒ^‚ªŠi”[‚³‚ê‚½ƒIƒuƒWƒFƒNƒgB
-        /// <seealso cref="ICygwinParameter">ICygwinParameter</seealso>A
-        /// <seealso cref="ISSHLoginParameter">ISSHLoginParameter</seealso>A
-        /// <seealso cref="ITCPParameter">ITCPParameter</seealso>‚Ì‚¢‚¸‚ê‚©‚Å‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB</ja>
+        /// <ja>æ¥ç¶šæ™‚ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãŒæ ¼ç´ã•ã‚ŒãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚
+        /// <seealso cref="ICygwinParameter">ICygwinParameter</seealso>ã€
+        /// <seealso cref="ISSHLoginParameter">ISSHLoginParameter</seealso>ã€
+        /// <seealso cref="ITCPParameter">ITCPParameter</seealso>ã®ã„ãšã‚Œã‹ã§ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚</ja>
         /// <en>
         /// Object where parameter when connecting it is stored. 
         /// It should be either <seealso cref="ICygwinParameter">ICygwinParameter</seealso>, <seealso cref="ISSHLoginParameter">ISSHLoginParameter</seealso> or <seealso cref="ITCPParameter">ITCPParameter</seealso>. </en>
         /// </param>
-        /// <param name="settings"><ja>ƒ^[ƒ~ƒiƒ‹İ’è‚ªŠi”[‚³‚ê‚½ƒIƒuƒWƒFƒNƒg</ja><en>Object where terminal setting is stored</en></param>
-        /// <returns><ja>ŠJn‚³‚ê‚½ƒ^[ƒ~ƒiƒ‹ƒZƒbƒVƒ‡ƒ“‚ª•Ô‚³‚ê‚Ü‚·</ja><en>The begun terminal session is returned. </en></returns>
+        /// <param name="settings"><ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«è¨­å®šãŒæ ¼ç´ã•ã‚ŒãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>Object where terminal setting is stored</en></param>
+        /// <returns><ja>é–‹å§‹ã•ã‚ŒãŸã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚»ãƒƒã‚·ãƒ§ãƒ³ãŒè¿”ã•ã‚Œã¾ã™</ja><en>The begun terminal session is returned. </en></returns>
         ITerminalSession StartTerminalSession(ICommandTarget target, ITerminalParameter destination, ITerminalSettings settings);
 
         /// <summary>
-        /// <ja>ƒZƒbƒVƒ‡ƒ“‚Æ‚Í–³ŠÖŒW‚ÉÚ‘±‚¾‚¯ŠJ‚«‚Ü‚·</ja>
+        /// <ja>ã‚»ãƒƒã‚·ãƒ§ãƒ³ã¨ã¯ç„¡é–¢ä¿‚ã«æ¥ç¶šã ã‘é–‹ãã¾ã™</ja>
         /// <en>Opens not any session but connection</en>
         /// </summary>
         /// <exclude/>
@@ -342,7 +342,7 @@ namespace Poderosa.Sessions {
         void OpenShortcutFile(ICommandTarget target, string filename);
     }
 
-    //ITerminalParameter‚ğƒCƒ“ƒXƒ^ƒ“ƒVƒG[ƒg‚µ‚ÄITerminalConnection‚É‚·‚éExtensionPoint‚ÌƒCƒ“ƒ^ƒtƒF[ƒX
+    //ITerminalParameterã‚’ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚·ã‚¨ãƒ¼ãƒˆã—ã¦ITerminalConnectionã«ã™ã‚‹ExtensionPointã®ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹
     /// <summary>
     /// 
     /// </summary>
@@ -353,13 +353,13 @@ namespace Poderosa.Sessions {
     }
 
 
-    //ƒƒOƒCƒ“ƒ_ƒCƒAƒƒO‚Ìg‚¢ŸèŒüã—p‚ÌƒTƒ|[ƒg
+    //ãƒ­ã‚°ã‚¤ãƒ³ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ã®ä½¿ã„å‹æ‰‹å‘ä¸Šç”¨ã®ã‚µãƒãƒ¼ãƒˆ
     /// <summary>
     /// 
     /// </summary>
     /// <exclude/>
     public interface ITelnetSSHLoginDialogInitializeInfo : IAdaptable {
-        //Ú‘±æŒó•â
+        //æ¥ç¶šå…ˆå€™è£œ
         void AddHost(string value);
         void AddAccount(string value);
         void AddIdentityFile(string value);
@@ -374,20 +374,20 @@ namespace Poderosa.Sessions {
         void ApplyLoginDialogInfo(ITelnetSSHLoginDialogInitializeInfo info);
     }
 
-    //Extension Point‚ª’ñ‹Ÿ
-    //Šù‚ÉŠi”[‚³‚ê‚Ä‚¢‚éî•ñ‚Í‰ó‚³‚È‚¢‚æ‚¤‚É‚·‚é‚Ì‚ªƒ‹[ƒ‹
+    //Extension PointãŒæä¾›
+    //æ—¢ã«æ ¼ç´ã•ã‚Œã¦ã„ã‚‹æƒ…å ±ã¯å£Šã•ãªã„ã‚ˆã†ã«ã™ã‚‹ã®ãŒãƒ«ãƒ¼ãƒ«
     /// <summary>
     /// 
     /// </summary>
     /// <exclude/>
     public interface ILoginDialogUISupport {
-        //‚Q‚Â‚Ì–ß‚è’l‚ª‚ ‚é‚Ì‚Åout‚ğg‚¤Badapter‚ÍATerminalParameter‚Ìí—Ş‚ğw’è‚·‚é‚½‚ß‚Ìˆø”B‘Î‰‚·‚é‚à‚Ì‚ª‚È‚¢‚Æ‚«‚Ínull‚ğ•Ô‚·
+        //ï¼’ã¤ã®æˆ»ã‚Šå€¤ãŒã‚ã‚‹ã®ã§outã‚’ä½¿ã†ã€‚adapterã¯ã€TerminalParameterã®ç¨®é¡ã‚’æŒ‡å®šã™ã‚‹ãŸã‚ã®å¼•æ•°ã€‚å¯¾å¿œã™ã‚‹ã‚‚ã®ãŒãªã„ã¨ãã¯nullã‚’è¿”ã™
         void FillTopDestination(Type adapter, out ITerminalParameter parameter, out ITerminalSettings settings);
-        //ƒzƒXƒg–¼‚Åw’è‚·‚é
+        //ãƒ›ã‚¹ãƒˆåã§æŒ‡å®šã™ã‚‹
         void FillCorrespondingDestination(Type adapter, string destination, out ITerminalParameter parameter, out ITerminalSettings settings);
     }
 
-    //Terminal SessionŒÅ—LƒIƒvƒVƒ‡ƒ“
+    //Terminal Sessionå›ºæœ‰ã‚ªãƒ—ã‚·ãƒ§ãƒ³
     /// <summary>
     /// 
     /// </summary>

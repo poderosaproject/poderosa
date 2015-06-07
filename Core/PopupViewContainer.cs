@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@ using Poderosa.Commands;
 
 namespace Poderosa.Forms {
 
-    //ƒ|ƒbƒvƒAƒbƒv‚µ‚ÄA’Pˆê‚Ìƒrƒ…[‚ğ“à•”‚É‚ÂƒtƒH[ƒ€‚ğ
+    //ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã—ã¦ã€å˜ä¸€ã®ãƒ“ãƒ¥ãƒ¼ã‚’å†…éƒ¨ã«æŒã¤ãƒ•ã‚©ãƒ¼ãƒ ã‚’
     internal class PopupViewContainer : PoderosaForm, IPoderosaPopupWindow {
         private System.ComponentModel.IContainer components = null;
         private IPoderosaView _view;
@@ -71,7 +71,7 @@ namespace Poderosa.Forms {
             base.OnClosing(e);
             try {
                 if (SessionManagerPlugin.Instance == null)
-                    return; //’P‘ÌƒeƒXƒg‚Å‚ÍSession‚È‚µ‚Å‹N“®‚·‚é‚±‚Æ‚à‚ ‚è‚¾
+                    return; //å˜ä½“ãƒ†ã‚¹ãƒˆã§ã¯Sessionãªã—ã§èµ·å‹•ã™ã‚‹ã“ã¨ã‚‚ã‚ã‚Šã 
                 IPoderosaDocument doc = _view.Document;
                 if (doc == null)
                     return;
@@ -86,7 +86,7 @@ namespace Poderosa.Forms {
             }
             catch (Exception ex) {
                 RuntimeUtil.ReportException(ex);
-                e.Cancel = false; //ƒoƒO‚Ì‚½‚ß‚ÉƒEƒBƒ“ƒhƒE‚ğ•Â‚¶‚é‚±‚Æ‚à‚Å‚«‚È‚¢A‚Æ‚¢‚¤‚Ì‚Í‚Ü‚¸‚¢
+                e.Cancel = false; //ãƒã‚°ã®ãŸã‚ã«ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’é–‰ã˜ã‚‹ã“ã¨ã‚‚ã§ããªã„ã€ã¨ã„ã†ã®ã¯ã¾ãšã„
             }
         }
 

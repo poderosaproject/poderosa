@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,12 +23,12 @@ namespace Poderosa.Terminal {
         private int _caretColumn;
         private int _scrollingTop;
         private int _scrollingBottom;
-        //ƒEƒBƒ“ƒhƒE‚Ì•\¦—pƒeƒLƒXƒg
-        private string _windowTitle; //ƒzƒXƒgOSCƒV[ƒPƒ“ƒX‚Åw’è‚³‚ê‚½ƒ^ƒCƒgƒ‹
+        //ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®è¡¨ç¤ºç”¨ãƒ†ã‚­ã‚¹ãƒˆ
+        private string _windowTitle; //ãƒ›ã‚¹ãƒˆOSCã‚·ãƒ¼ã‚±ãƒ³ã‚¹ã§æŒ‡å®šã•ã‚ŒãŸã‚¿ã‚¤ãƒˆãƒ«
         private GLine _topLine;
         private GLine _currentLine;
 
-        //‰æ–Ê‚ÉŒ©‚¦‚Ä‚¢‚é•‚Æ‚‚³
+        //ç”»é¢ã«è¦‹ãˆã¦ã„ã‚‹å¹…ã¨é«˜ã•
         private int _width;
         private int _height;
 
@@ -112,7 +112,7 @@ namespace Poderosa.Terminal {
             set {
                 if (_topLine.ID != value)
                     _invalidatedRegion.InvalidatedAll = true;
-                _topLine = FindLineOrEdge(value); //“¯ã‚Ì——R‚ÅOrEdgeƒo[ƒWƒ‡ƒ“‚É•ÏX
+                _topLine = FindLineOrEdge(value); //åŒä¸Šã®ç†ç”±ã§OrEdgeãƒãƒ¼ã‚¸ãƒ§ãƒ³ã«å¤‰æ›´
             }
         }
 
@@ -128,15 +128,15 @@ namespace Poderosa.Terminal {
             }
             set {
                 if (value < _firstLine.ID)
-                    value = _firstLine.ID; //ƒŠƒTƒCƒY‚Ì”÷–­‚Èƒ^ƒCƒ~ƒ“ƒO‚Å•‰‚É‚È‚Á‚Ä‚µ‚Ü‚¤‚±‚Æ‚ª‚ ‚Á‚½‚æ‚¤‚¾
+                    value = _firstLine.ID; //ãƒªã‚µã‚¤ã‚ºæ™‚ã®å¾®å¦™ãªã‚¿ã‚¤ãƒŸãƒ³ã‚°ã§è² ã«ãªã£ã¦ã—ã¾ã†ã“ã¨ãŒã‚ã£ãŸã‚ˆã†ã 
                 if (value > _lastLine.ID + 100)
-                    value = _lastLine.ID + 100; //‹É’[‚É‘å‚«‚È’l‚ğH‚ç‚Á‚Ä€‚Ê‚±‚Æ‚ª‚È‚¢‚æ‚¤‚É‚·‚é
+                    value = _lastLine.ID + 100; //æ¥µç«¯ã«å¤§ããªå€¤ã‚’é£Ÿã‚‰ã£ã¦æ­»ã¬ã“ã¨ãŒãªã„ã‚ˆã†ã«ã™ã‚‹
 
                 while (value > _lastLine.ID) {
                     AddLine(new GLine(_width));
                 }
 
-                _currentLine = FindLineOrEdge(value); //ŠO•”‚©‚ç•Ï‚È’l‚ª“n‚³‚ê‚½‚èA‚ ‚é‚¢‚Í‚Ç‚±‚©‚ÉƒoƒO‚ª‚ ‚é‚¹‚¢‚Å‚±‚Ì’†‚ÅƒNƒ‰ƒbƒVƒ…‚·‚é‚±‚Æ‚ª‚Ü‚ê‚É‚ ‚é‚æ‚¤‚¾B‚È‚Ì‚ÅOrEdgeƒo[ƒWƒ‡ƒ“‚É‚µ‚ÄƒNƒ‰ƒbƒVƒ…‚Í‰ñ”ğ
+                _currentLine = FindLineOrEdge(value); //å¤–éƒ¨ã‹ã‚‰å¤‰ãªå€¤ãŒæ¸¡ã•ã‚ŒãŸã‚Šã€ã‚ã‚‹ã„ã¯ã©ã“ã‹ã«ãƒã‚°ãŒã‚ã‚‹ã›ã„ã§ã“ã®ä¸­ã§ã‚¯ãƒ©ãƒƒã‚·ãƒ¥ã™ã‚‹ã“ã¨ãŒã¾ã‚Œã«ã‚ã‚‹ã‚ˆã†ã ã€‚ãªã®ã§OrEdgeãƒãƒ¼ã‚¸ãƒ§ãƒ³ã«ã—ã¦ã‚¯ãƒ©ãƒƒã‚·ãƒ¥ã¯å›é¿
             }
         }
 
@@ -169,21 +169,21 @@ namespace Poderosa.Terminal {
             }
         }
         internal void LineFeed() {
-            if (_scrollingTop != -1 && _currentLine.ID >= _scrollingBottom) { //ƒƒbƒN‚³‚ê‚Ä‚¢‚Ä‰º‚Ü‚Ås‚Á‚Ä‚¢‚é
+            if (_scrollingTop != -1 && _currentLine.ID >= _scrollingBottom) { //ãƒ­ãƒƒã‚¯ã•ã‚Œã¦ã„ã¦ä¸‹ã¾ã§è¡Œã£ã¦ã„ã‚‹
                 ScrollDown();
             }
             else {
-                if (_height > 1) { //‹É’[‚É‚‚³‚ª‚È‚¢‚Æ‚«‚Í‚±‚ê‚Å•Ï‚È’l‚É‚È‚Á‚Ä‚µ‚Ü‚¤‚Ì‚ÅƒXƒLƒbƒv
+                if (_height > 1) { //æ¥µç«¯ã«é«˜ã•ãŒãªã„ã¨ãã¯ã“ã‚Œã§å¤‰ãªå€¤ã«ãªã£ã¦ã—ã¾ã†ã®ã§ã‚¹ã‚­ãƒƒãƒ—
                     if (_currentLine.ID >= _topLine.ID + _height - 1)
-                        this.TopLineNumber = _currentLine.ID - _height + 2; //‚±‚ê‚ÅŸ‚ÌCurrentLineNumber++‚Æ‡‚í‚¹‚Äs‘—‚è‚É‚È‚é
+                        this.TopLineNumber = _currentLine.ID - _height + 2; //ã“ã‚Œã§æ¬¡ã®CurrentLineNumber++ã¨åˆã‚ã›ã¦è¡Œé€ã‚Šã«ãªã‚‹
                 }
-                this.CurrentLineNumber++; //‚±‚ê‚ÅƒvƒƒpƒeƒBƒZƒbƒg‚ª‚È‚³‚êA•K—v‚È‚çs‚Ì’Ç‰Á‚à‚³‚ê‚éB
+                this.CurrentLineNumber++; //ã“ã‚Œã§ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚»ãƒƒãƒˆãŒãªã•ã‚Œã€å¿…è¦ãªã‚‰è¡Œã®è¿½åŠ ã‚‚ã•ã‚Œã‚‹ã€‚
             }
 
             //Debug.WriteLine(String.Format("c={0} t={1} f={2} l={3}", _currentLine.ID, _topLine.ID, _firstLine.ID, _lastLine.ID));
         }
 
-        //ƒXƒNƒ[ƒ‹”ÍˆÍ‚ÌÅ‚à‰º‚ğ‚PsÁ‚µAÅ‚àã‚É‚Ps’Ç‰ÁBŒ»İs‚Í‚»‚ÌV‹Ks‚É‚È‚éB
+        //ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ç¯„å›²ã®æœ€ã‚‚ä¸‹ã‚’ï¼‘è¡Œæ¶ˆã—ã€æœ€ã‚‚ä¸Šã«ï¼‘è¡Œè¿½åŠ ã€‚ç¾åœ¨è¡Œã¯ãã®æ–°è¦è¡Œã«ãªã‚‹ã€‚
         internal void ScrollUp() {
             if (_scrollingTop != -1 && _scrollingBottom != -1)
                 ScrollUp(_scrollingTop, _scrollingBottom);
@@ -195,7 +195,7 @@ namespace Poderosa.Terminal {
             GLine top = FindLineOrEdge(from);
             GLine bottom = FindLineOrEdge(to);
             if (top == null || bottom == null)
-                return; //ƒGƒ‰[ƒnƒ“ƒhƒŠƒ“ƒO‚ÍFindLine‚Ì’†‚ÅB‚±‚±‚Å‚ÍƒNƒ‰ƒbƒVƒ…‰ñ”ğ‚¾‚¯‚ğs‚¤
+                return; //ã‚¨ãƒ©ãƒ¼ãƒãƒ³ãƒ‰ãƒªãƒ³ã‚°ã¯FindLineã®ä¸­ã§ã€‚ã“ã“ã§ã¯ã‚¯ãƒ©ãƒƒã‚·ãƒ¥å›é¿ã ã‘ã‚’è¡Œã†
             int bottom_id = bottom.ID;
             int topline_id = _topLine.ID;
             GLine nextbottom = bottom.NextLine;
@@ -226,7 +226,7 @@ namespace Poderosa.Terminal {
             }
             */
 
-            //!!Ÿ‚Ì‚Qs‚Íxterm‚ğ‚â‚Á‚Ä‚¢‚éŠÔ‚É”­Œ©‚µ‚ÄC³B VT100‚Å‚Í‰½‚©‚Ì•K—v‚ª‚ ‚Á‚Ä‚±‚¤‚È‚Á‚½‚Í‚¸‚È‚Ì‚ÅŒã‚Å’²‚×‚é‚±‚Æ
+            //!!æ¬¡ã®ï¼’è¡Œã¯xtermã‚’ã‚„ã£ã¦ã„ã‚‹é–“ã«ç™ºè¦‹ã—ã¦ä¿®æ­£ã€‚ VT100ã§ã¯ä½•ã‹ã®å¿…è¦ãŒã‚ã£ã¦ã“ã†ãªã£ãŸã¯ãšãªã®ã§å¾Œã§èª¿ã¹ã‚‹ã“ã¨
             //if(_scrollingTop<=_topLine.ID && _topLine.ID<=_scrollingBottom)
             //	_topLine = _currentLine;
             while (topline_id < _topLine.ID)
@@ -236,7 +236,7 @@ namespace Poderosa.Terminal {
             _invalidatedRegion.InvalidatedAll = true;
         }
 
-        //ƒXƒNƒ[ƒ‹”ÍˆÍ‚ÌÅ‚àã‚ğ‚PsÁ‚µAÅ‚à‰º‚É‚Ps’Ç‰ÁBŒ»İs‚Í‚»‚ÌV‹Ks‚É‚È‚éB
+        //ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ç¯„å›²ã®æœ€ã‚‚ä¸Šã‚’ï¼‘è¡Œæ¶ˆã—ã€æœ€ã‚‚ä¸‹ã«ï¼‘è¡Œè¿½åŠ ã€‚ç¾åœ¨è¡Œã¯ãã®æ–°è¦è¡Œã«ãªã‚‹ã€‚
         internal void ScrollDown() {
             if (_scrollingTop != -1 && _scrollingBottom != -1)
                 ScrollDown(_scrollingTop, _scrollingBottom);
@@ -255,7 +255,7 @@ namespace Poderosa.Terminal {
                 _currentLine.Clear();
             }
             else {
-                Remove(top); //_topLine‚Ì’²®‚Í•K—v‚È‚ç‚±‚±‚Ås‚í‚ê‚é
+                Remove(top); //_topLineã®èª¿æ•´ã¯å¿…è¦ãªã‚‰ã“ã“ã§è¡Œã‚ã‚Œã‚‹
                 _currentLine = new GLine(_width);
                 InsertAfter(bottom, _currentLine);
 
@@ -271,9 +271,9 @@ namespace Poderosa.Terminal {
             _invalidatedRegion.InvalidatedAll = true;
         }
 
-        //®”ƒCƒ“ƒfƒNƒX‚©‚çŒ©‚Â‚¯‚é@CurrentLine‚©‚ç‚»‚¤‰“‚­‚È‚¢ˆÊ’u‚¾‚ë‚¤‚Æ‚ ‚½‚è‚ğ‚Â‚¯‚é
+        //æ•´æ•°ã‚¤ãƒ³ãƒ‡ã‚¯ã‚¹ã‹ã‚‰è¦‹ã¤ã‘ã‚‹ã€€CurrentLineã‹ã‚‰ãã†é ããªã„ä½ç½®ã ã‚ã†ã¨ã‚ãŸã‚Šã‚’ã¤ã‘ã‚‹
         public override GLine FindLine(int index) {
-            //current‚Ætop‚Ì‹ß‚¢•û‚©‚ç‡‚É‚İ‚Ä‚¢‚­
+            //currentã¨topã®è¿‘ã„æ–¹ã‹ã‚‰é †ã«ã¿ã¦ã„ã
             int d1 = Math.Abs(index - _currentLine.ID);
             int d2 = Math.Abs(index - _topLine.ID);
             if (d1 < d2)
@@ -304,7 +304,7 @@ namespace Poderosa.Terminal {
             _invalidatedRegion.InvalidateLine(newline.ID);
         }
 
-        //––”ö‚É’Ç‰Á‚·‚é
+        //æœ«å°¾ã«è¿½åŠ ã™ã‚‹
         public override void AddLine(GLine line) {
             base.AddLine(line);
             if (_size == 1) {
@@ -343,7 +343,7 @@ namespace Poderosa.Terminal {
             _invalidatedRegion.InvalidatedAll = true;
         }
 
-        /// ÅŒã‚ÌremainsˆÈ‘O‚ğíœ‚·‚é
+        /// æœ€å¾Œã®remainè¡Œä»¥å‰ã‚’å‰Šé™¤ã™ã‚‹
         public int DiscardOldLines(int remain) {
             int delete_count = _size - remain;
             if (delete_count <= 0)
@@ -353,7 +353,7 @@ namespace Poderosa.Terminal {
             for (int i = 0; i < delete_count; i++)
                 newfirst = newfirst.NextLine;
 
-            //V‚µ‚¢æ“ª‚ğŒˆ‚ß‚é
+            //æ–°ã—ã„å…ˆé ­ã‚’æ±ºã‚ã‚‹
             _firstLine = newfirst;
             newfirst.PrevLine.NextLine = null;
             newfirst.PrevLine = null;
@@ -423,7 +423,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //ÄÚ‘±—p‚ÉŒ»İƒhƒLƒ…ƒƒ“ƒg‚Ì‘O‚É‘}“ü
+        //å†æ¥ç¶šç”¨ã«ç¾åœ¨ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã®å‰ã«æŒ¿å…¥
         public void InsertBefore(TerminalDocument olddoc, int paneheight) {
             lock (this) {
                 GLine c = olddoc.LastLine;
@@ -434,13 +434,13 @@ namespace Poderosa.Terminal {
                         flag = true;
                         GLine nl = c.Clone();
                         nl.ID = _firstLine.ID - 1;
-                        InsertBefore(_firstLine, nl); //Å‰‚É‹ó‚Å‚È‚¢s‚ª‚ ‚ê‚ÎˆÈ~‚Í‘S•”‘}“ü
+                        InsertBefore(_firstLine, nl); //æœ€åˆã«ç©ºã§ãªã„è¡ŒãŒã‚ã‚Œã°ä»¥é™ã¯å…¨éƒ¨æŒ¿å…¥
                         offset++;
                     }
                     c = c.PrevLine;
                 }
 
-                //ID‚ª•‰‚É‚È‚é‚Ì‚Í‚¿‚å‚Á‚Æ•|‚¢‚Ì‚ÅC³
+                //IDãŒè² ã«ãªã‚‹ã®ã¯ã¡ã‚‡ã£ã¨æ€–ã„ã®ã§ä¿®æ­£
                 if (_firstLine.ID < 0) {
                     int t = -_firstLine.ID;
                     c = _firstLine;
@@ -459,7 +459,7 @@ namespace Poderosa.Terminal {
 #if DEBUG
             Replace(_currentLine, line);
 #else
-            if (_currentLine != null) //ƒNƒ‰ƒbƒVƒ…ƒŒƒ|[ƒg‚ğ‚İ‚é‚ÆA‰½‚©‚Ì”q‚Énull‚É‚È‚Á‚Ä‚¢‚½‚Æ‚µ‚©v‚¦‚È‚¢
+            if (_currentLine != null) //ã‚¯ãƒ©ãƒƒã‚·ãƒ¥ãƒ¬ãƒãƒ¼ãƒˆã‚’ã¿ã‚‹ã¨ã€ä½•ã‹ã®æ‹å­ã«nullã«ãªã£ã¦ã„ãŸã¨ã—ã‹æ€ãˆãªã„
                 Replace(_currentLine, line);
 #endif
         }

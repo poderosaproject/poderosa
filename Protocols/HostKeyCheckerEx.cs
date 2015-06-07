@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,16 +29,16 @@ namespace Poderosa.Protocols {
             if (_verifier == null)
                 _verifier = FindHostKeyVerifier();
             if (_verifier == null)
-                return true; //•’ÊKnownHosts‚­‚ç‚¢‚Í‚ ‚é‚¾‚ë‚¤BƒGƒ‰[‚É‚·‚×‚«‚©‚à‚µ‚ê‚È‚¢‚ª
+                return true; //æ™®é€šKnownHostsãã‚‰ã„ã¯ã‚ã‚‹ã ã‚ã†ã€‚ã‚¨ãƒ©ãƒ¼ã«ã™ã¹ãã‹ã‚‚ã—ã‚Œãªã„ãŒ
             else
                 return _verifier.Verify(param, info);
         }
 
         private ISSHHostKeyVerifier FindHostKeyVerifier() {
             ISSHHostKeyVerifier[] vs = (ISSHHostKeyVerifier[])ProtocolsPlugin.Instance.PoderosaWorld.PluginManager.FindExtensionPoint(ProtocolsPluginConstants.HOSTKEYCHECKER_EXTENSION).GetExtensions();
-            string name = PEnv.Options.HostKeyCheckerVerifierTypeName; //ˆê‰ž‰B‚µpreference
+            string name = PEnv.Options.HostKeyCheckerVerifierTypeName; //ä¸€å¿œéš ã—preference
 
-            //‰½‚©“ü‚Á‚Ä‚¢‚½‚ç“o˜^
+            //ä½•ã‹å…¥ã£ã¦ã„ãŸã‚‰ç™»éŒ²
             if (name.Length > 0) {
                 foreach (ISSHHostKeyVerifier v in vs) {
                     if (v.GetType().FullName == name)
