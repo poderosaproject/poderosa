@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,12 +13,12 @@ namespace Poderosa {
 
     */
 
-    //AdapterŠÖŒW
-    // Œ´‘¥‚PFƒCƒ“ƒXƒ^ƒ“ƒX‚Ì‹æ•Ê‚ğ‚µ‚È‚¢BŒ^‚É‚æ‚Á‚Ä‚Ì‚İ¬Œ÷‚·‚é‚©‚Ç‚¤‚©‚ªŒˆ‚Ü‚é
-    // Œ´‘¥‚QF‘ÎÌ—¥E„ˆÚ—¥‚ğç‚éBCOM‚ÌQueryInterface‚Æ“¯‚¶B
+    //Adapteré–¢ä¿‚
+    // åŸå‰‡ï¼‘ï¼šã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã®åŒºåˆ¥ã‚’ã—ãªã„ã€‚å‹ã«ã‚ˆã£ã¦ã®ã¿æˆåŠŸã™ã‚‹ã‹ã©ã†ã‹ãŒæ±ºã¾ã‚‹
+    // åŸå‰‡ï¼’ï¼šå¯¾ç§°å¾‹ãƒ»æ¨ç§»å¾‹ã‚’å®ˆã‚‹ã€‚COMã®QueryInterfaceã¨åŒã˜ã€‚
     /// <summary>
     /// <ja>
-    /// w’è‚µ‚½ƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ•Ô‚·‹@\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// æŒ‡å®šã—ãŸã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’è¿”ã™æ©Ÿæ§‹ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Return the mechanism of specified interface.
@@ -26,12 +26,12 @@ namespace Poderosa {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ƒIƒuƒWƒFƒNƒg‚ªƒTƒ|[ƒg‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ•Ô‚·‹@\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
-    /// COMiComponent Object Modelj‚É‚¨‚¯‚éQueryInterface‚Æ“¯‚¶‚Å‚·B
-    /// À‘•Ò‚ÍAŸ‚Ì—vŒ‚ğç‚Á‚Ä‚­‚¾‚³‚¢B
+    /// ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒã‚µãƒãƒ¼ãƒˆã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’è¿”ã™æ©Ÿæ§‹ã‚’æä¾›ã—ã¾ã™ã€‚
+    /// COMï¼ˆComponent Object Modelï¼‰ã«ãŠã‘ã‚‹QueryInterfaceã¨åŒã˜ã§ã™ã€‚
+    /// å®Ÿè£…è€…ã¯ã€æ¬¡ã®è¦ä»¶ã‚’å®ˆã£ã¦ãã ã•ã„ã€‚
     /// <ol>
-    /// <li>ƒCƒ“ƒXƒ^ƒ“ƒX‚Ì‹æ•Ê‚ğ‚µ‚È‚¢‚Å‚­‚¾‚³‚¢BŒ^‚É‚æ‚Á‚Ä‚Ì‚İ¬Œ÷‚·‚é‚©‚Ç‚¤‚©‚ğŒˆ‚ß‚Ä‚­‚¾‚³‚¢</li>
-    /// <li>‘ÎÌ—¥E„ˆÚ—¥‚ğç‚Á‚Ä‚­‚¾‚³‚¢B</li>
+    /// <li>ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã®åŒºåˆ¥ã‚’ã—ãªã„ã§ãã ã•ã„ã€‚å‹ã«ã‚ˆã£ã¦ã®ã¿æˆåŠŸã™ã‚‹ã‹ã©ã†ã‹ã‚’æ±ºã‚ã¦ãã ã•ã„</li>
+    /// <li>å¯¾ç§°å¾‹ãƒ»æ¨ç§»å¾‹ã‚’å®ˆã£ã¦ãã ã•ã„ã€‚</li>
     /// </ol>
     /// </ja>
     /// <en>
@@ -47,7 +47,7 @@ namespace Poderosa {
     public interface IAdaptable {
         /// <summary>
         /// <ja>
-        /// “Á’è‚ÌŒ^‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ•Ô‚µ‚Ü‚·B
+        /// ç‰¹å®šã®å‹ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the interface of the specified type
@@ -55,18 +55,18 @@ namespace Poderosa {
         /// </summary>
         /// <param name="adapter">
         /// <ja>
-        /// —v‹‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÌŒ^
+        /// è¦æ±‚ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã®å‹
         /// </ja>
         /// <en>Type of required interface type.</en></param>
         /// <returns>
-        /// <ja>—v‹‚µ‚½ƒCƒ“ƒ^[ƒtƒFƒCƒX‚ª–ß‚è‚Ü‚·BƒIƒuƒWƒFƒNƒg‚ª‚»‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğÀ‘•‚µ‚Ä‚¢‚È‚¢ê‡‚É‚Ínull‚ª–ß‚è‚Ü‚·B</ja>
+        /// <ja>è¦æ±‚ã—ãŸã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ãŒæˆ»ã‚Šã¾ã™ã€‚ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒãã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’å®Ÿè£…ã—ã¦ã„ãªã„å ´åˆã«ã¯nullãŒæˆ»ã‚Šã¾ã™ã€‚</ja>
         /// <en>Return the interface of required. Return null if the interface is not implemented on the object.</en>
         /// </returns>
         /// <remarks>
         /// <ja>
-        /// À‘•Ò‚ÍA‚±‚Ìƒƒ\ƒbƒh“à‚Å—áŠO‚ğ•Ô‚µ‚Ä‚Í‚È‚è‚Ü‚¹‚ñB”õ‚¦‚È‚¢ƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÌŒ^‚ª“n‚³‚ê‚½ê‡‚É‚Ínull‚ğ•Ô‚µ‚Ä‚­‚¾‚³‚¢B<br/>
-        /// ‘½‚­‚ÌÀ‘•‚Å‚ÍA‰º‹L‚ÌƒR[ƒh‚ğg‚¢AIAdapterManagerƒCƒ“ƒ^[ƒtƒFƒCƒX‚Ì<seealso cref="IAdapterManager.GetAdapter">GetAdapterƒƒ\ƒbƒh</seealso>
-        /// ‚ğg‚Á‚ÄAAdapterManager‚É•ÏŠ·‚ğ”C‚¹‚é‚æ‚¤‚É‚µ‚Ü‚·B
+        /// å®Ÿè£…è€…ã¯ã€ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰å†…ã§ä¾‹å¤–ã‚’è¿”ã—ã¦ã¯ãªã‚Šã¾ã›ã‚“ã€‚å‚™ãˆãªã„ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã®å‹ãŒæ¸¡ã•ã‚ŒãŸå ´åˆã«ã¯nullã‚’è¿”ã—ã¦ãã ã•ã„ã€‚<br/>
+        /// å¤šãã®å®Ÿè£…ã§ã¯ã€ä¸‹è¨˜ã®ã‚³ãƒ¼ãƒ‰ã‚’ä½¿ã„ã€IAdapterManagerã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã®<seealso cref="IAdapterManager.GetAdapter">GetAdapterãƒ¡ã‚½ãƒƒãƒ‰</seealso>
+        /// ã‚’ä½¿ã£ã¦ã€AdapterManagerã«å¤‰æ›ã‚’ä»»ã›ã‚‹ã‚ˆã†ã«ã—ã¾ã™ã€‚
         /// <code>
         /// public IAdaptable GetAdapter(Type adapter)
         /// {
@@ -88,11 +88,11 @@ namespace Poderosa {
         /// </en>
         /// </remarks>
         IAdaptable GetAdapter(Type adapter);
-        //Note: ‚±‚±‚ÉGenerics”Å( T GetAdapter<T>() )‚ğì‚é‚±‚Æ‚àl‚¦‚½‚ªA‚à‚µƒR[ƒh¶¬‚ª“®“I‚És‚í‚ê‚é‚Æ‚·‚ê‚Î‹N“®ŠÔ‚Éˆ«‰e‹¿o‚é‚©‚à‚µ‚ê‚È‚¢‚Ì‚Å‚â‚ß‚Ä‚¨‚­B‚»‚Ì‚¤‚¿‰½‚Æ‚©‚·‚é‚©‚à
+        //Note: ã“ã“ã«Genericsç‰ˆ( T GetAdapter<T>() )ã‚’ä½œã‚‹ã“ã¨ã‚‚è€ƒãˆãŸãŒã€ã‚‚ã—ã‚³ãƒ¼ãƒ‰ç”ŸæˆãŒå‹•çš„ã«è¡Œã‚ã‚Œã‚‹ã¨ã™ã‚Œã°èµ·å‹•æ™‚é–“ã«æ‚ªå½±éŸ¿å‡ºã‚‹ã‹ã‚‚ã—ã‚Œãªã„ã®ã§ã‚„ã‚ã¦ãŠãã€‚ãã®ã†ã¡ä½•ã¨ã‹ã™ã‚‹ã‹ã‚‚
     }
 
     /*
-     * ŒÃ‚¢ƒ^ƒCƒv‚ÌAdapterFactory. Eclipse‚ğ^—‚Ä‚±‚¤‚È‚Á‚½‚æ‚¤‚È‹L‰¯‚ ‚é‚ª•sŠm‚©B‚±‚ê‚Íg‚¢Ÿèˆ«‚¢‚Ì‚Å‰ü‚ß‚é
+     * å¤ã„ã‚¿ã‚¤ãƒ—ã®AdapterFactory. Eclipseã‚’çœŸä¼¼ã¦ã“ã†ãªã£ãŸã‚ˆã†ãªè¨˜æ†¶ã‚ã‚‹ãŒä¸ç¢ºã‹ã€‚ã“ã‚Œã¯ä½¿ã„å‹æ‰‹æ‚ªã„ã®ã§æ”¹ã‚ã‚‹
     public interface IAdapterFactory {
         Type SourceType {
             get;
@@ -104,10 +104,10 @@ namespace Poderosa {
     }
     */
 
-    //‘o•ûŒü‚É•ÏŠ·‚Å‚«‚È‚¯‚ê‚Î‚È‚ç‚È‚¢B
+    //åŒæ–¹å‘ã«å¤‰æ›ã§ããªã‘ã‚Œã°ãªã‚‰ãªã„ã€‚
     /// <summary>
     /// <ja>
-    /// ƒAƒ_ƒvƒ^ƒtƒ@ƒNƒgƒŠ‚ğ\¬‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚¢ãƒ€ãƒ—ã‚¿ãƒ•ã‚¡ã‚¯ãƒˆãƒªã‚’æ§‹æˆã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// The interface that compose the adapter factory.
@@ -115,20 +115,20 @@ namespace Poderosa {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍAƒAƒ_ƒvƒ^ƒ}ƒl[ƒWƒƒi<seealso cref="IAdapterManager">IAdapterManager</seealso>j
-    /// ‚ğg‚Á‚ÄŒ^•ÏŠ·’è‹`‚·‚é‚Æ‚«‚Ég‚¢‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€ã‚¢ãƒ€ãƒ—ã‚¿ãƒãƒãƒ¼ã‚¸ãƒ£ï¼ˆ<seealso cref="IAdapterManager">IAdapterManager</seealso>ï¼‰
+    /// ã‚’ä½¿ã£ã¦å‹å¤‰æ›å®šç¾©ã™ã‚‹ã¨ãã«ä½¿ã„ã¾ã™ã€‚
     /// </ja>
     /// </remarks>
     public interface IDualDirectionalAdapterFactory {
         /// <summary>
-        /// <ja>ƒ\[ƒX‚ÌŒ^‚ğ¦‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚½ãƒ¼ã‚¹ã®å‹ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
         /// <en>Type of source</en>
         /// </summary>
         Type SourceType {
             get;
         }
         /// <summary>
-        /// <ja>ƒAƒ_ƒvƒ^‚ÌŒ^‚ğ¦‚µ‚Ü‚·B
+        /// <ja>ã‚¢ãƒ€ãƒ—ã‚¿ã®å‹ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>Type of adapter
         /// </en>
@@ -138,61 +138,61 @@ namespace Poderosa {
         }
         /// <summary>
         /// <ja>
-        /// ƒ\[ƒX‚©‚çƒAƒ_ƒvƒ^‚Ö‚Æ•ÏŠ·‚µ‚Ü‚·B
+        /// ã‚½ãƒ¼ã‚¹ã‹ã‚‰ã‚¢ãƒ€ãƒ—ã‚¿ã¸ã¨å¤‰æ›ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Convert from source to adapter.
         /// </en>
         /// </summary>
         /// <param name="obj">
-        /// <ja>ƒ\[ƒX‚ÌŒ^</ja>
+        /// <ja>ã‚½ãƒ¼ã‚¹ã®å‹</ja>
         /// <en>Type of source</en>
         /// </param>
         /// <returns>
-        /// <ja>ƒAƒ_ƒvƒ^‚ÌŒ^‚ª•Ô‚³‚ê‚Ü‚·B</ja>
+        /// <ja>ã‚¢ãƒ€ãƒ—ã‚¿ã®å‹ãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>Return the type of the adapter</en>
         /// </returns>
         IAdaptable GetAdapter(IAdaptable obj); //SourceType -> AdapterType
         /// <summary>
         /// <ja>
-        /// ƒAƒ_ƒvƒ^‚©‚çƒ\[ƒX‚Ö‚Æ•ÏŠ·‚µ‚Ü‚·B
+        /// ã‚¢ãƒ€ãƒ—ã‚¿ã‹ã‚‰ã‚½ãƒ¼ã‚¹ã¸ã¨å¤‰æ›ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Convert from adapter to source.
         /// </en>
         /// </summary>
         /// <param name="obj">
-        /// <ja>ƒAƒ_ƒvƒ^‚ÌŒ^</ja>
+        /// <ja>ã‚¢ãƒ€ãƒ—ã‚¿ã®å‹</ja>
         /// <en>Type of adapter</en>
         /// </param>
         /// <returns>
-        /// <ja>ƒ\[ƒX‚ÌŒ^‚ª•Ô‚³‚ê‚Ü‚·B</ja>
+        /// <ja>ã‚½ãƒ¼ã‚¹ã®å‹ãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>Return the type of the source</en>
         /// </returns>
         IAdaptable GetSource(IAdaptable obj);  //AdapterType -> SourceType
     }
 
-    //Generics”Å IAdapterFactory
+    //Genericsç‰ˆ IAdapterFactory
     /// <summary>
     /// <ja>
-    /// Generics”Å‚ÌƒAƒ_ƒvƒ^ƒtƒ@ƒNƒgƒŠ‚Å‚·B
+    /// Genericsç‰ˆã®ã‚¢ãƒ€ãƒ—ã‚¿ãƒ•ã‚¡ã‚¯ãƒˆãƒªã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Adapter factory of the Generics version.
     /// </en>
     /// </summary>
     /// <typeparam name="S">
-    /// <ja>ƒ\[ƒX‚ÌŒ^</ja>
+    /// <ja>ã‚½ãƒ¼ã‚¹ã®å‹</ja>
     /// <en>Type of the source</en>
     /// </typeparam>
     /// <typeparam name="T">
-    /// <ja>ƒAƒ_ƒvƒ^‚ÌŒ^</ja>
+    /// <ja>ã‚¢ãƒ€ãƒ—ã‚¿ã®å‹</ja>
     /// <en>Type of adapter</en>
     /// </typeparam>
     /// <remarks>
     /// <ja>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍAƒAƒ_ƒvƒ^ƒ}ƒl[ƒWƒƒi<seealso cref="IAdapterManager">IAdapterManager</seealso>j
-    /// ‚ğg‚Á‚ÄŒ^•ÏŠ·’è‹`‚·‚é‚Æ‚«‚Ég‚¢‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€ã‚¢ãƒ€ãƒ—ã‚¿ãƒãƒãƒ¼ã‚¸ãƒ£ï¼ˆ<seealso cref="IAdapterManager">IAdapterManager</seealso>ï¼‰
+    /// ã‚’ä½¿ã£ã¦å‹å¤‰æ›å®šç¾©ã™ã‚‹ã¨ãã«ä½¿ã„ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// This interface is used when it defines the type conversation by adapter manager(<seealso cref="IAdapterManager">IAdapterManager</seealso>)
@@ -203,7 +203,7 @@ namespace Poderosa {
         where S : IAdaptable {
 
         /// <summary>
-        /// <ja>ƒ\[ƒX‚ÌŒ^‚ğ¦‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚½ãƒ¼ã‚¹ã®å‹ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
         /// <en>The type of the source</en>
         /// </summary>
         public Type SourceType {
@@ -213,7 +213,7 @@ namespace Poderosa {
         }
 
         /// <summary>
-        /// <ja>ƒAƒ_ƒvƒ^‚ÌŒ^‚ğ¦‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚¢ãƒ€ãƒ—ã‚¿ã®å‹ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
         /// <en>the type of the adapter</en>
         /// </summary>
         public Type AdapterType {
@@ -223,25 +223,25 @@ namespace Poderosa {
         }
 
         /// <summary>
-        /// <ja>ƒ\[ƒX‚©‚çƒAƒ_ƒvƒ^‚Ö‚Æ•ÏŠ·‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚½ãƒ¼ã‚¹ã‹ã‚‰ã‚¢ãƒ€ãƒ—ã‚¿ã¸ã¨å¤‰æ›ã—ã¾ã™ã€‚</ja>
         /// <en>Convert from the source th the adapter.</en>
         /// </summary>
-        /// <param name="obj"><ja>ƒ\[ƒX‚ÌŒ^</ja><en>Type of the source</en></param>
-        /// <returns><ja>ƒAƒ_ƒvƒ^‚ÌŒ^‚ª•Ô‚³‚ê‚Ü‚·B</ja><en>Return the type of the adapter.</en></returns>
+        /// <param name="obj"><ja>ã‚½ãƒ¼ã‚¹ã®å‹</ja><en>Type of the source</en></param>
+        /// <returns><ja>ã‚¢ãƒ€ãƒ—ã‚¿ã®å‹ãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja><en>Return the type of the adapter.</en></returns>
         public IAdaptable GetAdapter(IAdaptable obj) {
             return GetAdapter((S)obj);
         }
 
         /// <summary>
-        /// <ja>ƒAƒ_ƒvƒ^‚©‚çƒ\[ƒX‚Ö‚Æ•ÏŠ·‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚¢ãƒ€ãƒ—ã‚¿ã‹ã‚‰ã‚½ãƒ¼ã‚¹ã¸ã¨å¤‰æ›ã—ã¾ã™ã€‚</ja>
         /// <en>Convert from the adapter to the source.</en>
         /// </summary>
         /// <param name="obj">
-        /// <ja>ƒAƒ_ƒvƒ^‚ÌŒ^</ja>
+        /// <ja>ã‚¢ãƒ€ãƒ—ã‚¿ã®å‹</ja>
         /// <en>Type of adapter</en>
         /// </param>
         /// <returns>
-        /// <ja>ƒ\[ƒX‚ÌŒ^‚ª•Ô‚³‚ê‚Ü‚·B</ja>
+        /// <ja>ã‚½ãƒ¼ã‚¹ã®å‹ãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>Return the type of the source.</en>
         /// </returns>
         public IAdaptable GetSource(IAdaptable obj) {
@@ -249,29 +249,29 @@ namespace Poderosa {
         }
 
         /// <summary>
-        /// <ja>ƒ\[ƒX‚©‚çƒAƒ_ƒvƒ^‚Ö‚Æ•ÏŠ·‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚½ãƒ¼ã‚¹ã‹ã‚‰ã‚¢ãƒ€ãƒ—ã‚¿ã¸ã¨å¤‰æ›ã—ã¾ã™ã€‚</ja>
         /// <en>Convert from the source to the adapter.</en>
         /// </summary>
         /// <param name="obj">
-        /// <ja>ƒ\[ƒX‚ÌŒ^</ja>
+        /// <ja>ã‚½ãƒ¼ã‚¹ã®å‹</ja>
         /// <en>Type of the source</en>
         /// </param>
         /// <returns>
-        /// <ja>ƒAƒ_ƒvƒ^‚ÌŒ^‚ª•Ô‚³‚ê‚Ü‚·B</ja>
+        /// <ja>ã‚¢ãƒ€ãƒ—ã‚¿ã®å‹ãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>Return the type of the adapter.</en>
         /// </returns>
         public abstract T GetAdapter(S obj);
 
         /// <summary>
-        /// <ja>ƒAƒ_ƒvƒ^‚©‚çƒ\[ƒX‚Ö‚Æ•ÏŠ·‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚¢ãƒ€ãƒ—ã‚¿ã‹ã‚‰ã‚½ãƒ¼ã‚¹ã¸ã¨å¤‰æ›ã—ã¾ã™ã€‚</ja>
         /// <en>Convert from the adapter to the source</en>
         /// </summary>
         /// <param name="obj">
-        /// <ja>ƒAƒ_ƒvƒ^‚ÌŒ^</ja>
+        /// <ja>ã‚¢ãƒ€ãƒ—ã‚¿ã®å‹</ja>
         /// <en>Type of the adapter</en>
         /// </param>
         /// <returns>
-        /// <ja>ƒ\[ƒX‚ÌŒ^‚ª•Ô‚³‚ê‚Ü‚·B</ja>
+        /// <ja>ã‚½ãƒ¼ã‚¹ã®å‹ãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>Return the type of the source.</en>
         /// </returns>
         public abstract S GetSource(T obj);
@@ -279,13 +279,13 @@ namespace Poderosa {
 
 
     /// <summary>
-    /// <ja>ƒAƒ_ƒvƒ^ƒ}ƒl[ƒWƒƒ‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B</ja>
+    /// <ja>ã‚¢ãƒ€ãƒ—ã‚¿ãƒãƒãƒ¼ã‚¸ãƒ£ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚</ja>
     /// <en>Interface that shows the adapter manager</en>
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ƒAƒ_ƒvƒ^ƒ}ƒl[ƒWƒƒ‚ÍA<seealso cref="Poderosa.Plugins.IPoderosaWorld">IPoderosaWorld</seealso>‚Ì
-    /// <see cref="Poderosa.Plugins.IPoderosaWorld.AdapterManager">AdapterManagerƒvƒƒpƒeƒB</see>‚©‚çæ“¾‚Å‚«‚Ü‚·B
+    /// ã‚¢ãƒ€ãƒ—ã‚¿ãƒãƒãƒ¼ã‚¸ãƒ£ã¯ã€<seealso cref="Poderosa.Plugins.IPoderosaWorld">IPoderosaWorld</seealso>ã®
+    /// <see cref="Poderosa.Plugins.IPoderosaWorld.AdapterManager">AdapterManagerãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>ã‹ã‚‰å–å¾—ã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The adapter manager can be got by <see cref="Poderosa.Plugins.IPoderosaWorld.AdapterManager">AdapterManager property</see>
@@ -294,50 +294,50 @@ namespace Poderosa {
     /// </remarks>
     public interface IAdapterManager {
         /// <summary>
-        /// <ja>ƒAƒ_ƒvƒ^ƒtƒ@ƒNƒgƒŠ‚ğ“o˜^‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚¢ãƒ€ãƒ—ã‚¿ãƒ•ã‚¡ã‚¯ãƒˆãƒªã‚’ç™»éŒ²ã—ã¾ã™ã€‚</ja>
         /// <en>Regist the adapter factory.</en>
         /// </summary>
         /// <param name="factory">
-        /// <ja>“o˜^‚·‚éƒAƒ_ƒvƒ^ƒtƒ@ƒNƒgƒŠ</ja>
+        /// <ja>ç™»éŒ²ã™ã‚‹ã‚¢ãƒ€ãƒ—ã‚¿ãƒ•ã‚¡ã‚¯ãƒˆãƒª</ja>
         /// <en>Adapter factory to be regist.</en>
         /// </param>
         void RegisterFactory(IDualDirectionalAdapterFactory factory);
         /// <summary>
         /// <ja>
-        /// ƒAƒ_ƒvƒ^ƒtƒ@ƒNƒgƒŠ‚ğ‰ğœ‚µ‚Ü‚·B
+        /// ã‚¢ãƒ€ãƒ—ã‚¿ãƒ•ã‚¡ã‚¯ãƒˆãƒªã‚’è§£é™¤ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Remove the adapter factory.
         /// </en>
         /// </summary>
         /// <param name="factory">
-        /// <ja>‰ğœ‚·‚éƒAƒ_ƒvƒ^ƒtƒ@ƒNƒgƒŠ</ja>
+        /// <ja>è§£é™¤ã™ã‚‹ã‚¢ãƒ€ãƒ—ã‚¿ãƒ•ã‚¡ã‚¯ãƒˆãƒª</ja>
         /// <en>The adapter factory to remove.</en>
         /// </param>
         void RemoveFactory(IDualDirectionalAdapterFactory factory);
         /// <summary>
         /// <ja>
-        /// ƒAƒ_ƒvƒ^ƒtƒ@ƒNƒgƒŠ‚ğg‚Á‚½Œ^•ÏŠ·‹@”\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+        /// ã‚¢ãƒ€ãƒ—ã‚¿ãƒ•ã‚¡ã‚¯ãƒˆãƒªã‚’ä½¿ã£ãŸå‹å¤‰æ›æ©Ÿèƒ½ã‚’æä¾›ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Offers type conversation function by using adapter factory.
         /// </en>
         /// </summary>
         /// <param name="obj">
-        /// <ja>•ÏŠ·‘ÎÛ‚Æ‚È‚éƒIƒuƒWƒFƒNƒg</ja>
+        /// <ja>å¤‰æ›å¯¾è±¡ã¨ãªã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja>
         /// <en>The object to convert.</en>
         /// </param>
         /// <param name="adapter">
-        /// <ja>æ“¾‚µ‚½‚¢ƒCƒ“ƒ^[ƒtƒFƒCƒX</ja>
+        /// <ja>å–å¾—ã—ãŸã„ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹</ja>
         /// <en>The interface to get.</en>
         /// </param>
         /// <returns>
-        /// <ja>•ÏŠ·‚³‚ê‚½ƒCƒ“ƒ^[ƒtƒFƒCƒX</ja>
+        /// <ja>å¤‰æ›ã•ã‚ŒãŸã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹</ja>
         /// <en>The converted interface</en>
         /// </returns>
         /// <remarks>
         /// <ja>
-        /// ŠJ”­Ò‚ÍA‚±‚ÌGetAdapterƒƒ\ƒbƒh‚ğg‚Á‚ÄA•W€‚ÌŒ^•ÏŠ·‹@\i<seealso cref="IAdaptable">IAdaptable</seealso>‚ÌGetAdapter‚ÌÀ‘•j‚ğŸ‚Ì‚æ‚¤‚É‚Å‚«‚Ü‚·B
+        /// é–‹ç™ºè€…ã¯ã€ã“ã®GetAdapterãƒ¡ã‚½ãƒƒãƒ‰ã‚’ä½¿ã£ã¦ã€æ¨™æº–ã®å‹å¤‰æ›æ©Ÿæ§‹ï¼ˆ<seealso cref="IAdaptable">IAdaptable</seealso>ã®GetAdapterã®å®Ÿè£…ï¼‰ã‚’æ¬¡ã®ã‚ˆã†ã«ã§ãã¾ã™ã€‚
         /// <code>
         /// public IAdaptable GetAdapter(Type adapter)
         /// {
@@ -358,22 +358,22 @@ namespace Poderosa {
         IAdaptable GetAdapter(IAdaptable obj, Type adapter);
         /// <summary>
         /// <ja>
-        /// ƒAƒ_ƒvƒ^ƒtƒ@ƒNƒgƒŠ‚ğg‚Á‚½Œ^•ÏŠ·‹@”\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+        /// ã‚¢ãƒ€ãƒ—ã‚¿ãƒ•ã‚¡ã‚¯ãƒˆãƒªã‚’ä½¿ã£ãŸå‹å¤‰æ›æ©Ÿèƒ½ã‚’æä¾›ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The type conversion function to use the adaptor factory is offered. 
         /// </en>
         /// </summary>
         /// <typeparam name="T">
-        /// <ja>•ÏŠ·‚µ‚½‚¢ƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÌŒ^</ja>
+        /// <ja>å¤‰æ›ã—ãŸã„ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã®å‹</ja>
         /// <en>Type in interface that wants to be converted</en>
         /// </typeparam>
         /// <param name="obj">
-        /// <ja>•ÏŠ·‘ÎÛ‚Æ‚È‚éƒIƒuƒWƒFƒNƒg</ja>
+        /// <ja>å¤‰æ›å¯¾è±¡ã¨ãªã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja>
         /// <en>The object that wants to be converted.</en>
         /// </param>
         /// <returns>
-        /// <ja>•ÏŠ·‚³‚ê‚½ƒCƒ“ƒ^[ƒtƒFƒCƒX</ja>
+        /// <ja>å¤‰æ›ã•ã‚ŒãŸã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹</ja>
         /// <en>Converted interface</en>
         /// </returns>
         T GetAdapter<T>(IAdaptable obj) where T : IAdaptable;

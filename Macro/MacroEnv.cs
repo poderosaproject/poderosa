@@ -1,4 +1,4 @@
-/*
+Ôªø/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -125,7 +125,7 @@ namespace Poderosa.MacroInternal {
             MacroUtil.InvokeMessageBox(msg);
         }
         public override void ShellExecute(string verb, string filename) {
-            int r = Win32.ShellExecute(Win32.GetDesktopWindow(), verb, filename, "", "", 1).ToInt32(); //1ÇÕSW_SHOWNORMAL
+            int r = Win32.ShellExecute(Win32.GetDesktopWindow(), verb, filename, "", "", 1).ToInt32(); //1„ÅØSW_SHOWNORMAL
             if (r <= 31)
                 throw new ArgumentException(String.Format(MacroPlugin.Instance.Strings.GetString("Message.MacroEnv.ShellExecuteError"), verb, filename));
         }

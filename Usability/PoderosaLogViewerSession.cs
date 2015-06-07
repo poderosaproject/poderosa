@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -132,7 +132,7 @@ namespace Poderosa.LogViewer {
         }
 
 
-        //XV ÅIs‚ªŒ©‚¦‚é‚æ‚¤‚É
+        //æ›´æ–° æœ€çµ‚è¡ŒãŒè¦‹ãˆã‚‹ã‚ˆã†ã«
         public void UpdateDocument() {
             PoderosaLogDocument doc = _session.Document;
             int newtop = RuntimeUtil.AdjustIntRange(doc.Size - this.GetHeightInLines(), 0, doc.Size - 1);
@@ -142,7 +142,7 @@ namespace Poderosa.LogViewer {
             else
                 Invalidate();
         }
-        //UpdateDocument‚ÌInvokeÀs
+        //UpdateDocumentã®Invokeå®Ÿè¡Œ
         private delegate void UpdateDocumentDelegate_();
         private UpdateDocumentDelegate_ _updateDocumentDelegate;
         public Delegate UpdateDocumentDelegate {
@@ -162,7 +162,7 @@ namespace Poderosa.LogViewer {
 
         public IPoderosaCommand Paste {
             get {
-                return null; //ƒy[ƒXƒg•s‰Â
+                return null; //ãƒšãƒ¼ã‚¹ãƒˆä¸å¯
             }
         }
 
@@ -175,7 +175,7 @@ namespace Poderosa.LogViewer {
             return rp;
         }
 
-        //•W€•
+        //æ¨™æº–å¹…
         public static int DefaultWidth {
             get {
                 return (int)(CreateLogRenderProfile().Pitch.Width * PoderosaLogDocument.DefaultWidth);
@@ -193,24 +193,24 @@ namespace Poderosa.LogViewer {
         public PoderosaLogDocument(PoderosaLogViewerSession session) {
             _caption = "Poderosa Event Log";
             _session = session;
-            //‚Ps‚Í‚È‚¢‚Æ‚¾‚ß‚È§–ñ‚ª‚ ‚é‚Ì‚Å
+            //ï¼‘è¡Œã¯ãªã„ã¨ã ã‚ãªåˆ¶ç´„ãŒã‚ã‚‹ã®ã§
             this.AddLine(GLine.CreateSimpleGLine("", TextDecoration.Default));
             _nextLineIsFirstLine = true;
         }
 
-        //‰Šúó‘Ô‚Ì‚Ps‚Ì•¶š”
+        //åˆæœŸçŠ¶æ…‹ã®ï¼‘è¡Œã®æ–‡å­—æ•°
         public static int DefaultWidth {
             get {
-                return 80; //‰Â•Ï‚É‚µ‚Ä‚à‚æ‚¢
+                return 80; //å¯å¤‰ã«ã—ã¦ã‚‚ã‚ˆã„
             }
         }
 
         public void OnNewItem(IPoderosaLogItem item) {
-            //ƒJƒeƒSƒŠ•ª‚¯‚È‚Ç‚ ‚é‚©‚à‚µ‚ê‚È‚¢‚ª...
+            //ã‚«ãƒ†ã‚´ãƒªåˆ†ã‘ãªã©ã‚ã‚‹ã‹ã‚‚ã—ã‚Œãªã„ãŒ...
             String text = String.Format("[{0}] {1}", item.Category.Name, item.Text);
             int width = PoderosaLogDocument.DefaultWidth;
 
-            //width•¶š‚²‚Æ‚ÉØ‚èæ‚èB“ú–{Œê•¶š‚ª‚ ‚éƒP[ƒX‚Í–¢ƒTƒ|[ƒg
+            //widthæ–‡å­—ã”ã¨ã«åˆ‡ã‚Šå–ã‚Šã€‚æ—¥æœ¬èªæ–‡å­—ãŒã‚ã‚‹ã‚±ãƒ¼ã‚¹ã¯æœªã‚µãƒãƒ¼ãƒˆ
             int offset = 0;
             while (offset < text.Length) {
                 int next = RuntimeUtil.AdjustIntRange(offset + width, 0, text.Length);
@@ -229,7 +229,7 @@ namespace Poderosa.LogViewer {
             }
         }
 
-        //‚¿‚å‚Á‚ÆŒ©‹ê‚µ‚¢‚ªAs‚Ì’Ç‰Á
+        //ã¡ã‚‡ã£ã¨è¦‹è‹¦ã—ã„ãŒã€è¡Œã®è¿½åŠ 
         private void Append(GLine line) {
             if (_nextLineIsFirstLine) {
                 _nextLineIsFirstLine = false;

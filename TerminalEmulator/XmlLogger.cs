@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,8 +19,8 @@ using Poderosa.Protocols;
 using Poderosa.Util;
 using Poderosa.ConnectionParam;
 
-//‚¤‚ëŠo‚¦‚¾‚ªAQÆæƒAƒZƒ“ƒuƒŠ‚ÌQÆ‚Í‚P‚Â‚Ìƒ\[ƒXƒtƒ@ƒCƒ‹’PˆÊ‚¾‚Á‚½‚æ‚¤‚È‹C‚ª‚·‚é‚Ì‚ÅA
-//System.Xml.dll‚Ì“Ç‚İ‚İ‚ğ‹É—Í’x‚ç‚¹‚é‚½‚ß‚Éƒtƒ@ƒCƒ‹‚ğ•ª—£
+//ã†ã‚è¦šãˆã ãŒã€å‚ç…§å…ˆã‚¢ã‚»ãƒ³ãƒ–ãƒªã®å‚ç…§ã¯ï¼‘ã¤ã®ã‚½ãƒ¼ã‚¹ãƒ•ã‚¡ã‚¤ãƒ«å˜ä½ã ã£ãŸã‚ˆã†ãªæ°—ãŒã™ã‚‹ã®ã§ã€
+//System.Xml.dllã®èª­ã¿è¾¼ã¿ã‚’æ¥µåŠ›é…ã‚‰ã›ã‚‹ãŸã‚ã«ãƒ•ã‚¡ã‚¤ãƒ«ã‚’åˆ†é›¢
 
 namespace Poderosa.Terminal {
     internal class XmlLogger : LoggerBase, IXmlLogger {
@@ -36,7 +36,7 @@ namespace Poderosa.Terminal {
             _writer.WriteStartDocument();
             _writer.WriteStartElement("terminal-log");
 
-            //Ú‘±‚ÌƒAƒgƒŠƒrƒ…[ƒg‚ğ‘‚«‚Ş
+            //æ¥ç¶šæ™‚ã®ã‚¢ãƒˆãƒªãƒ“ãƒ¥ãƒ¼ãƒˆã‚’æ›¸ãè¾¼ã‚€
             _writer.WriteAttributeString("time", DateTime.Now.ToString());
             _buffer = new char[1];
         }

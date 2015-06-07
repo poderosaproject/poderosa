@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2005 Poderosa Project, All Rights Reserved.
  * 
  * this source code originates in Johannes Wallroth's color picker control.

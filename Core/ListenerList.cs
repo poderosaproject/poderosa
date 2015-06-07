@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,7 +50,7 @@ namespace Poderosa.Util {
                 _list.Clear();
         }
 
-        //‘½‚­‚Íˆê‚Â‚àListener‚ª“o˜^‚³‚ê‚È‚¢B’x‰„ì¬‚·‚é
+        //å¤šãã¯ä¸€ã¤ã‚‚ListenerãŒç™»éŒ²ã•ã‚Œãªã„ã€‚é…å»¶ä½œæˆã™ã‚‹
         private void Precheck() {
             if (_list == null)
                 _list = new LinkedList<T>();
@@ -58,7 +58,7 @@ namespace Poderosa.Util {
 
     }
 
-    //ƒŠƒXƒi‚Ì“o˜^EíœƒCƒ“ƒ^ƒtƒF[ƒX
+    //ãƒªã‚¹ãƒŠã®ç™»éŒ²ãƒ»å‰Šé™¤ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹
     /// <summary>
     /// 
     /// </summary>

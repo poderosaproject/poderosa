@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@ using Poderosa.Protocols;
 namespace Poderosa.Terminal {
     /// <summary>
     /// <ja>
-    /// ƒƒO‚ÌŠî’êƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ­ã‚°ã®åŸºåº•ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Base interface of the log.
@@ -24,17 +24,17 @@ namespace Poderosa.Terminal {
     /// </summary>
     public interface ILoggerBase {
         /// <summary>
-        /// <ja>ƒƒO‚ğ•Â‚¶‚Ü‚·B</ja>
+        /// <ja>ãƒ­ã‚°ã‚’é–‰ã˜ã¾ã™ã€‚</ja>
         /// <en>Close log</en>
         /// </summary>
         void Close();
         /// <summary>
-        /// <ja>ƒƒO‚ğƒtƒ‰ƒbƒVƒ…‚µ‚Ü‚·B</ja>
+        /// <ja>ãƒ­ã‚°ã‚’ãƒ•ãƒ©ãƒƒã‚·ãƒ¥ã—ã¾ã™ã€‚</ja>
         /// <en>Flush log</en>
         /// </summary>
         void Flush();
         /// <summary>
-        /// <ja>©“®ƒtƒ‰ƒbƒVƒ…‚Ìˆ—‚ğs‚¢‚Ü‚·B</ja>
+        /// <ja>è‡ªå‹•ãƒ•ãƒ©ãƒƒã‚·ãƒ¥ã®å‡¦ç†ã‚’è¡Œã„ã¾ã™ã€‚</ja>
         /// <en>Do the auto flush.</en>
         /// </summary>
         void AutoFlush();
@@ -42,7 +42,7 @@ namespace Poderosa.Terminal {
 
     /// <summary>
     /// <ja>
-    /// ƒoƒCƒiƒŠ‚ÌƒƒK[‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒã‚¤ãƒŠãƒªã®ãƒ­ã‚¬ãƒ¼ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that show the logger of binary.
@@ -50,18 +50,18 @@ namespace Poderosa.Terminal {
     /// </summary>
     public interface IBinaryLogger : ILoggerBase {
         /// <summary>
-        /// <ja>ƒoƒCƒiƒŠƒƒO‚ğ‘‚«‚İ‚Ü‚·B</ja><en>Write a binary log</en>
+        /// <ja>ãƒã‚¤ãƒŠãƒªãƒ­ã‚°ã‚’æ›¸ãè¾¼ã¿ã¾ã™ã€‚</ja><en>Write a binary log</en>
         /// </summary>
-        /// <param name="data"><ja>‘‚«‚Ü‚ê‚æ‚¤‚Æ‚µ‚Ä‚¢‚éƒf[ƒ^‚Å‚·B</ja><en>Data to write.</en></param>
+        /// <param name="data"><ja>æ›¸ãè¾¼ã¾ã‚Œã‚ˆã†ã¨ã—ã¦ã„ã‚‹ãƒ‡ãƒ¼ã‚¿ã§ã™ã€‚</ja><en>Data to write.</en></param>
         /// <remarks>
-        /// <ja>ƒoƒCƒiƒŠƒƒK[‚ÌÀ‘•Ò‚ÍA<paramref name="data"/>‚É“n‚³‚ê‚½ƒf[ƒ^‚ğ‘‚«‚Ş‚æ‚¤‚ÉÀ‘•‚µ‚Ü‚·B</ja><en>Those who implements about binary logger implement like writing the data passed to <paramref name="data"/>. </en>
+        /// <ja>ãƒã‚¤ãƒŠãƒªãƒ­ã‚¬ãƒ¼ã®å®Ÿè£…è€…ã¯ã€<paramref name="data"/>ã«æ¸¡ã•ã‚ŒãŸãƒ‡ãƒ¼ã‚¿ã‚’æ›¸ãè¾¼ã‚€ã‚ˆã†ã«å®Ÿè£…ã—ã¾ã™ã€‚</ja><en>Those who implements about binary logger implement like writing the data passed to <paramref name="data"/>. </en>
         /// </remarks>
         void Write(ByteDataFragment data);
     }
 
     /// <summary>
     /// <ja>
-    /// ƒeƒLƒXƒg‚ÌƒƒK[‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ†ã‚­ã‚¹ãƒˆã®ãƒ­ã‚¬ãƒ¼ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that show the logger of text.
@@ -70,29 +70,29 @@ namespace Poderosa.Terminal {
     public interface ITextLogger : ILoggerBase {
         /// <summary>
         /// <ja>
-        /// ƒeƒLƒXƒgƒƒO‚ğ‘‚«‚İ‚Ü‚·B
+        /// ãƒ†ã‚­ã‚¹ãƒˆãƒ­ã‚°ã‚’æ›¸ãè¾¼ã¿ã¾ã™ã€‚
         /// </ja>
         /// <en>Write a text log</en>
         /// </summary>
-        /// <param name="line"><ja>‘‚«‚Ü‚ê‚æ‚¤‚Æ‚µ‚Ä‚¢‚éƒf[ƒ^‚Å‚·B</ja><en>Data to write.</en></param>
+        /// <param name="line"><ja>æ›¸ãè¾¼ã¾ã‚Œã‚ˆã†ã¨ã—ã¦ã„ã‚‹ãƒ‡ãƒ¼ã‚¿ã§ã™ã€‚</ja><en>Data to write.</en></param>
         /// <remarks>
-        /// <ja>ƒeƒLƒXƒgƒƒK[‚ÌÀ‘•Ò‚ÍA<paramref name="line"/>‚É“n‚³‚ê‚½ƒf[ƒ^‚ğ‘‚«‚Ş‚æ‚¤‚ÉÀ‘•‚µ‚Ü‚·B</ja><en>Those who implements about text logger implement like writing the data passed to <paramref name="line"/>. </en>
+        /// <ja>ãƒ†ã‚­ã‚¹ãƒˆãƒ­ã‚¬ãƒ¼ã®å®Ÿè£…è€…ã¯ã€<paramref name="line"/>ã«æ¸¡ã•ã‚ŒãŸãƒ‡ãƒ¼ã‚¿ã‚’æ›¸ãè¾¼ã‚€ã‚ˆã†ã«å®Ÿè£…ã—ã¾ã™ã€‚</ja><en>Those who implements about text logger implement like writing the data passed to <paramref name="line"/>. </en>
         /// </remarks>
-        void WriteLine(GLine line); //ƒeƒLƒXƒgƒx[ƒX‚ÍLine’PˆÊ
+        void WriteLine(GLine line); //ãƒ†ã‚­ã‚¹ãƒˆãƒ™ãƒ¼ã‚¹ã¯Lineå˜ä½
         /// <summary>
-        /// <ja>ƒRƒƒ“ƒg‚ğ‘‚«‚İ‚Ü‚·B</ja>
+        /// <ja>ã‚³ãƒ¡ãƒ³ãƒˆã‚’æ›¸ãè¾¼ã¿ã¾ã™ã€‚</ja>
         /// <en>Write a comment</en>
         /// </summary>
-        /// <param name="comment"><ja>‘‚«‚Ü‚ê‚æ‚¤‚Æ‚µ‚Ä‚¢‚éƒRƒƒ“ƒg‚Å‚·B</ja><en>Comment to write.</en></param>
+        /// <param name="comment"><ja>æ›¸ãè¾¼ã¾ã‚Œã‚ˆã†ã¨ã—ã¦ã„ã‚‹ã‚³ãƒ¡ãƒ³ãƒˆã§ã™ã€‚</ja><en>Comment to write.</en></param>
         /// <remarks>
-        /// <ja>ƒeƒLƒXƒgƒƒK[‚ÌÀ‘•Ò‚ÍA<paramref name="comment"/>‚É“n‚³‚ê‚½ƒf[ƒ^‚ğ‘‚«‚Ş‚æ‚¤‚ÉÀ‘•‚µ‚Ü‚·B</ja><en>Those who implements about text logger implement like writing the data passed to <paramref name="comment"/>. </en>
+        /// <ja>ãƒ†ã‚­ã‚¹ãƒˆãƒ­ã‚¬ãƒ¼ã®å®Ÿè£…è€…ã¯ã€<paramref name="comment"/>ã«æ¸¡ã•ã‚ŒãŸãƒ‡ãƒ¼ã‚¿ã‚’æ›¸ãè¾¼ã‚€ã‚ˆã†ã«å®Ÿè£…ã—ã¾ã™ã€‚</ja><en>Those who implements about text logger implement like writing the data passed to <paramref name="comment"/>. </en>
         /// </remarks>
         void Comment(string comment);
     }
 
     /// <summary>
     /// <ja>
-    /// XML‚ÌƒƒK[‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// XMLã®ãƒ­ã‚¬ãƒ¼ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that show the logger of XML.
@@ -101,45 +101,45 @@ namespace Poderosa.Terminal {
     public interface IXmlLogger : ILoggerBase {
         /// <summary>
         /// <ja>
-        /// XMLƒƒO‚ğ‘‚«‚İ‚Ü‚·B
+        /// XMLãƒ­ã‚°ã‚’æ›¸ãè¾¼ã¿ã¾ã™ã€‚
         /// </ja>
         /// <en>Write a XML log</en>
         /// </summary>
-        /// <param name="ch"><ja>‘‚«‚Ü‚ê‚æ‚¤‚Æ‚µ‚Ä‚¢‚éƒf[ƒ^‚Å‚·B</ja><en>Data to write.</en></param>
+        /// <param name="ch"><ja>æ›¸ãè¾¼ã¾ã‚Œã‚ˆã†ã¨ã—ã¦ã„ã‚‹ãƒ‡ãƒ¼ã‚¿ã§ã™ã€‚</ja><en>Data to write.</en></param>
         /// <remarks>
-        /// <ja>XMLƒƒK[‚ÌÀ‘•Ò‚ÍA<paramref name="char"/>‚É“n‚³‚ê‚½ƒf[ƒ^‚ğ‘‚«‚Ş‚æ‚¤‚ÉÀ‘•‚µ‚Ü‚·B</ja><en>Those who implements about XML logger implement like writing the data passed to <paramref name="char"/>. </en>
+        /// <ja>XMLãƒ­ã‚¬ãƒ¼ã®å®Ÿè£…è€…ã¯ã€<paramref name="char"/>ã«æ¸¡ã•ã‚ŒãŸãƒ‡ãƒ¼ã‚¿ã‚’æ›¸ãè¾¼ã‚€ã‚ˆã†ã«å®Ÿè£…ã—ã¾ã™ã€‚</ja><en>Those who implements about XML logger implement like writing the data passed to <paramref name="char"/>. </en>
         /// </remarks>
         void Write(char ch);
         /// <summary>
         /// <ja>
-        /// XMLƒƒO‚ğƒGƒXƒP[ƒv‚µ‚Ä‘‚«‚İ‚Ü‚·B
+        /// XMLãƒ­ã‚°ã‚’ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—ã—ã¦æ›¸ãè¾¼ã¿ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// writes log escaping in the XML.
         /// </en>
         /// </summary>
-        /// <param name="body"><ja>‘‚«‚Ü‚ê‚æ‚¤‚Æ‚µ‚Ä‚¢‚éƒf[ƒ^‚Å‚·B</ja><en>Data to write.</en></param>
+        /// <param name="body"><ja>æ›¸ãè¾¼ã¾ã‚Œã‚ˆã†ã¨ã—ã¦ã„ã‚‹ãƒ‡ãƒ¼ã‚¿ã§ã™ã€‚</ja><en>Data to write.</en></param>
         /// <remarks>
-        /// <ja>XMLƒƒK[‚ÌÀ‘•Ò‚ÍA<paramref name="body"/>‚É“n‚³‚ê‚½ƒf[ƒ^‚ğƒGƒXƒP[ƒv‚µ‚Ä‘‚«‚Ş‚æ‚¤‚ÉÀ‘•‚µ‚Ü‚·B</ja>
+        /// <ja>XMLãƒ­ã‚¬ãƒ¼ã®å®Ÿè£…è€…ã¯ã€<paramref name="body"/>ã«æ¸¡ã•ã‚ŒãŸãƒ‡ãƒ¼ã‚¿ã‚’ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—ã—ã¦æ›¸ãè¾¼ã‚€ã‚ˆã†ã«å®Ÿè£…ã—ã¾ã™ã€‚</ja>
         /// <en>Those who implements about XML logger implement like writing the data passed to <paramref name="body"/> with escaping. </en>
         /// </remarks>
         void EscapeSequence(char[] body);
         /// <summary>
         /// <ja>
-        /// ƒRƒƒ“ƒg‚ğ‘‚«‚İ‚Ü‚·B
+        /// ã‚³ãƒ¡ãƒ³ãƒˆã‚’æ›¸ãè¾¼ã¿ã¾ã™ã€‚
         /// </ja>
         /// <en>Write a comment</en>
         /// </summary>
-        /// <param name="comment"><ja>‘‚«‚Ü‚ê‚æ‚¤‚Æ‚µ‚Ä‚¢‚éƒRƒƒ“ƒg‚Å‚·B</ja><en>Comment to write.</en></param>
+        /// <param name="comment"><ja>æ›¸ãè¾¼ã¾ã‚Œã‚ˆã†ã¨ã—ã¦ã„ã‚‹ã‚³ãƒ¡ãƒ³ãƒˆã§ã™ã€‚</ja><en>Comment to write.</en></param>
         /// <remarks>
-        /// <ja>XMLƒƒK[‚ÌÀ‘•Ò‚ÍA<paramref name="comment"/>‚É“n‚³‚ê‚½ƒf[ƒ^‚ğ‘‚«‚Ş‚æ‚¤‚ÉÀ‘•‚µ‚Ü‚·B</ja><en>Those who implements about XML logger implement like writing the data passed to <paramref name="comment"/>. </en>
+        /// <ja>XMLãƒ­ã‚¬ãƒ¼ã®å®Ÿè£…è€…ã¯ã€<paramref name="comment"/>ã«æ¸¡ã•ã‚ŒãŸãƒ‡ãƒ¼ã‚¿ã‚’æ›¸ãè¾¼ã‚€ã‚ˆã†ã«å®Ÿè£…ã—ã¾ã™ã€‚</ja><en>Those who implements about XML logger implement like writing the data passed to <paramref name="comment"/>. </en>
         /// </remarks>
         void Comment(string comment);
     }
 
     /// <summary>
     /// <ja>
-    /// ƒƒOƒT[ƒrƒX‚ÉƒAƒNƒZƒX‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ­ã‚°ã‚µãƒ¼ãƒ“ã‚¹ã«ã‚¢ã‚¯ã‚»ã‚¹ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface accessed log service.
@@ -148,86 +148,86 @@ namespace Poderosa.Terminal {
     public interface ILogService {
         /// <summary>
         /// <ja>
-        /// ƒoƒCƒiƒŠ‚ÌƒƒK[‚ğ“o˜^‚µ‚Ü‚·B
+        /// ãƒã‚¤ãƒŠãƒªã®ãƒ­ã‚¬ãƒ¼ã‚’ç™»éŒ²ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Regist the logger of binary
         /// </en>
         /// </summary>
-        /// <param name="logger"><ja>“o˜^‚·‚éƒƒK[</ja><en>Logger to regist.</en></param>
+        /// <param name="logger"><ja>ç™»éŒ²ã™ã‚‹ãƒ­ã‚¬ãƒ¼</ja><en>Logger to regist.</en></param>
         void AddBinaryLogger(IBinaryLogger logger);
         /// <summary>
         /// <ja>
-        /// ƒoƒCƒiƒŠ‚ÌƒƒK[‚ğ‰ğœ‚µ‚Ü‚·B
+        /// ãƒã‚¤ãƒŠãƒªã®ãƒ­ã‚¬ãƒ¼ã‚’è§£é™¤ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Remove the logger of binary
         /// </en>
         /// </summary>
-        /// <param name="logger"><ja>‰ğœ‚·‚éƒƒK[</ja><en>Logger to remove.</en></param>
+        /// <param name="logger"><ja>è§£é™¤ã™ã‚‹ãƒ­ã‚¬ãƒ¼</ja><en>Logger to remove.</en></param>
         void RemoveBinaryLogger(IBinaryLogger logger);
         /// <summary>
         /// <ja>
-        /// ƒeƒLƒXƒg‚ÌƒƒK[‚ğ“o˜^‚µ‚Ü‚·B
+        /// ãƒ†ã‚­ã‚¹ãƒˆã®ãƒ­ã‚¬ãƒ¼ã‚’ç™»éŒ²ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Regist the logger of text
         /// </en>
         /// </summary>
-        /// <param name="logger"><ja>“o˜^‚·‚éƒƒK[</ja><en>Logger to regist.</en></param>
+        /// <param name="logger"><ja>ç™»éŒ²ã™ã‚‹ãƒ­ã‚¬ãƒ¼</ja><en>Logger to regist.</en></param>
         void AddTextLogger(ITextLogger logger);
         /// <summary>
         /// <ja>
-        /// ƒeƒLƒXƒg‚ÌƒƒK[‚ğ‰ğœ‚µ‚Ü‚·B
+        /// ãƒ†ã‚­ã‚¹ãƒˆã®ãƒ­ã‚¬ãƒ¼ã‚’è§£é™¤ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Remove the logger of text
         /// </en>
         /// </summary>
-        /// <param name="logger"><ja>‰ğœ‚·‚éƒƒK[</ja><en>Logger to remove.</en></param>
+        /// <param name="logger"><ja>è§£é™¤ã™ã‚‹ãƒ­ã‚¬ãƒ¼</ja><en>Logger to remove.</en></param>
         void RemoveTextLogger(ITextLogger logger);
         /// <summary>
         /// <ja>
-        /// XML‚ÌƒƒK[‚ğ“o˜^‚µ‚Ü‚·B
+        /// XMLã®ãƒ­ã‚¬ãƒ¼ã‚’ç™»éŒ²ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Regist the logger of XML
         /// </en>
         /// </summary>
-        /// <param name="logger"><ja>“o˜^‚·‚éƒƒK[</ja><en>Logger to regist.</en></param>
+        /// <param name="logger"><ja>ç™»éŒ²ã™ã‚‹ãƒ­ã‚¬ãƒ¼</ja><en>Logger to regist.</en></param>
         void AddXmlLogger(IXmlLogger logger);
         /// <summary>
         /// <ja>
-        /// XML‚ÌƒƒK[‚ğ‰ğœ‚µ‚Ü‚·B
+        /// XMLã®ãƒ­ã‚¬ãƒ¼ã‚’è§£é™¤ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Remove the logger of XML
         /// </en>
         /// </summary>
-        /// <param name="logger"><ja>‰ğœ‚·‚éƒƒK[</ja><en>Logger to remove.</en></param>
+        /// <param name="logger"><ja>è§£é™¤ã™ã‚‹ãƒ­ã‚¬ãƒ¼</ja><en>Logger to remove.</en></param>
         void RemoveXmlLogger(IXmlLogger logger);
 
         /// <summary>
         /// <ja>
-        /// ƒƒOİ’è‚ğ”½‰f‚³‚¹‚Ü‚·B
+        /// ãƒ­ã‚°è¨­å®šã‚’åæ˜ ã•ã›ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Apply the log setting.
         /// </en>
         /// </summary>
-        /// <param name="settings"><ja>ƒƒO‚Ìİ’è</ja><en>Set of log.</en></param>
-        /// <param name="clear_previous"><ja>İ’è‘O‚ÉƒNƒŠƒA‚·‚é‚©‚Ç‚¤‚©‚Ìƒtƒ‰ƒO</ja><en>Flag whether clear before it sets it</en></param>
+        /// <param name="settings"><ja>ãƒ­ã‚°ã®è¨­å®š</ja><en>Set of log.</en></param>
+        /// <param name="clear_previous"><ja>è¨­å®šå‰ã«ã‚¯ãƒªã‚¢ã™ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°</ja><en>Flag whether clear before it sets it</en></param>
         /// <exclude/>
         void ApplyLogSettings(ILogSettings settings, bool clear_previous);
         /// <summary>
         /// <ja>
-        /// ƒƒO‚ÌƒRƒƒ“ƒg‚ğİ’è‚µ‚Ü‚·B
+        /// ãƒ­ã‚°ã®ã‚³ãƒ¡ãƒ³ãƒˆã‚’è¨­å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Set the comment on the log.
         /// </en>
         /// </summary>
-        /// <param name="comment"><ja>İ’è‚·‚éƒRƒƒ“ƒg</ja><en>Comment to set.</en></param>
+        /// <param name="comment"><ja>è¨­å®šã™ã‚‹ã‚³ãƒ¡ãƒ³ãƒˆ</ja><en>Comment to set.</en></param>
         /// <exclude/>
         void Comment(string comment);
     }

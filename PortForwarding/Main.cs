@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  Copyright (c) 2005 Poderosa Project, All Rights Reserved.
 
  $Id: Main.cs,v 1.8 2012/03/18 12:05:53 kzmi Exp $
@@ -84,7 +84,7 @@ namespace Poderosa.PortForwarding {
                         _options.Init();
                 }
 
-                //‚±‚±‚Ü‚Å‚«‚½‚çŒ¾Œêİ’è‚ğƒ`ƒFƒbƒN‚µA•K—v‚È‚ç“Ç‚İ’¼‚µ
+                //ã“ã“ã¾ã§ããŸã‚‰è¨€èªè¨­å®šã‚’ãƒã‚§ãƒƒã‚¯ã—ã€å¿…è¦ãªã‚‰èª­ã¿ç›´ã—
                 if (Util.CurrentLanguage != _options.Language) {
                     System.Threading.Thread.CurrentThread.CurrentUICulture = _options.Language == Language.Japanese ? new CultureInfo("ja") : CultureInfo.InvariantCulture;
                 }
@@ -195,7 +195,7 @@ namespace Poderosa.PortForwarding {
 
         public static void UpdateOptions(Options opt) {
             _form.ShowInTaskbar = opt.ShowInTaskBar;
-            if (_options.Language != opt.Language) { //Œ¾Œê‚ÌƒŠƒ[ƒh‚ª•K—v‚È‚Æ‚«
+            if (_options.Language != opt.Language) { //è¨€èªã®ãƒªãƒ­ãƒ¼ãƒ‰ãŒå¿…è¦ãªã¨ã
                 System.Threading.Thread.CurrentThread.CurrentUICulture = opt.Language == Language.Japanese ? new CultureInfo("ja") : CultureInfo.InvariantCulture;
                 ReloadStringResource();
                 _form.ReloadLanguage();

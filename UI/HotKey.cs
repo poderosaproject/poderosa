@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,32 +18,32 @@ using Poderosa.Util;
 
 namespace Poderosa.UI {
     /*
-     * ƒzƒbƒgƒL[ƒRƒ“ƒgƒ[ƒ‹b’è”Å
+     * ãƒ›ãƒƒãƒˆã‚­ãƒ¼ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«æš«å®šç‰ˆ
      * 
-     * ƒL[‚ğŸ‚Ì‚Sí—Ş‚É‹æ•Ê‚·‚éB
-     * 1. ModifierKey: Ctrl, Shift, AltB‰½‚©‚Æ‘g‚İ‡‚í‚¹‚éƒL[B
-     * 2. CharKey: •¶š‚ÆŠÖ˜A•t‚¯‚ç‚ê‚½ƒL[Bƒeƒ“ƒL[,ƒXƒy[ƒXŠÜ‚ŞB
-     * 3. TerminalKey: ƒ^[ƒ~ƒiƒ‹‚É‚Æ‚Á‚ÄˆÓ–¡‚Ì‚ ‚éƒL[BEnter,BS,ESC,Tab,ƒJ[ƒ\ƒ‹ƒL[,ƒtƒ@ƒ“ƒNƒVƒ‡ƒ“ƒL[B
-     * 4. GenericKey:  ‚»‚Ì‘¼‚ÌƒL[
+     * ã‚­ãƒ¼ã‚’æ¬¡ã®ï¼”ç¨®é¡ã«åŒºåˆ¥ã™ã‚‹ã€‚
+     * 1. ModifierKey: Ctrl, Shift, Altã€‚ä½•ã‹ã¨çµ„ã¿åˆã‚ã›ã‚‹ã‚­ãƒ¼ã€‚
+     * 2. CharKey: æ–‡å­—ã¨é–¢é€£ä»˜ã‘ã‚‰ã‚ŒãŸã‚­ãƒ¼ã€‚ãƒ†ãƒ³ã‚­ãƒ¼,ã‚¹ãƒšãƒ¼ã‚¹å«ã‚€ã€‚
+     * 3. TerminalKey: ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã«ã¨ã£ã¦æ„å‘³ã®ã‚ã‚‹ã‚­ãƒ¼ã€‚Enter,BS,ESC,Tab,ã‚«ãƒ¼ã‚½ãƒ«ã‚­ãƒ¼,ãƒ•ã‚¡ãƒ³ã‚¯ã‚·ãƒ§ãƒ³ã‚­ãƒ¼ã€‚
+     * 4. GenericKey:  ãã®ä»–ã®ã‚­ãƒ¼
      * 
-     * ƒzƒbƒgƒL[‚É—LŒø‚È“ü—Í‚Ímodifier‚É‚æ‚èˆÙ‚È‚èA
-     * modifier‚È‚µ‚©Shift‚Ì‚İF4‚Ì‚İ
-     * Control‚Ü‚½‚ÍAlt‚ ‚èF 2,3,4
-     * ‚Æ‚È‚éB
+     * ãƒ›ãƒƒãƒˆã‚­ãƒ¼ã«æœ‰åŠ¹ãªå…¥åŠ›ã¯modifierã«ã‚ˆã‚Šç•°ãªã‚Šã€
+     * modifierãªã—ã‹Shiftã®ã¿ï¼š4ã®ã¿
+     * Controlã¾ãŸã¯Altã‚ã‚Šï¼š 2,3,4
+     * ã¨ãªã‚‹ã€‚
      * 
-     * Šm”FÏ‚İ‰öŒ»ÛFShift+F4, Control+F10‚Å•Ï‚ÈƒL[‚ª—ˆ‚é
+     * ç¢ºèªæ¸ˆã¿æ€ªç¾è±¡ï¼šShift+F4, Control+F10ã§å¤‰ãªã‚­ãƒ¼ãŒæ¥ã‚‹
      * 
-     * ƒfƒoƒbƒOƒIƒvƒVƒ‡ƒ“‚ÅA—ˆ‚½ƒL[‚ÌƒŠƒXƒg‚ğƒŠƒXƒgƒ{ƒbƒNƒX‚ ‚½‚è‚Éƒ_ƒ“ƒv‚·‚é‹@”\‚ª‚ ‚é‚Æ‚æ‚¢‚¾‚ë‚¤B
+     * ãƒ‡ãƒãƒƒã‚°ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã§ã€æ¥ãŸã‚­ãƒ¼ã®ãƒªã‚¹ãƒˆã‚’ãƒªã‚¹ãƒˆãƒœãƒƒã‚¯ã‚¹ã‚ãŸã‚Šã«ãƒ€ãƒ³ãƒ—ã™ã‚‹æ©Ÿèƒ½ãŒã‚ã‚‹ã¨ã‚ˆã„ã ã‚ã†ã€‚
     */
 
 
     /// <summary>
-    /// HotKey ‚ÌŠT—v‚Ìà–¾‚Å‚·B
+    /// HotKey ã®æ¦‚è¦ã®èª¬æ˜ã§ã™ã€‚
     /// </summary>
     /// <exclude/>
     public class HotKey : System.Windows.Forms.TextBox {
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.Container components = null;
 
@@ -52,7 +52,7 @@ namespace Poderosa.UI {
         private Keys _key;
 
         public HotKey() {
-            // ‚±‚ÌŒÄ‚Ño‚µ‚ÍAWindows.Forms ƒtƒH[ƒ€ ƒfƒUƒCƒi‚Å•K—v‚Å‚·B
+            // ã“ã®å‘¼ã³å‡ºã—ã¯ã€Windows.Forms ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠã§å¿…è¦ã§ã™ã€‚
             InitializeComponent();
 
         }
@@ -77,7 +77,7 @@ namespace Poderosa.UI {
         }
 
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -90,8 +90,8 @@ namespace Poderosa.UI {
 
         #region Component Designer generated code
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             components = new System.ComponentModel.Container();
@@ -107,7 +107,7 @@ namespace Poderosa.UI {
             base.OnKeyUp(args);
 
             Keys body = _key & Keys.KeyCode;
-            if (body == Keys.Menu || body == Keys.ShiftKey || body == Keys.ControlKey) { //modifier‚Ì‚İ‚Í”F‚ß‚È‚¢
+            if (body == Keys.Menu || body == Keys.ShiftKey || body == Keys.ControlKey) { //modifierã®ã¿ã¯èªã‚ãªã„
                 _key = Keys.None;
                 this.Text = "";
             }
@@ -128,7 +128,7 @@ namespace Poderosa.UI {
             Keys body = key & Keys.KeyCode;
             Keys modifiers = key & Keys.Modifiers;
 
-            //modifier‚Íí‚É•\¦‚·‚é
+            //modifierã¯å¸¸ã«è¡¨ç¤ºã™ã‚‹
             StringBuilder b = new StringBuilder();
             if ((modifiers & Keys.Control) != Keys.None) {
                 b.Append("Ctrl");
@@ -146,7 +146,7 @@ namespace Poderosa.UI {
             if (b.Length > 0)
                 b.Append('+');
 
-            //‚±‚ÌğŒ•t‚¯‚â‚âœ“ˆÓ“I
+            //ã“ã®æ¡ä»¶ä»˜ã‘ã‚„ã‚„æ£æ„çš„
 
             if (IsCharKey(body)) {
                 if (modifiers != Keys.None && modifiers != Keys.Shift) {
@@ -162,7 +162,7 @@ namespace Poderosa.UI {
             }
             else if (IsTerminalKey(body)) {
                 if (modifiers != Keys.None) {
-                    //ƒJƒXƒ^ƒ}ƒCƒY•s”\‚ÅŒÅ’è‚³‚ê‚½ƒVƒ‡[ƒgƒJƒbƒgƒL[‚Í“o˜^‚Å‚«‚È‚¢
+                    //ã‚«ã‚¹ã‚¿ãƒã‚¤ã‚ºä¸èƒ½ã§å›ºå®šã•ã‚ŒãŸã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã¯ç™»éŒ²ã§ããªã„
                     if (modifiers == Keys.Control && IsScrollKey(body))
                         _key = Keys.None;
                     else {
@@ -209,7 +209,7 @@ namespace Poderosa.UI {
                 key == Keys.Home || key == Keys.End || key == Keys.Next || key == Keys.Prior || key == Keys.PageDown || key == Keys.PageUp ||
                 key == Keys.Insert || key == Keys.Delete;
         }
-        private static bool IsScrollKey(Keys key) { //TerminalKey‚ÌƒTƒuƒZƒbƒg‚ÅACtrl‚Æ‚Ì‘g‚İ‡‚í‚¹‚Åƒoƒbƒtƒ@‚ÌƒXƒNƒ[ƒ‹‚ğ‚·‚é
+        private static bool IsScrollKey(Keys key) { //TerminalKeyã®ã‚µãƒ–ã‚»ãƒƒãƒˆã§ã€Ctrlã¨ã®çµ„ã¿åˆã‚ã›ã§ãƒãƒƒãƒ•ã‚¡ã®ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ã‚’ã™ã‚‹
             return key == Keys.Up || key == Keys.Down ||
                 key == Keys.Home || key == Keys.End ||
                 key == Keys.PageDown || key == Keys.PageUp;

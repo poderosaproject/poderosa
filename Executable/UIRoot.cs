@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,8 +41,8 @@ namespace Poderosa.Executable {
 
         private static void Init() {
             RenderProfile rp = GEnv.Options.CreateRenderProfile();
-            rp.FontName = "‚l‚r ƒSƒVƒbƒN";
-            rp.JapaneseFontName = "‚l‚r ƒSƒVƒbƒN";
+            rp.FontName = "ï¼­ï¼³ ã‚´ã‚·ãƒƒã‚¯";
+            rp.JapaneseFontName = "ï¼­ï¼³ ã‚´ã‚·ãƒƒã‚¯";
             rp.BackColor = Color.White;
             rp.ForeColor = Color.Black;
             GEnv.DefaultRenderProfile = rp;

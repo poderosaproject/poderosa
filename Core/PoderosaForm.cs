@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@ using Poderosa.View;
 using Poderosa.Util.Collections;
 
 namespace Poderosa.Forms {
-    //ƒƒCƒ“ƒEƒBƒ“ƒhƒE‚Æƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE‚ÌŠî’ê
+    //ãƒ¡ã‚¤ãƒ³ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã¨ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®åŸºåº•
 #if UIDESIGN
     internal class PoderosaForm : Form, IPoderosaForm {
 #else
@@ -46,7 +46,7 @@ namespace Poderosa.Forms {
             if (aboutBoxFactory != null)
                 this.Icon = aboutBoxFactory.ApplicationIcon;
 
-            //ƒVƒ‡[ƒgƒJƒbƒgƒL[‚Í‹¤’Ê
+            //ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã¯å…±é€š
             _commandKeyHandler = new KeyboardHandlerManager();
             _commandKeyHandler.AddLastHandler(new CommandShortcutKeyHandler(this));
         }
@@ -66,9 +66,9 @@ namespace Poderosa.Forms {
             return this;
         }
 
-        //ƒRƒ“ƒeƒLƒXƒgƒƒjƒ…[•\¦
+        //ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼è¡¨ç¤º
         public void ShowContextMenu(IPoderosaMenuGroup[] menus, ICommandTarget target, Point point_screen, ContextMenuFlags flags) {
-            //‚Ü‚¸ƒ\[ƒg
+            //ã¾ãšã‚½ãƒ¼ãƒˆ
             ICollection sorted = PositionDesignationSorter.SortItems(menus);
             ContextMenuStrip cm = new ContextMenuStrip();
             MenuUtil.BuildContextMenu(cm, new ConvertingEnumerable<IPoderosaMenuGroup>(sorted), target);
@@ -77,7 +77,7 @@ namespace Poderosa.Forms {
                 return;
             }
 
-            //ƒL[ƒ{[ƒh‘€ì‚ğƒgƒŠƒK‚Éƒƒjƒ…[‚ğo‚·‚Æ‚«‚ÍA‘I‘ğ‚ª‚ ‚Á‚½‚Ù‚¤‚ª‰½‚©‚Æ‘€ì‚µ‚â‚·‚¢B
+            //ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰æ“ä½œã‚’ãƒˆãƒªã‚¬ã«ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’å‡ºã™ã¨ãã¯ã€é¸æŠãŒã‚ã£ãŸã»ã†ãŒä½•ã‹ã¨æ“ä½œã—ã‚„ã™ã„ã€‚
             if ((flags & ContextMenuFlags.SelectFirstItem) != ContextMenuFlags.None)
                 cm.Items[0].Select();
 
@@ -136,7 +136,7 @@ namespace Poderosa.Forms {
         protected bool _closeCancelled;
         public CommandResult CancellableClose() {
             _closeCancelled = false;
-            this.Close(); //ƒLƒƒƒ“ƒZƒ‹‚µ‚½‚Æ‚«‚ÍOnClosing“à‚Åã‚Ìƒtƒ‰ƒO‚ğƒZƒbƒg‚·‚é
+            this.Close(); //ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã—ãŸã¨ãã¯OnClosingå†…ã§ä¸Šã®ãƒ•ãƒ©ã‚°ã‚’ã‚»ãƒƒãƒˆã™ã‚‹
             return _closeCancelled ? CommandResult.Cancelled : CommandResult.Succeeded;
         }
 

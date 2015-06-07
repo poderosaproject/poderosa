@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,10 +23,10 @@ using Poderosa.Usability;
 
 namespace Poderosa.Forms {
     /// <summary>
-    /// KeyGenWizard ‚ÌŠT—v‚Ìà–¾‚Å‚·B
+    /// KeyGenWizard ã®æ¦‚è¦ã®èª¬æ˜ã§ã™ã€‚
     /// </summary>
     internal class KeyGenWizard : System.Windows.Forms.Form {
-        //Œ»İ‚Ìƒy[ƒW
+        //ç¾åœ¨ã®ãƒšãƒ¼ã‚¸
         private enum Page {
             Parameter,
             Generation,
@@ -58,7 +58,7 @@ namespace Poderosa.Forms {
         private TextBox _confirmBox;
         private System.Windows.Forms.Label _confirmLabel;
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.Container components = null;
 
@@ -86,7 +86,7 @@ namespace Poderosa.Forms {
             _page = Page.Parameter;
         }
 
-        //‚±‚ê‚Íì¬ƒXƒŒƒbƒh‚©‚çŒÄ‚Ño‚·
+        //ã“ã‚Œã¯ä½œæˆã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰å‘¼ã³å‡ºã™
         /// <summary>
         /// 
         /// </summary>
@@ -100,7 +100,7 @@ namespace Poderosa.Forms {
         }
 
         private void CheckGenerationComplete() {
-            //ƒvƒƒOƒŒƒXƒo[‚ªI’[‚É‚¢‚­‚Ì‚ÆAŒ®‚Ì¶¬‚ªI‚í‚é‚Ì‚Í—¼•û–‚½‚³‚È‚¢‚Æ‚¢‚¯‚È‚¢
+            //ãƒ—ãƒ­ã‚°ãƒ¬ã‚¹ãƒãƒ¼ãŒçµ‚ç«¯ã«ã„ãã®ã¨ã€éµã®ç”ŸæˆãŒçµ‚ã‚ã‚‹ã®ã¯ä¸¡æ–¹æº€ãŸã•ãªã„ã¨ã„ã‘ãªã„
             if (_generationBar.Value == _generationBar.Maximum && _resultKey != null) {
                 StringResource sr = SSHUtilPlugin.Instance.Strings;
                 _nextButton.Enabled = true;
@@ -116,7 +116,7 @@ namespace Poderosa.Forms {
         }
 
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -129,8 +129,8 @@ namespace Poderosa.Forms {
 
         #region Windows Form Designer generated code
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this._parameterPanel = new System.Windows.Forms.Panel();
@@ -454,7 +454,7 @@ namespace Poderosa.Forms {
                 try {
                     string pp = _passphraseBox.Text;
                     if (pp.Length == 0)
-                        pp = null; //‹óƒpƒXƒtƒŒ[ƒY‚Ínullw’è
+                        pp = null; //ç©ºãƒ‘ã‚¹ãƒ•ãƒ¬ãƒ¼ã‚ºã¯nullæŒ‡å®š
 
                     _resultKey.WritePrivatePartInSECSHStyleFile(new FileStream(dlg.FileName, FileMode.Create, FileAccess.Write), "", pp);
                 }
@@ -496,10 +496,10 @@ namespace Poderosa.Forms {
     }
 
     /*
-     * ‚¢‚­‚Â‚©‚µ‚½‚Æ‚±‚ëAŒ®ì¬‚É‚¢‚­‚Â‚Ì—”‚ª•K—v‚©‚Í‚©‚È‚è‚Î‚ç‚Â‚«‚ª‚ ‚éB‚»‚±‚ÅŸ‚Ì‚æ‚¤‚É‚·‚éB
-     * 1. MouseMove100‰ñ‚ğ•K‚¸óM‚·‚éB
-     * 2. ‚P‰ñ‚ÌMouseMove‚É‚Â‚«100ŒÂ‚Ì—”‚ğŒvZ‚·‚éB100ŒÂÁ”ï‚µ‚½‚çŸ‚ÌMouseMove‚ª—ˆ‚é‚Ü‚ÅƒuƒƒbƒNB
-     * 4. “r’†‚ÅŒ®ì¬‚ªI—¹‚µ‚Ä‚àA100ŒÂ‚ÌMouseMove‚ª—ˆ‚é‚Ü‚Å‚ÍUIã‚Í¶¬‚ğ‚µ‚Ä‚¢‚é‚Ó‚è‚ğ‚·‚éB
+     * ã„ãã¤ã‹è©¦ã—ãŸã¨ã“ã‚ã€éµä½œæˆã«ã„ãã¤ã®ä¹±æ•°ãŒå¿…è¦ã‹ã¯ã‹ãªã‚Šã°ã‚‰ã¤ããŒã‚ã‚‹ã€‚ãã“ã§æ¬¡ã®ã‚ˆã†ã«ã™ã‚‹ã€‚
+     * 1. MouseMove100å›ã‚’å¿…ãšå—ä¿¡ã™ã‚‹ã€‚
+     * 2. ï¼‘å›ã®MouseMoveã«ã¤ã100å€‹ã®ä¹±æ•°ã‚’è¨ˆç®—ã™ã‚‹ã€‚100å€‹æ¶ˆè²»ã—ãŸã‚‰æ¬¡ã®MouseMoveãŒæ¥ã‚‹ã¾ã§ãƒ–ãƒ­ãƒƒã‚¯ã€‚
+     * 4. é€”ä¸­ã§éµä½œæˆãŒçµ‚äº†ã—ã¦ã‚‚ã€100å€‹ã®MouseMoveãŒæ¥ã‚‹ã¾ã§ã¯UIä¸Šã¯ç”Ÿæˆã‚’ã—ã¦ã„ã‚‹ãµã‚Šã‚’ã™ã‚‹ã€‚
      */
 
     internal class KeyGenThread {
@@ -539,7 +539,7 @@ namespace Poderosa.Forms {
             }
         }
 
-        //‚±‚ê‚ÍƒtƒH[ƒ€‚ÌƒXƒŒƒbƒh‚ÅÀs‚³‚ê‚éB’ˆÓI
+        //ã“ã‚Œã¯ãƒ•ã‚©ãƒ¼ãƒ ã®ã‚¹ãƒ¬ãƒƒãƒ‰ã§å®Ÿè¡Œã•ã‚Œã‚‹ã€‚æ³¨æ„ï¼
         public void OnMouseMove(object sender, MouseEventArgs args) {
 
             if (_mouseMoveCount == _parent.GenerationBar.Maximum)
@@ -548,7 +548,7 @@ namespace Poderosa.Forms {
             int n = (int)System.DateTime.Now.Ticks;
             n ^= (args.X << 16);
             n ^= args.Y;
-            n ^= (int)0x31031293; //‚±‚ê‚®‚ç‚¢‚â‚ê‚Î\•ª‚Î‚ç‚¯‚é‚¾‚ë‚¤
+            n ^= (int)0x31031293; //ã“ã‚Œãã‚‰ã„ã‚„ã‚Œã°ååˆ†ã°ã‚‰ã‘ã‚‹ã ã‚ã†
 
             if (++_mouseMoveCount == _parent.GenerationBar.Maximum)
                 _rnd.RefreshFinal(n);
@@ -574,7 +574,7 @@ namespace Poderosa.Forms {
 
                 while (_internalAvailableCount == 0) {
                     Debug.WriteLine("WAITING");
-                    Thread.Sleep(100); //“¯ŠúƒIƒuƒWƒFƒNƒg‚ğg‚¤‚Ü‚Å‚à‚È‚¢‚¾‚ë‚¤
+                    Thread.Sleep(100); //åŒæœŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½¿ã†ã¾ã§ã‚‚ãªã„ã ã‚ã†
                     if (_abortFlag)
                         throw new Exception("key generation aborted");
                 }
@@ -583,7 +583,7 @@ namespace Poderosa.Forms {
                 _doubleCount++;
                 return _internal.NextDouble();
             }
-            //‘¼‚Íoverride‚µ‚È‚¢
+            //ä»–ã¯overrideã—ãªã„
 
             public void Refresh(int seed) {
                 _internal = new Random(seed);

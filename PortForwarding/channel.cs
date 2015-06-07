@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 * Copyright (c) 2005 Poderosa Project, All Rights Reserved.
 * $Id: channel.cs,v 1.2 2011/10/27 23:21:57 kzmi Exp $
 */
@@ -271,12 +271,12 @@ namespace Poderosa.PortForwarding {
         private void OnRequested(IAsyncResult r) {
             try {
                 if (_closed)
-                    return; //SSHØ’f‚ª‚ ‚Á‚½‚Æ‚«‚Í”ñ“¯ŠúóM‚©‚ç–ß‚Á‚Ä‚­‚é‚ªAEndAccept‚ğŒÄ‚ñ‚Å‚àObjectDisposedException‚É‚È‚é‚¾‚¯
+                    return; //SSHåˆ‡æ–­ãŒã‚ã£ãŸã¨ãã¯éåŒæœŸå—ä¿¡ã‹ã‚‰æˆ»ã£ã¦ãã‚‹ãŒã€EndAcceptã‚’å‘¼ã‚“ã§ã‚‚ObjectDisposedExceptionã«ãªã‚‹ã ã‘
                 Socket local = _bindedLocalSocket.EndAccept(r);
                 //Port Forwarding
                 Channel newchannel = new Channel(_profile.SSHHost, local.RemoteEndPoint.ToString(), _id, null, local);
                 lock (_connection) {
-                    SSHChannel remote = _connection.ForwardPort(newchannel, _profile.DestinationHost, _profile.DestinationPort, "localhost", 0); //!!ÅŒã‚Ì‚Q‚Â‚Ìˆø”–¢Š®
+                    SSHChannel remote = _connection.ForwardPort(newchannel, _profile.DestinationHost, _profile.DestinationPort, "localhost", 0); //!!æœ€å¾Œã®ï¼’ã¤ã®å¼•æ•°æœªå®Œ
                     Debug.WriteLine("OnRequested ch=" + remote.LocalChannelID);
                     newchannel.FixChannel(remote);
                     newchannel.StartAsyncReceive();
@@ -353,7 +353,7 @@ namespace Poderosa.PortForwarding {
     }
 
 
-    //SSHChannel‚ÆSocket‚Å‘ŠŒİ‚Éƒf[ƒ^‚Ìó‚¯“n‚µ‚ğ‚·‚éB•Ğ•û‚ª•Â‚¶‚½‚ç‚à‚¤•Ğ•û‚à•Â‚¶‚éB
+    //SSHChannelã¨Socketã§ç›¸äº’ã«ãƒ‡ãƒ¼ã‚¿ã®å—ã‘æ¸¡ã—ã‚’ã™ã‚‹ã€‚ç‰‡æ–¹ãŒé–‰ã˜ãŸã‚‰ã‚‚ã†ç‰‡æ–¹ã‚‚é–‰ã˜ã‚‹ã€‚
     internal class Channel : ISSHChannelEventReceiver {
 
         private string _serverName;

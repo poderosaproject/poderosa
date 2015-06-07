@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,19 +24,19 @@ using Poderosa.Commands;
 
 namespace Poderosa.Forms {
 
-    //friendly interfaceÀ‘•
+    //friendly interfaceå®Ÿè£…
     internal class CoreServicePreferenceAdapter : SnapshotAwarePreferenceBase, ICoreServicePreference {
 
-        //Œ©‚½–Ú’²®
-        private IStringPreferenceItem _viewSplitModifier; //ƒ}ƒEƒX‚Å‚Ì•ªŠ„
+        //è¦‹ãŸç›®èª¿æ•´
+        private IStringPreferenceItem _viewSplitModifier; //ãƒã‚¦ã‚¹ã§ã®åˆ†å‰²
         private IBoolPreferenceItem _showsToolBar;
         private IStringPreferenceItem _language;
         private IIntPreferenceItem _caretInterval;
-        private IBoolPreferenceItem _autoCopyByLeftButton; //TerminalEmulator‚©‚çˆø‰z‚µ‚µ‚Ä‚«‚½
+        private IBoolPreferenceItem _autoCopyByLeftButton; //TerminalEmulatorã‹ã‚‰å¼•è¶Šã—ã—ã¦ããŸ
 
         private IIntPreferenceItem _splitLimitCount;
 
-        //ƒ_[ƒeƒBƒtƒ‰ƒO‚ÆƒLƒƒƒbƒVƒ…
+        //ãƒ€ãƒ¼ãƒ†ã‚£ãƒ•ãƒ©ã‚°ã¨ã‚­ãƒ£ãƒƒã‚·ãƒ¥
         private bool _viewSplitModifierChecked;
         private Keys _viewSplitModifierKey;
 
@@ -108,7 +108,7 @@ namespace Poderosa.Forms {
                     }
                     catch (Exception ex) {
                         RuntimeUtil.ReportException(ex);
-                        _viewSplitModifierKey = Keys.None; //‚±‚±‚ÍOnMouseMove‚©‚çŒJ‚è•Ô‚µƒ`ƒFƒbƒN‚ğó‚¯‚é‚Ì‚ÅA‰ºè‚È’l‚ª“ü‚Á‚Ä‚¢‚ÄŒJ‚è•Ô‚µƒGƒ‰[‚ª‹N‚«‚é‚Ì‚ğ‚³‚¯‚é
+                        _viewSplitModifierKey = Keys.None; //ã“ã“ã¯OnMouseMoveã‹ã‚‰ç¹°ã‚Šè¿”ã—ãƒã‚§ãƒƒã‚¯ã‚’å—ã‘ã‚‹ã®ã§ã€ä¸‹æ‰‹ãªå€¤ãŒå…¥ã£ã¦ã„ã¦ç¹°ã‚Šè¿”ã—ã‚¨ãƒ©ãƒ¼ãŒèµ·ãã‚‹ã®ã‚’ã•ã‘ã‚‹
                     }
                 }
                 return _viewSplitModifierKey;
@@ -118,7 +118,7 @@ namespace Poderosa.Forms {
                 _viewSplitModifierChecked = false;
             }
         }
-        //ƒtƒ‰ƒOƒNƒŠƒA
+        //ãƒ•ãƒ©ã‚°ã‚¯ãƒªã‚¢
         public void ClearSplitModifierCheckedFlag() {
             _viewSplitModifierChecked = false;
         }
@@ -151,7 +151,7 @@ namespace Poderosa.Forms {
         private IPreferenceFolderArray _windowArrayPreference;
         private IPreferenceFolder _windowTemplatePreference;
 
-        //ˆÈ‰ºAƒEƒBƒ“ƒhƒE–ˆ
+        //ä»¥ä¸‹ã€ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦æ¯
         private IStringPreferenceItem _windowPositionPreference;
         private IStringPreferenceItem _windowSplitFormatPreference;
         private IStringPreferenceItem _toolBarFormatPreference;
@@ -169,7 +169,7 @@ namespace Poderosa.Forms {
                 WindowManagerPlugin.Instance.ReloadPreference(nv);
                 _adapter.ClearSplitModifierCheckedFlag();
 
-                //Œ¾Œê‚ª•Ï‚í‚Á‚Ä‚¢‚½‚ç...
+                //è¨€èªãŒå¤‰ã‚ã£ã¦ã„ãŸã‚‰...
                 Language lang = nv.Language;
                 if (lang != ((ICoreServicePreference)oldvalues.QueryAdapter(typeof(ICoreServicePreference))).Language) {
                     Debug.WriteLine("Change Language");
@@ -239,7 +239,7 @@ namespace Poderosa.Forms {
             if (type == typeof(ICoreServicePreference))
                 return folder == _originalFolder ? _adapter : new CoreServicePreferenceAdapter(folder).Import(_adapter);
             else if (type == typeof(IWindowPreference)) {
-                Debug.Assert(folder == _originalFolder); //IWindowPreference‚É‚Â‚¢‚Ä‚ÍSnapshotƒTƒ|[ƒg‚¹‚¸
+                Debug.Assert(folder == _originalFolder); //IWindowPreferenceã«ã¤ã„ã¦ã¯Snapshotã‚µãƒãƒ¼ãƒˆã›ãš
                 return this;
             }
             else
@@ -266,11 +266,11 @@ namespace Poderosa.Forms {
             IPreferenceFolder element = _windowArrayPreference.CreateNewFolder();
 
             FormWindowState st = f.WindowState;
-            Rectangle rc = st == FormWindowState.Normal ? f.DesktopBounds : f.RestoreBounds; //Normal‚É‚ÍRestoreBoundæ“¾‚Å‚«‚È‚¢A’ˆÓ
+            Rectangle rc = st == FormWindowState.Normal ? f.DesktopBounds : f.RestoreBounds; //Normalæ™‚ã«ã¯RestoreBoundå–å¾—ã§ããªã„ã€æ³¨æ„
             _windowArrayPreference.ConvertItem(element, _windowPositionPreference).AsString().Value = String.Format("({0}{1},{2},{3},{4})",
                 st == FormWindowState.Maximized ? "Max," : "",
                 rc.Left, rc.Top, rc.Width, rc.Height);
-            //TODO PreferenceItem‚Ìƒeƒ“ƒvƒŒ[ƒg‚ğViewManager‘¤‚ÉˆÚ“®‚µ‚½‚Ù‚¤‚ª”Ä—p“I
+            //TODO PreferenceItemã®ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã‚’ViewManagerå´ã«ç§»å‹•ã—ãŸã»ã†ãŒæ±ç”¨çš„
             ISplittableViewManager vm = (ISplittableViewManager)f.ViewManager.GetAdapter(typeof(ISplittableViewManager));
             if (vm != null)
                 _windowArrayPreference.ConvertItem(element, _windowSplitFormatPreference).AsString().Value = vm.FormatSplitInfo();

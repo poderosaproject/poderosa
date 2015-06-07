@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -130,7 +130,7 @@ namespace Poderosa.XZModem {
             _abort = false;
         }
 
-        // CRC‚ÌŒvZ
+        // CRCã®è¨ˆç®—
         public ushort UpdateCRC(byte b, ushort crc) {
             int i;
 
@@ -143,7 +143,7 @@ namespace Poderosa.XZModem {
             return crc;
         }
 
-        // HEXŒ`®‚Å‘‚«‚Ş
+        // HEXå½¢å¼ã§æ›¸ãè¾¼ã‚€
         public int PutHex(byte[] data, int index, byte b) {
             // b => ['0'-'9'|'a'-'f']['0'-'9'|'a'-'f']
             if (b <= 0x9f) {
@@ -164,7 +164,7 @@ namespace Poderosa.XZModem {
             return (index);
         }
 
-        // ƒoƒCƒiƒŠŒ`®‚Å‘‚«‚Ş
+        // ãƒã‚¤ãƒŠãƒªå½¢å¼ã§æ›¸ãè¾¼ã‚€
         public int PutBin(byte[] data, int index, byte b) {
             switch (b) {
                 case 0x0D:
@@ -204,8 +204,8 @@ namespace Poderosa.XZModem {
             return (byte)(pos >> 8);
         }
 
-        // ƒT[ƒo‚©‚ç‚ÌóMƒf[ƒ^‚ğ‰ğÍ‚·‚é
-        // ReaderƒNƒ‰ƒX‚©‚çŒÄ‚Î‚ê‚é
+        // ã‚µãƒ¼ãƒã‹ã‚‰ã®å—ä¿¡ãƒ‡ãƒ¼ã‚¿ã‚’è§£æã™ã‚‹
+        // Readerã‚¯ãƒ©ã‚¹ã‹ã‚‰å‘¼ã°ã‚Œã‚‹
         public override void OnReception(ByteDataFragment fragment) {
             byte[] data = fragment.Buffer;
             int offset = fragment.Offset;
@@ -216,14 +216,14 @@ namespace Poderosa.XZModem {
             Debug.WriteLine(String.Format("OnReception len={0} state={1} pos={2}", length, _state.ToString(), _CurrentPos));
 
             if (_state == State.GetFileInfo) {
-                // ƒtƒ@ƒCƒ‹î•ñ‚ğæ“¾‚·‚é
+                // ãƒ•ã‚¡ã‚¤ãƒ«æƒ…å ±ã‚’å–å¾—ã™ã‚‹
                 _state = State.WaitingZPAD;
                 ParseFileInfo(data, offset, length);
                 return;
 
             }
             else if (_state == State.GetFileData) {
-                // ƒtƒ@ƒCƒ‹‚Ì“à—e‚ğ“Ç‚İæ‚èA‘‚«‚ŞB
+                // ãƒ•ã‚¡ã‚¤ãƒ«ã®å†…å®¹ã‚’èª­ã¿å–ã‚Šã€æ›¸ãè¾¼ã‚€ã€‚
                 int p = ParseFileData(data, offset, length);
                 offset += p;
                 length -= p;
@@ -232,7 +232,7 @@ namespace Poderosa.XZModem {
             for (i = 0; i < length; i++) {
                 c = data[offset + i];
 
-                // 0x11, 0x13, 0x81, 0x83‚Í–³‹‚·‚é
+                // 0x11, 0x13, 0x81, 0x83ã¯ç„¡è¦–ã™ã‚‹
                 if ((c & 0x7f) == XON || (c & 0x7f) == XOFF)
                     continue;
 
@@ -324,7 +324,7 @@ namespace Poderosa.XZModem {
 
                         if (_PktInCount <= 0) {
                             _state = State.GetHexEOL;
-                            _PktInCount = 2;  // CR‚ÆLF‚Ì•ª‚ğƒXƒLƒbƒv‚·‚é
+                            _PktInCount = 2;  // CRã¨LFã®åˆ†ã‚’ã‚¹ã‚­ãƒƒãƒ—ã™ã‚‹
                         }
                     }
                     else {  // upper
@@ -347,7 +347,7 @@ namespace Poderosa.XZModem {
         }
 
 
-        // ƒpƒPƒbƒgƒwƒbƒ_‚ÌCRCƒ`ƒFƒbƒN
+        // ãƒ‘ã‚±ãƒƒãƒˆãƒ˜ãƒƒãƒ€ã®CRCãƒã‚§ãƒƒã‚¯
         private bool CheckHeader(byte[] data, int len) {
             ushort crc;
             int i;
@@ -357,7 +357,7 @@ namespace Poderosa.XZModem {
                 crc = UpdateCRC(data[i], crc);
             }
 
-            //’·‚¢ƒtƒ@ƒCƒ‹‚ğóM‚·‚é‚Æ‚«ACRC‚ª‚O‚Å‚È‚¢B‚¨‚»‚ç‚­ƒf[ƒ^‚Ì“r’†‚Å“ü‚éCRC‚ğ–³‹‚µ‚Ä‚¢‚é‚Ì‚ª——R‚È‚Ì‚¾‚ë‚¤‚ªA–Ê“|‚È‚Ì‚ÅƒXƒLƒbƒvBƒf[ƒ^óMŠ®—¹‚Í¬Œ÷— ‚ÉƒXƒ‹[‚·‚éB
+            //é•·ã„ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å—ä¿¡ã™ã‚‹ã¨ãã€CRCãŒï¼ã§ãªã„ã€‚ãŠãã‚‰ããƒ‡ãƒ¼ã‚¿ã®é€”ä¸­ã§å…¥ã‚‹CRCã‚’ç„¡è¦–ã—ã¦ã„ã‚‹ã®ãŒç†ç”±ãªã®ã ã‚ã†ãŒã€é¢å€’ãªã®ã§ã‚¹ã‚­ãƒƒãƒ—ã€‚ãƒ‡ãƒ¼ã‚¿å—ä¿¡å®Œäº†æ™‚ã¯æˆåŠŸè£ã«ã‚¹ãƒ«ãƒ¼ã™ã‚‹ã€‚
             if (crc == 0 || (_filesize > 0 && _CurrentPos == _filesize)) { // CRC is OK.
                 _RxType = data[0];  // packet type
                 for (i = 1; i <= 4; i++) {
@@ -372,11 +372,11 @@ namespace Poderosa.XZModem {
             }
         }
 
-        // ZMODEMƒpƒPƒbƒgˆ—
+        // ZMODEMãƒ‘ã‚±ãƒƒãƒˆå‡¦ç†
         public abstract void ParseHeader();
 
 
-        // ZFILE‚Ì’¼Œã‚É‘—‚ç‚ê‚Ä‚­‚éƒtƒ@ƒCƒ‹–¼‚ÆƒTƒCƒY‚ğ“¾‚é
+        // ZFILEã®ç›´å¾Œã«é€ã‚‰ã‚Œã¦ãã‚‹ãƒ•ã‚¡ã‚¤ãƒ«åã¨ã‚µã‚¤ã‚ºã‚’å¾—ã‚‹
         private void ParseFileInfo(byte[] data, int offset, int length) {
             byte[] filename = new byte[1024];
             byte c;
@@ -414,7 +414,7 @@ namespace Poderosa.XZModem {
 
         }
 
-        // ZDATA‚Ì’¼Œã‚É‘—‚ç‚ê‚Ä‚­‚éƒtƒ@ƒCƒ‹ƒf[ƒ^
+        // ZDATAã®ç›´å¾Œã«é€ã‚‰ã‚Œã¦ãã‚‹ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‡ãƒ¼ã‚¿
         private int ParseFileData(byte[] data, int offset, int length) {
             byte c;
             bool escaping = false;
@@ -424,17 +424,17 @@ namespace Poderosa.XZModem {
 
                 if (_CurrentPos == _filesize) {
                     _state = State.WaitingZPAD;
-                    return i + 4; //CRCƒXƒLƒbƒv
+                    return i + 4; //CRCã‚¹ã‚­ãƒƒãƒ—
                 }
 
                 if (c == ZDLE) {
-                    //CRC‘}“üŒŸ’m‚ÅƒXƒLƒbƒv
+                    //CRCæŒ¿å…¥æ¤œçŸ¥ã§ã‚¹ã‚­ãƒƒãƒ—
                     byte next = data[offset + i + 1];
-                    if (next == ZCRCG || next == ZCRCE || next == ZCRCQ || next == ZCRCW) { //‚Ç‚ÌCRC‚ª‚­‚é‚Ì‚©•s–¾A‚Ü‚½CRC‚Ì³“–«ƒ`ƒFƒbƒN‚Í‚³‚Ú‚è
-                        i += 3; //ZDLEŠÜ‚ß‚Ä‚SƒoƒCƒg”ò‚Î‚·
+                    if (next == ZCRCG || next == ZCRCE || next == ZCRCQ || next == ZCRCW) { //ã©ã®CRCãŒãã‚‹ã®ã‹ä¸æ˜ã€ã¾ãŸCRCã®æ­£å½“æ€§ãƒã‚§ãƒƒã‚¯ã¯ã•ã¼ã‚Š
+                        i += 3; //ZDLEå«ã‚ã¦ï¼”ãƒã‚¤ãƒˆé£›ã°ã™
                     }
                     else
-                        escaping = true; //’P‚È‚éƒGƒXƒP[ƒv
+                        escaping = true; //å˜ãªã‚‹ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—
                 }
                 else {
                     if (escaping) {
@@ -510,8 +510,8 @@ namespace Poderosa.XZModem {
         private Thread _sendThread;
 
         private enum SendState {
-            Sending,  // ‘—M’†
-            EOF,      // ‘—MŠ®—¹
+            Sending,  // é€ä¿¡ä¸­
+            EOF,      // é€ä¿¡å®Œäº†
         }
 
         public ZModemSender(XZModemDialog parent, string filename)
@@ -529,7 +529,7 @@ namespace Poderosa.XZModem {
         }
 
         public override void Start() {
-            // TODO: ƒ^ƒCƒ}ˆ—
+            // TODO: ã‚¿ã‚¤ãƒå‡¦ç†
             _timer = new Timer(new TimerCallback(OnTimeout), NEGOTIATION_TIMEOUT, 60000, Timeout.Infinite);
 
             _state = State.WaitingZPAD;
@@ -553,12 +553,12 @@ namespace Poderosa.XZModem {
             if (_sendThread != null) {
                 _sendThread.Abort();
             }
-            // ZFIN‚ğ‘—M‚µAƒV[ƒPƒ“ƒX‚ğ’†’f‚³‚¹‚éB
+            // ZFINã‚’é€ä¿¡ã—ã€ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ã‚’ä¸­æ–­ã•ã›ã‚‹ã€‚
             SendZFIN();
             base.Abort();
         }
 
-        // ƒpƒPƒbƒg‘—M
+        // ãƒ‘ã‚±ãƒƒãƒˆé€ä¿¡
         private void SendPacket(byte[] data, int len) {
             _connection.Socket.Transmit(data, 0, len);
 
@@ -575,7 +575,7 @@ namespace Poderosa.XZModem {
 #endif
         }
 
-        // ‘—Mƒwƒbƒ_
+        // é€ä¿¡ãƒ˜ãƒƒãƒ€
         private void BuildXmitHeader(int pos) {
             _TxHdr[ZP0] = LOBYTE(LOWORD(pos));
             _TxHdr[ZP1] = HIBYTE(LOWORD(pos));
@@ -583,7 +583,7 @@ namespace Poderosa.XZModem {
             _TxHdr[ZP3] = HIBYTE(HIWORD(pos));
         }
 
-        // ‘—M—pHEXƒwƒbƒ_ƒpƒPƒbƒg‚ğì‚é
+        // é€ä¿¡ç”¨HEXãƒ˜ãƒƒãƒ€ãƒ‘ã‚±ãƒƒãƒˆã‚’ä½œã‚‹
         private int BuildSendHEXHeader(byte[] data, byte hdr_type, int data_index) {
             int index, i;
             ushort crc;
@@ -613,7 +613,7 @@ namespace Poderosa.XZModem {
             return (data_index);
         }
 
-        // ‘—M—pƒoƒCƒiƒŠƒwƒbƒ_ƒpƒPƒbƒg‚ğì‚é
+        // é€ä¿¡ç”¨ãƒã‚¤ãƒŠãƒªãƒ˜ãƒƒãƒ€ãƒ‘ã‚±ãƒƒãƒˆã‚’ä½œã‚‹
         private int BuildSendBinaryHeader(byte[] data, byte hdr_type, int data_index) {
             int index, i;
             ushort crc;
@@ -654,7 +654,7 @@ namespace Poderosa.XZModem {
             if (_MaxDataLen > max)
                 _MaxDataLen = max;
 
-            // ƒtƒ@ƒCƒ‹ƒwƒbƒ_‚Ì‘—M
+            // ãƒ•ã‚¡ã‚¤ãƒ«ãƒ˜ãƒƒãƒ€ã®é€ä¿¡
             BuildXmitHeader(0);
             _TxHdr[ZF0] = ZCBIN;  // binary file
             _PktOutCount = BuildSendBinaryHeader(_PktOut, ZFILE, _PktOutCount);  // ZFILE(4)
@@ -667,12 +667,12 @@ namespace Poderosa.XZModem {
             ushort crc;
             int i;
 
-            // ƒtƒ@ƒCƒ‹ƒf[ƒ^‚Ì‘—M
+            // ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‡ãƒ¼ã‚¿ã®é€ä¿¡
             string fn = _filename;
             int pathchar = fn.LastIndexOf('\\');
             if (pathchar != -1)
                 fn = fn.Substring(pathchar + 1);
-            fn = fn.Replace(" ", "_");  // ‹ó”’‚ğ_‚Ö‘S’uŠ·
+            fn = fn.Replace(" ", "_");  // ç©ºç™½ã‚’_ã¸å…¨ç½®æ›
             byte[] b = Encoding.ASCII.GetBytes(fn);
             Array.Copy(b, 0, _PktOut, 0, b.Length);
             _PktOutCount = b.Length;
@@ -704,7 +704,7 @@ namespace Poderosa.XZModem {
 
         // ZDATA(10)
         private void SendZDATA() {
-            // ƒtƒ@ƒCƒ‹ƒwƒbƒ_‚Ì‘—M
+            // ãƒ•ã‚¡ã‚¤ãƒ«ãƒ˜ãƒƒãƒ€ã®é€ä¿¡
             BuildXmitHeader(_CurrentPos);
             _PktOutCount = BuildSendBinaryHeader(_PktOut, ZDATA, _PktOutCount);
             SendPacket(_PktOut, _PktOutCount);
@@ -712,11 +712,11 @@ namespace Poderosa.XZModem {
 
         private SendState SendZDATAContent() {
 
-            // ƒtƒ@ƒCƒ‹ƒf[ƒ^‚Ì‘—M
-            if (_CurrentPos >= _filesize) { // “]‘—I—¹
+            // ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‡ãƒ¼ã‚¿ã®é€ä¿¡
+            if (_CurrentPos >= _filesize) { // è»¢é€çµ‚äº†
                 _CurrentPos = _filesize;
 
-                // ZEOF(11)‚Ì‘—M
+                // ZEOF(11)ã®é€ä¿¡
                 BuildXmitHeader(_CurrentPos);
                 _PktOutCount = BuildSendHEXHeader(_PktOut, ZEOF, _PktOutCount);
                 SendPacket(_PktOut, _PktOutCount);
@@ -734,7 +734,7 @@ namespace Poderosa.XZModem {
                 crc = UpdateCRC(b, crc);
                 bytecount++;
 
-                // ˆê‰ñ“–‚½‚è‚Ì‘—MƒTƒCƒY‚Í1KB–¢–‚É—}‚¦‚é
+                // ä¸€å›å½“ãŸã‚Šã®é€ä¿¡ã‚µã‚¤ã‚ºã¯1KBæœªæº€ã«æŠ‘ãˆã‚‹
                 if (_PktOutCount > _MaxDataLen - 2)
                     break;
             }
@@ -781,7 +781,7 @@ namespace Poderosa.XZModem {
         }
         private void SendThreadEntryPoint() {
             try {
-                //ZEOF‚Ì‘—M‚Ü‚Åˆê‹C‚ÉB
+                //ZEOFã®é€ä¿¡ã¾ã§ä¸€æ°—ã«ã€‚
                 while (SendZDATAContent() == SendState.Sending) {
                     ;
                 }
@@ -803,17 +803,17 @@ namespace Poderosa.XZModem {
                         SendZFILEContent();
                     }
                     else
-                        SendZFIN(); //I—¹ˆ—
+                        SendZFIN(); //çµ‚äº†å‡¦ç†
                     break;
 
-                case ZRPOS:  // ‘—MŠJnˆÊ’u
+                case ZRPOS:  // é€ä¿¡é–‹å§‹ä½ç½®
                     int pos = _RxHdr[ZP3];
                     pos = (pos << 8) | _RxHdr[ZP2];
                     pos = (pos << 8) | _RxHdr[ZP1];
                     pos = (pos << 8) | _RxHdr[ZP0];
                     _CurrentPos = pos;
                     _LastPos = pos;
-                    //ZRPOS‘Ò‚Á‚Ä‘—M
+                    //ZRPOSå¾…ã£ã¦é€ä¿¡
                     SendZDATA();
                     StartSendThread();
                     break;
@@ -824,7 +824,7 @@ namespace Poderosa.XZModem {
                     Complete();
                     break;
 
-                case ZSKIP:  // ‚·‚Å‚É“¯‚¶ƒtƒ@ƒCƒ‹‚ª‚ ‚é
+                case ZSKIP:  // ã™ã§ã«åŒã˜ãƒ•ã‚¡ã‚¤ãƒ«ãŒã‚ã‚‹
                     _abort = true;
                     Fail("ZSKIP (maybe the host detects file name confliction)");
                     break;
@@ -851,9 +851,9 @@ namespace Poderosa.XZModem {
         public override void Start() {
             // 10sec. ZRINIT sending timer
             _timer = new Timer(new TimerCallback(OnTimeout), NEGOTIATION_TIMEOUT, 10000, Timeout.Infinite);
-            _filestream = new FileStream(_filename, FileMode.Create); //ƒ_ƒCƒAƒƒO‚Åw’è‚µ‚½ƒtƒ@ƒCƒ‹–¼g—p
+            _filestream = new FileStream(_filename, FileMode.Create); //ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ã§æŒ‡å®šã—ãŸãƒ•ã‚¡ã‚¤ãƒ«åä½¿ç”¨
             _state = State.WaitingZPAD;
-            //NOTE Enter‚ğ‰Ÿ‚·‚Ì‚ğ‚±‚±‚Å©“®‰»‚·‚ê‚ÎƒEƒ}‚­‚¢‚­‚ÆŠú‘Ò‚µ‚Ä‚¢‚½‚ªA—¬‚ê‚Ä‚­‚éƒf[ƒ^ƒTƒCƒY‚©‚ç‚µ‚Äˆá‚¤BƒvƒƒgƒRƒ‹ƒIƒvƒVƒ‡ƒ“Œn‚Å‰½‚©•s®‡‚ª‚ ‚é‚æ‚¤‚ÈˆóÛ‚¾‚ªAZMODEM‚É‚»‚±‚Ü‚ÅŠæ’£‚ê‚È‚¢‚Ì‚Å‚ ‚«‚ç‚ß‚é
+            //NOTE Enterã‚’æŠ¼ã™ã®ã‚’ã“ã“ã§è‡ªå‹•åŒ–ã™ã‚Œã°ã‚¦ãƒãã„ãã¨æœŸå¾…ã—ã¦ã„ãŸãŒã€æµã‚Œã¦ãã‚‹ãƒ‡ãƒ¼ã‚¿ã‚µã‚¤ã‚ºã‹ã‚‰ã—ã¦é•ã†ã€‚ãƒ—ãƒ­ãƒˆã‚³ãƒ«ã‚ªãƒ—ã‚·ãƒ§ãƒ³ç³»ã§ä½•ã‹ä¸æ•´åˆãŒã‚ã‚‹ã‚ˆã†ãªå°è±¡ã ãŒã€ZMODEMã«ãã“ã¾ã§é ‘å¼µã‚Œãªã„ã®ã§ã‚ãã‚‰ã‚ã‚‹
             //_site.SendEnter();
         }
 
@@ -882,7 +882,7 @@ namespace Poderosa.XZModem {
 
         }
 
-        // ƒpƒPƒbƒg‘—M
+        // ãƒ‘ã‚±ãƒƒãƒˆé€ä¿¡
         private void SendPacket(byte[] data, int len) {
             _connection.Socket.Transmit(data, 0, len);
 
@@ -901,7 +901,7 @@ namespace Poderosa.XZModem {
 #endif
         }
 
-        // ‘—Mƒwƒbƒ_
+        // é€ä¿¡ãƒ˜ãƒƒãƒ€
         private void BuildXmitHeader(int pos) {
             _TxHdr[ZP0] = LOBYTE(LOWORD(pos));
             _TxHdr[ZP1] = HIBYTE(LOWORD(pos));
@@ -909,7 +909,7 @@ namespace Poderosa.XZModem {
             _TxHdr[ZP3] = HIBYTE(HIWORD(pos));
         }
 
-        // ‘—M—pHEXƒwƒbƒ_ƒpƒPƒbƒg‚ğì‚é
+        // é€ä¿¡ç”¨HEXãƒ˜ãƒƒãƒ€ãƒ‘ã‚±ãƒƒãƒˆã‚’ä½œã‚‹
         private int BuildSendHEXHeader(byte[] data, byte hdr_type, int data_index) {
             int index, i;
             ushort crc;
@@ -939,7 +939,7 @@ namespace Poderosa.XZModem {
             return (data_index);
         }
 
-        // ‘—M—pƒoƒCƒiƒŠƒwƒbƒ_ƒpƒPƒbƒg‚ğì‚é
+        // é€ä¿¡ç”¨ãƒã‚¤ãƒŠãƒªãƒ˜ãƒƒãƒ€ãƒ‘ã‚±ãƒƒãƒˆã‚’ä½œã‚‹
         private int BuildSendBinaryHeader(byte[] data, byte hdr_type, int data_index) {
             int index, i;
             ushort crc;
@@ -1003,7 +1003,7 @@ namespace Poderosa.XZModem {
                     break;
 
                 case ZDATA:
-                    _state = State.GetFileData; // Ÿ‚Íƒtƒ@ƒCƒ‹‚Ì“à—e‚ğæ“¾‚·‚é
+                    _state = State.GetFileData; // æ¬¡ã¯ãƒ•ã‚¡ã‚¤ãƒ«ã®å†…å®¹ã‚’å–å¾—ã™ã‚‹
                     break;
 
                 case ZEOF:

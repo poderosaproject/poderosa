@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@ namespace Poderosa.Forms {
     internal class PoderosaStatusBar : StatusStrip, IPoderosaStatusBar {
         private Timer _timer;
 
-        //TODO ‚±‚Ì\¬‚ÍExtP‚©‚ç‚à‚Á‚Ä‚±‚È‚¢‚Æ
+        //TODO ã“ã®æ§‹æˆã¯ExtPã‹ã‚‰ã‚‚ã£ã¦ã“ãªã„ã¨
         private ToolStripStatusLabel _message;
         private ToolStripStatusLabel _bell;
         private int _defaultHeight;
@@ -51,7 +51,7 @@ namespace Poderosa.Forms {
             return l;
         }
 
-        //•ª—£‚³‚ê‚½—Ìˆæ‚ğì¬
+        //åˆ†é›¢ã•ã‚ŒãŸé ˜åŸŸã‚’ä½œæˆ
         private static ToolStripStatusLabel CreateDefaultStipStatusLabel() {
             ToolStripStatusLabel l = new ToolStripStatusLabel();
             l.AutoSize = false;
@@ -94,12 +94,12 @@ namespace Poderosa.Forms {
         }
         #endregion
 
-        //TODO ‚¿‚å‚Á‚ÆGBƒxƒ‹‚Æ“¯‚¶ƒ^ƒCƒ}[‚Å‚¢‚¢‚Ì‚©H
+        //TODO ã¡ã‚‡ã£ã¨é›‘ã€‚ãƒ™ãƒ«ã¨åŒã˜ã‚¿ã‚¤ãƒãƒ¼ã§ã„ã„ã®ã‹ï¼Ÿ
         private void OnTimer(object sender, EventArgs args) {
             Debug.Assert(!this.InvokeRequired);
             _bell.Image = null;
             _message.Text = "";
-            this.Height = _defaultHeight; //•¡”sƒeƒLƒXƒg‚Ì‚Æ‚«‚È‚Ç‚Å‚‚³‚ªŠg‘å‚µ‚Ä‚µ‚Ü‚¤‚±‚Æ‚ª‚ ‚é
+            this.Height = _defaultHeight; //è¤‡æ•°è¡Œãƒ†ã‚­ã‚¹ãƒˆã®ã¨ããªã©ã§é«˜ã•ãŒæ‹¡å¤§ã—ã¦ã—ã¾ã†ã“ã¨ãŒã‚ã‚‹
         }
     }
 }

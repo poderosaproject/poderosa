@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@ using Poderosa.View;
 
 namespace Poderosa.Terminal {
 
-    //ƒCƒ“ƒeƒŠƒZƒ“ƒXƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE
+    //ã‚¤ãƒ³ãƒ†ãƒªã‚»ãƒ³ã‚¹ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦
     internal class IntelliSenseWindow : ToolStripDropDown {
         public delegate void CancelDelegateT();
 
@@ -63,13 +63,13 @@ namespace Poderosa.Terminal {
 
         private void AdjustListBox() {
             this.SuspendLayout();
-            _listBox.Size = new Size(0, 0); //‚±‚¤‚µ‚Ä‚¨‚­‚Æ—]”’‚ª¶‚¶‚Ä‚µ‚Ü‚¤‚±‚Æ‚Í‚È‚­‚È‚é
+            _listBox.Size = new Size(0, 0); //ã“ã†ã—ã¦ãŠãã¨ä½™ç™½ãŒç”Ÿã˜ã¦ã—ã¾ã†ã“ã¨ã¯ãªããªã‚‹
             RenderProfile rp = _context.RenderProfile;
             SizeF pitch = rp.Pitch;
             _listBox.Font = rp.DefaultFont;
             _listBox.BackColor = rp.BackColor;
             _listBox.ForeColor = rp.ForeColor;
-            _listBox.MaximumSize = new Size((int)(pitch.Width * 80), (int)(pitch.Height * 10)); //‰½•¶š•ª‚©‚ÍPreference‰»‚µ‚Ä‚à‚¢‚¢
+            _listBox.MaximumSize = new Size((int)(pitch.Width * 80), (int)(pitch.Height * 10)); //ä½•æ–‡å­—åˆ†ã‹ã¯PreferenceåŒ–ã—ã¦ã‚‚ã„ã„
             _listBox.Items.Clear();
             foreach (IntelliSenseItem item in _context.Candidates) {
                 _listBox.Items.Add(item.Format(_context.CurrentScheme.DefaultDelimiter));
@@ -78,10 +78,10 @@ namespace Poderosa.Terminal {
             this.ResumeLayout(true);
         }
 
-        //ListBox‚©‚ç‚ÌƒR[ƒ‹ƒoƒbƒNŒn
+        //ListBoxã‹ã‚‰ã®ã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯ç³»
         public void Cancel() {
             if (_status == ComplementStatus.Exiting || _status == ComplementStatus.Hidden)
-                return; //‚±‚ÌExit“à‚ÅClose()‚·‚é‚ÆLostFocus‚È‚Ç‚ğŒo—R‚µ‚ÄÄ‹A‚µ‚Ä‚­‚éê‡‚ª‚ ‚é
+                return; //ã“ã®Exitå†…ã§Close()ã™ã‚‹ã¨LostFocusãªã©ã‚’çµŒç”±ã—ã¦å†å¸°ã—ã¦ãã‚‹å ´åˆãŒã‚ã‚‹
             _status = ComplementStatus.Hidden;
             Exit();
         }
@@ -92,14 +92,14 @@ namespace Poderosa.Terminal {
 
         public void DoChar(char ch) {
             Debug.WriteLineIf(DebugOpt.IntelliSense, "DoChar " + (int)ch);
-            if (_context.CurrentScheme.IsDelimiter(ch)) { //–{“–‚Í‚±‚±‚ÅƒNƒI[ƒe[ƒVƒ‡ƒ““™ƒRƒ}ƒ“ƒhƒp[ƒX’†‚ÌƒRƒ“ƒeƒLƒXƒg‚É‚æ‚Á‚Ä’PŒêI’[‚ğ”»’è‚µ‚½‚¢
+            if (_context.CurrentScheme.IsDelimiter(ch)) { //æœ¬å½“ã¯ã“ã“ã§ã‚¯ã‚ªãƒ¼ãƒ†ãƒ¼ã‚·ãƒ§ãƒ³ç­‰ã‚³ãƒãƒ³ãƒ‰ãƒ‘ãƒ¼ã‚¹ä¸­ã®ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆã«ã‚ˆã£ã¦å˜èªçµ‚ç«¯ã‚’åˆ¤å®šã—ãŸã„
                 if (_listBox.SelectedIndexEx != -1) {
                     PartialComplement(ch);
                     return;
                 }
             }
 
-            //SendBack()‚Ì”½‰‚ª—ˆ‚é‘O‚É•âŠ®‚ğ‚İ‚é‚±‚Æ‚É”õ‚¦‚Ä
+            //SendBack()ã®åå¿œãŒæ¥ã‚‹å‰ã«è£œå®Œã‚’è©¦ã¿ã‚‹ã“ã¨ã«å‚™ãˆã¦
             _context.CharQueue.LockedPushChar(ch);
             SendBack(ch);
 
@@ -107,10 +107,10 @@ namespace Poderosa.Terminal {
                 if (_context.RemoveChar().Length == 0)
                     Cancel();
             }
-            if (ch == '\n') { //Enter ‚±‚Ì‚Æ‚«‚ÍTerminalControl‚ÌƒL[ƒCƒxƒ“ƒg‚ğŒo—R‚µ‚È‚¢‚Ì‚Å
+            if (ch == '\n') { //Enter ã“ã®ã¨ãã¯TerminalControlã®ã‚­ãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆã‚’çµŒç”±ã—ãªã„ã®ã§
                 _context.UpdateCommandList(_context.Owner.WholeCommand);
             }
-            else if (0x20 <= (int)ch && (int)ch <= 0x7E) { //printable‚È‚â‚ÂŒÀ’è
+            else if (0x20 <= (int)ch && (int)ch <= 0x7E) { //printableãªã‚„ã¤é™å®š
                 string current = _context.AppendChar(ch);
                 int i = FindCandidateIndex(current);
                 if (_context.CurrentScheme.IsDelimiter(ch) && i == -1)
@@ -124,7 +124,7 @@ namespace Poderosa.Terminal {
             string text = _listBox.Items[_listBox.SelectedIndex].ToString();
             Debug.WriteLineIf(DebugOpt.IntelliSense, "Complement " + text);
             string sendback = FormatSendBackText(text, '\0');
-            if (sendback.Length == 0) //Šù‚ÉŠù‘¶Œó•â‚ğè“ü—Í‚µ‚Ä‚½‚Æ‚«‚ÍAŠm”F—pEnter‚Í•s—vB‘¦ƒRƒ}ƒ“ƒhŠm’è‚Å‚æ‚¢B
+            if (sendback.Length == 0) //æ—¢ã«æ—¢å­˜å€™è£œã‚’æ‰‹å…¥åŠ›ã—ã¦ãŸã¨ãã¯ã€ç¢ºèªç”¨Enterã¯ä¸è¦ã€‚å³ã‚³ãƒãƒ³ãƒ‰ç¢ºå®šã§ã‚ˆã„ã€‚
                 SendBack('\n');
             else
                 SendBack(sendback);
@@ -136,7 +136,7 @@ namespace Poderosa.Terminal {
             string h = FindPartialComplementCandidate(_listBox.Items[_listBox.SelectedIndex].ToString(), out is_partial);
             _context.Complement(h);
 
-            //Œó•â‚Ìˆê•”‚¾‚¯‚ğ‘I‘ğ‚µ‚½ó‘Ô‚ÅA©“®ƒfƒŠƒ~ƒ^‚Å‚ ‚ê‚ÎƒfƒtƒHƒ‹ƒgƒfƒŠƒ~ƒ^•¶š‚ğ’Ç‰Á
+            //å€™è£œã®ä¸€éƒ¨ã ã‘ã‚’é¸æŠã—ãŸçŠ¶æ…‹ã§ã€è‡ªå‹•ãƒ‡ãƒªãƒŸã‚¿ã§ã‚ã‚Œã°ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ‡ãƒªãƒŸã‚¿æ–‡å­—ã‚’è¿½åŠ 
             if (is_partial && appending == '\0')
                 appending = _context.CurrentScheme.DefaultDelimiter;
             string sendback = FormatSendBackText(h, appending);
@@ -148,12 +148,12 @@ namespace Poderosa.Terminal {
             else {
                 Point pt = _context.CommandStartPoint;
                 pt.X += h.Length + 1;
-                if (pt.X < _context.Owner.Terminal.GetDocument().TerminalWidth) { //ˆÚ“®Œã‚àˆÊ’uOK‚È‚ç
+                if (pt.X < _context.Owner.Terminal.GetDocument().TerminalWidth) { //ç§»å‹•å¾Œã‚‚ä½ç½®OKãªã‚‰
                     _context.CommandStartPoint = pt;
                     PopupAgain();
                 }
                 else
-                    Cancel(); //‚Å‚È‚¯‚ê‚Î‚ ‚«‚ç‚ß‚é
+                    Cancel(); //ã§ãªã‘ã‚Œã°ã‚ãã‚‰ã‚ã‚‹
             }
         }
         public void DoSpecialKey(Keys modifier, Keys key) {
@@ -165,7 +165,7 @@ namespace Poderosa.Terminal {
                 PopupAgain();
                 _listBox.SelectedIndexEx = t == null ? -1 : _listBox.FindStringExact(t);
             }
-            else if (key == Keys.Delete) { //€–Úíœ
+            else if (key == Keys.Delete) { //é …ç›®å‰Šé™¤
                 if (_listBox.SelectedIndex == -1)
                     return;
 
@@ -177,7 +177,7 @@ namespace Poderosa.Terminal {
                 _listBox.Items.RemoveAt(_listBox.SelectedIndex);
             }
         }
-        //‚±‚±‚Ü‚Å
+        //ã“ã“ã¾ã§
 
         private void Exit() {
             Debug.WriteLineIf(DebugOpt.IntelliSense, "Exit");
@@ -204,7 +204,7 @@ namespace Poderosa.Terminal {
             int i = 0;
             foreach (object t in _listBox.Items) {
                 string x = t.ToString();
-                //‘O•ûˆê’v‚Å
+                //å‰æ–¹ä¸€è‡´ã§
                 if (x.StartsWith(input))
                     return i;
                 i++;
@@ -214,7 +214,7 @@ namespace Poderosa.Terminal {
 
         private string FormatSendBackText(string value, char delim) {
             StringBuilder bld = new StringBuilder();
-            //ˆê’v‚µ‚Ä‚¢‚é‚Æ‚±‚ë‚Ü‚ÅŒŸõ‚µA•K—v‚É‰‚¶‚ÄƒoƒbƒNƒXƒy[ƒX‚ğ“ü‚ê‚é
+            //ä¸€è‡´ã—ã¦ã„ã‚‹ã¨ã“ã‚ã¾ã§æ¤œç´¢ã—ã€å¿…è¦ã«å¿œã˜ã¦ãƒãƒƒã‚¯ã‚¹ãƒšãƒ¼ã‚¹ã‚’å…¥ã‚Œã‚‹
             int corresponding_len = 0;
             int caret_column = _context.Owner.Terminal.GetDocument().CaretColumn;
             string current_text = _context.Owner.PromptLine.ToNormalString();
@@ -222,7 +222,7 @@ namespace Poderosa.Terminal {
                 current_text += " ";
             }
 
-            //‘—M‚ÆóM‚Ì‚Í‚´‚Ü‚É‚¢‚é“z‚ğƒPƒA
+            //é€ä¿¡ã¨å—ä¿¡ã®ã¯ã–ã¾ã«ã„ã‚‹å¥´ã‚’ã‚±ã‚¢
             CheckCharQueue(ref current_text, ref caret_column);
 
             for (int x = _context.CommandStartPoint.X; x < caret_column; x++) {
@@ -236,7 +236,7 @@ namespace Poderosa.Terminal {
             if (backspace_count > 0)
                 bld.Append(_context.CurrentScheme.BackSpaceChar, backspace_count);
 
-            //ˆê’v•”•ª‚ğœ‚¢‚½–{‘Ì
+            //ä¸€è‡´éƒ¨åˆ†ã‚’é™¤ã„ãŸæœ¬ä½“
             if (value.Length > corresponding_len)
                 bld.Append(value, corresponding_len, value.Length - corresponding_len);
 
@@ -263,7 +263,7 @@ namespace Poderosa.Terminal {
                             }
                         }
                     }
-                    else if ((char)0x21 <= ch && ch <= (char)0x7E) { //TODO •ÊŠÖ”BIsPrintable‚Æ‚©
+                    else if ((char)0x21 <= ch && ch <= (char)0x7E) { //TODO åˆ¥é–¢æ•°ã€‚IsPrintableã¨ã‹
                         if (caret <= edit.Length) {
                             edit.Insert(caret, ch);
                             caret++;
@@ -276,7 +276,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //ƒ^[ƒ~ƒiƒ‹‘¤‚Ö‚Ì‘—M
+        //ã‚¿ãƒ¼ãƒŸãƒŠãƒ«å´ã¸ã®é€ä¿¡
         private void SendBack(char ch) {
             _context.OwnerControl.SendChar(ch);
         }
@@ -285,10 +285,10 @@ namespace Poderosa.Terminal {
         }
         private Point ToControlPoint(Point textPoint) {
             SizeF pitch = _context.RenderProfile.Pitch;
-            int x = (int)(textPoint.X * pitch.Width) - 2; //YÀ•W‚ÍŒ»İs‚Ìã‘¤‚Éo‚·ƒP[ƒX‚à‚ ‚é‚ªAContextMenu.Show()‚Å“K“–‚É‰½‚Æ‚©‚µ‚Ä‚­‚ê‚é
+            int x = (int)(textPoint.X * pitch.Width) - 2; //Yåº§æ¨™ã¯ç¾åœ¨è¡Œã®ä¸Šå´ã«å‡ºã™ã‚±ãƒ¼ã‚¹ã‚‚ã‚ã‚‹ãŒã€ContextMenu.Show()ã§é©å½“ã«ä½•ã¨ã‹ã—ã¦ãã‚Œã‚‹
             int y = (int)((textPoint.Y + 1) * pitch.Height) + 1;
             Point pt = new Point(x, y);
-            //‰º‚É‚Í‚İo‚½‚ç
+            //ä¸‹ã«ã¯ã¿å‡ºãŸã‚‰
             if (_context.OwnerControl.PointToScreen(pt).Y + this.Height > Screen.PrimaryScreen.Bounds.Height) {
                 pt.Y = pt.Y - (int)pitch.Height - this.Height;
             }
@@ -296,7 +296,7 @@ namespace Poderosa.Terminal {
         }
     }
 
-    //ƒCƒ“ƒeƒŠƒZƒ“ƒX—pƒŠƒXƒgƒ{ƒbƒNƒX
+    //ã‚¤ãƒ³ãƒ†ãƒªã‚»ãƒ³ã‚¹ç”¨ãƒªã‚¹ãƒˆãƒœãƒƒã‚¯ã‚¹
     internal class IntelliSenseBox : ListBox {
 
         private IntelliSenseWindow _parent;
@@ -309,7 +309,7 @@ namespace Poderosa.Terminal {
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
             Keys key = keyData & Keys.KeyCode;
-            if ((keyData & Keys.Modifiers) == Keys.Control) { //Ctrl‚Í“à•”ˆ—Be‚Ö‚Í“n‚³‚È‚¢
+            if ((keyData & Keys.Modifiers) == Keys.Control) { //Ctrlã¯å†…éƒ¨å‡¦ç†ã€‚è¦ªã¸ã¯æ¸¡ã•ãªã„
                 _parent.DoSpecialKey(Keys.Control, key);
                 return true;
             }
@@ -319,13 +319,13 @@ namespace Poderosa.Terminal {
                     _parent.ManualCancel();
                     return base.ProcessCmdKey(ref msg, keyData);
                 case Keys.Tab:
-                    if (this.SelectedIndex == -1) //Tab, Enter‚Í€–Ú‚ª‘I‘ğ‚³‚ê‚Ä‚¢‚È‚¯‚ê‚Î•’Ê‚É‘—M
+                    if (this.SelectedIndex == -1) //Tab, Enterã¯é …ç›®ãŒé¸æŠã•ã‚Œã¦ã„ãªã‘ã‚Œã°æ™®é€šã«é€ä¿¡
                         _parent.DoChar('\t');
                     else
                         _parent.PartialComplement('\0');
                     return true;
                 case Keys.Enter:
-                    if (this.SelectedIndex == -1) { //ˆê’v‚·‚é‚à‚Ì‚ª‚È‚¢ó‘Ô‚Å‚ÌEnter‚Í‚»‚ê‚ğ‘—M‚µ‚ÄƒLƒƒƒ“ƒZƒ‹
+                    if (this.SelectedIndex == -1) { //ä¸€è‡´ã™ã‚‹ã‚‚ã®ãŒãªã„çŠ¶æ…‹ã§ã®Enterã¯ãã‚Œã‚’é€ä¿¡ã—ã¦ã‚­ãƒ£ãƒ³ã‚»ãƒ«
                         _parent.DoChar('\n');
                         _parent.Cancel();
                     }
@@ -335,19 +335,19 @@ namespace Poderosa.Terminal {
                 case Keys.Left:
                 case Keys.Right:
                 case Keys.Delete:
-                    _parent.DoSpecialKey(Keys.None, key); //¶‰E‚Í“n‚·•K—v‚È‚µ
+                    _parent.DoSpecialKey(Keys.None, key); //å·¦å³ã¯æ¸¡ã™å¿…è¦ãªã—
                     return true;
                 case Keys.Up:
                 case Keys.Down:
                 case Keys.PageUp:
                 case Keys.PageDown:
-                    return base.ProcessCmdKey(ref msg, keyData); //ƒŠƒXƒgƒ{ƒbƒNƒX‚Éˆ—‚³‚¹‚é
+                    return base.ProcessCmdKey(ref msg, keyData); //ãƒªã‚¹ãƒˆãƒœãƒƒã‚¯ã‚¹ã«å‡¦ç†ã•ã›ã‚‹
                 default:
                     return base.ProcessCmdKey(ref msg, keyData);
             }
         }
 
-        //ƒXƒy[ƒXƒL[“™‚ÅŸè‚ÉSelectedIndex‚ª•Ï‚í‚é‚Ì‚ğ–h‚®
+        //ã‚¹ãƒšãƒ¼ã‚¹ã‚­ãƒ¼ç­‰ã§å‹æ‰‹ã«SelectedIndexãŒå¤‰ã‚ã‚‹ã®ã‚’é˜²ã
         public int SelectedIndexEx {
             get {
                 return _selectedIndexEx;

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,7 @@ using Poderosa.Serializing;
 using Poderosa.Util;
 
 namespace Poderosa.Terminal {
-    //NOTE ƒƒOİ’è‚ÍƒVƒŠƒAƒ‰ƒCƒY‚µ‚È‚¢BŠù‘¶ƒtƒ@ƒCƒ‹‚Ìã‘‚«‚ÌŠëŒ¯‚È‚Ç‚ ‚èA‚ë‚­‚È‚±‚Æ‚ª‚È‚¢‚¾‚ë‚¤
+    //NOTE ãƒ­ã‚°è¨­å®šã¯ã‚·ãƒªã‚¢ãƒ©ã‚¤ã‚ºã—ãªã„ã€‚æ—¢å­˜ãƒ•ã‚¡ã‚¤ãƒ«ã®ä¸Šæ›¸ãã®å±é™ºãªã©ã‚ã‚Šã€ã‚ããªã“ã¨ãŒãªã„ã ã‚ã†
 
     internal class TerminalSettingsSerializer : ISerializeServiceElement {
         private ISerializeService _serializeService;
@@ -61,11 +61,11 @@ namespace Poderosa.Terminal {
                 storage.Set("shellscheme", ts.ShellScheme.Name);
             storage.Set("caption", ts.Caption);
 #if !UNITTEST
-            //Œ»İƒeƒXƒg‚Å‚ÍRenderProfile‚Í‘ÎÛŠO
+            //ç¾åœ¨ãƒ†ã‚¹ãƒˆã§ã¯RenderProfileã¯å¯¾è±¡å¤–
             if (!ts.UsingDefaultRenderProfile)
                 storage.AddChild(_serializeService.Serialize(ts.RenderProfile));
 #endif
-            //ƒAƒCƒRƒ“‚ÍƒVƒŠƒAƒ‰ƒCƒY‚µ‚È‚¢
+            //ã‚¢ã‚¤ã‚³ãƒ³ã¯ã‚·ãƒªã‚¢ãƒ©ã‚¤ã‚ºã—ãªã„
             return storage;
         }
 
@@ -84,7 +84,7 @@ namespace Poderosa.Terminal {
                 ts.SetShellSchemeName(shellscheme);
             ts.Caption = node.Get("caption", "");
 #if !UNITTEST
-            //Œ»İƒeƒXƒg‚Å‚ÍRenderProfile‚Í‘ÎÛŠO
+            //ç¾åœ¨ãƒ†ã‚¹ãƒˆã§ã¯RenderProfileã¯å¯¾è±¡å¤–
             StructuredText rp = node.FindChild(typeof(RenderProfile).FullName);
             if (rp != null)
                 ts.RenderProfile = _serializeService.Deserialize(rp) as RenderProfile;
@@ -159,7 +159,7 @@ namespace Poderosa.Terminal {
             ts1.EndUpdate();
 
             StructuredText storage = _terminalSettingsSerializer.Serialize(ts1);
-            //Šm”F
+            //ç¢ºèª
             StringWriter wr = new StringWriter();
             new TextStructuredTextWriter(wr).Write(storage);
             wr.Close();

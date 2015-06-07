@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  Copyright (c) 2005 Poderosa Project, All Rights Reserved.
  This file is a part of the Granados SSH Client Library that is subject to
  the license included in the distributed package.
@@ -273,7 +273,7 @@ namespace Granados.SSH2 {
 
         //returns true if a new packet is obtained to _packet
         private bool ConstructPacket() {
-            if (_cipher == null) { //ˆÃ†‚ªŠm—§‚·‚é‘O
+            if (_cipher == null) { //æš—å·ãŒç¢ºç«‹ã™ã‚‹å‰
                 if (_buffer.Length < PACKET_LENGTH_FIELD_LEN)
                     return false;
                 int len = SSHUtil.ReadInt32(_buffer.Data, _buffer.Offset);

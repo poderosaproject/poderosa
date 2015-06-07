@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,7 +45,7 @@ namespace Poderosa.Terminal {
                     throw new ArgumentException("Unknown NewLine " + nl);
             }
         }
-        //TODO static‚É‚µ‚½‚Ù‚¤‚ª‚¢‚¢H ‚¤‚Á‚©‚è”j‰ó‚ª•|‚¢‚ª
+        //TODO staticã«ã—ãŸã»ã†ãŒã„ã„ï¼Ÿ ã†ã£ã‹ã‚Šç ´å£ŠãŒæ€–ã„ãŒ
         public static byte[] NewLineBytes(NewLine nl) {
             switch (nl) {
                 case NewLine.CR:
@@ -72,7 +72,7 @@ namespace Poderosa.Terminal {
         }
 
 
-        //—LŒø‚Èƒ{[ƒŒ[ƒg‚ÌƒŠƒXƒg
+        //æœ‰åŠ¹ãªãƒœãƒ¼ãƒ¬ãƒ¼ãƒˆã®ãƒªã‚¹ãƒˆ
         public static string[] BaudRates {
             get {
                 return new string[] {
@@ -82,7 +82,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //”é–§Œ®ƒtƒ@ƒCƒ‹‘I‘ğ
+        //ç§˜å¯†éµãƒ•ã‚¡ã‚¤ãƒ«é¸æŠ
         public static string SelectPrivateKeyFileByDialog(Form parent) {
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.CheckFileExists = true;
@@ -99,7 +99,7 @@ namespace Poderosa.Terminal {
     }
 
 
-    //‚±‚ê‚Æ“¯“™‚Ìˆ—‚ÍToAscii API‚ğg‚Á‚Ä‚à‚Å‚«‚é‚ªA‚¿‚å‚Á‚Æ‚â‚è‚Ã‚ç‚¢‚Ì‚Å‹tˆø‚«ƒ}ƒbƒv‚ğstatic‚É‚Á‚Ä‚¨‚­
+    //ã“ã‚Œã¨åŒç­‰ã®å‡¦ç†ã¯ToAscii APIã‚’ä½¿ã£ã¦ã‚‚ã§ãã‚‹ãŒã€ã¡ã‚‡ã£ã¨ã‚„ã‚Šã¥ã‚‰ã„ã®ã§é€†å¼•ããƒãƒƒãƒ—ã‚’staticã«æŒã£ã¦ãŠã
     internal class KeyboardInfo {
         public static char[] _defaultGroup;
         public static char[] _shiftGroup;
@@ -122,7 +122,7 @@ namespace Poderosa.Terminal {
             if (_defaultGroup == null)
                 Init();
 
-            //§Œä•¶š‚Ì‚¤‚¿’P•i‚ÌƒL[‚Å‘—M‚Å‚«‚é‚à‚Ì
+            //åˆ¶å¾¡æ–‡å­—ã®ã†ã¡å˜å“ã®ã‚­ãƒ¼ã§é€ä¿¡ã§ãã‚‹ã‚‚ã®
             if (body == Keys.Escape)
                 return (char)0x1B;
             else if (body == Keys.Tab)

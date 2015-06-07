@@ -1,4 +1,4 @@
-#if TESTSESSION && MONOLITHIC
+﻿#if TESTSESSION && MONOLITHIC
 using System;
 using System.Collections.Generic;
 using System.Text;

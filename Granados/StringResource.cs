@@ -1,4 +1,4 @@
-/* ---------------------------------------------------------------------------
+ï»¿/* ---------------------------------------------------------------------------
  *
  * Copyright (c) Poderosa Project.    All Rights Reserved..
  * 
@@ -17,7 +17,7 @@ using System.Reflection;
 namespace Granados.Util {
 
     /// <summary>
-    /// StringResource ‚ÌŠT—v‚Ìà–¾‚Å‚·B
+    /// StringResource ã®æ¦‚è¦ã®èª¬æ˜ã§ã™ã€‚
     /// </summary>
     internal class StringResources {
         private string _resourceName;
@@ -29,11 +29,11 @@ namespace Granados.Util {
         }
 
         public string GetString(string id) {
-            return _resMan.GetString(id); //‚à‚µ‚±‚ê‚ª’x‚¢‚æ‚¤‚È‚ç‚±‚ÌƒNƒ‰ƒX‚ÅƒLƒƒƒbƒVƒ…‚Å‚à‚Â‚­‚ê‚Î‚¢‚¢‚¾‚ë‚¤
+            return _resMan.GetString(id); //ã‚‚ã—ã“ã‚ŒãŒé…ã„ã‚ˆã†ãªã‚‰ã“ã®ã‚¯ãƒ©ã‚¹ã§ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã§ã‚‚ã¤ãã‚Œã°ã„ã„ã ã‚ã†
         }
 
         private void LoadResourceManager(string name, Assembly asm) {
-            //“––Ê‚Í‰pŒêE“ú–{Œê‚µ‚©‚µ‚È‚¢
+            //å½“é¢ã¯è‹±èªãƒ»æ—¥æœ¬èªã—ã‹ã—ãªã„
             CultureInfo ci = System.Threading.Thread.CurrentThread.CurrentUICulture;
             if (ci.Name.StartsWith("ja"))
                 _resMan = new ResourceManager(name + "_ja", asm);

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,7 +62,7 @@ namespace Poderosa.Boot {
             return _items.GetEnumerator();
         }
 #if UNITTEST
-        //Šú‘Ò’Ê‚è‚ÌƒGƒ‰[ƒƒbƒZ[ƒW‚ªo‚Ä‚¢‚é‚±‚Æ‚ğŠm”F‚·‚é‚½‚ß‚É•K—v
+        //æœŸå¾…é€šã‚Šã®ã‚¨ãƒ©ãƒ¼ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãŒå‡ºã¦ã„ã‚‹ã“ã¨ã‚’ç¢ºèªã™ã‚‹ãŸã‚ã«å¿…è¦
         public string GetDataAt(int index) {
             return CollectionUtil.GetItemFromLinkedList(_items, index).Data;
         }

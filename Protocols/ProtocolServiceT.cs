@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,8 +23,8 @@ using Poderosa.Plugins;
 using NUnit.Framework;
 
 namespace Poderosa.Protocols {
-    //å‚ÉÚ‘±‚ÌŠm—§(IProtocolService“à)‚É‚Â‚¢‚Ä‚ÌƒeƒXƒgB
-    //TCPÚ‘±‚ğ‚Â‚­‚é‚Æ‚±‚ë‚Ü‚Å‚É‚Â‚¢‚Ä‚ÍInterruptableconnector.cs“à‚ÉƒeƒXƒgƒP[ƒX‚ª‚ ‚é
+    //ä¸»ã«æ¥ç¶šã®ç¢ºç«‹(IProtocolServiceå†…)ã«ã¤ã„ã¦ã®ãƒ†ã‚¹ãƒˆã€‚
+    //TCPæ¥ç¶šã‚’ã¤ãã‚‹ã¨ã“ã‚ã¾ã§ã«ã¤ã„ã¦ã¯Interruptableconnector.cså†…ã«ãƒ†ã‚¹ãƒˆã‚±ãƒ¼ã‚¹ãŒã‚ã‚‹
 
     [PluginInfo(ID = "org.poderosa.core.protocols.test", Dependencies = "org.poderosa.protocols")]
     internal class ProtocolServiceTestPlugin : PluginBase, IConnectionResultEventHandler, ISSHHostKeyVerifier {
@@ -119,9 +119,9 @@ namespace Poderosa.Protocols {
                 _event.Set();
             }
 
-            //¬Œ÷‚µ‚Ä‚¢‚é‚±‚Æ‚ğŠm”F‚µAClose‚·‚é
+            //æˆåŠŸã—ã¦ã„ã‚‹ã“ã¨ã‚’ç¢ºèªã—ã€Closeã™ã‚‹
             public void AssertSuccess() {
-                Assert.IsTrue(_event.WaitOne(5000, false)); //’Ê’m‚Íó‚¯‚È‚¢‚Æ‚¾‚ß
+                Assert.IsTrue(_event.WaitOne(5000, false)); //é€šçŸ¥ã¯å—ã‘ãªã„ã¨ã ã‚
                 _event.Close();
                 Assert.AreEqual(1, _successCount);
                 Assert.AreEqual(0, _failCount);
@@ -129,9 +129,9 @@ namespace Poderosa.Protocols {
 
                 _connection.Close();
             }
-            //¸”s‚µ‚Ä‚¢‚é‚±‚Æ‚ÌŠm”F
+            //å¤±æ•—ã—ã¦ã„ã‚‹ã“ã¨ã®ç¢ºèª
             public void AssertFail() {
-                Assert.IsTrue(_event.WaitOne(5000, false)); //’Ê’m‚Íó‚¯‚È‚¢‚Æ‚¾‚ß
+                Assert.IsTrue(_event.WaitOne(5000, false)); //é€šçŸ¥ã¯å—ã‘ãªã„ã¨ã ã‚
                 _event.Close();
                 Assert.AreEqual(0, _successCount);
                 Assert.AreEqual(1, _failCount);
@@ -249,7 +249,7 @@ namespace Poderosa.Protocols {
             ProtocolServiceTestPlugin.Instance.AcceptsHostKey = true;
         }
 
-        //TODO Cygwin‚ÆƒVƒŠƒAƒ‹‚ÌƒeƒXƒg
+        //TODO Cygwinã¨ã‚·ãƒªã‚¢ãƒ«ã®ãƒ†ã‚¹ãƒˆ
 
         [Test]
         public void T06_FormBaseSuccess() {
@@ -292,7 +292,7 @@ namespace Poderosa.Protocols {
         }
 
         /*
-         * SSH‚Å‚Í‚È‚¢ƒ|[ƒg‚ÉÚ‘±‚µ‚ÄƒAƒEƒg‚É‚È‚éÀŒ±‚ğ‚µ‚½‚¢‚ªA“KØ‚È‚Ì‚ª‚İ‚Â‚©‚ç‚È‚¢
+         * SSHã§ã¯ãªã„ãƒãƒ¼ãƒˆã«æ¥ç¶šã—ã¦ã‚¢ã‚¦ãƒˆã«ãªã‚‹å®Ÿé¨“ã‚’ã—ãŸã„ãŒã€é©åˆ‡ãªã®ãŒã¿ã¤ã‹ã‚‰ãªã„
         [Test]
         public void T03_SSHBadPort() {
             ProtocolServiceTestPlugin.Instance.Reset();
@@ -302,7 +302,7 @@ namespace Poderosa.Protocols {
             ssh.Account = UnitTestUtil.GetUnitTestConfig("protocols.ssh_account");
             ssh.PasswordOrPassphrase = UnitTestUtil.GetUnitTestConfig("protocols.ssh_wrongpassword");
             ITCPParameter tcp = (ITCPParameter)ssh.GetAdapter(typeof(ITCPParameter));
-            tcp.Destination = "www.google.com"; //Google‚Ìƒ|[ƒg80‚ÉSSHÚ‘±‚ğ‚İ‚éB“–‘R¸”s‚·‚×‚«‚¾‚ª
+            tcp.Destination = "www.google.com"; //Googleã®ãƒãƒ¼ãƒˆ80ã«SSHæ¥ç¶šã‚’è©¦ã¿ã‚‹ã€‚å½“ç„¶å¤±æ•—ã™ã¹ãã ãŒ
             tcp.Port = 80;
 
             ResultCallback client = new ResultCallback();

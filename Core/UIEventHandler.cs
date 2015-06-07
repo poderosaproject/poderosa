@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,18 +12,18 @@ using System.Text;
 using System.Diagnostics;
 using System.Windows.Forms;
 
-//ƒ}ƒEƒX‚ÌƒCƒxƒ“ƒg—Dæ“x‚ÌŠÇ—‹@”\
-//@.NET‚ÌOnMouseMove‚ğƒRƒ“ƒgƒ[ƒ‹‚ÌŒp³ŠÖŒW‚Åó‚¯‚Ä‚à\‘¢“I‚ÉƒLƒrƒVƒC‚Ì‚Å
+//ãƒã‚¦ã‚¹ã®ã‚¤ãƒ™ãƒ³ãƒˆå„ªå…ˆåº¦ã®ç®¡ç†æ©Ÿèƒ½
+//ã€€.NETã®OnMouseMoveã‚’ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã®ç¶™æ‰¿é–¢ä¿‚ã§å—ã‘ã¦ã‚‚æ§‹é€ çš„ã«ã‚­ãƒ“ã‚·ã‚¤ã®ã§
 namespace Poderosa.View {
     /// <summary>
     /// 
     /// </summary>
     /// <exclude/>
     public enum UIHandleResult {
-        Pass,         //Ÿ‚Ì—Dæ“x‚Ìƒnƒ“ƒhƒ‰‚É“n‚·
-        Stop,         //ˆ—‚ğI—¹‚·‚é
-        Capture,      //©•ª‚ª—DæŒ ‚ğŠl“¾‚·‚é
-        EndCapture    //—DæŒ ‚ğ•úŠü‚·‚é
+        Pass,         //æ¬¡ã®å„ªå…ˆåº¦ã®ãƒãƒ³ãƒ‰ãƒ©ã«æ¸¡ã™
+        Stop,         //å‡¦ç†ã‚’çµ‚äº†ã™ã‚‹
+        Capture,      //è‡ªåˆ†ãŒå„ªå…ˆæ¨©ã‚’ç²å¾—ã™ã‚‹
+        EndCapture    //å„ªå…ˆæ¨©ã‚’æ”¾æ£„ã™ã‚‹
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ namespace Poderosa.View {
         UIHandleResult OnMouseWheel(MouseEventArgs args);
     }
 
-    //ProcessCmdKey/ProcessDialogKey‚Ìü•Ó‚ÉŠÖ‚µ‚Ä‚Ìˆ—‚ğs‚¤
+    //ProcessCmdKey/ProcessDialogKeyã®å‘¨è¾ºã«é–¢ã—ã¦ã®å‡¦ç†ã‚’è¡Œã†
     /// <summary>
     /// 
     /// </summary>
@@ -56,7 +56,7 @@ namespace Poderosa.View {
         UIHandleResult OnKeyProcess(Keys key);
     }
 
-    //‹óÀ‘•
+    //ç©ºå®Ÿè£…
     /// <summary>
     /// 
     /// </summary>
@@ -105,8 +105,8 @@ namespace Poderosa.View {
         /// <exclude/>
         public delegate UIHandleResult HandlerDelegate(HANDLER handler, ARG args);
 
-        private List<HANDLER> _handlers; //æ“ª‚ªÅ‚—Dæ“x
-        private HANDLER _capturingHandler; //ƒCƒxƒ“ƒg‚ğƒLƒƒƒvƒ`ƒƒ‚µ‚Ä‚¢‚éƒnƒ“ƒhƒ‰B‘¶İ‚µ‚È‚¢‚Æ‚«‚Ínull
+        private List<HANDLER> _handlers; //å…ˆé ­ãŒæœ€é«˜å„ªå…ˆåº¦
+        private HANDLER _capturingHandler; //ã‚¤ãƒ™ãƒ³ãƒˆã‚’ã‚­ãƒ£ãƒ—ãƒãƒ£ã—ã¦ã„ã‚‹ãƒãƒ³ãƒ‰ãƒ©ã€‚å­˜åœ¨ã—ãªã„ã¨ãã¯null
 
         public UIHandlerManager() {
             _handlers = new List<HANDLER>();
@@ -117,7 +117,7 @@ namespace Poderosa.View {
         public void AddFirstHandler(HANDLER handler) {
             _handlers.Insert(0, handler);
         }
-        //ŠO•”‚Ì—v¿‚ÅƒLƒƒƒvƒ`ƒƒ‚ğ‰ğœ‚µ‚½‚¢‚±‚Æ‚à‚ ‚éB
+        //å¤–éƒ¨ã®è¦è«‹ã§ã‚­ãƒ£ãƒ—ãƒãƒ£ã‚’è§£é™¤ã—ãŸã„ã“ã¨ã‚‚ã‚ã‚‹ã€‚
         public void EndCapture() {
             _capturingHandler = null;
         }
@@ -127,10 +127,10 @@ namespace Poderosa.View {
             }
         }
 
-        //WinForms‚ÌƒCƒxƒ“ƒgƒnƒ“ƒhƒ‰‚Æ‚ÌŠÖ˜A•t‚¯ OnXXX‚ğ‚¢‚¿‚¢‚¿override‚µ‚½‚­‚È‚¢‚Ì‚ÅƒCƒxƒ“ƒgƒnƒ“ƒhƒ‰‚Ås‚¤
+        //WinFormsã®ã‚¤ãƒ™ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ©ã¨ã®é–¢é€£ä»˜ã‘ OnXXXã‚’ã„ã¡ã„ã¡overrideã—ãŸããªã„ã®ã§ã‚¤ãƒ™ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ©ã§è¡Œã†
         public abstract void AttachControl(Control c);
 
-        //ƒ_ƒ“ƒv
+        //ãƒ€ãƒ³ãƒ—
         public string DumpHandlerList() {
             StringBuilder bld = new StringBuilder();
             foreach (IUIHandler h in _handlers) {
@@ -141,17 +141,17 @@ namespace Poderosa.View {
             return bld.ToString();
         }
 
-        //“®ì‚Ì–{‘Ì
+        //å‹•ä½œã®æœ¬ä½“
         protected UIHandleResult Process(HandlerDelegate action, ARG args) {
             try {
                 if (_capturingHandler != null) {
                     UIHandleResult r = action(_capturingHandler, args);
                     if (r == UIHandleResult.EndCapture)
-                        _capturingHandler = null; //ƒLƒƒƒvƒ`ƒƒ‚ÌI—¹
+                        _capturingHandler = null; //ã‚­ãƒ£ãƒ—ãƒãƒ£ã®çµ‚äº†
                     return r;
                 }
                 else {
-                    //˜—ñ‚Ì‡‚É‚Ü‚í‚µ‚Ä‚¢‚­
+                    //åºåˆ—ã®é †ã«ã¾ã‚ã—ã¦ã„ã
                     foreach (HANDLER h in _handlers) {
                         UIHandleResult r = action(h, args);
                         Debug.Assert(r != UIHandleResult.EndCapture);
@@ -174,14 +174,14 @@ namespace Poderosa.View {
         }
     }
 
-    //ƒnƒ“ƒhƒ‰‚Ìƒ}ƒl[ƒWƒƒ
+    //ãƒãƒ³ãƒ‰ãƒ©ã®ãƒãƒãƒ¼ã‚¸ãƒ£
     /// <summary>
     /// 
     /// </summary>
     /// <exclude/>
     public class MouseHandlerManager : UIHandlerManager<IMouseHandler, MouseEventArgs> {
 
-        //“à•”g—p‚ÌƒfƒŠƒQ[ƒg
+        //å†…éƒ¨ä½¿ç”¨ã®ãƒ‡ãƒªã‚²ãƒ¼ãƒˆ
         private static HandlerDelegate _mouseDownDelegate =
             delegate(IMouseHandler handler, MouseEventArgs args) {
                 return handler.OnMouseDown(args);
@@ -206,7 +206,7 @@ namespace Poderosa.View {
             c.MouseWheel += new MouseEventHandler(RootMouseWheel);
         }
 
-        //WinForms‚ÌƒCƒxƒ“ƒgƒnƒ“ƒhƒ‰
+        //WinFormsã®ã‚¤ãƒ™ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ©
         private void RootMouseDown(object sender, MouseEventArgs args) {
             Process(_mouseDownDelegate, args);
         }
@@ -234,10 +234,10 @@ namespace Poderosa.View {
             };
 
         public override void AttachControl(Control c) {
-            //ProcessDialogKey‚ªƒCƒxƒ“ƒg‚Åæ‚ê‚é‚Æ‚¢‚¢‚ñ‚¾‚ªA‚»‚ê‚Í‚Å‚«‚È‚¢‚Ì‚Å‹óÀ‘•
+            //ProcessDialogKeyãŒã‚¤ãƒ™ãƒ³ãƒˆã§å–ã‚Œã‚‹ã¨ã„ã„ã‚“ã ãŒã€ãã‚Œã¯ã§ããªã„ã®ã§ç©ºå®Ÿè£…
         }
 
-        //‚±‚ê‚ğŠO‚©‚çŒÄ‚Ño‚·
+        //ã“ã‚Œã‚’å¤–ã‹ã‚‰å‘¼ã³å‡ºã™
         public UIHandleResult Process(Keys key) {
             return base.Process(_keyDelegate, key);
         }

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@ using Poderosa.Plugins;
 namespace Poderosa {
     /// <summary>
     /// <ja>
-    /// ƒJƒ‹ƒ`ƒƒî•ñ‚ğ¦‚·ƒIƒuƒWƒFƒNƒg‚Å‚·B
+    /// ã‚«ãƒ«ãƒãƒ£æƒ…å ±ã‚’ç¤ºã™ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Object that shows culture information.
@@ -26,7 +26,7 @@ namespace Poderosa {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚±‚ÌƒNƒ‰ƒX‚Ì‰ğà‚ÍA‚Ü‚¾‚ ‚è‚Ü‚¹‚ñB
+    /// ã“ã®ã‚¯ãƒ©ã‚¹ã®è§£èª¬ã¯ã€ã¾ã ã‚ã‚Šã¾ã›ã‚“ã€‚
     /// </ja>
     /// <en>
     /// This class has not explained yet. 
@@ -63,11 +63,11 @@ namespace Poderosa {
         }
 
         public string GetString(string id) {
-            return _resourceManager.GetString(id); //‚à‚µ‚±‚ê‚ª’x‚¢‚æ‚¤‚È‚ç‚±‚ÌƒNƒ‰ƒX‚ÅƒLƒƒƒbƒVƒ…‚Å‚à‚Â‚­‚ê‚Î‚¢‚¢‚¾‚ë‚¤
+            return _resourceManager.GetString(id); //ã‚‚ã—ã“ã‚ŒãŒé…ã„ã‚ˆã†ãªã‚‰ã“ã®ã‚¯ãƒ©ã‚¹ã§ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã§ã‚‚ã¤ãã‚Œã°ã„ã„ã ã‚ã†
         }
 
         public void OnCultureChanged(CultureInfo newculture) {
-            //“––Ê‚Í‰pŒêE“ú–{Œê‚µ‚©‚µ‚È‚¢
+            //å½“é¢ã¯è‹±èªãƒ»æ—¥æœ¬èªã—ã‹ã—ãªã„
             if (newculture.Name.StartsWith("ja"))
                 _resourceManager = new ResourceManager(_resourceName + "_ja", _assembly);
             else

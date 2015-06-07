@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,38 +22,38 @@ using Poderosa.Protocols;
 using Poderosa.MacroInternal;
 using Granados;
 #endif
-//‚±‚Ìƒtƒ@ƒCƒ‹‚ÌƒNƒ‰ƒX‚ÍA‹Œƒo[ƒWƒ‡ƒ“‚©‚ç‚Ìƒ}ƒNƒ‚Æ‚ÌŒİŠ·«‚Ì‚½‚ß‚É‚±‚¤‚¢‚¤namespace‚É‚È‚Á‚Ä‚¢‚é
+//ã“ã®ãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚¯ãƒ©ã‚¹ã¯ã€æ—§ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã‹ã‚‰ã®ãƒã‚¯ãƒ­ã¨ã®äº’æ›æ€§ã®ãŸã‚ã«ã“ã†ã„ã†namespaceã«ãªã£ã¦ã„ã‚‹
 
 namespace Poderosa.ConnectionParam {
 
-    //ƒ}ƒNƒƒŠƒtƒ@ƒŒƒ“ƒX—p‚ÉƒtƒFƒCƒN‚ÅéŒ¾
+    //ãƒã‚¯ãƒ­ãƒªãƒ•ã‚¡ãƒ¬ãƒ³ã‚¹ç”¨ã«ãƒ•ã‚§ã‚¤ã‚¯ã§å®£è¨€
 #if MACRODOC
     /// <summary>
-    /// <ja>SSH‚Å‚Ì”FØ•û–@‚ğ¦‚µ‚Ü‚·B</ja>
+    /// <ja>SSHã§ã®èªè¨¼æ–¹æ³•ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
     /// <en>Specifies the authemtication method of SSH.</en>
     /// </summary>
     public enum AuthType {
         /// <summary>
-        /// <ja>ƒpƒXƒ[ƒh”FØ</ja>
+        /// <ja>ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰èªè¨¼</ja>
         /// <en>Authentication using password.</en>
         /// </summary>
         Password,
 
         /// <summary>
-        /// <ja>èŒ³‚Ì”é–§Œ®‚ÆƒŠƒ‚[ƒgƒzƒXƒg‚É“o˜^‚µ‚½ŒöŠJŒ®‚ğg‚Á‚½”FØ</ja>
+        /// <ja>æ‰‹å…ƒã®ç§˜å¯†éµã¨ãƒªãƒ¢ãƒ¼ãƒˆãƒ›ã‚¹ãƒˆã«ç™»éŒ²ã—ãŸå…¬é–‹éµã‚’ä½¿ã£ãŸèªè¨¼</ja>
         /// <en>Authentication using the local private key and the remote public key.</en>
         /// </summary>
         PublicKey,
 
         /// <summary>
-        /// <ja>ƒRƒ“ƒ\[ƒ‹ã‚ÅƒpƒXƒ[ƒh‚ğ“ü—Í‚·‚é”FØ</ja>
+        /// <ja>ã‚³ãƒ³ã‚½ãƒ¼ãƒ«ä¸Šã§ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã‚’å…¥åŠ›ã™ã‚‹èªè¨¼</ja>
         /// <en>Authentication by sending the password through the console.</en>
         /// </summary>
         KeyboardInteractive
     }
 
     /// <summary>
-    /// <ja>Ú‘±‚Ìí—Ş‚ğ¦‚µ‚Ü‚·B</ja>
+    /// <ja>æ¥ç¶šã®ç¨®é¡ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
     /// <en>Specifies the type of the connection.</en>
     /// </summary>
     public enum ConnectionMethod {
@@ -72,7 +72,7 @@ namespace Poderosa.ConnectionParam {
     }
 
     /// <summary>
-    /// <ja>ƒGƒ“ƒR[ƒfƒBƒ“ƒO‚ğ¦‚µ‚Ü‚·B</ja>
+    /// <ja>ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
     /// <en>Specifies the encoding of the connection.</en>
     /// <seealso cref="TerminalParam.Encoding"/>
     /// </summary>
@@ -100,34 +100,34 @@ namespace Poderosa.ConnectionParam {
     }
 
     /// <summary>
-    /// <ja>ƒƒO‚Ìí—Ş‚ğ¦‚µ‚Ü‚·B</ja>
+    /// <ja>ãƒ­ã‚°ã®ç¨®é¡ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
     /// <en>Specifies the log type.</en>
     /// </summary>
     public enum LogType {
         /// <summary>
-        /// <ja>ƒƒO‚Í‚Æ‚è‚Ü‚¹‚ñB</ja>
+        /// <ja>ãƒ­ã‚°ã¯ã¨ã‚Šã¾ã›ã‚“ã€‚</ja>
         /// <en>The log is not recorded.</en>
         /// </summary>
         None,
         /// <summary>
-        /// <ja>ƒeƒLƒXƒgƒ‚[ƒh‚ÌƒƒO‚Å‚·B‚±‚ê‚ª•W€‚Å‚·B</ja>
+        /// <ja>ãƒ†ã‚­ã‚¹ãƒˆãƒ¢ãƒ¼ãƒ‰ã®ãƒ­ã‚°ã§ã™ã€‚ã“ã‚ŒãŒæ¨™æº–ã§ã™ã€‚</ja>
         /// <en>The log is a plain text file. This is standard.</en>
         /// </summary>
         Default,
         /// <summary>
-        /// <ja>ƒoƒCƒiƒŠƒ‚[ƒh‚ÌƒƒO‚Å‚·B</ja>
+        /// <ja>ãƒã‚¤ãƒŠãƒªãƒ¢ãƒ¼ãƒ‰ã®ãƒ­ã‚°ã§ã™ã€‚</ja>
         /// <en>The log is a binary file.</en>
         /// </summary>
         Binary,
         /// <summary>
-        /// <ja>XML‚Å•Û‘¶‚µ‚Ü‚·B‚Ü‚½“à•”“I‚ÈƒoƒO’ÇÕ‚É‚¨‚¢‚Ä‚±‚Ìƒ‚[ƒh‚Å‚ÌƒƒOÌæ‚ğ‚¨Šè‚¢‚·‚é‚±‚Æ‚ª‚ ‚è‚Ü‚·B</ja>
+        /// <ja>XMLã§ä¿å­˜ã—ã¾ã™ã€‚ã¾ãŸå†…éƒ¨çš„ãªãƒã‚°è¿½è·¡ã«ãŠã„ã¦ã“ã®ãƒ¢ãƒ¼ãƒ‰ã§ã®ãƒ­ã‚°æ¡å–ã‚’ãŠé¡˜ã„ã™ã‚‹ã“ã¨ãŒã‚ã‚Šã¾ã™ã€‚</ja>
         /// <en>The log is an XML file. We may ask you to record the log in this type for debugging.</en>
         /// </summary>
         Xml
     }
 
     /// <summary>
-    /// <ja>‘—M‚Ì‰üs‚Ìí—Ş‚ğ¦‚µ‚Ü‚·B</ja>
+    /// <ja>é€ä¿¡æ™‚ã®æ”¹è¡Œã®ç¨®é¡ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
     /// <en>Specifies the new-line characters for transmission.</en>
     /// </summary>
     public enum NewLine {
@@ -146,15 +146,15 @@ namespace Poderosa.ConnectionParam {
     }
 
     /// <summary>
-    /// <ja>ƒ^[ƒ~ƒiƒ‹‚Ìí•Ê‚ğ¦‚µ‚Ü‚·B</ja>
+    /// <ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã®ç¨®åˆ¥ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
     /// <en>Specifies the type of the terminal.</en>
     /// </summary>
     /// <remarks>
-    /// <ja>XTerm‚É‚ÍVT100‚É‚Í‚È‚¢‚¢‚­‚Â‚©‚ÌƒGƒXƒP[ƒvƒV[ƒPƒ“ƒX‚ªŠÜ‚Ü‚ê‚Ä‚¢‚Ü‚·B</ja>
+    /// <ja>XTermã«ã¯VT100ã«ã¯ãªã„ã„ãã¤ã‹ã®ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ãŒå«ã¾ã‚Œã¦ã„ã¾ã™ã€‚</ja>
     /// <en>XTerm supports several escape sequences in addition to VT100.</en>
-    /// <ja>KTerm‚Í’†g‚ÍXTerm‚Æˆê‚Å‚·‚ªASSH‚âTelnet‚ÌÚ‘±ƒIƒvƒVƒ‡ƒ“‚É‚¨‚¢‚Äƒ^[ƒ~ƒiƒ‹‚Ìí—Ş‚ğ¦‚·•¶š—ñ‚Æ‚µ‚Ä"kterm"‚ªƒZƒbƒg‚³‚ê‚Ü‚·B</ja>
+    /// <ja>KTermã¯ä¸­èº«ã¯XTermã¨ä¸€ç·’ã§ã™ãŒã€SSHã‚„Telnetã®æ¥ç¶šã‚ªãƒ—ã‚·ãƒ§ãƒ³ã«ãŠã„ã¦ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã®ç¨®é¡ã‚’ç¤ºã™æ–‡å­—åˆ—ã¨ã—ã¦"kterm"ãŒã‚»ãƒƒãƒˆã•ã‚Œã¾ã™ã€‚</ja>
     /// <en>Though the functionality of KTerm is identical to XTerm, the string "kterm" is used for specifying the type of the terminal in the connection of Telnet or SSH.</en>
-    /// <ja>‚±‚Ìİ’è‚ÍA‘½‚­‚Ìê‡TERMŠÂ‹«•Ï”‚Ì’l‚É‰e‹¿‚µ‚Ü‚·B</ja>
+    /// <ja>ã“ã®è¨­å®šã¯ã€å¤šãã®å ´åˆTERMç’°å¢ƒå¤‰æ•°ã®å€¤ã«å½±éŸ¿ã—ã¾ã™ã€‚</ja>
     /// <en>In most cases, this setting affects the TERM environment variable.</en>
     /// </remarks>
     public enum TerminalType {
@@ -173,22 +173,22 @@ namespace Poderosa.ConnectionParam {
     }
 
     /// <summary>
-    /// <ja>óM‚µ‚½•¶š‚É‘Î‚·‚é‰üs•û–@‚ğ¦‚µ‚Ü‚·B</ja>
+    /// <ja>å—ä¿¡ã—ãŸæ–‡å­—ã«å¯¾ã™ã‚‹æ”¹è¡Œæ–¹æ³•ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
     /// <en>Specifies line breaking style.</en>
     /// </summary>
     public enum LineFeedRule {
         /// <summary>
-        /// <ja>•W€</ja>
+        /// <ja>æ¨™æº–</ja>
         /// <en>Standard</en>
         /// </summary>
         Normal,
         /// <summary>
-        /// <ja>LF‚Å‰üs‚µCR‚ğ–³‹</ja>
+        /// <ja>LFã§æ”¹è¡Œã—CRã‚’ç„¡è¦–</ja>
         /// <en>LF:Line Break, CR:Ignore</en>
         /// </summary>
         LFOnly,
         /// <summary>
-        /// <ja>CR‚Å‰üs‚µLF‚ğ–³‹</ja>
+        /// <ja>CRã§æ”¹è¡Œã—LFã‚’ç„¡è¦–</ja>
         /// <en>CR:Line Break, LF:Ignore</en>
         /// </summary>
         CROnly
@@ -198,7 +198,7 @@ namespace Poderosa.ConnectionParam {
 
 
     /// <summary>
-    /// <ja>Ú‘±‚ğŠJ‚­‚Æ‚«‚Ìƒpƒ‰ƒ[ƒ^‚ÌŠî’êƒNƒ‰ƒX‚Å‚·B</ja>
+    /// <ja>æ¥ç¶šã‚’é–‹ãã¨ãã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã®åŸºåº•ã‚¯ãƒ©ã‚¹ã§ã™ã€‚</ja>
     /// <en>Implements the basic functionality common to connections.</en>
     /// <seealso cref="TCPTerminalParam"/>
     /// <seealso cref="TelnetTerminalParam"/>
@@ -292,17 +292,17 @@ namespace Poderosa.ConnectionParam {
             //_lineFeedByCR = GUtil.ParseBool((string)data["linefeed-by-cr"], false);
             _lineFeedRule = (LineFeedRule)EnumDescAttribute.For(typeof(LineFeedRule)).FromName(data["linefeed"], LineFeedRule.Normal);
             _caption = data["caption"];
-            if (data.Contains("font-name")) //€–Ú‚ª‚È‚¯‚ê‚Î‹ó‚Ì‚Ü‚Ü
+            if (data.Contains("font-name")) //é …ç›®ãŒãªã‘ã‚Œã°ç©ºã®ã¾ã¾
                 _renderProfile = new RenderProfile(data);
         }
 #endif
 
         /// <summary>
-        /// <ja>‚±‚ÌTerminalParam‚ÅÚ‘±‚ğŠJ‚¢‚½‚Æ‚«‚ÌFEƒtƒHƒ“ƒg‚È‚Ç‚Ìİ’è‚ğû˜^‚µ‚½ƒIƒuƒWƒFƒNƒg‚Å‚·B</ja>
+        /// <ja>ã“ã®TerminalParamã§æ¥ç¶šã‚’é–‹ã„ãŸã¨ãã®è‰²ãƒ»ãƒ•ã‚©ãƒ³ãƒˆãªã©ã®è¨­å®šã‚’åéŒ²ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚</ja>
         /// <en>Gets or sets the appearances of the console such as colors or fonts.</en>
         /// </summary>
         /// <remarks>
-        /// <ja>“Á‚É‰½‚àw’è‚µ‚È‚©‚¢‚©null‚ğƒZƒbƒg‚·‚é‚ÆAƒIƒvƒVƒ‡ƒ“ƒ_ƒCƒAƒƒO‚Åİ’è‚µ‚½“à—e‚ªg—p‚³‚ê‚Ü‚·B</ja>
+        /// <ja>ç‰¹ã«ä½•ã‚‚æŒ‡å®šã—ãªã‹ã„ã‹nullã‚’ã‚»ãƒƒãƒˆã™ã‚‹ã¨ã€ã‚ªãƒ—ã‚·ãƒ§ãƒ³ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ã§è¨­å®šã—ãŸå†…å®¹ãŒä½¿ç”¨ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>If you do not set anything or set null, the appearance is same as the setting of the option dialo.</en>
         /// </remarks>
         /// <seealso cref="RenderProfile"/>
@@ -317,7 +317,7 @@ namespace Poderosa.ConnectionParam {
 
 
         /// <summary>
-        /// <ja>‚±‚ÌÚ‘±‚ÌƒGƒ“ƒR[ƒfƒBƒ“ƒO‚Å‚·B</ja>
+        /// <ja>ã“ã®æ¥ç¶šã®ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°ã§ã™ã€‚</ja>
         /// <en>Gets or sets the encoding of the connection.</en>
         /// </summary>
         public EncodingType Encoding {
@@ -330,7 +330,7 @@ namespace Poderosa.ConnectionParam {
         }
 
         /// <summary>
-        /// <ja>ƒ^[ƒ~ƒiƒ‹‚Ìí•Ê‚Å‚·B</ja>
+        /// <ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã®ç¨®åˆ¥ã§ã™ã€‚</ja>
         /// <en>Gets or sets the type of the terminal.</en>
         /// </summary>
         public TerminalType TerminalType {
@@ -343,7 +343,7 @@ namespace Poderosa.ConnectionParam {
         }
 
         /// <summary>
-        /// <ja>ƒƒO‚Ìí•Ê‚Å‚·B</ja>
+        /// <ja>ãƒ­ã‚°ã®ç¨®åˆ¥ã§ã™ã€‚</ja>
         /// <en>Gets or sets the type of the log.</en>
         /// </summary>
         public LogType LogType {
@@ -355,7 +355,7 @@ namespace Poderosa.ConnectionParam {
             }
         }
         /// <summary>
-        /// <ja>ƒƒOƒtƒ@ƒCƒ‹‚Ìƒtƒ‹ƒpƒX‚Å‚·B</ja>
+        /// <ja>ãƒ­ã‚°ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ•ãƒ«ãƒ‘ã‚¹ã§ã™ã€‚</ja>
         /// <en>Gets or sets the full path of the log file.</en>
         /// </summary>
         public string LogPath {
@@ -367,7 +367,7 @@ namespace Poderosa.ConnectionParam {
             }
         }
         /// <summary>
-        /// <ja>“¯–¼ƒtƒ@ƒCƒ‹‚ª‚ ‚éê‡AƒƒOƒtƒ@ƒCƒ‹‚É’Ç‹L‚·‚é‚©ã‘‚«‚·‚é‚©‚ğw’è‚µ‚Ü‚·B</ja>
+        /// <ja>åŒåãƒ•ã‚¡ã‚¤ãƒ«ãŒã‚ã‚‹å ´åˆã€ãƒ­ã‚°ãƒ•ã‚¡ã‚¤ãƒ«ã«è¿½è¨˜ã™ã‚‹ã‹ä¸Šæ›¸ãã™ã‚‹ã‹ã‚’æŒ‡å®šã—ã¾ã™ã€‚</ja>
         /// <en>Specifies whether the connection appends or overwrites the log file in case that the file exists already.</en>
         /// </summary>
         public bool LogAppend {
@@ -380,7 +380,7 @@ namespace Poderosa.ConnectionParam {
         }
 
         /// <summary>
-        /// <ja>‘—M‚Ì‰üsİ’è‚Å‚·B</ja>
+        /// <ja>é€ä¿¡æ™‚ã®æ”¹è¡Œè¨­å®šã§ã™ã€‚</ja>
         /// <en>Gets or sets the new-line characters for transmission.</en>
         /// </summary>
         public NewLine TransmitNL {
@@ -393,7 +393,7 @@ namespace Poderosa.ConnectionParam {
         }
 
         /// <summary>
-        /// <ja>ƒ[ƒJƒ‹ƒGƒR[‚ğ‚·‚é‚©‚Ç‚¤‚©‚Å‚·B</ja>
+        /// <ja>ãƒ­ãƒ¼ã‚«ãƒ«ã‚¨ã‚³ãƒ¼ã‚’ã™ã‚‹ã‹ã©ã†ã‹ã§ã™ã€‚</ja>
         /// <en>Specifies whether the local echo is performed.</en>
         /// </summary>
         public bool LocalEcho {
@@ -406,7 +406,7 @@ namespace Poderosa.ConnectionParam {
         }
 
         /// <summary>
-        /// <ja>óM‚µ‚½•¶š‚É‘Î‚µ‚Ä‰üs‚·‚é‚©‚Ç‚¤‚©‚Å‚·B</ja>
+        /// <ja>å—ä¿¡ã—ãŸæ–‡å­—ã«å¯¾ã—ã¦æ”¹è¡Œã™ã‚‹ã‹ã©ã†ã‹ã§ã™ã€‚</ja>
         /// <en>Specifies line breaking style corresponding to received characters.</en>
         /// </summary>
         public LineFeedRule LineFeedRule {
@@ -419,9 +419,9 @@ namespace Poderosa.ConnectionParam {
         }
 
         /// <summary>
-        /// <ja>ƒ^ƒu‚È‚Ç‚É•\¦‚·‚é‚½‚ß‚ÌŒ©o‚µ‚Å‚·B</ja>
+        /// <ja>ã‚¿ãƒ–ãªã©ã«è¡¨ç¤ºã™ã‚‹ãŸã‚ã®è¦‹å‡ºã—ã§ã™ã€‚</ja>
         /// <en>Gets or sets the caption of the tab.</en>
-        /// <ja>“Á‚ÉƒZƒbƒg‚µ‚È‚¢ê‡AÚ‘±æ‚ÌƒzƒXƒg–¼‚ğ—˜—p‚µ‚Ä©“®“I‚É‚Â‚¯‚ç‚ê‚Ü‚·B</ja>
+        /// <ja>ç‰¹ã«ã‚»ãƒƒãƒˆã—ãªã„å ´åˆã€æ¥ç¶šå…ˆã®ãƒ›ã‚¹ãƒˆåã‚’åˆ©ç”¨ã—ã¦è‡ªå‹•çš„ã«ã¤ã‘ã‚‰ã‚Œã¾ã™ã€‚</ja>
         /// <en>If you do not specify anything, the caption is set automatically using the host name.</en>
         /// </summary>
         public string Caption {
@@ -437,12 +437,12 @@ namespace Poderosa.ConnectionParam {
 #if !MACRODOC
         /// <summary>
         /// <ja>
-        /// <see cref="TerminalParam.MethodName">MethodNameƒvƒƒpƒeƒB‚Ì’l‚ğƒp[ƒX‚µ‚Ü‚·B</see>
+        /// <see cref="TerminalParam.MethodName">MethodNameãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å€¤ã‚’ãƒ‘ãƒ¼ã‚¹ã—ã¾ã™ã€‚</see>
         /// </ja>
         /// </summary>
-        /// <param name="val">ƒp[ƒX‚·‚é•¶š—ñBuSSH1vuSSH2vuTelnetv‚Ì‚¢‚¸‚ê‚©‚Å‚·B</param>
-        /// <returns>‰ğÍ‚³‚ê‚½Ú‘±í•Ê‚ª–ß‚è‚Ü‚·B</returns>
-        /// <exception cref="FormatException">ƒƒ\ƒbƒh‚Ì‘®‚ª•s–¾‚Å‚·B</exception>
+        /// <param name="val">ãƒ‘ãƒ¼ã‚¹ã™ã‚‹æ–‡å­—åˆ—ã€‚ã€ŒSSH1ã€ã€ŒSSH2ã€ã€ŒTelnetã€ã®ã„ãšã‚Œã‹ã§ã™ã€‚</param>
+        /// <returns>è§£æã•ã‚ŒãŸæ¥ç¶šç¨®åˆ¥ãŒæˆ»ã‚Šã¾ã™ã€‚</returns>
+        /// <exception cref="FormatException">ãƒ¡ã‚½ãƒƒãƒ‰ã®æ›¸å¼ãŒä¸æ˜ã§ã™ã€‚</exception>
         /// <exclude/>
         protected static ConnectionMethod ParseMethod(string val) {
             if (val == "SSH1")
@@ -459,7 +459,7 @@ namespace Poderosa.ConnectionParam {
     }
 
     /// <summary>
-    /// <ja>TCP‚ÉŠî‚Ã‚¢‚½Ú‘±‚Ìƒpƒ‰ƒ[ƒ^‚ğ•\Œ»‚µ‚Ü‚·B</ja>
+    /// <ja>TCPã«åŸºã¥ã„ãŸæ¥ç¶šã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’è¡¨ç¾ã—ã¾ã™ã€‚</ja>
     /// <en>Implements the parameters of the connection using TCP. (i.e. Telnet and SSH)</en>
     /// <seealso cref="TelnetTerminalParam"/>
     /// <seealso cref="SSHTerminalParam"/>
@@ -506,11 +506,11 @@ namespace Poderosa.ConnectionParam {
         }
 
         /// <summary>
-        /// <ja>Ú‘±æ‚ÌƒzƒXƒg–¼‚Å‚·B</ja>
+        /// <ja>æ¥ç¶šå…ˆã®ãƒ›ã‚¹ãƒˆåã§ã™ã€‚</ja>
         /// <en>Gets or sets the host name.</en>
         /// </summary>
         /// <remarks>
-        /// <ja>‚Ü‚½‚Í"192.168.10.1"‚È‚Ç‚ÌIPƒAƒhƒŒƒX‚Ì•¶š—ñ•\Œ»‚à‰Â”\‚Å‚·B</ja>
+        /// <ja>ã¾ãŸã¯"192.168.10.1"ãªã©ã®IPã‚¢ãƒ‰ãƒ¬ã‚¹ã®æ–‡å­—åˆ—è¡¨ç¾ã‚‚å¯èƒ½ã§ã™ã€‚</ja>
         /// <en>The IP address format such as "192.168.10.1" is also allowed.</en>
         /// </remarks>
         public virtual string Host {
@@ -523,7 +523,7 @@ namespace Poderosa.ConnectionParam {
         }
 
         /// <summary>
-        /// <ja>Ú‘±æ‚Ìƒ|[ƒg”Ô†‚Å‚·B</ja>
+        /// <ja>æ¥ç¶šå…ˆã®ãƒãƒ¼ãƒˆç•ªå·ã§ã™ã€‚</ja>
         /// <en>Gets or sets the port number.</en>
         /// </summary>
         public virtual int Port {
@@ -536,7 +536,7 @@ namespace Poderosa.ConnectionParam {
         }
 
         /// <summary>
-        /// <ja>Ú‘±‚Ìí•Ê‚Å‚·B</ja>
+        /// <ja>æ¥ç¶šã®ç¨®åˆ¥ã§ã™ã€‚</ja>
         /// <en>Gets or sets the connection method.</en>
         /// </summary>
         public virtual ConnectionMethod Method {
@@ -546,7 +546,7 @@ namespace Poderosa.ConnectionParam {
         }
 
         /// <summary>
-        /// <ja>‚±‚ÌÚ‘±‚ªSSH‚Å‚ ‚ê‚Îtrue‚Å‚·B</ja>
+        /// <ja>ã“ã®æ¥ç¶šãŒSSHã§ã‚ã‚Œã°trueã§ã™ã€‚</ja>
         /// <en>Returns true if the connection method is SSH.</en>
         /// </summary>
         public bool IsSSH {
@@ -572,7 +572,7 @@ namespace Poderosa.ConnectionParam {
             base.Import(data);
         }
 #endif
-        //TerminalUtil‚ÖˆÚ“®‚·‚×‚«‚©‚à
+        //TerminalUtilã¸ç§»å‹•ã™ã¹ãã‹ã‚‚
         private static int ParsePort(string val) {
             try {
                 return Int32.Parse(val);
@@ -593,33 +593,33 @@ namespace Poderosa.ConnectionParam {
     }
 
     /// <summary>
-    /// <ja>Telnet‚É‚æ‚éÚ‘±ƒpƒ‰ƒ[ƒ^‚ğ¦‚·ƒNƒ‰ƒX</ja>
+    /// <ja>Telnetã«ã‚ˆã‚‹æ¥ç¶šãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’ç¤ºã™ã‚¯ãƒ©ã‚¹</ja>
     /// <en>Implements the parameters of the Telnet connections.</en>
     /// </summary>
     /// <exclude/>
     public class TelnetTerminalParam : TCPTerminalParam {
 
         /// <summary>
-        /// <ja>ƒzƒXƒg–¼‚ğw’è‚µ‚Äì¬‚µ‚Ü‚·B</ja>
+        /// <ja>ãƒ›ã‚¹ãƒˆåã‚’æŒ‡å®šã—ã¦ä½œæˆã—ã¾ã™ã€‚</ja>
         /// <en>Initializes with the host name.</en>
         /// <seealso cref="Poderosa.Macro.ConnectionList.Open"/>
         /// </summary>
         /// <remarks>
-        /// <ja>ƒ|[ƒg‚Í23‚Éİ’è‚³‚ê‚Ü‚·B</ja>
+        /// <ja>ãƒãƒ¼ãƒˆã¯23ã«è¨­å®šã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>The port number is set to 23.</en>
-        /// <ja>‘¼‚Ìƒpƒ‰ƒ[ƒ^‚ÍŸ‚Ì‚æ‚¤‚É‰Šú‰»‚³‚ê‚Ü‚·B</ja>
+        /// <ja>ä»–ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã¯æ¬¡ã®ã‚ˆã†ã«åˆæœŸåŒ–ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>Other parameters are initialized as following:</en>
         /// <list type="table">
-        ///   <item><term><ja>ƒGƒ“ƒR[ƒfƒBƒ“ƒO</ja><en>Encoding</en></term><description><ja>EUC-JP</ja><en>iso-8859-1</en></description></item>@
-        ///   <item><term><ja>ƒ^[ƒ~ƒiƒ‹ƒ^ƒCƒv</ja><en>Terminal Type</en></term><description>xterm</description></item>  
-        ///   <item><term><ja>ƒƒO</ja><en>Log</en></term><description><ja>æ“¾‚µ‚È‚¢</ja><en>None</en></description></item>@@@@@@@
-        ///   <item><term><ja>ƒ[ƒJƒ‹ƒGƒR[</ja><en>Local echo</en></term><description><ja>‚µ‚È‚¢</ja><en>Don't</en></description></item>@@
-        ///   <item><term><ja>‘—M‰üs</ja><en>New line</en></term><description>CR</description></item>@@@@
+        ///   <item><term><ja>ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°</ja><en>Encoding</en></term><description><ja>EUC-JP</ja><en>iso-8859-1</en></description></item>ã€€
+        ///   <item><term><ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚¿ã‚¤ãƒ—</ja><en>Terminal Type</en></term><description>xterm</description></item>  
+        ///   <item><term><ja>ãƒ­ã‚°</ja><en>Log</en></term><description><ja>å–å¾—ã—ãªã„</ja><en>None</en></description></item>ã€€ã€€ã€€ã€€ã€€ã€€ã€€
+        ///   <item><term><ja>ãƒ­ãƒ¼ã‚«ãƒ«ã‚¨ã‚³ãƒ¼</ja><en>Local echo</en></term><description><ja>ã—ãªã„</ja><en>Don't</en></description></item>ã€€ã€€
+        ///   <item><term><ja>é€ä¿¡æ™‚æ”¹è¡Œ</ja><en>New line</en></term><description>CR</description></item>ã€€ã€€ã€€ã€€
         /// </list>
-        /// <ja>Ú‘±‚ğŠJ‚­‚É‚ÍA<see cref="Poderosa.Macro.ConnectionList.Open"/>ƒƒ\ƒbƒh‚Ìˆø”‚Æ‚µ‚ÄTelnetTerminalParamƒIƒuƒWƒFƒNƒg‚ğ“n‚µ‚Ü‚·B</ja>
+        /// <ja>æ¥ç¶šã‚’é–‹ãã«ã¯ã€<see cref="Poderosa.Macro.ConnectionList.Open"/>ãƒ¡ã‚½ãƒƒãƒ‰ã®å¼•æ•°ã¨ã—ã¦TelnetTerminalParamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ¸¡ã—ã¾ã™ã€‚</ja>
         /// <en>To open a new connection, pass the TelnetTerminalParam object to the <see cref="Poderosa.Macro.ConnectionList.Open"/> method.</en>
         /// </remarks>
-        /// <param name="host"><ja>ƒzƒXƒg–¼</ja><en>The host name.</en></param>
+        /// <param name="host"><ja>ãƒ›ã‚¹ãƒˆå</ja><en>The host name.</en></param>
         public TelnetTerminalParam(string host) {
             _method = ConnectionMethod.Telnet;
             _host = host;
@@ -649,41 +649,41 @@ namespace Poderosa.ConnectionParam {
 
 
     /// <summary>
-    /// <ja>SSH‚É‚æ‚éÚ‘±ƒpƒ‰ƒ[ƒ^‚Å‚·B</ja>
+    /// <ja>SSHã«ã‚ˆã‚‹æ¥ç¶šãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã§ã™ã€‚</ja>
     /// <en>Implements the parameters of SSH connections.</en>
     /// </summary>
     /// <exclude/>
     public class SSHTerminalParam : TCPTerminalParam {
         internal string _account;
-        internal string _passphrase; //‚±‚ê‚ÍƒVƒŠƒAƒ‰ƒCƒY‚Ì‘ÎÛŠOBƒƒ‚ƒŠã‚É‚Â‚©‚Ç‚¤‚©‚àƒIƒvƒVƒ‡ƒ“
+        internal string _passphrase; //ã“ã‚Œã¯ã‚·ãƒªã‚¢ãƒ©ã‚¤ã‚ºã®å¯¾è±¡å¤–ã€‚ãƒ¡ãƒ¢ãƒªä¸Šã«æŒã¤ã‹ã©ã†ã‹ã‚‚ã‚ªãƒ—ã‚·ãƒ§ãƒ³
         internal AuthType _auth;
         internal string _identityfile;
 
         /// <summary>
-        /// <ja>ƒzƒXƒg–¼AƒAƒJƒEƒ“ƒgAƒpƒXƒ[ƒh‚ğw’è‚µ‚Äì¬‚µ‚Ü‚·B</ja>
+        /// <ja>ãƒ›ã‚¹ãƒˆåã€ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã€ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã‚’æŒ‡å®šã—ã¦ä½œæˆã—ã¾ã™ã€‚</ja>
         /// <en>Initializes with the host name, the account, and the password.</en>
         /// <seealso cref="Poderosa.Macro.ConnectionList.Open"/>
         /// </summary>
         /// <remarks>
-        /// <ja>ƒ|[ƒg‚Í22‚Éİ’è‚³‚ê‚Ü‚·B</ja>
+        /// <ja>ãƒãƒ¼ãƒˆã¯22ã«è¨­å®šã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>The port number is set to 22.</en>
-        /// <ja>‘¼‚Ìƒpƒ‰ƒ[ƒ^‚ÍŸ‚Ì‚æ‚¤‚É‰Šú‰»‚³‚ê‚Ü‚·B</ja>
+        /// <ja>ä»–ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã¯æ¬¡ã®ã‚ˆã†ã«åˆæœŸåŒ–ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>Other parameters are initialized as following:</en>
         /// <list type="table">
-        ///   <item><term><ja>ƒGƒ“ƒR[ƒfƒBƒ“ƒO</ja><en>Encoding</en></term><description><ja>EUC-JP</ja><en>iso-8859-1</en></description></item>@
-        ///   <item><term><ja>ƒ^[ƒ~ƒiƒ‹ƒ^ƒCƒv</ja><en>Terminal Type</en></term><description>xterm</description></item>  
-        ///   <item><term><ja>ƒƒO</ja><en>Log</en></term><description><ja>æ“¾‚µ‚È‚¢</ja><en>None</en></description></item>@@@@@@@
-        ///   <item><term><ja>ƒ[ƒJƒ‹ƒGƒR[</ja><en>Local echo</en></term><description><ja>‚µ‚È‚¢</ja><en>Don't</en></description></item>@@
-        ///   <item><term><ja>‘—M‰üs</ja><en>New line</en></term><description>CR</description></item>@@@@
-        ///   <item><term><ja>”FØ•û–@</ja><en>Authentication Method</en></term><description><ja>ƒpƒXƒ[ƒh</ja><en>Password</en></description></item>@@@@
+        ///   <item><term><ja>ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°</ja><en>Encoding</en></term><description><ja>EUC-JP</ja><en>iso-8859-1</en></description></item>ã€€
+        ///   <item><term><ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚¿ã‚¤ãƒ—</ja><en>Terminal Type</en></term><description>xterm</description></item>  
+        ///   <item><term><ja>ãƒ­ã‚°</ja><en>Log</en></term><description><ja>å–å¾—ã—ãªã„</ja><en>None</en></description></item>ã€€ã€€ã€€ã€€ã€€ã€€ã€€
+        ///   <item><term><ja>ãƒ­ãƒ¼ã‚«ãƒ«ã‚¨ã‚³ãƒ¼</ja><en>Local echo</en></term><description><ja>ã—ãªã„</ja><en>Don't</en></description></item>ã€€ã€€
+        ///   <item><term><ja>é€ä¿¡æ™‚æ”¹è¡Œ</ja><en>New line</en></term><description>CR</description></item>ã€€ã€€ã€€ã€€
+        ///   <item><term><ja>èªè¨¼æ–¹æ³•</ja><en>Authentication Method</en></term><description><ja>ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰</ja><en>Password</en></description></item>ã€€ã€€ã€€ã€€
         /// </list>
-        /// <ja>Ú‘±‚ğŠJ‚­‚É‚ÍAConnectionListƒIƒuƒWƒFƒNƒg‚Ì<see cref="Poderosa.Macro.ConnectionList.Open"/>ƒƒ\ƒbƒh‚Ìˆø”‚Æ‚µ‚ÄSSHTerminalParamƒIƒuƒWƒFƒNƒg‚ğ“n‚µ‚Ü‚·B</ja>
+        /// <ja>æ¥ç¶šã‚’é–‹ãã«ã¯ã€ConnectionListã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®<see cref="Poderosa.Macro.ConnectionList.Open"/>ãƒ¡ã‚½ãƒƒãƒ‰ã®å¼•æ•°ã¨ã—ã¦SSHTerminalParamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ¸¡ã—ã¾ã™ã€‚</ja>
         /// <en>To open a new connection, pass the SSHTerminalParam object to the <see cref="Poderosa.Macro.ConnectionList.Open"/> method of the ConnectionList object.</en>
         /// </remarks>
-        /// <param name="method"><ja>SSH1‚Ü‚½‚ÍSSH2</ja><en>SSH1 or SSH2.</en></param>
-        /// <param name="host"><ja>ƒzƒXƒg–¼</ja><en>The host name.</en></param>
-        /// <param name="account"><ja>ƒAƒJƒEƒ“ƒg–¼</ja><en>The account</en></param>
-        /// <param name="password"><ja>ƒpƒXƒ[ƒh‚Ü‚½‚Í”é–§Œ®‚ÌƒpƒXƒtƒŒ[ƒY</ja><en>The password or the passphrase of the private key.</en></param>
+        /// <param name="method"><ja>SSH1ã¾ãŸã¯SSH2</ja><en>SSH1 or SSH2.</en></param>
+        /// <param name="host"><ja>ãƒ›ã‚¹ãƒˆå</ja><en>The host name.</en></param>
+        /// <param name="account"><ja>ã‚¢ã‚«ã‚¦ãƒ³ãƒˆå</ja><en>The account</en></param>
+        /// <param name="password"><ja>ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã¾ãŸã¯ç§˜å¯†éµã®ãƒ‘ã‚¹ãƒ•ãƒ¬ãƒ¼ã‚º</ja><en>The password or the passphrase of the private key.</en></param>
         public SSHTerminalParam(ConnectionMethod method, string host, string account, string password) {
             if (method == ConnectionMethod.Telnet)
                 throw new ArgumentException("Telnet is specified in the constructor of SSHTerminalParam");
@@ -717,7 +717,7 @@ namespace Poderosa.ConnectionParam {
             ssh.PasswordOrPassphrase = _passphrase;
             ssh.IdentityFileName = _identityfile;
             ssh.Method = _method == ConnectionMethod.SSH1 ? SSHProtocol.SSH1 : SSHProtocol.SSH2;
-            ssh.LetUserInputPassword = false; //ƒ}ƒNƒ‚©‚ç‚Íƒ†[ƒU‚ÉƒpƒXƒ[ƒh“ü—Í‚ğ‘£‚·‚±‚Æ‚Í‚µ‚È‚¢
+            ssh.LetUserInputPassword = false; //ãƒã‚¯ãƒ­ã‹ã‚‰ã¯ãƒ¦ãƒ¼ã‚¶ã«ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰å…¥åŠ›ã‚’ä¿ƒã™ã“ã¨ã¯ã—ãªã„
             ITCPParameter tcp = (ITCPParameter)ssh.GetAdapter(typeof(ITCPParameter));
             tcp.Destination = _host;
             tcp.Port = _port;
@@ -743,7 +743,7 @@ namespace Poderosa.ConnectionParam {
 #endif
 
         /// <summary>
-        /// <ja>ƒAƒJƒEƒ“ƒg–¼‚Å‚·B</ja>
+        /// <ja>ã‚¢ã‚«ã‚¦ãƒ³ãƒˆåã§ã™ã€‚</ja>
         /// <en>Gets or sets the account.</en>
         /// </summary>
         public string Account {
@@ -757,7 +757,7 @@ namespace Poderosa.ConnectionParam {
 
 #if OLD_PODEROSA_FEATURE
         /// <summary>
-        /// <ja>Ú‘±‚Ìí•Ê‚Å‚·B</ja>
+        /// <ja>æ¥ç¶šã®ç¨®åˆ¥ã§ã™ã€‚</ja>
         /// <en>Gets or sets the connection method.</en>
         /// </summary>
         public override ConnectionMethod Method {
@@ -769,15 +769,15 @@ namespace Poderosa.ConnectionParam {
         }
 #endif
         /// <summary>
-        /// <ja>ƒ†[ƒU”FØ‚Ì•û–@‚Å‚·B</ja>
+        /// <ja>ãƒ¦ãƒ¼ã‚¶èªè¨¼ã®æ–¹æ³•ã§ã™ã€‚</ja>
         /// <en>Gets or sets the authentication method.</en>
         /// </summary>
         /// <remarks>
-        /// <para><ja>‚±‚ê‚ğPublicKey‚É‚µ‚½ê‡AIdentityFileƒvƒƒpƒeƒB‚Í”é–§Œ®ƒtƒ@ƒCƒ‹‚ğw‚µ‚Ä‚¢‚È‚¢‚Æ‚¢‚¯‚Ü‚¹‚ñB</ja>
+        /// <para><ja>ã“ã‚Œã‚’PublicKeyã«ã—ãŸå ´åˆã€IdentityFileãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã¯ç§˜å¯†éµãƒ•ã‚¡ã‚¤ãƒ«ã‚’æŒ‡ã—ã¦ã„ãªã„ã¨ã„ã‘ã¾ã›ã‚“ã€‚</ja>
         /// <en>If the PublicKey is specified, the IdentityFile property must indicate a correct private key file.</en></para>
-        /// <para><ja>Password‚É‚µ‚½ê‡APassphraseƒvƒƒpƒeƒB‚Ì’l‚ªƒpƒXƒ[ƒh‚Æ‚µ‚Äg‚í‚ê‚Ü‚·B</ja>
+        /// <para><ja>Passwordã«ã—ãŸå ´åˆã€Passphraseãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å€¤ãŒãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã¨ã—ã¦ä½¿ã‚ã‚Œã¾ã™ã€‚</ja>
         /// <en>If the Password is specified, the value of the Passphrase property is used as the login password.</en></para>
-        /// <para><ja>ƒ}ƒNƒ‚©‚ç‚ÍAKeyboardInteractive‚ğƒZƒbƒg‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B</ja>
+        /// <para><ja>ãƒã‚¯ãƒ­ã‹ã‚‰ã¯ã€KeyboardInteractiveã‚’ã‚»ãƒƒãƒˆã—ãªã„ã§ãã ã•ã„ã€‚</ja>
         /// <en>The macro cannot use KeyboardInteractive method.</en></para>
         /// </remarks>
         public AuthType AuthType {
@@ -790,11 +790,11 @@ namespace Poderosa.ConnectionParam {
         }
 
         /// <summary>
-        /// <ja>”é–§Œ®‚Ìƒtƒ@ƒCƒ‹‚Å‚·B</ja>
+        /// <ja>ç§˜å¯†éµã®ãƒ•ã‚¡ã‚¤ãƒ«ã§ã™ã€‚</ja>
         /// <en>Gets or sets the file name of the private key.</en>
         /// </summary>
         /// <remarks>
-        /// <ja>ƒtƒ‹ƒpƒX‚Åw’è‚µ‚Ä‚­‚¾‚³‚¢B</ja>
+        /// <ja>ãƒ•ãƒ«ãƒ‘ã‚¹ã§æŒ‡å®šã—ã¦ãã ã•ã„ã€‚</ja>
         /// <en>The full path is required.</en>
         /// </remarks>
         public string IdentityFile {
@@ -808,13 +808,13 @@ namespace Poderosa.ConnectionParam {
 
 
         /// <summary>
-        /// <ja>ƒpƒXƒ[ƒh‚Ü‚½‚ÍƒpƒXƒtƒŒ[ƒY‚Å‚·B</ja>
+        /// <ja>ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã¾ãŸã¯ãƒ‘ã‚¹ãƒ•ãƒ¬ãƒ¼ã‚ºã§ã™ã€‚</ja>
         /// <en>Gets or sets the password or the passphrase.</en>
         /// </summary>
         /// <remarks>
-        /// <ja>ŒöŠJŒ®”FØ‚Ìê‡‚Í‚±‚ÌƒvƒƒpƒeƒB‚Ì’l‚ªƒpƒXƒtƒŒ[ƒY‚Æ‚µ‚Äg‚í‚ê‚Ü‚·B</ja>
+        /// <ja>å…¬é–‹éµèªè¨¼ã®å ´åˆã¯ã“ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å€¤ãŒãƒ‘ã‚¹ãƒ•ãƒ¬ãƒ¼ã‚ºã¨ã—ã¦ä½¿ã‚ã‚Œã¾ã™ã€‚</ja>
         /// <en>In case of the public key authentication, the value of this property is used as the passphrase of the private key.</en>
-        /// <ja>ƒpƒXƒ[ƒh”FØ‚Ìê‡‚ÍƒpƒXƒ[ƒh‚É‚È‚è‚Ü‚·B</ja>
+        /// <ja>ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰èªè¨¼ã®å ´åˆã¯ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã«ãªã‚Šã¾ã™ã€‚</ja>
         /// <en>In case of the password authentication, it is used as the login password.</en>
         /// </remarks>
         public string Passphrase {
@@ -840,7 +840,7 @@ namespace Poderosa.ConnectionParam {
     }
 
     /// <summary>
-    /// <ja>Cygwin‚Ü‚½‚ÍServices for Unix‚ÉÚ‘±‚·‚é‚½‚ß‚ÌTerminalParam‚Å‚·B</ja>
+    /// <ja>Cygwinã¾ãŸã¯Services for Unixã«æ¥ç¶šã™ã‚‹ãŸã‚ã®TerminalParamã§ã™ã€‚</ja>
     /// <en>Implements the parameters to connect a cygwin shell or a Services for Unix shell.</en>
     /// </summary>
     /// <exclude/>
@@ -859,7 +859,7 @@ namespace Poderosa.ConnectionParam {
         internal string _shell;
 
         /// <summary>
-        /// <ja>•W€“I‚È’l‚Å‰Šú‰»‚µ‚Ü‚·B</ja>
+        /// <ja>æ¨™æº–çš„ãªå€¤ã§åˆæœŸåŒ–ã—ã¾ã™ã€‚</ja>
         /// <en>Initializes with default values.</en>
         /// </summary>
         public LocalShellTerminalParam() {
@@ -887,7 +887,7 @@ namespace Poderosa.ConnectionParam {
 #endif
 
         /// <summary>
-        /// <ja>Cygwinã‚ÌƒVƒFƒ‹‚É‚Â‚È‚¢‚¾‚Æ‚«‚ÌHOMEŠÂ‹«•Ï”‚Ì’l‚Å‚·BƒfƒtƒHƒ‹ƒg’l‚Í <c>/home/(Windows‚ÌƒAƒJƒEƒ“ƒg–¼)</c> ‚Å‚·B</ja>
+        /// <ja>Cygwinä¸Šã®ã‚·ã‚§ãƒ«ã«ã¤ãªã„ã ã¨ãã®HOMEç’°å¢ƒå¤‰æ•°ã®å€¤ã§ã™ã€‚ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤ã¯ <c>/home/(Windowsã®ã‚¢ã‚«ã‚¦ãƒ³ãƒˆå)</c> ã§ã™ã€‚</ja>
         /// <en>Gets or sets the initial value of the HOME environment variable. The default value is <c>/home/(account name on Windows)</c>.</en>
         /// </summary>
         public string Home {
@@ -899,7 +899,7 @@ namespace Poderosa.ConnectionParam {
             }
         }
         /// <summary>
-        /// <ja>‹N“®‚·‚éCygwin‚ÌƒVƒFƒ‹‚Ö‚ÌƒpƒX‚Å‚·BƒfƒtƒHƒ‹ƒg’l‚Í <c>/bin/bash</c> ‚Å‚·B</ja>
+        /// <ja>èµ·å‹•ã™ã‚‹Cygwinã®ã‚·ã‚§ãƒ«ã¸ã®ãƒ‘ã‚¹ã§ã™ã€‚ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤ã¯ <c>/bin/bash</c> ã§ã™ã€‚</ja>
         /// <en>Gets or sets the path of the shell. The defualt value is <c>/bin/bash</c>.</en>
         /// </summary>
         public string Shell {
@@ -914,14 +914,14 @@ namespace Poderosa.ConnectionParam {
     }
 
     /// <summary>
-    /// <ja>Cygwin‚ÉÚ‘±‚·‚é‚½‚ß‚ÌTerminalParam‚Å‚·B</ja>
+    /// <ja>Cygwinã«æ¥ç¶šã™ã‚‹ãŸã‚ã®TerminalParamã§ã™ã€‚</ja>
     /// <en>Implements the parameters to connect a cygwin shell.</en>
     /// </summary>
     /// <exclude/>
     public class CygwinTerminalParam : LocalShellTerminalParam {
 
         /// <summary>
-        /// <ja>Cygwin‚ÉÚ‘±‚·‚é‚½‚ß‚ÌTerminalParam‚ğì¬‚µ‚Ü‚·B</ja>
+        /// <ja>Cygwinã«æ¥ç¶šã™ã‚‹ãŸã‚ã®TerminalParamã‚’ä½œæˆã—ã¾ã™ã€‚</ja>
         /// <en>Creates a TerminalParam to connect a cygwin shell.</en>
         /// </summary>
         public CygwinTerminalParam() {

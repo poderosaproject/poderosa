@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -105,7 +105,7 @@ namespace Poderosa.SerialPort {
             }
         }
 
-        //TODO ‚»‚Ì‚¤‚¿”p~—\’è‚È‚Ì‚Å
+        //TODO ãã®ã†ã¡å»ƒæ­¢äºˆå®šãªã®ã§
         public ICygwinPlugin CygwinPlugin {
             get {
                 return (ICygwinPlugin)_poderosaWorld.PluginManager.FindPlugin("org.poderosa.cygwin", typeof(ICygwinPlugin));
@@ -131,7 +131,7 @@ namespace Poderosa.SerialPort {
             return Poderosa.SerialPort.Properties.Resources.Icon16x16;
         }
 
-        //ƒRƒ}ƒ“ƒhAƒƒjƒ…[Aƒc[ƒ‹ƒo[
+        //ã‚³ãƒãƒ³ãƒ‰ã€ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã€ãƒ„ãƒ¼ãƒ«ãƒãƒ¼
         private class SerialPortMenuGroup : PoderosaMenuGroupImpl {
             public SerialPortMenuGroup()
                 : base(new SerialPortMenuItem()) {
@@ -191,7 +191,7 @@ namespace Poderosa.SerialPort {
                     SerialTerminalSettings ts = SerialPortUtil.CreateDefaultSerialTerminalSettings(tp.PortName);
                     dlg.ApplyParam(tp, ts);
 
-                    if (dlg.ShowDialog(window.AsForm()) == DialogResult.OK) { //TODO eƒEƒBƒ“ƒhƒEw’è
+                    if (dlg.ShowDialog(window.AsForm()) == DialogResult.OK) { //TODO è¦ªã‚¦ã‚£ãƒ³ãƒ‰ã‚¦æŒ‡å®š
                         ITerminalConnection con = dlg.ResultConnection;
                         if (con != null) {
                             return _instance.CommandManager.Execute(_instance.TerminalSessionsService.TerminalSessionStartCommand,

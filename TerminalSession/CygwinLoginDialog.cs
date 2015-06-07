@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,19 +50,19 @@ namespace Poderosa.Sessions {
         private TextBox _autoExecMacroPathBox;
         private Button _selectAutoExecMacroButton;
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.Container components = null;
 
         public LocalShellLoginDialog(IPoderosaMainWindow parentWindow)
             : base(parentWindow) {
             //
-            // Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Å‚·B
+            // Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ã§ã™ã€‚
             //
             InitializeComponent();
 
             //
-            // TODO: InitializeComponent ŒÄ‚Ño‚µ‚ÌŒã‚ÉAƒRƒ“ƒXƒgƒ‰ƒNƒ^ ƒR[ƒh‚ğ’Ç‰Á‚µ‚Ä‚­‚¾‚³‚¢B
+            // TODO: InitializeComponent å‘¼ã³å‡ºã—ã®å¾Œã«ã€ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ ã‚³ãƒ¼ãƒ‰ã‚’è¿½åŠ ã—ã¦ãã ã•ã„ã€‚
             //
             this._loginButton.Text = TEnv.Strings.GetString("Common.OK");
             this._cancelButton.Text = TEnv.Strings.GetString("Common.Cancel");
@@ -81,7 +81,7 @@ namespace Poderosa.Sessions {
             this._encodingBox.Items.AddRange(EnumListItem<EncodingType>.GetListItems());
             this._terminalTypeBox.Items.AddRange(EnumListItem<TerminalType>.GetListItems());
 
-            //ì‚Á‚Ä‚¨‚­
+            //ä½œã£ã¦ãŠã
             AdjustLoginDialogUISupport("org.poderosa.terminalsessions.loginDialogUISupport", "cygwinLoginDialogUISupport");
         }
 
@@ -94,10 +94,10 @@ namespace Poderosa.Sessions {
             base.Dispose(disposing);
         }
 
-        #region Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi‚Å¶¬‚³‚ê‚½ƒR[ƒh
+        #region Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠã§ç”Ÿæˆã•ã‚ŒãŸã‚³ãƒ¼ãƒ‰
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this._logTypeBox = new System.Windows.Forms.ComboBox();
@@ -394,7 +394,7 @@ namespace Poderosa.Sessions {
         }
         #endregion
 
-        //EXTPg—p
+        //EXTPä½¿ç”¨
         public void ApplyParam() {
             ICygwinParameter parameter = null;
             ITerminalSettings settings = null;
@@ -450,13 +450,13 @@ namespace Poderosa.Sessions {
             _param.Home = _homeDirectoryBox.Text;
             _param.ShellName = _shellBox.Text;
 
-            //ƒƒOİ’è
+            //ãƒ­ã‚°è¨­å®š
             LogType logtype = ((EnumListItem<LogType>)_logTypeBox.SelectedItem).Value;
             ISimpleLogSettings logsettings = null;
             if (logtype != LogType.None) {
                 logsettings = CreateSimpleLogSettings(logtype, _logFileBox.Text);
                 if (logsettings == null)
-                    return null; //“®ìƒLƒƒƒ“ƒZƒ‹
+                    return null; //å‹•ä½œã‚­ãƒ£ãƒ³ã‚»ãƒ«
             }
             ITerminalSettings settings = this.TerminalSettings;
             settings.BeginUpdate();

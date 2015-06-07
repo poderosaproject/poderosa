@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@ using Poderosa.Preferences;
 namespace Poderosa.Commands {
     /// <summary>
     /// <ja>
-    /// ƒRƒ}ƒ“ƒh‚ÌÀsŒ‹‰Ê‚ğ¦‚µ‚Ü‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰ã®å®Ÿè¡Œçµæœã‚’ç¤ºã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Return the result of the command.
@@ -27,17 +27,17 @@ namespace Poderosa.Commands {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>‚Ì<see cref="IPoderosaCommand.InternalExecute">InternalExecuteƒƒ\ƒbƒh</see>‚ÌÀ‘•Ò‚ÍA
-    /// ƒRƒ}ƒ“ƒh‚ÌÀs‚Ì‰Â”Û‚ğA‚±‚Ì—ñ‹“‘Ì‚Å•Ô‚µ‚Ü‚·B
+    /// <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>ã®<see cref="IPoderosaCommand.InternalExecute">InternalExecuteãƒ¡ã‚½ãƒƒãƒ‰</see>ã®å®Ÿè£…è€…ã¯ã€
+    /// ã‚³ãƒãƒ³ãƒ‰ã®å®Ÿè¡Œã®å¯å¦ã‚’ã€ã“ã®åˆ—æŒ™ä½“ã§è¿”ã—ã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ¬Œ÷‚µ‚½ê‡‚É‚ÍSucceededA¸”s‚µ‚½ê‡‚É‚ÍFailed‚ğ•Ô‚·‚æ‚¤‚ÉÀ‘•‚µ‚Ä‚­‚¾‚³‚¢B
+    /// æˆåŠŸã—ãŸå ´åˆã«ã¯Succeededã€å¤±æ•—ã—ãŸå ´åˆã«ã¯Failedã‚’è¿”ã™ã‚ˆã†ã«å®Ÿè£…ã—ã¦ãã ã•ã„ã€‚
     /// </para>
     /// <para>
-    /// Cancelled‚Íƒ†[ƒU[‘€ì‚É‚æ‚Á‚ÄƒLƒƒƒ“ƒZƒ‹‚³‚ê‚½ê‡‚È‚Ç‚É—p‚¢‚Ü‚·B
+    /// Cancelledã¯ãƒ¦ãƒ¼ã‚¶ãƒ¼æ“ä½œã«ã‚ˆã£ã¦ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã•ã‚ŒãŸå ´åˆãªã©ã«ç”¨ã„ã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// Ignored‚ÍƒRƒ}ƒ“ƒh‚ğÀs‚·‚é‘ÎÛ‚ª‚È‚©‚Á‚½‚Æ‚«i‚½‚Æ‚¦‚Î‘I‘ğ‚³‚ê‚½ƒeƒLƒXƒg‚É‘Î‚µ‚Äˆ—‚·‚×‚«ƒRƒ}ƒ“ƒh‚Ìê‡‚ÉAŒ»İ‘I‘ğ‚µ‚Ä‚¢‚éƒeƒLƒXƒg‚ª‚È‚©‚Á‚½‚Æ‚«‚È‚Çj‚É—p‚¢‚Ü‚·B
+    /// Ignoredã¯ã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè¡Œã™ã‚‹å¯¾è±¡ãŒãªã‹ã£ãŸã¨ãï¼ˆãŸã¨ãˆã°é¸æŠã•ã‚ŒãŸãƒ†ã‚­ã‚¹ãƒˆã«å¯¾ã—ã¦å‡¦ç†ã™ã¹ãã‚³ãƒãƒ³ãƒ‰ã®å ´åˆã«ã€ç¾åœ¨é¸æŠã—ã¦ã„ã‚‹ãƒ†ã‚­ã‚¹ãƒˆãŒãªã‹ã£ãŸã¨ããªã©ï¼‰ã«ç”¨ã„ã¾ã™ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -58,7 +58,7 @@ namespace Poderosa.Commands {
     public enum CommandResult {
         /// <summary>
         /// <ja>
-        /// ¬Œ÷
+        /// æˆåŠŸ
         /// </ja>
         /// <en>
         /// Succeeded.
@@ -67,7 +67,7 @@ namespace Poderosa.Commands {
         Succeeded,
         /// <summary>
         /// <ja>
-        /// ¸”s
+        /// å¤±æ•—
         /// </ja>
         /// <en>
         /// Failed
@@ -76,7 +76,7 @@ namespace Poderosa.Commands {
         Failed,
         /// <summary>
         /// <ja>
-        /// ƒLƒƒƒ“ƒZƒ‹‚µ‚½
+        /// ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã—ãŸ
         /// </ja>
         /// <en>
         /// Canceleld
@@ -85,7 +85,7 @@ namespace Poderosa.Commands {
         Cancelled,
         /// <summary>
         /// <ja>
-        /// –³‹‚µ‚½
+        /// ç„¡è¦–ã—ãŸ
         /// </ja>
         /// <en>
         /// Ignored.
@@ -94,11 +94,11 @@ namespace Poderosa.Commands {
         Ignored
     }
 
-    //ƒRƒ}ƒ“ƒh‚Ì‹ì“®‘ÎÛBƒRƒ“ƒeƒLƒXƒgƒƒjƒ…[‚ğo‚·‘¤‚ª’ñ‹Ÿ‚µ‚ÄAICommand#Execute‚Ìˆø”‚É‚È‚éB
-    //ƒƒCƒ“ƒƒjƒ…[”z‰º‚Ìê‡AƒƒCƒ“ƒEƒBƒ“ƒhƒE‚ğIAdaptableŒo—R‚Åæ“¾‚·‚é‚±‚Æ‚É‚È‚éB
+    //ã‚³ãƒãƒ³ãƒ‰ã®é§†å‹•å¯¾è±¡ã€‚ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’å‡ºã™å´ãŒæä¾›ã—ã¦ã€ICommand#Executeã®å¼•æ•°ã«ãªã‚‹ã€‚
+    //ãƒ¡ã‚¤ãƒ³ãƒ¡ãƒ‹ãƒ¥ãƒ¼é…ä¸‹ã®å ´åˆã€ãƒ¡ã‚¤ãƒ³ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’IAdaptableçµŒç”±ã§å–å¾—ã™ã‚‹ã“ã¨ã«ãªã‚‹ã€‚
     /// <summary>
     /// <ja>
-    /// ƒRƒ}ƒ“ƒh‚ªÀs‚·‚×‚«ƒ^[ƒQƒbƒg‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã™ã¹ãã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows target that command should execute.
@@ -107,20 +107,20 @@ namespace Poderosa.Commands {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍA<seealso cref="ICommandManager">ICommandManager</seealso>‚Ì<see cref="ICommandManager.Execute">Executeƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚µ‚ÄAƒRƒ}ƒ“ƒh‚ğÀs‚·‚éÛ‚Éˆø‚«“n‚·
-    /// ƒ^[ƒQƒbƒg‚Æ‚µ‚Äg‚í‚ê‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€<seealso cref="ICommandManager">ICommandManager</seealso>ã®<see cref="ICommandManager.Execute">Executeãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã—ã¦ã€ã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè¡Œã™ã‚‹éš›ã«å¼•ãæ¸¡ã™
+    /// ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã¨ã—ã¦ä½¿ã‚ã‚Œã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// “n‚³‚ê‚½ƒ^[ƒQƒbƒg‚ÍA<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>‚Ì<see cref="IPoderosaCommand.InternalExecute">InternamExecuteƒƒ\ƒbƒh</see>
-    /// ‚É‚»‚Ì‚Ü‚Üˆø‚«“n‚³‚ê‚Ü‚·B
+    /// æ¸¡ã•ã‚ŒãŸã‚¿ãƒ¼ã‚²ãƒƒãƒˆã¯ã€<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>ã®<see cref="IPoderosaCommand.InternalExecute">InternamExecuteãƒ¡ã‚½ãƒƒãƒ‰</see>
+    /// ã«ãã®ã¾ã¾å¼•ãæ¸¡ã•ã‚Œã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚©‚çŒÄ‚Ño‚³‚ê‚éƒRƒ}ƒ“ƒh‚ÍA<paramref name="target"/>‚É‚ÍAƒƒCƒ“ƒEƒBƒ“ƒhƒE‚ğ¦‚·<see cref="Poderosa.Forms.IPoderosaMainWindow">IPoderosaMainWindow</see>
-    /// ‚ª“n‚³‚ê‚é‚±‚Æ‚ğ‘z’è‚µ‚Ä‚¢‚Ü‚·B‚±‚ÌíˆÈŠO‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ª“n‚³‚ê‚½‚Æ‚«‚É‚ÍA
-    /// ³‚µ‚­“®ì‚µ‚Ü‚¹‚ñB
+    /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ã‚³ãƒãƒ³ãƒ‰ã¯ã€<paramref name="target"/>ã«ã¯ã€ãƒ¡ã‚¤ãƒ³ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ç¤ºã™<see cref="Poderosa.Forms.IPoderosaMainWindow">IPoderosaMainWindow</see>
+    /// ãŒæ¸¡ã•ã‚Œã‚‹ã“ã¨ã‚’æƒ³å®šã—ã¦ã„ã¾ã™ã€‚ã“ã®ç¨®ä»¥å¤–ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ãŒæ¸¡ã•ã‚ŒãŸã¨ãã«ã¯ã€
+    /// æ­£ã—ãå‹•ä½œã—ã¾ã›ã‚“ã€‚
     /// </para>
     /// <para>
-    /// <seealso cref="CommandTargetUtil">CommandTargetUtil</seealso>‚ğg‚¤‚ÆAƒ^[ƒQƒbƒg‚ğƒEƒBƒ“ƒhƒE‚âƒrƒ…[‚Ö‚Æ•ÏŠ·‚Å‚«‚Ü‚·B
+    /// <seealso cref="CommandTargetUtil">CommandTargetUtil</seealso>ã‚’ä½¿ã†ã¨ã€ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚„ãƒ“ãƒ¥ãƒ¼ã¸ã¨å¤‰æ›ã§ãã¾ã™ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -144,14 +144,14 @@ namespace Poderosa.Commands {
     public interface ICommandTarget : IAdaptable {
     }
 
-    //Menu/Command‚ÌÀs‰Â”Û‚Ìdelegate
+    //Menu/Commandã®å®Ÿè¡Œå¯å¦ã®delegate
     /// <summary>
-    /// <ja>ƒƒjƒ…[‚Éƒ`ƒFƒbƒN‚ª•t‚¢‚Ä‚¢‚é‚©‚Ç‚¤‚©‚ğŒˆ‚ß‚é‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg‚Å‚·B</ja>
+    /// <ja>ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã«ãƒã‚§ãƒƒã‚¯ãŒä»˜ã„ã¦ã„ã‚‹ã‹ã©ã†ã‹ã‚’æ±ºã‚ã‚‹ã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã§ã™ã€‚</ja>
     /// <en>Delegate called when it is decided whether the check has adhered to the menu. </en>
     /// </summary>
     /// <param name="target">
     /// <ja>
-    /// ƒRƒ}ƒ“ƒh‚Ì‘ÎÛ‚ğ¦‚·ƒ^[ƒQƒbƒg‚Å‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰ã®å¯¾è±¡ã‚’ç¤ºã™ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Target that shows object of command.
@@ -159,7 +159,7 @@ namespace Poderosa.Commands {
     /// </param>
     /// <returns>
     /// <ja>
-    /// ƒ`ƒFƒbƒN‚ª•t‚¢‚Ä‚¢‚é‚È‚çtrue‚ğA‚»‚¤‚Å‚È‚¢‚È‚çfalse‚ğ•Ô‚µ‚Ä‚­‚¾‚³‚¢B
+    /// ãƒã‚§ãƒƒã‚¯ãŒä»˜ã„ã¦ã„ã‚‹ãªã‚‰trueã‚’ã€ãã†ã§ãªã„ãªã‚‰falseã‚’è¿”ã—ã¦ãã ã•ã„ã€‚
     /// </ja>
     /// <en>
     /// Please return true and return false if it is not so if the check has adhered. 
@@ -168,10 +168,10 @@ namespace Poderosa.Commands {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// <paramref name="target">target</paramref>‚É‚ÍƒAƒNƒeƒBƒuƒEƒBƒ“ƒhƒE‚ğ¦‚·<see cref="Poderosa.Forms.IPoderosaMainWindow">IPoderosaMainWindow</see>iƒƒCƒ“ƒƒjƒ…[‚Ìê‡j‚Ü‚½‚ÍƒAƒNƒeƒBƒuƒrƒ…[‚ğ¦‚·<see cref="Poderosa.Sessions.IPoderosaView">IPoderosaView</see>iƒRƒ“ƒeƒLƒXƒgƒƒjƒ…[‚Ìê‡j‚Ì‚¢‚¸‚ê‚©‚ª“n‚³‚ê‚Ü‚·B
+    /// <paramref name="target">target</paramref>ã«ã¯ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ç¤ºã™<see cref="Poderosa.Forms.IPoderosaMainWindow">IPoderosaMainWindow</see>ï¼ˆãƒ¡ã‚¤ãƒ³ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®å ´åˆï¼‰ã¾ãŸã¯ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãƒ“ãƒ¥ãƒ¼ã‚’ç¤ºã™<see cref="Poderosa.Sessions.IPoderosaView">IPoderosaView</see>ï¼ˆã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®å ´åˆï¼‰ã®ã„ãšã‚Œã‹ãŒæ¸¡ã•ã‚Œã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ‚±‚ÌƒfƒŠƒQ[ƒg‚©‚ç‚Ì–ß‚è’l‚ÍAƒƒjƒ…[‚Éƒ`ƒFƒbƒN‚ğ•t‚¯‚é‚Ì‚©‚Ç‚¤‚©‚ğ”»’f‚·‚é‚Ì‚Ég‚í‚ê‚Ü‚·B <seealso cref="PoderosaMenuItemImpl">PoderosaMenuItemImpl</seealso>‚ğQÆ‚µ‚Ä‚­‚¾‚³‚¢B
+    /// ã“ã®ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã‹ã‚‰ã®æˆ»ã‚Šå€¤ã¯ã€ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã«ãƒã‚§ãƒƒã‚¯ã‚’ä»˜ã‘ã‚‹ã®ã‹ã©ã†ã‹ã‚’åˆ¤æ–­ã™ã‚‹ã®ã«ä½¿ã‚ã‚Œã¾ã™ã€‚ <seealso cref="PoderosaMenuItemImpl">PoderosaMenuItemImpl</seealso>ã‚’å‚ç…§ã—ã¦ãã ã•ã„ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -182,7 +182,7 @@ namespace Poderosa.Commands {
 
     /// <summary>
     /// <ja>
-    /// ƒƒjƒ…[‚âƒc[ƒ‹ƒo[ƒ{ƒ^ƒ“‚ªƒCƒl[ƒuƒ‹‚©ƒfƒBƒXƒGƒuƒ‹‚©‚ğŒˆ‚ß‚é‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg‚Å‚·B
+    /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãƒœã‚¿ãƒ³ãŒã‚¤ãƒãƒ¼ãƒ–ãƒ«ã‹ãƒ‡ã‚£ã‚¹ã‚¨ãƒ–ãƒ«ã‹ã‚’æ±ºã‚ã‚‹ã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Delegate called when whether menu and toolbar button are enable or disable is decided
@@ -190,7 +190,7 @@ namespace Poderosa.Commands {
     /// </summary>
     /// <param name="target">
     /// <ja>
-    /// ƒRƒ}ƒ“ƒh‚Ì‘ÎÛ‚ğ¦‚·ƒ^[ƒQƒbƒg‚Å‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰ã®å¯¾è±¡ã‚’ç¤ºã™ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Target that shows object of command.
@@ -198,7 +198,7 @@ namespace Poderosa.Commands {
     /// </param>
     /// <returns>
     /// <ja>
-    /// ƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚Ìƒ{ƒ^ƒ“‚ª‘I‘ğ‚Å‚«‚é‚È‚çtrue‚ğA‚»‚¤‚Å‚È‚¢‚È‚çfalse‚ğ•Ô‚µ‚Ä‚­‚¾‚³‚¢B
+    /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã®ãƒœã‚¿ãƒ³ãŒé¸æŠã§ãã‚‹ãªã‚‰trueã‚’ã€ãã†ã§ãªã„ãªã‚‰falseã‚’è¿”ã—ã¦ãã ã•ã„ã€‚
     /// </ja>
     /// <en>
     ///  Please return true and return false if it is not so if you can select the button of the menu and the toolbar. 
@@ -207,10 +207,10 @@ namespace Poderosa.Commands {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// <paramref name="target">target</paramref>‚É‚ÍƒAƒNƒeƒBƒuƒEƒBƒ“ƒhƒE‚ğ¦‚·<see cref="Poderosa.Forms.IPoderosaMainWindow">IPoderosaMainWindow</see>iƒƒCƒ“ƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚Ìê‡j‚Ü‚½‚ÍƒAƒNƒeƒBƒuƒrƒ…[‚ğ¦‚·<see cref="Poderosa.Sessions.IPoderosaView">IPoderosaView</see>iƒRƒ“ƒeƒLƒXƒgƒƒjƒ…[‚Ìê‡j‚Ì‚¢‚¸‚ê‚©‚ª“n‚³‚ê‚Ü‚·B
+    /// <paramref name="target">target</paramref>ã«ã¯ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ç¤ºã™<see cref="Poderosa.Forms.IPoderosaMainWindow">IPoderosaMainWindow</see>ï¼ˆãƒ¡ã‚¤ãƒ³ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã®å ´åˆï¼‰ã¾ãŸã¯ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãƒ“ãƒ¥ãƒ¼ã‚’ç¤ºã™<see cref="Poderosa.Sessions.IPoderosaView">IPoderosaView</see>ï¼ˆã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®å ´åˆï¼‰ã®ã„ãšã‚Œã‹ãŒæ¸¡ã•ã‚Œã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ‚±‚ÌƒfƒŠƒQ[ƒg‚©‚ç‚Ì–ß‚è’l‚ÍAƒƒjƒ…[‚âƒc[ƒ‹ƒ{ƒ^ƒ“‚ğƒCƒl[ƒuƒ‹‚É‚·‚é‚©ƒfƒBƒXƒGƒuƒ‹‚É‚·‚é‚©‚ğ’è‚ß‚é‚Ì‚Ég‚í‚ê‚Ü‚·B<seealso cref="PoderosaMenuItemImpl">PoderosaMenuItemImpl</seealso>‚â<seealso cref="Poderosa.Forms.ToolBarElementImpl">ToolBarElementImpl</seealso>‚ğQÆ‚µ‚Ä‚­‚¾‚³‚¢B
+    /// ã“ã®ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã‹ã‚‰ã®æˆ»ã‚Šå€¤ã¯ã€ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒœã‚¿ãƒ³ã‚’ã‚¤ãƒãƒ¼ãƒ–ãƒ«ã«ã™ã‚‹ã‹ãƒ‡ã‚£ã‚¹ã‚¨ãƒ–ãƒ«ã«ã™ã‚‹ã‹ã‚’å®šã‚ã‚‹ã®ã«ä½¿ã‚ã‚Œã¾ã™ã€‚<seealso cref="PoderosaMenuItemImpl">PoderosaMenuItemImpl</seealso>ã‚„<seealso cref="Poderosa.Forms.ToolBarElementImpl">ToolBarElementImpl</seealso>ã‚’å‚ç…§ã—ã¦ãã ã•ã„ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -221,7 +221,7 @@ namespace Poderosa.Commands {
 
     /// <summary>
     /// <ja>
-    /// ƒRƒ}ƒ“ƒh‚ªÀs‰Â”\‚©‚Ç‚¤‚©‚ğ’è‚ß‚é‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg‚Å‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œå¯èƒ½ã‹ã©ã†ã‹ã‚’å®šã‚ã‚‹ã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Delegate called when it is provided whether command is executable.
@@ -229,7 +229,7 @@ namespace Poderosa.Commands {
     /// </summary>
     /// <param name="target">
     /// <ja>
-    /// ƒRƒ}ƒ“ƒh‚Ì‘ÎÛ‚ğ¦‚·ƒ^[ƒQƒbƒg‚Å‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰ã®å¯¾è±¡ã‚’ç¤ºã™ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Target that shows object of command.
@@ -237,7 +237,7 @@ namespace Poderosa.Commands {
     /// </param>
     /// <returns>
     /// <ja>
-    /// ƒRƒ}ƒ“ƒh‚ğÀs‰Â”\‚È‚çtrue‚ğA‚»‚¤‚Å‚È‚¢‚È‚çfalse‚ğ•Ô‚µ‚Ä‚­‚¾‚³‚¢B
+    /// ã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè¡Œå¯èƒ½ãªã‚‰trueã‚’ã€ãã†ã§ãªã„ãªã‚‰falseã‚’è¿”ã—ã¦ãã ã•ã„ã€‚
     /// </ja>
     /// <en>
     /// Return true if it is executable, false if it is not.
@@ -246,11 +246,11 @@ namespace Poderosa.Commands {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚©‚çŒÄ‚Ño‚³‚ê‚éê‡A<paramref name="target">target</paramref>‚É‚ÍƒAƒNƒeƒBƒuƒEƒBƒ“ƒhƒE‚ğ¦‚·<see cref="Poderosa.Forms.IPoderosaMainWindow">IPoderosaMainWindow</see>iƒƒCƒ“ƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚Ìê‡j‚Ü‚½‚ÍƒAƒNƒeƒBƒuƒrƒ…[‚ğ¦‚·<see cref="Poderosa.Sessions.IPoderosaView">IPoderosaView</see>iƒRƒ“ƒeƒLƒXƒgƒƒjƒ…[‚Ìê‡j‚Ì‚¢‚¸‚ê‚©‚ª“n‚³‚ê‚Ü‚·B
+    /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹å ´åˆã€<paramref name="target">target</paramref>ã«ã¯ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ç¤ºã™<see cref="Poderosa.Forms.IPoderosaMainWindow">IPoderosaMainWindow</see>ï¼ˆãƒ¡ã‚¤ãƒ³ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã®å ´åˆï¼‰ã¾ãŸã¯ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãƒ“ãƒ¥ãƒ¼ã‚’ç¤ºã™<see cref="Poderosa.Sessions.IPoderosaView">IPoderosaView</see>ï¼ˆã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®å ´åˆï¼‰ã®ã„ãšã‚Œã‹ãŒæ¸¡ã•ã‚Œã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ‚±‚ÌƒfƒŠƒQ[ƒg‚Í<seealso cref="GeneralCommandImpl">GeneralCommandImpl</seealso>‚â<seealso cref="PoderosaCommandImpl">PoderosaCommandImpl</seealso>‚È‚Ç‚ÅA<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>‚Ì
-    /// <see cref="IPoderosaCommand.CanExecute">CanExecuteƒƒ\ƒbƒh</see>‚ªŒÄ‚Ño‚³‚ê‚éƒ^ƒCƒ~ƒ“ƒO‚ÅŒÄ‚Ño‚³‚ê‚Ü‚·B
+    /// ã“ã®ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã¯<seealso cref="GeneralCommandImpl">GeneralCommandImpl</seealso>ã‚„<seealso cref="PoderosaCommandImpl">PoderosaCommandImpl</seealso>ãªã©ã§ã€<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>ã®
+    /// <see cref="IPoderosaCommand.CanExecute">CanExecuteãƒ¡ã‚½ãƒƒãƒ‰</see>ãŒå‘¼ã³å‡ºã•ã‚Œã‚‹ã‚¿ã‚¤ãƒŸãƒ³ã‚°ã§å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
     /// </para>
     /// </ja>
     /// <en>This delegatee is called in <seealso cref="GeneralCommandImpl">GeneralCommandImpl</seealso> and <seealso cref="PoderosaCommandImpl">PoderosaCommandImpl</seealso>, etc. according to timing where the <see cref="IPoderosaCommand.CanExecute">CanExecute method</see> of <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso> is called. 
@@ -265,7 +265,7 @@ namespace Poderosa.Commands {
 
     /// <summary>
     /// <ja>
-    /// ƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚é‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg‚Å‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹ã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Delegate called when command is executed
@@ -273,7 +273,7 @@ namespace Poderosa.Commands {
     /// </summary>
     /// <param name="target">
     /// <ja>
-    /// ƒRƒ}ƒ“ƒh‚Ì‘ÎÛ‚ğ¦‚·ƒ^[ƒQƒbƒg‚Å‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰ã®å¯¾è±¡ã‚’ç¤ºã™ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Target that shows object of command.
@@ -281,7 +281,7 @@ namespace Poderosa.Commands {
     /// </param>
     /// <returns>
     /// <ja>
-    /// ƒRƒ}ƒ“ƒh‚ÌÀsŒ‹‰Ê‚ğ•Ô‚µ‚Ä‚­‚¾‚³‚¢B
+    /// ã‚³ãƒãƒ³ãƒ‰ã®å®Ÿè¡Œçµæœã‚’è¿”ã—ã¦ãã ã•ã„ã€‚
     /// </ja>
     /// <en>
     /// Please return the execution result of the command. 
@@ -290,11 +290,11 @@ namespace Poderosa.Commands {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚©‚çŒÄ‚Ño‚³‚ê‚éê‡A<paramref name="target">target</paramref>‚É‚ÍƒAƒNƒeƒBƒuƒEƒBƒ“ƒhƒE‚ğ¦‚·<see cref="T:Poderosa.Forms.IPoderosaMainWindow">IPoderosaMainWindow</see>iƒƒCƒ“ƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚Ìê‡j‚Ü‚½‚ÍƒAƒNƒeƒBƒuƒrƒ…[‚ğ¦‚·<see cref="T:Poderosa.Sessions.IPoderosaView">IPoderosaView</see>iƒRƒ“ƒeƒLƒXƒgƒƒjƒ…[‚Ìê‡j‚Ì‚¢‚¸‚ê‚©‚ª“n‚³‚ê‚Ü‚·B
+    /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹å ´åˆã€<paramref name="target">target</paramref>ã«ã¯ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ç¤ºã™<see cref="T:Poderosa.Forms.IPoderosaMainWindow">IPoderosaMainWindow</see>ï¼ˆãƒ¡ã‚¤ãƒ³ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã®å ´åˆï¼‰ã¾ãŸã¯ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãƒ“ãƒ¥ãƒ¼ã‚’ç¤ºã™<see cref="T:Poderosa.Sessions.IPoderosaView">IPoderosaView</see>ï¼ˆã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®å ´åˆï¼‰ã®ã„ãšã‚Œã‹ãŒæ¸¡ã•ã‚Œã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ‚±‚ÌƒfƒŠƒQ[ƒg‚Í<seealso cref="GeneralCommandImpl">GeneralCommandImpl</seealso>‚â<seealso cref="PoderosaCommandImpl">PoderosaCommandImpl</seealso>‚È‚Ç‚ÅA<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>‚Ì
-    /// <see cref="IPoderosaCommand.InternalExecute">InternalExecuteƒƒ\ƒbƒh</see>‚ªŒÄ‚Ño‚³‚ê‚éƒ^ƒCƒ~ƒ“ƒO‚ÅŒÄ‚Ño‚³‚ê‚Ü‚·B
+    /// ã“ã®ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã¯<seealso cref="GeneralCommandImpl">GeneralCommandImpl</seealso>ã‚„<seealso cref="PoderosaCommandImpl">PoderosaCommandImpl</seealso>ãªã©ã§ã€<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>ã®
+    /// <see cref="IPoderosaCommand.InternalExecute">InternalExecuteãƒ¡ã‚½ãƒƒãƒ‰</see>ãŒå‘¼ã³å‡ºã•ã‚Œã‚‹ã‚¿ã‚¤ãƒŸãƒ³ã‚°ã§å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -305,17 +305,17 @@ namespace Poderosa.Commands {
     ///  when it is called from the menu and the toolbar. 
     /// </para>
     /// <para>
-    /// This delegate is called in <seealso cref="GeneralCommandImpl">GeneralCommandImpl</seealso> and <seealso cref="PoderosaCommandImpl">PoderosaCommandImpl</seealso>, etc. according to timing where the <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>‚Ì
+    /// This delegate is called in <seealso cref="GeneralCommandImpl">GeneralCommandImpl</seealso> and <seealso cref="PoderosaCommandImpl">PoderosaCommandImpl</seealso>, etc. according to timing where the <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>ã®
     /// <see cref="IPoderosaCommand.InternalExecute">InternalExecute method</see> of IPoderosaCommand is called. 
     /// </para>
     /// </en>
     /// </remarks>
     public delegate CommandResult ExecuteDelegate(ICommandTarget target);
 
-    //ƒRƒ}ƒ“ƒh‚ÌŠî’ê
+    //ã‚³ãƒãƒ³ãƒ‰ã®åŸºåº•
     /// <summary>
     /// <ja>
-    /// ƒRƒ}ƒ“ƒh‹@”\‚ğ’ñ‹Ÿ‚·‚éƒvƒ‰ƒOƒCƒ“‚ªÀ‘•‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰æ©Ÿèƒ½ã‚’æä¾›ã™ã‚‹ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒå®Ÿè£…ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that plug-in that offers command function implements.
@@ -324,11 +324,11 @@ namespace Poderosa.Commands {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ƒRƒ}ƒ“ƒhƒ}ƒl[ƒWƒƒi<seealso cref="T:Poderosa.Commands.ICommandManager">ICommandManager</seealso>j‚É‚æ‚Á‚ÄÀs‚³‚ê‚éƒRƒ}ƒ“ƒh‚ğ’ñ‹Ÿ‚·‚éê‡‚É‚ÍAƒvƒ‰ƒOƒCƒ“‚ª‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğÀ‘•‚µ‚Ü‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰ãƒãƒãƒ¼ã‚¸ãƒ£ï¼ˆ<seealso cref="T:Poderosa.Commands.ICommandManager">ICommandManager</seealso>ï¼‰ã«ã‚ˆã£ã¦å®Ÿè¡Œã•ã‚Œã‚‹ã‚³ãƒãƒ³ãƒ‰ã‚’æä¾›ã™ã‚‹å ´åˆã«ã¯ã€ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’å®Ÿè£…ã—ã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ƒRƒ}ƒ“ƒhƒ}ƒl[ƒWƒƒ‚Ì<see cref="M:Poderosa.Commands.ICommandManager.Execute(Poderosa.Commands.IPoderosaCommand,Poderosa.Commands.ICommandTarget,Poderosa.IAdaptable[])">Executeƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚·‚ÆA‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÉÀ‘•‚³‚ê‚Ä‚¢‚é
-    /// <see cref="M:Poderosa.Commands.IPoderosaCommand.InternalExecute(Poderosa.Commands.ICommandTarget,Poderosa.IAdaptable[])">InternalExecuteƒƒ\ƒbƒh</see>‚ªŠÔÚ“I‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰ãƒãƒãƒ¼ã‚¸ãƒ£ã®<see cref="M:Poderosa.Commands.ICommandManager.Execute(Poderosa.Commands.IPoderosaCommand,Poderosa.Commands.ICommandTarget,Poderosa.IAdaptable[])">Executeãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã™ã¨ã€ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã«å®Ÿè£…ã•ã‚Œã¦ã„ã‚‹
+    /// <see cref="M:Poderosa.Commands.IPoderosaCommand.InternalExecute(Poderosa.Commands.ICommandTarget,Poderosa.IAdaptable[])">InternalExecuteãƒ¡ã‚½ãƒƒãƒ‰</see>ãŒé–“æ¥çš„ã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -343,10 +343,10 @@ namespace Poderosa.Commands {
     /// </en>
     /// </remarks>
     public interface IPoderosaCommand : IAdaptable {
-        //ƒ†[ƒU‚ª‚±‚ê‚ğ’¼ÚŒÄ‚ñ‚Å‚Í‚¢‚¯‚È‚¢BCommandManager#Execute‚ğg‚¤‚±‚ÆI
+        //ãƒ¦ãƒ¼ã‚¶ãŒã“ã‚Œã‚’ç›´æ¥å‘¼ã‚“ã§ã¯ã„ã‘ãªã„ã€‚CommandManager#Executeã‚’ä½¿ã†ã“ã¨ï¼
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚é‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒƒ\ƒbƒh‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹ã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Method of call when command is executed
@@ -354,7 +354,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="target">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚Ì‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Target target for command.
@@ -365,7 +365,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="args">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚É“n‚³‚ê‚é”CˆÓ‚Ìˆø”‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã«æ¸¡ã•ã‚Œã‚‹ä»»æ„ã®å¼•æ•°ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is an arbitrary argument passed to the command. 
@@ -373,7 +373,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <returns>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ª¬Œ÷‚©‚µ‚½‚©‚Ç‚¤‚©‚ğ¦‚·–ß‚è’l‚Å‚·B¬Œ÷‚µ‚½‚Æ‚«‚É‚Í<see cref="CommandResult.Succeeded">CommandResult.Succeeded</see>‚ğ•Ô‚µ‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ãŒæˆåŠŸã‹ã—ãŸã‹ã©ã†ã‹ã‚’ç¤ºã™æˆ»ã‚Šå€¤ã§ã™ã€‚æˆåŠŸã—ãŸã¨ãã«ã¯<see cref="CommandResult.Succeeded">CommandResult.Succeeded</see>ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is a return value that shows whether it was that the command succeeds. 
@@ -383,14 +383,14 @@ namespace Poderosa.Commands {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ÍAƒRƒ}ƒ“ƒhƒ}ƒl[ƒWƒƒi<seealso cref="ICommandManager">ICommandManager</seealso>j‚Ì<see cref="ICommandManager.Execute">Executeƒƒ\ƒbƒh</see>
-        /// ‚ªŒÄ‚Ño‚³‚ê‚½‚Æ‚«‚ÉAŠÔÚ“I‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·BŠJ”­Ò‚ÍA‚±‚Ìƒƒ\ƒbƒh‚ğ’¼ÚŒÄ‚Ño‚µ‚Ä‚Í‚¢‚¯‚Ü‚¹‚ñB
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã€ã‚³ãƒãƒ³ãƒ‰ãƒãƒãƒ¼ã‚¸ãƒ£ï¼ˆ<seealso cref="ICommandManager">ICommandManager</seealso>ï¼‰ã®<see cref="ICommandManager.Execute">Executeãƒ¡ã‚½ãƒƒãƒ‰</see>
+        /// ãŒå‘¼ã³å‡ºã•ã‚ŒãŸã¨ãã«ã€é–“æ¥çš„ã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚é–‹ç™ºè€…ã¯ã€ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‚’ç›´æ¥å‘¼ã³å‡ºã—ã¦ã¯ã„ã‘ã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// <paramref name="target">target</paramref>‚â<paramref name="args">args</paramref>‚ÍA<see cref="ICommandManager.Execute">Executeƒƒ\ƒbƒh</see>‚ÌŒÄ‚Ño‚µ‚Å“n‚³‚ê‚½ˆø”‚ª‚»‚Ì‚Ü‚Ü“n‚³‚ê‚Ü‚·B
+        /// <paramref name="target">target</paramref>ã‚„<paramref name="args">args</paramref>ã¯ã€<see cref="ICommandManager.Execute">Executeãƒ¡ã‚½ãƒƒãƒ‰</see>ã®å‘¼ã³å‡ºã—ã§æ¸¡ã•ã‚ŒãŸå¼•æ•°ãŒãã®ã¾ã¾æ¸¡ã•ã‚Œã¾ã™ã€‚
         /// </para>
         /// <para>
-        /// <seealso cref="CommandTargetUtil">CommandTargetUtil</seealso>‚ğg‚¤‚ÆA<paramref name="target">target</paramref>‚ğƒEƒBƒ“ƒhƒE‚âƒrƒ…[‚Ö‚Æ•ÏŠ·‚Å‚«‚Ü‚·B
+        /// <seealso cref="CommandTargetUtil">CommandTargetUtil</seealso>ã‚’ä½¿ã†ã¨ã€<paramref name="target">target</paramref>ã‚’ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚„ãƒ“ãƒ¥ãƒ¼ã¸ã¨å¤‰æ›ã§ãã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -407,12 +407,12 @@ namespace Poderosa.Commands {
         /// </para>
         /// </en>
         /// </remarks>
-        CommandResult InternalExecute(ICommandTarget target, params IAdaptable[] args); //Eclipse‚Å‚Í‚±‚±‚É‚Íˆø”‚ª‚ ‚èAƒpƒ‰ƒ[ƒ^‚âƒRƒ}ƒ“ƒh‹N“®Œ³‚ªæ‚ê‚éB‚ªA‚±‚ê‚ÍˆÓ–¡“I‚ÉICommand‚ÌÀ‘•‚ª’m‚Á‚Ä‚¢‚é‚×‚«“à—e‚¾
+        CommandResult InternalExecute(ICommandTarget target, params IAdaptable[] args); //Eclipseã§ã¯ã“ã“ã«ã¯å¼•æ•°ãŒã‚ã‚Šã€ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚„ã‚³ãƒãƒ³ãƒ‰èµ·å‹•å…ƒãŒå–ã‚Œã‚‹ã€‚ãŒã€ã“ã‚Œã¯æ„å‘³çš„ã«ICommandã®å®Ÿè£…ãŒçŸ¥ã£ã¦ã„ã‚‹ã¹ãå†…å®¹ã 
 
-        //ƒRƒ}ƒ“ƒh‚ªÀs‰Â”\‚©‚Ç‚¤‚©‚Ì”»’èBÀs‚µ‚Ä‚İ‚é‚Ü‚Å‚í‚©‚ç‚È‚¢‚æ‚¤‚È‚Æ‚«‚Í‚Æ‚è‚ ‚¦‚¸true‚ğ•Ô‚·‚±‚ÆB
+        //ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œå¯èƒ½ã‹ã©ã†ã‹ã®åˆ¤å®šã€‚å®Ÿè¡Œã—ã¦ã¿ã‚‹ã¾ã§ã‚ã‹ã‚‰ãªã„ã‚ˆã†ãªã¨ãã¯ã¨ã‚Šã‚ãˆãštrueã‚’è¿”ã™ã“ã¨ã€‚
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ªÀs‰Â”\‚©‚Ç‚¤‚©‚ğ•Ô‚µ‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œå¯èƒ½ã‹ã©ã†ã‹ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return whether the command is executable.
@@ -420,7 +420,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="target">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ÌÀs‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®å®Ÿè¡Œå¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Target that shows object of command.
@@ -428,7 +428,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <returns>
         /// <ja>
-        /// Às‰Â”\‚È‚çtrueA‚»‚¤‚Å‚È‚¢‚È‚çfalse‚ğ•Ô‚µ‚Ä‚­‚¾‚³‚¢B
+        /// å®Ÿè¡Œå¯èƒ½ãªã‚‰trueã€ãã†ã§ãªã„ãªã‚‰falseã‚’è¿”ã—ã¦ãã ã•ã„ã€‚
         /// </ja>
         /// <en>
         /// Return true if it is executable, false if it is not.
@@ -437,13 +437,13 @@ namespace Poderosa.Commands {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ÍAƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚ªA€–Ú‚ğƒfƒBƒXƒGƒuƒ‹‚É‚·‚é‚©‚Ç‚¤‚©‚ğŒˆ‚ß‚é‚Æ‚«‚Ég‚í‚ê‚Ü‚·B
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã€ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒã€é …ç›®ã‚’ãƒ‡ã‚£ã‚¹ã‚¨ãƒ–ãƒ«ã«ã™ã‚‹ã‹ã©ã†ã‹ã‚’æ±ºã‚ã‚‹ã¨ãã«ä½¿ã‚ã‚Œã¾ã™ã€‚
         /// </para>
         /// <para>
-        /// false‚ğ•Ô‚·‚ÆƒfƒBƒXƒGƒuƒ‹‚É‚È‚èAƒ†[ƒU[‚ª‘I‘ğ‚Å‚«‚È‚­‚È‚è‚Ü‚·B
+        /// falseã‚’è¿”ã™ã¨ãƒ‡ã‚£ã‚¹ã‚¨ãƒ–ãƒ«ã«ãªã‚Šã€ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒé¸æŠã§ããªããªã‚Šã¾ã™ã€‚
         /// </para>
         /// <para>
-        /// ƒRƒ}ƒ“ƒh‚ğÀs‚·‚é‚Ü‚ÅAÀs‰Â”\‚©‚Ç‚¤‚©‚ª‚í‚©‚ç‚È‚¢‚Æ‚«‚É‚ÍAtrue‚ğ•Ô‚·‚æ‚¤‚ÉÀ‘•‚µ‚Ä‚­‚¾‚³‚¢B
+        /// ã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè¡Œã™ã‚‹ã¾ã§ã€å®Ÿè¡Œå¯èƒ½ã‹ã©ã†ã‹ãŒã‚ã‹ã‚‰ãªã„ã¨ãã«ã¯ã€trueã‚’è¿”ã™ã‚ˆã†ã«å®Ÿè£…ã—ã¦ãã ã•ã„ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -461,10 +461,10 @@ namespace Poderosa.Commands {
         bool CanExecute(ICommandTarget target);
     }
 
-    //ƒƒCƒ“ƒƒjƒ…[‚©‚ç‚½‚Ç‚ê‚éƒ^ƒCƒv‚Ì‚â‚Â
+    //ãƒ¡ã‚¤ãƒ³ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‹ã‚‰ãŸã©ã‚Œã‚‹ã‚¿ã‚¤ãƒ—ã®ã‚„ã¤
     /// <summary>
     /// <ja>
-    /// ƒRƒ}ƒ“ƒhƒ}ƒl[ƒWƒƒ‚É‚æ‚Á‚ÄŠÇ—‚³‚ê‚éƒRƒ}ƒ“ƒh‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰ãƒãƒãƒ¼ã‚¸ãƒ£ã«ã‚ˆã£ã¦ç®¡ç†ã•ã‚Œã‚‹ã‚³ãƒãƒ³ãƒ‰ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows command managed by command manager
@@ -473,7 +473,7 @@ namespace Poderosa.Commands {
     public interface IGeneralCommand : IPoderosaCommand {
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ğ“à•”‚Å¯•Ê‚·‚é‚½‚ß‚ÌuƒRƒ}ƒ“ƒhIDv‚Å‚·B‘¼‚ÌƒRƒ}ƒ“ƒh‚Æ‚Íd•¡‚µ‚È‚¢ˆêˆÓ‚Ì‚à‚Ì‚ğİ’è‚µ‚Ü‚·B 
+        /// ã‚³ãƒãƒ³ãƒ‰ã‚’å†…éƒ¨ã§è­˜åˆ¥ã™ã‚‹ãŸã‚ã®ã€Œã‚³ãƒãƒ³ãƒ‰IDã€ã§ã™ã€‚ä»–ã®ã‚³ãƒãƒ³ãƒ‰ã¨ã¯é‡è¤‡ã—ãªã„ä¸€æ„ã®ã‚‚ã®ã‚’è¨­å®šã—ã¾ã™ã€‚ 
         /// </ja>
         /// <en>
         /// It is "command ID" to identify the command internally. The unique one that doesn't overlap is set as other commands. 
@@ -481,10 +481,10 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ŠJ”­Ò‚ªƒRƒ}ƒ“ƒh‚ğ’ñ‹Ÿ‚·‚éê‡‚É‚ÍA‘¼‚Ìƒvƒ‰ƒOƒCƒ“‚ª’ñ‹Ÿ‚·‚éƒRƒ}ƒ“ƒhID‚Æd•¡‚µ‚È‚¢‚æ‚¤‚É‚·‚é‚½‚ßA
-        /// uƒvƒ‰ƒOƒCƒ“IDv‚Ì‰º‚É“K“–‚È–¼‘O‚ğ•t‚¯‚½–½–¼‹K‘¥‚ÅuƒRƒ}ƒ“ƒhIDv‚ğŒˆ’è‚·‚é‚±‚Æ‚ğ„§‚µ‚Ü‚·B
-        /// ‚½‚Æ‚¦‚Îu<c>co.jp.example.myplugin</c>v‚Æ‚¢‚¤ƒvƒ‰ƒOƒCƒ“ID‚ğ‚à‚Âƒvƒ‰ƒOƒCƒ“‚È‚ç‚ÎA
-        /// ƒRƒ}ƒ“ƒhID‚Æ‚µ‚Äu<c>co.jp.example.myplugin.mycommand</c>v‚Æ‚¢‚Á‚½–¼‘O‚ğ•t‚¯‚é‚æ‚¤‚É‚µ‚Ü‚·B 
+        /// é–‹ç™ºè€…ãŒã‚³ãƒãƒ³ãƒ‰ã‚’æä¾›ã™ã‚‹å ´åˆã«ã¯ã€ä»–ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒæä¾›ã™ã‚‹ã‚³ãƒãƒ³ãƒ‰IDã¨é‡è¤‡ã—ãªã„ã‚ˆã†ã«ã™ã‚‹ãŸã‚ã€
+        /// ã€Œãƒ—ãƒ©ã‚°ã‚¤ãƒ³IDã€ã®ä¸‹ã«é©å½“ãªåå‰ã‚’ä»˜ã‘ãŸå‘½åè¦å‰‡ã§ã€Œã‚³ãƒãƒ³ãƒ‰IDã€ã‚’æ±ºå®šã™ã‚‹ã“ã¨ã‚’æ¨å¥¨ã—ã¾ã™ã€‚
+        /// ãŸã¨ãˆã°ã€Œ<c>co.jp.example.myplugin</c>ã€ã¨ã„ã†ãƒ—ãƒ©ã‚°ã‚¤ãƒ³IDã‚’ã‚‚ã¤ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãªã‚‰ã°ã€
+        /// ã‚³ãƒãƒ³ãƒ‰IDã¨ã—ã¦ã€Œ<c>co.jp.example.myplugin.mycommand</c>ã€ã¨ã„ã£ãŸåå‰ã‚’ä»˜ã‘ã‚‹ã‚ˆã†ã«ã—ã¾ã™ã€‚ 
         /// </ja>
         /// <en>
         /// Command ID is recommended to be decided in the naming convention that names a suitable name under "plug-in ID" to make it not overlap with "command ID" that other plug-ins offer when the developer offers the command. 
@@ -496,7 +496,7 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚Ìà–¾•¶‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®èª¬æ˜æ–‡ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Explanation of command
@@ -504,7 +504,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// İ’è‚µ‚½’l‚ÍAƒIƒvƒVƒ‡ƒ“‰æ–Ê‚ÌuƒRƒ}ƒ“ƒhv—“‚É•\¦‚³‚ê‚é•¶š—ñ‚É‚È‚è‚Ü‚·B
+        /// è¨­å®šã—ãŸå€¤ã¯ã€ã‚ªãƒ—ã‚·ãƒ§ãƒ³ç”»é¢ã®ã€Œã‚³ãƒãƒ³ãƒ‰ã€æ¬„ã«è¡¨ç¤ºã•ã‚Œã‚‹æ–‡å­—åˆ—ã«ãªã‚Šã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The set value becomes a character string displayed in "Command" column on the option screen. 
@@ -515,7 +515,7 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// ‚±‚ÌƒRƒ}ƒ“ƒh‚ÉŠ„‚è“–‚Ä‚ç‚ê‚éƒfƒtƒHƒ‹ƒg‚ÌƒVƒ‡[ƒgƒJƒbƒgƒL[‚Å‚·B
+        /// ã“ã®ã‚³ãƒãƒ³ãƒ‰ã«å‰²ã‚Šå½“ã¦ã‚‰ã‚Œã‚‹ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is a shortcut key of the default allocated in this command. 
@@ -524,10 +524,10 @@ namespace Poderosa.Commands {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ƒVƒ‡[ƒgƒJƒbƒgƒL[‚ğŠ„‚è“–‚Ä‚È‚¢ê‡‚É‚ÍA<c>Keys.None</c>‚ğ“n‚µ‚Ä‚­‚¾‚³‚¢B
+        /// ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã‚’å‰²ã‚Šå½“ã¦ãªã„å ´åˆã«ã¯ã€<c>Keys.None</c>ã‚’æ¸¡ã—ã¦ãã ã•ã„ã€‚
         /// </para>
         /// <para>
-        /// ƒVƒ‡[ƒgƒJƒbƒg‚ªŠù‘¶‚ÌƒRƒ}ƒ“ƒh‚ª—p‚¢‚Ä‚¢‚é‚à‚Ì‚Æd•¡‚·‚éê‡‚É‚ÍA–³‹‚³‚ê‚Ü‚·B
+        /// ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆãŒæ—¢å­˜ã®ã‚³ãƒãƒ³ãƒ‰ãŒç”¨ã„ã¦ã„ã‚‹ã‚‚ã®ã¨é‡è¤‡ã™ã‚‹å ´åˆã«ã¯ã€ç„¡è¦–ã•ã‚Œã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -544,7 +544,7 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒhƒJƒeƒSƒŠ‚ğ¦‚·<seealso cref="Poderosa.Commands.ICommandCategory">ICommandCategory</seealso>‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã‚«ãƒ†ã‚´ãƒªã‚’ç¤ºã™<seealso cref="Poderosa.Commands.ICommandCategory">ICommandCategory</seealso>ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// <seealso cref="Poderosa.Commands.ICommandCategory">ICommandCategory</seealso> that show the command category.
@@ -552,10 +552,10 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// <seealso cref="Poderosa.Commands.ICommandCategory">ICommandCategory</seealso>‚ÍA
-        /// <seealso cref="Poderosa.Commands.ICommandManager">ICommandManager</seealso>‚Ì
-        /// <see cref="Poderosa.Commands.ICommandManager.CommandCategories">CommandCategoriesƒvƒƒpƒeƒB</see>‚©‚ç“¾‚½A
-        /// ’è‹`Ï‚İƒJƒeƒSƒŠ‚ğ—p‚¢‚é‚±‚Æ‚à‚Å‚«‚Ü‚·B
+        /// <seealso cref="Poderosa.Commands.ICommandCategory">ICommandCategory</seealso>ã¯ã€
+        /// <seealso cref="Poderosa.Commands.ICommandManager">ICommandManager</seealso>ã®
+        /// <see cref="Poderosa.Commands.ICommandManager.CommandCategories">CommandCategoriesãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>ã‹ã‚‰å¾—ãŸã€
+        /// å®šç¾©æ¸ˆã¿ã‚«ãƒ†ã‚´ãƒªã‚’ç”¨ã„ã‚‹ã“ã¨ã‚‚ã§ãã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// <seealso cref="Poderosa.Commands.ICommandCategory">ICommandCategory</seealso> can use the category that has been 
@@ -568,10 +568,10 @@ namespace Poderosa.Commands {
         }
     }
 
-    //PositionDesignation‚Å
+    //PositionDesignationã§
     /// <summary>
     /// <ja>
-    /// ƒRƒ}ƒ“ƒhƒJƒeƒSƒŠ‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰ã‚«ãƒ†ã‚´ãƒªã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows command category.
@@ -579,7 +579,7 @@ namespace Poderosa.Commands {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ’è‹`Ï‚İƒJƒeƒSƒŠ‚ÍA<seealso cref="ICommandManager">ICommandManager</seealso>‚Ì<see cref="ICommandManager.CommandCategories">CommandCategoriesƒvƒƒpƒeƒB</see>‚©‚çæ“¾‚Å‚«‚Ü‚·B
+    /// å®šç¾©æ¸ˆã¿ã‚«ãƒ†ã‚´ãƒªã¯ã€<seealso cref="ICommandManager">ICommandManager</seealso>ã®<see cref="ICommandManager.CommandCategories">CommandCategoriesãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>ã‹ã‚‰å–å¾—ã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// It is possible to get it from the <see cref="ICommandManager.CommandCategories">CommandCategories property</see> of <seealso cref="ICommandManager">ICommandManager</seealso>. 
@@ -588,7 +588,7 @@ namespace Poderosa.Commands {
     public interface ICommandCategory : IAdaptable {
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒhƒJƒeƒSƒŠ‚Ì–¼‘O‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã‚«ãƒ†ã‚´ãƒªã®åå‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Name of the command category.
@@ -599,7 +599,7 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// ƒL[ƒoƒCƒ“ƒh‚ÌƒJƒXƒ^ƒ}ƒCƒY‚ª‰Â”\‚©‚Ç‚¤‚©‚ğ¦‚µ‚Ü‚·B
+        /// ã‚­ãƒ¼ãƒã‚¤ãƒ³ãƒ‰ã®ã‚«ã‚¹ã‚¿ãƒã‚¤ã‚ºãŒå¯èƒ½ã‹ã©ã†ã‹ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is shown whether customizing key bind is possible. 
@@ -608,10 +608,10 @@ namespace Poderosa.Commands {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// true‚É‚·‚é‚ÆƒIƒvƒVƒ‡ƒ“İ’è‰æ–Ê‚ÉA‚±‚Ì€–Ú‚ª•\¦‚³‚êAƒL[ƒoƒCƒ“ƒh‚Ì•ÏX‚ª‚Å‚«‚é‚æ‚¤‚É‚È‚è‚Ü‚·B
+        /// trueã«ã™ã‚‹ã¨ã‚ªãƒ—ã‚·ãƒ§ãƒ³è¨­å®šç”»é¢ã«ã€ã“ã®é …ç›®ãŒè¡¨ç¤ºã•ã‚Œã€ã‚­ãƒ¼ãƒã‚¤ãƒ³ãƒ‰ã®å¤‰æ›´ãŒã§ãã‚‹ã‚ˆã†ã«ãªã‚Šã¾ã™ã€‚
         /// </para>
         /// <para>
-        /// false‚É‚·‚é‚ÆƒIƒvƒVƒ‡ƒ“İ’è‰æ–Ê‚©‚ç‰B‚³‚ê‚Ü‚·B
+        /// falseã«ã™ã‚‹ã¨ã‚ªãƒ—ã‚·ãƒ§ãƒ³è¨­å®šç”»é¢ã‹ã‚‰éš ã•ã‚Œã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -630,7 +630,7 @@ namespace Poderosa.Commands {
 
     /// <summary>
     /// <ja>
-    /// ’è‹`Ï‚İƒRƒ}ƒ“ƒhƒJƒeƒSƒŠ‚ğ¦‚µ‚Ü‚·
+    /// å®šç¾©æ¸ˆã¿ã‚³ãƒãƒ³ãƒ‰ã‚«ãƒ†ã‚´ãƒªã‚’ç¤ºã—ã¾ã™
     /// </ja>
     /// <en>
     /// Defined  command category.
@@ -639,7 +639,7 @@ namespace Poderosa.Commands {
     public interface IDefaultCommandCategories {
         /// <summary>
         /// <ja>
-        /// mƒtƒ@ƒCƒ‹n‚ğ¦‚·ƒJƒeƒSƒŠ‚Å‚·B
+        /// ï¼»ãƒ•ã‚¡ã‚¤ãƒ«ï¼½ã‚’ç¤ºã™ã‚«ãƒ†ã‚´ãƒªã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Category that shows the "File".
@@ -650,7 +650,7 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// mƒ_ƒCƒAƒƒOn‚ğ¦‚·ƒJƒeƒSƒŠ‚Å‚·B
+        /// ï¼»ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ï¼½ã‚’ç¤ºã™ã‚«ãƒ†ã‚´ãƒªã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Category that shows the "Dialog".
@@ -661,7 +661,7 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// m•ÒWn‚ğ¦‚·ƒJƒeƒSƒŠ‚Å‚·B
+        /// ï¼»ç·¨é›†ï¼½ã‚’ç¤ºã™ã‚«ãƒ†ã‚´ãƒªã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Category that shows the "Edit".
@@ -672,7 +672,7 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// mƒEƒBƒ“ƒhƒEn‚ğ¦‚·ƒJƒeƒSƒŠ‚Å‚·B
+        /// ï¼»ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ï¼½ã‚’ç¤ºã™ã‚«ãƒ†ã‚´ãƒªã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Category that shows the "Window".
@@ -683,10 +683,10 @@ namespace Poderosa.Commands {
         }
     }
 
-    //GeneralCommand‚ÌƒRƒŒƒNƒVƒ‡ƒ“
+    //GeneralCommandã®ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³
     /// <summary>
     /// <ja>
-    /// ƒRƒ}ƒ“ƒhƒ}ƒl[ƒWƒƒ‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰ãƒãƒãƒ¼ã‚¸ãƒ£ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows command manager.
@@ -695,13 +695,13 @@ namespace Poderosa.Commands {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ƒRƒ}ƒ“ƒhƒ}ƒl[ƒWƒƒ‚Íu<c>org.poderosa.core.commands</c>v‚Æ‚¢‚¤ƒvƒ‰ƒOƒCƒ“ID‚ğ‚à‚ÂCommandManagerPluginƒvƒ‰ƒOƒCƒ“‚É‚æ‚Á‚Ä
-    /// ’ñ‹Ÿ‚³‚ê‚Ä‚¢‚Ü‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰ãƒãƒãƒ¼ã‚¸ãƒ£ã¯ã€Œ<c>org.poderosa.core.commands</c>ã€ã¨ã„ã†ãƒ—ãƒ©ã‚°ã‚¤ãƒ³IDã‚’ã‚‚ã¤CommandManagerPluginãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã«ã‚ˆã£ã¦
+    /// æä¾›ã•ã‚Œã¦ã„ã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğæ“¾‚·‚é‚É‚ÍAi1j<seealso cref="Poderosa.Plugins.IPluginManager">IPluginManager</seealso>‚Ì
-    /// <see cref="Poderosa.Plugins.IPluginManager.FindPlugin">FindPluginƒƒ\ƒbƒh</see>‚Åu<c>org.poderosa.core.commands</c>v‚ğŒŸõ‚·‚éA
-    /// i2j<seealso cref="Poderosa.Plugins.ICoreServices">ICoreServices</seealso>‚Ì<see cref="Poderosa.Plugins.ICoreServices.CommandManager">CommandManagerƒvƒƒpƒeƒB</see>‚ğg‚Á‚Äæ“¾‚·‚éA‚Ì‚¢‚¸‚ê‚©‚Ì•û–@‚ª‚Æ‚ê‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’å–å¾—ã™ã‚‹ã«ã¯ã€ï¼ˆ1ï¼‰<seealso cref="Poderosa.Plugins.IPluginManager">IPluginManager</seealso>ã®
+    /// <see cref="Poderosa.Plugins.IPluginManager.FindPlugin">FindPluginãƒ¡ã‚½ãƒƒãƒ‰</see>ã§ã€Œ<c>org.poderosa.core.commands</c>ã€ã‚’æ¤œç´¢ã™ã‚‹ã€
+    /// ï¼ˆ2ï¼‰<seealso cref="Poderosa.Plugins.ICoreServices">ICoreServices</seealso>ã®<see cref="Poderosa.Plugins.ICoreServices.CommandManager">CommandManagerãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>ã‚’ä½¿ã£ã¦å–å¾—ã™ã‚‹ã€ã®ã„ãšã‚Œã‹ã®æ–¹æ³•ãŒã¨ã‚Œã¾ã™ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -715,10 +715,10 @@ namespace Poderosa.Commands {
     /// </remarks>
     /// <example>
     /// <ja>
-    /// ICoreService‚ÌCommandManagerƒvƒƒpƒeƒB‚©‚çICommandManager‚ğæ“¾‚µ‚Ü‚·B
+    /// ICoreServiceã®CommandManagerãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‹ã‚‰ICommandManagerã‚’å–å¾—ã—ã¾ã™ã€‚
     /// <code>
-    /// // ‚±‚±‚ÅPoderosaWorld‚ÍAInitializePluginƒƒ\ƒbƒh‚Åó‚¯æ‚Á‚½
-    /// // IPoderosaWorld‚Å‚ ‚é‚Æ‰¼’è‚µ‚Ü‚·B
+    /// // ã“ã“ã§PoderosaWorldã¯ã€InitializePluginãƒ¡ã‚½ãƒƒãƒ‰ã§å—ã‘å–ã£ãŸ
+    /// // IPoderosaWorldã§ã‚ã‚‹ã¨ä»®å®šã—ã¾ã™ã€‚
     /// ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
     /// ICommandManager cm = cs.CommandManager;
     /// </code>
@@ -735,7 +735,7 @@ namespace Poderosa.Commands {
     public interface ICommandManager : IAdaptable {
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ğƒRƒ}ƒ“ƒhƒ}ƒl[ƒWƒƒ‚É“o˜^‚µ‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã‚’ã‚³ãƒãƒ³ãƒ‰ãƒãƒãƒ¼ã‚¸ãƒ£ã«ç™»éŒ²ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Regist command to the command manager.
@@ -743,7 +743,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="command">
         /// <ja>
-        /// “o˜^‚µ‚½‚¢ƒRƒ}ƒ“ƒh‚Å‚·B
+        /// ç™»éŒ²ã—ãŸã„ã‚³ãƒãƒ³ãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Command to be regist.
@@ -752,7 +752,7 @@ namespace Poderosa.Commands {
         void Register(IGeneralCommand command);
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒhID‚ğƒL[‚É‚µ‚ÄAƒRƒ}ƒ“ƒhƒ}ƒl[ƒWƒƒ‚É“o˜^‚³‚ê‚½ƒRƒ}ƒ“ƒh‚ğŒŸõ‚µ‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰IDã‚’ã‚­ãƒ¼ã«ã—ã¦ã€ã‚³ãƒãƒ³ãƒ‰ãƒãƒãƒ¼ã‚¸ãƒ£ã«ç™»éŒ²ã•ã‚ŒãŸã‚³ãƒãƒ³ãƒ‰ã‚’æ¤œç´¢ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Retrieve command ID is made a key, and the command registered by the command manager.
@@ -760,7 +760,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="id">
         /// <ja>
-        /// ŒŸõ‚·‚éƒRƒ}ƒ“ƒhID‚Å‚·B
+        /// æ¤œç´¢ã™ã‚‹ã‚³ãƒãƒ³ãƒ‰IDã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Retrieval of the command ID.
@@ -768,8 +768,8 @@ namespace Poderosa.Commands {
         /// </param>
         /// <returns>
         /// <ja>
-        /// Œ©‚Â‚©‚Á‚½ƒRƒ}ƒ“ƒhƒIƒuƒWƒFƒNƒg‚Ì<seealso cref="IGeneralCommand">IGeneralCommand</seealso>‚ª•Ô‚³‚ê‚Ü‚·B
-        /// Œ©‚Â‚©‚ç‚È‚©‚Á‚½‚Æ‚«‚É‚Í<c>null</c>‚ª•Ô‚³‚ê‚Ü‚·B
+        /// è¦‹ã¤ã‹ã£ãŸã‚³ãƒãƒ³ãƒ‰ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®<seealso cref="IGeneralCommand">IGeneralCommand</seealso>ãŒè¿”ã•ã‚Œã¾ã™ã€‚
+        /// è¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸã¨ãã«ã¯<c>null</c>ãŒè¿”ã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// <seealso cref="IGeneralCommand">IGeneralCommand</seealso> of the found command object is returned. 
@@ -778,14 +778,14 @@ namespace Poderosa.Commands {
         /// </returns>
         /// <overloads>
         /// <summary>
-        /// <ja>ƒRƒ}ƒ“ƒh‚ğÀs‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚</ja>
         /// <en>Execute the command.</en>
         /// </summary>
         /// </overloads>
         IGeneralCommand Find(string id);
         /// <summary>
         /// <ja>
-        /// ƒVƒ‡[ƒgƒJƒbƒgƒL[‚ğƒL[‚É‚µ‚ÄAƒRƒ}ƒ“ƒhƒ}ƒl[ƒWƒƒ‚É“o˜^‚³‚ê‚½ƒRƒ}ƒ“ƒh‚ğŒŸõ‚µ‚Ü‚·B
+        /// ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã‚’ã‚­ãƒ¼ã«ã—ã¦ã€ã‚³ãƒãƒ³ãƒ‰ãƒãƒãƒ¼ã‚¸ãƒ£ã«ç™»éŒ²ã•ã‚ŒãŸã‚³ãƒãƒ³ãƒ‰ã‚’æ¤œç´¢ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The shortcut key is made a key, and the command registered by the command manager is retrieved. 
@@ -793,7 +793,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="key">
         /// <ja>
-        /// ŒŸõ‚·‚éƒVƒ‡[ƒgƒJƒbƒgƒL[‚Å‚·B
+        /// æ¤œç´¢ã™ã‚‹ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Retrieval short cut key.
@@ -801,18 +801,18 @@ namespace Poderosa.Commands {
         /// </param>
         /// <returns>
         /// <ja>
-        /// Œ©‚Â‚©‚Á‚½ƒRƒ}ƒ“ƒhƒIƒuƒWƒFƒNƒg‚Ì<seealso cref="IGeneralCommand">IGeneralCommand</seealso>‚ª•Ô‚³‚ê‚Ü‚·B
-        /// Œ©‚Â‚©‚ç‚È‚©‚Á‚½‚Æ‚«‚É‚Í<c>null</c>‚ª•Ô‚³‚ê‚Ü‚·B
+        /// è¦‹ã¤ã‹ã£ãŸã‚³ãƒãƒ³ãƒ‰ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®<seealso cref="IGeneralCommand">IGeneralCommand</seealso>ãŒè¿”ã•ã‚Œã¾ã™ã€‚
+        /// è¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸã¨ãã«ã¯<c>null</c>ãŒè¿”ã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// <seealso cref="IGeneralCommand">IGeneralCommand</seealso> of the found command object is returned. 
         /// When not found, <c>null</c> is returned. 
         /// </en>
         /// </returns>
-        IGeneralCommand Find(Keys key); //ƒVƒ‡[ƒgƒJƒbƒgƒL[‚©‚ç
+        IGeneralCommand Find(Keys key); //ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã‹ã‚‰
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒhƒ}ƒl[ƒWƒƒ‚É“o˜^‚³‚ê‚Ä‚¢‚é‚·‚×‚Ä‚ÌƒRƒ}ƒ“ƒhƒIƒuƒWƒFƒNƒg‚ğ—ñ‹“‚µ‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ãƒãƒãƒ¼ã‚¸ãƒ£ã«ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹ã™ã¹ã¦ã®ã‚³ãƒãƒ³ãƒ‰ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’åˆ—æŒ™ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Enumerate all the command objects being registered by the command manager.
@@ -824,7 +824,7 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// w’è‚³‚ê‚½ƒRƒ}ƒ“ƒh‚ğÀs‚µ‚Ü‚·B
+        /// æŒ‡å®šã•ã‚ŒãŸã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Execute the specified command.
@@ -832,7 +832,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="command">
         /// <ja>
-        /// Às‚·‚éƒRƒ}ƒ“ƒh‚Å‚·B
+        /// å®Ÿè¡Œã™ã‚‹ã‚³ãƒãƒ³ãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Command to execute.
@@ -840,7 +840,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="target">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚Ìƒ^[ƒQƒbƒg‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Target of command.
@@ -848,7 +848,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="args">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚É“n‚·”CˆÓ‚Ìˆø”‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã«æ¸¡ã™ä»»æ„ã®å¼•æ•°ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Arbitrary argument passed to command
@@ -856,8 +856,8 @@ namespace Poderosa.Commands {
         /// </param>
         /// <returns>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ÌÀsŒ‹‰Ê‚Å‚·B‚±‚Ì’l‚ÍA<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>‚Ì
-        /// <see cref="IPoderosaCommand.InternalExecute">InternalExecuteƒƒ\ƒbƒh</see>‚ª•Ô‚·’l‚Æ“¯‚¶‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®å®Ÿè¡Œçµæœã§ã™ã€‚ã“ã®å€¤ã¯ã€<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>ã®
+        /// <see cref="IPoderosaCommand.InternalExecute">InternalExecuteãƒ¡ã‚½ãƒƒãƒ‰</see>ãŒè¿”ã™å€¤ã¨åŒã˜ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is an execution result of the command. This value is the same as the value that the 
@@ -868,9 +868,9 @@ namespace Poderosa.Commands {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚©‚çŒÄ‚Ño‚³‚ê‚éƒRƒ}ƒ“ƒh‚ÍA<paramref name="target"/>‚É‚ÍA
-        /// ƒƒCƒ“ƒEƒBƒ“ƒhƒE‚ğ¦‚·<see cref="Poderosa.Forms.IPoderosaMainWindow">IPoderosaMainWindow</see>‚ª“n‚³‚ê‚é‚±‚Æ‚ğ‘z’è‚µ‚Ä‚¢‚Ü‚·B‚±‚ÌíˆÈŠO‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ª“n‚³‚ê‚½‚Æ‚«‚É‚ÍA
-        /// ³‚µ‚­“®ì‚µ‚Ü‚¹‚ñB
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ã‚³ãƒãƒ³ãƒ‰ã¯ã€<paramref name="target"/>ã«ã¯ã€
+        /// ãƒ¡ã‚¤ãƒ³ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ç¤ºã™<see cref="Poderosa.Forms.IPoderosaMainWindow">IPoderosaMainWindow</see>ãŒæ¸¡ã•ã‚Œã‚‹ã“ã¨ã‚’æƒ³å®šã—ã¦ã„ã¾ã™ã€‚ã“ã®ç¨®ä»¥å¤–ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ãŒæ¸¡ã•ã‚ŒãŸã¨ãã«ã¯ã€
+        /// æ­£ã—ãå‹•ä½œã—ã¾ã›ã‚“ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -882,21 +882,21 @@ namespace Poderosa.Commands {
         /// </remarks>
         /// <example>
         /// <ja>
-        /// uƒtƒ@ƒCƒ‹‚ÖƒRƒs[v‚Ì‹@”\‚ğÀ‘•‚µ‚Ä‚¢‚éƒRƒ}ƒ“ƒhu<c>org.poderosa.terminalemulator.copytofile</c>v‚ğŒÄ‚Ño‚µ‚ÄA
-        /// Œ»İ‘I‘ğ‚³‚ê‚Ä‚¢‚é”ÍˆÍ‚ğƒtƒ@ƒCƒ‹‚Ö‚ÆƒRƒs[‚µ‚Ü‚·B
+        /// ã€Œãƒ•ã‚¡ã‚¤ãƒ«ã¸ã‚³ãƒ”ãƒ¼ã€ã®æ©Ÿèƒ½ã‚’å®Ÿè£…ã—ã¦ã„ã‚‹ã‚³ãƒãƒ³ãƒ‰ã€Œ<c>org.poderosa.terminalemulator.copytofile</c>ã€ã‚’å‘¼ã³å‡ºã—ã¦ã€
+        /// ç¾åœ¨é¸æŠã•ã‚Œã¦ã„ã‚‹ç¯„å›²ã‚’ãƒ•ã‚¡ã‚¤ãƒ«ã¸ã¨ã‚³ãƒ”ãƒ¼ã—ã¾ã™ã€‚
         /// <code>
-        /// // ICoreServices‚Ìæ“¾
+        /// // ICoreServicesã®å–å¾—
         /// ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
-        /// // ƒRƒ}ƒ“ƒhƒ}ƒl[ƒWƒƒ‚Ìæ“¾
+        /// // ã‚³ãƒãƒ³ãƒ‰ãƒãƒãƒ¼ã‚¸ãƒ£ã®å–å¾—
         /// ICommandManager cm = cs.CommandManager;
         /// 
-        /// // uƒtƒ@ƒCƒ‹‚ÖƒRƒs[v‚ÌƒRƒ}ƒ“ƒh‚ğŒŸõ
+        /// // ã€Œãƒ•ã‚¡ã‚¤ãƒ«ã¸ã‚³ãƒ”ãƒ¼ã€ã®ã‚³ãƒãƒ³ãƒ‰ã‚’æ¤œç´¢
         /// IGeneralCommand cmd = cm.Find("org.poderosa.terminalemulator.copytofile");
         /// 
-        /// // ƒAƒNƒeƒBƒuƒEƒBƒ“ƒhƒE‚ÌIPoderosaMainWindow‚ğ“¾‚é
+        /// // ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®IPoderosaMainWindowã‚’å¾—ã‚‹
         /// IPoderosaMainWindow mainwin = cs.WindowManager.ActiveWindow;
         /// 
-        /// // Às
+        /// // å®Ÿè¡Œ
         /// CommandResult result = cm.Execute(cmd, mainwin);
         /// </code>
         /// </ja>
@@ -928,11 +928,11 @@ namespace Poderosa.Commands {
         }
 
         /// <exclude/>
-        IKeyBinds GetKeyBinds(IPreferenceFolder folder); //‚¿‚å‚Á‚Æˆá˜aŠ´B•ÊƒCƒ“ƒ^ƒtƒF[ƒX‚É•ª‚¯‚éH
+        IKeyBinds GetKeyBinds(IPreferenceFolder folder); //ã¡ã‚‡ã£ã¨é•å’Œæ„Ÿã€‚åˆ¥ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹ã«åˆ†ã‘ã‚‹ï¼Ÿ
 
         /// <summary>
         /// <ja>
-        /// ’è‹`Ï‚İƒRƒ}ƒ“ƒhƒJƒeƒSƒŠ‚ğæ“¾‚·‚é‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+        /// å®šç¾©æ¸ˆã¿ã‚³ãƒãƒ³ãƒ‰ã‚«ãƒ†ã‚´ãƒªã‚’å–å¾—ã™ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Interface to get command category that has been defined.
@@ -943,10 +943,10 @@ namespace Poderosa.Commands {
         }
     }
 
-    //ƒL[ƒoƒCƒ“ƒhİ’è
+    //ã‚­ãƒ¼ãƒã‚¤ãƒ³ãƒ‰è¨­å®š
     /// <summary>
     /// <ja>
-    /// ƒL[ƒoƒCƒ“ƒh‚Ìİ’è‚ğ‘€ì‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚­ãƒ¼ãƒã‚¤ãƒ³ãƒ‰ã®è¨­å®šã‚’æ“ä½œã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that operates setting of key bind.
@@ -955,7 +955,7 @@ namespace Poderosa.Commands {
     public interface IKeyBinds {
         /// <summary>
         /// <ja>
-        /// Š„‚è“–‚Ä‚ç‚ê‚Ä‚¢‚éƒVƒ‡[ƒgƒJƒbƒgƒL[‚ÌƒRƒŒƒNƒVƒ‡ƒ“‚Å‚·B
+        /// å‰²ã‚Šå½“ã¦ã‚‰ã‚Œã¦ã„ã‚‹ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã®ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Collection of allocated shortcut key.
@@ -967,7 +967,7 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ÉŠ„‚è“–‚Ä‚ç‚ê‚½ƒVƒ‡[ƒgƒJƒbƒgƒL[‚ğ•Ô‚µ‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã«å‰²ã‚Šå½“ã¦ã‚‰ã‚ŒãŸã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the shortcut key allocated in the command.
@@ -975,7 +975,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="command">
         /// <ja>
-        /// ’²‚×‚½‚¢ƒRƒ}ƒ“ƒh‚Å‚·B
+        /// èª¿ã¹ãŸã„ã‚³ãƒãƒ³ãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Command that wants to be examined.
@@ -983,7 +983,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <returns>
         /// <ja>
-        /// ƒL[‚ÉŠ„‚è“–‚Ä‚ç‚ê‚½ƒVƒ‡[ƒgƒJƒbƒgƒL[‚ª–ß‚è‚Ü‚·BƒVƒ‡[ƒgƒJƒbƒgƒL[‚ªŠ„‚è“–‚Ä‚ç‚ê‚Ä‚¢‚È‚¢ê‡‚É‚ÍAKeys.None‚ª–ß‚è‚Ü‚·B
+        /// ã‚­ãƒ¼ã«å‰²ã‚Šå½“ã¦ã‚‰ã‚ŒãŸã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ãŒæˆ»ã‚Šã¾ã™ã€‚ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ãŒå‰²ã‚Šå½“ã¦ã‚‰ã‚Œã¦ã„ãªã„å ´åˆã«ã¯ã€Keys.NoneãŒæˆ»ã‚Šã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The shortcut key allocated in the key returns. Keys.None returns when the shortcut key is not allocated. 
@@ -992,7 +992,7 @@ namespace Poderosa.Commands {
         Keys GetKey(IGeneralCommand command);
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚É‘Î‚µ‚ÄƒVƒ‡[ƒgƒJƒbƒgƒL[‚ğŠ„‚è“–‚Ä‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã«å¯¾ã—ã¦ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã‚’å‰²ã‚Šå½“ã¦ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The shortcut key is allocated to the command. 
@@ -1000,7 +1000,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="command">
         /// <ja>
-        /// ‘ÎÛ‚Æ‚È‚éƒRƒ}ƒ“ƒh‚Å‚·B
+        /// å¯¾è±¡ã¨ãªã‚‹ã‚³ãƒãƒ³ãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Command that becomes object.
@@ -1008,7 +1008,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="key">
         /// <ja>
-        /// Š„‚è“–‚Ä‚éƒVƒ‡[ƒgƒJƒbƒgƒL[‚Å‚·B
+        /// å‰²ã‚Šå½“ã¦ã‚‹ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Allocated shortcut key
@@ -1016,7 +1016,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <exception cref="ArgumentException">
         /// <ja>
-        /// ŠY“–‚ÌƒL[‚É‚ÍA‚·‚Å‚É‚Ù‚©‚ÌƒRƒ}ƒ“ƒh‚ªŠ„‚è“–‚Ä‚ç‚ê‚Ä‚¢‚Ü‚·B
+        /// è©²å½“ã®ã‚­ãƒ¼ã«ã¯ã€ã™ã§ã«ã»ã‹ã®ã‚³ãƒãƒ³ãƒ‰ãŒå‰²ã‚Šå½“ã¦ã‚‰ã‚Œã¦ã„ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Other commands have already been allocated in the key to the correspondence. 
@@ -1025,10 +1025,10 @@ namespace Poderosa.Commands {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// <paramref name="key">key</paramref>‚ÉKeys.None‚ğ“n‚·‚ÆAƒVƒ‡[ƒgƒJƒbƒgƒL[‚ÌŠ„‚è“–‚Ä‚ğ‰ğœ‚Å‚«‚Ü‚·B
+        /// <paramref name="key">key</paramref>ã«Keys.Noneã‚’æ¸¡ã™ã¨ã€ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã®å‰²ã‚Šå½“ã¦ã‚’è§£é™¤ã§ãã¾ã™ã€‚
         /// </para>
         /// <para>
-        /// <paramref name="key">key</paramref>‚É‚·‚Å‚ÉƒRƒ}ƒ“ƒh‚ªŠ„‚è“–‚Ä‚ç‚ê‚Ä‚¢‚é‚Æ‚«‚É‚Í—áŠO‚ª”­¶‚µ‚Ü‚·B
+        /// <paramref name="key">key</paramref>ã«ã™ã§ã«ã‚³ãƒãƒ³ãƒ‰ãŒå‰²ã‚Šå½“ã¦ã‚‰ã‚Œã¦ã„ã‚‹ã¨ãã«ã¯ä¾‹å¤–ãŒç™ºç”Ÿã—ã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -1044,7 +1044,7 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ƒVƒ‡[ƒgƒJƒbƒgƒL[‚ÉŠ„‚è“–‚Ä‚ç‚ê‚Ä‚¢‚éƒRƒ}ƒ“ƒh‚ğŒŸõ‚µ‚Ü‚·B
+        /// ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã«å‰²ã‚Šå½“ã¦ã‚‰ã‚Œã¦ã„ã‚‹ã‚³ãƒãƒ³ãƒ‰ã‚’æ¤œç´¢ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Retrieval the command allocated in the shortcut key.
@@ -1052,21 +1052,21 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="key">
         /// <ja>
-        /// ŒŸõ‚·‚éƒVƒ‡[ƒgƒJƒbƒgƒL[‚Å‚·B
+        /// æ¤œç´¢ã™ã‚‹ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Retrieved shortcut key
         /// </en>
         /// </param>
         /// <returns>
-        /// <ja>ƒVƒ‡[ƒgƒJƒbƒgƒL[‚ÉŠ„‚è“–‚Ä‚ç‚ê‚Ä‚¢‚éƒRƒ}ƒ“ƒh‚ª•Ô‚³‚ê‚Ü‚·BŒ©‚Â‚©‚ç‚È‚¢‚Æ‚«‚É‚Ínull‚ª•Ô‚³‚ê‚Ü‚·B</ja>
+        /// <ja>ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã«å‰²ã‚Šå½“ã¦ã‚‰ã‚Œã¦ã„ã‚‹ã‚³ãƒãƒ³ãƒ‰ãŒè¿”ã•ã‚Œã¾ã™ã€‚è¦‹ã¤ã‹ã‚‰ãªã„ã¨ãã«ã¯nullãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>The command allocated in the shortcut key is returned. When not found, null is returned. </en>
         /// </returns>
         IGeneralCommand FindCommand(Keys key);
 
         /// <summary>
         /// <ja>
-        /// ƒVƒ‡[ƒgƒJƒbƒgƒL[‚ÌŠ„‚è“–‚Ä‚ğ‚·‚×‚ÄƒNƒŠƒA‚µ‚Ü‚·B
+        /// ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã®å‰²ã‚Šå½“ã¦ã‚’ã™ã¹ã¦ã‚¯ãƒªã‚¢ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The allocation of the shortcut key is all cleared. 
@@ -1075,7 +1075,7 @@ namespace Poderosa.Commands {
         void ClearAll();
         /// <summary>
         /// <ja>
-        /// ƒVƒ‡[ƒgƒJƒbƒgƒL[‚ÌŠ„‚è“–‚Ä‚ğƒfƒtƒHƒ‹ƒg‚É–ß‚µ‚Ü‚·B
+        /// ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã®å‰²ã‚Šå½“ã¦ã‚’ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã«æˆ»ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The allocation of the shortcut key is set to default.
@@ -1084,7 +1084,7 @@ namespace Poderosa.Commands {
         void ResetToDefault();
         /// <summary>
         /// <ja>
-        /// ƒVƒ‡[ƒgƒJƒbƒgƒL[‚ÌŠ„‚è“–‚Ä‚ğƒCƒ“ƒ|[ƒg‚µ‚Ü‚·B
+        /// ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã®å‰²ã‚Šå½“ã¦ã‚’ã‚¤ãƒ³ãƒãƒ¼ãƒˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Import the allocation of the shortcut key.
@@ -1092,7 +1092,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="keybinds">
         /// <ja>
-        /// ƒCƒ“ƒ|[ƒg‚·‚éƒVƒ‡[ƒgƒJƒbƒgƒL[‚Å‚·B
+        /// ã‚¤ãƒ³ãƒãƒ¼ãƒˆã™ã‚‹ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// The shortcut key to import.
@@ -1102,12 +1102,12 @@ namespace Poderosa.Commands {
 
     }
 
-    //ƒƒjƒ…[€–Ú
+    //ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®
 
-    //Extension Point‚Ö‚ÌÚ‘±—p
+    //Extension Pointã¸ã®æ¥ç¶šç”¨
     /// <summary>
     /// <ja>
-    /// ƒƒjƒ…[‚ÌŒÂX‚ÌƒAƒCƒeƒ€‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®å€‹ã€…ã®ã‚¢ã‚¤ãƒ†ãƒ ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows each item of menu.
@@ -1115,7 +1115,7 @@ namespace Poderosa.Commands {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ƒƒjƒ…[€–Ú‚ğì¬‚·‚éê‡‚É‚ÍA<seealso cref="PoderosaMenuItemImpl">PoderosaMenuItemTmpl</seealso>‚ğg‚¢‚Ü‚·B
+    /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’ä½œæˆã™ã‚‹å ´åˆã«ã¯ã€<seealso cref="PoderosaMenuItemImpl">PoderosaMenuItemTmpl</seealso>ã‚’ä½¿ã„ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// When the menu item is made, <seealso cref="PoderosaMenuItemImpl">PoderosaMenuItemTmpl</seealso> is used. 
@@ -1124,7 +1124,7 @@ namespace Poderosa.Commands {
     public interface IPoderosaMenu : IAdaptable {
         /// <summary>
         /// <ja>
-        /// ƒƒjƒ…[‚É•\¦‚³‚ê‚éƒeƒLƒXƒg‚Å‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã«è¡¨ç¤ºã•ã‚Œã‚‹ãƒ†ã‚­ã‚¹ãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Text displayed in menu
@@ -1135,7 +1135,7 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// ƒƒjƒ…[‚ÌƒCƒl[ƒuƒ‹^ƒfƒBƒXƒGƒuƒ‹‚Ìó‘Ô‚ğ•Ô‚·ƒƒ\ƒbƒh‚Å‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®ã‚¤ãƒãƒ¼ãƒ–ãƒ«ï¼ãƒ‡ã‚£ã‚¹ã‚¨ãƒ–ãƒ«ã®çŠ¶æ…‹ã‚’è¿”ã™ãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Method of returning state of enable/disable of menu
@@ -1143,7 +1143,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="target">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚Ìƒ^[ƒQƒbƒg‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Target of command.
@@ -1151,7 +1151,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <returns>
         /// <ja>
-        /// ƒƒjƒ…[‚ªƒCƒl[ƒuƒ‹‚Å‚ ‚éê‡‚É‚ÍtrueAƒfƒBƒXƒGƒuƒ‹‚Å‚ ‚éê‡‚É‚Ífalse‚ª•Ô‚³‚ê‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒã‚¤ãƒãƒ¼ãƒ–ãƒ«ã§ã‚ã‚‹å ´åˆã«ã¯trueã€ãƒ‡ã‚£ã‚¹ã‚¨ãƒ–ãƒ«ã§ã‚ã‚‹å ´åˆã«ã¯falseãŒè¿”ã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When it is true, and disable when the menu is enable, false is returned. 
@@ -1160,7 +1160,7 @@ namespace Poderosa.Commands {
         bool IsEnabled(ICommandTarget target);
         /// <summary>
         /// <ja>
-        /// ƒƒjƒ…[‚Ìƒ`ƒFƒbƒNó‘Ô‚ğ•Ô‚·ƒƒ\ƒbƒh‚Å‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®ãƒã‚§ãƒƒã‚¯çŠ¶æ…‹ã‚’è¿”ã™ãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Method of returning check state on menu
@@ -1168,7 +1168,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="target">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚Ìƒ^[ƒQƒbƒg‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Target of command.
@@ -1176,7 +1176,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <returns>
         /// <ja>
-        /// ƒƒjƒ…[‚Éƒ`ƒFƒbƒN‚ª•t‚¢‚Ä‚¢‚éê‡‚É‚ÍtrueA‚»‚¤‚Å‚È‚¢ê‡‚É‚Ífalse‚ª•Ô‚³‚ê‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã«ãƒã‚§ãƒƒã‚¯ãŒä»˜ã„ã¦ã„ã‚‹å ´åˆã«ã¯trueã€ãã†ã§ãªã„å ´åˆã«ã¯falseãŒè¿”ã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When the menu is checked, true is returned when it is false so. 
@@ -1185,10 +1185,10 @@ namespace Poderosa.Commands {
         bool IsChecked(ICommandTarget target);
     }
 
-    //MenuGroup‚Íƒo[‚ÌƒfƒŠƒ~ƒ^‚ª“ü‚é’PˆÊ
+    //MenuGroupã¯ãƒãƒ¼ã®ãƒ‡ãƒªãƒŸã‚¿ãŒå…¥ã‚‹å˜ä½
     /// <summary>
     /// <ja>
-    /// ƒƒjƒ…[€–Ú‚ğW‚ß‚½ƒƒjƒ…[ƒOƒ‹[ƒv‚ğ\¬‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’é›†ã‚ãŸãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã‚’æ§‹æˆã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that composes menu group that collects menu items.
@@ -1197,10 +1197,10 @@ namespace Poderosa.Commands {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ƒƒjƒ…[‚ğPoderosa‚É“o˜^‚·‚éê‡‚É‚ÍAƒƒjƒ…[€–Ú‚ğW‚ß‚½ƒƒjƒ…[ƒOƒ‹[ƒv‚ğì¬‚µAŠg’£ƒ|ƒCƒ“ƒg‚Ö‚Æ“o˜^‚µ‚Ü‚·B
+    /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’Poderosaã«ç™»éŒ²ã™ã‚‹å ´åˆã«ã¯ã€ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’é›†ã‚ãŸãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã‚’ä½œæˆã—ã€æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã¸ã¨ç™»éŒ²ã—ã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ƒƒjƒ…[ƒOƒ‹[ƒv‚ğì¬‚·‚éê‡‚É‚ÍA<seealso cref="PoderosaMenuGroupImpl">PoderosaMenuGroupImpl</seealso>‚ğg‚¤‚±‚Æ‚ª‚Å‚«‚Ü‚·B
+    /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã‚’ä½œæˆã™ã‚‹å ´åˆã«ã¯ã€<seealso cref="PoderosaMenuGroupImpl">PoderosaMenuGroupImpl</seealso>ã‚’ä½¿ã†ã“ã¨ãŒã§ãã¾ã™ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -1215,7 +1215,7 @@ namespace Poderosa.Commands {
     public interface IPoderosaMenuGroup : IAdaptable {
         /// <summary>
         /// <ja>
-        /// ‚±‚Ìƒƒjƒ…[ƒOƒ‹[ƒv‚ÉŠÜ‚Ü‚ê‚éƒƒjƒ…[€–Ú‚Ì”z—ñ‚Å‚·B
+        /// ã“ã®ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã«å«ã¾ã‚Œã‚‹ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã®é…åˆ—ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Array of menu item included in this menu group.
@@ -1226,7 +1226,7 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// ƒƒjƒ…[€–Ú‚ª“®“I‚Éì‚ç‚ê‚é‚©‚Ç‚¤‚©‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ãŒå‹•çš„ã«ä½œã‚‰ã‚Œã‚‹ã‹ã©ã†ã‹ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is shown whether the menu item is dynamically made. 
@@ -1234,7 +1234,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// true‚Å‚ ‚éê‡Aƒƒjƒ…[€–Ú‚ª•\¦‚³‚ê‚æ‚¤‚Æ‚·‚é‚½‚Ñ‚ÉAƒƒjƒ…[‚ªÄ¶¬‚³‚ê‚Ü‚·B“®“I‚Èƒƒjƒ…[‚ğ\¬‚·‚éê‡‚É‚Ítrue‚ğA‚»‚¤‚Å‚È‚¢ê‡‚É‚Ífalse‚ğ•Ô‚·‚æ‚¤‚ÉÀ‘•‚µ‚Ü‚·B
+        /// trueã§ã‚ã‚‹å ´åˆã€ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ãŒè¡¨ç¤ºã•ã‚Œã‚ˆã†ã¨ã™ã‚‹ãŸã³ã«ã€ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒå†ç”Ÿæˆã•ã‚Œã¾ã™ã€‚å‹•çš„ãªãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’æ§‹æˆã™ã‚‹å ´åˆã«ã¯trueã‚’ã€ãã†ã§ãªã„å ´åˆã«ã¯falseã‚’è¿”ã™ã‚ˆã†ã«å®Ÿè£…ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The menu is done whenever the menu item tries to be displayed when it is true and the reproduction is done. 
@@ -1246,7 +1246,7 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// ‚±‚Ìƒƒjƒ…[ƒOƒ‹[ƒv‚Ì‘O‚É‹æØ‚è‹L†iƒZƒpƒŒ[ƒ^j‚ª“ü‚é‚©‚Ç‚¤‚©‚ğ¦‚µ‚Ü‚·B
+        /// ã“ã®ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã®å‰ã«åŒºåˆ‡ã‚Šè¨˜å·ï¼ˆã‚»ãƒ‘ãƒ¬ãƒ¼ã‚¿ï¼‰ãŒå…¥ã‚‹ã‹ã©ã†ã‹ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is shown whether the separator enters ahead of this menu group. 
@@ -1254,7 +1254,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// true‚Å‚ ‚éê‡A‚±‚Ìƒƒjƒ…[ƒOƒ‹[ƒv‚Ì’¼‘O‚É‹æØ‚è‹L†iƒZƒpƒŒ[ƒ^j‚ª•\¦‚³‚ê‚Ü‚·B
+        /// trueã§ã‚ã‚‹å ´åˆã€ã“ã®ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã®ç›´å‰ã«åŒºåˆ‡ã‚Šè¨˜å·ï¼ˆã‚»ãƒ‘ãƒ¬ãƒ¼ã‚¿ï¼‰ãŒè¡¨ç¤ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When it is true, the separator is displayed just before this menu group. 
@@ -1262,12 +1262,12 @@ namespace Poderosa.Commands {
         /// </remarks>
         bool ShowSeparator {
             get;
-        } //ƒOƒ‹[ƒv‚Ì‘O‚ÉƒZƒpƒŒ[ƒ^‚ª“ü‚é‚©‚Ç‚¤‚©
+        } //ã‚°ãƒ«ãƒ¼ãƒ—ã®å‰ã«ã‚»ãƒ‘ãƒ¬ãƒ¼ã‚¿ãŒå…¥ã‚‹ã‹ã©ã†ã‹
     }
 
     /// <summary>
     /// <ja>
-    /// ƒƒjƒ…[‚ğŠK‘w‰»‚·‚é‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’éšå±¤åŒ–ã™ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface to hierarchize menu
@@ -1276,7 +1276,7 @@ namespace Poderosa.Commands {
     public interface IPoderosaMenuFolder : IPoderosaMenu {
         /// <summary>
         /// <ja>
-        /// ŠK‘w‰»‚µ‚½ƒTƒuƒƒjƒ…[‚Ì”z—ñ‚Å‚·B
+        /// éšå±¤åŒ–ã—ãŸã‚µãƒ–ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®é…åˆ—ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Array of hierarchized submenu
@@ -1290,7 +1290,7 @@ namespace Poderosa.Commands {
 
     /// <summary>
     /// <ja>
-    /// Às‚³‚ê‚é‚Æ‚«‚Éˆø”‚ğ”º‚í‚È‚¢ƒƒjƒ…[€–Ú‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// å®Ÿè¡Œã•ã‚Œã‚‹ã¨ãã«å¼•æ•°ã‚’ä¼´ã‚ãªã„ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows menu item not to accompany argument when executed.
@@ -1298,7 +1298,7 @@ namespace Poderosa.Commands {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚±‚Ìƒƒjƒ…[€–Ú‚ÍA<seealso cref="PoderosaMenuItemImpl">PoderosaMenuItemImpl</seealso>‚ğg‚¤‚±‚Æ‚Åì¬‚Å‚«‚Ü‚·B
+    /// ã“ã®ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã¯ã€<seealso cref="PoderosaMenuItemImpl">PoderosaMenuItemImpl</seealso>ã‚’ä½¿ã†ã“ã¨ã§ä½œæˆã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// This menu item can be made by using <seealso cref="PoderosaMenuItemImpl">PoderosaMenuItemImpl</seealso>. 
@@ -1307,7 +1307,7 @@ namespace Poderosa.Commands {
     public interface IPoderosaMenuItem : IPoderosaMenu {
         /// <summary>
         /// <ja>
-        /// ƒƒjƒ…[‚ª‘I‘ğ‚³‚ê‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒRƒ}ƒ“ƒh‚Å‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒé¸æŠã•ã‚ŒãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ã‚³ãƒãƒ³ãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Command called when menu is selected.
@@ -1315,8 +1315,8 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ƒƒjƒ…[‚ª‘I‘ğ‚³‚ê‚é‚ÆA‚±‚ÌƒvƒƒpƒeƒB‚Åİ’è‚µ‚½<see cref="IPoderosaCommand.InternalExecute">InternalExecuteƒƒ\ƒbƒh</see>
-        /// ‚ªŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒé¸æŠã•ã‚Œã‚‹ã¨ã€ã“ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã§è¨­å®šã—ãŸ<see cref="IPoderosaCommand.InternalExecute">InternalExecuteãƒ¡ã‚½ãƒƒãƒ‰</see>
+        /// ãŒå‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The <see cref="IPoderosaCommand.InternalExecute">InternalExecute method</see> that sets for the menu to be selected in this property is called. 
@@ -1327,10 +1327,10 @@ namespace Poderosa.Commands {
         }
     }
 
-    //MRU‚È‚ÇAˆø”•t‚«‚Ì‚â‚Â
+    //MRUãªã©ã€å¼•æ•°ä»˜ãã®ã‚„ã¤
     /// <summary>
     /// <ja>
-    /// Às‚³‚ê‚é‚Æ‚«‚Éˆø”‚ğ”º‚¤ƒƒjƒ…[€–Ú‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// å®Ÿè¡Œã•ã‚Œã‚‹ã¨ãã«å¼•æ•°ã‚’ä¼´ã†ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows menu item with argument when executed
@@ -1339,7 +1339,7 @@ namespace Poderosa.Commands {
     public interface IPoderosaMenuItemWithArgs : IPoderosaMenuItem {
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚é‚Æ‚«‚Éˆø‚«“n‚·”CˆÓ‚Ìˆø”‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹ã¨ãã«å¼•ãæ¸¡ã™ä»»æ„ã®å¼•æ•°ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Arbitrary argument handed over when command is executed.
@@ -1347,9 +1347,9 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ‚±‚Ìˆø”‚ÍA<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>‚Ì
-        /// <see cref="IPoderosaCommand.InternalExecute">InternalExecuteƒƒ\ƒbƒh</see>
-        /// ‚ªŒÄ‚Ño‚³‚ê‚é‚Æ‚«A‘æ3ˆø”‚É‚»‚Ì‚Ü‚Ü“n‚³‚ê‚Ü‚·B
+        /// ã“ã®å¼•æ•°ã¯ã€<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>ã®
+        /// <see cref="IPoderosaCommand.InternalExecute">InternalExecuteãƒ¡ã‚½ãƒƒãƒ‰</see>
+        /// ãŒå‘¼ã³å‡ºã•ã‚Œã‚‹ã¨ãã€ç¬¬3å¼•æ•°ã«ãã®ã¾ã¾æ¸¡ã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When the <see cref="IPoderosaCommand.InternalExecute">InternalExecute method</see> of <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso> is called, this argument is passed to the third argument as it is. 
@@ -1360,20 +1360,20 @@ namespace Poderosa.Commands {
         }
     }
 
-    //ƒRƒ“ƒeƒLƒXƒgƒƒjƒ…[‚ğ‹Ÿ‹‹‚·‚é”\—Í‚Ì‚ ‚éƒNƒ‰ƒX‚ªÀ‘•
+    //ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’ä¾›çµ¦ã™ã‚‹èƒ½åŠ›ã®ã‚ã‚‹ã‚¯ãƒ©ã‚¹ãŒå®Ÿè£…
     /// <summary>
     /// <ja>
-    /// ƒRƒ“ƒeƒLƒXƒgƒƒjƒ…[‚Ì‹@”\‚ğ‚à‚Âƒvƒ‰ƒOƒCƒ“‚ªÀ‘•‚·‚×‚«ƒNƒ‰ƒX‚Å‚·B
+    /// ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®æ©Ÿèƒ½ã‚’ã‚‚ã¤ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒå®Ÿè£…ã™ã¹ãã‚¯ãƒ©ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Class that plug-in with function of context menu should implement.
     /// </en>
     /// </summary>
     public interface IPoderosaContextMenuPoint : IAdaptable {
-        //null‚à‰Â
+        //nullã‚‚å¯
         /// <summary>
         /// <ja>
-        /// ƒRƒ“ƒeƒLƒXƒgƒƒjƒ…[‚ğ¦‚·ƒƒjƒ…[ƒOƒ‹[ƒv‚Å‚·B
+        /// ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’ç¤ºã™ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Menu group that shows context menu
@@ -1386,10 +1386,10 @@ namespace Poderosa.Commands {
 
 
 
-    //IPoderosaCommand•W€À‘•
+    //IPoderosaCommandæ¨™æº–å®Ÿè£…
     /// <summary>
     /// <ja>
-    /// <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>‚ğÀ‘•‚µ‚½ƒNƒ‰ƒX‚Å‚·BƒRƒ}ƒ“ƒh‚ğì¬‚·‚éÛ‚Ég‚¢‚Ü‚·B
+    /// <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>ã‚’å®Ÿè£…ã—ãŸã‚¯ãƒ©ã‚¹ã§ã™ã€‚ã‚³ãƒãƒ³ãƒ‰ã‚’ä½œæˆã™ã‚‹éš›ã«ä½¿ã„ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// It is a class that implements <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>. When the command is made, it uses it. 
@@ -1398,11 +1398,11 @@ namespace Poderosa.Commands {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ƒRƒ}ƒ“ƒh‚ğÀ‘•‚·‚éŠJ”­Ò‚ÍA‚±‚ÌƒNƒ‰ƒX‚ğg‚¤‚±‚Æ‚Å<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>‚ğÀ‘•‚µ‚½ƒIƒuƒWƒFƒNƒg
-    /// ‚ğ—eˆÕ‚Éì¬‚Å‚«‚Ü‚·B
+    /// ã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè£…ã™ã‚‹é–‹ç™ºè€…ã¯ã€ã“ã®ã‚¯ãƒ©ã‚¹ã‚’ä½¿ã†ã“ã¨ã§<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>ã‚’å®Ÿè£…ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+    /// ã‚’å®¹æ˜“ã«ä½œæˆã§ãã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ƒVƒ‡[ƒgƒJƒbƒgƒL[‚ğŠ„‚è“–‚Ä‚éƒRƒ}ƒ“ƒh‚ğì¬‚·‚éê‡‚É‚ÍA<seealso cref="GeneralCommandImpl">GeneralCommandImpl</seealso>‚ğg‚Á‚Ä‚­‚¾‚³‚¢B
+    /// ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã‚’å‰²ã‚Šå½“ã¦ã‚‹ã‚³ãƒãƒ³ãƒ‰ã‚’ä½œæˆã™ã‚‹å ´åˆã«ã¯ã€<seealso cref="GeneralCommandImpl">GeneralCommandImpl</seealso>ã‚’ä½¿ã£ã¦ãã ã•ã„ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -1416,18 +1416,18 @@ namespace Poderosa.Commands {
     /// </remarks>
     /// <example>
     /// <ja>
-    /// <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>‚ğÀ‘•‚µ‚½ƒIƒuƒWƒFƒNƒg‚ÍAŸ‚Ì‚æ‚¤‚É‚µ‚Äì¬‚Å‚«‚Ü‚·B
+    /// <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>ã‚’å®Ÿè£…ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¯ã€æ¬¡ã®ã‚ˆã†ã«ã—ã¦ä½œæˆã§ãã¾ã™ã€‚
     /// <code>
     /// PoderosaCommandImpl mycommand = new PoderosaCommandImpl(
     ///   delegate(ICommandTarget target)
     ///   {
-    ///     // ƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚½‚Æ‚«‚Ìˆ—
-    ///    MessageBox.Show("Às‚³‚ê‚Ü‚µ‚½");
+    ///     // ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚ŒãŸã¨ãã®å‡¦ç†
+    ///    MessageBox.Show("å®Ÿè¡Œã•ã‚Œã¾ã—ãŸ");
     ///    return CommandResult.Succeeded;
     ///   },
     ///   delegate(ICommandTarget target)
     ///   {
-    ///     // ƒRƒ}ƒ“ƒh‚ªÀs‚Å‚«‚é‚©‚Ç‚¤‚©‚ğ•Ô‚·
+    ///     // ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã§ãã‚‹ã‹ã©ã†ã‹ã‚’è¿”ã™
     ///    return true;
     ///  }
     /// );
@@ -1460,7 +1460,7 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ˆø”‚È‚µ‚ÌƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Å‚·B
+        /// å¼•æ•°ãªã—ã®ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Constructor that doesn't have argument
@@ -1468,7 +1468,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ‚±‚ÌƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Åì¬‚³‚ê‚½ƒRƒ}ƒ“ƒh‚ÍAƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚Ä‚à‚¢‚©‚È‚éˆ—‚à‚µ‚Ü‚¹‚ñB
+        /// ã“ã®ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ä½œæˆã•ã‚ŒãŸã‚³ãƒãƒ³ãƒ‰ã¯ã€ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã¦ã‚‚ã„ã‹ãªã‚‹å‡¦ç†ã‚‚ã—ã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
         /// The command made by this constructor is executed the command or doesn't do the becoming it processing either. 
@@ -1477,7 +1477,7 @@ namespace Poderosa.Commands {
         /// <overloads>
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒhƒIƒuƒWƒFƒNƒg‚ğì¬‚µ‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Making the command object. 
@@ -1490,7 +1490,7 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚éÛ‚ÉŒÄ‚Ño‚·ƒfƒŠƒQ[ƒg‚ğw’è‚µ‚½ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹éš›ã«å‘¼ã³å‡ºã™ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã‚’æŒ‡å®šã—ãŸã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Constructor who specified delegate called when command is executed
@@ -1498,7 +1498,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="execute">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚éÛ‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹éš›ã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Delegate called when command is executed
@@ -1507,12 +1507,12 @@ namespace Poderosa.Commands {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚éÛ\\Œ¾‚¢Š·‚¦‚é‚Æ<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>‚Ì
-        /// <see cref="IPoderosaCommand.InternalExecute">InternalExecute</see>ƒƒ\ƒbƒh‚ªŒÄ‚Ño‚³‚ê‚é‚Æ‚«‚ÉA<paramref name="execute">execute</paramref>
-        /// ‚Éw’è‚µ‚½ƒfƒŠƒQ[ƒg‚ªŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹éš›â€•â€•è¨€ã„æ›ãˆã‚‹ã¨<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>ã®
+        /// <see cref="IPoderosaCommand.InternalExecute">InternalExecute</see>ãƒ¡ã‚½ãƒƒãƒ‰ãŒå‘¼ã³å‡ºã•ã‚Œã‚‹ã¨ãã«ã€<paramref name="execute">execute</paramref>
+        /// ã«æŒ‡å®šã—ãŸãƒ‡ãƒªã‚²ãƒ¼ãƒˆãŒå‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </para>
         /// <para>
-        /// <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>‚Ì<see cref="IPoderosaCommand.CanExecute">CanExecute</see>ƒƒ\ƒbƒh‚Ìˆ—‚Å‚ÍAí‚Étrue‚ª•Ô‚³‚ê‚é‚æ‚¤‚ÉÀ‘•‚³‚ê‚Ü‚·B
+        /// <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>ã®<see cref="IPoderosaCommand.CanExecute">CanExecute</see>ãƒ¡ã‚½ãƒƒãƒ‰ã®å‡¦ç†ã§ã¯ã€å¸¸ã«trueãŒè¿”ã•ã‚Œã‚‹ã‚ˆã†ã«å®Ÿè£…ã•ã‚Œã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -1530,7 +1530,7 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚éÛ‚ÉŒÄ‚Ño‚·ƒfƒŠƒQ[ƒg‚ÆAƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚ª‘I‘ğ‰Â”\‚©‚Ç‚¤‚©‚ğ¦‚·ƒfƒŠƒQ[ƒg‚ğw’è‚µ‚½ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹éš›ã«å‘¼ã³å‡ºã™ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã¨ã€ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒé¸æŠå¯èƒ½ã‹ã©ã†ã‹ã‚’ç¤ºã™ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã‚’æŒ‡å®šã—ãŸã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Constructor that specified delegate that shows whether delegate, menu, and toolbar called when command is executed can be selected
@@ -1538,27 +1538,27 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="execute">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚éÛ‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹éš›ã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Delegate called when command is executed.
         /// </en>
         /// </param>
         /// <param name="canExecute">
-        /// <ja>ƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚ğƒCƒl[ƒuƒ‹‚É‚·‚é‚©ƒfƒBƒXƒGƒuƒ‹‚É‚·‚é‚©‚ğŒˆ‚ß‚é‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg‚Å‚·B</ja>
+        /// <ja>ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‚’ã‚¤ãƒãƒ¼ãƒ–ãƒ«ã«ã™ã‚‹ã‹ãƒ‡ã‚£ã‚¹ã‚¨ãƒ–ãƒ«ã«ã™ã‚‹ã‹ã‚’æ±ºã‚ã‚‹ã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã§ã™ã€‚</ja>
         /// <en>Delegate called when whether menu and toolbar are made Inabl or making to disable is decided.</en>
         /// </param>
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚éÛ\\Œ¾‚¢Š·‚¦‚é‚Æ<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>‚Ì
-        /// <see cref="IPoderosaCommand.InternalExecute">InternalExecute</see>ƒƒ\ƒbƒh‚ªŒÄ‚Ño‚³‚ê‚é‚Æ‚«‚ÉA<paramref name="execute">execute</paramref>
-        /// ‚Éw’è‚µ‚½ƒfƒŠƒQ[ƒg‚ªŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹éš›â€•â€•è¨€ã„æ›ãˆã‚‹ã¨<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>ã®
+        /// <see cref="IPoderosaCommand.InternalExecute">InternalExecute</see>ãƒ¡ã‚½ãƒƒãƒ‰ãŒå‘¼ã³å‡ºã•ã‚Œã‚‹ã¨ãã«ã€<paramref name="execute">execute</paramref>
+        /// ã«æŒ‡å®šã—ãŸãƒ‡ãƒªã‚²ãƒ¼ãƒˆãŒå‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </para>
         /// <para>
-        /// ƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚ğƒCƒl[ƒuƒ‹‚É‚·‚é‚©ƒfƒBƒXƒGƒuƒ‹‚É‚·‚é‚©‚ğŒˆ‚ß‚é‚Æ‚«\\
-        /// Œ¾‚¢Š·‚¦‚é‚Æ<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>‚Ì<see cref="IPoderosaCommand.CanExecute">CanExecute</see>ƒƒ\ƒbƒh‚ªŒÄ‚Ño‚³‚ê‚é‚Æ‚«‚ÉA
-        /// <paramref name="canExecute">canExecute</paramref>‚Éw’è‚µ‚½ƒfƒŠƒQ[ƒg‚ªŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‚’ã‚¤ãƒãƒ¼ãƒ–ãƒ«ã«ã™ã‚‹ã‹ãƒ‡ã‚£ã‚¹ã‚¨ãƒ–ãƒ«ã«ã™ã‚‹ã‹ã‚’æ±ºã‚ã‚‹ã¨ãâ€•â€•
+        /// è¨€ã„æ›ãˆã‚‹ã¨<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>ã®<see cref="IPoderosaCommand.CanExecute">CanExecute</see>ãƒ¡ã‚½ãƒƒãƒ‰ãŒå‘¼ã³å‡ºã•ã‚Œã‚‹ã¨ãã«ã€
+        /// <paramref name="canExecute">canExecute</paramref>ã«æŒ‡å®šã—ãŸãƒ‡ãƒªã‚²ãƒ¼ãƒˆãŒå‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -1577,24 +1577,24 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Åw’è‚³‚ê‚½ƒfƒŠƒQ[ƒg‚ğÀs‚·‚é‚½‚ß‚ÌƒI[ƒo[ƒ‰ƒCƒh‚³‚ê‚Ä‚¢‚Ü‚·B
+        /// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§æŒ‡å®šã•ã‚ŒãŸãƒ‡ãƒªã‚²ãƒ¼ãƒˆã‚’å®Ÿè¡Œã™ã‚‹ãŸã‚ã®ã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰ã•ã‚Œã¦ã„ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The override to execute delegate specified by the constructor is done. 
         /// </en>
         /// </summary>
-        /// <param name="target"><ja>ƒRƒ}ƒ“ƒh‚Ìƒ^[ƒQƒbƒg‚Å‚·B</ja>
+        /// <param name="target"><ja>ã‚³ãƒãƒ³ãƒ‰ã®ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja>
         /// <en>
         /// Target of command.
         /// </en>
         /// </param>
-        /// <param name="args"><ja>ƒRƒ}ƒ“ƒh‚Ìˆø”‚Å‚·B</ja>
+        /// <param name="args"><ja>ã‚³ãƒãƒ³ãƒ‰ã®å¼•æ•°ã§ã™ã€‚</ja>
         /// <en>Argument of commane.</en></param>
-        /// <returns><ja>ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Åw’è‚³‚ê‚½ƒfƒŠƒQ[ƒg‚ğÀs‚µ‚½Œ‹‰Ê‚ª–ß‚³‚ê‚Ü‚·B</ja>
+        /// <returns><ja>ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§æŒ‡å®šã•ã‚ŒãŸãƒ‡ãƒªã‚²ãƒ¼ãƒˆã‚’å®Ÿè¡Œã—ãŸçµæœãŒæˆ»ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>The result of executing delegate specified by the constructor is returned. </en></returns>
         /// <remarks>
         /// <ja>
-        /// ˆø”‚È‚µ‚ÌƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Å‚±‚ÌƒIƒuƒWƒFƒNƒg‚ªì‚ç‚ê‚½ê‡A‰½‚àÀs‚³‚ê‚é‚±‚Æ‚Í‚È‚­A–ß‚è’l‚Æ‚µ‚ÄCommandResult.Ignored‚ª•Ô‚³‚ê‚Ü‚·B
+        /// å¼•æ•°ãªã—ã®ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒä½œã‚‰ã‚ŒãŸå ´åˆã€ä½•ã‚‚å®Ÿè¡Œã•ã‚Œã‚‹ã“ã¨ã¯ãªãã€æˆ»ã‚Šå€¤ã¨ã—ã¦CommandResult.IgnoredãŒè¿”ã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Nothing is executed when this object is made from the constructor who doesn't have the argument, and CommandResult.Ignored is returned as a return value. 
@@ -1606,22 +1606,22 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Åw’è‚³‚ê‚½ƒfƒŠƒQ[ƒg‚ğÀs‚·‚é‚½‚ß‚ÉƒI[ƒo[ƒ‰ƒCƒh‚³‚ê‚Ä‚¢‚Ü‚·B
+        /// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§æŒ‡å®šã•ã‚ŒãŸãƒ‡ãƒªã‚²ãƒ¼ãƒˆã‚’å®Ÿè¡Œã™ã‚‹ãŸã‚ã«ã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰ã•ã‚Œã¦ã„ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// To execute delegate specified by the constructor, override is done. 
         /// </en>
         /// </summary>
-        /// <param name="target"><ja>ƒRƒ}ƒ“ƒh‚Ìƒ^[ƒQƒbƒg‚Å‚·B</ja>
+        /// <param name="target"><ja>ã‚³ãƒãƒ³ãƒ‰ã®ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja>
         /// <en>
         /// Target of command.
         /// </en>
         /// </param>
-        /// <returns><ja>ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Åw’è‚³‚ê‚½ƒfƒŠƒQ[ƒg‚ğÀs‚µ‚½Œ‹‰Ê‚ª–ß‚³‚ê‚Ü‚·B</ja>
+        /// <returns><ja>ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§æŒ‡å®šã•ã‚ŒãŸãƒ‡ãƒªã‚²ãƒ¼ãƒˆã‚’å®Ÿè¡Œã—ãŸçµæœãŒæˆ»ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>The result of executing delegate specified by the constructor is returned. </en></returns>
         /// <remarks>
         /// <ja>
-        /// ˆø”‚È‚µA‚Ü‚½‚ÍAˆø”‚ª1‚Â‚ÌƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Å‚±‚ÌƒIƒuƒWƒFƒNƒg‚ªì‚ç‚ê‚½ê‡Aí‚Étrue‚ª•Ô‚³‚ê‚Ü‚·B
+        /// å¼•æ•°ãªã—ã€ã¾ãŸã¯ã€å¼•æ•°ãŒ1ã¤ã®ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒä½œã‚‰ã‚ŒãŸå ´åˆã€å¸¸ã«trueãŒè¿”ã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The argument none or the argument is returned and when this object is made from one constructor, true is always returned. 
@@ -1636,10 +1636,10 @@ namespace Poderosa.Commands {
         }
     }
 
-    //IGeneralCommand•W€À‘•
+    //IGeneralCommandæ¨™æº–å®Ÿè£…
     /// <summary>
     /// <ja>
-    /// <seealso cref="IGeneralCommand">IGeneralCommand</seealso>‚ğÀ‘•‚µ‚½ƒNƒ‰ƒX‚Å‚·BƒVƒ‡[ƒgƒJƒbƒgƒL[‚ğŠ„‚è“–‚Ä‚éƒRƒ}ƒ“ƒh‚ğì¬‚·‚éÛ‚Ég‚¢‚Ü‚·B
+    /// <seealso cref="IGeneralCommand">IGeneralCommand</seealso>ã‚’å®Ÿè£…ã—ãŸã‚¯ãƒ©ã‚¹ã§ã™ã€‚ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã‚’å‰²ã‚Šå½“ã¦ã‚‹ã‚³ãƒãƒ³ãƒ‰ã‚’ä½œæˆã™ã‚‹éš›ã«ä½¿ã„ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// It is a class that implements <seealso cref="IGeneralCommand">IGeneralCommand</seealso>. When the command that allocates the shortcut key is made, it uses it. 
@@ -1648,11 +1648,11 @@ namespace Poderosa.Commands {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ƒVƒ‡[ƒgƒJƒbƒgƒL[‚ğŠ„‚è“–‚Ä‚éƒRƒ}ƒ“ƒh‚ğÀ‘•‚·‚éŠJ”­Ò‚ÍA‚±‚ÌƒNƒ‰ƒX‚ğg‚¤‚±‚Æ‚Å<seealso cref="IGeneralCommand">IGeneralCommand</seealso>‚ğÀ‘•‚µ‚½
-    /// ƒIƒuƒWƒFƒNƒg‚ğ—eˆÕ‚Éì¬‚Å‚«‚Ü‚·B
+    /// ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã‚’å‰²ã‚Šå½“ã¦ã‚‹ã‚³ãƒãƒ³ãƒ‰ã‚’å®Ÿè£…ã™ã‚‹é–‹ç™ºè€…ã¯ã€ã“ã®ã‚¯ãƒ©ã‚¹ã‚’ä½¿ã†ã“ã¨ã§<seealso cref="IGeneralCommand">IGeneralCommand</seealso>ã‚’å®Ÿè£…ã—ãŸ
+    /// ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å®¹æ˜“ã«ä½œæˆã§ãã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ƒVƒ‡[ƒgƒJƒbƒgƒL[‚ğŠ„‚è“–‚Ä‚é•K—v‚ª‚È‚¢ê‡‚É‚ÍA<seealso cref="PoderosaCommandImpl">PoderosaCommandImpl</seealso>‚ğg‚Á‚Ä‚­‚¾‚³‚¢B
+    /// ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã‚’å‰²ã‚Šå½“ã¦ã‚‹å¿…è¦ãŒãªã„å ´åˆã«ã¯ã€<seealso cref="PoderosaCommandImpl">PoderosaCommandImpl</seealso>ã‚’ä½¿ã£ã¦ãã ã•ã„ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -1666,25 +1666,25 @@ namespace Poderosa.Commands {
     /// </remarks>
     /// <example>
     /// <ja>
-    /// [•ÒWn‚Æ‚¢‚¤’è‹`Ï‚İƒJƒeƒSƒŠ‚É‘®‚·‚éƒRƒ}ƒ“ƒhƒIƒuƒWƒFƒNƒg‚ğì¬‚·‚é‚É‚ÍAŸ‚Ì‚æ‚¤‚É‚µ‚Ü‚·B
+    /// [ç·¨é›†ï¼½ã¨ã„ã†å®šç¾©æ¸ˆã¿ã‚«ãƒ†ã‚´ãƒªã«å±ã™ã‚‹ã‚³ãƒãƒ³ãƒ‰ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œæˆã™ã‚‹ã«ã¯ã€æ¬¡ã®ã‚ˆã†ã«ã—ã¾ã™ã€‚
     /// <code>
-    /// // ƒRƒ}ƒ“ƒhƒ}ƒl[ƒWƒƒ‚Ìæ“¾
+    /// // ã‚³ãƒãƒ³ãƒ‰ãƒãƒãƒ¼ã‚¸ãƒ£ã®å–å¾—
     /// ICoreServices cs = (ICoreServices)PoderosaWorld.GetAdapter(typeof(ICoreServices));
     /// ICommandManager cm = cs.CommandManager;
     /// 
-    /// // ƒRƒ}ƒ“ƒhì¬
+    /// // ã‚³ãƒãƒ³ãƒ‰ä½œæˆ
     /// IGeneralCommand mycmd = new GeneralCommandImpl(
     ///   "co.example.myplugin.mycommand",
     ///  "MyCommand", cm.CommandCategories.Edit,
     ///   delegate(ICommandTarget target)
     ///  {
-    ///     // ‚±‚±‚ÉƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚é‚Æ‚«‚Ìˆ—‚ğ‹Lq‚µ‚Ü‚·
-    ///   return CommandResult.Succeeded; // ¬Œ÷‚È‚çSucceeded‚ğ•Ô‚·
+    ///     // ã“ã“ã«ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹ã¨ãã®å‡¦ç†ã‚’è¨˜è¿°ã—ã¾ã™
+    ///   return CommandResult.Succeeded; // æˆåŠŸãªã‚‰Succeededã‚’è¿”ã™
     ///  },
     ///  delegate(ICommandTarget target)
     ///  {
-    ///     // ‚±‚±‚ÉƒRƒ}ƒ“ƒh‚Ì‰Â”Û‚ª’²‚×‚ç‚ê‚é‚Æ‚«‚Ìˆ—‚ğ‹Lq‚µ‚Ü‚·
-    ///     return true; // Às‰Â”\‚È‚çtrue‚ğ•Ô‚·
+    ///     // ã“ã“ã«ã‚³ãƒãƒ³ãƒ‰ã®å¯å¦ãŒèª¿ã¹ã‚‰ã‚Œã‚‹ã¨ãã®å‡¦ç†ã‚’è¨˜è¿°ã—ã¾ã™
+    ///     return true; // å®Ÿè¡Œå¯èƒ½ãªã‚‰trueã‚’è¿”ã™
     ///  }
     /// );
     /// </code>
@@ -1734,10 +1734,10 @@ namespace Poderosa.Commands {
         /// <exclude/>
         protected ExecuteDelegate _executeDelegate;
 
-        //•K{—v‘f‚ğ—^‚¦‚éƒRƒ“ƒXƒgƒ‰ƒNƒ^
+        //å¿…é ˆè¦ç´ ã‚’ä¸ãˆã‚‹ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒhIDAƒJƒ‹ƒ`ƒƒAà–¾ƒeƒLƒXƒgIDAƒRƒ}ƒ“ƒhƒJƒeƒSƒŠAƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚éÛ‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒgAÀs‰Â”\‚©‚Ç‚¤‚©‚ğ’²‚×‚éÛ‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg‚ğw’è‚µ‚ÄƒIƒuƒWƒFƒNƒg‚ğì¬‚µ‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰IDã€ã‚«ãƒ«ãƒãƒ£ã€èª¬æ˜ãƒ†ã‚­ã‚¹ãƒˆIDã€ã‚³ãƒãƒ³ãƒ‰ã‚«ãƒ†ã‚´ãƒªã€ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹éš›ã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã€å®Ÿè¡Œå¯èƒ½ã‹ã©ã†ã‹ã‚’èª¿ã¹ã‚‹éš›ã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã‚’æŒ‡å®šã—ã¦ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The object is made specifying delegate called when delegate called when command ID, Culture, explanation text ID, the command category, and the command are executed and it is executable is examined. 
@@ -1745,7 +1745,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="commandID">
         /// <ja>
-        /// Š„‚è“–‚Ä‚éƒRƒ}ƒ“ƒhID‚Å‚·B‚Ù‚©‚ÌƒRƒ}ƒ“ƒh‚Æ‚Íd•¡‚µ‚È‚¢—Bˆê–³“ñ‚Ì‚à‚Ì‚ğw’è‚µ‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// å‰²ã‚Šå½“ã¦ã‚‹ã‚³ãƒãƒ³ãƒ‰IDã§ã™ã€‚ã»ã‹ã®ã‚³ãƒãƒ³ãƒ‰ã¨ã¯é‡è¤‡ã—ãªã„å”¯ä¸€ç„¡äºŒã®ã‚‚ã®ã‚’æŒ‡å®šã—ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
         /// It is allocated command ID. The unique one that doesn't overlap should be specified other commands. 
@@ -1753,7 +1753,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="sr">
         /// <ja>
-        /// ƒJƒ‹ƒ`ƒƒî•ñ‚Å‚·B
+        /// ã‚«ãƒ«ãƒãƒ£æƒ…å ±ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Information of the culture.
@@ -1761,7 +1761,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="descriptionTextID">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚Ìà–¾•¶‚ğ¦‚·ƒeƒLƒXƒgID‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®èª¬æ˜æ–‡ã‚’ç¤ºã™ãƒ†ã‚­ã‚¹ãƒˆIDã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Text ID that shows explanation of command
@@ -1769,7 +1769,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="commandCategory">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ÌƒJƒeƒSƒŠ‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®ã‚«ãƒ†ã‚´ãƒªã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Category of command.
@@ -1777,7 +1777,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="exec">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚é‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹ã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Delegate called when command is executed.
@@ -1785,7 +1785,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="canExecute">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ªÀs‰Â”\‚©‚Ç‚¤‚©‚ğ’²‚×‚éÛ‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œå¯èƒ½ã‹ã©ã†ã‹ã‚’èª¿ã¹ã‚‹éš›ã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Delegate called when it is examined whether command is executable
@@ -1794,7 +1794,7 @@ namespace Poderosa.Commands {
         /// <overloads>
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒhƒIƒuƒWƒFƒNƒg‚ğì¬‚µ‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create the command object.
@@ -1810,10 +1810,10 @@ namespace Poderosa.Commands {
             _executeDelegate = exec;
             _canExecuteDelegate = canExecute;
         }
-        //ˆê•”—v‘f‚ğÈ—ª‚·‚éƒRƒ“ƒXƒgƒ‰ƒNƒ^ŒQ
+        //ä¸€éƒ¨è¦ç´ ã‚’çœç•¥ã™ã‚‹ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ç¾¤
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒhIDAƒJƒ‹ƒ`ƒƒAà–¾ƒeƒLƒXƒg•¶AƒRƒ}ƒ“ƒhƒJƒeƒSƒŠAƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚éÛ‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒgAÀs‰Â”\‚©‚Ç‚¤‚©‚ğ’²‚×‚éÛ‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg‚ğw’è‚µ‚ÄƒIƒuƒWƒFƒNƒg‚ğì¬‚µ‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰IDã€ã‚«ãƒ«ãƒãƒ£ã€èª¬æ˜ãƒ†ã‚­ã‚¹ãƒˆæ–‡ã€ã‚³ãƒãƒ³ãƒ‰ã‚«ãƒ†ã‚´ãƒªã€ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹éš›ã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã€å®Ÿè¡Œå¯èƒ½ã‹ã©ã†ã‹ã‚’èª¿ã¹ã‚‹éš›ã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã‚’æŒ‡å®šã—ã¦ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The object is made specifying delegate called when delegate called when command ID, Culture, explanation text ID, the command category, and the command are executed and it is executable is examined. 
@@ -1821,7 +1821,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="commandID">
         /// <ja>
-        /// Š„‚è“–‚Ä‚éƒRƒ}ƒ“ƒhID‚Å‚·B‚Ù‚©‚ÌƒRƒ}ƒ“ƒh‚Æ‚Íd•¡‚µ‚È‚¢—Bˆê–³“ñ‚Ì‚à‚Ì‚ğw’è‚µ‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// å‰²ã‚Šå½“ã¦ã‚‹ã‚³ãƒãƒ³ãƒ‰IDã§ã™ã€‚ã»ã‹ã®ã‚³ãƒãƒ³ãƒ‰ã¨ã¯é‡è¤‡ã—ãªã„å”¯ä¸€ç„¡äºŒã®ã‚‚ã®ã‚’æŒ‡å®šã—ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
         /// It is allocated command ID. The unique one that doesn't overlap should be specified other commands. 
@@ -1829,7 +1829,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="description">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚Ìà–¾•¶‚ğ¦‚·ƒeƒLƒXƒg‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®èª¬æ˜æ–‡ã‚’ç¤ºã™ãƒ†ã‚­ã‚¹ãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Text that shows explanation of command
@@ -1837,7 +1837,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="category">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ÌƒJƒeƒSƒŠ‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®ã‚«ãƒ†ã‚´ãƒªã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Category of command.
@@ -1845,7 +1845,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="execute">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚é‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹ã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Delegate called when command is executed.
@@ -1853,7 +1853,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="canExecute">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ªÀs‰Â”\‚©‚Ç‚¤‚©‚ğ’²‚×‚éÛ‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œå¯èƒ½ã‹ã©ã†ã‹ã‚’èª¿ã¹ã‚‹éš›ã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Dalagate called when it is examined whether the command is executable. 
@@ -1864,7 +1864,7 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒhIDAƒJƒ‹ƒ`ƒƒAà–¾ƒeƒLƒXƒgIDAƒRƒ}ƒ“ƒhƒJƒeƒSƒŠAƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚éÛ‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg‚ğw’è‚µ‚ÄƒIƒuƒWƒFƒNƒg‚ğì¬‚µ‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰IDã€ã‚«ãƒ«ãƒãƒ£ã€èª¬æ˜ãƒ†ã‚­ã‚¹ãƒˆIDã€ã‚³ãƒãƒ³ãƒ‰ã‚«ãƒ†ã‚´ãƒªã€ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹éš›ã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã‚’æŒ‡å®šã—ã¦ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The object is made specifying delegate called when command ID, culture, explanation text ID, the command category, and the command are executed. 
@@ -1872,7 +1872,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="commandID">
         /// <ja>
-        /// Š„‚è“–‚Ä‚éƒRƒ}ƒ“ƒhID‚Å‚·B‚Ù‚©‚ÌƒRƒ}ƒ“ƒh‚Æ‚Íd•¡‚µ‚È‚¢—Bˆê–³“ñ‚Ì‚à‚Ì‚ğw’è‚µ‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// å‰²ã‚Šå½“ã¦ã‚‹ã‚³ãƒãƒ³ãƒ‰IDã§ã™ã€‚ã»ã‹ã®ã‚³ãƒãƒ³ãƒ‰ã¨ã¯é‡è¤‡ã—ãªã„å”¯ä¸€ç„¡äºŒã®ã‚‚ã®ã‚’æŒ‡å®šã—ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
         /// It is allocated command ID. The unique one that doesn't overlap should be specified other commands. 
@@ -1880,7 +1880,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="sr">
         /// <ja>
-        /// ƒJƒ‹ƒ`ƒƒî•ñ‚Å‚·B
+        /// ã‚«ãƒ«ãƒãƒ£æƒ…å ±ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Information of the culture.
@@ -1888,7 +1888,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="descriptionTextID">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚Ìà–¾•¶‚ğ¦‚·ƒeƒLƒXƒgID‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®èª¬æ˜æ–‡ã‚’ç¤ºã™ãƒ†ã‚­ã‚¹ãƒˆIDã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Text ID that shows explanation of command.
@@ -1896,14 +1896,14 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="category">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ÌƒJƒeƒSƒŠ‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®ã‚«ãƒ†ã‚´ãƒªã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Category of command.
         /// </en></param>
         /// <param name="execute">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚é‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹ã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Delegate called when command is executed
@@ -1914,7 +1914,7 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒhIDAƒJƒ‹ƒ`ƒƒAà–¾ƒeƒLƒXƒg•¶AƒRƒ}ƒ“ƒhƒJƒeƒSƒŠAƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚éÛ‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg‚ğw’è‚µ‚ÄƒIƒuƒWƒFƒNƒg‚ğì¬‚µ‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰IDã€ã‚«ãƒ«ãƒãƒ£ã€èª¬æ˜ãƒ†ã‚­ã‚¹ãƒˆæ–‡ã€ã‚³ãƒãƒ³ãƒ‰ã‚«ãƒ†ã‚´ãƒªã€ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹éš›ã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã‚’æŒ‡å®šã—ã¦ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The object is made specifying delegate called when command ID, culture, explanation text ID, the command category, and the command are executed. 
@@ -1922,7 +1922,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="commandID">
         /// <ja>
-        /// Š„‚è“–‚Ä‚éƒRƒ}ƒ“ƒhID‚Å‚·B‚Ù‚©‚ÌƒRƒ}ƒ“ƒh‚Æ‚Íd•¡‚µ‚È‚¢—Bˆê–³“ñ‚Ì‚à‚Ì‚ğw’è‚µ‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// å‰²ã‚Šå½“ã¦ã‚‹ã‚³ãƒãƒ³ãƒ‰IDã§ã™ã€‚ã»ã‹ã®ã‚³ãƒãƒ³ãƒ‰ã¨ã¯é‡è¤‡ã—ãªã„å”¯ä¸€ç„¡äºŒã®ã‚‚ã®ã‚’æŒ‡å®šã—ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
         /// It is allocated command ID. The unique one that doesn't overlap should be specified other commands. 
@@ -1930,7 +1930,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="description">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚Ìà–¾•¶‚ğ¦‚·ƒeƒLƒXƒg‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®èª¬æ˜æ–‡ã‚’ç¤ºã™ãƒ†ã‚­ã‚¹ãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Text that shows explanation of command.
@@ -1938,7 +1938,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="category">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ÌƒJƒeƒSƒŠ‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®ã‚«ãƒ†ã‚´ãƒªã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Category of command.
@@ -1946,7 +1946,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="execute">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚é‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒfƒŠƒQ[ƒg‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã‚‹ã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Delegate called when command is executed.
@@ -1958,7 +1958,7 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒhIDAƒJƒ‹ƒ`ƒƒAà–¾ƒeƒLƒXƒg•¶AƒRƒ}ƒ“ƒhƒJƒeƒSƒŠ‚ğw’è‚µ‚ÄƒIƒuƒWƒFƒNƒg‚ğì¬‚µ‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰IDã€ã‚«ãƒ«ãƒãƒ£ã€èª¬æ˜ãƒ†ã‚­ã‚¹ãƒˆæ–‡ã€ã‚³ãƒãƒ³ãƒ‰ã‚«ãƒ†ã‚´ãƒªã‚’æŒ‡å®šã—ã¦ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The object is made specifying command ID, culture, the explanation text sentence, and the command category. 
@@ -1966,7 +1966,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="commandID">
         /// <ja>
-        /// Š„‚è“–‚Ä‚éƒRƒ}ƒ“ƒhID‚Å‚·B‚Ù‚©‚ÌƒRƒ}ƒ“ƒh‚Æ‚Íd•¡‚µ‚È‚¢—Bˆê–³“ñ‚Ì‚à‚Ì‚ğw’è‚µ‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// å‰²ã‚Šå½“ã¦ã‚‹ã‚³ãƒãƒ³ãƒ‰IDã§ã™ã€‚ã»ã‹ã®ã‚³ãƒãƒ³ãƒ‰ã¨ã¯é‡è¤‡ã—ãªã„å”¯ä¸€ç„¡äºŒã®ã‚‚ã®ã‚’æŒ‡å®šã—ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
         /// It is allocated command ID. The unique one that doesn't overlap should be specified other commands. 
@@ -1974,7 +1974,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="sr">
         /// <ja>
-        /// ƒJƒ‹ƒ`ƒƒî•ñ‚Å‚·B
+        /// ã‚«ãƒ«ãƒãƒ£æƒ…å ±ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Information of the culture.
@@ -1982,7 +1982,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="descriptionTextID">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚Ìà–¾•¶‚ğ¦‚·ƒeƒLƒXƒgID‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®èª¬æ˜æ–‡ã‚’ç¤ºã™ãƒ†ã‚­ã‚¹ãƒˆIDã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Text ID that shows explanation of command.
@@ -1990,7 +1990,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="category">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ÌƒJƒeƒSƒŠ‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®ã‚«ãƒ†ã‚´ãƒªã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Category of command.
@@ -2001,7 +2001,7 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒhIDAà–¾ƒeƒLƒXƒg•¶AƒRƒ}ƒ“ƒhƒJƒeƒSƒŠ‚ğw’è‚µ‚ÄƒIƒuƒWƒFƒNƒg‚ğì¬‚µ‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰IDã€èª¬æ˜ãƒ†ã‚­ã‚¹ãƒˆæ–‡ã€ã‚³ãƒãƒ³ãƒ‰ã‚«ãƒ†ã‚´ãƒªã‚’æŒ‡å®šã—ã¦ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create a object specifying command ID, the explanation text sentence, and the command category. 
@@ -2009,7 +2009,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <param name="commandID">
         /// <ja>
-        /// Š„‚è“–‚Ä‚éƒRƒ}ƒ“ƒhID‚Å‚·B‚Ù‚©‚ÌƒRƒ}ƒ“ƒh‚Æ‚Íd•¡‚µ‚È‚¢—Bˆê–³“ñ‚Ì‚à‚Ì‚ğw’è‚µ‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// å‰²ã‚Šå½“ã¦ã‚‹ã‚³ãƒãƒ³ãƒ‰IDã§ã™ã€‚ã»ã‹ã®ã‚³ãƒãƒ³ãƒ‰ã¨ã¯é‡è¤‡ã—ãªã„å”¯ä¸€ç„¡äºŒã®ã‚‚ã®ã‚’æŒ‡å®šã—ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
         /// It is allocated command ID. The unique one that doesn't overlap should be specified other commands. 
@@ -2017,7 +2017,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="description">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚Ìà–¾•¶‚ğ¦‚·ƒeƒLƒXƒg‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®èª¬æ˜æ–‡ã‚’ç¤ºã™ãƒ†ã‚­ã‚¹ãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Text that shows explanation of command
@@ -2025,7 +2025,7 @@ namespace Poderosa.Commands {
         /// </param>
         /// <param name="category">
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ÌƒJƒeƒSƒŠ‚Å‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã®ã‚«ãƒ†ã‚´ãƒªã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Category of command.
@@ -2037,7 +2037,7 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ‚±‚ÌƒRƒ}ƒ“ƒh‚ÉŠ„‚è“–‚Ä‚ç‚ê‚Ä‚¢‚éƒRƒ}ƒ“ƒhID‚Å‚·B
+        /// ã“ã®ã‚³ãƒãƒ³ãƒ‰ã«å‰²ã‚Šå½“ã¦ã‚‰ã‚Œã¦ã„ã‚‹ã‚³ãƒãƒ³ãƒ‰IDã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Command ID allocated in this command.
@@ -2051,7 +2051,7 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ‚±‚ÌƒRƒ}ƒ“ƒh‚Éİ’è‚³‚ê‚Ä‚¢‚éà–¾•¶‚Å‚·B
+        /// ã“ã®ã‚³ãƒãƒ³ãƒ‰ã«è¨­å®šã•ã‚Œã¦ã„ã‚‹èª¬æ˜æ–‡ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Explanation set to this command.
@@ -2065,14 +2065,14 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ƒfƒtƒHƒ‹ƒg‚ÌƒVƒ‡[ƒgƒJƒbƒgƒL[‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The shortcut key of default is shown. 
         /// </en>
         /// </summary>
         /// <remarks>
-        /// <ja>ƒfƒtƒHƒ‹ƒg‚ÌƒVƒ‡[ƒgƒJƒbƒgƒL[‚ª‘¶İ‚µ‚È‚¢ê‡‚É‚ÍAKeys.None‚ª•Ô‚³‚ê‚Ü‚·B</ja>
+        /// <ja>ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚­ãƒ¼ãŒå­˜åœ¨ã—ãªã„å ´åˆã«ã¯ã€Keys.NoneãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>When the shortcut key of default doesn't exist, Keys.None is returned. </en>
         /// </remarks>
         public virtual Keys DefaultShortcutKey {
@@ -2083,7 +2083,7 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒhƒJƒeƒSƒŠ‚ğ¦‚µ‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã‚«ãƒ†ã‚´ãƒªã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The command category is shown. 
@@ -2095,32 +2095,32 @@ namespace Poderosa.Commands {
             }
         }
 
-        //Args‚ª•K—v‚È‚â‚Â‚Í“Æ©‚É”h¶‚·‚é
+        //ArgsãŒå¿…è¦ãªã‚„ã¤ã¯ç‹¬è‡ªã«æ´¾ç”Ÿã™ã‚‹
         /// <summary>
         /// <ja>
-        /// ƒI[ƒo[ƒ[ƒh‚Å‚·BƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚Æ‚«‚ÉŒÄ‚Ño‚·‚æ‚¤‚Éİ’è‚³‚ê‚½ƒfƒŠƒQ[ƒg‚ğ“à•”‚ÅŒÄ‚Ño‚µ‚Ü‚·B
+        /// ã‚ªãƒ¼ãƒãƒ¼ãƒ­ãƒ¼ãƒ‰ã§ã™ã€‚ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œã¨ãã«å‘¼ã³å‡ºã™ã‚ˆã†ã«è¨­å®šã•ã‚ŒãŸãƒ‡ãƒªã‚²ãƒ¼ãƒˆã‚’å†…éƒ¨ã§å‘¼ã³å‡ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is an overload. Delegate set for the command to be executed or to call it is called internally. 
         /// </en>
         /// </summary>
-        /// <param name="target"><ja>ˆ—‘ÎÛ‚ğ¦‚·ƒ^[ƒQƒbƒg‚Å‚·B</ja><en>Target that shows processing object</en></param>
-        /// <param name="args"><ja>ƒRƒ}ƒ“ƒh‚Éˆø‚«“n‚³‚ê‚é”CˆÓ‚Ìˆø”‚Å‚·B</ja><en>Arbitrary argument handed over to command</en></param>
-        /// <returns><ja>Às‚³‚ê‚½ƒfƒŠƒQ[ƒg‚Ì–ß‚è’l‚Å‚·B</ja><en>Return value of executed delegate</en></returns>
+        /// <param name="target"><ja>å‡¦ç†å¯¾è±¡ã‚’ç¤ºã™ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja><en>Target that shows processing object</en></param>
+        /// <param name="args"><ja>ã‚³ãƒãƒ³ãƒ‰ã«å¼•ãæ¸¡ã•ã‚Œã‚‹ä»»æ„ã®å¼•æ•°ã§ã™ã€‚</ja><en>Arbitrary argument handed over to command</en></param>
+        /// <returns><ja>å®Ÿè¡Œã•ã‚ŒãŸãƒ‡ãƒªã‚²ãƒ¼ãƒˆã®æˆ»ã‚Šå€¤ã§ã™ã€‚</ja><en>Return value of executed delegate</en></returns>
         public virtual CommandResult InternalExecute(ICommandTarget target, params IAdaptable[] args) {
             return _executeDelegate == null ? CommandResult.Ignored : _executeDelegate(target);
         }
 
         /// <summary>
         /// <ja>
-        /// ƒI[ƒo[ƒ[ƒh‚Å‚·BƒRƒ}ƒ“ƒh‚ªÀs‰Â”\‚©‚Ç‚¤‚©‚ÌŠm”FŒÄ‚Ño‚µ‚ÌÛ‚ÉAİ’è‚³‚ê‚½ƒfƒŠƒQ[ƒg‚ğ“à•”‚ÅŒÄ‚Ño‚µ‚Ü‚·B
+        /// ã‚ªãƒ¼ãƒãƒ¼ãƒ­ãƒ¼ãƒ‰ã§ã™ã€‚ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œå¯èƒ½ã‹ã©ã†ã‹ã®ç¢ºèªå‘¼ã³å‡ºã—ã®éš›ã«ã€è¨­å®šã•ã‚ŒãŸãƒ‡ãƒªã‚²ãƒ¼ãƒˆã‚’å†…éƒ¨ã§å‘¼ã³å‡ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is an overload. When it is called whether the command is executable to confirm it, set delegate is called internally. 
         /// </en>
         /// </summary>
-        /// <param name="target"><ja>ˆ—‘ÎÛ‚ğ¦‚·ƒ^[ƒQƒbƒg‚Å‚·B</ja><en>Target that shows processing object.</en></param>
-        /// <returns><ja>Às‚³‚ê‚½ƒfƒŠƒQ[ƒg‚Ì–ß‚è’l‚Å‚·B</ja><en>Return value of executed delegate.</en></returns>
+        /// <param name="target"><ja>å‡¦ç†å¯¾è±¡ã‚’ç¤ºã™ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja><en>Target that shows processing object.</en></param>
+        /// <returns><ja>å®Ÿè¡Œã•ã‚ŒãŸãƒ‡ãƒªã‚²ãƒ¼ãƒˆã®æˆ»ã‚Šå€¤ã§ã™ã€‚</ja><en>Return value of executed delegate.</en></returns>
         public virtual bool CanExecute(ICommandTarget target) {
             return _canExecuteDelegate == null ? true : _canExecuteDelegate(target);
         }
@@ -2130,21 +2130,21 @@ namespace Poderosa.Commands {
         }
 
         /// <summary>
-        /// <ja>ƒL[ƒoƒCƒ“ƒh‚ÌƒfƒtƒHƒ‹ƒgİ’è‚ğ•ÏX‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚­ãƒ¼ãƒã‚¤ãƒ³ãƒ‰ã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆè¨­å®šã‚’å¤‰æ›´ã—ã¾ã™ã€‚</ja>
         /// <en>The default setting of key bind is changed. </en>
         /// </summary>
-        /// <param name="key"><ja>Š„‚è“–‚Ä‚½‚¢ƒL[</ja><en>Key that wants to be allocated</en></param>
-        /// <returns><ja>‚±‚ÌƒIƒuƒWƒFƒNƒg©g‚ğ•Ô‚µ‚Ü‚·B</ja><en>This object is returned. </en></returns>
+        /// <param name="key"><ja>å‰²ã‚Šå½“ã¦ãŸã„ã‚­ãƒ¼</ja><en>Key that wants to be allocated</en></param>
+        /// <returns><ja>ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆè‡ªèº«ã‚’è¿”ã—ã¾ã™ã€‚</ja><en>This object is returned. </en></returns>
         public GeneralCommandImpl SetDefaultShortcutKey(Keys key) {
             _defaultShortcutKey = key;
             return this;
         }
     }
 
-    //IPoderosaMenuGroup•W€À‘•
+    //IPoderosaMenuGroupæ¨™æº–å®Ÿè£…
     /// <summary>
     /// <ja>
-    /// <seealso cref="IPoderosaMenuGroup">IPoderosaMenuGroup</seealso>‚ğÀ‘•‚µ‚½ƒNƒ‰ƒX‚Å‚·Bƒƒjƒ…[ƒOƒ‹[ƒv‚ğì¬‚·‚éÛ‚Ég‚¢‚Ü‚·B
+    /// <seealso cref="IPoderosaMenuGroup">IPoderosaMenuGroup</seealso>ã‚’å®Ÿè£…ã—ãŸã‚¯ãƒ©ã‚¹ã§ã™ã€‚ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã‚’ä½œæˆã™ã‚‹éš›ã«ä½¿ã„ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// It is a class that implements <seealso cref="IPoderosaMenuGroup">IPoderosaMenuGroup</seealso>. When the menu group is made, it uses it. 
@@ -2153,15 +2153,15 @@ namespace Poderosa.Commands {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ƒƒjƒ…[‚ğÀ‘•‚·‚éŠJ”­Ò‚ÍA‚±‚ÌƒNƒ‰ƒX‚ğg‚¤‚±‚Æ‚ÅA<seealso cref="IPoderosaMenuGroup">IPoderosaMenuGroup</seealso>
-    /// ‚ğÀ‘•‚µ‚½ƒIƒuƒWƒFƒNƒg‚ğ—eˆÕ‚Éì¬‚Å‚«‚Ü‚·B‚±‚ÌƒNƒ‰ƒX‚ÍA<seealso cref="IPositionDesignation">IPositionDesignation</seealso>
-    /// ‚àÀ‘•‚µ‚Ä‚¨‚èAƒƒjƒ…[‚Ì‡˜‚ğŒˆ‚ß‚é‚±‚Æ‚à‚Å‚«‚Ü‚·B
+    /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’å®Ÿè£…ã™ã‚‹é–‹ç™ºè€…ã¯ã€ã“ã®ã‚¯ãƒ©ã‚¹ã‚’ä½¿ã†ã“ã¨ã§ã€<seealso cref="IPoderosaMenuGroup">IPoderosaMenuGroup</seealso>
+    /// ã‚’å®Ÿè£…ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å®¹æ˜“ã«ä½œæˆã§ãã¾ã™ã€‚ã“ã®ã‚¯ãƒ©ã‚¹ã¯ã€<seealso cref="IPositionDesignation">IPositionDesignation</seealso>
+    /// ã‚‚å®Ÿè£…ã—ã¦ãŠã‚Šã€ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®é †åºã‚’æ±ºã‚ã‚‹ã“ã¨ã‚‚ã§ãã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ì¬‚µ‚½ƒƒjƒ…[ƒOƒ‹[ƒv‚ÍAŠg’£ƒ|ƒCƒ“ƒg‚Ö‚Æ“o˜^‚µ‚Ü‚·B
+    /// ä½œæˆã—ãŸãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã¯ã€æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã¸ã¨ç™»éŒ²ã—ã¾ã™ã€‚
     /// </para>
     /// <note type="implementnotes">
-    /// ˆê“xƒƒjƒ…[ƒOƒ‹[ƒv‚ªì¬‚³‚ê‚½‚È‚çA‚»‚ê‚ğ‘Œ¸‚·‚é‹@”\‚ÍƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB‚Ü‚½ƒƒjƒ…[€–Ú‚Íì¬‚ÉŒˆ‚Ü‚èA“®“I‚É•Ï‰»‚·‚é‚±‚Æ‚Í‚ ‚è‚Ü‚¹‚ñB
+    /// ä¸€åº¦ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ãŒä½œæˆã•ã‚ŒãŸãªã‚‰ã€ãã‚Œã‚’å¢—æ¸›ã™ã‚‹æ©Ÿèƒ½ã¯ã‚µãƒãƒ¼ãƒˆã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚ã¾ãŸãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã¯ä½œæˆæ™‚ã«æ±ºã¾ã‚Šã€å‹•çš„ã«å¤‰åŒ–ã™ã‚‹ã“ã¨ã¯ã‚ã‚Šã¾ã›ã‚“ã€‚
     /// </note>
     /// </ja>
     /// <en>
@@ -2180,37 +2180,37 @@ namespace Poderosa.Commands {
     /// </remarks>
     /// <example>
     /// <ja>
-    /// <seealso cref="IPoderosaMenuGroup">IPoderosaMenuGroup</seealso>‚ğÀ‘•‚µ‚½ƒIƒuƒWƒFƒNƒg‚ÍAŸ‚Ì‚æ‚¤‚É‚µ‚Äì¬‚Å‚«‚Ü‚·B
+    /// <seealso cref="IPoderosaMenuGroup">IPoderosaMenuGroup</seealso>ã‚’å®Ÿè£…ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¯ã€æ¬¡ã®ã‚ˆã†ã«ã—ã¦ä½œæˆã§ãã¾ã™ã€‚
     /// <code>
-    /// // ‚ ‚ç‚©‚¶‚ßƒƒjƒ…[‚ªÀs‚³‚ê‚½‚Æ‚«‚Ìƒƒjƒ…[‚Æƒƒjƒ…[€–Ú‚ğì¬‚µ‚Ä‚¨‚«‚Ü‚·B
+    /// // ã‚ã‚‰ã‹ã˜ã‚ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒå®Ÿè¡Œã•ã‚ŒãŸã¨ãã®ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã¨ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’ä½œæˆã—ã¦ãŠãã¾ã™ã€‚
     /// 
-    /// // ƒRƒ}ƒ“ƒh
+    /// // ã‚³ãƒãƒ³ãƒ‰
     /// PoderosaCommandImpl mycommand = new PoderosaCommandImpl(
     ///   delegate(ICommandTarget target)
     ///   {
-    ///     // ƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚½‚Æ‚«‚Ìˆ—
-    ///    MessageBox.Show("Às‚³‚ê‚Ü‚µ‚½");
+    ///     // ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚ŒãŸã¨ãã®å‡¦ç†
+    ///    MessageBox.Show("å®Ÿè¡Œã•ã‚Œã¾ã—ãŸ");
     ///    return CommandResult.Succeeded;
     ///   },
     ///   delegate(ICommandTarget target)
     ///   {
-    ///     // ƒRƒ}ƒ“ƒh‚ªÀs‚Å‚«‚é‚©‚Ç‚¤‚©‚ğ•Ô‚·
+    ///     // ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã§ãã‚‹ã‹ã©ã†ã‹ã‚’è¿”ã™
     ///    return true;
     ///  }
     /// );
     /// 
-    /// // ƒƒjƒ…[€–Ú
+    /// // ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®
     /// PoderosaMenuItemImpl menuitem = new PoderosaMenuItemImpl(
     ///     mycommand, "My Menu Name");
     ///
-    /// // ƒƒjƒ…[ƒOƒ‹[ƒv
+    /// // ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—
     /// PoderosaMenuGroupImpl menugroup = new PoderosaMenuGroupImpl(menuitem);
     /// 
-    /// // ‚±‚Ìƒƒjƒ…[ƒOƒ‹[ƒv‚ğA‚½‚Æ‚¦‚Îm•ÒWnƒƒjƒ…[iorg.poderosa.menu.editj‚É“o˜^
-    /// // Šg’£ƒ|ƒCƒ“ƒg‚ğŒŸõ
+    /// // ã“ã®ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã‚’ã€ãŸã¨ãˆã°ï¼»ç·¨é›†ï¼½ãƒ¡ãƒ‹ãƒ¥ãƒ¼ï¼ˆorg.poderosa.menu.editï¼‰ã«ç™»éŒ²
+    /// // æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã‚’æ¤œç´¢
     /// IExtensionPoint editmenu = 
     ///     PoderosaWorld.PluginManager.FindExtensionPoint("org.poderosa.menu.edit");
-    /// // Šg’£ƒ|ƒCƒ“ƒg‚Éƒƒjƒ…[ƒOƒ‹[ƒv‚ğ“o˜^
+    /// // æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã«ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã‚’ç™»éŒ²
     /// editmenu.RegisterExtension(menugroup);
     /// </code>
     /// </ja>
@@ -2264,7 +2264,7 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ŠÜ‚Ü‚ê‚éƒƒjƒ…[€–Ú‚ª‚Ğ‚Æ‚Â‚à‚È‚¢ƒƒjƒ…[ƒOƒ‹[ƒv‚ğì¬‚µ‚Ü‚·B
+        /// å«ã¾ã‚Œã‚‹ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ãŒã²ã¨ã¤ã‚‚ãªã„ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The included menu item makes the menu group that is not no. 
@@ -2272,7 +2272,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ƒƒjƒ…[€–Ú‚Í‚Ğ‚Æ‚Â‚à‚ ‚è‚Ü‚¹‚ñ‚ªA‹æØ‚è‹L†iƒZƒpƒŒ[ƒ^j‚Í•\¦‚³‚ê‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã¯ã²ã¨ã¤ã‚‚ã‚ã‚Šã¾ã›ã‚“ãŒã€åŒºåˆ‡ã‚Šè¨˜å·ï¼ˆã‚»ãƒ‘ãƒ¬ãƒ¼ã‚¿ï¼‰ã¯è¡¨ç¤ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The separator is displayed though nothing is in the menu item. 
@@ -2281,7 +2281,7 @@ namespace Poderosa.Commands {
         /// <overloads>
         /// <summary>
         /// <ja>
-        /// ƒƒjƒ…[ƒOƒ‹[ƒv‚ğì¬‚µ‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create the menu group.
@@ -2294,7 +2294,7 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ŠÜ‚Ü‚ê‚éƒƒjƒ…[€–Ú‚ğ‚Ğ‚Æ‚Â‚¾‚¯w’è‚µ‚½ƒƒjƒ…[ƒOƒ‹[ƒv‚ğì¬‚µ‚Ü‚·B
+        /// å«ã¾ã‚Œã‚‹ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’ã²ã¨ã¤ã ã‘æŒ‡å®šã—ãŸãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The menu group that specifies only one included menu item is made. 
@@ -2302,29 +2302,29 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ‹æØ‚è‹L†iƒZƒpƒŒ[ƒ^j‚Í•\¦‚³‚ê‚Ü‚·B
+        /// åŒºåˆ‡ã‚Šè¨˜å·ï¼ˆã‚»ãƒ‘ãƒ¬ãƒ¼ã‚¿ï¼‰ã¯è¡¨ç¤ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The separator is displayed. 
         /// </en>
         /// </remarks>
-        /// <param name="child"><ja>ŠÜ‚ß‚½‚¢ƒƒjƒ…[€–Ú‚Å‚·B</ja><en>Menu item that wants to be included</en></param>
+        /// <param name="child"><ja>å«ã‚ãŸã„ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã§ã™ã€‚</ja><en>Menu item that wants to be included</en></param>
         public PoderosaMenuGroupImpl(IPoderosaMenu child)
             : this(new IPoderosaMenu[] { child }, true) {
         }
 
         /// <summary>
         /// <ja>
-        /// ŠÜ‚Ü‚ê‚éƒƒjƒ…[€–Ú‚ğ•¡”w’è‚µ‚½ƒƒjƒ…[ƒOƒ‹[ƒv‚ğì¬‚µ‚Ü‚·B
+        /// å«ã¾ã‚Œã‚‹ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’è¤‡æ•°æŒ‡å®šã—ãŸãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The menu group that specifies two or more included menu items is made. 
         /// </en>
         /// </summary>
-        /// <param name="childMenus"><ja>ŠÜ‚ß‚½‚¢ƒƒjƒ…[€–Ú‚Ì”z—ñ‚Å‚·B</ja><en>Array of menu item that wants to be included</en></param>
+        /// <param name="childMenus"><ja>å«ã‚ãŸã„ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã®é…åˆ—ã§ã™ã€‚</ja><en>Array of menu item that wants to be included</en></param>
         /// <remarks>
         /// <ja>
-        /// ‹æØ‚è‹L†iƒZƒpƒŒ[ƒ^j‚Í•\¦‚³‚ê‚Ü‚·B
+        /// åŒºåˆ‡ã‚Šè¨˜å·ï¼ˆã‚»ãƒ‘ãƒ¬ãƒ¼ã‚¿ï¼‰ã¯è¡¨ç¤ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The separator is displayed. 
@@ -2336,15 +2336,15 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// ŠÜ‚Ü‚ê‚é•¡”‚Ìƒƒjƒ…[€–Ú‚Æƒƒjƒ…[€–Ú‚Ì’¼‘O‚É‹æØ‚è‹L†iƒZƒpƒŒ[ƒ^j‚ğ•\¦‚·‚é‚©”Û‚©
-        /// ‚ğw’è‚µ‚Äƒƒjƒ…[ƒOƒ‹[ƒv‚ğì¬‚µ‚Ü‚·B
+        /// å«ã¾ã‚Œã‚‹è¤‡æ•°ã®ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã¨ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã®ç›´å‰ã«åŒºåˆ‡ã‚Šè¨˜å·ï¼ˆã‚»ãƒ‘ãƒ¬ãƒ¼ã‚¿ï¼‰ã‚’è¡¨ç¤ºã™ã‚‹ã‹å¦ã‹
+        /// ã‚’æŒ‡å®šã—ã¦ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The menu group is made specifying whether to display the separator just before two or more included menu item and menu item. 
         /// </en>
         /// </summary>
-        /// <param name="childMenus"><ja>ŠÜ‚ß‚½‚¢ƒƒjƒ…[€–Ú‚Ì”z—ñ‚Å‚·B</ja><en>Array of menu item that wants to be included</en></param>
-        /// <param name="showSeparator"><ja>ƒZƒpƒŒ[ƒ^‚ğ•\¦‚·‚é‚©”Û‚©‚Ìw’è‚Å‚·Btrue‚Ì‚Æ‚«•\¦Afalse‚Ì‚Æ‚«”ñ•\¦‚Å‚·B</ja>
+        /// <param name="childMenus"><ja>å«ã‚ãŸã„ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã®é…åˆ—ã§ã™ã€‚</ja><en>Array of menu item that wants to be included</en></param>
+        /// <param name="showSeparator"><ja>ã‚»ãƒ‘ãƒ¬ãƒ¼ã‚¿ã‚’è¡¨ç¤ºã™ã‚‹ã‹å¦ã‹ã®æŒ‡å®šã§ã™ã€‚trueã®ã¨ãè¡¨ç¤ºã€falseã®ã¨ãéè¡¨ç¤ºã§ã™ã€‚</ja>
         /// <en>It is specification whether to display the separator. It displays at true, and non-display at false. </en></param>
         public PoderosaMenuGroupImpl(IPoderosaMenu[] childMenus, bool showSeparator) {
             _childMenus = childMenus;
@@ -2356,7 +2356,7 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ŠÜ‚Ü‚ê‚éƒƒjƒ…[€–Ú‚Ì”z—ñ‚Å‚·B
+        /// å«ã¾ã‚Œã‚‹ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã®é…åˆ—ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Array of included menu item
@@ -2370,14 +2370,14 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ƒƒjƒ…[‚ª“®“I‚Éì¬‚³‚ê‚é‚©‚Ç‚¤‚©‚ğ¦‚·ƒvƒƒpƒeƒB‚Å‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒå‹•çš„ã«ä½œæˆã•ã‚Œã‚‹ã‹ã©ã†ã‹ã‚’ç¤ºã™ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Property that shows whether menu is dynamically made.
         /// </en>
         /// </summary>
         /// <remarks>
-        /// <ja>í‚Éfalseiƒƒjƒ…[‚ğ“®“I‚Éì¬‚µ‚È‚¢j‚ª•Ô‚³‚ê‚Ü‚·B</ja>
+        /// <ja>å¸¸ã«falseï¼ˆãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’å‹•çš„ã«ä½œæˆã—ãªã„ï¼‰ãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>False (The menu is not dynamically made) is always returned. </en>
         /// </remarks>
         public virtual bool IsVolatileContent {
@@ -2388,7 +2388,7 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ‹æØ‚è‹L†iƒZƒpƒŒ[ƒ^j‚ğ•\¦‚·‚é‚©”Û‚©‚ğ¦‚µ‚Ü‚·B
+        /// åŒºåˆ‡ã‚Šè¨˜å·ï¼ˆã‚»ãƒ‘ãƒ¬ãƒ¼ã‚¿ï¼‰ã‚’è¡¨ç¤ºã™ã‚‹ã‹å¦ã‹ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is shown whether to display the separator. 
@@ -2396,7 +2396,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// true‚Ìê‡Aƒƒjƒ…[ƒOƒ‹[ƒv‚Ì’¼‘O‚É‹æØ‚è‹L†iƒZƒpƒŒ[ƒ^j‚ª•\¦‚³‚ê‚Ü‚·Bfalse‚Ìê‡‚É‚Í•\¦‚³‚ê‚Ü‚¹‚ñB
+        /// trueã®å ´åˆã€ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã®ç›´å‰ã«åŒºåˆ‡ã‚Šè¨˜å·ï¼ˆã‚»ãƒ‘ãƒ¬ãƒ¼ã‚¿ï¼‰ãŒè¡¨ç¤ºã•ã‚Œã¾ã™ã€‚falseã®å ´åˆã«ã¯è¡¨ç¤ºã•ã‚Œã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
         /// The separator is displayed for true just before the menu group. It is not displayed for false. 
@@ -2411,7 +2411,7 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ƒƒjƒ…[‚ğ”z’u‚·‚éêŠ‚Ì‘ÎÛ‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’é…ç½®ã™ã‚‹å ´æ‰€ã®å¯¾è±¡ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The object of the place where the menu is arranged is shown. 
@@ -2419,7 +2419,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// <seealso cref="IPositionDesignation">IPositionDesignation</seealso>‚ğQÆ‚µ‚Ä‚­‚¾‚³‚¢B
+        /// <seealso cref="IPositionDesignation">IPositionDesignation</seealso>ã‚’å‚ç…§ã—ã¦ãã ã•ã„ã€‚
         /// </ja>
         /// <en>
         /// Please refer to <seealso cref="IPositionDesignation">IPositionDesignation</seealso>.
@@ -2433,7 +2433,7 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ƒƒjƒ…[‚Ì•\¦ˆÊ’u‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®è¡¨ç¤ºä½ç½®ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The position where the menu is displayed is shown. 
@@ -2441,7 +2441,7 @@ namespace Poderosa.Commands {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// <seealso cref="IPositionDesignation">IPositionDesignation</seealso>‚ğQÆ‚µ‚Ä‚­‚¾‚³‚¢B
+        /// <seealso cref="IPositionDesignation">IPositionDesignation</seealso>ã‚’å‚ç…§ã—ã¦ãã ã•ã„ã€‚
         /// </ja>
         /// <en>
         /// Refer to <seealso cref="IPositionDesignation">IPositionDesignation</seealso>.
@@ -2456,27 +2456,27 @@ namespace Poderosa.Commands {
             return CommandManagerPlugin.Instance.PoderosaWorld.AdapterManager.GetAdapter(this, adapter);
         }
 
-        //ƒ|ƒWƒVƒ‡ƒ“ƒZƒbƒg
+        //ãƒã‚¸ã‚·ãƒ§ãƒ³ã‚»ãƒƒãƒˆ
         /// <summary>
         /// <ja>
-        /// ƒƒjƒ…[‚ÌˆÊ’u‚ğİ’è‚µ‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®ä½ç½®ã‚’è¨­å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Set The position of the menu.
         /// </en>
         /// </summary>
         /// <param name="type">
-        /// <ja>ƒƒjƒ…[‚ÌêŠ‚ğw’è‚µ‚Ü‚·B</ja>
+        /// <ja>ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®å ´æ‰€ã‚’æŒ‡å®šã—ã¾ã™ã€‚</ja>
         /// <en>Specifies the place of the menu.</en>
         /// </param>
         /// <param name="target">
-        /// <ja>‚Ç‚Ìƒƒjƒ…[‚É‘Î‚·‚éˆÊ’u‚È‚Ì‚©‚ğw’è‚µ‚Ü‚·B<see cref="IPoderosaMenuGroup">IPoderosaMenuGroup</see>‚Å‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB</ja>
+        /// <ja>ã©ã®ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã«å¯¾ã™ã‚‹ä½ç½®ãªã®ã‹ã‚’æŒ‡å®šã—ã¾ã™ã€‚<see cref="IPoderosaMenuGroup">IPoderosaMenuGroup</see>ã§ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚</ja>
         /// <en>To which menu position it is is specified. It should be <see cref="IPoderosaMenuGroup">IPoderosaMenuGroup</see>. </en>
         /// </param>
-        /// <returns><ja>‚±‚ÌƒIƒuƒWƒFƒNƒg©g‚ª–ß‚è‚Ü‚·B</ja><en>This object returns. </en></returns>
+        /// <returns><ja>ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆè‡ªèº«ãŒæˆ»ã‚Šã¾ã™ã€‚</ja><en>This object returns. </en></returns>
         /// <remarks>
         /// <ja>
-        /// ƒfƒtƒHƒ‹ƒg‚Å‚ÍAƒƒjƒ…[ˆÊ’u‚ÍAuæ“ªiPositionType.Firstjv‚Éİ’è‚³‚ê‚Ü‚·BÚ×‚ÍA<seealso cref="IPositionDesignation">IPositionDesignation</seealso>‚ğQÆ‚µ‚Ä‚­‚¾‚³‚¢B
+        /// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§ã¯ã€ãƒ¡ãƒ‹ãƒ¥ãƒ¼ä½ç½®ã¯ã€ã€Œå…ˆé ­ï¼ˆPositionType.Firstï¼‰ã€ã«è¨­å®šã•ã‚Œã¾ã™ã€‚è©³ç´°ã¯ã€<seealso cref="IPositionDesignation">IPositionDesignation</seealso>ã‚’å‚ç…§ã—ã¦ãã ã•ã„ã€‚
         /// </ja>
         /// <en>
         /// In default, the menu position is set to the "head(PositionType.First)". 
@@ -2491,10 +2491,10 @@ namespace Poderosa.Commands {
     }
 
 
-    //IPoderosaMenuItem•W€À‘•
+    //IPoderosaMenuItemæ¨™æº–å®Ÿè£…
     /// <summary>
     /// <ja>
-    /// <seealso cref="IPoderosaMenuItem">IPoderosaMenuItem</seealso>‚ğÀ‘•‚µ‚½ƒNƒ‰ƒX‚Å‚·Bˆø”‚È‚µ‚ÅÀs‚³‚ê‚éƒRƒ}ƒ“ƒh‚ğ’è‹`‚·‚éƒƒjƒ…[€–Ú‚ğì¬‚·‚éÛ‚Ég‚¢‚Ü‚·B
+    /// <seealso cref="IPoderosaMenuItem">IPoderosaMenuItem</seealso>ã‚’å®Ÿè£…ã—ãŸã‚¯ãƒ©ã‚¹ã§ã™ã€‚å¼•æ•°ãªã—ã§å®Ÿè¡Œã•ã‚Œã‚‹ã‚³ãƒãƒ³ãƒ‰ã‚’å®šç¾©ã™ã‚‹ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’ä½œæˆã™ã‚‹éš›ã«ä½¿ã„ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// It is a class that implements <seealso cref="IPoderosaMenuItem">IPoderosaMenuItem</seealso>. When the menu item that defines the command executed without the argument is made, it uses it. 
@@ -2502,8 +2502,8 @@ namespace Poderosa.Commands {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ƒƒjƒ…[€–Ú‚ğÀ‘•‚·‚éŠJ”­Ò‚ÍA‚±‚ÌƒNƒ‰ƒX‚ğg‚¤‚±‚Æ‚Å<seealso cref="IPoderosaMenuItem">IPoderosaMenuItem</seealso>‚ğÀ‘•‚µ‚½ƒIƒuƒWƒFƒNƒg
-    /// ‚ğ—eˆÕ‚Éì¬‚Å‚«‚Ü‚·B
+    /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’å®Ÿè£…ã™ã‚‹é–‹ç™ºè€…ã¯ã€ã“ã®ã‚¯ãƒ©ã‚¹ã‚’ä½¿ã†ã“ã¨ã§<seealso cref="IPoderosaMenuItem">IPoderosaMenuItem</seealso>ã‚’å®Ÿè£…ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+    /// ã‚’å®¹æ˜“ã«ä½œæˆã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The developer who implements the menu item can easily make the object where <seealso cref="IPoderosaMenuItem">IPoderosaMenuItem</seealso> is implemented by using this class. 
@@ -2511,26 +2511,26 @@ namespace Poderosa.Commands {
     /// </remarks>
     /// <example>
     /// <ja>
-    /// <seealso cref="IPoderosaMenuItem">IPoderosaMenuItem</seealso>‚ğÀ‘•‚µ‚½ƒIƒuƒWƒFƒNƒg‚ÍAŸ‚Ì‚æ‚¤‚É‚µ‚Äì¬‚Å‚«‚Ü‚·B
+    /// <seealso cref="IPoderosaMenuItem">IPoderosaMenuItem</seealso>ã‚’å®Ÿè£…ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¯ã€æ¬¡ã®ã‚ˆã†ã«ã—ã¦ä½œæˆã§ãã¾ã™ã€‚
     /// <code>
-    /// // ‚ ‚ç‚©‚¶‚ßƒƒjƒ…[‚ªÀs‚³‚ê‚½‚Æ‚«‚Ìƒƒjƒ…[‚Æƒƒjƒ…[€–Ú‚ğì¬‚µ‚Ä‚¨‚«‚Ü‚·B
+    /// // ã‚ã‚‰ã‹ã˜ã‚ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒå®Ÿè¡Œã•ã‚ŒãŸã¨ãã®ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã¨ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’ä½œæˆã—ã¦ãŠãã¾ã™ã€‚
     /// 
-    /// // ƒRƒ}ƒ“ƒh
+    /// // ã‚³ãƒãƒ³ãƒ‰
     /// PoderosaCommandImpl mycommand = new PoderosaCommandImpl(
     ///   delegate(ICommandTarget target)
     ///   {
-    ///     // ƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚½‚Æ‚«‚Ìˆ—
-    ///    MessageBox.Show("Às‚³‚ê‚Ü‚µ‚½");
+    ///     // ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚ŒãŸã¨ãã®å‡¦ç†
+    ///    MessageBox.Show("å®Ÿè¡Œã•ã‚Œã¾ã—ãŸ");
     ///    return CommandResult.Succeeded;
     ///   },
     ///   delegate(ICommandTarget target)
     ///   {
-    ///     // ƒRƒ}ƒ“ƒh‚ªÀs‚Å‚«‚é‚©‚Ç‚¤‚©‚ğ•Ô‚·
+    ///     // ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã§ãã‚‹ã‹ã©ã†ã‹ã‚’è¿”ã™
     ///    return true;
     ///  }
     /// );
     /// 
-    /// // ƒƒjƒ…[€–Ú‚ğì¬
+    /// // ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’ä½œæˆ
     /// PoderosaMenuItemImpl menuitem = new PoderosaMenuItemImpl(
     ///     mycommand, "My Menu Name");
     /// </code>
@@ -2575,18 +2575,18 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒhID‚Æƒƒjƒ…[‚Ì•\¦–¼‚ğw’è‚µ‚Äƒƒjƒ…[€–Ú‚ğì¬‚µ‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰IDã¨ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®è¡¨ç¤ºåã‚’æŒ‡å®šã—ã¦ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The menu item is made specifying the display name of command ID and the menu. 
         /// </en>
         /// </summary>
-        /// <param name="command_id"><ja>ƒƒjƒ…[‚ª‘I‘ğ‚³‚ê‚½‚Æ‚«‚ÉŒÄ‚Ño‚µ‚½‚¢ƒRƒ}ƒ“ƒhID‚Å‚·B</ja><en>It is command ID that wants to call when the menu is selected. </en></param>
-        /// <param name="text"><ja>ƒƒjƒ…[‚É•\¦‚·‚éƒeƒLƒXƒg‚Å‚·B</ja><en>Text displayed in menu.</en></param>
+        /// <param name="command_id"><ja>ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒé¸æŠã•ã‚ŒãŸã¨ãã«å‘¼ã³å‡ºã—ãŸã„ã‚³ãƒãƒ³ãƒ‰IDã§ã™ã€‚</ja><en>It is command ID that wants to call when the menu is selected. </en></param>
+        /// <param name="text"><ja>ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã«è¡¨ç¤ºã™ã‚‹ãƒ†ã‚­ã‚¹ãƒˆã§ã™ã€‚</ja><en>Text displayed in menu.</en></param>
         /// <remarks>
         /// <ja>
-        /// <paramref name="command_id">command_id</paramref>‚Éw’è‚µ‚½ƒRƒ}ƒ“ƒhID‚ªŒ©‚Â‚©‚ç‚È‚¢‚Æ‚«‚É‚ÍA<see cref="P:Poderosa.Commands.PoderosaMenuItemImpl.AssociatedCommand">AssociatedCommandƒvƒƒpƒeƒB</see>
-        /// ‚ªnull‚É‚È‚è‚Ü‚·B
+        /// <paramref name="command_id">command_id</paramref>ã«æŒ‡å®šã—ãŸã‚³ãƒãƒ³ãƒ‰IDãŒè¦‹ã¤ã‹ã‚‰ãªã„ã¨ãã«ã¯ã€<see cref="P:Poderosa.Commands.PoderosaMenuItemImpl.AssociatedCommand">AssociatedCommandãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>
+        /// ãŒnullã«ãªã‚Šã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When command ID specified for <paramref name="command_id">command_id</paramref> is not found, the <see cref="AssociatedCommand">AssociatedCommand property</see> becomes null. 
@@ -2595,7 +2595,7 @@ namespace Poderosa.Commands {
         /// <overloads>
         /// <summary>
         /// <ja>
-        /// ƒƒjƒ…[€–Ú‚ğì¬‚µ‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create the menu item.
@@ -2607,16 +2607,16 @@ namespace Poderosa.Commands {
         }
         /// <summary>
         /// <ja>
-        /// Às‚·‚éƒRƒ}ƒ“ƒh‚Ì<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>‚Æƒƒjƒ…[‚Ì•\¦–¼‚ğw’è‚µ‚Äƒƒjƒ…[€–Ú‚ğì¬‚µ‚Ü‚·B
+        /// å®Ÿè¡Œã™ã‚‹ã‚³ãƒãƒ³ãƒ‰ã®<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>ã¨ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®è¡¨ç¤ºåã‚’æŒ‡å®šã—ã¦ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The menu item is made specifying the display name of <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso> and the menu of the executed command. 
         /// </en>
         /// </summary>
-        /// <param name="command"><ja>ƒƒjƒ…[‚ª‘I‘ğ‚³‚ê‚½‚Æ‚«‚ÉŒÄ‚Ño‚µ‚½‚¢ƒRƒ}ƒ“ƒh‚Å‚·B</ja><en>It is command that wants to call when the menu is selected. </en></param>
-        /// <param name="text"><ja>ƒƒjƒ…[‚É•\¦‚·‚éƒeƒLƒXƒg‚Å‚·B</ja><en>Text displayed in menu.</en></param>
+        /// <param name="command"><ja>ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒé¸æŠã•ã‚ŒãŸã¨ãã«å‘¼ã³å‡ºã—ãŸã„ã‚³ãƒãƒ³ãƒ‰ã§ã™ã€‚</ja><en>It is command that wants to call when the menu is selected. </en></param>
+        /// <param name="text"><ja>ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã«è¡¨ç¤ºã™ã‚‹ãƒ†ã‚­ã‚¹ãƒˆã§ã™ã€‚</ja><en>Text displayed in menu.</en></param>
         /// <remarks>
-        /// <ja><paramref name="command">command</paramref>‚Énull‚ğw’è‚µ‚Ä‚Í‚¢‚¯‚Ü‚¹‚ñB</ja><en>Do not specify null for command. </en>
+        /// <ja><paramref name="command">command</paramref>ã«nullã‚’æŒ‡å®šã—ã¦ã¯ã„ã‘ã¾ã›ã‚“ã€‚</ja><en>Do not specify null for command. </en>
         /// </remarks>
         public PoderosaMenuItemImpl(IPoderosaCommand command, string text)
             : this(command, null, text) {
@@ -2624,19 +2624,19 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒhID‚ÆƒJƒ‹ƒ`ƒƒAƒƒjƒ…[‚Ì•\¦–¼‚ğw’è‚µ‚Äƒƒjƒ…[€–Ú‚ğì¬‚µ‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰IDã¨ã‚«ãƒ«ãƒãƒ£ã€ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®è¡¨ç¤ºåã‚’æŒ‡å®šã—ã¦ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The menu item is made specifying the display name of command ID, culture, and the menu. 
         /// </en>
         /// </summary>
-        /// <param name="command_id"><ja>ƒƒjƒ…[‚ª‘I‘ğ‚³‚ê‚½‚Æ‚«‚ÉŒÄ‚Ño‚µ‚½‚¢ƒRƒ}ƒ“ƒhID‚Å‚·B</ja><en>Command ID that wants to call when menu is selected</en></param>
-        /// <param name="sr"><ja>ƒJƒ‹ƒ`ƒƒî•ñ‚Å‚·B</ja><en>Information of culture.</en></param>
-        /// <param name="textID"><ja>ƒƒjƒ…[‚É•\¦‚·‚éƒeƒLƒXƒgID‚Å‚·B</ja><en>Text ID displayed in menu</en></param>
+        /// <param name="command_id"><ja>ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒé¸æŠã•ã‚ŒãŸã¨ãã«å‘¼ã³å‡ºã—ãŸã„ã‚³ãƒãƒ³ãƒ‰IDã§ã™ã€‚</ja><en>Command ID that wants to call when menu is selected</en></param>
+        /// <param name="sr"><ja>ã‚«ãƒ«ãƒãƒ£æƒ…å ±ã§ã™ã€‚</ja><en>Information of culture.</en></param>
+        /// <param name="textID"><ja>ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã«è¡¨ç¤ºã™ã‚‹ãƒ†ã‚­ã‚¹ãƒˆIDã§ã™ã€‚</ja><en>Text ID displayed in menu</en></param>
         /// <remarks>
         /// <ja>
-        /// <paramref name="command_id">command_id</paramref>‚Éw’è‚µ‚½ƒRƒ}ƒ“ƒhID‚ªŒ©‚Â‚©‚ç‚È‚¢‚Æ‚«‚É‚ÍA<see cref="AssociatedCommand">AssociatedCommandƒvƒƒpƒeƒB</see>
-        /// ‚ªnull‚É‚È‚è‚Ü‚·B
+        /// <paramref name="command_id">command_id</paramref>ã«æŒ‡å®šã—ãŸã‚³ãƒãƒ³ãƒ‰IDãŒè¦‹ã¤ã‹ã‚‰ãªã„ã¨ãã«ã¯ã€<see cref="AssociatedCommand">AssociatedCommandãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>
+        /// ãŒnullã«ãªã‚Šã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When command ID specified for <paramref name="command_id">command_id</paramref> is not found, the <see cref="AssociatedCommand">AssociatedCommand property</see> becomes null. 
@@ -2647,12 +2647,12 @@ namespace Poderosa.Commands {
         }
 
         /// <summary>
-        /// <ja>Às‚·‚éƒRƒ}ƒ“ƒh‚Ì<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>AƒJƒ‹ƒ`ƒƒAƒƒjƒ…[‚Ì•\¦–¼‚ğw’è‚µ‚Äƒƒjƒ…[€–Ú‚ğì¬‚µ‚Ü‚·B</ja>
+        /// <ja>å®Ÿè¡Œã™ã‚‹ã‚³ãƒãƒ³ãƒ‰ã®<seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>ã€ã‚«ãƒ«ãƒãƒ£ã€ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®è¡¨ç¤ºåã‚’æŒ‡å®šã—ã¦ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã‚’ä½œæˆã—ã¾ã™ã€‚</ja>
         /// <en>The menu item is made specifying the display name of executed <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso> of the command, culture, and menu. </en>
         /// </summary>
-        /// <param name="command"><ja>ƒƒjƒ…[‚ª‘I‘ğ‚³‚ê‚½‚Æ‚«‚ÉŒÄ‚Ño‚µ‚½‚¢ƒRƒ}ƒ“ƒh‚Å‚·B</ja><en>Command that wants to call when menu is selected</en></param>
-        /// <param name="sr"><ja>ƒJƒ‹ƒ`ƒƒî•ñ‚Å‚·B</ja><en>Information of culture.</en></param>
-        /// <param name="textID"><ja>ƒƒjƒ…[‚É•\¦‚·‚éƒeƒLƒXƒgID‚Å‚·B</ja><en>Text ID displayed in menu</en></param>
+        /// <param name="command"><ja>ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒé¸æŠã•ã‚ŒãŸã¨ãã«å‘¼ã³å‡ºã—ãŸã„ã‚³ãƒãƒ³ãƒ‰ã§ã™ã€‚</ja><en>Command that wants to call when menu is selected</en></param>
+        /// <param name="sr"><ja>ã‚«ãƒ«ãƒãƒ£æƒ…å ±ã§ã™ã€‚</ja><en>Information of culture.</en></param>
+        /// <param name="textID"><ja>ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã«è¡¨ç¤ºã™ã‚‹ãƒ†ã‚­ã‚¹ãƒˆIDã§ã™ã€‚</ja><en>Text ID displayed in menu</en></param>
         public PoderosaMenuItemImpl(IPoderosaCommand command, StringResource sr, string textID) {
             Debug.Assert(command != null);
             _command = command;
@@ -2668,7 +2668,7 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ƒƒjƒ…[‚ª‘I‘ğ‚³‚ê‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒRƒ}ƒ“ƒh‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒé¸æŠã•ã‚ŒãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ã‚³ãƒãƒ³ãƒ‰ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The command called when the menu is selected is shown. 
@@ -2682,7 +2682,7 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ƒƒjƒ…[‚É•\¦‚·‚éƒeƒLƒXƒg‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã«è¡¨ç¤ºã™ã‚‹ãƒ†ã‚­ã‚¹ãƒˆã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The text displayed in the menu is shown. 
@@ -2696,19 +2696,19 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ƒƒjƒ…[‚ª‘I‘ğ‰Â”\‚©‚Ç‚¤‚©‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒé¸æŠå¯èƒ½ã‹ã©ã†ã‹ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is shown whether the menu can be selected. 
         /// </en>
         /// </summary>
-        /// <param name="target"><ja>ˆ—‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja><en>Target to be processed</en></param>
-        /// <returns><ja>‘I‘ğ‰Â”\‚È‚çtrueA‘I‘ğ•s‰Â‚È‚çfalse‚ª•Ô‚³‚ê‚Ü‚·B</ja><en>If it is selectable, return true. It isn't, return false.</en></returns>
+        /// <param name="target"><ja>å‡¦ç†å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja><en>Target to be processed</en></param>
+        /// <returns><ja>é¸æŠå¯èƒ½ãªã‚‰trueã€é¸æŠä¸å¯ãªã‚‰falseãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja><en>If it is selectable, return true. It isn't, return false.</en></returns>
         /// <remarks>
         /// <ja>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ÍA“à•”‚Å<see cref="AssociatedCommand">AssiciatedCommand</see>ƒvƒƒpƒeƒB‚Å¦‚³‚ê‚½
-        /// <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>‚Ì<seealso cref="IPoderosaCommand.CanExecute">CanExecuteƒƒ\ƒbƒh</seealso>
-        /// ‚ğŒÄ‚Ño‚·‚±‚Æ‚ÅÀ‘•‚³‚ê‚Ä‚¢‚Ü‚·B
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã€å†…éƒ¨ã§<see cref="AssociatedCommand">AssiciatedCommand</see>ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã§ç¤ºã•ã‚ŒãŸ
+        /// <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso>ã®<seealso cref="IPoderosaCommand.CanExecute">CanExecuteãƒ¡ã‚½ãƒƒãƒ‰</seealso>
+        /// ã‚’å‘¼ã³å‡ºã™ã“ã¨ã§å®Ÿè£…ã•ã‚Œã¦ã„ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// This method is implemented by calling the <seealso cref="IPoderosaCommand.CanExecute">CanExecute method</seealso> of <seealso cref="IPoderosaCommand">IPoderosaCommand</seealso> shown internally in the <see cref="AssociatedCommand">AssiciatedCommand</see> property. 
@@ -2720,17 +2720,17 @@ namespace Poderosa.Commands {
 
         /// <summary>
         /// <ja>
-        /// ƒƒjƒ…[‚Éƒ`ƒFƒbƒN‚ª•t‚¯‚ç‚ê‚Ä‚¢‚é‚©‚Ç‚¤‚©‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã«ãƒã‚§ãƒƒã‚¯ãŒä»˜ã‘ã‚‰ã‚Œã¦ã„ã‚‹ã‹ã©ã†ã‹ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is shown whether the menu is checked. 
         /// </en>
         /// </summary>
-        /// <param name="target"><ja>ˆ—‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja><en>Target to be processed.</en></param>
-        /// <returns><ja>ƒ`ƒFƒbƒN‚ª•t‚¢‚Ä‚¢‚é‚È‚çtrueA‚»‚¤‚Å‚È‚¢‚È‚çfalse‚ª•Ô‚³‚ê‚Ü‚·B</ja><en>It is true, and a return of false if checked if not so. </en></returns>
+        /// <param name="target"><ja>å‡¦ç†å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja><en>Target to be processed.</en></param>
+        /// <returns><ja>ãƒã‚§ãƒƒã‚¯ãŒä»˜ã„ã¦ã„ã‚‹ãªã‚‰trueã€ãã†ã§ãªã„ãªã‚‰falseãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja><en>It is true, and a return of false if checked if not so. </en></returns>
         /// <remarks>
         /// <ja>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ÍAí‚Éfalse‚ª–ß‚è‚Ü‚·B
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã€å¸¸ã«falseãŒæˆ»ã‚Šã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// False always returns in this method. 

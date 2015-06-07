@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,7 @@ namespace Poderosa.Terminal {
         void EndCommand(List<GLine> command_result);
     }
 
-    //Extension Point�p
+    //Extension Point用
     /// <summary>
     /// 
     /// </summary>

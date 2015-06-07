@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ using Poderosa.View;
 namespace Poderosa.Sessions {
     /// <summary>
     /// <ja>
-    /// ƒhƒLƒ…ƒƒ“ƒg‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows document
@@ -29,7 +29,7 @@ namespace Poderosa.Sessions {
     public interface IPoderosaDocument : ICommandTarget {
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚ÌƒAƒCƒRƒ“‚Å‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã®ã‚¢ã‚¤ã‚³ãƒ³ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Icon of the document.
@@ -40,7 +40,7 @@ namespace Poderosa.Sessions {
         }
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚ÌƒLƒƒƒvƒVƒ‡ƒ“‚Å‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã®ã‚­ãƒ£ãƒ—ã‚·ãƒ§ãƒ³ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Caption of the document.
@@ -51,7 +51,7 @@ namespace Poderosa.Sessions {
         }
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒg‚ğ\¬‚·‚éƒZƒbƒVƒ‡ƒ“‚Å‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’æ§‹æˆã™ã‚‹ã‚»ãƒƒã‚·ãƒ§ãƒ³ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Session that composes the document.
@@ -59,8 +59,8 @@ namespace Poderosa.Sessions {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// •W€‚Ìƒ^[ƒ~ƒiƒ‹ƒGƒ~ƒ…ƒŒ[ƒ^‚Æ‚µ‚Ä—p‚¢‚éê‡A‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍA
-        /// <seealso cref="Poderosa.Sessions.ITerminalSession">ITerminalSession</seealso>‚Ö‚Æ•ÏŠ·‚Å‚«‚Ü‚·B
+        /// æ¨™æº–ã®ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚¨ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚¿ã¨ã—ã¦ç”¨ã„ã‚‹å ´åˆã€ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€
+        /// <seealso cref="Poderosa.Sessions.ITerminalSession">ITerminalSession</seealso>ã¸ã¨å¤‰æ›ã§ãã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// This interface can be converted into <seealso cref="Poderosa.Sessions.ITerminalSession">ITerminalSession</seealso> when using it as a standard terminal emulator. 
@@ -73,7 +73,7 @@ namespace Poderosa.Sessions {
 
     /// <summary>
     /// <ja>
-    /// ƒrƒ…[‚ğ•\Œ»‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ“ãƒ¥ãƒ¼ã‚’è¡¨ç¾ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// The interface that show the view.
@@ -82,13 +82,13 @@ namespace Poderosa.Sessions {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ÅŒã‚ÉƒAƒNƒeƒBƒu‚É‚È‚Á‚½ƒrƒ…[‚ÍA<seealso cref="Poderosa.Forms.IPoderosaMainWindow">IPoderosaMainWindow</seealso>
-    /// ‚Ì<see cref="IPoderosaMainWindow.LastActivatedView">LastActivatedViewƒvƒƒpƒeƒB</see>‚Åæ“¾‚Å‚«‚Ü‚·B
+    /// æœ€å¾Œã«ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ãŸãƒ“ãƒ¥ãƒ¼ã¯ã€<seealso cref="Poderosa.Forms.IPoderosaMainWindow">IPoderosaMainWindow</seealso>
+    /// ã®<see cref="IPoderosaMainWindow.LastActivatedView">LastActivatedViewãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>ã§å–å¾—ã§ãã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ‚Ü‚½<seealso cref="CommandTargetUtil">CommandTargetUtil</seealso>‚Ì
-    /// <see cref="CommandTargetUtil.AsViewOrLastActivatedView">AsViewOrLastActivatedViewƒƒ\ƒbƒh</see>
-    /// ‚ğŒÄ‚Ño‚·‚ÆAƒRƒ}ƒ“ƒhÀs‚Ìˆø”‚Æ‚µ‚Ä“n‚³‚ê‚éƒ^[ƒQƒbƒg‚ğƒrƒ…[‚Ö‚Æ•ÏŠ·‚Å‚«‚Ü‚·B
+    /// ã¾ãŸ<seealso cref="CommandTargetUtil">CommandTargetUtil</seealso>ã®
+    /// <see cref="CommandTargetUtil.AsViewOrLastActivatedView">AsViewOrLastActivatedViewãƒ¡ã‚½ãƒƒãƒ‰</see>
+    /// ã‚’å‘¼ã³å‡ºã™ã¨ã€ã‚³ãƒãƒ³ãƒ‰å®Ÿè¡Œæ™‚ã®å¼•æ•°ã¨ã—ã¦æ¸¡ã•ã‚Œã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’ãƒ“ãƒ¥ãƒ¼ã¸ã¨å¤‰æ›ã§ãã¾ã™ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -107,7 +107,7 @@ namespace Poderosa.Sessions {
     public interface IPoderosaView : IPoderosaControl, ICommandTarget {
         /// <summary>
         /// <ja>
-        /// ƒrƒ…[‚ÉŒ‹‚Ñ‚Â‚¯‚ç‚ê‚Ä‚¢‚éƒhƒLƒ…ƒƒ“ƒg‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ“ãƒ¥ãƒ¼ã«çµã³ã¤ã‘ã‚‰ã‚Œã¦ã„ã‚‹ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Document tie to view
@@ -118,7 +118,7 @@ namespace Poderosa.Sessions {
         }
         /// <summary>
         /// <ja>
-        /// Œ»İ‘I‘ğ‚³‚ê‚Ä‚¢‚é•”•ª‚ğ¦‚·ISelection‚Å‚·B
+        /// ç¾åœ¨é¸æŠã•ã‚Œã¦ã„ã‚‹éƒ¨åˆ†ã‚’ç¤ºã™ISelectionã§ã™ã€‚
         /// </ja>
         /// <en>
         /// ISelection that shows part that has been selected now.
@@ -126,8 +126,8 @@ namespace Poderosa.Sessions {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ISelection‚ğ<seealso cref="ITextSelection">ITextSelection</seealso>‚Ö‚Æ•ÏŠ·‚µA‚»‚Ì<see cref="ITextSelection.GetSelectedText">GetSelectedTextƒƒ\ƒbƒh</see>
-        /// ‚ğŒÄ‚Ño‚·‚ÆAŒ»İ‘I‘ğ‚³‚ê‚Ä‚¢‚é•¶š—ñ‚ğæ“¾‚Å‚«‚Ü‚·B
+        /// ISelectionã‚’<seealso cref="ITextSelection">ITextSelection</seealso>ã¸ã¨å¤‰æ›ã—ã€ãã®<see cref="ITextSelection.GetSelectedText">GetSelectedTextãƒ¡ã‚½ãƒƒãƒ‰</see>
+        /// ã‚’å‘¼ã³å‡ºã™ã¨ã€ç¾åœ¨é¸æŠã•ã‚Œã¦ã„ã‚‹æ–‡å­—åˆ—ã‚’å–å¾—ã§ãã¾ã™ã€‚
         /// 
         /// <code>
         /// ITextSelection select = (ITextSelection)<var>view</var>.CurrentSelection.GetAdapter(
@@ -159,7 +159,7 @@ namespace Poderosa.Sessions {
 
         /// <summary>
         /// <ja>
-        /// ƒrƒ…[‚Ìe‚Æ‚È‚éƒtƒH[ƒ€‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ“ãƒ¥ãƒ¼ã®è¦ªã¨ãªã‚‹ãƒ•ã‚©ãƒ¼ãƒ ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Form that becomes parents of view.
@@ -170,7 +170,7 @@ namespace Poderosa.Sessions {
         }
     }
 
-    //ƒrƒ…[ƒNƒ‰ƒX
+    //ãƒ“ãƒ¥ãƒ¼ã‚¯ãƒ©ã‚¹
     /// <summary>
     /// 
     /// </summary>
@@ -182,7 +182,7 @@ namespace Poderosa.Sessions {
     }
 
 
-    //ƒrƒ…[‚ÌWindows.Formsã‚ÌŒ^‚ğ“®“I‚É•ÏX‚Å‚«‚éƒ^ƒCƒv‚Ìƒrƒ…[
+    //ãƒ“ãƒ¥ãƒ¼ã®Windows.Formsä¸Šã®å‹ã‚’å‹•çš„ã«å¤‰æ›´ã§ãã‚‹ã‚¿ã‚¤ãƒ—ã®ãƒ“ãƒ¥ãƒ¼
     /// <summary>
     /// 
     /// </summary>
@@ -195,7 +195,7 @@ namespace Poderosa.Sessions {
         IPoderosaView AssureViewClass(Type viewclass);
         void AssureEmptyViewClass();
     }
-    //’†g‘¤‚ªÀ‘•‚·‚éƒCƒ“ƒ^ƒtƒF[ƒXBReplaceContent‚ªŒÄ‚Î‚ê‚é‚½‚Ñ‚É’Ê’m‚ğó‚¯‚ç‚ê‚é‚æ‚¤‚É‚·‚é
+    //ä¸­èº«å´ãŒå®Ÿè£…ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹ã€‚ReplaceContentãŒå‘¼ã°ã‚Œã‚‹ãŸã³ã«é€šçŸ¥ã‚’å—ã‘ã‚‰ã‚Œã‚‹ã‚ˆã†ã«ã™ã‚‹
     /// <summary>
     /// 
     /// </summary>
@@ -207,11 +207,11 @@ namespace Poderosa.Sessions {
         }
     }
 
-    //ƒrƒ…[—p‚Ì•W€ƒRƒ}ƒ“ƒhBIPoderosaView‚ªƒIƒvƒVƒ‡ƒiƒ‹‚Å’ñ‹Ÿ‚·‚éB
+    //ãƒ“ãƒ¥ãƒ¼ç”¨ã®æ¨™æº–ã‚³ãƒãƒ³ãƒ‰ã€‚IPoderosaViewãŒã‚ªãƒ—ã‚·ãƒ§ãƒŠãƒ«ã§æä¾›ã™ã‚‹ã€‚
 
     /// <summary>
     /// <ja>
-    /// ƒrƒ…[‚Ì•W€ƒRƒ}ƒ“ƒh‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// ãƒ“ãƒ¥ãƒ¼ã®æ¨™æº–ã‚³ãƒãƒ³ãƒ‰ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Offered a standard command of the view.
@@ -220,7 +220,7 @@ namespace Poderosa.Sessions {
     public interface IGeneralViewCommands : IAdaptable {
         /// <summary>
         /// <ja>
-        /// ƒNƒŠƒbƒvƒ{[ƒh‚ÖƒRƒs[‚µ‚Ü‚·B
+        /// ã‚¯ãƒªãƒƒãƒ—ãƒœãƒ¼ãƒ‰ã¸ã‚³ãƒ”ãƒ¼ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Copy to the clipboard. 
@@ -231,7 +231,7 @@ namespace Poderosa.Sessions {
         }
         /// <summary>
         /// <ja>
-        /// ƒNƒŠƒbƒvƒ{[ƒh‚©‚ç“\‚è•t‚¯‚Ü‚·B
+        /// ã‚¯ãƒªãƒƒãƒ—ãƒœãƒ¼ãƒ‰ã‹ã‚‰è²¼ã‚Šä»˜ã‘ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Paste from the clipboard. 
@@ -240,13 +240,13 @@ namespace Poderosa.Sessions {
         IPoderosaCommand Paste {
             get;
         }
-        //IPoderosaCommand Cut { get; } ƒ‚ƒg‚ªƒ^[ƒ~ƒiƒ‹ƒGƒ~ƒ…ƒŒ[ƒ^‚Æ‚¢‚¤‚±‚Æ‚ÅAƒJƒbƒg‚Í•W€‚ÉŠÜ‚ß‚¸
+        //IPoderosaCommand Cut { get; } ãƒ¢ãƒˆãŒã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚¨ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚¿ã¨ã„ã†ã“ã¨ã§ã€ã‚«ãƒƒãƒˆã¯æ¨™æº–ã«å«ã‚ãš
     }
 
 
     /// <summary>
     /// <ja>
-    /// ƒrƒ…[ƒ}ƒl[ƒWƒƒ‚ğ¦‚µ‚Ü‚·B
+    /// ãƒ“ãƒ¥ãƒ¼ãƒãƒãƒ¼ã‚¸ãƒ£ã‚’ç¤ºã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// It shows the view manager.
@@ -254,8 +254,8 @@ namespace Poderosa.Sessions {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ƒrƒ…[ƒ}ƒl[ƒWƒƒ‚ÍA<seealso cref="IPoderosaMainWindow">IPoderosaMainWindow</seealso>‚Ì
-    /// <see cref="IPoderosaMainWindow.ViewManager">ViewManagerƒvƒƒpƒeƒB</see>‚©‚çæ“¾‚Å‚«‚Ü‚·B
+    /// ãƒ“ãƒ¥ãƒ¼ãƒãƒãƒ¼ã‚¸ãƒ£ã¯ã€<seealso cref="IPoderosaMainWindow">IPoderosaMainWindow</seealso>ã®
+    /// <see cref="IPoderosaMainWindow.ViewManager">ViewManagerãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>ã‹ã‚‰å–å¾—ã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The view manager can acquire it from the <see cref="IPoderosaMainWindow.ViewManager">ViewManager property</see> of <seealso cref="IPoderosaMainWindow">IPoderosaMainWindow</seealso>. 
@@ -271,17 +271,17 @@ namespace Poderosa.Sessions {
         }
         /// <summary>
         /// <ja>
-        /// V‚µ‚¢ƒhƒLƒ…ƒƒ“ƒg‚ğì¬‚·‚é‚½‚ß‚Ìƒrƒ…[‚ğì‚è‚Ü‚·B
+        /// æ–°ã—ã„ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’ä½œæˆã™ã‚‹ãŸã‚ã®ãƒ“ãƒ¥ãƒ¼ã‚’ä½œã‚Šã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create the view to make a new document.
         /// </en>
         /// </summary>
-        /// <returns><ja>ì‚ç‚ê‚½ƒrƒ…[‚ª•Ô‚³‚ê‚Ü‚·B</ja><en>return thr created view</en></returns>
+        /// <returns><ja>ä½œã‚‰ã‚ŒãŸãƒ“ãƒ¥ãƒ¼ãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja><en>return thr created view</en></returns>
         IPoderosaView GetCandidateViewForNewDocument();
         /// <summary>
         /// <ja>
-        /// ‚±‚Ìƒrƒ…[‚ª‘®‚·‚éƒEƒBƒ“ƒhƒE‚Å‚·B
+        /// ã“ã®ãƒ“ãƒ¥ãƒ¼ãŒå±ã™ã‚‹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Window to which this view belongs
@@ -297,7 +297,7 @@ namespace Poderosa.Sessions {
     /// </summary>
     /// <exclude/>
     public interface ISplittableViewManager : IViewManager {
-        //factory‚ªnull‚Ì‚Æ‚«‚ÍAview‚ÌƒNƒ‰ƒX‚ğ’ñ‹Ÿ‚·‚éfactory‚ªg‚í‚ê‚é
+        //factoryãŒnullã®ã¨ãã¯ã€viewã®ã‚¯ãƒ©ã‚¹ã‚’æä¾›ã™ã‚‹factoryãŒä½¿ã‚ã‚Œã‚‹
         CommandResult SplitHorizontal(IContentReplaceableView view, IViewFactory factory);
         CommandResult SplitVertical(IContentReplaceableView view, IViewFactory factory);
         CommandResult Unify(IContentReplaceableView view, out IContentReplaceableView next_focus);
@@ -312,7 +312,7 @@ namespace Poderosa.Sessions {
         void ApplySplitInfo(string value);
     }
 
-    //•ªŠ„ŠÖŒW‚Ì•ÏX‚ÌƒCƒxƒ“ƒgƒnƒ“ƒhƒ‰
+    //åˆ†å‰²é–¢ä¿‚ã®å¤‰æ›´ã®ã‚¤ãƒ™ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ©
     /// <summary>
     /// 
     /// </summary>

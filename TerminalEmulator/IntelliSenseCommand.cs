@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -121,7 +121,7 @@ namespace Poderosa.Terminal {
             return TerminalEmulatorPlugin.Instance.PoderosaWorld.AdapterManager.GetAdapter(this, adapter);
         }
 
-        //q—v‘f
+        //å­è¦ç´ 
         private class SchemeMenuGroup : PoderosaMenuGroupImpl {
             public override bool IsVolatileContent {
                 get {
@@ -130,7 +130,7 @@ namespace Poderosa.Terminal {
             }
             public override IPoderosaMenu[] ChildMenus {
                 get {
-                    //TODO ƒXƒL[ƒ€ƒRƒŒƒNƒVƒ‡ƒ“‚©‚ç•ÏX’Ê’m‚ğó‚¯‚½’¼Œã‚¾‚¯Äì¬‚·‚ê‚ÎŒø—¦‚Í‚æ‚¢
+                    //TODO ã‚¹ã‚­ãƒ¼ãƒ ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã‹ã‚‰å¤‰æ›´é€šçŸ¥ã‚’å—ã‘ãŸç›´å¾Œã ã‘å†ä½œæˆã™ã‚Œã°åŠ¹ç‡ã¯ã‚ˆã„
                     Debug.WriteLineIf(DebugOpt.IntelliSenseMenu, "Building intellisense menu");
                     TerminalEmulatorPlugin.Instance.LaterInitialize();
                     IShellSchemeCollection sc = TerminalEmulatorPlugin.Instance.ShellSchemeCollection;

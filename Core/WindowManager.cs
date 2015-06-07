@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -61,7 +61,7 @@ namespace Poderosa.Forms {
             base.InitializePlugin(poderosa);
             _instance = this;
 
-            //CoreƒAƒZƒ“ƒuƒŠ“à‚Ìƒvƒ‰ƒOƒCƒ“‚ğ‘ã•\‚µ‚Ä‚±‚±‚ÅAdapterFactory‚ğƒZƒbƒg
+            //Coreã‚¢ã‚»ãƒ³ãƒ–ãƒªå†…ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’ä»£è¡¨ã—ã¦ã“ã“ã§AdapterFactoryã‚’ã‚»ãƒƒãƒˆ
             new CoreServices(poderosa);
 
             TabBar.Init();
@@ -117,7 +117,7 @@ namespace Poderosa.Forms {
             w.Text = "Poderosa";
             w.FormClosed += new FormClosedEventHandler(WindowClosedHandler);
             w.Activated += delegate(object sender, EventArgs args) {
-                _activeWindow = (MainWindow)sender; //ÅŒã‚ÉƒAƒNƒeƒBƒu‚É‚È‚Á‚½‚à‚Ì‚ğw’è‚·‚é
+                _activeWindow = (MainWindow)sender; //æœ€å¾Œã«ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ãŸã‚‚ã®ã‚’æŒ‡å®šã™ã‚‹
             };
             w.Show();
             return w;
@@ -127,17 +127,17 @@ namespace Poderosa.Forms {
             _windows.Add(CreateMainWindow(arg));
         }
 
-        //ƒAƒvƒŠI—¹
+        //ã‚¢ãƒ—ãƒªçµ‚äº†æ™‚
         public CommandResult CloseAllWindows() {
             try {
                 _executingAllWindowClose = true;
                 _preferences.WindowArray.Clear();
-                //ƒRƒs[‚ÌƒRƒŒƒNƒVƒ‡ƒ“‚É‘Î‚µ‚ÄÀs‚µ‚È‚¢‚Æ‚¢‚©‚ñ
+                //ã‚³ãƒ”ãƒ¼ã®ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã«å¯¾ã—ã¦å®Ÿè¡Œã—ãªã„ã¨ã„ã‹ã‚“
                 List<MainWindow> targets = new List<MainWindow>(_windows);
                 foreach (MainWindow window in targets) {
                     CommandResult r = window.CancellableClose();
                     if (r != CommandResult.Succeeded)
-                        return r; //ƒLƒƒƒ“ƒZƒ‹‚³‚ê‚½ê‡‚Í‚»‚±‚Å’†~
+                        return r; //ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã•ã‚ŒãŸå ´åˆã¯ãã“ã§ä¸­æ­¢
                     _preferences.FormatWindowPreference(window);
                 }
 
@@ -150,7 +150,7 @@ namespace Poderosa.Forms {
 
         private void WindowClosedHandler(object sender, FormClosedEventArgs arg) {
             MainWindow w = (MainWindow)sender;
-            if (!_executingAllWindowClose) { //ÅŒã‚ÌƒEƒBƒ“ƒhƒE‚ª•’Ê‚É•Â‚¶‚ç‚ê‚½ê‡
+            if (!_executingAllWindowClose) { //æœ€å¾Œã®ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãŒæ™®é€šã«é–‰ã˜ã‚‰ã‚ŒãŸå ´åˆ
                 _preferences.WindowArray.Clear();
                 _preferences.FormatWindowPreference(w);
             }
@@ -166,7 +166,7 @@ namespace Poderosa.Forms {
             base.TerminatePlugin();
             if (_windows.Count > 0) {
                 CloseAllPopupWindows();
-                MainWindow[] t = _windows.ToArray(); //ƒNƒ[ƒYƒCƒxƒ“ƒg“à‚Å_windows‚Ì—v‘f‚ª•Ï‰»‚·‚é‚Ì‚Åƒ[ƒJƒ‹ƒRƒs[‚ª•K—v
+                MainWindow[] t = _windows.ToArray(); //ã‚¯ãƒ­ãƒ¼ã‚ºã‚¤ãƒ™ãƒ³ãƒˆå†…ã§_windowsã®è¦ç´ ãŒå¤‰åŒ–ã™ã‚‹ã®ã§ãƒ­ãƒ¼ã‚«ãƒ«ã‚³ãƒ”ãƒ¼ãŒå¿…è¦
                 foreach (MainWindow w in t)
                     w.Close();
             }
@@ -208,11 +208,11 @@ namespace Poderosa.Forms {
                 w.ReloadPreference(pref);
         }
         public void ReloadPreference() {
-            //ƒfƒtƒHƒ‹ƒg‚ğg‚¤
+            //ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚’ä½¿ã†
             ReloadPreference(_preferences.OriginalPreference);
         }
 
-        //Popupì¬
+        //Popupä½œæˆ
         public IPoderosaPopupWindow CreatePopupView(PopupViewCreationParam viewcreation) {
             PopupViewContainer vc = new PopupViewContainer(viewcreation);
             if (viewcreation.OwnedByCommandTargetWindow)
@@ -240,8 +240,8 @@ namespace Poderosa.Forms {
 
         #region ICultureChangeListener
         public void OnCultureChanged(CultureInfo newculture) {
-            //ƒƒjƒ…[‚ÌƒŠƒ[ƒhŠÜ‚ß‘S•”‚â‚é
-            CoreUtil.Strings.OnCultureChanged(newculture); //æ‚ÉƒŠƒ\[ƒXXV
+            //ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®ãƒªãƒ­ãƒ¼ãƒ‰å«ã‚å…¨éƒ¨ã‚„ã‚‹
+            CoreUtil.Strings.OnCultureChanged(newculture); //å…ˆã«ãƒªã‚½ãƒ¼ã‚¹æ›´æ–°
             ReloadMenu();
         }
         #endregion
@@ -266,11 +266,11 @@ namespace Poderosa.Forms {
         }
         #region IWinFormsService
         public object GetDraggingObject(IDataObject data, Type required_type) {
-            //TODO IDataObjectg‚í‚È‚­‚Ä‚¢‚¢‚ÌH
+            //TODO IDataObjectä½¿ã‚ãªãã¦ã„ã„ã®ï¼Ÿ
             if (_draggingObject == null)
                 return null;
             else {
-                //TODO ‚±‚ê‚¿‚å‚Á‚Æ‚¢‚¢‰ÁŒ¸‚¾‚ª
+                //TODO ã“ã‚Œã¡ã‚‡ã£ã¨ã„ã„åŠ æ¸›ã ãŒ
                 Debug.Assert(required_type == typeof(IPoderosaDocument));
                 return ((TabBarManager.InternalTabKey)_draggingObject).PoderosaDocument;
             }
@@ -308,7 +308,7 @@ namespace Poderosa.Forms {
                 }
             }
         }
-        //‚±‚ê‚ÍƒCƒ“ƒ^ƒtƒF[ƒXƒƒ“ƒo‚Å‚Í‚È‚¢BMainWindow‚ÌWndProc‚ªWM_COPYDATA‚ğ•ß‚Ü‚¦‚ÄŒÄ‚ÔB
+        //ã“ã‚Œã¯ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹ãƒ¡ãƒ³ãƒã§ã¯ãªã„ã€‚MainWindowã®WndProcãŒWM_COPYDATAã‚’æ•ã¾ãˆã¦å‘¼ã¶ã€‚
         public void TurningOpenFile(ICommandTarget ct, string filename) {
             string[] filenames = new string[] { filename };
             IFileDropHandler[] hs = (IFileDropHandler[])_poderosaWorld.PluginManager.FindExtensionPoint(WindowManagerConstants.FILEDROPHANDLER_ID).GetExtensions();
@@ -329,7 +329,7 @@ namespace Poderosa.Forms {
 #if UNITTEST
             return StartMode.Slave;
 #else
-            //NOTE Preference‚©‚çæ“¾‚·‚é‚È‚Ç‚·‚×‚«‚©
+            //NOTE Preferenceã‹ã‚‰å–å¾—ã™ã‚‹ãªã©ã™ã¹ãã‹
             return StartMode.StandAlone;
 #endif
         }
@@ -340,7 +340,7 @@ namespace Poderosa.Forms {
                 w.Close();
         }
 
-        //ƒEƒBƒ“ƒhƒEŠJ•ÂƒCƒxƒ“ƒg’Ê’m
+        //ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦é–‹é–‰ã‚¤ãƒ™ãƒ³ãƒˆé€šçŸ¥
         public void NotifyMainWindowLoaded(MainWindow w) {
             IMainWindowEventHandler[] hs = (IMainWindowEventHandler[])_poderosaWorld.PluginManager.FindExtensionPoint(WindowManagerConstants.MAINWINDOWEVENTHANDLER_ID).GetExtensions();
             foreach (IMainWindowEventHandler h in hs) {
@@ -412,7 +412,7 @@ namespace Poderosa.Forms {
             }
         }
 
-        //ƒtƒH[ƒ€‚Ö‚Ì“K—p‚ÍAOnLoad‚Ì‘O‚ÆŒã‚Å•ª‚¯‚é
+        //ãƒ•ã‚©ãƒ¼ãƒ ã¸ã®é©ç”¨ã¯ã€OnLoadã®å‰ã¨å¾Œã§åˆ†ã‘ã‚‹
         public void ApplyToUnloadedWindow(MainWindow f) {
         }
 
@@ -448,34 +448,34 @@ namespace Poderosa.Forms {
                 _location.Y = sb.Y + (sb.Height - _location.Height) / 2;
             }
 
-            //DesktopBounds‚Ìİ’è‚ÍOnLoad‚Ì’†‚¶‚á‚È‚¢‚Æ‚¢‚©‚ñ‚ç‚µ‚¢
+            //DesktopBoundsã®è¨­å®šã¯OnLoadã®ä¸­ã˜ã‚ƒãªã„ã¨ã„ã‹ã‚“ã‚‰ã—ã„
             f.DesktopBounds = _location;
             f.WindowState = _windowState;
 
-            //Šæ’£‚ê‚ÎOnLoadˆÈ‘O‚ÉSplitInfo‚ğ“K—p‚Å‚«‚é‚©‚à
+            //é ‘å¼µã‚Œã°OnLoadä»¥å‰ã«SplitInfoã‚’é©ç”¨ã§ãã‚‹ã‹ã‚‚
             if (_splitInfo.Length > 0) {
                 ISplittableViewManager vm = (ISplittableViewManager)f.ViewManager.GetAdapter(typeof(ISplittableViewManager));
                 if (vm != null)
                     vm.ApplySplitInfo(_splitInfo);
             }
 
-            //ToolBar‚ÌƒRƒ“ƒ|[ƒlƒ“ƒgˆÊ’u’²®
+            //ToolBarã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆä½ç½®èª¿æ•´
             f.ToolBarInternal.RestoreLayout();
         }
 
-        //ˆÊ’uî•ñ‚Ì•Û‘¶‚Æ•œŒ³
-        //‚±‚Ì³‹K•\Œ»‚Å¦‚³‚ê‚é’l‚ÅB—á (Max,0,0,1024,768) ˆÊ’u‚É•‰‚Ì’l‚ğ‹–‚·‚±‚Æ‚É’ˆÓB
+        //ä½ç½®æƒ…å ±ã®ä¿å­˜ã¨å¾©å…ƒ
+        //ã“ã®æ­£è¦è¡¨ç¾ã§ç¤ºã•ã‚Œã‚‹å€¤ã§ã€‚ä¾‹ (Max,0,0,1024,768) ä½ç½®ã«è² ã®å€¤ã‚’è¨±ã™ã“ã¨ã«æ³¨æ„ã€‚
         public static MainWindowArgument[] Parse(IWindowPreference pref) {
             int count = pref.WindowCount;
 
-            //ƒ}ƒbƒ`‚µ‚È‚¢‚Æ‚«‚ÍƒfƒtƒHƒ‹ƒg
+            //ãƒãƒƒãƒã—ãªã„ã¨ãã¯ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆ
             if (count == 0) {
-                //‰Šúó‘Ô‚ÅÅ¬‰»‚Í‹–‚³‚¸
+                //åˆæœŸçŠ¶æ…‹ã§æœ€å°åŒ–ã¯è¨±ã•ãš
                 MainWindowArgument arg = new MainWindowArgument(GetInitialLocation(), FormWindowState.Normal, "", "", 1);
                 return new MainWindowArgument[] { arg };
             }
             else {
-                //³‹K•\Œ»“à‚ÌƒRƒƒ“ƒg: ƒ\[ƒX‚ğ•\¦‚·‚éƒtƒHƒ“ƒgŸ‘æ‚Å‚Í‚¨‚©‚µ‚¢‚©‚à
+                //æ­£è¦è¡¨ç¾å†…ã®ã‚³ãƒ¡ãƒ³ãƒˆ: ã‚½ãƒ¼ã‚¹ã‚’è¡¨ç¤ºã™ã‚‹ãƒ•ã‚©ãƒ³ãƒˆæ¬¡ç¬¬ã§ã¯ãŠã‹ã—ã„ã‹ã‚‚
                 //                      (<FormWindowState>, left,      ,     top,         ,    width       ,     height   )  
                 Regex re = new Regex("\\((Max,|Min,)?\\s*(-?[\\d]+)\\s*,\\s*(-?[\\d]+)\\s*,\\s*([\\d]+)\\s*,\\s*([\\d]+)\\)");
 
@@ -485,11 +485,11 @@ namespace Poderosa.Forms {
 
                     Match m = re.Match(positions);
                     GroupCollection gc = m.Groups;
-                    Debug.Assert(gc.Count == 6); //©g‚Æq—v‘f‚T‚Â
-                    //‚È‚¨AÅ¬‰»‚µ‚½‚Ü‚ÜI—¹‚µ‚Ä‚àŸ‰ñ‹N“®‚Íƒm[ƒ}ƒ‹ƒTƒCƒY‚ÅB
+                    Debug.Assert(gc.Count == 6); //è‡ªèº«ã¨å­è¦ç´ ï¼•ã¤
+                    //ãªãŠã€æœ€å°åŒ–ã—ãŸã¾ã¾çµ‚äº†ã—ã¦ã‚‚æ¬¡å›èµ·å‹•æ™‚ã¯ãƒãƒ¼ãƒãƒ«ã‚µã‚¤ã‚ºã§ã€‚
                     result[i] = new MainWindowArgument(
                       ParseRectangle(gc[2].Value, gc[3].Value, gc[4].Value, gc[5].Value),
-                      gc[1].Value == "Max," ? FormWindowState.Maximized : FormWindowState.Normal, //ƒJƒ“ƒ}‚Â‚«‚É’ˆÓ
+                      gc[1].Value == "Max," ? FormWindowState.Maximized : FormWindowState.Normal, //ã‚«ãƒ³ãƒã¤ãã«æ³¨æ„
                       pref.WindowSplitFormatAt(i), pref.ToolBarFormatAt(i), pref.TabRowCountAt(i));
                 }
                 return result;
@@ -507,7 +507,7 @@ namespace Poderosa.Forms {
         }
 
         private static Rectangle GetInitialLocation() {
-            //ƒvƒ‰ƒCƒ}ƒŠƒXƒNƒŠ[ƒ“‚Ì”¼•ª‚ÌƒTƒCƒY‚ğ’†‰›‚É
+            //ãƒ—ãƒ©ã‚¤ãƒãƒªã‚¹ã‚¯ãƒªãƒ¼ãƒ³ã®åŠåˆ†ã®ã‚µã‚¤ã‚ºã‚’ä¸­å¤®ã«
             Rectangle r = Screen.PrimaryScreen.Bounds;
             return new Rectangle(r.X + r.Width / 4, r.Y + r.Height / 4, r.Width / 2, r.Height / 2);
         }
@@ -531,7 +531,7 @@ namespace Poderosa.Forms {
 }
 
 namespace Poderosa {
-    //‚±‚ÌƒAƒZƒ“ƒuƒŠ‚ÌStringResource‚Ö‚ÌƒAƒNƒZƒT WindowManager‚É‘ã•\‚³‚¹‚é‚Ì‚Í‚¢‚©‚ñƒJƒ“ƒW
+    //ã“ã®ã‚¢ã‚»ãƒ³ãƒ–ãƒªã®StringResourceã¸ã®ã‚¢ã‚¯ã‚»ã‚µ WindowManagerã«ä»£è¡¨ã•ã›ã‚‹ã®ã¯ã„ã‹ã‚“ã‚«ãƒ³ã‚¸
     internal static class CoreUtil {
         private static StringResource _strings;
         public static StringResource Strings {

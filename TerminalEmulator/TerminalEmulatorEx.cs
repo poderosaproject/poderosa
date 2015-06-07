@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@ using Poderosa.Forms;
 using Poderosa.Commands;
 
 namespace Poderosa.Terminal {
-    //AbstractTerminal‚ª•K—v‚È‹@”\‚ğó‚¯“n‚µ
+    //AbstractTerminalãŒå¿…è¦ãªæ©Ÿèƒ½ã‚’å—ã‘æ¸¡ã—
 
     /// <summary>
     /// 
@@ -35,7 +35,7 @@ namespace Poderosa.Terminal {
         }
         IPoderosaMainWindow OwnerWindow {
             get;
-        } //ISession‚É¸Ši‚³‚¹‚é‚Ì‚ª‚æ‚¢H@‚ ‚é‚¢‚ÍSessionManager‚Ì‹@”\‚©H@–À‚¢‚Ç‚±‚ë
+        } //ISessionã«æ˜‡æ ¼ã•ã›ã‚‹ã®ãŒã‚ˆã„ï¼Ÿã€€ã‚ã‚‹ã„ã¯SessionManagerã®æ©Ÿèƒ½ã‹ï¼Ÿã€€è¿·ã„ã©ã“ã‚
         ITerminalConnection TerminalConnection {
             get;
         }
@@ -71,7 +71,7 @@ namespace Poderosa.Terminal {
 
     /// <summary>
     /// <ja>
-    /// ƒ^[ƒ~ƒiƒ‹ƒGƒ~ƒ…ƒŒ[ƒ^ƒT[ƒrƒX‚ÉƒAƒNƒZƒX‚·‚é‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚¨ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚¿ã‚µãƒ¼ãƒ“ã‚¹ã«ã‚¢ã‚¯ã‚»ã‚¹ã™ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface to access terminal emulator service
@@ -79,8 +79,8 @@ namespace Poderosa.Terminal {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍATermiunalEmuratorPluginƒvƒ‰ƒOƒCƒ“iƒvƒ‰ƒOƒCƒ“IDuorg.poderosa.terminalemulatorvj‚ª
-    /// ’ñ‹Ÿ‚µ‚Ü‚·BŸ‚Ì‚æ‚¤‚É‚·‚é‚ÆAITerminalEmulatorService‚ğæ“¾‚Å‚«‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€TermiunalEmuratorPluginãƒ—ãƒ©ã‚°ã‚¤ãƒ³ï¼ˆãƒ—ãƒ©ã‚°ã‚¤ãƒ³IDã€Œorg.poderosa.terminalemulatorã€ï¼‰ãŒ
+    /// æä¾›ã—ã¾ã™ã€‚æ¬¡ã®ã‚ˆã†ã«ã™ã‚‹ã¨ã€ITerminalEmulatorServiceã‚’å–å¾—ã§ãã¾ã™ã€‚
     /// <code>
     /// ITerminalEmulatorService emuservice = 
     ///   (ITerminalEmulatorService)PoderosaWorld.PluginManager.FindPlugin(
@@ -105,7 +105,7 @@ namespace Poderosa.Terminal {
 
         /// <summary>
         /// <ja>
-        /// ƒ^[ƒ~ƒiƒ‹ƒGƒ~ƒ…ƒŒ[ƒ^‚ÌƒIƒvƒVƒ‡ƒ“‚ğ¦‚µ‚Ü‚·B
+        /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚¨ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚¿ã®ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The option of the terminal emulator is shown. 
@@ -116,15 +116,15 @@ namespace Poderosa.Terminal {
         }
         /// <summary>
         /// <ja>
-        /// ƒfƒtƒHƒ‹ƒg‚Ìƒ^[ƒ~ƒiƒ‹İ’è‚ğì¬‚µ‚Ü‚·B
+        /// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ã‚¿ãƒ¼ãƒŸãƒŠãƒ«è¨­å®šã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create a default terminal setting.
         /// </en>
         /// </summary>
-        /// <param name="caption"><ja>ƒ^[ƒ~ƒiƒ‹‚ÌƒLƒƒƒvƒVƒ‡ƒ“‚Å‚·B</ja><en>Caption of terminal.</en></param>
-        /// <param name="icon"><ja>ƒ^[ƒ~ƒiƒ‹‚ÌƒAƒCƒRƒ“‚Å‚·Bnull‚ğw’è‚·‚é‚ÆƒfƒtƒHƒ‹ƒg‚ÌƒAƒCƒRƒ“‚ªg‚í‚ê‚Ü‚·B</ja><en>It is an icon of the terminal. When null is specified, the icon of default is used. </en></param>
-        /// <returns><ja>ì¬‚³‚ê‚½ƒ^[ƒ~ƒiƒ‹İ’èƒIƒuƒWƒFƒNƒg‚ğ¦‚·ITerminalSettings‚Å‚·B</ja><en>It is ITerminalSettings that shows the made terminal setting object. </en></returns>
+        /// <param name="caption"><ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã®ã‚­ãƒ£ãƒ—ã‚·ãƒ§ãƒ³ã§ã™ã€‚</ja><en>Caption of terminal.</en></param>
+        /// <param name="icon"><ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã®ã‚¢ã‚¤ã‚³ãƒ³ã§ã™ã€‚nullã‚’æŒ‡å®šã™ã‚‹ã¨ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ã‚¢ã‚¤ã‚³ãƒ³ãŒä½¿ã‚ã‚Œã¾ã™ã€‚</ja><en>It is an icon of the terminal. When null is specified, the icon of default is used. </en></param>
+        /// <returns><ja>ä½œæˆã•ã‚ŒãŸã‚¿ãƒ¼ãƒŸãƒŠãƒ«è¨­å®šã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç¤ºã™ITerminalSettingsã§ã™ã€‚</ja><en>It is ITerminalSettings that shows the made terminal setting object. </en></returns>
         ITerminalSettings CreateDefaultTerminalSettings(string caption, Image icon);
         /// <summary>
         /// 
@@ -155,7 +155,7 @@ namespace Poderosa.Terminal {
         }
     }
 
-    //ƒƒOƒtƒ@ƒCƒ‹–¼‚ÌƒJƒXƒ^ƒ}ƒCƒY
+    //ãƒ­ã‚°ãƒ•ã‚¡ã‚¤ãƒ«åã®ã‚«ã‚¹ã‚¿ãƒã‚¤ã‚º
     /// <summary>
     /// 
     /// </summary>
@@ -164,13 +164,13 @@ namespace Poderosa.Terminal {
         string FormatFileName(string default_directory, ITerminalParameter param, ITerminalSettings settings);
     }
 
-    //“®“I‚ÈƒEƒBƒ“ƒhƒEƒLƒƒƒvƒVƒ‡ƒ“ƒJƒXƒ^ƒ}ƒCƒY
+    //å‹•çš„ãªã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚­ãƒ£ãƒ—ã‚·ãƒ§ãƒ³ã‚«ã‚¹ã‚¿ãƒã‚¤ã‚º
     /// <summary>
     /// 
     /// </summary>
     /// <exclude/>
     public interface IDynamicCaptionFormatter {
-        //ƒXƒŒƒbƒh‚Å‚ÌƒuƒƒbƒN‚Í‚È‚¢‚Ì‚Å’ˆÓ
+        //ã‚¹ãƒ¬ãƒƒãƒ‰ã§ã®ãƒ–ãƒ­ãƒƒã‚¯ã¯ãªã„ã®ã§æ³¨æ„
         string FormatCaptionUsingWindowTitle(ITerminalParameter param, ITerminalSettings settings, string windowTitle);
     }
 

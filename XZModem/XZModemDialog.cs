@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,13 +34,13 @@ namespace Poderosa.XZModem {
         private System.Windows.Forms.Button _selectButton;
         private System.Windows.Forms.Label _progressText;
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.Container components = null;
 
         public XZModemDialog() {
             //
-            // Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Å‚·B
+            // Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ã§ã™ã€‚
             //
             InitializeComponent();
 
@@ -64,22 +64,22 @@ namespace Poderosa.XZModem {
             _terminal = terminal;
             this.Text = String.Format(sr.GetString("Caption.XZModemDialog.DialogTitle"), _terminal.TerminalHost.ISession.Caption);
 
-            //ƒEƒBƒ“ƒhƒE‚ÌƒZƒ“ƒ^ƒŠƒ“ƒO
+            //ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®ã‚»ãƒ³ã‚¿ãƒªãƒ³ã‚°
             Rectangle r = terminal.TerminalHost.OwnerWindow.AsForm().DesktopBounds;
             this.Location = new Point(r.Left + r.Width / 2 - this.Width / 2, r.Top + r.Height / 2 - this.Height / 2);
 
-            //TODO ‘O‰ñ‚Ì‹N“®‚Ìİ’è‚ğŠo‚¦‚Ä‚¨‚­‚Æ‚æ‚¢
+            //TODO å‰å›ã®èµ·å‹•æ™‚ã®è¨­å®šã‚’è¦šãˆã¦ãŠãã¨ã‚ˆã„
             _protocolBox.SelectedIndex = 1;
             _directionBox.SelectedIndex = 0;
 #if DEBUG
-            //ƒeƒXƒg‚É‚Í‚±‚±‚É‰Šú’l‚ğİ’è
+            //ãƒ†ã‚¹ãƒˆæ™‚ã«ã¯ã“ã“ã«åˆæœŸå€¤ã‚’è¨­å®š
             _fileNameBox.Text = "C:\\P4\\Work\\FF4K_R.bin";
 #endif
         }
 
 
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -90,10 +90,10 @@ namespace Poderosa.XZModem {
             base.Dispose(disposing);
         }
 
-        #region Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi‚Å¶¬‚³‚ê‚½ƒR[ƒh
+        #region Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠã§ç”Ÿæˆã•ã‚ŒãŸã‚³ãƒ¼ãƒ‰
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this._okButton = new System.Windows.Forms.Button();
@@ -242,7 +242,7 @@ namespace Poderosa.XZModem {
         private void OnOK(object sedner, EventArgs args) {
             Debug.Assert(!_executing);
             this.DialogResult = DialogResult.None;
-            if (_directionBox.SelectedIndex == 0) { //index 0‚ªóM
+            if (_directionBox.SelectedIndex == 0) { //index 0ãŒå—ä¿¡
                 if (!StartReceive())
                     return;
             }

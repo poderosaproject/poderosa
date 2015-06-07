@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,9 +19,9 @@ using Poderosa.Plugins;
 using Poderosa.Commands;
 
 namespace Poderosa.Forms {
-    //ƒƒCƒ“ƒƒjƒ…[
-    //  ƒ}ƒ‹ƒ`ƒEƒBƒ“ƒhƒE‚ª‰Â”\‚Å‚ ‚é‚Ì‚ÅAMainMenuItem‚ÌƒcƒŠ[‚ÍƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Å—Bˆê(WindowManager‚ª•Û—L)‚µA
-    //  Windows.Formsƒx[ƒX‚Ìƒƒjƒ…[€–Ú‚Í•K—v‚É‰‚¶‚Ä‚»‚Ì“s“xì¬‚³‚ê‚é‚±‚Æ‚É’ˆÓ‚·‚é
+    //ãƒ¡ã‚¤ãƒ³ãƒ¡ãƒ‹ãƒ¥ãƒ¼
+    //  ãƒãƒ«ãƒã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãŒå¯èƒ½ã§ã‚ã‚‹ã®ã§ã€MainMenuItemã®ãƒ„ãƒªãƒ¼ã¯ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã§å”¯ä¸€(WindowManagerãŒä¿æœ‰)ã—ã€
+    //  Windows.Formsãƒ™ãƒ¼ã‚¹ã®ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã¯å¿…è¦ã«å¿œã˜ã¦ãã®éƒ½åº¦ä½œæˆã•ã‚Œã‚‹ã“ã¨ã«æ³¨æ„ã™ã‚‹
     internal class MainWindowMenu {
         private TypedSequentialTable<string, MainMenuItem> _idToMenu;
         private MainMenuItem _fileMenu;
@@ -32,7 +32,7 @@ namespace Poderosa.Forms {
         private MainMenuItem _pluginMenu;
         private MainMenuItem _helpMenu;
 
-        //‘¼‚©‚çQÆ‚³‚ê‚éƒƒjƒ…[ƒOƒ‹[ƒv
+        //ä»–ã‹ã‚‰å‚ç…§ã•ã‚Œã‚‹ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—
         private SplitMenuGroup _splitMenuGroup;
 
         public MainWindowMenu() {
@@ -108,7 +108,7 @@ namespace Poderosa.Forms {
             _children.Clear();
             IPoderosaMenuGroup[] me = (IPoderosaMenuGroup[])_extensionPoint.GetExtensions();
 
-            //ƒ\[ƒg‚µ‚ÄƒRƒŒƒNƒVƒ‡ƒ“‚É’Ç‰Á
+            //ã‚½ãƒ¼ãƒˆã—ã¦ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã«è¿½åŠ 
             foreach (IPoderosaMenuGroup g in PositionDesignationSorter.SortItems(me)) {
                 _children.Add(g);
             }

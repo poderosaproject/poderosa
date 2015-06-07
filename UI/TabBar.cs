@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,7 @@ using Poderosa.Util;
 
 namespace Poderosa.Forms {
 
-    //Šeƒ^ƒu—v‘f‚ÉŠÖ˜A•t‚¯‚éƒIƒuƒWƒFƒNƒgBPoderosa‚Ìê‡‚ÍIPoderosaDocument‚É‚È‚éB
+    //å„ã‚¿ãƒ–è¦ç´ ã«é–¢é€£ä»˜ã‘ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚Poderosaã®å ´åˆã¯IPoderosaDocumentã«ãªã‚‹ã€‚
     /// <summary>
     /// 
     /// </summary>
@@ -46,7 +46,7 @@ namespace Poderosa.Forms {
         } //must be 16*16
 
 
-        //’†‚Ì—v‘f‚Å”äŠr‚·‚é
+        //ä¸­ã®è¦ç´ ã§æ¯”è¼ƒã™ã‚‹
         public static bool operator ==(TabKey key1, TabKey key2) {
             return _Equals(key1, key2);
         }
@@ -74,7 +74,7 @@ namespace Poderosa.Forms {
         Selected
     }
 
-    //ƒ^ƒu‚Ì•`‰æ‚É•K—v‚ÈFEƒtƒHƒ“ƒg‚ğû˜^
+    //ã‚¿ãƒ–ã®æç”»ã«å¿…è¦ãªè‰²ãƒ»ãƒ•ã‚©ãƒ³ãƒˆã‚’åéŒ²
     internal class TabBarDrawing {
         private Color _backgroundColor;
         private DrawUtil.RoundRectColors _roundRectColors;
@@ -134,37 +134,37 @@ namespace Poderosa.Forms {
         }
     }
 
-    //TabBar–{‘Ì
+    //TabBaræœ¬ä½“
     /// <summary>
     /// 
     /// </summary>
     /// <exclude/>
     public class TabBar : UserControl {
 
-        private static IComparer<TabBarButton> _widthComparer; //•‡‚Ì•À‚Ñ‘Ö‚¦
-        private static DragAndDropSupport _dragAndDrop; //–{“–‚Ístatic‚Å‚Í‚È‚­•Ê“r‚à‚ç‚Á‚Ä‚­‚éH
-        private static TabBarDrawing _normalDrawing; //•`‰æ‚É‚Â‚¢‚Ä‚Ìî•ñ
+        private static IComparer<TabBarButton> _widthComparer; //å¹…é †ã®ä¸¦ã³æ›¿ãˆ
+        private static DragAndDropSupport _dragAndDrop; //æœ¬å½“ã¯staticã§ã¯ãªãåˆ¥é€”ã‚‚ã‚‰ã£ã¦ãã‚‹ï¼Ÿ
+        private static TabBarDrawing _normalDrawing; //æç”»ã«ã¤ã„ã¦ã®æƒ…å ±
         private static TabBarDrawing _activeDrawing;
 
-        private TabBarTable _parentTable; //ƒRƒ“ƒeƒi
-        private List<TabBarButton> _buttons;       //•\¦‚³‚ê‚Ä‚¢‚é‡‚Ìƒ{ƒ^ƒ“
-        private List<TabBarButton> _sortedButtons; //•‡‚Éƒ\[ƒg‚µ‚½‚à‚Ì‚ğˆê“I‚É•Û‘¶‚·‚é
-        private ToolTip _tabToolTip;      //ƒ{ƒ^ƒ“‚ÌToolTip
+        private TabBarTable _parentTable; //ã‚³ãƒ³ãƒ†ãƒŠ
+        private List<TabBarButton> _buttons;       //è¡¨ç¤ºã•ã‚Œã¦ã„ã‚‹é †ã®ãƒœã‚¿ãƒ³
+        private List<TabBarButton> _sortedButtons; //å¹…é †ã«ã‚½ãƒ¼ãƒˆã—ãŸã‚‚ã®ã‚’ä¸€æ™‚çš„ã«ä¿å­˜ã™ã‚‹
+        private ToolTip _tabToolTip;      //ãƒœã‚¿ãƒ³ã®ToolTip
 
-        //‚½‚¾ƒNƒŠƒbƒN‚µ‚½‚¾‚¯‚ÅMouseMove‚ª”­¶‚µ‚Ä‚µ‚Ü‚¤‚Ì‚ÅA³‚µ‚­ƒhƒ‰ƒbƒOŠJn‚ğ”»’è‚Å‚«‚È‚¢
+        //ãŸã ã‚¯ãƒªãƒƒã‚¯ã—ãŸã ã‘ã§MouseMoveãŒç™ºç”Ÿã—ã¦ã—ã¾ã†ã®ã§ã€æ­£ã—ããƒ‰ãƒ©ãƒƒã‚°é–‹å§‹ã‚’åˆ¤å®šã§ããªã„
         private int _dragStartPosX;
         private int _dragStartPosY;
 
         private AdjustEachWidthResult _lastAdjustmentResult;
 
-        //ƒŒƒCƒAƒEƒg—p’è”
+        //ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆç”¨å®šæ•°
         private const int UNITHEIGHT = 21;
         private const int MINIMUM_BUTTON_WIDTH = 24;
         private const int BUTTON_MARGIN = 4;
         private const int EXTRA_FOR_ACTIVE = 16;
         private const int BUTTON_Y = 3;
 
-        //‰Šú‰»
+        //åˆæœŸåŒ–
         static TabBar() {
             _widthComparer = new TabBarButton.WidthComparer();
             _dragAndDrop = new DragAndDropSupport();
@@ -174,7 +174,7 @@ namespace Poderosa.Forms {
             _parentTable = parent;
             _buttons = new List<TabBarButton>();
             _tabToolTip = new ToolTip();
-            //—á‚ÌAllowDrop–â‘è‚ÅANUnit‚ÌƒXƒŒƒbƒh‚Í[STAThread]‚µ‚Ä‚È‚¢‚ç‚µ‚¢‚Ì‚Å‚±‚ê‚ğ‰ñ”ğ
+            //ä¾‹ã®AllowDropå•é¡Œã§ã€NUnitã®ã‚¹ãƒ¬ãƒƒãƒ‰ã¯[STAThread]ã—ã¦ãªã„ã‚‰ã—ã„ã®ã§ã“ã‚Œã‚’å›é¿
 #if !UNITTEST
             this.AllowDrop = true;
 #endif
@@ -190,7 +190,7 @@ namespace Poderosa.Forms {
             }
         }
 
-        //ƒvƒƒpƒeƒB
+        //ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£
         internal TabBarDrawing NormalDrawing {
             get {
                 return _normalDrawing;
@@ -301,7 +301,7 @@ namespace Poderosa.Forms {
         private void RootActivator(object sender, EventArgs args) {
             try {
                 TabKey key = ((TabBarButton)sender).TabKey;
-                //Šù‚ÉƒAƒNƒeƒBƒu‚È‚â‚Â‚Å‚àA‘Î‰‚·‚éƒrƒ…[‚ÉƒtƒH[ƒJƒX‚ğ‚à‚Á‚Ä‚¢‚­‚È‚Ç‚ÌŒø‰Ê‚ª•K—v‚È‚±‚Æ‚à‚ ‚éB
+                //æ—¢ã«ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªã‚„ã¤ã§ã‚‚ã€å¯¾å¿œã™ã‚‹ãƒ“ãƒ¥ãƒ¼ã«ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã‚’ã‚‚ã£ã¦ã„ããªã©ã®åŠ¹æœãŒå¿…è¦ãªã“ã¨ã‚‚ã‚ã‚‹ã€‚
 
                 using (TabBarUpdateState state = new TabBarUpdateState("ui-activate")) {
                     _parentTable.Activate(key, true);
@@ -342,10 +342,10 @@ namespace Poderosa.Forms {
         }
         private void OnButtonKeyDown(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Enter)
-                RootActivator(sender, e); //Enter‚ÅƒAƒNƒeƒBƒx[ƒgBƒNƒŠƒbƒN‚Æ“¯—l‚ÌŒø‰Ê
+                RootActivator(sender, e); //Enterã§ã‚¢ã‚¯ãƒ†ã‚£ãƒ™ãƒ¼ãƒˆã€‚ã‚¯ãƒªãƒƒã‚¯ã¨åŒæ§˜ã®åŠ¹æœ
         }
 
-        //Šeƒ{ƒ^ƒ“‚ÌSufficientWidth‚ğŒvZ
+        //å„ãƒœã‚¿ãƒ³ã®SufficientWidthã‚’è¨ˆç®—
         internal void CalcSuffientWidths() {
             Graphics g = this.CreateGraphics();
             foreach (TabBarButton b in _buttons) {
@@ -353,12 +353,12 @@ namespace Poderosa.Forms {
             }
             g.Dispose();
 
-            //k¬‚·‚é•K—v‚ª‚ ‚é‚Æ‚«‚Í‚Ü‚¸ƒ\[ƒg@
+            //ç¸®å°ã™ã‚‹å¿…è¦ãŒã‚ã‚‹ã¨ãã¯ã¾ãšã‚½ãƒ¼ãƒˆã€€
             _sortedButtons = new List<TabBarButton>(_buttons);
             _sortedButtons.Sort(_widthComparer);
         }
 
-        //ƒ{ƒ^ƒ“‚ÌÄ”z’u
+        //ãƒœã‚¿ãƒ³ã®å†é…ç½®
         internal void ArrangeButtons() {
             int total = 0;
             if (_buttons.Count == 0)
@@ -366,13 +366,13 @@ namespace Poderosa.Forms {
 
             Graphics g = this.CreateGraphics();
             foreach (TabBarButton b in _buttons) {
-                int t = b.SufficientWidth; //‚±‚ê‚Í•K—v‚È‚à‚Ì‚ªŒvZÏ‚İ‚Å‚ ‚é‚Æ‚¢‚¤‘O’ñ
+                int t = b.SufficientWidth; //ã“ã‚Œã¯å¿…è¦ãªã‚‚ã®ãŒè¨ˆç®—æ¸ˆã¿ã§ã‚ã‚‹ã¨ã„ã†å‰æ
                 b.TemporaryWidth = t;
                 total += t;
             }
 
             int x = BUTTON_MARGIN;
-            int remaining = this.ClientSize.Width - x * 2/*—¼’[ƒ}[ƒWƒ“*/ - (_buttons.Count - 1) * BUTTON_MARGIN;
+            int remaining = this.ClientSize.Width - x * 2/*ä¸¡ç«¯ãƒãƒ¼ã‚¸ãƒ³*/ - (_buttons.Count - 1) * BUTTON_MARGIN;
             AdjustEachWidthResult adjust_result = AdjustEachWidth(total, remaining);
             _lastAdjustmentResult = adjust_result;
 
@@ -389,7 +389,7 @@ namespace Poderosa.Forms {
             this.Invalidate(true);
         }
 
-        //indexU‚è‚È‚¨‚µ
+        //indexæŒ¯ã‚ŠãªãŠã—
         internal void AllocateIndex(int index) {
             foreach (TabBarButton button in _buttons)
                 button.Index = index++;
@@ -402,29 +402,29 @@ namespace Poderosa.Forms {
             Overflow
         }
 
-        //ƒo[‘S‘Ì‚Åƒ{ƒ^ƒ“‚Ì‡Œv‚Åsufficient_width•K—vAactual_width‚ªÀÛ‚ÌƒTƒCƒY‚Å‚ ‚é‚Æ‚«‚¤‚Ü‚­ŠÛ‚ß‚Ş
+        //ãƒãƒ¼å…¨ä½“ã§ãƒœã‚¿ãƒ³ã®åˆè¨ˆã§sufficient_widthå¿…è¦ã€actual_widthãŒå®Ÿéš›ã®ã‚µã‚¤ã‚ºã§ã‚ã‚‹ã¨ãã†ã¾ãä¸¸ã‚è¾¼ã‚€
         private AdjustEachWidthResult AdjustEachWidth(int sufficient_width, int actual_width) {
             int to_be_shrinked = sufficient_width - actual_width;
             if (to_be_shrinked <= 0)
-                return AdjustEachWidthResult.Sufficient; //‰½‚à‚µ‚È‚­‚Ä\•ªƒTƒCƒY‚ ‚è
+                return AdjustEachWidthResult.Sufficient; //ä½•ã‚‚ã—ãªãã¦ååˆ†ã‚µã‚¤ã‚ºã‚ã‚Š
 
             int order = 0;
             while (to_be_shrinked > 0) {
-                //•K—v•‚Ì‘½‚¢‘æ order ˆÊ‚É’–Ú
+                //å¿…è¦å¹…ã®å¤šã„ç¬¬ order ä½ã«æ³¨ç›®
                 TabBarButton b = _sortedButtons[order];
-                //Ÿ‡ˆÊ‚Æ‚Ì·A‚à‚µ‚­‚ÍŒÀŠE’l‚Ü‚Å‚Ì·‚ª‚±‚Ì’iŠK‚Åk¬‚Å‚«‚éƒŠƒ~ƒbƒg
+                //æ¬¡é †ä½ã¨ã®å·®ã€ã‚‚ã—ãã¯é™ç•Œå€¤ã¾ã§ã®å·®ãŒã“ã®æ®µéšã§ç¸®å°ã§ãã‚‹ãƒªãƒŸãƒƒãƒˆ
                 int max_shrink = order == _sortedButtons.Count - 1 ?
                     b.TemporaryWidth - MINIMUM_BUTTON_WIDTH :
                     b.TemporaryWidth - _sortedButtons[order + 1].TemporaryWidth;
                 Debug.Assert(max_shrink >= 0);
 
-                if ((order + 1) * max_shrink < to_be_shrinked) { //‚±‚Ì‡ˆÊ‚Ü‚Å‘S•”k¬‚µ‚Ä‚àŠÔ‚É‡‚í‚È‚¢‚Æ‚«‚Í
+                if ((order + 1) * max_shrink < to_be_shrinked) { //ã“ã®é †ä½ã¾ã§å…¨éƒ¨ç¸®å°ã—ã¦ã‚‚é–“ã«åˆã‚ãªã„ã¨ãã¯
                     for (int i = 0; i <= order; i++)
                         _sortedButtons[i].TemporaryWidth -= max_shrink;
                 }
-                else { //‚±‚Ìorder‚Ü‚Å‚Åk¬‰Â”\
+                else { //ã“ã®orderã¾ã§ã§ç¸®å°å¯èƒ½
                     int shrink = to_be_shrinked / (order + 1);
-                    int mod = to_be_shrinked % (order + 1); //Å‰‚ÌmodŒÂ‚Í‚³‚ç‚É1shrink‚µ‚Ä‚Ò‚Á‚½‚è‹Ït‚ğ‚Æ‚é
+                    int mod = to_be_shrinked % (order + 1); //æœ€åˆã®modå€‹ã¯ã•ã‚‰ã«1shrinkã—ã¦ã´ã£ãŸã‚Šå‡è¡¡ã‚’ã¨ã‚‹
                     Debug.Assert(mod * (shrink + 1) + (order + 1 - mod) * shrink == to_be_shrinked);
                     for (int i = 0; i <= order; i++)
                         _sortedButtons[i].TemporaryWidth -= i < mod ? shrink + 1 : shrink;
@@ -434,13 +434,13 @@ namespace Poderosa.Forms {
                 order++;
 
                 if (order == _sortedButtons.Count && to_be_shrinked > 0)
-                    return AdjustEachWidthResult.Overflow; //ÅŒã‚Ü‚Åk¬‚µ‚Äƒ_ƒ‚È‚ç‚ ‚«‚ç‚ß‚é
+                    return AdjustEachWidthResult.Overflow; //æœ€å¾Œã¾ã§ç¸®å°ã—ã¦ãƒ€ãƒ¡ãªã‚‰ã‚ãã‚‰ã‚ã‚‹
             }
-            //‚±‚±‚Ü‚Å‚«‚ÄAŠe_tempWidth‚Í’²®Œã‚Ì’l‚ª“ü‚Á‚Ä‚¢‚é‚±‚Æ‚É‚È‚é
+            //ã“ã“ã¾ã§ãã¦ã€å„_tempWidthã¯èª¿æ•´å¾Œã®å€¤ãŒå…¥ã£ã¦ã„ã‚‹ã“ã¨ã«ãªã‚‹
             return AdjustEachWidthResult.Adjusted;
         }
 
-        //I—¹‚ÌÀs static constructor‚ªƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Æ“¯‚¶ˆø”\¬‚È‚Ì‚Åg‚¦‚È‚¢B‚ ‚è‚¦‚È‚¢‚æB
+        //çµ‚äº†æ™‚ã®å®Ÿè¡Œ static constructorãŒãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã¨åŒã˜å¼•æ•°æ§‹æˆãªã®ã§ä½¿ãˆãªã„ã€‚ã‚ã‚Šãˆãªã„ã‚ˆã€‚
         public static void Init() {
             Application.ApplicationExit += new EventHandler(OnAppExit);
         }
@@ -455,7 +455,7 @@ namespace Poderosa.Forms {
         protected override void OnPaint(PaintEventArgs arg) {
             using (TabBarUpdateState state = new TabBarUpdateState("repaint")) {
                 base.OnPaint(arg);
-                //ã‚É‹æØ‚èü‚ğˆø‚­
+                //ä¸Šã«åŒºåˆ‡ã‚Šç·šã‚’å¼•ã
                 Graphics g = arg.Graphics;
                 Pen p = SystemPens.WindowFrame;
                 g.DrawLine(p, 0, 0, Width, 0);
@@ -474,7 +474,7 @@ namespace Poderosa.Forms {
             this.ArrangeButtons();
         }
 
-        //Drag & DropŠÖŒW
+        //Drag & Dropé–¢ä¿‚
         protected override void OnDragEnter(DragEventArgs drgevent) {
             base.OnDragEnter(drgevent);
             _parentTable.ByPassDragEnter(drgevent);
@@ -484,8 +484,8 @@ namespace Poderosa.Forms {
 
             DragAndDropSupport.DropPoint point = null;
             if (_dragAndDrop.CanDrop(drgevent.Data, this)) {
-                const int DROP_CAPACITY_WIDTH = 6; //ƒ{ƒ^ƒ“‚Ì‹«ŠE‚©‚ç‚Ç‚ÌˆÊ’u‚Ü‚Å‚ğƒhƒƒbƒv‰Â”\‚Æ‚·‚é‚©
-                if (_buttons.Count == 0) { //ƒ{ƒ^ƒ“‚ª‚È‚¢‚Æ‚«‚Í“Á—á‚Å
+                const int DROP_CAPACITY_WIDTH = 6; //ãƒœã‚¿ãƒ³ã®å¢ƒç•Œã‹ã‚‰ã©ã®ä½ç½®ã¾ã§ã‚’ãƒ‰ãƒ­ãƒƒãƒ—å¯èƒ½ã¨ã™ã‚‹ã‹
+                if (_buttons.Count == 0) { //ãƒœã‚¿ãƒ³ãŒãªã„ã¨ãã¯ç‰¹ä¾‹ã§
                     point = new DragAndDropSupport.DropPoint(this, null, true);
                 }
                 else {
@@ -497,7 +497,7 @@ namespace Poderosa.Forms {
                                 point = new DragAndDropSupport.DropPoint(this, btn, true);
                                 break;
                             }
-                            else if (i == _buttons.Count - 1 && btn.Right + BUTTON_MARGIN / 2 < pt.X) { //‰E’[İ’è‚ª‚Å‚«‚é‚Ì‚ÍÅŒã‚ÌƒRƒ“ƒgƒ[ƒ‹‚¾‚¯
+                            else if (i == _buttons.Count - 1 && btn.Right + BUTTON_MARGIN / 2 < pt.X) { //å³ç«¯è¨­å®šãŒã§ãã‚‹ã®ã¯æœ€å¾Œã®ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã ã‘
                                 point = new DragAndDropSupport.DropPoint(this, btn, false);
                                 break;
                             }
@@ -518,7 +518,7 @@ namespace Poderosa.Forms {
             base.OnDragDrop(drgevent);
             if (!_dragAndDrop.OwnsDropPoint(this)) {
                 _parentTable.ByPassDragDrop(drgevent);
-                return; //Drop‰Â”\‚É‚È‚Á‚Ä‚¢‚È‚¯‚ê‚Îƒ_ƒ
+                return; //Dropå¯èƒ½ã«ãªã£ã¦ã„ãªã‘ã‚Œã°ãƒ€ãƒ¡
             }
 
             try {
@@ -544,7 +544,7 @@ namespace Poderosa.Forms {
             }
         }
 
-        //index‚ÌU‚è‚È‚¨‚µFadd/removeŒn‚È‚Ç‚ÅÀs‚·‚é
+        //indexã®æŒ¯ã‚ŠãªãŠã—ï¼šadd/removeç³»ãªã©ã§å®Ÿè¡Œã™ã‚‹
         internal void AssignmentIndex() {
             for (int i = 0; i < _buttons.Count; i++) {
                 TabBarButton b = _buttons[i];
@@ -552,21 +552,21 @@ namespace Poderosa.Forms {
             }
         }
 
-        //Drag&Drop‚ÌŒ‹‰Ê‚Ü‚½‚ÍƒŠƒoƒ‰ƒ“ƒX‚ÌŒ‹‰Ê‚ÉŠî‚Ã‚¢‚ÄƒAƒTƒCƒ“ƒƒ“ƒg‚ğ‚â‚è’¼‚·
+        //Drag&Dropã®çµæœã¾ãŸã¯ãƒªãƒãƒ©ãƒ³ã‚¹ã®çµæœã«åŸºã¥ã„ã¦ã‚¢ã‚µã‚¤ãƒ³ãƒ¡ãƒ³ãƒˆã‚’ã‚„ã‚Šç›´ã™
         internal void AssignDocuments(TabBarUpdateState state, TabKey[] keys, int offset, int length) {
-            while (_buttons.Count > length) { //—]Œv‚È‚à‚Ì‚ª‚ ‚ê‚Îíœ
+            while (_buttons.Count > length) { //ä½™è¨ˆãªã‚‚ã®ãŒã‚ã‚Œã°å‰Šé™¤
                 TabBarButton t = _buttons[_buttons.Count - 1];
                 this.Controls.Remove(t);
                 _buttons.RemoveAt(_buttons.Count - 1);
             }
 
-            //Šù‘¶•ª‚ğ’Ç‰Á
+            //æ—¢å­˜åˆ†ã‚’è¿½åŠ 
             for (int i = 0; i < _buttons.Count; i++) {
                 TabBarButton b = _buttons[i];
                 b.Init(this, keys[offset + i], offset + i);
             }
 
-            for (int i = _buttons.Count; i < length; i++) { //•s‘«•ª‚ª‚ ‚ê‚Î’Ç‰Á
+            for (int i = _buttons.Count; i < length; i++) { //ä¸è¶³åˆ†ãŒã‚ã‚Œã°è¿½åŠ 
                 TabBarButton b = CreateButton(keys[offset + i], offset + i);
                 _buttons.Add(b);
                 this.Controls.Add(b);
@@ -580,7 +580,7 @@ namespace Poderosa.Forms {
         }
 
         private void DrawDropPointEffect(Graphics g, int x, int y) {
-            //‰¡ü
+            //æ¨ªç·š
             int height = UNITHEIGHT - 4;
             g.DrawLine(SystemPens.ControlText, x - 3, y, x + 4, y);
             g.DrawLine(SystemPens.ControlText, x - 3, y + height, x + 4, y + height);
@@ -593,7 +593,7 @@ namespace Poderosa.Forms {
 
 
     internal class TabBarButton : UserControl {
-        //•‚Ì‘å‚«‚¢‡‚É•À‚×‚é
+        //å¹…ã®å¤§ãã„é †ã«ä¸¦ã¹ã‚‹
         public class WidthComparer : IComparer<TabBarButton> {
             public int Compare(TabBarButton x, TabBarButton y) {
                 return y._sufficientWidth - x._sufficientWidth;
@@ -615,9 +615,9 @@ namespace Poderosa.Forms {
         private bool _mouseDown;
         private bool _mouseEnter;
 
-        private int _sufficientWidth; //ƒ{ƒ^ƒ“‚Ì‘SƒeƒLƒXƒg‚ğ•\¦‚·‚é‚Ì‚É\•ª‚È•
+        private int _sufficientWidth; //ãƒœã‚¿ãƒ³ã®å…¨ãƒ†ã‚­ã‚¹ãƒˆã‚’è¡¨ç¤ºã™ã‚‹ã®ã«ååˆ†ãªå¹…
 
-        //•ŒvZ‚ÉƒZƒbƒg‚³‚ê‚é‚à‚Ì
+        //å¹…è¨ˆç®—æ™‚ã«ã‚»ãƒƒãƒˆã•ã‚Œã‚‹ã‚‚ã®
         private bool _showIndexText;
 
         private int _temporaryWidth;
@@ -634,7 +634,7 @@ namespace Poderosa.Forms {
         }
         public void Init(TabBar parent, TabKey key, int index) {
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.DoubleBuffer, true);
-            //Äì¬‚·‚é‚±‚Æ‚Í‚ ‚é
+            //å†ä½œæˆã™ã‚‹ã“ã¨ã¯ã‚ã‚‹
             _parent = parent;
             _tabKey = key;
             _index = index;
@@ -687,7 +687,7 @@ namespace Poderosa.Forms {
             }
         }
 
-        //TabBar‚©‚ç‚µ‚©ŒÄ‚ñ‚Å‚Í‚¾‚ß
+        //TabBarã‹ã‚‰ã—ã‹å‘¼ã‚“ã§ã¯ã ã‚
         public void SetSelectedInternal(bool value) {
             _selected = value;
             this.BackColor = (value ? _parent.ActiveDrawing : _parent.NormalDrawing).BackgroundColor;
@@ -712,16 +712,16 @@ namespace Poderosa.Forms {
                 img_width
                 + (int)Math.Floor(index_width)
                 + (int)Math.Ceiling(text_width)
-                + TEXT_MARGIN * 4 /* ¶A‰EAimg-index, index-body‚Å‚S‚± */
+                + TEXT_MARGIN * 4 /* å·¦ã€å³ã€img-index, index-bodyã§ï¼”ã“ */
                 + 2 /* border lines */;
             if (_selected)
-                _sufficientWidth += 2; //‘I‘ğ‚ÍL‚ß‚ª‚æ‚³‚»‚¤
+                _sufficientWidth += 2; //é¸æŠæ™‚ã¯åºƒã‚ãŒã‚ˆã•ãã†
             return _sufficientWidth;
         }
 
-        //‘S•”‚Åwidth‚Éû‚Ü‚é‚æ‚¤‚Él—¶‚µ‚ÄƒeƒLƒXƒg‚ğİ’è‚·‚é
+        //å…¨éƒ¨ã§widthã«åã¾ã‚‹ã‚ˆã†ã«è€ƒæ…®ã—ã¦ãƒ†ã‚­ã‚¹ãƒˆã‚’è¨­å®šã™ã‚‹
         internal void AdjustTextAndWidth(Graphics g, int width) {
-            int remaining = width - (_image == null ? 0 : _image.Width + TEXT_MARGIN) - TEXT_MARGIN * 2 - 2; //—¼’[•”•ª‚Ìƒ}[ƒWƒ“‚Æƒ{[ƒ_[‚ğœ‚­
+            int remaining = width - (_image == null ? 0 : _image.Width + TEXT_MARGIN) - TEXT_MARGIN * 2 - 2; //ä¸¡ç«¯éƒ¨åˆ†ã®ãƒãƒ¼ã‚¸ãƒ³ã¨ãƒœãƒ¼ãƒ€ãƒ¼ã‚’é™¤ã
             remaining = Math.Max(0, remaining);
 
             TabBarDrawing drawing = GetDrawing();
@@ -737,24 +737,24 @@ namespace Poderosa.Forms {
         }
 
         protected override void OnPaint(PaintEventArgs e) {
-            //ToDo ‚ ‚Æ‚Å‘I‘ğ«‚É‚·‚é
+            //ToDo ã‚ã¨ã§é¸æŠæ€§ã«ã™ã‚‹
             Graphics g = e.Graphics;
-#if false //‹ŒPoderosa•—•`‰æ
+#if false //æ—§Poderosaé¢¨æç”»
             base.OnPaint(e);
             //border
             if (_selected)
                 DrawUtil.DrawRoundRect(g, 0, 0, this.Width - 1, this.Height - 1, _parent.ActiveDrawing.RoundRectColors);
             else if (_mouseEnter)
                 DrawUtil.DrawRoundRect(g, 0, 0, this.Width - 1, this.Height - 1, _parent.NormalDrawing.RoundRectColors);
-#else //FireFox•—
+#else //FireFoxé¢¨
             if (_selected) {
-                base.OnPaint(e); //”wŒi“h‚é
+                base.OnPaint(e); //èƒŒæ™¯å¡—ã‚‹
                 DrawUtil.DrawRoundRect(g, 0, 0, this.Width - 1, this.Height - 1, _parent.ActiveDrawing.RoundRectColors);
                 DrawOrangeBar(g);
             }
             else {
                 DrawUtil.FillHorizontalGradation(g, 0, 0, this.Width - 1, this.Height - 1, SystemColors.ControlLightLight, SystemColors.Control);
-                //í‚Éƒ{ƒ^ƒ“•—‚É‚·‚é‚½‚ßü‚è‚ğí‚É•`‰æ
+                //å¸¸ã«ãƒœã‚¿ãƒ³é¢¨ã«ã™ã‚‹ãŸã‚å‘¨ã‚Šã‚’å¸¸ã«æç”»
                 DrawUtil.DrawRoundRect(g, 0, 0, this.Width - 1, this.Height - 1, _parent.NormalDrawing.RoundRectColors);
                 if (_mouseEnter)
                     DrawOrangeBar(g);
@@ -764,7 +764,7 @@ namespace Poderosa.Forms {
             DrawButtonInternal(g);
         }
         private void DrawOrangeBar(Graphics g) {
-            //ƒIƒŒƒ“ƒWƒLƒƒƒvƒVƒ‡ƒ“
+            //ã‚ªãƒ¬ãƒ³ã‚¸ã‚­ãƒ£ãƒ—ã‚·ãƒ§ãƒ³
             Brush b = new SolidBrush(Color.Orange);
             g.FillRectangle(b, 1, 0, this.Width - 2, 2);
             b.Dispose();
@@ -864,11 +864,11 @@ namespace Poderosa.Forms {
     internal class DragAndDropSupport {
         internal class DropPoint {
             private TabBar _tabBar;
-            //‘S‘Ì‚Ì‰E’[‚Ì‚İright‚Æ‚È‚é
+            //å…¨ä½“ã®å³ç«¯ã®ã¿rightã¨ãªã‚‹
             private TabBarButton _target;
-            private bool _left; //¶‰E‚Ì‹æ•Ê
+            private bool _left; //å·¦å³ã®åŒºåˆ¥
 
-            //button‚Ínull‚Ì‚±‚Æ‚à‚ ‚éB
+            //buttonã¯nullã®ã“ã¨ã‚‚ã‚ã‚‹ã€‚
             public DropPoint(TabBar tabbar, TabBarButton button, bool left) {
                 _tabBar = tabbar;
                 _target = button;
@@ -890,14 +890,14 @@ namespace Poderosa.Forms {
                     return !_left;
                 }
             }
-            //ƒRƒ“ƒgƒ[ƒ‹‚Ì’[‚©‚çdistance—£‚ê‚½ˆÊ’u‚ğ•Ô‚·
+            //ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã®ç«¯ã‹ã‚‰distanceé›¢ã‚ŒãŸä½ç½®ã‚’è¿”ã™
             public int PosX(int distance) {
                 if (_target == null)
                     return distance;
                 else
                     return _left ? _target.Left - distance : _target.Right + distance;
             }
-            //DropPoint‚ªw‚µ¦‚·ƒCƒ“ƒfƒbƒNƒX
+            //DropPointãŒæŒ‡ã—ç¤ºã™ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
             public int Index {
                 get {
                     return _target == null ? 0 : (_target.Index + (_left ? 0 : 1));
@@ -914,23 +914,23 @@ namespace Poderosa.Forms {
                 DropPoint p = obj as DropPoint;
                 return p != null && p._target == _target && p._left == _left;
             }
-            //ƒRƒ“ƒpƒCƒ‹ƒGƒ‰[‰ñ”ğ
+            //ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã‚¨ãƒ©ãƒ¼å›é¿
             public override int GetHashCode() {
                 return base.GetHashCode();
             }
 
 
-            //null‚Ænull‚Í“™‚µ‚¢A‚Æ‚¢‚¤—v‘f‚ğ“ü‚ê‚½”äŠr
+            //nullã¨nullã¯ç­‰ã—ã„ã€ã¨ã„ã†è¦ç´ ã‚’å…¥ã‚ŒãŸæ¯”è¼ƒ
             public static bool Equals(DropPoint p1, DropPoint p2) {
                 if (p1 == null)
                     return p2 == null;
                 else
-                    return p1.Equals(p2); //p2‚ªnull‚È‚çã‹L‚É‚æ‚Á‚Äfalse‚ª•Ô‚é
+                    return p1.Equals(p2); //p2ãŒnullãªã‚‰ä¸Šè¨˜ã«ã‚ˆã£ã¦falseãŒè¿”ã‚‹
             }
 
         }
 
-        //DragAndDropSupport–{‘Ì
+        //DragAndDropSupportæœ¬ä½“
         private TabBarButton _draggingButton;
         private DropPoint _dropPoint;
 
@@ -938,12 +938,12 @@ namespace Poderosa.Forms {
             _draggingButton = btn;
             btn.ParentTabBar.ParentTable.OnStartButtonDragByUI(_draggingButton.TabKey);
 
-            //DoDragDrop‹N“®Œ³‚ÌƒRƒ“ƒgƒ[ƒ‹‚É‘Î‚µ‚ÄQueryŒn‚ªŒÄ‚Î‚ê‚é‚ç‚µ‚¢
-            btn.ParentTabBar.DoDragDrop("poderosa.tabkey", DragDropEffects.Move | DragDropEffects.Link); //TODO ‚±‚Ì•¶š—ñ‚¢‚¢‰ÁŒ¸
+            //DoDragDropèµ·å‹•å…ƒã®ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã«å¯¾ã—ã¦Queryç³»ãŒå‘¼ã°ã‚Œã‚‹ã‚‰ã—ã„
+            btn.ParentTabBar.DoDragDrop("poderosa.tabkey", DragDropEffects.Move | DragDropEffects.Link); //TODO ã“ã®æ–‡å­—åˆ—ã„ã„åŠ æ¸›
         }
         public bool CanDrop(IDataObject data, TabBar target) {
             string dragging = data.GetData(typeof(string)) as string;
-            //“¯ˆêTable“à‚Å‚µ‚©ƒhƒƒbƒv‚Å‚«‚È‚¢‚æ‚¤‚É‚·‚éBƒEƒBƒ“ƒhƒE‚ªˆÙ‚È‚Á‚Ä‚¢‚½‚çƒrƒ…[‚Öƒhƒƒbƒv‚Å‚«‚È‚¢‚Æ‚¾‚ß‚È‚Ì‚ÅB
+            //åŒä¸€Tableå†…ã§ã—ã‹ãƒ‰ãƒ­ãƒƒãƒ—ã§ããªã„ã‚ˆã†ã«ã™ã‚‹ã€‚ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãŒç•°ãªã£ã¦ã„ãŸã‚‰ãƒ“ãƒ¥ãƒ¼ã¸ãƒ‰ãƒ­ãƒƒãƒ—ã§ããªã„ã¨ã ã‚ãªã®ã§ã€‚
             return "poderosa.tabkey" == dragging && _draggingButton.ParentTabBar.ParentTable == target.ParentTable;
         }
         public DropPoint CurrentDropPoint {
@@ -958,7 +958,7 @@ namespace Poderosa.Forms {
                 return _dropPoint.TabBar == tabbar;
         }
         public void SetDropPoint(DropPoint point) {
-            if (!DropPoint.Equals(_dropPoint, point)) { //null‚Ì‚±‚Æ‚à‚ ‚é‚Ì‚Å’ˆÓ
+            if (!DropPoint.Equals(_dropPoint, point)) { //nullã®ã“ã¨ã‚‚ã‚ã‚‹ã®ã§æ³¨æ„
                 if (_dropPoint != null)
                     _dropPoint.TabBar.Invalidate();
                 _dropPoint = point;
@@ -986,12 +986,12 @@ namespace Poderosa.Forms {
         public DropResult Drop(TabBarUpdateState state) {
             DropPoint point = _dropPoint;
             Debug.Assert(point != null);
-            _dropPoint = null; //‚±‚ÌPoint‚ğˆ—‚µ‚½‚ ‚Æ‚Ínull‚É–ß‚é
+            _dropPoint = null; //ã“ã®Pointã‚’å‡¦ç†ã—ãŸã‚ã¨ã¯nullã«æˆ»ã‚‹
 
-            if (_draggingButton.ParentTabBar == point.TabBar) { //“¯‚¶ƒo[‚Å‚ÌDrop
+            if (_draggingButton.ParentTabBar == point.TabBar) { //åŒã˜ãƒãƒ¼ã§ã®Drop
                 return DropToSameTabBar(state, point);
             }
-            else { //ˆÙ‚È‚éƒo[‚Ö‚ÌˆÚ“®
+            else { //ç•°ãªã‚‹ãƒãƒ¼ã¸ã®ç§»å‹•
                 return DropToDifferentTabBar(state, point);
             }
         }
@@ -1005,10 +1005,10 @@ namespace Poderosa.Forms {
             if (newindex == di || newindex == di + 1)
                 return DropResult.Ignored;
 
-            //“ü‚ê‘Ö‚¦‚½ó‘Ô‚Ådocs‚ğì‚é
+            //å…¥ã‚Œæ›¿ãˆãŸçŠ¶æ…‹ã§docsã‚’ä½œã‚‹
             TabKey[] keys = new TabKey[tabbar.TabCount];
             int cursor = 0;
-            for (int i = 0; i <= keys.Length; i++) { //‰E’[‚Ö‚ÌDrop‚Ü‚Ål‚¦‚é‚Æi‚ÍCount‚Ü‚Å‚Ü‚í‚·
+            for (int i = 0; i <= keys.Length; i++) { //å³ç«¯ã¸ã®Dropã¾ã§è€ƒãˆã‚‹ã¨iã¯Countã¾ã§ã¾ã‚ã™
                 if (i == di)
                     continue; //skip
 
@@ -1019,13 +1019,13 @@ namespace Poderosa.Forms {
             }
             Debug.Assert(cursor == keys.Length);
 
-            tabbar.AssignDocuments(state, keys); //Ä\’z
+            tabbar.AssignDocuments(state, keys); //å†æ§‹ç¯‰
             tabbar.ParentTable.Activate(dragging_key, true);
             return DropResult.Reordered;
         }
         private DropResult DropToDifferentTabBar(TabBarUpdateState state, DropPoint point) {
             TabKey dragging_key = _draggingButton.TabKey;
-            //ˆÚ“®Œ³‚©‚ç‚Ìíœ
+            //ç§»å‹•å…ƒã‹ã‚‰ã®å‰Šé™¤
             TabBar bar = _draggingButton.ParentTabBar;
             TabKey[] keys_src = new TabKey[bar.TabCount - 1];
             int cursor = 0;
@@ -1039,7 +1039,7 @@ namespace Poderosa.Forms {
             bar.AssignDocuments(state, keys_src);
             state.MarkIndexAssignmentChanged(bar);
 
-            //ˆÚ“®æ‚Ö‚Ì’Ç‰Á
+            //ç§»å‹•å…ˆã¸ã®è¿½åŠ 
             bar = point.TabBar;
             TabKey[] docs_dst = new TabKey[bar.TabCount + 1];
             cursor = 0;
@@ -1060,7 +1060,7 @@ namespace Poderosa.Forms {
         }
     }
 
-    //‘½’i\¬‚É‚·‚é‚Æ‚«‚Ég‚¤ATabBar‚ÌƒRƒŒƒNƒVƒ‡ƒ“BActive‚È‚à‚Ì‚ÍTable“à‚Åˆê‚Â‚¾‚¯‚É‚È‚é
+    //å¤šæ®µæ§‹æˆã«ã™ã‚‹ã¨ãã«ä½¿ã†ã€TabBarã®ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã€‚Activeãªã‚‚ã®ã¯Tableå†…ã§ä¸€ã¤ã ã‘ã«ãªã‚‹
     /// <summary>
     /// 
     /// </summary>
@@ -1084,7 +1084,7 @@ namespace Poderosa.Forms {
         public delegate void SideButtonClickHandler(Point pt);
         public delegate void ButtonAllocationToControlHandler(TabKey key, Control target);
         */
-        private TabBarButton _activeButton; //null‚É‚È‚é‚±‚Æ‚à
+        private TabBarButton _activeButton; //nullã«ãªã‚‹ã“ã¨ã‚‚
         private List<TabBar> _bars;
         private CaptureStyleReplaceState _captureState;
         /*
@@ -1124,7 +1124,7 @@ namespace Poderosa.Forms {
             }
         }
 
-        //indexƒx[ƒX‚Ìˆ—
+        //indexãƒ™ãƒ¼ã‚¹ã®å‡¦ç†
         public TabKey GetAtOrNull(int index) {
             foreach (TabBar bar in _bars) {
                 if (index < bar.TabCount)
@@ -1157,13 +1157,13 @@ namespace Poderosa.Forms {
         public void Create(int rowcount) {
             SetTabBarCount(rowcount);
         }
-        //‚±‚ê‚Íd‚¢“®ì‚É‚È‚è‚©‚Ë‚È‚¢
+        //ã“ã‚Œã¯é‡ã„å‹•ä½œã«ãªã‚Šã‹ã­ãªã„
         public void SetTabBarCount(int count) {
             if (count == _bars.Count)
                 return;
 
             using (TabBarUpdateState state = new TabBarUpdateState("set-tabbarcount")) {
-                if (_bars.Count < count) { //‘‰Á
+                if (_bars.Count < count) { //å¢—åŠ 
                     for (int i = _bars.Count; i < count; i++) {
                         TabBar bar = new TabBar(this);
                         bar.Location = new System.Drawing.Point(0, ROW_HEIGHT * i);
@@ -1174,7 +1174,7 @@ namespace Poderosa.Forms {
                         _bars.Add(bar);
                     }
                 }
-                else if (count < _bars.Count) { //Œ¸­
+                else if (count < _bars.Count) { //æ¸›å°‘
                     TabKey[] docs = GetAllDocuments();
                     while (_bars.Count > count) {
                         TabBar bar = _bars[_bars.Count - 1];
@@ -1186,7 +1186,7 @@ namespace Poderosa.Forms {
 
                 this.Height = ROW_HEIGHT * count;
                 for (int i = 0; i < _bars.Count; i++)
-                    _bars[i].Top = ROW_HEIGHT * i; //this.Height‚ğ•ÏX‚µ‚½‚ç‚±‚ê‚ğÄ’²®‚µ‚Ä‚â‚ç‚ñ‚Æ‚¢‚©‚ñ‚æ‚¤‚¾
+                    _bars[i].Top = ROW_HEIGHT * i; //this.Heightã‚’å¤‰æ›´ã—ãŸã‚‰ã“ã‚Œã‚’å†èª¿æ•´ã—ã¦ã‚„ã‚‰ã‚“ã¨ã„ã‹ã‚“ã‚ˆã†ã 
             }
         }
 
@@ -1304,7 +1304,7 @@ namespace Poderosa.Forms {
             }
         }
 
-        //ƒ†[ƒUƒCƒ“ƒ^ƒtƒF[ƒX‚É‚æ‚éActivate
+        //ãƒ¦ãƒ¼ã‚¶ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹ã«ã‚ˆã‚‹Activate
         public void OnActivatedByUI(TabKey key) {
             _uiHandler.ActivateTab(key);
         }
@@ -1314,7 +1314,7 @@ namespace Poderosa.Forms {
         public void OnMouseRightButton(TabKey key) {
             DoRightButtonAction(key);
         }
-        //ƒ†[ƒUƒCƒ“ƒ^ƒtƒF[ƒX‚É‚æ‚éDragAndDrop
+        //ãƒ¦ãƒ¼ã‚¶ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹ã«ã‚ˆã‚‹DragAndDrop
         public void OnStartButtonDragByUI(TabKey key) {
             _uiHandler.StartTabDrag(key);
         }
@@ -1323,7 +1323,7 @@ namespace Poderosa.Forms {
             using (TabBarUpdateState state = new TabBarUpdateState("addtab")) {
                 TabBar bar = FindFirstFreeTabBar();
                 if (bar != null) {
-                    //indexŒvZ–Ê“|
+                    //indexè¨ˆç®—é¢å€’
                     int tabcount = 0;
                     int barindex = 0;
                     for (int i = 0; i < _bars.Count; i++) {
@@ -1334,14 +1334,14 @@ namespace Poderosa.Forms {
                         }
                     }
 
-                    bar.AddTab(state, key, tabcount++); //‚±‚¢‚Â‚Ì––”ö‚È‚Ì‚Å
+                    bar.AddTab(state, key, tabcount++); //ã“ã„ã¤ã®æœ«å°¾ãªã®ã§
                     for (int i = barindex + 1; i < _bars.Count; i++) {
                         _bars[i].AllocateIndex(tabcount);
                         tabcount += _bars[i].TabCount;
                     }
                 }
                 else {
-                    bar = _bars[_bars.Count - 1]; //d•û‚È‚­ÅŒã‚ğg‚¤
+                    bar = _bars[_bars.Count - 1]; //ä»•æ–¹ãªãæœ€å¾Œã‚’ä½¿ã†
                     bar.AddTab(state, key, GetAllTabCount());
                     Rebalance(state, GetAllDocuments());
                 }
@@ -1384,14 +1384,14 @@ namespace Poderosa.Forms {
         }
 
         public void Rebalance(TabBarUpdateState state, TabKey[] keys) {
-            //ƒ^ƒu‚ÌŒÂ”‚É‰‚¶‚Ä‹Ï“™‚É‚È‚é‚æ‚¤‚Éƒoƒ‰ƒ“ƒX‚ğæ‚é
+            //ã‚¿ãƒ–ã®å€‹æ•°ã«å¿œã˜ã¦å‡ç­‰ã«ãªã‚‹ã‚ˆã†ã«ãƒãƒ©ãƒ³ã‚¹ã‚’å–ã‚‹
             int count = keys.Length / _bars.Count;
             int mod = keys.Length % _bars.Count;
             int index = 0;
 
             for (int i = 0; i < _bars.Count; i++) {
                 TabBar bar = _bars[i];
-                int length = i < mod ? count + 1 : count; //—]‚è‚ğl—¶
+                int length = i < mod ? count + 1 : count; //ä½™ã‚Šã‚’è€ƒæ…®
                 bar.AssignDocuments(state, keys, index, length);
                 index += length;
             }
@@ -1422,7 +1422,7 @@ namespace Poderosa.Forms {
             return null;
         }
 
-        //q‚Ìƒ{ƒ^ƒ“‚Åƒnƒ“ƒhƒ‹‚Å‚«‚È‚©‚Á‚½DragDrop
+        //å­ã®ãƒœã‚¿ãƒ³ã§ãƒãƒ³ãƒ‰ãƒ«ã§ããªã‹ã£ãŸDragDrop
         public void ByPassDragEnter(DragEventArgs args) {
             _uiHandler.BypassDragEnter(args);
         }
@@ -1442,7 +1442,7 @@ namespace Poderosa.Forms {
          */
     }
 
-    //•K—v‚ÈXV‚ğŠÇ—‚·‚éBTabBar#ArrangeButton“™‚ğ‰ßè‚ÉŒÄ‚Î‚È‚¢‚æ‚¤‚É‚·‚é‚½‚ß‚Ìd‘g‚İ
+    //å¿…è¦ãªæ›´æ–°ã‚’ç®¡ç†ã™ã‚‹ã€‚TabBar#ArrangeButtonç­‰ã‚’éå‰°ã«å‘¼ã°ãªã„ã‚ˆã†ã«ã™ã‚‹ãŸã‚ã®ä»•çµ„ã¿
     /// <summary>
     /// 
     /// </summary>
@@ -1451,7 +1451,7 @@ namespace Poderosa.Forms {
 
         private enum UpdateState {
             AdjustmentIsRequired,
-            SufficientWidthIsChanged //‚±‚Ìó‘Ô‚Ì•û‚ª‹­‚¢
+            SufficientWidthIsChanged //ã“ã®çŠ¶æ…‹ã®æ–¹ãŒå¼·ã„
         }
 
         private class Entry {
@@ -1485,17 +1485,17 @@ namespace Poderosa.Forms {
         }
         public void MarkIndexAssignmentChanged(TabBar bar) {
             UpdateOrCreateEntry(bar, UpdateState.SufficientWidthIsChanged);
-            _indexAssignmentChanged = true; //‘SBAR‚É‰e‹¿
+            _indexAssignmentChanged = true; //å…¨BARã«å½±éŸ¿
         }
 
-        //ArrangeButtons‚ğŒÄ‚×‚é‚Ì‚Í‚±‚±‚¾‚¯
+        //ArrangeButtonsã‚’å‘¼ã¹ã‚‹ã®ã¯ã“ã“ã ã‘
         private void Commit() {
             if (_committed)
                 return;
 
             foreach (Entry e in _entries) {
                 if (_indexAssignmentChanged) {
-                    e.TabBar.ParentTable.AssignIndex(); //‘Sƒo[‚Å“¯ˆê
+                    e.TabBar.ParentTable.AssignIndex(); //å…¨ãƒãƒ¼ã§åŒä¸€
                     _indexAssignmentChanged = false;
                 }
 
@@ -1535,8 +1535,8 @@ namespace Poderosa.Forms {
     /// </summary>
     /// <exclude/>
     internal class CaptureStyleReplaceState {
-        //ƒ}ƒEƒXƒLƒƒƒvƒ`ƒƒŒ^‚ÌDoc-ViewŠ„‚è“–‚Ä‚Ìó‘ÔŠÇ—
-        private TabKey _key; //Š„‚è“–‚Ä’†‚ÌƒuƒcBnull‚È‚ç–¢g—p
+        //ãƒã‚¦ã‚¹ã‚­ãƒ£ãƒ—ãƒãƒ£å‹ã®Doc-Viewå‰²ã‚Šå½“ã¦ã®çŠ¶æ…‹ç®¡ç†
+        private TabKey _key; //å‰²ã‚Šå½“ã¦ä¸­ã®ãƒ–ãƒ„ã€‚nullãªã‚‰æœªä½¿ç”¨
         private TabBarTable _table;
 
         public CaptureStyleReplaceState(TabBarTable table) {
@@ -1560,7 +1560,7 @@ namespace Poderosa.Forms {
         public void EndCapture(Point screen_pt) {
             if (_key != null) {
                 Form f = _table.FindForm();
-                Control c = WinFormsUtil.FindTopControl(f, screen_pt); //‘¼‚ÌƒEƒBƒ“ƒhƒE‚Ö‚Á‚Ä‚¢‚­‚±‚Æ‚ª‚Å‚«‚Ä‚¢‚È‚¢
+                Control c = WinFormsUtil.FindTopControl(f, screen_pt); //ä»–ã®ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã¸æŒã£ã¦ã„ãã“ã¨ãŒã§ãã¦ã„ãªã„
                 if (c != null) {
                     _table.UIHandler.AllocateTabToControl(_key, c);
                 }

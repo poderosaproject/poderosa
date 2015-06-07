@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@ using System.Text;
 namespace Poderosa {
     /// <summary>
     /// <ja>
-    /// ƒƒO‚ÌƒJƒeƒSƒŠ‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ­ã‚°ã®ã‚«ãƒ†ã‚´ãƒªã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface of category of log.
@@ -22,7 +22,7 @@ namespace Poderosa {
     public interface IPoderosaLogCategory : IAdaptable {
         /// <summary>
         /// <ja>
-        /// ƒJƒeƒSƒŠ–¼‚Å‚·B
+        /// ã‚«ãƒ†ã‚´ãƒªåã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Name of category.
@@ -34,7 +34,7 @@ namespace Poderosa {
     }
     /// <summary>
     /// <ja>
-    /// ƒƒO‚ÌƒAƒCƒeƒ€‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ­ã‚°ã®ã‚¢ã‚¤ãƒ†ãƒ ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface of log items
@@ -43,7 +43,7 @@ namespace Poderosa {
     public interface IPoderosaLogItem : IAdaptable {
         /// <summary>
         /// <ja>
-        /// ƒƒO‚ÌƒJƒeƒSƒŠ‚Å‚·B
+        /// ãƒ­ã‚°ã®ã‚«ãƒ†ã‚´ãƒªã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Category of log.
@@ -54,7 +54,7 @@ namespace Poderosa {
         }
         /// <summary>
         /// <ja>
-        /// ƒƒO‚ÌƒeƒLƒXƒg‚Å‚·B
+        /// ãƒ­ã‚°ã®ãƒ†ã‚­ã‚¹ãƒˆã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Text of log.
@@ -66,7 +66,7 @@ namespace Poderosa {
 
         /// <summary>
         /// <ja>
-        /// ƒƒOƒAƒCƒeƒ€‚ÌƒCƒ“ƒfƒbƒNƒX”Ô†‚Å‚·B
+        /// ãƒ­ã‚°ã‚¢ã‚¤ãƒ†ãƒ ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ç•ªå·ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Index number of log item.
@@ -75,12 +75,12 @@ namespace Poderosa {
         int Index {
             get;
         }
-        //Time‚ ‚½‚è‚à‚ ‚Á‚Ä‚¢‚¢‚©‚à
+        //Timeã‚ãŸã‚Šã‚‚ã‚ã£ã¦ã„ã„ã‹ã‚‚
     }
 
     /// <summary>
     /// <ja>
-    /// ƒƒO‹@”\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// ãƒ­ã‚°æ©Ÿèƒ½ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Offered log function.
@@ -89,7 +89,7 @@ namespace Poderosa {
     public interface IPoderosaLog : IAdaptable, IEnumerable<IPoderosaLogItem> {
         /// <summary>
         /// <ja>
-        /// ƒƒO‚Ì—e—Ê‚ğæ“¾^İ’è‚µ‚Ü‚·B
+        /// ãƒ­ã‚°ã®å®¹é‡ã‚’å–å¾—ï¼è¨­å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Get / set the capacity of log.
@@ -101,24 +101,24 @@ namespace Poderosa {
         }
         /// <summary>
         /// <ja>
-        /// ƒƒO‚É‘‚«‚İ‚Ü‚·B
+        /// ãƒ­ã‚°ã«æ›¸ãè¾¼ã¿ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Write log.
         /// </en>
         /// </summary>
         /// <param name="category">
-        /// <ja>ƒƒO‚ÌƒJƒeƒSƒŠ‚Å‚·B</ja>
+        /// <ja>ãƒ­ã‚°ã®ã‚«ãƒ†ã‚´ãƒªã§ã™ã€‚</ja>
         /// <en>Category of log.</en>
         /// </param>
         /// <param name="text">
-        /// <ja>‘‚«‚ŞƒeƒLƒXƒg‚Å‚·B</ja>
+        /// <ja>æ›¸ãè¾¼ã‚€ãƒ†ã‚­ã‚¹ãƒˆã§ã™ã€‚</ja>
         /// <en>Text to write.</en>
         /// </param>
         void AddItem(IPoderosaLogCategory category, string text);
         /// <summary>
         /// <ja>
-        /// ƒƒO‚ÌƒAƒCƒeƒ€‚ÌŒÂ”‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ­ã‚°ã®ã‚¢ã‚¤ãƒ†ãƒ ã®å€‹æ•°ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Count of log item.
@@ -130,35 +130,35 @@ namespace Poderosa {
 
         /// <summary>
         /// <ja>
-        /// ƒƒO‚ÌƒŠƒXƒi‚ğ“o˜^‚µ‚Ü‚·B
+        /// ãƒ­ã‚°ã®ãƒªã‚¹ãƒŠã‚’ç™»éŒ²ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Add the log listener
         /// </en>
         /// </summary>
         /// <param name="listener">
-        /// <ja>“o˜^‚·‚éƒŠƒXƒi</ja>
+        /// <ja>ç™»éŒ²ã™ã‚‹ãƒªã‚¹ãƒŠ</ja>
         /// <en>Listener to regist.</en>
         /// </param>
         void AddChangeListener(IPoderosaLogListener listener);
 
         /// <summary>
         /// <ja>
-        /// ƒƒO‚ÌƒŠƒXƒi‚ğ‰ğœ‚µ‚Ü‚·B
+        /// ãƒ­ã‚°ã®ãƒªã‚¹ãƒŠã‚’è§£é™¤ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Remove the log listener
         /// </en>
         /// </summary>
         /// <param name="listener">
-        /// <ja>‰ğœ‚·‚éƒŠƒXƒi</ja>
+        /// <ja>è§£é™¤ã™ã‚‹ãƒªã‚¹ãƒŠ</ja>
         /// <en>Listener to release.</en>
         /// </param>
         void RemoveChangeListener(IPoderosaLogListener listener);
 
         /// <summary>
         /// <ja>
-        /// •W€‚ÌƒƒOƒJƒeƒSƒŠ‚ğ¦‚µ‚Ü‚·B
+        /// æ¨™æº–ã®ãƒ­ã‚°ã‚«ãƒ†ã‚´ãƒªã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Get the generic category of log.
@@ -172,7 +172,7 @@ namespace Poderosa {
 
     /// <summary>
     /// <ja>
-    /// ƒƒOƒŠƒXƒi‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ­ã‚°ãƒªã‚¹ãƒŠã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface of loglistener.
@@ -181,14 +181,14 @@ namespace Poderosa {
     public interface IPoderosaLogListener {
         /// <summary>
         /// <ja>
-        /// V‚µ‚¢ƒƒOƒAƒCƒeƒ€‚ª’Ç‰Á‚³‚ê‚é‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// æ–°ã—ã„ãƒ­ã‚°ã‚¢ã‚¤ãƒ†ãƒ ãŒè¿½åŠ ã•ã‚Œã‚‹ã¨ãã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Called when added the new log item.
         /// </en>
         /// </summary>
         /// <param name="item">
-        /// <ja>’Ç‰Á‚³‚ê‚éƒAƒCƒeƒ€‚Å‚·B</ja>
+        /// <ja>è¿½åŠ ã•ã‚Œã‚‹ã‚¢ã‚¤ãƒ†ãƒ ã§ã™ã€‚</ja>
         /// <en>Item to add.</en>
         /// </param>
         void OnNewItem(IPoderosaLogItem item);
@@ -196,7 +196,7 @@ namespace Poderosa {
 
     /// <summary>
     /// <ja>
-    /// ƒƒOƒJƒeƒSƒŠ‚ğÀ‘•‚·‚éƒwƒ‹ƒpƒNƒ‰ƒX‚Å‚·B
+    /// ãƒ­ã‚°ã‚«ãƒ†ã‚´ãƒªã‚’å®Ÿè£…ã™ã‚‹ãƒ˜ãƒ«ãƒ‘ã‚¯ãƒ©ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Helperclasss for implementation of category of log.
@@ -206,14 +206,14 @@ namespace Poderosa {
         private string _name;
         /// <summary>
         /// <ja>
-        /// ƒƒOƒJƒeƒSƒŠ‚ğì¬‚µ‚Ü‚·B
+        /// ãƒ­ã‚°ã‚«ãƒ†ã‚´ãƒªã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create the category of log.
         /// </en>
         /// </summary>
         /// <param name="name">
-        /// <ja>ƒƒOƒJƒeƒSƒŠ‚Ì–¼‘O‚Å‚·B</ja>
+        /// <ja>ãƒ­ã‚°ã‚«ãƒ†ã‚´ãƒªã®åå‰ã§ã™ã€‚</ja>
         /// <en>Name of category of log.</en>
         /// </param>
         public PoderosaLogCategoryImpl(string name) {
@@ -221,7 +221,7 @@ namespace Poderosa {
         }
         /// <summary>
         /// <ja>
-        /// ƒƒOƒJƒeƒSƒŠ–¼‚ğ•Ô‚µ‚Ü‚·B
+        /// ãƒ­ã‚°ã‚«ãƒ†ã‚´ãƒªåã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Get the category of log.
@@ -240,7 +240,7 @@ namespace Poderosa {
 
     /// <summary>
     /// <ja>
-    /// ƒƒOƒAƒCƒeƒ€‚ğ\¬‚·‚éƒwƒ‹ƒpƒNƒ‰ƒX‚Å‚·B
+    /// ãƒ­ã‚°ã‚¢ã‚¤ãƒ†ãƒ ã‚’æ§‹æˆã™ã‚‹ãƒ˜ãƒ«ãƒ‘ã‚¯ãƒ©ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Helper class to compose the log item.
@@ -253,19 +253,19 @@ namespace Poderosa {
 
         /// <summary>
         /// <ja>
-        /// ƒƒOƒAƒCƒeƒ€‚ğì¬‚µ‚Ü‚·B
+        /// ãƒ­ã‚°ã‚¢ã‚¤ãƒ†ãƒ ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create the log item.
         /// </en>
         /// </summary>
-        /// <param name="category"><ja>ƒƒOƒAƒCƒeƒ€‚ÌƒJƒeƒSƒŠ‚Å‚·B</ja>
+        /// <param name="category"><ja>ãƒ­ã‚°ã‚¢ã‚¤ãƒ†ãƒ ã®ã‚«ãƒ†ã‚´ãƒªã§ã™ã€‚</ja>
         /// <en>Category of log item.</en>
         /// </param>
-        /// <param name="text"><ja>ƒƒO‚ÌƒeƒLƒXƒg‚Å‚·B</ja>
+        /// <param name="text"><ja>ãƒ­ã‚°ã®ãƒ†ã‚­ã‚¹ãƒˆã§ã™ã€‚</ja>
         /// <en>Text of log.</en>
         /// </param>
-        /// <param name="index"><ja>ƒƒO‚ÌƒCƒ“ƒfƒbƒNƒXˆÊ’u‚Å‚·B</ja>
+        /// <param name="index"><ja>ãƒ­ã‚°ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ä½ç½®ã§ã™ã€‚</ja>
         /// <en>Index position of log.</en></param>
         public PoderosaLogItemImpl(IPoderosaLogCategory category, string text, int index) {
             _category = category;
@@ -275,7 +275,7 @@ namespace Poderosa {
 
         /// <summary>
         /// <ja>
-        /// ƒƒOƒJƒeƒSƒŠ‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ­ã‚°ã‚«ãƒ†ã‚´ãƒªã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Category of log.
@@ -289,7 +289,7 @@ namespace Poderosa {
 
         /// <summary>
         /// <ja>
-        /// ƒƒO‚ÌƒeƒLƒXƒg‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ­ã‚°ã®ãƒ†ã‚­ã‚¹ãƒˆã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Text of log.
@@ -303,7 +303,7 @@ namespace Poderosa {
 
         /// <summary>
         /// <ja>
-        /// ƒƒO‚ÌƒCƒ“ƒfƒbƒNƒXˆÊ’u‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ­ã‚°ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ä½ç½®ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Index of log.

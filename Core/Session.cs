@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,7 @@ using Poderosa.Util;
 [assembly: PluginDeclaration(typeof(Poderosa.Sessions.SessionManagerPlugin))]
 
 namespace Poderosa.Sessions {
-    //PoderosaMainWindow‚ªŒÄ‚Ô‚½‚ß‚ÌƒCƒ“ƒ^ƒtƒF[ƒX
+    //PoderosaMainWindowãŒå‘¼ã¶ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹
     internal interface ISessionManagerForPoderosaWindow {
         PrepareCloseResult CloseMultipleDocuments(ClosingContext context, IPoderosaDocument[] documents);
     }
@@ -59,7 +59,7 @@ namespace Poderosa.Sessions {
         }
         public override void TerminatePlugin() {
             base.TerminatePlugin();
-            //‚±‚ê‚Í–‚½‚³‚ê‚Ä‚¢‚È‚¢‚ÆI
+            //ã“ã‚Œã¯æº€ãŸã•ã‚Œã¦ã„ãªã„ã¨ï¼
             Debug.Assert(_sessionMap.Count == 0);
             Debug.Assert(_documentMap.Count == 0);
         }
@@ -96,7 +96,7 @@ namespace Poderosa.Sessions {
             foreach (ISessionListener listener in _sessionListeners)
                 listener.OnSessionStart(session);
 
-            //‚±‚Ì“_‚ÅA­‚È‚­‚Æ‚àˆê‚ÂƒhƒLƒ…ƒƒ“ƒg‚ª‚È‚¢‚Æ‚¢‚¯‚È‚¢B‚Q‚ÂˆÈã‚Í•s‰ÂA‚Å‚à‚¢‚¢‚©‚à‚µ‚ê‚È‚¢
+            //ã“ã®æ™‚ç‚¹ã§ã€å°‘ãªãã¨ã‚‚ä¸€ã¤ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒãªã„ã¨ã„ã‘ãªã„ã€‚ï¼’ã¤ä»¥ä¸Šã¯ä¸å¯ã€ã§ã‚‚ã„ã„ã‹ã‚‚ã—ã‚Œãªã„
             if (host.DocumentCount == 0)
                 throw new InvalidOperationException("session must register at least one document in InternalStart()");
             AttachDocumentAndView(host.DocumentAt(0), firstView);
@@ -109,39 +109,39 @@ namespace Poderosa.Sessions {
 
             if (view.Document == document) {
                 Debug.Assert(dh.CurrentView == view);
-                return; //‰½‚à‚µ‚È‚¢
+                return; //ä½•ã‚‚ã—ãªã„
             }
 
-            IPoderosaView previous_view = dh.CurrentView; //ŠÖ˜A‚Ã‚¯‚ğw’è‚·‚éƒhƒLƒ…ƒƒ“ƒg‚ª‚à‚Æ‚à‚ÆŒ©‚¦‚Ä‚¢‚½ƒrƒ…[
-            IPoderosaForm last_window = ViewToForm(dh.LastAttachedView); //‚à‚Æ‚à‚Æ‚ÌŠ—LƒEƒBƒ“ƒhƒEB‰‚ß‚Ä‚ÌAttach‚Å‚Ínull‚Å‚ ‚é‚±‚Æ‚É‚¿‚ã‚¤‚¢
+            IPoderosaView previous_view = dh.CurrentView; //é–¢é€£ã¥ã‘ã‚’æŒ‡å®šã™ã‚‹ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒã‚‚ã¨ã‚‚ã¨è¦‹ãˆã¦ã„ãŸãƒ“ãƒ¥ãƒ¼
+            IPoderosaForm last_window = ViewToForm(dh.LastAttachedView); //ã‚‚ã¨ã‚‚ã¨ã®æ‰€æœ‰ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã€‚åˆã‚ã¦ã®Attachã§ã¯nullã§ã‚ã‚‹ã“ã¨ã«ã¡ã‚…ã†ã„
 
-            //Œ»İ‚ÌŠÖ˜A‚ğˆê’UØ‚é
+            //ç¾åœ¨ã®é–¢é€£ã‚’ä¸€æ—¦åˆ‡ã‚‹
             if (previous_view != null) {
                 Debug.WriteLineIf(DebugOpt.DumpDocumentRelation, "Detach Prev View " + ViewName(previous_view));
                 dh.DetachView();
             }
             Debug.Assert(dh.CurrentView == null);
 
-            //Ú‘±æ‚ÉƒhƒLƒ…ƒƒ“ƒg‚ª‘¶İ‚µ‚Ä‚¢‚ê‚Î‚»‚ê‚ğØ‚è—£‚·
+            //æ¥ç¶šå…ˆã«ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒå­˜åœ¨ã—ã¦ã„ã‚Œã°ãã‚Œã‚’åˆ‡ã‚Šé›¢ã™
             IPoderosaDocument existing_doc = view.Document;
-            if (existing_doc != null) { //‘ÎÛ‚Ìƒrƒ…[‚ÉŒÃ‚¢‚Ì‚ª‚Ğ‚Á‚Â‚¢‚Ä‚¢‚½‚çŠO‚·
+            if (existing_doc != null) { //å¯¾è±¡ã®ãƒ“ãƒ¥ãƒ¼ã«å¤ã„ã®ãŒã²ã£ã¤ã„ã¦ã„ãŸã‚‰å¤–ã™
                 DocumentHost eh = FindDocumentHost(existing_doc);
                 Debug.Assert(eh.CurrentView == view);
                 Debug.WriteLineIf(DebugOpt.DumpDocumentRelation, String.Format("Detach Destination View doc={0} view={1}", existing_doc.GetType().Name, ViewName(view)));
                 eh.DetachView();
             }
 
-            //V‹K‚ÌÚ‘±
-            Debug.Assert(view.Document == null && dh.CurrentView == null); //Attach€”õ‚ª‚Å‚«‚Ä‚¢‚é‚±‚ÆŠm”F
+            //æ–°è¦ã®æ¥ç¶š
+            Debug.Assert(view.Document == null && dh.CurrentView == null); //Attachæº–å‚™ãŒã§ãã¦ã„ã‚‹ã“ã¨ç¢ºèª
             dh.AttachView(view);
 
-            //ˆÚ“®‚·‚é‚±‚Æ‚ÅV‹K‚ÉŒ©‚¦‚é‚æ‚¤‚É‚È‚éƒhƒLƒ…ƒƒ“ƒg‚ğ’Tõ
+            //ç§»å‹•ã™ã‚‹ã“ã¨ã§æ–°è¦ã«è¦‹ãˆã‚‹ã‚ˆã†ã«ãªã‚‹ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’æ¢ç´¢
             if (previous_view != null && previous_view != view) {
                 DocumentHost new_visible_doc = ShowBackgroundDocument(previous_view);
                 Debug.Assert(new_visible_doc != dh);
             }
 
-            //ƒhƒLƒ…ƒƒ“ƒg‚ğ•Û—L‚·‚éƒEƒBƒ“ƒhƒE‚ª•Ï‰»‚µ‚½‚ç’Ê’mB‰‰ñAttach‚Å‚Ílast_mainwindow==null‚Å‚ ‚é‚±‚Æ‚É’ˆÓ
+            //ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’ä¿æœ‰ã™ã‚‹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãŒå¤‰åŒ–ã—ãŸã‚‰é€šçŸ¥ã€‚åˆå›Attachã§ã¯last_mainwindow==nullã§ã‚ã‚‹ã“ã¨ã«æ³¨æ„
             if (last_window != view.ParentForm) {
                 if (last_window != null)
                     NotifyRemove(last_window, document);
@@ -151,7 +151,7 @@ namespace Poderosa.Sessions {
             FireDocViewRelationChange();
         }
 
-        //ISessionManager‚ÌI—¹Œn@×‚©‚¢‚Ì‚ÍƒhƒLƒ…ƒƒ“ƒg‚ ‚è
+        //ISessionManagerã®çµ‚äº†ç³»ã€€ç´°ã‹ã„ã®ã¯ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚ã‚Š
         public PrepareCloseResult CloseDocument(IPoderosaDocument document) {
             DocumentHost dh = FindDocumentHost(document);
             Debug.Assert(dh != null);
@@ -180,34 +180,34 @@ namespace Poderosa.Sessions {
         public PrepareCloseResult CloseMultipleDocuments(ClosingContext context, IPoderosaDocument[] documents) {
             List<SessionHost> sessions = CreateSessionHostCollection();
             foreach (SessionHost sh in sessions)
-                sh.CMP_ClosingDocumentCount = 0; //ƒJƒEƒ“ƒgƒŠƒZƒbƒg
+                sh.CMP_ClosingDocumentCount = 0; //ã‚«ã‚¦ãƒ³ãƒˆãƒªã‚»ãƒƒãƒˆ
 
             foreach (IPoderosaDocument doc in documents) {
                 DocumentHost dh = FindDocumentHost(doc);
                 dh.SessionHost.CMP_ClosingDocumentCount++;
             }
-            //‚±‚±‚Ü‚Å‚ÅAŠeSessionHost‚²‚Æ‚É‰½ŒÂ‚ÌƒhƒLƒ…ƒƒ“ƒg‚ğ•Â‚¶‚æ‚¤‚Æ‚µ‚Ä‚¢‚é‚©‚ªƒJƒEƒ“ƒg‚³‚ê‚½B
-            //Ÿ‚É‚»‚ê‚¼‚ê‚É‚Â‚¢‚Äˆ—‚ğ‚Í‚¶‚ß‚é
+            //ã“ã“ã¾ã§ã§ã€å„SessionHostã”ã¨ã«ä½•å€‹ã®ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’é–‰ã˜ã‚ˆã†ã¨ã—ã¦ã„ã‚‹ã‹ãŒã‚«ã‚¦ãƒ³ãƒˆã•ã‚ŒãŸã€‚
+            //æ¬¡ã«ãã‚Œãã‚Œã«ã¤ã„ã¦å‡¦ç†ã‚’ã¯ã˜ã‚ã‚‹
             PrepareCloseResult result = PrepareCloseResult.TerminateSession;
             foreach (SessionHost sh in sessions) {
                 if (sh.CMP_ClosingDocumentCount == 0)
-                    continue; //‰e‹¿‚È‚µ
+                    continue; //å½±éŸ¿ãªã—
 
-                if (sh.CMP_ClosingDocumentCount == sh.DocumentCount) { //ƒZƒbƒVƒ‡ƒ“‚Ì‘SƒhƒLƒ…ƒƒ“ƒg‚ğ•Â‚¶‚éê‡
+                if (sh.CMP_ClosingDocumentCount == sh.DocumentCount) { //ã‚»ãƒƒã‚·ãƒ§ãƒ³ã®å…¨ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’é–‰ã˜ã‚‹å ´åˆ
                     PrepareCloseResult r = TerminateSession(sh.Session);
                     sh.CMP_PrepareCloseResult = r;
                     if (r == PrepareCloseResult.TerminateSession)
                         context.AddClosingSession(sh);
                     else if (r == PrepareCloseResult.Cancel)
-                        result = PrepareCloseResult.Cancel; //ˆêŒÂ‚Å‚àƒLƒƒƒ“ƒZƒ‹‚ª‚ ‚ê‚Î‘S‘Ì‚ğƒLƒƒƒ“ƒZƒ‹‚Æ‚·‚é
+                        result = PrepareCloseResult.Cancel; //ä¸€å€‹ã§ã‚‚ã‚­ãƒ£ãƒ³ã‚»ãƒ«ãŒã‚ã‚Œã°å…¨ä½“ã‚’ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã¨ã™ã‚‹
                 }
-                else { //ˆê•”‚ÌƒhƒLƒ…ƒƒ“ƒg‚ğ•Â‚¶‚éB‚±‚ê‚ª–Ê“|
+                else { //ä¸€éƒ¨ã®ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’é–‰ã˜ã‚‹ã€‚ã“ã‚ŒãŒé¢å€’
                     //TODO unsupported
                     Debug.Assert(false, "unsupported");
                 }
             }
 
-            //‚»‚ê‚ç‚É‚Â‚¢‚ÄƒZƒbƒVƒ‡ƒ“‚ğ•Â‚¶‚é
+            //ãã‚Œã‚‰ã«ã¤ã„ã¦ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’é–‰ã˜ã‚‹
             foreach (SessionHost sh in context.ClosingSessions) {
                 CleanupSession(sh);
             }
@@ -220,7 +220,7 @@ namespace Poderosa.Sessions {
             Debug.Assert(dh != null);
             IPoderosaForm f = ViewToForm(dh.LastAttachedView);
 
-            //‚¿‚å‚Á‚Æ‰˜‚¢•ªŠò
+            //ã¡ã‚‡ã£ã¨æ±šã„åˆ†å²
             IPoderosaMainWindow mw = (IPoderosaMainWindow)f.GetAdapter(typeof(IPoderosaMainWindow));
             if (mw != null)
                 mw.DocumentTabFeature.Update(document);
@@ -245,15 +245,15 @@ namespace Poderosa.Sessions {
             dh.SessionHost.CloseDocument(dh.Document);
             _documentMap.Remove(dh.Document);
 
-            //•Â‚¶‚½ƒhƒLƒ…ƒƒ“ƒg‚Ìƒrƒ…[‚ªŒ©‚¦‚Ä‚¢‚½ê‡‚ÍA‚»‚ÌˆÊ’u‚Ì•Ê‚ÌƒhƒLƒ…ƒƒ“ƒg‚ğŒ©‚¹‚é
-            //TODO ƒEƒBƒ“ƒhƒE‚ğ•Â‚¶‚é‚Æ‚«‚Í‚±‚Ìˆ—‚Í•s—v
+            //é–‰ã˜ãŸãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã®ãƒ“ãƒ¥ãƒ¼ãŒè¦‹ãˆã¦ã„ãŸå ´åˆã¯ã€ãã®ä½ç½®ã®åˆ¥ã®ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’è¦‹ã›ã‚‹
+            //TODO ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’é–‰ã˜ã‚‹ã¨ãã¯ã“ã®å‡¦ç†ã¯ä¸è¦
             if (visible_view != null && visible_view.ParentForm.GetAdapter(typeof(IPoderosaMainWindow)) != null) {
                 ShowBackgroundDocument(visible_view);
                 if (was_active && visible_view.Document != null)
                     ActivateDocument(visible_view.Document, ActivateReason.InternalAction);
             }
         }
-        internal void CleanupSession(SessionHost sh) { //SessionHost‚©‚ç‚àŒÄ‚Î‚ê‚é‚Ì‚Åinternal
+        internal void CleanupSession(SessionHost sh) { //SessionHostã‹ã‚‰ã‚‚å‘¼ã°ã‚Œã‚‹ã®ã§internal
             foreach (ISessionListener listener in _sessionListeners)
                 listener.OnSessionEnd(sh.Session);
             foreach (IPoderosaDocument doc in sh.ClonedDocuments) {
@@ -264,19 +264,19 @@ namespace Poderosa.Sessions {
         }
 
         /**
-         * Activateˆ—‚Ìƒ‹[ƒg
-         * NOTE d•¡ƒR[ƒ‹‚Í‚±‚±‚ÅƒuƒƒbƒN‚·‚é‚æ‚¤‚É‚·‚éB
-         * ƒAƒNƒeƒBƒu‚ÈƒhƒLƒ…ƒƒ“ƒg‚ª•Ï‰»‚·‚é‚Ì‚ÍA
-         *   - View‚ğƒNƒŠƒbƒN‚µ‚ÄƒtƒH[ƒJƒX‚ª•Ï‚í‚é‚Æ‚«
-         *   - ƒ^ƒu‚ğƒNƒŠƒbƒN‚µ‚½‚Æ‚«
-         *   - ƒL[ƒ{[ƒhƒVƒ‡[ƒgƒJƒbƒg“™APoderosa‚ÌƒR[ƒh‚ª”­“®‚·‚é‚Æ‚«
-         * ‚Ì‚R‚ÂB
-         * ‚»‚Ì‚¤‚¿‚Ì‚Ç‚ê‚Å‚ ‚é‚©‚ğw’è‚µ‚Ä‚±‚±‚ğŒÄ‚ÔB—á‚¦‚ÎAFocusˆÚ“®‚Ì‚Æ‚«‚Í‰ü‚ß‚ÄFocus()‚ğŒÄ‚Î‚È‚¢‚È‚Ç“à•”‚Åê‡•ª‚¯‚ª‚È‚³‚ê‚é
+         * Activateå‡¦ç†ã®ãƒ«ãƒ¼ãƒˆ
+         * NOTE é‡è¤‡ã‚³ãƒ¼ãƒ«ã¯ã“ã“ã§ãƒ–ãƒ­ãƒƒã‚¯ã™ã‚‹ã‚ˆã†ã«ã™ã‚‹ã€‚
+         * ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒå¤‰åŒ–ã™ã‚‹ã®ã¯ã€
+         *   - Viewã‚’ã‚¯ãƒªãƒƒã‚¯ã—ã¦ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ãŒå¤‰ã‚ã‚‹ã¨ã
+         *   - ã‚¿ãƒ–ã‚’ã‚¯ãƒªãƒƒã‚¯ã—ãŸã¨ã
+         *   - ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆç­‰ã€Poderosaã®ã‚³ãƒ¼ãƒ‰ãŒç™ºå‹•ã™ã‚‹ã¨ã
+         * ã®ï¼“ã¤ã€‚
+         * ãã®ã†ã¡ã®ã©ã‚Œã§ã‚ã‚‹ã‹ã‚’æŒ‡å®šã—ã¦ã“ã“ã‚’å‘¼ã¶ã€‚ä¾‹ãˆã°ã€Focusç§»å‹•ã®ã¨ãã¯æ”¹ã‚ã¦Focus()ã‚’å‘¼ã°ãªã„ãªã©å†…éƒ¨ã§å ´åˆåˆ†ã‘ãŒãªã•ã‚Œã‚‹
          */
         public void ActivateDocument(IPoderosaDocument document, ActivateReason reason) {
             Debug.Assert(document != null);
 
-            //ƒlƒXƒg‚Ì–h~ FocusŒnƒCƒxƒ“ƒgƒnƒ“ƒhƒ‰‚ª‚ ‚é‚Æ‚Ç‚¤‚µ‚Ä‚àŒÄ‚Î‚ê‚Ä‚µ‚Ü‚¤‚Ì‚Å
+            //ãƒã‚¹ãƒˆã®é˜²æ­¢ Focusç³»ã‚¤ãƒ™ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ©ãŒã‚ã‚‹ã¨ã©ã†ã—ã¦ã‚‚å‘¼ã°ã‚Œã¦ã—ã¾ã†ã®ã§
             if (_activateContext != null)
                 return;
 
@@ -286,13 +286,13 @@ namespace Poderosa.Sessions {
                 DocumentHost dh = FindDocumentHost(document);
                 Debug.Assert(dh != null);
 
-                if (dh.CurrentView != null) { //Šù‚ÉŒ©‚¦‚Ä‚¢‚éê‡
+                if (dh.CurrentView != null) { //æ—¢ã«è¦‹ãˆã¦ã„ã‚‹å ´åˆ
                     if (reason != ActivateReason.ViewGotFocus)
-                        SetFocusToView(dh.CurrentView); //ƒ†[ƒU‚ÌƒtƒH[ƒJƒXw’è‚¾‚Á‚½ê‡‚Í‚»‚ê‚É”C‚¹‚é
+                        SetFocusToView(dh.CurrentView); //ãƒ¦ãƒ¼ã‚¶ã®ãƒ•ã‚©ãƒ¼ã‚«ã‚¹æŒ‡å®šã ã£ãŸå ´åˆã¯ãã‚Œã«ä»»ã›ã‚‹
                 }
-                else { //Œ©‚¦‚Ä‚Í‚¢‚È‚©‚Á‚½ê‡
+                else { //è¦‹ãˆã¦ã¯ã„ãªã‹ã£ãŸå ´åˆ
                     IPoderosaView view = dh.LastAttachedView;
-                    Debug.Assert(view != null); //‚±‚ê‚ğ‹­§‚·‚éd‘g‚İ‚ğ‚Ç‚±‚©‚É‚Ù‚µ‚¢‚©‚àB¡‚Í‚·‚×‚Ä‚ÌDocument‚ªÅ‰‚ÉAttachDocumentAndView‚³‚ê‚é‚±‚Æ‚ğ‘z’è‚µ‚Ä‚¢‚é
+                    Debug.Assert(view != null); //ã“ã‚Œã‚’å¼·åˆ¶ã™ã‚‹ä»•çµ„ã¿ã‚’ã©ã“ã‹ã«ã»ã—ã„ã‹ã‚‚ã€‚ä»Šã¯ã™ã¹ã¦ã®DocumentãŒæœ€åˆã«AttachDocumentAndViewã•ã‚Œã‚‹ã“ã¨ã‚’æƒ³å®šã—ã¦ã„ã‚‹
                     AttachDocumentAndView(document, view);
                     Debug.Assert(dh.CurrentView == view);
                     if (!view.AsControl().Focused)
@@ -302,7 +302,7 @@ namespace Poderosa.Sessions {
                 Debug.Assert(dh.CurrentView.Document == document);
 
 
-                //’Ê’m
+                //é€šçŸ¥
                 NotifyActivation(ViewToForm(dh.CurrentView), document, reason);
             }
             finally {
@@ -312,7 +312,7 @@ namespace Poderosa.Sessions {
             }
         }
 
-        //SessionHost‚©‚çŒÄ‚Î‚ê‚éŒn—ñ
+        //SessionHostã‹ã‚‰å‘¼ã°ã‚Œã‚‹ç³»åˆ—
         public void RegisterDocument(IPoderosaDocument document, SessionHost sessionHost) {
             _documentMap.Add(document, new DocumentHost(this, sessionHost, document));
         }
@@ -328,7 +328,7 @@ namespace Poderosa.Sessions {
             return new ConvertingEnumerable<DocumentHost>(_documentMap.Values);
         }
 
-        //View‚Ìƒ}[ƒW‚Å‚ÌActivateˆ—
+        //Viewã®ãƒãƒ¼ã‚¸ã§ã®Activateå‡¦ç†
         public void ChangeLastAttachedViewForAllDocuments(IPoderosaView closing_view, IPoderosaView alternative) {
             closing_view = AdjustToOuterView(closing_view);
             alternative = AdjustToOuterView(alternative);
@@ -357,7 +357,7 @@ namespace Poderosa.Sessions {
             FireDocViewRelationChange();
         }
 
-        //view‚ÌˆÊ’u‚É‚ ‚éV‹K‚ÌƒhƒLƒ…ƒƒ“ƒg‚ğŒ©‚¦‚é‚æ‚¤‚É‚·‚éBƒhƒLƒ…ƒƒ“ƒg‚Ì•\¦ˆÊ’u‚ğ•Ï‚¦‚½‚Æ‚«A•Â‚¶‚½‚Æ‚«‚ÉÀs‚·‚é
+        //viewã®ä½ç½®ã«ã‚ã‚‹æ–°è¦ã®ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’è¦‹ãˆã‚‹ã‚ˆã†ã«ã™ã‚‹ã€‚ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã®è¡¨ç¤ºä½ç½®ã‚’å¤‰ãˆãŸã¨ãã€é–‰ã˜ãŸã¨ãã«å®Ÿè¡Œã™ã‚‹
         private DocumentHost ShowBackgroundDocument(IPoderosaView view) {
             DocumentHost new_visible_doc = FindNewVisibleDoc(view);
             if (new_visible_doc != null) {
@@ -375,7 +375,7 @@ namespace Poderosa.Sessions {
 
         private DocumentHost FindNewVisibleDoc(IPoderosaView view) {
             view = AdjustToOuterView(view);
-            //TODO ‚±‚ê‚Í‚¢‚¢‰ÁŒ¸B‚±‚Ìƒ‹[ƒ‹‚àAƒ^ƒu‚Å‚Ì‡”ÔAƒAƒNƒeƒBƒu‚É‚È‚Á‚½‡”Ô‚ğ‹L‰¯A‚È‚Ç•¡”‚Ìè’i‚ªl‚¦‚ç‚ê‚é‚µAƒvƒ‰ƒOƒCƒ“‚ÅŠg’£‚·‚×‚«‚Æ‚±‚ë
+            //TODO ã“ã‚Œã¯ã„ã„åŠ æ¸›ã€‚ã“ã®ãƒ«ãƒ¼ãƒ«ã‚‚ã€ã‚¿ãƒ–ã§ã®é †ç•ªã€ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ãŸé †ç•ªã‚’è¨˜æ†¶ã€ãªã©è¤‡æ•°ã®æ‰‹æ®µãŒè€ƒãˆã‚‰ã‚Œã‚‹ã—ã€ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã§æ‹¡å¼µã™ã¹ãã¨ã“ã‚
             foreach (DocumentHost dh in _documentMap.Values) {
                 if (dh.LastAttachedView == view)
                     return dh;
@@ -415,10 +415,10 @@ namespace Poderosa.Sessions {
             IPoderosaMainWindow window = (IPoderosaMainWindow)form.GetAdapter(typeof(IPoderosaMainWindow));
 
             if (window != null) {
-                //Tab‚Ö‚Ì’Ê’mBTabClick‚Ì‚Æ‚«‚ÍTab‚ª©‘O‚Åˆ—‚µ‚Ä‚é‚Ì‚ÅOK
+                //Tabã¸ã®é€šçŸ¥ã€‚TabClickã®ã¨ãã¯TabãŒè‡ªå‰ã§å‡¦ç†ã—ã¦ã‚‹ã®ã§OK
                 if (reason != ActivateReason.TabClick)
                     window.DocumentTabFeature.Activate(document);
-                //listener‚Ö‚Ì’Ê’m
+                //listenerã¸ã®é€šçŸ¥
                 foreach (IActiveDocumentChangeListener listener in _activeDocumentChangeListeners)
                     listener.OnDocumentActivated(window, document);
             }
@@ -435,7 +435,7 @@ namespace Poderosa.Sessions {
             if (window != null) {
                 IPoderosaDocument former = window.DocumentTabFeature.ActiveDocument;
                 window.DocumentTabFeature.Remove(document);
-                //TODO ƒAƒNƒeƒBƒu‚È‚Ì‚ğ‹L‰¯‚·‚éêŠ‚ğ•Ï‚¦‚é‚±‚Æ‚Åƒ^ƒu‚Ö‚Ì’Ê’m‚ğæ‚É‚·‚é§–ñ‚©‚ç‰ğ•ú‚³‚ê‚é
+                //TODO ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªã®ã‚’è¨˜æ†¶ã™ã‚‹å ´æ‰€ã‚’å¤‰ãˆã‚‹ã“ã¨ã§ã‚¿ãƒ–ã¸ã®é€šçŸ¥ã‚’å…ˆã«ã™ã‚‹åˆ¶ç´„ã‹ã‚‰è§£æ”¾ã•ã‚Œã‚‹
                 if (former == document) {
                     foreach (IActiveDocumentChangeListener listener in _activeDocumentChangeListeners)
                         listener.OnDocumentDeactivated(window);
@@ -452,7 +452,7 @@ namespace Poderosa.Sessions {
                 return view.Document;
         }
 
-        //ƒrƒ…[‚ÉƒtƒH[ƒJƒX‚ğƒZƒbƒg‚µ‚½ó‘Ô‚É‚·‚éBƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE‚Ìê‡A‚Ü‚¾ƒEƒBƒ“ƒhƒE‚ªƒ[ƒh‚³‚ê‚Ä‚¢‚È‚¢ƒP[ƒX‚à‚ ‚é‚Ì‚Å‚»‚±‚É’ˆÓI
+        //ãƒ“ãƒ¥ãƒ¼ã«ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã‚’ã‚»ãƒƒãƒˆã—ãŸçŠ¶æ…‹ã«ã™ã‚‹ã€‚ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®å ´åˆã€ã¾ã ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãŒãƒ­ãƒ¼ãƒ‰ã•ã‚Œã¦ã„ãªã„ã‚±ãƒ¼ã‚¹ã‚‚ã‚ã‚‹ã®ã§ãã“ã«æ³¨æ„ï¼
         private void SetFocusToView(IPoderosaView view) {
             IPoderosaForm form = view.ParentForm;
             IPoderosaPopupWindow popup = (IPoderosaPopupWindow)form.GetAdapter(typeof(IPoderosaPopupWindow));
@@ -464,11 +464,11 @@ namespace Poderosa.Sessions {
             }
 
             if (!view.AsControl().Focused)
-                view.AsControl().Focus(); //Šù‚ÉƒEƒBƒ“ƒhƒE‚ÍŒ©‚¦‚Ä‚¢‚é
+                view.AsControl().Focus(); //æ—¢ã«ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã¯è¦‹ãˆã¦ã„ã‚‹
         }
 
         private static IPoderosaView AdjustToOuterView(IPoderosaView view) {
-            //ContentReplaceableSite‚ª‚ ‚ê‚Î‚»‚Ìe‚ğg—p‚·‚é
+            //ContentReplaceableSiteãŒã‚ã‚Œã°ãã®è¦ªã‚’ä½¿ç”¨ã™ã‚‹
             IContentReplaceableViewSite s = (IContentReplaceableViewSite)view.GetAdapter(typeof(IContentReplaceableViewSite));
             if (s != null)
                 return s.CurrentContentReplaceableView;
@@ -500,8 +500,8 @@ namespace Poderosa.Sessions {
         private ISession _session;
         private List<IPoderosaDocument> _documents;
 
-        //ˆÈ‰º‚Ìƒƒ“ƒo‚ÍSessionManager#CloseMultipleDocuments‚É‚Ì‚İg—pB
-        //ƒXƒŒƒbƒhƒZ[ƒt‚Å‚Í‚È‚­‚È‚é‚ª‚³‚·‚ª‚É–â‘è‚Í‚È‚¢‚¾‚ë‚¤
+        //ä»¥ä¸‹ã®ãƒ¡ãƒ³ãƒã¯SessionManager#CloseMultipleDocumentsã«ã®ã¿ä½¿ç”¨ã€‚
+        //ã‚¹ãƒ¬ãƒƒãƒ‰ã‚»ãƒ¼ãƒ•ã§ã¯ãªããªã‚‹ãŒã•ã™ãŒã«å•é¡Œã¯ãªã„ã ã‚ã†
         private int _closingDocumentCount;
         private PrepareCloseResult _prepareCloseResult;
 
@@ -540,7 +540,7 @@ namespace Poderosa.Sessions {
             _parent.RegisterDocument(document, this);
             _documents.Add(document);
         }
-        //ƒzƒXƒg‚µ‚Ä‚¢‚éƒZƒbƒVƒ‡ƒ“‚ª©”­“I‚ÉI—¹‚·‚éê‡
+        //ãƒ›ã‚¹ãƒˆã—ã¦ã„ã‚‹ã‚»ãƒƒã‚·ãƒ§ãƒ³ãŒè‡ªç™ºçš„ã«çµ‚äº†ã™ã‚‹å ´åˆ
         public void TerminateSession() {
             _parent.CleanupSession(this);
         }
@@ -549,9 +549,9 @@ namespace Poderosa.Sessions {
             Debug.Assert(dh != null, "document must be alive");
             IPoderosaView view = dh.LastAttachedView;
             if (view != null)
-                return view.ParentForm; //‚±‚ê‚ª‘¶İ‚·‚é‚È‚çOK
+                return view.ParentForm; //ã“ã‚ŒãŒå­˜åœ¨ã™ã‚‹ãªã‚‰OK
             else
-                return WindowManagerPlugin.Instance.ActiveWindow; //‚¿‚å‚Á‚Æ”½‘¥‹C–¡‚Ìæ‚è•û‚¾‚ª
+                return WindowManagerPlugin.Instance.ActiveWindow; //ã¡ã‚‡ã£ã¨åå‰‡æ°—å‘³ã®å–ã‚Šæ–¹ã ãŒ
         }
         #endregion
 
@@ -561,7 +561,7 @@ namespace Poderosa.Sessions {
             _documents.Remove(document);
         }
 
-        //ˆÈ‰º‚ÍCloseMultipleDocument“à‚Åg—p‚·‚é
+        //ä»¥ä¸‹ã¯CloseMultipleDocumentå†…ã§ä½¿ç”¨ã™ã‚‹
         public int CMP_ClosingDocumentCount {
             get {
                 return _closingDocumentCount;
@@ -615,21 +615,21 @@ namespace Poderosa.Sessions {
             }
         }
 
-        //ƒrƒ…[‚Æ‚ÌŠÖ˜A•t‚¯•ÏX
+        //ãƒ“ãƒ¥ãƒ¼ã¨ã®é–¢é€£ä»˜ã‘å¤‰æ›´
         public void AttachView(IPoderosaView view) {
             _lastAttachedView = view;
             _currentView = view;
 
             IViewFactory vf = WindowManagerPlugin.Instance.ViewFactoryManager.GetViewFactoryByDoc(_document.GetType());
             IContentReplaceableView rv = (IContentReplaceableView)view.GetAdapter(typeof(IContentReplaceableView));
-            IPoderosaView internalview = rv == null ? view : rv.AssureViewClass(vf.GetViewType()); //ContentReplaceableView‚Ì‚Æ‚«‚Í’†g‚ğg—p
+            IPoderosaView internalview = rv == null ? view : rv.AssureViewClass(vf.GetViewType()); //ContentReplaceableViewã®ã¨ãã¯ä¸­èº«ã‚’ä½¿ç”¨
             Debug.Assert(vf.GetViewType() == internalview.GetType());
             _sessionHost.Session.InternalAttachView(_document, internalview);
         }
         public void DetachView() {
             Debug.Assert(_currentView != null);
             IContentReplaceableView rv = (IContentReplaceableView)_currentView.GetAdapter(typeof(IContentReplaceableView));
-            IPoderosaView internalview = rv == null ? _currentView : rv.GetCurrentContent(); //ContentReplaceableView‚Ì‚Æ‚«‚Í’†g‚ğg—p
+            IPoderosaView internalview = rv == null ? _currentView : rv.GetCurrentContent(); //ContentReplaceableViewã®ã¨ãã¯ä¸­èº«ã‚’ä½¿ç”¨
             _sessionHost.Session.InternalDetachView(_document, internalview);
 
             if (rv != null && rv.AsControl().Visible)
@@ -638,7 +638,7 @@ namespace Poderosa.Sessions {
             _currentView = null;
         }
 
-        //View‚ª•Â‚¶‚ç‚ê‚é‚È‚Ç‚Å‘ã‘Ö‚Ìƒrƒ…[‚É’uŠ·‚·‚é
+        //ViewãŒé–‰ã˜ã‚‰ã‚Œã‚‹ãªã©ã§ä»£æ›¿ã®ãƒ“ãƒ¥ãƒ¼ã«ç½®æ›ã™ã‚‹
         public void AlternateView(IPoderosaView view) {
             if (_currentView != null)
                 DetachView();
@@ -658,7 +658,7 @@ namespace Poderosa.Sessions {
         }
 
         private CloseType _type;
-        private IPoderosaMainWindow _window; //_type==OneWindow‚Ì‚Æ‚«‚Ì‚İƒZƒbƒgA‘¼‚Ì‚Æ‚«‚Ínull
+        private IPoderosaMainWindow _window; //_type==OneWindowã®ã¨ãã®ã¿ã‚»ãƒƒãƒˆã€ä»–ã®ã¨ãã¯null
         private List<SessionHost> _closingSessions;
 
         public ClosingContext(IPoderosaMainWindow window) {

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 * Copyright (c) 2005 Poderosa Project, All Rights Reserved.
 * $Id: Util.cs,v 1.3 2011/10/27 23:21:57 kzmi Exp $
 */
@@ -21,7 +21,7 @@ using Granados.Crypto;
 
 namespace Poderosa.PortForwarding {
     /// <summary>
-    /// Util ‚ÌŠT—v‚Ìà–¾‚Å‚·B
+    /// Util ã®æ¦‚è¦ã®èª¬æ˜ã§ã™ã€‚
     /// </summary>
     internal class Util {
         public delegate void ShowErrorDelegate(string msg);
@@ -172,7 +172,7 @@ namespace Poderosa.PortForwarding {
         }
     }
 
-    //V4/V6‚»‚ê‚¼‚ê‚P‚Â‚ÌƒAƒhƒŒƒX‚ğ‚¿Au—¼‘Î‰A‚½‚¾‚µ—¼•ûg‚¦‚é‚Æ‚«‚ÍV6—Dæv‚Æ‚¢‚¤«¿‚ğ‚à‚Â‚æ‚¤‚É‚·‚é
+    //V4/V6ãã‚Œãã‚Œï¼‘ã¤ã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’æŒã¡ã€ã€Œä¸¡å¯¾å¿œã€ãŸã ã—ä¸¡æ–¹ä½¿ãˆã‚‹ã¨ãã¯V6å„ªå…ˆã€ã¨ã„ã†æ€§è³ªã‚’ã‚‚ã¤ã‚ˆã†ã«ã™ã‚‹
     public class IPAddressSet {
         private IPAddress _v4Address;
         private IPAddress _v6Address;
@@ -274,7 +274,7 @@ namespace Poderosa.PortForwarding {
             if ((t.Length % 16) != 0) {
                 byte[] t2 = new byte[t.Length + (16 - (t.Length % 16))];
                 Array.Copy(t, 0, t2, 0, t.Length);
-                for (int i = t.Length + 1; i < t2.Length; i++) //c‚è‚Íƒ_ƒ~[
+                for (int i = t.Length + 1; i < t2.Length; i++) //æ®‹ã‚Šã¯ãƒ€ãƒŸãƒ¼
                     t2[i] = t[i % t.Length];
                 t = t2;
             }
@@ -297,7 +297,7 @@ namespace Poderosa.PortForwarding {
             byte[] d = new byte[t.Length];
             rijndael.decryptCBC(t, 0, t.Length, d, 0);
 
-            return Encoding.ASCII.GetString(d); //ƒpƒfƒBƒ“ƒO‚ª‚ ‚Á‚Ä‚àNULL•¶š‚É‚È‚é‚Ì‚Åœ‹‚³‚ê‚é‚Í‚¸
+            return Encoding.ASCII.GetString(d); //ãƒ‘ãƒ‡ã‚£ãƒ³ã‚°ãŒã‚ã£ã¦ã‚‚NULLæ–‡å­—ã«ãªã‚‹ã®ã§é™¤å»ã•ã‚Œã‚‹ã¯ãš
         }
 #endif
     }
@@ -330,7 +330,7 @@ namespace Poderosa.PortForwarding {
                 if (m.Length != netaddress.Length || m.Index != 0)
                     return false;
 
-                //‚©‚Á‚±‚ªIPƒAƒhƒŒƒX‚È‚çOK
+                //ã‹ã£ã“ãŒIPã‚¢ãƒ‰ãƒ¬ã‚¹ãªã‚‰OK
                 string a = m.Groups[1].Value;
                 IPAddress.Parse(a);
                 return true;

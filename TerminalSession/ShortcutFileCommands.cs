@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,7 +39,7 @@ namespace Poderosa.Sessions {
         }
 
         public bool CanAccept(ICommandTarget target, string[] filenames) {
-            return true; //ƒtƒ@ƒCƒ‹‚Ì’†g‚ğŒŸ¸‚·‚é—]—T‚Í‚È‚¢
+            return true; //ãƒ•ã‚¡ã‚¤ãƒ«ã®ä¸­èº«ã‚’æ¤œæŸ»ã™ã‚‹ä½™è£•ã¯ãªã„
         }
 
         public void DoDropAction(ICommandTarget target, string[] filenames) {
@@ -139,20 +139,20 @@ namespace Poderosa.Sessions {
                 f = ShortcutFileContent.LoadFromXML(filename);
             }
             catch (Exception ex) {
-                //•Ï‚Èƒtƒ@ƒCƒ‹‚ğƒhƒƒbƒv‚µ‚½‚È‚Ç‚Å—áŠO‚ÍŠÈ’P‚É‹N‚±‚è‚¤‚é
+                //å¤‰ãªãƒ•ã‚¡ã‚¤ãƒ«ã‚’ãƒ‰ãƒ­ãƒƒãƒ—ã—ãŸãªã©ã§ä¾‹å¤–ã¯ç°¡å˜ã«èµ·ã“ã‚Šã†ã‚‹
                 window.Warning(String.Format("Failed to read {0}\n{1}", filename, ex.Message));
                 return CommandResult.Failed;
             }
 
             try {
-                //“Æ—§ƒEƒBƒ“ƒhƒE‚Éƒ|ƒbƒvƒAƒbƒv‚³‚¹‚é‚æ‚¤‚È‚±‚Æ‚Íl‚¦‚Ä‚¢‚È‚¢
+                //ç‹¬ç«‹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã«ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã•ã›ã‚‹ã‚ˆã†ãªã“ã¨ã¯è€ƒãˆã¦ã„ãªã„
                 IContentReplaceableView rv = (IContentReplaceableView)target.GetAdapter(typeof(IContentReplaceableView));
                 if (rv == null) {
                     rv = (IContentReplaceableView)window.ViewManager.GetCandidateViewForNewDocument().GetAdapter(typeof(IContentReplaceableView));
                 }
 
                 TerminalControl tc = (TerminalControl)rv.GetCurrentContent().GetAdapter(typeof(TerminalControl));
-                if (tc != null) { //ƒ^[ƒ~ƒiƒ‹ƒRƒ“ƒgƒ[ƒ‹‚ª‚È‚¢‚Æ‚«‚Í–³—‚Éİ’è‚µ‚É‚¢‚©‚È‚¢
+                if (tc != null) { //ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ãŒãªã„ã¨ãã¯ç„¡ç†ã«è¨­å®šã—ã«ã„ã‹ãªã„
                     RenderProfile rp = f.TerminalSettings.UsingDefaultRenderProfile ? TerminalSessionsPlugin.Instance.TerminalEmulatorService.TerminalEmulatorOptions.CreateRenderProfile() : f.TerminalSettings.RenderProfile;
                     Size sz = tc.CalcTerminalSize(rp);
                     f.TerminalParameter.SetTerminalSize(sz.Width, sz.Height);
@@ -168,7 +168,7 @@ namespace Poderosa.Sessions {
         }
 
 
-        //ƒRƒ}ƒ“ƒh–{‘Ì
+        //ã‚³ãƒãƒ³ãƒ‰æœ¬ä½“
         private static CommandResult OpenShortcutFile(ICommandTarget target) {
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.Title = TEnv.Strings.GetString("Caption.OpenShortcutFile");

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,34 +24,34 @@ using Poderosa.Protocols;
 namespace Poderosa.ConnectionParam {
 
     /*
-     * TerminalParam‚Íƒ}ƒNƒ‚©‚ç‚àƒtƒ‹‚ÉƒAƒNƒZƒX‰Â”\‚É‚·‚é‚½‚ßpublic‚É‚·‚é
-     * ŒöŠJ‚·‚é•K—v‚Ì‚È‚¢ƒƒ\ƒbƒh‚ğinternal‚É‚·‚é
+     * TerminalParamã¯ãƒã‚¯ãƒ­ã‹ã‚‰ã‚‚ãƒ•ãƒ«ã«ã‚¢ã‚¯ã‚»ã‚¹å¯èƒ½ã«ã™ã‚‹ãŸã‚publicã«ã™ã‚‹
+     * å…¬é–‹ã™ã‚‹å¿…è¦ã®ãªã„ãƒ¡ã‚½ãƒƒãƒ‰ã‚’internalã«ã™ã‚‹
      */
 
-    //Granados“à‚ÌAuthenticationType‚Æ“¯ˆê‚¾‚ªA‹N“®‚Ì‚‘¬‰»‚Ì‚½‚ßg‚í‚È‚¢
+    //Granadoså†…ã®AuthenticationTypeã¨åŒä¸€ã ãŒã€èµ·å‹•ã®é«˜é€ŸåŒ–ã®ãŸã‚ä½¿ã‚ãªã„
 
     /// <summary>
-    /// <ja>SSH‚Å‚Ì”FØ•û–@‚ğ¦‚µ‚Ü‚·B</ja>
+    /// <ja>SSHã§ã®èªè¨¼æ–¹æ³•ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
     /// <en>Specifies the authemtication method of SSH.</en>
     /// </summary>
     /// <exclude/>
     public enum AuthType {
         /// <summary>
-        /// <ja>ƒpƒXƒ[ƒh”FØ</ja>
+        /// <ja>ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰èªè¨¼</ja>
         /// <en>Authentication using password.</en>
         /// </summary>
         [EnumValue(Description = "Enum.AuthType.Password")]
         Password,
 
         /// <summary>
-        /// <ja>èŒ³‚Ì”é–§Œ®‚ÆƒŠƒ‚[ƒgƒzƒXƒg‚É“o˜^‚µ‚½ŒöŠJŒ®‚ğg‚Á‚½”FØ</ja>
+        /// <ja>æ‰‹å…ƒã®ç§˜å¯†éµã¨ãƒªãƒ¢ãƒ¼ãƒˆãƒ›ã‚¹ãƒˆã«ç™»éŒ²ã—ãŸå…¬é–‹éµã‚’ä½¿ã£ãŸèªè¨¼</ja>
         /// <en>Authentication using the local private key and the remote public key.</en>
         /// </summary>
         [EnumValue(Description = "Enum.AuthType.PublicKey")]
         PublicKey,
 
         /// <summary>
-        /// <ja>ƒRƒ“ƒ\[ƒ‹ã‚ÅƒpƒXƒ[ƒh‚ğ“ü—Í‚·‚é”FØ</ja>
+        /// <ja>ã‚³ãƒ³ã‚½ãƒ¼ãƒ«ä¸Šã§ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã‚’å…¥åŠ›ã™ã‚‹èªè¨¼</ja>
         /// <en>Authentication by sending the password through the console.</en>
         /// </summary>
         [EnumValue(Description = "Enum.AuthType.KeyboardInteractive")]
@@ -59,7 +59,7 @@ namespace Poderosa.ConnectionParam {
     }
 
     /// <summary>
-    /// <ja>Ú‘±‚Ìí—Ş‚ğ¦‚µ‚Ü‚·B</ja>
+    /// <ja>æ¥ç¶šã®ç¨®é¡ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
     /// <en>Specifies the type of the connection.</en>
     /// </summary>
     /// <exclude/>
@@ -79,7 +79,7 @@ namespace Poderosa.ConnectionParam {
     }
 
     /// <summary>
-    /// <ja>ƒGƒ“ƒR[ƒfƒBƒ“ƒO‚ğ¦‚µ‚Ü‚·B</ja>
+    /// <ja>ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
     /// <en>Specifies the encoding of the connection.</en>
     /// <!--
     /// <seealso cref="Poderosa.ConnectionParam.TerminalParam.Encoding"/>
@@ -99,59 +99,59 @@ namespace Poderosa.ConnectionParam {
         [EnumValue(Description = "Enum.EncodingType.ISO8859_1")]
         ISO8859_1 = 0,
         /// <summary>
-        /// <ja>UTF-8 (CJKƒeƒLƒXƒg•\¦—p)</ja>
+        /// <ja>UTF-8 (CJKãƒ†ã‚­ã‚¹ãƒˆè¡¨ç¤ºç”¨)</ja>
         /// <en>UTF-8 (for displaying CJK text)</en>
         /// </summary>
         /// <remarks>
-        /// <ja>CJKƒLƒƒƒ‰ƒNƒ^ƒZƒbƒg‚ÉŠÜ‚Ü‚ê‚é‹L†AŒrüA‰¢•¶•¶š“™‚ÍACJKƒtƒHƒ“ƒg‚Å‘SŠp•\¦‚³‚ê‚Ü‚·B</ja>
+        /// <ja>CJKã‚­ãƒ£ãƒ©ã‚¯ã‚¿ã‚»ãƒƒãƒˆã«å«ã¾ã‚Œã‚‹è¨˜å·ã€ç½«ç·šã€æ¬§æ–‡æ–‡å­—ç­‰ã¯ã€CJKãƒ•ã‚©ãƒ³ãƒˆã§å…¨è§’è¡¨ç¤ºã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>Characters like symbols, box-drawing characters or european characters that are contained in CJK character sets are displayed in zenkaku using CJK font.</en>
         /// </remarks>
         [EnumValue(Description = "Enum.EncodingType.UTF8")]
         UTF8 = 1,
         /// <summary>
-        /// <ja>UTF-8 (‰¢•¶•\¦—p)</ja>
+        /// <ja>UTF-8 (æ¬§æ–‡è¡¨ç¤ºç”¨)</ja>
         /// <en>UTF-8 (for displaying american or european text)</en>
         /// </summary>
         /// <remarks>
-        /// <ja>‹L†AŒrüA‰¢•¶•¶š“™‚ÍAƒƒCƒ“ƒtƒHƒ“ƒg‚Å”¼Šp•\¦‚³‚ê‚Ü‚·B
-        /// Š¿š“™‚Ì“ŒƒAƒWƒA‚Ì•¶š‚ÍCJKƒtƒHƒ“ƒg‚Å‘SŠp•\¦‚³‚ê‚Ü‚·B</ja>
+        /// <ja>è¨˜å·ã€ç½«ç·šã€æ¬§æ–‡æ–‡å­—ç­‰ã¯ã€ãƒ¡ã‚¤ãƒ³ãƒ•ã‚©ãƒ³ãƒˆã§åŠè§’è¡¨ç¤ºã•ã‚Œã¾ã™ã€‚
+        /// æ¼¢å­—ç­‰ã®æ±ã‚¢ã‚¸ã‚¢ã®æ–‡å­—ã¯CJKãƒ•ã‚©ãƒ³ãƒˆã§å…¨è§’è¡¨ç¤ºã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>Characters like symbols, box-drawing characters or european characters are displayed in Hankaku using main font.
         /// East asian characters like Kanji are displayed in Zenkaku using CJK font.</en>
         /// </remarks>
         [EnumValue(Description = "Enum.EncodingType.UTF8_Latin")]
         UTF8_Latin = 8,
         /// <summary>
-        /// <ja>EUC JP (å‚É“ú–{Œê‚Ì•¶š‚Åg—p)</ja>
+        /// <ja>EUC JP (ä¸»ã«æ—¥æœ¬èªã®æ–‡å­—ã§ä½¿ç”¨)</ja>
         /// <en>EUC JP (This encoding is primarily used with Japanese characters.)</en>
         /// </summary>
         [EnumValue(Description = "Enum.EncodingType.EUC_JP")]
         EUC_JP = 2,
         /// <summary>
-        /// <ja>Shift JIS (å‚É“ú–{Œê‚Ì•¶š‚Åg—p)</ja>
+        /// <ja>Shift JIS (ä¸»ã«æ—¥æœ¬èªã®æ–‡å­—ã§ä½¿ç”¨)</ja>
         /// <en>Shift JIS (This encoding is primarily used with Japanese characters.)</en>
         /// </summary>
         [EnumValue(Description = "Enum.EncodingType.SHIFT_JIS")]
         SHIFT_JIS = 3,
         /// <summary>
-        /// <ja>GB2312 (å‚ÉŠÈ‘Ìš‚Åg—p)</ja>
+        /// <ja>GB2312 (ä¸»ã«ç°¡ä½“å­—ã§ä½¿ç”¨)</ja>
         /// <en>GB2312 (This encoding is primarily used with simplified Chinese characters.)</en>
         /// </summary>
         [EnumValue(Description = "Enum.EncodingType.GB2312")]
         GB2312 = 4,
         /// <summary>
-        /// <ja>Big5 (å‚É”É‘Ìš‚Åg—p)</ja>
+        /// <ja>Big5 (ä¸»ã«ç¹ä½“å­—ã§ä½¿ç”¨)</ja>
         /// <en>Big5 (This encoding is primarily used with traditional Chinese characters.)</en>
         /// </summary>
         [EnumValue(Description = "Enum.EncodingType.BIG5")]
         BIG5 = 5,
         /// <summary>
-        /// <ja>EUC CN (å‚ÉŠÈ‘Ìš‚Åg—p)</ja>
+        /// <ja>EUC CN (ä¸»ã«ç°¡ä½“å­—ã§ä½¿ç”¨)</ja>
         /// <en>EUC CN (This encoding is primarily used with simplified Chinese characters.)</en>
         /// </summary>
         [EnumValue(Description = "Enum.EncodingType.EUC_CN")]
         EUC_CN = 6,
         /// <summary>
-        /// <ja>EUC KR (å‚ÉŠØ‘Œê•¶š‚Åg—p)</ja>
+        /// <ja>EUC KR (ä¸»ã«éŸ“å›½èªæ–‡å­—ã§ä½¿ç”¨)</ja>
         /// <en>EUC KR (This encoding is primarily used with Korean characters.)</en>
         /// </summary>
         [EnumValue(Description = "Enum.EncodingType.EUC_KR")]
@@ -165,37 +165,37 @@ namespace Poderosa.ConnectionParam {
     }
 
     /// <summary>
-    /// <ja>ƒƒO‚Ìí—Ş‚ğ¦‚µ‚Ü‚·B</ja>
+    /// <ja>ãƒ­ã‚°ã®ç¨®é¡ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
     /// <en>Specifies the log type.</en>
     /// </summary>
     /// <exclude/>
     public enum LogType {
         /// <summary>
-        /// <ja>ƒƒO‚Í‚Æ‚è‚Ü‚¹‚ñB</ja>
+        /// <ja>ãƒ­ã‚°ã¯ã¨ã‚Šã¾ã›ã‚“ã€‚</ja>
         /// <en>The log is not recorded.</en>
         /// </summary>
         [EnumValue(Description = "Enum.LogType.None")]
         None,
         /// <summary>
-        /// <ja>ƒeƒLƒXƒgƒ‚[ƒh‚ÌƒƒO‚Å‚·B‚±‚ê‚ª•W€‚Å‚·B</ja>
+        /// <ja>ãƒ†ã‚­ã‚¹ãƒˆãƒ¢ãƒ¼ãƒ‰ã®ãƒ­ã‚°ã§ã™ã€‚ã“ã‚ŒãŒæ¨™æº–ã§ã™ã€‚</ja>
         /// <en>The log is a plain text file. This is standard.</en>
         /// </summary>
         [EnumValue(Description = "Enum.LogType.Default")]
         Default,
         /// <summary>
-        /// <ja>ƒeƒLƒXƒgƒ‚[ƒh‚ÌƒƒOAƒ^ƒCƒ€ƒXƒ^ƒ“ƒv•tB</ja>
+        /// <ja>ãƒ†ã‚­ã‚¹ãƒˆãƒ¢ãƒ¼ãƒ‰ã®ãƒ­ã‚°ã€ã‚¿ã‚¤ãƒ ã‚¹ã‚¿ãƒ³ãƒ—ä»˜ã€‚</ja>
         /// <en>Plain text file, logged with timestamp.</en>
         /// </summary>
         [EnumValue(Description = "Enum.LogType.PlainTextWithTimestamp")]
         PlainTextWithTimestamp,
         /// <summary>
-        /// <ja>ƒoƒCƒiƒŠƒ‚[ƒh‚ÌƒƒO‚Å‚·B</ja>
+        /// <ja>ãƒã‚¤ãƒŠãƒªãƒ¢ãƒ¼ãƒ‰ã®ãƒ­ã‚°ã§ã™ã€‚</ja>
         /// <en>The log is a binary file.</en>
         /// </summary>
         [EnumValue(Description = "Enum.LogType.Binary")]
         Binary,
         /// <summary>
-        /// <ja>XML‚Å•Û‘¶‚µ‚Ü‚·B‚Ü‚½“à•”“I‚ÈƒoƒO’ÇÕ‚É‚¨‚¢‚Ä‚±‚Ìƒ‚[ƒh‚Å‚ÌƒƒOÌæ‚ğ‚¨Šè‚¢‚·‚é‚±‚Æ‚ª‚ ‚è‚Ü‚·B</ja>
+        /// <ja>XMLã§ä¿å­˜ã—ã¾ã™ã€‚ã¾ãŸå†…éƒ¨çš„ãªãƒã‚°è¿½è·¡ã«ãŠã„ã¦ã“ã®ãƒ¢ãƒ¼ãƒ‰ã§ã®ãƒ­ã‚°æ¡å–ã‚’ãŠé¡˜ã„ã™ã‚‹ã“ã¨ãŒã‚ã‚Šã¾ã™ã€‚</ja>
         /// <en>The log is an XML file. We may ask you to record the log in this type for debugging.</en>
         /// </summary>
         [EnumValue(Description = "Enum.LogType.Xml")]
@@ -203,7 +203,7 @@ namespace Poderosa.ConnectionParam {
     }
 
     /// <summary>
-    /// <ja>‘—M‚Ì‰üs‚Ìí—Ş‚ğ¦‚µ‚Ü‚·B</ja>
+    /// <ja>é€ä¿¡æ™‚ã®æ”¹è¡Œã®ç¨®é¡ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
     /// <en>Specifies the new-line characters for transmission.</en>
     /// </summary>
     /// <exclude/>
@@ -226,15 +226,15 @@ namespace Poderosa.ConnectionParam {
     }
 
     /// <summary>
-    /// <ja>ƒ^[ƒ~ƒiƒ‹‚Ìí•Ê‚ğ¦‚µ‚Ü‚·B</ja>
+    /// <ja>ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã®ç¨®åˆ¥ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
     /// <en>Specifies the type of the terminal.</en>
     /// </summary>
     /// <remarks>
-    /// <ja>XTerm‚É‚ÍVT100‚É‚Í‚È‚¢‚¢‚­‚Â‚©‚ÌƒGƒXƒP[ƒvƒV[ƒPƒ“ƒX‚ªŠÜ‚Ü‚ê‚Ä‚¢‚Ü‚·B</ja>
+    /// <ja>XTermã«ã¯VT100ã«ã¯ãªã„ã„ãã¤ã‹ã®ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ãŒå«ã¾ã‚Œã¦ã„ã¾ã™ã€‚</ja>
     /// <en>XTerm supports several escape sequences in addition to VT100.</en>
-    /// <ja>KTerm‚Í’†g‚ÍXTerm‚Æˆê‚Å‚·‚ªASSH‚âTelnet‚ÌÚ‘±ƒIƒvƒVƒ‡ƒ“‚É‚¨‚¢‚Äƒ^[ƒ~ƒiƒ‹‚Ìí—Ş‚ğ¦‚·•¶š—ñ‚Æ‚µ‚Ä"kterm"‚ªƒZƒbƒg‚³‚ê‚Ü‚·B</ja>
+    /// <ja>KTermã¯ä¸­èº«ã¯XTermã¨ä¸€ç·’ã§ã™ãŒã€SSHã‚„Telnetã®æ¥ç¶šã‚ªãƒ—ã‚·ãƒ§ãƒ³ã«ãŠã„ã¦ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã®ç¨®é¡ã‚’ç¤ºã™æ–‡å­—åˆ—ã¨ã—ã¦"kterm"ãŒã‚»ãƒƒãƒˆã•ã‚Œã¾ã™ã€‚</ja>
     /// <en>Though the functionality of KTerm is identical to XTerm, the string "kterm" is used for specifying the type of the terminal in the connection of Telnet or SSH.</en>
-    /// <ja>‚±‚Ìİ’è‚ÍA‘½‚­‚Ìê‡TERMŠÂ‹«•Ï”‚Ì’l‚É‰e‹¿‚µ‚Ü‚·B</ja>
+    /// <ja>ã“ã®è¨­å®šã¯ã€å¤šãã®å ´åˆTERMç’°å¢ƒå¤‰æ•°ã®å€¤ã«å½±éŸ¿ã—ã¾ã™ã€‚</ja>
     /// <en>In most cases, this setting affects the TERM environment variable.</en>
     /// </remarks>
     /// <exclude/>
@@ -257,25 +257,25 @@ namespace Poderosa.ConnectionParam {
     }
 
     /// <summary>
-    /// <ja>óM‚µ‚½•¶š‚É‘Î‚·‚é‰üs•û–@‚ğ¦‚µ‚Ü‚·B</ja>
+    /// <ja>å—ä¿¡ã—ãŸæ–‡å­—ã«å¯¾ã™ã‚‹æ”¹è¡Œæ–¹æ³•ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
     /// <en>Specifies line breaking style.</en>
     /// </summary>
     /// <exclude/>
     public enum LineFeedRule {
         /// <summary>
-        /// <ja>•W€</ja>
+        /// <ja>æ¨™æº–</ja>
         /// <en>Standard</en>
         /// </summary>
         [EnumValue(Description = "Enum.LineFeedRule.Normal")]
         Normal,
         /// <summary>
-        /// <ja>LF‚Å‰üs‚µCR‚ğ–³‹</ja>
+        /// <ja>LFã§æ”¹è¡Œã—CRã‚’ç„¡è¦–</ja>
         /// <en>LF:Line Break, CR:Ignore</en>
         /// </summary>
         [EnumValue(Description = "Enum.LineFeedRule.LFOnly")]
         LFOnly,
         /// <summary>
-        /// <ja>CR‚Å‰üs‚µLF‚ğ–³‹</ja>
+        /// <ja>CRã§æ”¹è¡Œã—LFã‚’ç„¡è¦–</ja>
         /// <en>CR:Line Break, LF:Ignore</en>
         /// </summary>
         [EnumValue(Description = "Enum.LineFeedRule.CROnly")]
@@ -284,13 +284,13 @@ namespace Poderosa.ConnectionParam {
 
 #if !MACRODOC
     /// <summary>
-    /// <ja>ƒtƒ[ƒRƒ“ƒgƒ[ƒ‹‚Ìİ’è</ja>
+    /// <ja>ãƒ•ãƒ­ãƒ¼ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã®è¨­å®š</ja>
     /// <en>Specifies the flow control.</en>
     /// </summary>
     /// <exclude/>
     public enum FlowControl {
         /// <summary>
-        /// <ja>‚È‚µ</ja>
+        /// <ja>ãªã—</ja>
         /// <en>None</en>
         /// </summary>
         [EnumValue(Description = "Enum.FlowControl.None")]
@@ -301,7 +301,7 @@ namespace Poderosa.ConnectionParam {
         [EnumValue(Description = "Enum.FlowControl.Xon_Xoff")]
         Xon_Xoff,
         /// <summary>
-        /// <ja>ƒn[ƒhƒEƒFƒA</ja>
+        /// <ja>ãƒãƒ¼ãƒ‰ã‚¦ã‚§ã‚¢</ja>
         /// <en>Hardware</en>
         /// </summary>
         [EnumValue(Description = "Enum.FlowControl.Hardware")]
@@ -309,25 +309,25 @@ namespace Poderosa.ConnectionParam {
     }
 
     /// <summary>
-    /// <ja>ƒpƒŠƒeƒB‚Ìİ’è</ja>
+    /// <ja>ãƒ‘ãƒªãƒ†ã‚£ã®è¨­å®š</ja>
     /// <en>Specifies the parity.</en>
     /// </summary>
     /// <exclude/>
     public enum Parity {
         /// <summary>
-        /// <ja>‚È‚µ</ja>
+        /// <ja>ãªã—</ja>
         /// <en>None</en>
         /// </summary>
         [EnumValue(Description = "Enum.Parity.NOPARITY")]
         NOPARITY = 0,
         /// <summary>
-        /// <ja>Šï”</ja>
+        /// <ja>å¥‡æ•°</ja>
         /// <en>Odd</en>
         /// </summary>
         [EnumValue(Description = "Enum.Parity.ODDPARITY")]
         ODDPARITY = 1,
         /// <summary>
-        /// <ja>‹ô”</ja>
+        /// <ja>å¶æ•°</ja>
         /// <en>Even</en>
         /// </summary>
         [EnumValue(Description = "Enum.Parity.EVENPARITY")]
@@ -337,25 +337,25 @@ namespace Poderosa.ConnectionParam {
     }
 
     /// <summary>
-    /// <ja>ƒXƒgƒbƒvƒrƒbƒg‚Ìİ’è</ja>
+    /// <ja>ã‚¹ãƒˆãƒƒãƒ—ãƒ“ãƒƒãƒˆã®è¨­å®š</ja>
     /// <en>Specifies the stop bits.</en>
     /// </summary>
     /// <exclude/>
     public enum StopBits {
         /// <summary>
-        /// <ja>1ƒrƒbƒg</ja>
+        /// <ja>1ãƒ“ãƒƒãƒˆ</ja>
         /// <en>1 bit</en>
         /// </summary>
         [EnumValue(Description = "Enum.StopBits.ONESTOPBIT")]
         ONESTOPBIT = 0,
         /// <summary>
-        /// <ja>1.5ƒrƒbƒg</ja>
+        /// <ja>1.5ãƒ“ãƒƒãƒˆ</ja>
         /// <en>1.5 bits</en>
         /// </summary>
         [EnumValue(Description = "Enum.StopBits.ONE5STOPBITS")]
         ONE5STOPBITS = 1,
         /// <summary>
-        /// <ja>2ƒrƒbƒg</ja>
+        /// <ja>2ãƒ“ãƒƒãƒˆ</ja>
         /// <en>2 bits</en>
         /// </summary>
         [EnumValue(Description = "Enum.StopBits.TWOSTOPBITS")]

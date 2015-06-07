@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -68,14 +68,14 @@ namespace Poderosa.Protocols {
             try {
                 int n = _socket.EndReceive(result);
                 _dataFragment.Set(_buf, 0, n);
-                Debug.Assert(_ownerConnection != null); //‚±‚ê‚ğŒÄ‚Ño‚·‚æ‚¤‚É‚È‚é‚Ü‚Å‚É‚ÍƒZƒbƒg‚³‚ê‚Ä‚¢‚é‚±‚ÆI
+                Debug.Assert(_ownerConnection != null); //ã“ã‚Œã‚’å‘¼ã³å‡ºã™ã‚ˆã†ã«ãªã‚‹ã¾ã§ã«ã¯ã‚»ãƒƒãƒˆã•ã‚Œã¦ã„ã‚‹ã“ã¨ï¼
 
                 if (n > 0) {
                     if (OnReceptionCore(_dataFragment) == GenericResult.Succeeded)
                         BeginReceive();
                 }
                 else if (n < 0) {
-                    //WindowsME‚É‚¨‚¢‚Ä‚ÍA‚Æ‚«‚Ç‚«‚±‚±‚Å-1‚ª•Ô‚Á‚Ä‚«‚Ä‚¢‚é‚±‚Æ‚ª”­Šo‚µ‚½B‰º‚ÌErrorCode 995‚Ìê‡‚à“¯—l
+                    //WindowsMEã«ãŠã„ã¦ã¯ã€ã¨ãã©ãã“ã“ã§-1ãŒè¿”ã£ã¦ãã¦ã„ã‚‹ã“ã¨ãŒç™ºè¦šã—ãŸã€‚ä¸‹ã®ErrorCode 995ã®å ´åˆã‚‚åŒæ§˜
                     BeginReceive();
                 }
                 else {
@@ -98,7 +98,7 @@ namespace Poderosa.Protocols {
             }
         }
 
-        //IByteAsuncInputStream‚Ìƒnƒ“ƒhƒ‰‚Å—áŠO‚ª—ˆ‚é‚Æ‚¯‚Á‚±‚¤S–‚È‚Ì‚Å‚±‚Ì’†‚Å‚µ‚Á‚©‚èƒK[ƒh
+        //IByteAsuncInputStreamã®ãƒãƒ³ãƒ‰ãƒ©ã§ä¾‹å¤–ãŒæ¥ã‚‹ã¨ã‘ã£ã“ã†æƒ¨äº‹ãªã®ã§ã“ã®ä¸­ã§ã—ã£ã‹ã‚Šã‚¬ãƒ¼ãƒ‰
 
         private GenericResult OnReceptionCore(ByteDataFragment data) {
             try {
@@ -149,7 +149,7 @@ namespace Poderosa.Protocols {
         }
     }
 
-    //‘—M‚µ‚½‚à‚Ì‚ğ‚»‚Ì‚Ü‚Ü–ß‚·
+    //é€ä¿¡ã—ãŸã‚‚ã®ã‚’ãã®ã¾ã¾æˆ»ã™
     internal class LoopbackSocket : IPoderosaSocket {
         private IByteAsyncInputStream _receiver;
 
@@ -206,10 +206,10 @@ namespace Poderosa.Protocols {
     internal abstract class TerminalConnection : ITerminalConnection {
         protected ITerminalParameter _destination;
         protected ConnectionStats _stats;
-        protected ITerminalOutput _terminalOutput; //”h¶ƒNƒ‰ƒX‚Å‚Í‚±‚ê‚ğƒZƒbƒg‚·‚é
+        protected ITerminalOutput _terminalOutput; //æ´¾ç”Ÿã‚¯ãƒ©ã‚¹ã§ã¯ã“ã‚Œã‚’ã‚»ãƒƒãƒˆã™ã‚‹
         protected IPoderosaSocket _socket;
 
-        //‚·‚Å‚ÉƒNƒ[ƒY‚³‚ê‚½‚©‚Ç‚¤‚©‚Ìƒtƒ‰ƒO
+        //ã™ã§ã«ã‚¯ãƒ­ãƒ¼ã‚ºã•ã‚ŒãŸã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°
         protected bool _closed;
 
         protected TerminalConnection(ITerminalParameter p) {
@@ -241,13 +241,13 @@ namespace Poderosa.Protocols {
             }
         }
 
-        //ƒ\ƒPƒbƒg‘¤‚ÅƒGƒ‰[‚ª‹N‚«‚½‚Æ‚«‚Ìˆ’u
+        //ã‚½ã‚±ãƒƒãƒˆå´ã§ã‚¨ãƒ©ãƒ¼ãŒèµ·ããŸã¨ãã®å‡¦ç½®
         public void CloseBySocket() {
             if (!_closed)
                 CloseCore();
         }
 
-        //I—¹ˆ—
+        //çµ‚äº†å‡¦ç†
         public virtual void Close() {
             if (!_closed)
                 CloseCore();
@@ -271,7 +271,7 @@ namespace Poderosa.Protocols {
             _usingSocks = false;
         }
 
-        //İ’è‚ÍÅ‰‚¾‚¯s‚¤
+        //è¨­å®šã¯æœ€åˆã ã‘è¡Œã†
         public bool UsingSocks {
             get {
                 return _usingSocks;
@@ -285,7 +285,7 @@ namespace Poderosa.Protocols {
 
     internal class SSHTerminalConnection : TCPTerminalConnection {
 
-        private SSHConnectionEventReceiverBase _sshSocket; //Keyboard-interactive‚Ì‚Æ‚«‚Ì”FØ’†‚Ì‚İ_sshSocket‚ÍKeyboardInteractiveAuthHanlder
+        private SSHConnectionEventReceiverBase _sshSocket; //Keyboard-interactiveã®ã¨ãã®èªè¨¼ä¸­ã®ã¿_sshSocketã¯KeyboardInteractiveAuthHanlder
         private ISSHLoginParameter _sshLoginParameter;
 
         public SSHTerminalConnection(ISSHLoginParameter ssh)
@@ -301,10 +301,10 @@ namespace Poderosa.Protocols {
                 KeyboardInteractiveAuthHanlder s = new KeyboardInteractiveAuthHanlder(this);
                 _sshSocket = s;
                 _socket = s;
-                _terminalOutput = null; //‚Ü‚¾—˜—p‰Â”\‚Å‚È‚¢
+                _terminalOutput = null; //ã¾ã åˆ©ç”¨å¯èƒ½ã§ãªã„
             }
         }
-        //Keyboard-interactive‚Ìê‡A”FØ¬Œ÷Œã‚É‚±‚ê‚ğÀs
+        //Keyboard-interactiveã®å ´åˆã€èªè¨¼æˆåŠŸå¾Œã«ã“ã‚Œã‚’å®Ÿè¡Œ
         internal void ReplaceSSHSocket(SSHSocket sshsocket) {
             _sshSocket = sshsocket;
             _socket = sshsocket;
@@ -325,18 +325,18 @@ namespace Poderosa.Protocols {
         public void AttachTransmissionSide(SSHConnection con) {
             _sshSocket.SetSSHConnection(con);
             if (con.AuthenticationResult == AuthenticationResult.Success) {
-                SSHSocket ss = (SSHSocket)_sshSocket; //Keyboard-Interactive‚ª‚ç‚İ‚Å‚¿‚å‚Á‚Æ•s©‘R‚É‚È‚Á‚Ä‚é‚È
+                SSHSocket ss = (SSHSocket)_sshSocket; //Keyboard-InteractiveãŒã‚‰ã¿ã§ã¡ã‚‡ã£ã¨ä¸è‡ªç„¶ã«ãªã£ã¦ã‚‹ãª
                 ISSHSubsystemParameter subsystem = (ISSHSubsystemParameter)_sshLoginParameter.GetAdapter(typeof(ISSHSubsystemParameter));
                 if (subsystem != null)
                     ss.OpenSubsystem(subsystem.SubsystemName);
-                else //‚Ó‚Â‚¤‚ÌƒVƒFƒ‹
+                else //ãµã¤ã†ã®ã‚·ã‚§ãƒ«
                     ss.OpenShell();
             }
         }
 
         public override void Close() {
             if (_closed)
-                return; //‚Q“xˆÈãƒNƒ[ƒY‚µ‚Ä‚à•›ì—p‚È‚µ 
+                return; //ï¼’åº¦ä»¥ä¸Šã‚¯ãƒ­ãƒ¼ã‚ºã—ã¦ã‚‚å‰¯ä½œç”¨ãªã— 
             base.Close();
             _sshSocket.Close();
         }
@@ -372,7 +372,7 @@ namespace Poderosa.Protocols {
                         _passwordBuffer.Close();
                         string[] response = new string[1];
                         response[0] = Encoding.ASCII.GetString(pwd);
-                        OnData(Encoding.ASCII.GetBytes("\r\n"), 0, 2); //•\¦ã‰üs‚µ‚È‚¢‚ÆŠiDˆ«‚¢
+                        OnData(Encoding.ASCII.GetBytes("\r\n"), 0, 2); //è¡¨ç¤ºä¸Šæ”¹è¡Œã—ãªã„ã¨æ ¼å¥½æ‚ªã„
                         if (((Granados.SSHCV2.SSH2Connection)_connection).DoKeyboardInteractiveAuth(response) == AuthenticationResult.Success)
                             _channel = _connection.OpenShell(this);
                         _passwordBuffer = null;
@@ -420,7 +420,7 @@ namespace Poderosa.Protocols {
             _callback.OnAbnormalTermination(msg);
         }
 
-        //CR NUL -> CR •ÏŠ·‚¨‚æ‚Ñ IAC‚©‚ç‚Í‚¶‚Ü‚éƒV[ƒPƒ“ƒX‚Ìˆ—
+        //CR NUL -> CR å¤‰æ›ãŠã‚ˆã³ IACã‹ã‚‰ã¯ã˜ã¾ã‚‹ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ã®å‡¦ç†
         private void ProcessBuffer(ByteDataFragment data) {
             int limit = data.Offset + data.Length;
             int offset = data.Offset;
@@ -441,12 +441,12 @@ namespace Poderosa.Protocols {
                         break;
                     }
                     if (b == 0 && delim - 1 >= 0 && buf[delim - 1] == 0x0D)
-                        break; //CR NULƒTƒ|[ƒg
+                        break; //CR NULã‚µãƒãƒ¼ãƒˆ
                     delim++;
                 }
 
                 if (delim > offset)
-                    _callback.OnReception(_localdata.Set(buf, offset, delim - offset)); //delim‚Ìè‘O‚Ü‚Åˆ—
+                    _callback.OnReception(_localdata.Set(buf, offset, delim - offset)); //delimã®æ‰‹å‰ã¾ã§å‡¦ç†
                 offset = delim + 1;
             }
 
@@ -493,12 +493,12 @@ namespace Poderosa.Protocols {
         public void Transmit(byte[] buf, int offset, int length) {
             for (int i = 0; i < length; i++) {
                 byte t = buf[offset + i];
-                if (t == 0xFF || t == 0x0D) { //0xFF‚Ü‚½‚ÍCRLFˆÈŠO‚ÌCR‚ğŒ©‚Â‚¯‚½‚ç
+                if (t == 0xFF || t == 0x0D) { //0xFFã¾ãŸã¯CRLFä»¥å¤–ã®CRã‚’è¦‹ã¤ã‘ãŸã‚‰
                     WriteEscaping(buf, offset, length);
                     return;
                 }
             }
-            _socket.Transmit(buf, offset, length); //‘å’ï‚Ìê‡‚Í‚±‚¤‚¢‚¤ƒf[ƒ^‚Í“ü‚Á‚Ä‚¢‚È‚¢‚Ì‚ÅA‚‘¬‰»‚Ì‚½‚ß‚»‚Ì‚Ü‚Ü‘—‚èo‚·
+            _socket.Transmit(buf, offset, length); //å¤§æŠµã®å ´åˆã¯ã“ã†ã„ã†ãƒ‡ãƒ¼ã‚¿ã¯å…¥ã£ã¦ã„ãªã„ã®ã§ã€é«˜é€ŸåŒ–ã®ãŸã‚ãã®ã¾ã¾é€ã‚Šå‡ºã™
         }
         private void WriteEscaping(byte[] buf, int offset, int length) {
             byte[] newbuf = new byte[length * 2];
@@ -507,7 +507,7 @@ namespace Poderosa.Protocols {
                 byte t = buf[offset + i];
                 if (t == 0xFF) {
                     newbuf[newoffset++] = 0xFF;
-                    newbuf[newoffset++] = 0xFF; //‚QŒÂ
+                    newbuf[newoffset++] = 0xFF; //ï¼’å€‹
                 }
                 else if (t == 0x0D && !(_telnetNewLine && i + 1 < length && buf[offset + i + 1] == 0x0A)) {
                     // CR    --> CR NUL (Telnet CR)
@@ -574,13 +574,13 @@ namespace Poderosa.Protocols {
             _socket = _telnetSocket;
             _terminalOutput = _telnetSocket;
         }
-        //Telnet‚ÌƒGƒXƒP[ƒv‹@”\‚Â‚«
+        //Telnetã®ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—æ©Ÿèƒ½ã¤ã
         public TelnetSocket TelnetSocket {
             get {
                 return _telnetSocket;
             }
         }
-        //TelnetSocket‚ª“à•ï‚·‚é¶ƒ\ƒPƒbƒg
+        //TelnetSocketãŒå†…åŒ…ã™ã‚‹ç”Ÿã‚½ã‚±ãƒƒãƒˆ
         public IPoderosaSocket RawSocket {
             get {
                 return _rawSocket;
@@ -589,7 +589,7 @@ namespace Poderosa.Protocols {
 
         public override void Close() {
             if (_closed)
-                return; //‚Q“xˆÈãƒNƒ[ƒY‚µ‚Ä‚à•›ì—p‚È‚µ 
+                return; //ï¼’åº¦ä»¥ä¸Šã‚¯ãƒ­ãƒ¼ã‚ºã—ã¦ã‚‚å‰¯ä½œç”¨ãªã— 
             _telnetSocket.Close();
             base.Close();
         }
@@ -640,7 +640,7 @@ namespace Poderosa.Protocols {
             return ProtocolsPlugin.Instance.PoderosaWorld.AdapterManager.GetAdapter(this, adapter);
         }
 
-        //ITerminalOutput‚ÍƒVƒJƒg
+        //ITerminalOutputã¯ã‚·ã‚«ãƒˆ
         public void SendBreak() {
         }
 

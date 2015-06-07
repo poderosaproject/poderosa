@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -348,7 +348,7 @@ namespace Poderosa.Forms {
             bool successful = false;
             string itemname = null;
             try {
-                //Win9x‚Å‚ÍA¶‰E‚ÌAlt‚Ì‹æ•Ê‚ª‚Å‚«‚È‚¢‚Ì‚Å•ÊX‚Ìİ’è‚É‚·‚é‚±‚Æ‚ğ‹Ö~‚·‚é
+                //Win9xã§ã¯ã€å·¦å³ã®Altã®åŒºåˆ¥ãŒã§ããªã„ã®ã§åˆ¥ã€…ã®è¨­å®šã«ã™ã‚‹ã“ã¨ã‚’ç¦æ­¢ã™ã‚‹
                 if (System.Environment.OSVersion.Platform == PlatformID.Win32Windows &&
                         ((EnumListItem<AltKeyAction>)_leftAltKeyAction.SelectedItem).Value
                             != ((EnumListItem<AltKeyAction>)_rightAltKeyAction.SelectedItem).Value) {
@@ -362,7 +362,7 @@ namespace Poderosa.Forms {
                 options.Send0x7FByBack = _send0x7FByBack.Checked;
                 options.Zone0x1F = ((EnumListItem<KeyboardStyle>)_zone0x1FBox.SelectedItem).Value;
                 itemname = "Custom Key Setting";
-                KeyFunction.Parse(_customKeySettingsBox.Text); //ƒp[ƒX‚Å‚«‚ê‚ÎOK
+                KeyFunction.Parse(_customKeySettingsBox.Text); //ãƒ‘ãƒ¼ã‚¹ã§ãã‚Œã°OK
                 options.CustomKeySettings = _customKeySettingsBox.Text;
                 window_options.AutoCopyByLeftButton = _autoCopyByLeftButton.Checked;
                 options.RightButtonAction = ((EnumListItem<MouseButtonAction>)_rightButtonAction.SelectedItem).Value;
@@ -404,7 +404,7 @@ namespace Poderosa.Forms {
                     s = "Ctrl+D6=0x1E, Ctrl+Minus=0x1F";
                 else //Japanese
                     s = "Ctrl+BackSlash=0x1F";
-                //ˆê‰ƒp[ƒX
+                //ä¸€å¿œãƒ‘ãƒ¼ã‚¹
                 //KeyFunction.Parse(s);
                 if (bld.Length > 0)
                     bld.Append(", ");

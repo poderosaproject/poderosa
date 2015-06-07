@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -84,7 +84,7 @@ namespace Poderosa.XZModem {
         public override CommandResult InternalExecute(ICommandTarget target, params IAdaptable[] args) {
             ITerminalControlHost host = TerminalCommandTarget.AsOpenTerminal(target);
             if (host.Terminal.CurrentModalTerminalTask != null) {
-                //TODO ŠÖ˜A•t‚¯‚ç‚ê‚½XZModemDialog‚ğActivate‚·‚é‚æ‚¤‚É‚µ‚½‚¢
+                //TODO é–¢é€£ä»˜ã‘ã‚‰ã‚ŒãŸXZModemDialogã‚’Activateã™ã‚‹ã‚ˆã†ã«ã—ãŸã„
                 return CommandResult.Ignored;
             }
             else {
@@ -116,7 +116,7 @@ namespace Poderosa.XZModem {
         }
     }
 
-    //XModem/ZModem‚Ìƒx[ƒXƒNƒ‰ƒX
+    //XModem/ZModemã®ãƒ™ãƒ¼ã‚¹ã‚¯ãƒ©ã‚¹
     internal abstract class ModemBase : IModalTerminalTask, IDisposable {
         protected IModalTerminalTaskSite _site;
         protected IByteAsyncInputStream _defaultHandler;
@@ -158,11 +158,11 @@ namespace Poderosa.XZModem {
             _defaultHandler.OnAbnormalTermination(message);
         }
 
-        //ŠJn‚ÆI—¹
+        //é–‹å§‹ã¨çµ‚äº†
         public abstract void Start();
         public abstract void Abort();
 
-        //‘—M‚©óM‚©
+        //é€ä¿¡ã‹å—ä¿¡ã‹
         public abstract bool IsReceivingTask {
             get;
         }

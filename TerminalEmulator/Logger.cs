@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -205,7 +205,7 @@ namespace Poderosa.Terminal {
         }
     }
 
-    //•¡”‚ÌƒƒO‚ğæ‚é‚½‚ß‚Ì•ªŠò
+    //è¤‡æ•°ã®ãƒ­ã‚°ã‚’å–ã‚‹ãŸã‚ã®åˆ†å²
     internal class BinaryLoggerList : ListenerList<IBinaryLogger>, IBinaryLogger {
         public void Write(ByteDataFragment data) {
             if (this.IsEmpty)
@@ -340,7 +340,7 @@ namespace Poderosa.Terminal {
         }
     }
 
-    //ƒƒO‚ÉŠÖ‚·‚é‹@”\‚Ì‚Ü‚Æ‚ßƒNƒ‰ƒX
+    //ãƒ­ã‚°ã«é–¢ã™ã‚‹æ©Ÿèƒ½ã®ã¾ã¨ã‚ã‚¯ãƒ©ã‚¹
     internal class LogService : ILogService {
         private BinaryLoggerList _binaryLoggers;
         private TextLoggerList _textLoggers;
@@ -393,7 +393,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //ˆÈ‰º‚ÍAbstractTerminal‚©‚ç
+        //ä»¥ä¸‹ã¯AbstractTerminalã‹ã‚‰
         public IBinaryLogger BinaryLogger {
             get {
                 return _binaryLoggers;
@@ -416,7 +416,7 @@ namespace Poderosa.Terminal {
             _xmlLoggers.Flush();
         }
         public void Close(GLine last_line) {
-            _textLoggers.WriteLine(last_line); //TextLog‚Í‰üs‚²‚Æ‚Å‚ ‚é‚©‚çAClose‚ÉÅIs‚ğ‘‚«‚Ş‚æ‚¤‚É‚·‚é
+            _textLoggers.WriteLine(last_line); //TextLogã¯æ”¹è¡Œã”ã¨ã§ã‚ã‚‹ã‹ã‚‰ã€Closeæ™‚ã«æœ€çµ‚è¡Œã‚’æ›¸ãè¾¼ã‚€ã‚ˆã†ã«ã™ã‚‹
             StopAutoFlushThread();
             InternalClose();
         }
@@ -543,7 +543,7 @@ namespace Poderosa.Terminal {
         }
     }
 
-    //Šî–{ƒ}ƒ‹ƒ`ƒƒOÀ‘•
+    //åŸºæœ¬ãƒãƒ«ãƒãƒ­ã‚°å®Ÿè£…
     internal class MultiLogSettings : IMultiLogSettings {
         private List<ILogSettings> _data;
 
@@ -614,7 +614,7 @@ namespace Poderosa.Terminal {
                 return null;
         }
 
-        //Šù‘¶‚Ìƒtƒ@ƒCƒ‹‚Å‚ ‚Á‚½‚èA‘‚«‚İ•s‰Â”\‚¾‚Á‚½‚çŒx‚·‚é
+        //æ—¢å­˜ã®ãƒ•ã‚¡ã‚¤ãƒ«ã§ã‚ã£ãŸã‚Šã€æ›¸ãè¾¼ã¿ä¸å¯èƒ½ã ã£ãŸã‚‰è­¦å‘Šã™ã‚‹
         public static LogFileCheckResult CheckLogFileName(string path, Form parent) {
             try {
                 StringResource sr = GEnv.Strings;
@@ -644,16 +644,16 @@ namespace Poderosa.Terminal {
                     switch (mb.ShowDialog(parent)) {
                         case DialogResult.Cancel:
                             return LogFileCheckResult.Cancel;
-                        case DialogResult.Yes: //ã‘‚«
+                        case DialogResult.Yes: //ä¸Šæ›¸ã
                             return LogFileCheckResult.Create;
-                        case DialogResult.No:  //’Ç‹L
+                        case DialogResult.No:  //è¿½è¨˜
                             return LogFileCheckResult.Append;
                         default:
                             break;
                     }
                 }
 
-                return LogFileCheckResult.Create; //!!‘‚«‚İ‰Â”\‚ÈƒfƒBƒŒƒNƒgƒŠ‚É‚ ‚é‚±‚Æ‚ğŠm”F‚·‚ê‚Î‚È‚¨‚æ‚µ
+                return LogFileCheckResult.Create; //!!æ›¸ãè¾¼ã¿å¯èƒ½ãªãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã«ã‚ã‚‹ã“ã¨ã‚’ç¢ºèªã™ã‚Œã°ãªãŠã‚ˆã—
 
             }
             catch (Exception ex) {

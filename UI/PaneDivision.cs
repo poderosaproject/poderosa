@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@ using System.Windows.Forms.VisualStyles;
 namespace Poderosa.UI {
 
     /*
-     * ƒyƒCƒ“‚Ì•ªŠ„
+     * ãƒšã‚¤ãƒ³ã®åˆ†å‰²
      */
 
     /// <exclude/>
@@ -28,10 +28,10 @@ namespace Poderosa.UI {
         /// </summary>
         /// <exclude/>
         public enum Direction {
-            TB, //ã‰º•ªŠ„
-            LR  //¶‰E•ªŠ„
+            TB, //ä¸Šä¸‹åˆ†å‰²
+            LR  //å·¦å³åˆ†å‰²
         }
-        //•ªŠ„•ûŒü‚É‚æ‚Á‚Ä‹»–¡‚ ‚é•û‚Ì—v‘f(•or‚‚³)‚ğ•Ô‚·
+        //åˆ†å‰²æ–¹å‘ã«ã‚ˆã£ã¦èˆˆå‘³ã‚ã‚‹æ–¹ã®è¦ç´ (å¹…oré«˜ã•)ã‚’è¿”ã™
         public static int SizeToLength(Size size, Direction dir) {
             return dir == Direction.TB ? size.Height : size.Width;
         }
@@ -65,21 +65,21 @@ namespace Poderosa.UI {
         public delegate IPane PaneCreationDelegate(string label);
 
         /// <summary>
-        /// •ªŠ„‚Ì‚Pƒm[ƒh
+        /// åˆ†å‰²ã®ï¼‘ãƒãƒ¼ãƒ‰
         /// </summary>
         private sealed class DivisionNode {
-            private DivisionNode _next;      //ƒŠƒXƒg‚ÌŸB––’[‚Å‚Í0
-            private double _ratio;           //•ªŠ„‚ÌŠ„‡
-            private IPane _pane;             //‚Ğ‚Á‚Â‚¢‚Ä‚¢‚éƒyƒCƒ“
-            private DivisionList _childList; //q‹Ÿ‚ÌˆÙ•ûŒü‚ÌƒŠƒXƒgB_pane,_childList‚Íí‚É•Ğ•û‚Ì‚İ‚ªnull
-            private PaneSplitter _splitter;  //ƒXƒvƒŠƒbƒ^
+            private DivisionNode _next;      //ãƒªã‚¹ãƒˆã®æ¬¡ã€‚æœ«ç«¯ã§ã¯0
+            private double _ratio;           //åˆ†å‰²ã®å‰²åˆ
+            private IPane _pane;             //ã²ã£ã¤ã„ã¦ã„ã‚‹ãƒšã‚¤ãƒ³
+            private DivisionList _childList; //å­ä¾›ã®ç•°æ–¹å‘ã®ãƒªã‚¹ãƒˆã€‚_pane,_childListã¯å¸¸ã«ç‰‡æ–¹ã®ã¿ãŒnull
+            private PaneSplitter _splitter;  //ã‚¹ãƒ—ãƒªãƒƒã‚¿
             private IntermediateContainer _intermediateContainer;
 
-            private DivisionList _parent;    //©•ª‚ğŠi”[‚·‚éƒŠƒXƒg
+            private DivisionList _parent;    //è‡ªåˆ†ã‚’æ ¼ç´ã™ã‚‹ãƒªã‚¹ãƒˆ
 
-            private bool _splitterEventGuarding; //—]Œv‚ÈƒCƒxƒ“ƒg‚ğ–³‹‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
+            private bool _splitterEventGuarding; //ä½™è¨ˆãªã‚¤ãƒ™ãƒ³ãƒˆã‚’ç„¡è¦–ã™ã‚‹ãŸã‚ã®ãƒ•ãƒ©ã‚°
 
-            //SplitInfo‚©‚ç‚Ì\’z—p
+            //SplitInfoã‹ã‚‰ã®æ§‹ç¯‰ç”¨
             public DivisionNode(DivisionList parent, IPane pane, double ratio) {
                 Debug.Assert(parent != null);
                 Debug.Assert(pane != null);
@@ -161,7 +161,7 @@ namespace Poderosa.UI {
                 }
             }
 
-            //‚±‚ê‚ç‚ÌƒvƒƒpƒeƒB‚ÌˆÓ–¡‚ÍƒhƒLƒ…ƒƒ“ƒg‚ğQÆ
+            //ã“ã‚Œã‚‰ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®æ„å‘³ã¯ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’å‚ç…§
             internal Control HostingControl {
                 get {
                     return _pane != null ? _pane.AsDotNet() : _childList.HostingControl;
@@ -223,12 +223,12 @@ namespace Poderosa.UI {
             }
 
 
-            //q‘·‚©‚çƒ^[ƒQƒbƒg‚ğ’T‚·
+            //å­å­«ã‹ã‚‰ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’æ¢ã™
             public DivisionNode FindNode(IPane t) {
                 DivisionNode n = null;
 
                 if (_pane != null && _pane.Equals(t))
-                    return this; //struct‚Ì‚±‚Æ‚à‚ ‚é‚Ì‚ÅEquals‚ğg‚¤
+                    return this; //structã®ã“ã¨ã‚‚ã‚ã‚‹ã®ã§Equalsã‚’ä½¿ã†
 
                 if (_next != null)
                     n = _next.FindNode(t);
@@ -254,7 +254,7 @@ namespace Poderosa.UI {
                 return n;
             }
 
-            //ó‘Ô
+            //çŠ¶æ…‹
             internal SplitFormat.Node Format() {
                 return new SplitFormat.Node(
                     this.IsLast ? 0 : _ratio,
@@ -281,7 +281,7 @@ namespace Poderosa.UI {
                 return null;
             }
 
-            //Ä\’z‚Éæ—§‚Á‚ÄƒRƒ“ƒgƒ[ƒ‹‚ÌeqŠÖŒW‚ğ”jŠü‚µ‚Ä‚¨‚­B‚»‚Ì•û‚ª‰½‚©‚Æ•´‚ê‚ª‚È‚¢
+            //å†æ§‹ç¯‰ã«å…ˆç«‹ã£ã¦ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã®è¦ªå­é–¢ä¿‚ã‚’ç ´æ£„ã—ã¦ãŠãã€‚ãã®æ–¹ãŒä½•ã‹ã¨ç´›ã‚ŒãŒãªã„
             public void ClearControlTree() {
                 if (_intermediateContainer != null)
                     _intermediateContainer.Controls.Clear();
@@ -291,39 +291,39 @@ namespace Poderosa.UI {
                     _childList.ClearControlTree();
             }
 
-            //ƒRƒ“ƒgƒ[ƒ‹‚ÌeqŠÖŒW‚ÌÄ\’z
+            //ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã®è¦ªå­é–¢ä¿‚ã®å†æ§‹ç¯‰
             public void BuildControlTree(Control container) {
                 if (IsLast) {
-                    //Leaf‚Ì‚Æ‚«‚Í‰º‚Ì*1‚Å‘g‚İ‚Ü‚ê‚Ä‚¢‚é
+                    //Leafã®ã¨ãã¯ä¸‹ã®*1ã§çµ„ã¿è¾¼ã¾ã‚Œã¦ã„ã‚‹
                     if (!IsLeaf)
                         _childList.FirstNode.BuildControlTree(container);
                 }
                 else {
                     if (_splitter == null)
-                        CreateSplitter(); //’x‰„ì¬
+                        CreateSplitter(); //é…å»¶ä½œæˆ
 
-                    //fill‚³‚ê‚éƒRƒ“ƒgƒ[ƒ‹
+                    //fillã•ã‚Œã‚‹ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«
                     Control fill = this.HostingControl;
                     Debug.Assert(fill != null);
 
-                    //ƒXƒvƒŠƒbƒ^‚Ìƒ^[ƒQƒbƒgƒRƒ“ƒgƒ[ƒ‹
+                    //ã‚¹ãƒ—ãƒªãƒƒã‚¿ã®ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«
                     Control target;
                     if (this.IsPreLast) {
                         target = _next.HostingControl; //*1
                     }
                     else {
                         if (_intermediateContainer == null)
-                            CreateIntermediateControl(); //’x‰„ì¬
+                            CreateIntermediateControl(); //é…å»¶ä½œæˆ
                         target = _intermediateContainer;
                     }
 
-                    //’Ç‰Á
+                    //è¿½åŠ 
                     fill.Dock = DockStyle.Fill;
                     target.Dock = _parent.Direction == Direction.TB ? DockStyle.Bottom : DockStyle.Right;
                     _splitter.TargetControl = target;
                     container.Controls.AddRange(new Control[] { fill, _splitter, target });
 
-                    //––”öAŸ‚¢‚Å}‚Ö‚ÆÄ‹A
+                    //æœ«å°¾ã€æ¬¡ã„ã§æã¸ã¨å†å¸°
                     _next.BuildControlTree(target);
                     if (!this.IsLeaf)
                         _childList.FirstNode.BuildControlTree(_childList.HostingControl);
@@ -334,15 +334,15 @@ namespace Poderosa.UI {
                 _parent = list;
             }
 
-            //size‚É‚Í‚Ü‚é‚æ‚¤‚ÉƒTƒCƒY’²®
+            //sizeã«ã¯ã¾ã‚‹ã‚ˆã†ã«ã‚µã‚¤ã‚ºèª¿æ•´
             public void AdjustSplitPosition(Size size) {
-                if (IsLast) { //splitter‚½‚¸
+                if (IsLast) { //splitteræŒãŸãš
                     if (!IsLeaf)
                         _childList.AdjustSplitPosition(size);
                 }
                 else {
                     int splitpos = (int)(_parent.HostingLength * SumRatio(_next)) - PaneSplitter.SPLITTER_WIDTH / 2;
-                    //ãŒÀE‰ºŒÀ
+                    //ä¸Šé™ãƒ»ä¸‹é™
                     int minimum_splitpos = _next.RequiredMinimumLength;
                     int maximum_splitpos = SizeToLength(size) - this.RequiredMinimumHostingLength - PaneSplitter.SPLITTER_WIDTH;
                     splitpos = UIUtil.AdjustRange(splitpos, minimum_splitpos, maximum_splitpos);
@@ -353,7 +353,7 @@ namespace Poderosa.UI {
                         new Size(size.Width, splitpos) : new Size(splitpos, size.Height);
                     _splitter.TargetControl.Size = splitsize; //next.HostingControl or _container
 
-                    //––”öAŸ‚¢‚Å}‚Ö‚ÆÄ‹A
+                    //æœ«å°¾ã€æ¬¡ã„ã§æã¸ã¨å†å¸°
                     _next.AdjustSplitPosition(splitsize);
 
                     if (!IsLeaf) {
@@ -364,29 +364,29 @@ namespace Poderosa.UI {
                 }
             }
 
-            //splitter‚ÌMinSize, MinExtraİ’è
+            //splitterã®MinSize, MinExtraè¨­å®š
             public void AdjustSplitMinSize() {
                 if (!this.IsPreLast)
                     _next.AdjustSplitMinSize();
                 if (!this.IsLeaf)
                     _childList.FirstNode.AdjustSplitMinSize();
 
-                //uŸ‚ÌŸv‚ª‚Á‚Ä‚¢‚éŒ»ó‚Ì’·‚³‚ÍA_splitter‚É‚æ‚Á‚Ä‰e‹¿‚ğó‚¯‚é‚±‚Æ‚Í‚È‚¢‚æ‚¤‚É‚·‚éB‚±‚Ì’·‚³‚É_next‚ÌÅ¬’·‚³‚ğ‘«‚µ‚½‚à‚Ì‚ªMinSize‚Æ‚¢‚¤‚±‚Æ‚É‚È‚é
+                //ã€Œæ¬¡ã®æ¬¡ã€ãŒæŒã£ã¦ã„ã‚‹ç¾çŠ¶ã®é•·ã•ã¯ã€_splitterã«ã‚ˆã£ã¦å½±éŸ¿ã‚’å—ã‘ã‚‹ã“ã¨ã¯ãªã„ã‚ˆã†ã«ã™ã‚‹ã€‚ã“ã®é•·ã•ã«_nextã®æœ€å°é•·ã•ã‚’è¶³ã—ãŸã‚‚ã®ãŒMinSizeã¨ã„ã†ã“ã¨ã«ãªã‚‹
                 DivisionNode nn = _next._next;
                 int current_fixed = nn == null ? 0 : nn.TotalLength + PaneSplitter.SPLITTER_WIDTH;
                 _splitter.MinSize = current_fixed + _next.RequiredMinimumHostingLength;
                 _splitter.MinExtra = this.RequiredMinimumHostingLength;
             }
 
-            //—×‚Ö‘}“ü
+            //éš£ã¸æŒ¿å…¥
             public void InsertNext(IPane newpane) {
                 _ratio /= 2;
-                DivisionNode newnode = new DivisionNode(_parent, newpane, _ratio); //“™•ª‚É
+                DivisionNode newnode = new DivisionNode(_parent, newpane, _ratio); //ç­‰åˆ†ã«
                 newnode._next = _next;
                 _next = newnode;
             }
 
-            //qƒyƒCƒ“‚ÆƒŠƒXƒg‚ÌŒğŠ·B•ªŠ„‚Æ•¹‡‚Ég‚¤
+            //å­ãƒšã‚¤ãƒ³ã¨ãƒªã‚¹ãƒˆã®äº¤æ›ã€‚åˆ†å‰²æ™‚ã¨ä½µåˆæ™‚ã«ä½¿ã†
             public void ReplacePaneByChildList(DivisionList newlist) {
                 Debug.Assert(IsLeaf);
                 newlist.HostingControl.Dock = _pane.Dock;
@@ -403,7 +403,7 @@ namespace Poderosa.UI {
                 Debug.Assert(IsLeaf);
             }
 
-            //ƒCƒxƒ“ƒg‚ğ–³‹‚·‚éƒK[ƒh‚Â‚«‚ÅƒZƒbƒg
+            //ã‚¤ãƒ™ãƒ³ãƒˆã‚’ç„¡è¦–ã™ã‚‹ã‚¬ãƒ¼ãƒ‰ã¤ãã§ã‚»ãƒƒãƒˆ
             private void SetSplitterPosition(int value) {
                 _splitterEventGuarding = true;
                 _splitter.SplitPosition = value;
@@ -412,7 +412,7 @@ namespace Poderosa.UI {
 
             private void OnSplitterMoved(object sender, SplitterEventArgs e) {
                 if (_splitterEventGuarding)
-                    return; //‚±‚ê‚ÍƒvƒƒOƒ‰ƒ€‚©‚çˆÊ’uw’è‚µ‚½ê‡‚ÉÀs‚·‚é‚Ì‚ğ”ğ‚¯‚é‚½‚ß
+                    return; //ã“ã‚Œã¯ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‹ã‚‰ä½ç½®æŒ‡å®šã—ãŸå ´åˆã«å®Ÿè¡Œã™ã‚‹ã®ã‚’é¿ã‘ã‚‹ãŸã‚
 
                 double length = (double)_parent.HostingLength;
                 double newratio = this.HostingLength / length;
@@ -424,7 +424,7 @@ namespace Poderosa.UI {
                 Debug.Assert(_ratio >= 0 && _ratio <= 1.0);
 
                 _parent.FirstNode.AdjustSplitMinSize();
-                //Splitter‚ªƒŠƒXƒg‚ğ•ªŠ„‚µ‚Ä‚¢‚é‚Æ‚«‚Íq‚É“`”d‚³‚¹‚é•K—v‚ª‚ ‚é
+                //SplitterãŒãƒªã‚¹ãƒˆã‚’åˆ†å‰²ã—ã¦ã„ã‚‹ã¨ãã¯å­ã«ä¼æ’­ã•ã›ã‚‹å¿…è¦ãŒã‚ã‚‹
                 if (!IsLeaf)
                     _childList.AdjustSplitPosition(this.HostingControl.Size);
                 if (!_next.IsLeaf)
@@ -433,21 +433,21 @@ namespace Poderosa.UI {
 
             private void OnSplitterMouseUp(object sender, MouseEventArgs args) {
                 if (args.Button != MouseButtons.Middle)
-                    return; //’†ƒNƒŠƒbƒN‚Ì‚İ‚É‹»–¡‚ ‚é
+                    return; //ä¸­ã‚¯ãƒªãƒƒã‚¯ã®ã¿ã«èˆˆå‘³ã‚ã‚‹
 
                 PaneDivision.IUIActionHandler h = this.ParentDivision.UIActionHandler;
                 if (h != null) {
                     IPane unify_target = FindUnifyTarget();
                     if (unify_target != null)
                         h.RequestUnify(unify_target);
-                    //TODO Œ‹‡‚Å‚«‚È‚¢‚Æ‚«‚Í’Ê’m(ƒXƒe[ƒ^ƒXƒo[“™)‚ªo‚¹‚½‚Ù‚¤‚ª‚¢‚¢‚©‚à
+                    //TODO çµåˆã§ããªã„ã¨ãã¯é€šçŸ¥(ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒãƒ¼ç­‰)ãŒå‡ºã›ãŸã»ã†ãŒã„ã„ã‹ã‚‚
                 }
             }
 
-            //Œ‹‡‘ÎÛ‚ğ’T‚·
+            //çµåˆå¯¾è±¡ã‚’æ¢ã™
             private IPane FindUnifyTarget() {
-                //_next._pane‚ª‘¶İ‚·‚ê‚Î‚»‚êB•ªŠ„->Œ‹‡‚Æs‚Á‚½‚Æ‚«‚É‚à‚Æ‚Ìƒrƒ…[‚ªŒ©‚¦‚Ä‚¢‚é‚æ‚¤‚É‚·‚é‚½‚ßB
-                //‚Å‚È‚¯‚ê‚Î_paneA‚»‚ê‚à‚È‚¯‚ê‚ÎŒ‹‡•s‰Â
+                //_next._paneãŒå­˜åœ¨ã™ã‚Œã°ãã‚Œã€‚åˆ†å‰²->çµåˆã¨è¡Œã£ãŸã¨ãã«ã‚‚ã¨ã®ãƒ“ãƒ¥ãƒ¼ãŒè¦‹ãˆã¦ã„ã‚‹ã‚ˆã†ã«ã™ã‚‹ãŸã‚ã€‚
+                //ã§ãªã‘ã‚Œã°_paneã€ãã‚Œã‚‚ãªã‘ã‚Œã°çµåˆä¸å¯
                 if (_next != null && _next._pane != null)
                     return _next._pane;
                 else if (_pane != null)
@@ -456,7 +456,7 @@ namespace Poderosa.UI {
                     return null;
             }
 
-            //•t‘®•¨ì¬Œn
+            //ä»˜å±ç‰©ä½œæˆç³»
             private void CreateIntermediateControl() {
                 _intermediateContainer = new IntermediateContainer(this.ParentDivision);
             }
@@ -467,7 +467,7 @@ namespace Poderosa.UI {
                 _splitter.EnabledCollapse = false;
             }
 
-            // node‚©‚ç––”ö‚Ü‚Å‚Å_ratio‚ğ‡Œv‚·‚é
+            // nodeã‹ã‚‰æœ«å°¾ã¾ã§ã§_ratioã‚’åˆè¨ˆã™ã‚‹
             private static double SumRatio(DivisionNode node) {
                 double sum = 0;
                 while (node != null) {
@@ -479,16 +479,16 @@ namespace Poderosa.UI {
         }
 
         /// <summary>
-        /// ‚P•ûŒü‚Ö‚Ì•ªŠ„‚ÌƒŠƒXƒgB’·‚³‚Í‚QˆÈã
+        /// ï¼‘æ–¹å‘ã¸ã®åˆ†å‰²ã®ãƒªã‚¹ãƒˆã€‚é•·ã•ã¯ï¼’ä»¥ä¸Š
         /// </summary>
         private sealed class DivisionList {
-            private DivisionNode _first;             //Å‰‚Ìƒm[ƒh
+            private DivisionNode _first;             //æœ€åˆã®ãƒãƒ¼ãƒ‰
             private readonly Direction _direction;            //vertical or horizontal
             private IntermediateContainer _hostingControl;
             private readonly PaneDivision _parentDivision; //container
             private DivisionNode _parentNode;
 
-            //‰Šúó‘Ô‚Å‚QŒÂì¬
+            //åˆæœŸçŠ¶æ…‹ã§ï¼’å€‹ä½œæˆ
             public DivisionList(PaneDivision division, DivisionNode parent, Direction direction, IPane pane1, IPane pane2, Size host_size, DockStyle host_dock) {
                 _parentDivision = division;
                 _parentNode = parent;
@@ -503,7 +503,7 @@ namespace Poderosa.UI {
                 _hostingControl.Size = host_size;
                 _hostingControl.Dock = host_dock;
             }
-            //SplitInfo‚©‚ç‚Ì\’z—p
+            //SplitInfoã‹ã‚‰ã®æ§‹ç¯‰ç”¨
             public DivisionList(PaneDivision division, Direction direction, DockStyle host_dock) {
                 _parentDivision = division;
                 _direction = direction;
@@ -574,7 +574,7 @@ namespace Poderosa.UI {
                 }
             }
 
-            //“™•ª‚É•ªŠ„‚³‚ê‚Ä‚¢‚é‚©H
+            //ç­‰åˆ†ã«åˆ†å‰²ã•ã‚Œã¦ã„ã‚‹ã‹ï¼Ÿ
             public bool IsEquallyDivided {
                 get {
                     double min = 1, max = 0;
@@ -584,7 +584,7 @@ namespace Poderosa.UI {
                         max = Math.Max(max, n.Ratio);
                         n = n.Next;
                     }
-                    return (max - min) < 0.05; //‚±‚ê‚­‚ç‚¢‚ª‚½‚Ô‚ñ“K“–
+                    return (max - min) < 0.05; //ã“ã‚Œãã‚‰ã„ãŒãŸã¶ã‚“é©å½“
                 }
             }
 
@@ -603,7 +603,7 @@ namespace Poderosa.UI {
 
             public DivisionNode FindPrevOf(DivisionNode target) {
                 Debug.Assert(target != null);
-                //Next‚ªtarget‚Å‚ ‚é‚à‚Ì‚ğ’T‚·
+                //NextãŒtargetã§ã‚ã‚‹ã‚‚ã®ã‚’æ¢ã™
                 DivisionNode node = _first;
                 while (node != null && node.Next != target) {
                     node = node.Next;
@@ -619,14 +619,14 @@ namespace Poderosa.UI {
                 return _first.FindFirst(condition);
             }
 
-            //Ä\’z‚Éæ—§‚Á‚ÄƒRƒ“ƒgƒ[ƒ‹‚ÌeqŠÖŒW‚Ì‰ğÁ
+            //å†æ§‹ç¯‰ã«å…ˆç«‹ã£ã¦ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã®è¦ªå­é–¢ä¿‚ã®è§£æ¶ˆ
             public void ClearControlTree() {
                 if (_hostingControl != null)
                     _hostingControl.Controls.Clear();
                 _first.ClearControlTree();
             }
 
-            //“™•ª‚É•ª‚¯‚é
+            //ç­‰åˆ†ã«åˆ†ã‘ã‚‹
             public void AdjustRatioEqually() {
                 double ratio = 1.0 / this.NodeCount;
                 DivisionNode n = _first;
@@ -640,14 +640,14 @@ namespace Poderosa.UI {
                 _parentNode = null;
             }
 
-            //ƒTƒCƒY‚Ì’²®
+            //ã‚µã‚¤ã‚ºã®èª¿æ•´
             public void AdjustSplitPosition(Size size) {
                 _hostingControl.Size = size;
                 _first.AdjustSplitPosition(size);
             }
 
 
-            //ƒm[ƒh‚Ìíœ@‚±‚ê‚Í‚â‚â‚±‚µ‚¢‚Ì‚ÅƒhƒLƒ…ƒƒ“ƒg‚àQÆ
+            //ãƒãƒ¼ãƒ‰ã®å‰Šé™¤ã€€ã“ã‚Œã¯ã‚„ã‚„ã“ã—ã„ã®ã§ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚‚å‚ç…§
             public DivisionNode Remove(DivisionNode target) {
                 DivisionNode result;
                 bool equally_divided = this.IsEquallyDivided;
@@ -670,11 +670,11 @@ namespace Poderosa.UI {
                 if (equally_divided)
                     AdjustRatioEqually();
 
-                //‚±‚Ì“_‚Å‚Íc‚è‚ªˆê‚Â‚Ì‰Â”\«‚à‚ ‚éBŒÄ‚Ño‚µ‚½‘¤‚Å“KØ‚É‘Îˆ
+                //ã“ã®æ™‚ç‚¹ã§ã¯æ®‹ã‚ŠãŒä¸€ã¤ã®å¯èƒ½æ€§ã‚‚ã‚ã‚‹ã€‚å‘¼ã³å‡ºã—ãŸå´ã§é©åˆ‡ã«å¯¾å‡¦
                 return result;
             }
 
-            //src‚ÌˆÊ’u‚ğAlist‚Ì’†g‚Å’u‚«Š·‚¦‚éBratio’²®‚É’ˆÓ
+            //srcã®ä½ç½®ã‚’ã€listã®ä¸­èº«ã§ç½®ãæ›ãˆã‚‹ã€‚ratioèª¿æ•´ã«æ³¨æ„
             public void ReplaceNodeByList(DivisionNode src, DivisionList list) {
                 Debug.Assert(src.ParentList == this);
                 int oldcount = this.NodeCount;
@@ -689,7 +689,7 @@ namespace Poderosa.UI {
                     last = t;
                     t = t.Next;
                 }
-                Debug.Assert(last.Next == null); //‚±‚ê‚ğŒ©‚Â‚¯‚½
+                Debug.Assert(last.Next == null); //ã“ã‚Œã‚’è¦‹ã¤ã‘ãŸ
                 ReplaceNode(src, list.FirstNode);
                 last.Next = src.Next;
 
@@ -719,7 +719,7 @@ namespace Poderosa.UI {
                     return new Size(s1.Width + PaneSplitter.SPLITTER_WIDTH + s2.Width, Math.Max(s1.Height, s2.Height));
             }
 
-            //indexw’è‚Ì”z—ñ‚©‚çIPaneæ“¾BƒCƒ“ƒfƒbƒNƒX‚È‚¯‚ê‚Înull
+            //indexæŒ‡å®šã®é…åˆ—ã‹ã‚‰IPaneå–å¾—ã€‚ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãªã‘ã‚Œã°null
             public IPane GetPaneByIndices(int[] indices, int position) {
                 int index = indices[position];
                 DivisionNode node = _first;
@@ -731,13 +731,13 @@ namespace Poderosa.UI {
 
                 bool is_last = position == indices.Length - 1;
                 if (is_last)
-                    return node.Pane; //node‚ª‚³‚ç‚ÉƒŠƒXƒg‚¾‚Á‚½‚çnull‚ª•Ô‚é‚±‚Æ‚É’ˆÓ
+                    return node.Pane; //nodeãŒã•ã‚‰ã«ãƒªã‚¹ãƒˆã ã£ãŸã‚‰nullãŒè¿”ã‚‹ã“ã¨ã«æ³¨æ„
                 else
-                    return node.ChildList.GetPaneByIndices(indices, position + 1); //q‚Ì”z—ñ
+                    return node.ChildList.GetPaneByIndices(indices, position + 1); //å­ã®é…åˆ—
             }
         }
 
-        // ƒRƒ“ƒeƒi
+        // ã‚³ãƒ³ãƒ†ãƒŠ
         private class IntermediateContainer : ContainerControl {
             private PaneDivision _division;
 
@@ -757,7 +757,7 @@ namespace Poderosa.UI {
             }
         }
 
-        //ŠO•”‚Ö‚Ì’Ê’m
+        //å¤–éƒ¨ã¸ã®é€šçŸ¥
         /// <summary>
         /// 
         /// </summary>
@@ -777,10 +777,10 @@ namespace Poderosa.UI {
         /// <exclude/>
         public delegate bool PaneCondition(IPane pane);
 
-        private int _count;             //Œ»İ‚Ì•ªŠ„ŒÂ”
-        private int _countLimit;        //•ªŠ„ŒÂ”‚ÌãŒÀ
-        private int _minimumEdgeLength; //ŠeƒyƒCƒ“‚ÌŠe•Ó‚ÍÅ’áŒÀ‚±‚Ì•‚ğ—v‚·‚é
-        private DivisionList _rootList; //ª‚Á‚±‚ÌƒŠƒXƒg
+        private int _count;             //ç¾åœ¨ã®åˆ†å‰²å€‹æ•°
+        private int _countLimit;        //åˆ†å‰²å€‹æ•°ã®ä¸Šé™
+        private int _minimumEdgeLength; //å„ãƒšã‚¤ãƒ³ã®å„è¾ºã¯æœ€ä½é™ã“ã®å¹…ã‚’è¦ã™ã‚‹
+        private DivisionList _rootList; //æ ¹ã£ã“ã®ãƒªã‚¹ãƒˆ
         private IUIActionHandler _actionHandler;
 
         public PaneDivision() {
@@ -830,19 +830,19 @@ namespace Poderosa.UI {
         }
 
 
-        //Split‚ÌŒ‹‰Ê
+        //Splitã®çµæœ
         /// <summary>
         /// 
         /// </summary>
         /// <exclude/>
         public enum SplitResult {
             Success,
-            F_TooManyPanes, //”‚ªŒÀŠE
+            F_TooManyPanes, //æ•°ãŒé™ç•Œ
             F_TooSmallToSplit,
             F_UnifySingle
         }
 
-        //index‚Ì—ñ‚ÅˆÊ’u‚ğw’è‚µ‚Ä‚Ìƒ|ƒWƒVƒ‡ƒ“æ“¾
+        //indexã®åˆ—ã§ä½ç½®ã‚’æŒ‡å®šã—ã¦ã®ãƒã‚¸ã‚·ãƒ§ãƒ³å–å¾—
         public IPane GetPaneByIndices(int[] indices) {
             if (_rootList == null)
                 return null;
@@ -857,7 +857,7 @@ namespace Poderosa.UI {
                 return "";
         }
 
-        //condition‚ªÅ‰‚Étrue‚ğ•Ô‚µ‚½Pane‚ğ•Ô‚·B‚³‚à‚È‚­‚Înull
+        //conditionãŒæœ€åˆã«trueã‚’è¿”ã—ãŸPaneã‚’è¿”ã™ã€‚ã•ã‚‚ãªãã°null
         public IPane FindFirst(PaneCondition condition) {
             if (_rootList != null)
                 return _rootList.FindFirst(condition);
@@ -866,71 +866,71 @@ namespace Poderosa.UI {
         }
 
 
-        //MinSize/Extra‚Ì’²®
+        //MinSize/Extraã®èª¿æ•´
         public void AdjustSplitMinSize() {
             _rootList.FirstNode.AdjustSplitMinSize();
         }
 
-        //ƒTƒCƒY‚ğw’è‚µ‚Ä’²®
+        //ã‚µã‚¤ã‚ºã‚’æŒ‡å®šã—ã¦èª¿æ•´
         internal void AdjustSplitPosition(Size size) {
             _rootList.AdjustSplitPosition(size);
         }
 
-        //Œ»ó‚ÌƒTƒCƒY‚Å’²®
+        //ç¾çŠ¶ã®ã‚µã‚¤ã‚ºã§èª¿æ•´
         public void AdjustSplitPosition() {
             _rootList.AdjustSplitPosition(_rootList.HostingControl.Size);
         }
 
-        //eqŠÖŒW‚Ì\’z
+        //è¦ªå­é–¢ä¿‚ã®æ§‹ç¯‰
         private void Rebuild() {
             _rootList.ClearControlTree();
             _rootList.FirstNode.BuildControlTree(_rootList.HostingControl);
         }
 
-        //ƒTƒCƒY’²®
+        //ã‚µã‚¤ã‚ºèª¿æ•´
         private void DoLayout() {
             AdjustSplitPosition(_rootList.HostingControl.Size);
             AdjustSplitMinSize();
         }
 
-        //ƒŠƒTƒCƒY IntermediateContainer#OnResize‚©‚çŒÄ‚Ô
+        //ãƒªã‚µã‚¤ã‚º IntermediateContainer#OnResizeã‹ã‚‰å‘¼ã¶
         private void OnContainerResize(object sender, EventArgs args) {
             if (_rootList == null)
-                return; //\’z’†‚ÌŒÄ‚Ño‚µ‚Íƒ€ƒV
+                return; //æ§‹ç¯‰ä¸­ã®å‘¼ã³å‡ºã—ã¯ãƒ ã‚·
             _rootList.HostingControl.SuspendLayout();
             AdjustSplitPosition(_rootList.HostingControl.Size);
             _rootList.HostingControl.ResumeLayout(true);
         }
 
-        //ƒyƒCƒ“‚Ì•ªŠ„
+        //ãƒšã‚¤ãƒ³ã®åˆ†å‰²
         public SplitResult SplitPane(IPane target, IPane newpane, Direction direction) {
             Debug.Assert(newpane.AsDotNet().Parent == null);
 
-            //•ªŠ„‰Â”\‚©‚Ç‚¤‚©‚Ìƒ`ƒFƒbƒN1 ‘”
+            //åˆ†å‰²å¯èƒ½ã‹ã©ã†ã‹ã®ãƒã‚§ãƒƒã‚¯1 ç·æ•°
             if (_count >= _countLimit)
                 return SplitResult.F_TooManyPanes;
 
-            //•ªŠ„‰Â”\‚©‚Ç‚¤‚©‚Ìƒ`ƒFƒbƒN2 •ªŠ„‘ÎÛ‚ªÅ¬ƒTƒCƒY‚ğ–‚½‚µ‚Ä‚¢‚é‚©
+            //åˆ†å‰²å¯èƒ½ã‹ã©ã†ã‹ã®ãƒã‚§ãƒƒã‚¯2 åˆ†å‰²å¯¾è±¡ãŒæœ€å°ã‚µã‚¤ã‚ºã‚’æº€ãŸã—ã¦ã„ã‚‹ã‹
             if (SizeToLength(target.Size, direction) < _minimumEdgeLength * 2 + PaneSplitter.SPLITTER_WIDTH)
                 return SplitResult.F_TooSmallToSplit;
 
             Control parent = target.AsDotNet().Parent;
             bool splitting_root = _rootList == null;
 
-            if (splitting_root) { //‹ó‚Ìó‘Ô‚©‚ç‚Ì\’z
+            if (splitting_root) { //ç©ºã®çŠ¶æ…‹ã‹ã‚‰ã®æ§‹ç¯‰
                 _rootList = new DivisionList(this, null, direction, target, newpane, target.Size, target.Dock);
                 UIUtil.ReplaceControl(parent, target.AsDotNet(), _rootList.HostingControl);
             }
             else {
                 DivisionNode node = _rootList.FirstNode.FindNode(target);
                 Debug.Assert(node != null);
-                if (direction == node.ParentList.Direction) { //“¯•ûŒü•ªŠ„
+                if (direction == node.ParentList.Direction) { //åŒæ–¹å‘åˆ†å‰²
                     bool eq = node.ParentList.IsEquallyDivided;
                     node.InsertNext(newpane);
                     if (eq)
                         node.ParentList.AdjustRatioEqually();
                 }
-                else { //ˆÙ•ûŒü•ªŠ„
+                else { //ç•°æ–¹å‘åˆ†å‰²
                     DivisionList newlist = new DivisionList(this, node, direction, target, newpane, target.Size, target.Dock);
                     node.ReplacePaneByChildList(newlist);
                 }
@@ -938,27 +938,27 @@ namespace Poderosa.UI {
 
             Rebuild();
             DoLayout();
-            FindForm().MinimumSize = _rootList.FirstNode.RequiredMinimumSize; //!!TODO ‚±‚ê‚ÍƒRƒ“ƒgƒ[ƒ‹‚ÌƒTƒCƒY‚Å‚ ‚èAƒtƒH[ƒ€ƒ{[ƒ_[‚Æ‚Í•Ê‚Ì˜b
+            FindForm().MinimumSize = _rootList.FirstNode.RequiredMinimumSize; //!!TODO ã“ã‚Œã¯ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã®ã‚µã‚¤ã‚ºã§ã‚ã‚Šã€ãƒ•ã‚©ãƒ¼ãƒ ãƒœãƒ¼ãƒ€ãƒ¼ã¨ã¯åˆ¥ã®è©±
 
             _count++;
             return SplitResult.Success;
         }
 
-        //ƒyƒCƒ“‚ğ•Â‚¶‚ÄŒ‹‡‚·‚éBout‚Ìˆø”‚ÍŸ‚ÉƒtƒH[ƒJƒX‚ğ—^‚¦‚é‚×‚«ƒyƒCƒ“
+        //ãƒšã‚¤ãƒ³ã‚’é–‰ã˜ã¦çµåˆã™ã‚‹ã€‚outã®å¼•æ•°ã¯æ¬¡ã«ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã‚’ä¸ãˆã‚‹ã¹ããƒšã‚¤ãƒ³
         public SplitResult UnifyPane(IPane target, out IPane nextfocus) {
-            nextfocus = null; //¸”s‚É‚ÍƒNƒŠƒA‚Å‚«‚é‚æ‚¤‚É
+            nextfocus = null; //å¤±æ•—æ™‚ã«ã¯ã‚¯ãƒªã‚¢ã§ãã‚‹ã‚ˆã†ã«
             Debug.Assert(_rootList != null);
 
             DivisionNode node = _rootList.FirstNode.FindNode(target);
-            bool unifying_root = node.ParentList == _rootList && _rootList.NodeCount == 2; //Œ‹‡‚ÌŒ‹‰ÊRootList‚ª“ü‚ê‘Ö‚í‚é—\’è‚Ì‚Æ‚«
+            bool unifying_root = node.ParentList == _rootList && _rootList.NodeCount == 2; //çµåˆã®çµæœRootListãŒå…¥ã‚Œæ›¿ã‚ã‚‹äºˆå®šã®ã¨ã
             Control parent = _rootList.HostingControl.Parent;
             if (unifying_root && _rootList.FirstNode.IsLast)
                 return SplitResult.F_UnifySingle;
 
             DivisionList list = node.ParentList;
             DivisionNode active = list.Remove(node);
-            if (list.NodeCount == 1) { //‚±‚¤‚È‚Á‚½‚Æ‚«‚É–Ê“|‚ª”­¶
-                if (active.IsLeaf) { // (1) ƒyƒCƒ“‚Å‚ ‚é‚Æ‚«
+            if (list.NodeCount == 1) { //ã“ã†ãªã£ãŸã¨ãã«é¢å€’ãŒç™ºç”Ÿ
+                if (active.IsLeaf) { // (1) ãƒšã‚¤ãƒ³ã§ã‚ã‚‹ã¨ã
                     IPane newpane = active.Pane;
                     Debug.Assert(newpane != null);
                     if (list.ParentNode == null) { //1-1
@@ -969,7 +969,7 @@ namespace Poderosa.UI {
                         list.ParentNode.ReplaceChildListByPane(newpane);
                     }
                 }
-                else { // (2) ƒm[ƒh‚Å‚ ‚é‚Æ‚«
+                else { // (2) ãƒãƒ¼ãƒ‰ã§ã‚ã‚‹ã¨ã
                     DivisionList newlist = active.ChildList;
                     if (list.ParentNode == null) { //2-1 
                         _rootList = newlist;
@@ -977,7 +977,7 @@ namespace Poderosa.UI {
                         UIUtil.ReplaceControl(parent, list.HostingControl, newlist.HostingControl);
                     }
                     else { //2-2
-                        DivisionList pp = list.ParentNode.ParentList; //’·‚­‚È‚é•û‚ÌƒŠƒXƒg
+                        DivisionList pp = list.ParentNode.ParentList; //é•·ããªã‚‹æ–¹ã®ãƒªã‚¹ãƒˆ
                         Debug.Assert(pp.Direction == newlist.Direction);
                         pp.ReplaceNodeByList(list.ParentNode, newlist);
                     }
@@ -988,7 +988,7 @@ namespace Poderosa.UI {
             if (_rootList != null) {
                 Rebuild();
                 DoLayout();
-                FindForm().MinimumSize = _rootList.FirstNode.RequiredMinimumSize; //!!TODO Splitter‚¾‚¯‚Å\¬‚³‚ê‚Ä‚¢‚È‚¢ƒtƒH[ƒ€‚ÅƒAƒEƒg
+                FindForm().MinimumSize = _rootList.FirstNode.RequiredMinimumSize; //!!TODO Splitterã ã‘ã§æ§‹æˆã•ã‚Œã¦ã„ãªã„ãƒ•ã‚©ãƒ¼ãƒ ã§ã‚¢ã‚¦ãƒˆ
             }
 
             _count--;
@@ -1068,8 +1068,8 @@ namespace Poderosa.UI {
         }
     }
 
-    //Splitî•ñ‚Æƒp[ƒX
-    //‘®‚ÍA<H|V>( (<ratio>|L):(<INFO>), ... )
+    //Splitæƒ…å ±ã¨ãƒ‘ãƒ¼ã‚¹
+    //æ›¸å¼ã¯ã€<H|V>( (<ratio>|L):(<INFO>), ... )
     internal class SplitFormat {
         private PaneDivision.Direction _direction;
         private Node _firstTag;
@@ -1079,7 +1079,7 @@ namespace Poderosa.UI {
             _firstTag = first;
         }
 
-        //‹óƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Íƒp[ƒX‚Ì‚İ
+        //ç©ºã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã¯ãƒ‘ãƒ¼ã‚¹æ™‚ã®ã¿
         private SplitFormat() {
         }
 
@@ -1099,10 +1099,10 @@ namespace Poderosa.UI {
         /// </summary>
         /// <exclude/>
         public class Node {
-            public const double ALL_OF_REST = 0; //c‚è‘S•”A‚ğ¦‚·ratio
+            public const double ALL_OF_REST = 0; //æ®‹ã‚Šå…¨éƒ¨ã€ã‚’ç¤ºã™ratio
 
             private double _ratio;
-            private SplitFormat _content; //DivisionNode‚É‘Î‰‚·‚é‚Æ‚«‚Ínull
+            private SplitFormat _content; //DivisionNodeã«å¯¾å¿œã™ã‚‹ã¨ãã¯null
             private string _label;
             private Node _next;
 
@@ -1152,7 +1152,7 @@ namespace Poderosa.UI {
 
                 if (_label != null) {
                     bld.Append("L");
-                    bld.Append(_label); //label‚ÍƒeƒXƒgEƒfƒoƒbƒOê—p
+                    bld.Append(_label); //labelã¯ãƒ†ã‚¹ãƒˆãƒ»ãƒ‡ãƒãƒƒã‚°å°‚ç”¨
                 }
                 if (_content != null)
                     _content.ToString(bld);
@@ -1243,7 +1243,7 @@ namespace Poderosa.UI {
             return index;
         }
 
-        //ch‚ğ‚İ‚Â‚¯‚Ä‚»‚ÌˆÊ’u‚ğ•Ô‚·‚©A‚³‚à‚È‚­‚Î—áŠO
+        //chã‚’ã¿ã¤ã‘ã¦ãã®ä½ç½®ã‚’è¿”ã™ã‹ã€ã•ã‚‚ãªãã°ä¾‹å¤–
         private static int FindChar(char[] content, int index, char ch) {
             while (content.Length > index) {
                 if (content[index] == ch)
@@ -1253,7 +1253,7 @@ namespace Poderosa.UI {
 
             throw new FormatException();
         }
-        //‚Q•¶š‚Ì‚Ç‚¿‚ç‚©‚ğŒ©‚Â‚¯‚éƒo[ƒWƒ‡ƒ“
+        //ï¼’æ–‡å­—ã®ã©ã¡ã‚‰ã‹ã‚’è¦‹ã¤ã‘ã‚‹ãƒãƒ¼ã‚¸ãƒ§ãƒ³
         private static int FindChar2(char[] content, int index, char ch1, char ch2) {
             while (content.Length > index) {
                 if (content[index] == ch1 || content[index] == ch2)

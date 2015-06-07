@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,7 +49,7 @@ namespace Poderosa.Sessions {
             if (ts == null)
                 return CommandResult.Failed;
 
-            //•Â‚¶‚Ä‚é‚©‚Ç‚¤‚©‚ÅÄÚ‘±‚©•¡»
+            //é–‰ã˜ã¦ã‚‹ã‹ã©ã†ã‹ã§å†æ¥ç¶šã‹è¤‡è£½
             if (ts.TerminalTransmission.Connection.IsClosed)
                 return ConnectAgain(ts);
             else
@@ -57,7 +57,7 @@ namespace Poderosa.Sessions {
 
         }
         private CommandResult Reproduce(ITerminalSession ts) {
-            //TODO SSH2‚Å‚Í“¯ˆêƒRƒlƒNƒVƒ‡ƒ“‚Å‚à‚¤ˆê–{’£‚éƒVƒ‡[ƒgƒJƒbƒgAƒVƒŠƒAƒ‹‚Å‚Í•¡»‚Å‚«‚È‚¢‚±‚Æ‚ğ’Ê’m‚·‚éƒVƒ‡[ƒgƒJƒbƒg‚ª‚ ‚é‚ª...
+            //TODO SSH2ã§ã¯åŒä¸€ã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ã§ã‚‚ã†ä¸€æœ¬å¼µã‚‹ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã€ã‚·ãƒªã‚¢ãƒ«ã§ã¯è¤‡è£½ã§ããªã„ã“ã¨ã‚’é€šçŸ¥ã™ã‚‹ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆãŒã‚ã‚‹ãŒ...
             ITerminalParameter param = (ITerminalParameter)ts.TerminalTransmission.Connection.Destination.Clone();
             ISSHLoginParameter ssh = (ISSHLoginParameter)param.GetAdapter(typeof(ISSHLoginParameter));
             if (ssh != null)
@@ -78,7 +78,7 @@ namespace Poderosa.Sessions {
             if (connection == null)
                 return CommandResult.Failed;
 
-            ts.Revive(connection); //Ú‘±‚ğ•œŠˆ
+            ts.Revive(connection); //æ¥ç¶šã‚’å¾©æ´»
             return CommandResult.Succeeded;
         }
 
@@ -110,7 +110,7 @@ namespace Poderosa.Sessions {
         }
         public bool IsVolatileContent {
             get {
-                return true; //ƒeƒLƒXƒg‚ª‰Â•Ï
+                return true; //ãƒ†ã‚­ã‚¹ãƒˆãŒå¯å¤‰
             }
         }
 
@@ -146,7 +146,7 @@ namespace Poderosa.Sessions {
 
             public string Text {
                 get {
-                    //ƒeƒLƒXƒg‚ª‰Â•Ï‚È‚Ì‚Í‘z’èŠO‚È‚Ì‚ÅAIsEnabled‚ªæ‚ÉŒÄ‚Î‚ê‚é‚Í‚¸‚Æ‚¢‚¤‰B‚µd—l‚ÉˆË‘¶
+                    //ãƒ†ã‚­ã‚¹ãƒˆãŒå¯å¤‰ãªã®ã¯æƒ³å®šå¤–ãªã®ã§ã€IsEnabledãŒå…ˆã«å‘¼ã°ã‚Œã‚‹ã¯ãšã¨ã„ã†éš ã—ä»•æ§˜ã«ä¾å­˜
                     ITerminalSession ts = ReproduceCommand.AsTerminalSession(_lastCommandTarget);
                     return TEnv.Strings.GetString((ts != null && !ts.TerminalConnection.IsClosed) ? "Menu.ReproduceTerminal" : "Menu.ReviveTerminal");
                 }

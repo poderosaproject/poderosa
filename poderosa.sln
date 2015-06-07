@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 9.00
+﻿Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerminalEmulator", "TerminalEmulator\TerminalEmulator.csproj", "{7F80731C-443A-4533-90D1-1643A5C1364E}"
 EndProject

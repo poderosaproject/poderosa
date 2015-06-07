@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,11 +19,11 @@ using Poderosa.Usability;
 
 namespace Poderosa.Forms {
     /// <summary>
-    /// GFontDialog ‚ÌŠT—v‚Ìà–¾‚Å‚·B
+    /// GFontDialog ã®æ¦‚è¦ã®èª¬æ˜ã§ã™ã€‚
     /// </summary>
     internal class GFontDialog : System.Windows.Forms.Form {
 
-        //‚±‚Ìƒ_ƒCƒAƒƒO‚ÍŒ¾Œê‚É‚æ‚Á‚Ä—lq‚ªˆá‚Á‚Ä‚­‚é
+        //ã“ã®ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ã¯è¨€èªã«ã‚ˆã£ã¦æ§˜å­ãŒé•ã£ã¦ãã‚‹
         //private Language _language;
 
         private System.Windows.Forms.ListBox _asciiFontList;
@@ -40,7 +40,7 @@ namespace Poderosa.Forms {
         private System.Windows.Forms.Button _okButton;
         private System.Windows.Forms.Button _cancelButton;
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.Container components = null;
 
@@ -96,7 +96,7 @@ namespace Poderosa.Forms {
             if (_asciiFontList.SelectedIndex == -1)
                 _asciiFontList.SelectedIndex = _asciiFontList.FindStringExact("Courier New");
             if (_cjkFontList.SelectedIndex == -1)
-                _cjkFontList.SelectedIndex = _cjkFontList.FindStringExact("‚l‚r ƒSƒVƒbƒN");
+                _cjkFontList.SelectedIndex = _cjkFontList.FindStringExact("ï¼­ï¼³ ã‚´ã‚·ãƒƒã‚¯");
 
             _lASCIISample.Font = ascii;
             _lCJKSample.Font = cjk;
@@ -105,7 +105,7 @@ namespace Poderosa.Forms {
 
         public GFontDialog() {
             //
-            // Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Å‚·B
+            // Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ã§ã™ã€‚
             //
             InitializeComponent();
             //_language = GApp.Options.Language;
@@ -126,7 +126,7 @@ namespace Poderosa.Forms {
         }
 
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -139,8 +139,8 @@ namespace Poderosa.Forms {
 
         #region Windows Form Designer generated code
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this._asciiFontList = new System.Windows.Forms.ListBox();
@@ -324,11 +324,11 @@ namespace Poderosa.Forms {
                 if(!f.IsStyleAvailable(FontStyle.Regular|FontStyle.Underline|FontStyle.Bold)) continue;
                 Win32.LOGFONT lf = new Win32.LOGFONT();
                 new Font(f, 10).ToLogFont(lf);
-                //if((lf.lfPitchAndFamily & 0x01)==0) continue; //fixed pitch‚Ì‚İ”F‚ß‚é
+                //if((lf.lfPitchAndFamily & 0x01)==0) continue; //fixed pitchã®ã¿èªã‚ã‚‹
                 Debug.WriteLine(lf.lfFaceName+" " + lf.lfCharSet + " " + lf.lfPitchAndFamily);
                 if(lf.lfCharSet==128)
                     _japaneseFontList.Items.Add(f.GetName(0));
-                if(lf.lfCharSet!=2) //Symbol—p‚Íœ‚­
+                if(lf.lfCharSet!=2) //Symbolç”¨ã¯é™¤ã
                     _asciiFontList.Items.Add(f.GetName(0));
             }
             */
@@ -343,7 +343,7 @@ namespace Poderosa.Forms {
             IntPtr lParam = new IntPtr(0);
             lf.lfCharSet = 1; //default
             Win32.EnumFontFamiliesEx(hDC, ref lf, proc, lParam, 0);
-            //lf.lfCharSet = 128; //“ú–{Œê
+            //lf.lfCharSet = 128; //æ—¥æœ¬èª
             //lParam = new IntPtr(128);
             //Win32.EnumFontFamiliesEx(hDC, ref lf, proc, lParam, 0);
             g.ReleaseHdc(hDC);
@@ -352,19 +352,19 @@ namespace Poderosa.Forms {
         private int FontProc(ref Win32.ENUMLOGFONTEX lpelfe, ref Win32.NEWTEXTMETRICEX lpntme, uint FontType, IntPtr lParam) {
             //(lpelfe.lfPitchAndFamily & 2)==0)
             bool interesting = FontType == 4 && (lpntme.ntmTm.tmPitchAndFamily & 1) == 0 && lpelfe.lfFaceName[0] != '@';
-            //Terminal‚ÍˆË‘Rƒ_ƒ
+            //Terminalã¯ä¾ç„¶ãƒ€ãƒ¡
             //if(!interesting)
-            //	if(lpelfe.lfFaceName=="FixedSys" || lpelfe.lfFaceName=="Terminal") interesting = true; //‚±‚Ì‚Q‚Â‚¾‚¯‚ÍTrueType‚Å‚È‚­‚Æ‚àƒŠƒXƒg‚É‚¢‚ê‚é
+            //	if(lpelfe.lfFaceName=="FixedSys" || lpelfe.lfFaceName=="Terminal") interesting = true; //ã“ã®ï¼’ã¤ã ã‘ã¯TrueTypeã§ãªãã¨ã‚‚ãƒªã‚¹ãƒˆã«ã„ã‚Œã‚‹
 
-            if (interesting) { //c‘‚«‚Å‚È‚¢‚±‚Æ‚Í‚±‚ê‚Å‚µ‚©”»’è‚Å‚«‚È‚¢‚Ì‚©H
-                //‚³‚Ú‚è
+            if (interesting) { //ç¸¦æ›¸ãã§ãªã„ã“ã¨ã¯ã“ã‚Œã§ã—ã‹åˆ¤å®šã§ããªã„ã®ã‹ï¼Ÿ
+                //ã•ã¼ã‚Š
                 if (/*_language==Language.Japanese && */lpntme.ntmTm.tmCharSet == 128/*SHIFTJIS_CHARSET*/
                     || lpntme.ntmTm.tmCharSet == 129/*HANGUL_CHARSET*/
                     || lpntme.ntmTm.tmCharSet == 130/*JOHAB_CHARSET*/
                     || lpntme.ntmTm.tmCharSet == 134/*GB2312_CHARSET*/
                     || lpntme.ntmTm.tmCharSet == 136/*CHINESEBIG5_CHARSET*/) {
                     _cjkFontList.Items.Add(lpelfe.lfFaceName);
-                    //“ú–{ŒêƒtƒHƒ“ƒg‚Å‚àASCII‚Í•K‚¸•\¦‚Å‚«‚é‚Í‚¸
+                    //æ—¥æœ¬èªãƒ•ã‚©ãƒ³ãƒˆã§ã‚‚ASCIIã¯å¿…ãšè¡¨ç¤ºã§ãã‚‹ã¯ãš
                     if (_asciiFontList.FindStringExact(lpelfe.lfFaceName) == -1)
                         _asciiFontList.Items.Add(lpelfe.lfFaceName);
                 }
@@ -423,8 +423,8 @@ namespace Poderosa.Forms {
             Close();
         }
 
-        //ŒÅ’è’·ƒtƒHƒ“ƒg‚ğg‚Á‚Ä‚¢‚é‚Æ‚«A”F‚ß‚ç‚ê‚Ä‚¢‚È‚¢ƒTƒCƒY‚ğw’è‚µ‚Ä‚¢‚½‚çŒx‚µ‚Äfalse‚ğ•Ô‚·B
-        //allowed_sizes‚ÍƒTƒCƒYw’è‚ÌƒŠƒXƒg‚ÉŠÜ‚Ü‚ê‚Ä‚¢‚é‚à‚Ì‚ğg—p‚·‚é‚±‚ÆI
+        //å›ºå®šé•·ãƒ•ã‚©ãƒ³ãƒˆã‚’ä½¿ã£ã¦ã„ã‚‹ã¨ãã€èªã‚ã‚‰ã‚Œã¦ã„ãªã„ã‚µã‚¤ã‚ºã‚’æŒ‡å®šã—ã¦ã„ãŸã‚‰è­¦å‘Šã—ã¦falseã‚’è¿”ã™ã€‚
+        //allowed_sizesã¯ã‚µã‚¤ã‚ºæŒ‡å®šã®ãƒªã‚¹ãƒˆã«å«ã¾ã‚Œã¦ã„ã‚‹ã‚‚ã®ã‚’ä½¿ç”¨ã™ã‚‹ã“ã¨ï¼
         private bool CheckFixedSizeFont(string name, params float[] allowed_sizes) {
             if (_asciiFont.Name == name || _cjkFont.Name == name) {
                 float sz = GetFontSize();

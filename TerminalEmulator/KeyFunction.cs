@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,9 +19,9 @@ using Poderosa.Util;
 
 namespace Poderosa.Terminal {
 
-    //ŒJ‚èã‚°‚ÄÀ‘•‚·‚é‚±‚Æ‚É‚µ‚½AƒL[‚ÌŠ„“–‚Ì‚½‚ß‚ÌƒNƒ‰ƒXB
-    //“TŒ^“I‚É‚ÍA—á‚¦‚Î 0x1F‚Ì‘—M‚Í Ctrl+_ ‚¾‚ªA‰pŒêƒL[ƒ{[ƒh‚Å‚ÍÀÛ‚É‚Í Ctrl+Shift+- ‚ª•K—v‚Å‚ ‚èA‰Ÿ‚µ‚Ã‚ç‚¢B‚±‚Ì‚ ‚½‚è‚ğ‰ğŒˆ‚·‚éB
-    //‚Â‚¢‚Å‚ÉA•¶š—ñ‚É‘Î‚µ‚ÄƒoƒCƒ“ƒh‚ğ‰Â”\‚É‚·‚ê‚ÎA"ls -la"ƒL[‚İ‚½‚¢‚È‚Ì‚ğ’è‹`‚Å‚«‚éB
+    //ç¹°ã‚Šä¸Šã’ã¦å®Ÿè£…ã™ã‚‹ã“ã¨ã«ã—ãŸã€ã‚­ãƒ¼ã®å‰²å½“ã®ãŸã‚ã®ã‚¯ãƒ©ã‚¹ã€‚
+    //å…¸å‹çš„ã«ã¯ã€ä¾‹ãˆã° 0x1Fã®é€ä¿¡ã¯ Ctrl+_ ã ãŒã€è‹±èªã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ã§ã¯å®Ÿéš›ã«ã¯ Ctrl+Shift+- ãŒå¿…è¦ã§ã‚ã‚Šã€æŠ¼ã—ã¥ã‚‰ã„ã€‚ã“ã®ã‚ãŸã‚Šã‚’è§£æ±ºã™ã‚‹ã€‚
+    //ã¤ã„ã§ã«ã€æ–‡å­—åˆ—ã«å¯¾ã—ã¦ãƒã‚¤ãƒ³ãƒ‰ã‚’å¯èƒ½ã«ã™ã‚Œã°ã€"ls -la"ã‚­ãƒ¼ã¿ãŸã„ãªã®ã‚’å®šç¾©ã§ãã‚‹ã€‚
     /// <summary>
     /// 
     /// </summary>
@@ -51,11 +51,11 @@ namespace Poderosa.Terminal {
                 _data = data;
             }
 
-            //0xŒ`®‚àŠÜ‚ß‚Äˆµ‚¦‚é‚æ‚¤‚É
+            //0xå½¢å¼ã‚‚å«ã‚ã¦æ‰±ãˆã‚‹ã‚ˆã†ã«
             public string FormatData() {
                 StringBuilder bld = new StringBuilder();
                 foreach (char ch in _data) {
-                    if (ch < ' ' || (int)ch == 0x7F) { //§Œä•¶š‚Ædel
+                    if (ch < ' ' || (int)ch == 0x7F) { //åˆ¶å¾¡æ–‡å­—ã¨del
                         bld.Append("0x");
                         bld.Append(((int)ch).ToString("X2"));
                     }
@@ -70,7 +70,7 @@ namespace Poderosa.Terminal {
                 int c = 0;
                 while (c < s.Length) {
                     char ch = s[c];
-                    if (ch == '0' && c + 3 <= s.Length && s[c + 1] == 'x') { //0x00Œ`®B
+                    if (ch == '0' && c + 3 <= s.Length && s[c + 1] == 'x') { //0x00å½¢å¼ã€‚
                         int t;
                         if (Int32.TryParse(s.Substring(c + 2, 2), NumberStyles.HexNumber, null, out t)) {
                             bld.Append((char)t);

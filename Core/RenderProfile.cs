@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,37 +25,37 @@ namespace Poderosa.View {
 
 #if MACRODOC
     /// <summary>
-    /// <ja>”wŒi‰æ‘œ‚ÌˆÊ’u‚ğw’è‚µ‚Ü‚·B</ja>
+    /// <ja>èƒŒæ™¯ç”»åƒã®ä½ç½®ã‚’æŒ‡å®šã—ã¾ã™ã€‚</ja>
     /// <en>Specifies the position of the background image.</en>
     /// </summary>
     public enum ImageStyle {
         /// <summary>
-        /// <ja>’†‰›</ja>
+        /// <ja>ä¸­å¤®</ja>
         /// <en>Center</en>
         /// </summary>
         Center,
         /// <summary>
-        /// <ja>¶ã</ja>
+        /// <ja>å·¦ä¸Š</ja>
         /// <en>Upper left corner</en>
         /// </summary>
         TopLeft,
         /// <summary>
-        /// <ja>‰Eã</ja>
+        /// <ja>å³ä¸Š</ja>
         /// <en>Upper right corner</en>
         /// </summary>
         TopRight,
         /// <summary>
-        /// <ja>¶‰º</ja>
+        /// <ja>å·¦ä¸‹</ja>
         /// <en>Lower left corner</en>
         /// </summary>
         BottomLeft,
         /// <summary>
-        /// <ja>‰E‰º</ja>
+        /// <ja>å³ä¸‹</ja>
         /// <en>Lower right corner</en>
         /// </summary>
         BottomRight,
         /// <summary>
-        /// <ja>Lk‚µ‚Ä‘S‘Ì‚É•\¦</ja>
+        /// <ja>ä¼¸ç¸®ã—ã¦å…¨ä½“ã«è¡¨ç¤º</ja>
         /// <en>The image covers the whole area of the console by expansion</en>
         /// </summary>
         Scaled
@@ -142,7 +142,7 @@ namespace Poderosa.View {
     }
 
     /// <summary>
-    /// <ja>ƒRƒ“ƒ\[ƒ‹‚Ì•\¦•û–@‚ğw’è‚·‚éƒIƒuƒWƒFƒNƒg‚Å‚·BÚ‘±‘O‚ÉTerminalParam‚ÌRenderProfileƒvƒƒpƒeƒB‚ÉƒZƒbƒg‚·‚é‚±‚Æ‚ÅAƒ}ƒNƒ‚©‚çFEƒtƒHƒ“ƒgE”wŒi‰æ‘œ‚ğw’è‚Å‚«‚Ü‚·B</ja>
+    /// <ja>ã‚³ãƒ³ã‚½ãƒ¼ãƒ«ã®è¡¨ç¤ºæ–¹æ³•ã‚’æŒ‡å®šã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚æ¥ç¶šå‰ã«TerminalParamã®RenderProfileãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã«ã‚»ãƒƒãƒˆã™ã‚‹ã“ã¨ã§ã€ãƒã‚¯ãƒ­ã‹ã‚‰è‰²ãƒ»ãƒ•ã‚©ãƒ³ãƒˆãƒ»èƒŒæ™¯ç”»åƒã‚’æŒ‡å®šã§ãã¾ã™ã€‚</ja>
     /// <en>Implements the parameters for displaying the console. By setting this object to the RenderProfile property of the TerminalParam object, the macro can control colors, fonts, and background images.</en>
     /// </summary>
     public class RenderProfile : ICloneable {
@@ -178,11 +178,11 @@ namespace Poderosa.View {
 
         private SizeF _pitch;
         private int _lineSpacing;
-        private float _chargap; //•¶š—ñ‚ğ•\¦‚·‚é‚Æ‚«‚É¶‰E‚É‚Â‚­—]”’
-        private bool _usingIdenticalFont; //ASCII/CJK‚Å“¯‚¶ƒtƒHƒ“ƒg‚ğg‚Á‚Ä‚¢‚é‚©‚Ç‚¤‚©
+        private float _chargap; //æ–‡å­—åˆ—ã‚’è¡¨ç¤ºã™ã‚‹ã¨ãã«å·¦å³ã«ã¤ãä½™ç™½
+        private bool _usingIdenticalFont; //ASCII/CJKã§åŒã˜ãƒ•ã‚©ãƒ³ãƒˆã‚’ä½¿ã£ã¦ã„ã‚‹ã‹ã©ã†ã‹
 
         /// <summary>
-        /// <ja>’Êí‚Ì•¶š‚ğ•\¦‚·‚é‚½‚ß‚ÌƒtƒHƒ“ƒg–¼‚Å‚·B</ja>
+        /// <ja>é€šå¸¸ã®æ–‡å­—ã‚’è¡¨ç¤ºã™ã‚‹ãŸã‚ã®ãƒ•ã‚©ãƒ³ãƒˆåã§ã™ã€‚</ja>
         /// <en>Gets or sets the font name for normal characters.</en>
         /// </summary>
         public string FontName {
@@ -195,7 +195,7 @@ namespace Poderosa.View {
             }
         }
         /// <summary>
-        /// <ja>CJK•¶š‚ğ•\¦‚·‚é‚½‚ß‚ÌƒtƒHƒ“ƒg–¼‚Å‚·B</ja>
+        /// <ja>CJKæ–‡å­—ã‚’è¡¨ç¤ºã™ã‚‹ãŸã‚ã®ãƒ•ã‚©ãƒ³ãƒˆåã§ã™ã€‚</ja>
         /// <en>Gets or sets the font name for CJK characters.</en>
         /// </summary>
         public string CJKFontName {
@@ -208,7 +208,7 @@ namespace Poderosa.View {
             }
         }
         /// <summary>
-        /// <ja>ƒtƒHƒ“ƒgƒTƒCƒY‚Å‚·B</ja>
+        /// <ja>ãƒ•ã‚©ãƒ³ãƒˆã‚µã‚¤ã‚ºã§ã™ã€‚</ja>
         /// <en>Gets or sets the font size.</en>
         /// </summary>
         public float FontSize {
@@ -221,7 +221,7 @@ namespace Poderosa.View {
             }
         }
         /// <summary>
-        /// <ja>true‚ÉƒZƒbƒg‚·‚é‚ÆAƒtƒHƒ“ƒg‚ÆOS‚ÅƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚ê‚ÎAClearType‚ğg—p‚µ‚Ä•¶š‚ª•`‰æ‚³‚ê‚Ü‚·B</ja>
+        /// <ja>trueã«ã‚»ãƒƒãƒˆã™ã‚‹ã¨ã€ãƒ•ã‚©ãƒ³ãƒˆã¨OSã§ã‚µãƒãƒ¼ãƒˆã•ã‚Œã¦ã„ã‚Œã°ã€ClearTypeã‚’ä½¿ç”¨ã—ã¦æ–‡å­—ãŒæç”»ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>If this property is true, the characters are drew by the ClearType when the font and the OS supports it.</en>
         /// </summary>
         public bool UseClearType {
@@ -234,7 +234,7 @@ namespace Poderosa.View {
         }
 
         /// <summary>
-        /// <ja>false‚É‚·‚é‚ÆƒGƒXƒP[ƒvƒV[ƒPƒ“ƒX‚Åƒ{[ƒ‹ƒhƒtƒHƒ“ƒg‚ªw’è‚³‚ê‚Ä‚¢‚Ä‚à’ÊíƒtƒHƒ“ƒg‚Å•`‰æ‚µ‚Ü‚·</ja>
+        /// <ja>falseã«ã™ã‚‹ã¨ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ã§ãƒœãƒ¼ãƒ«ãƒ‰ãƒ•ã‚©ãƒ³ãƒˆãŒæŒ‡å®šã•ã‚Œã¦ã„ã¦ã‚‚é€šå¸¸ãƒ•ã‚©ãƒ³ãƒˆã§æç”»ã—ã¾ã™</ja>
         /// <en>If this property is false, bold fonts are replaced by normal fonts even if the escape sequence indicates bold.</en>
         /// </summary>
         public bool EnableBoldStyle {
@@ -258,7 +258,7 @@ namespace Poderosa.View {
         }
 
         /// <summary>
-        /// <ja>•¶šF‚Å‚·B</ja>
+        /// <ja>æ–‡å­—è‰²ã§ã™ã€‚</ja>
         /// <en>Gets or sets the color of characters.</en>
         /// </summary>
         public Color ForeColor {
@@ -271,7 +271,7 @@ namespace Poderosa.View {
             }
         }
         /// <summary>
-        /// <ja>JScript‚Å‚ÍColor\‘¢‘Ì‚ªg—p‚Å‚«‚È‚¢‚Ì‚ÅAForeColorƒvƒƒpƒeƒB‚ğİ’è‚·‚é‚©‚í‚è‚É‚±‚Ìƒƒ\ƒbƒh‚ğg‚Á‚Ä‚­‚¾‚³‚¢B</ja>
+        /// <ja>JScriptã§ã¯Coloræ§‹é€ ä½“ãŒä½¿ç”¨ã§ããªã„ã®ã§ã€ForeColorãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’è¨­å®šã™ã‚‹ã‹ã‚ã‚Šã«ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‚’ä½¿ã£ã¦ãã ã•ã„ã€‚</ja>
         /// <en>Because JScript cannot handle the Color structure, please use this method instead of the ForeColor property.</en>
         /// </summary>
         public void SetForeColor(object value) {
@@ -279,7 +279,7 @@ namespace Poderosa.View {
             ClearBrush();
         }
         /// <summary>
-        /// <ja>”wŒiF‚Å‚·B</ja>
+        /// <ja>èƒŒæ™¯è‰²ã§ã™ã€‚</ja>
         /// <en>Gets or sets the background color.</en>
         /// </summary>
         public Color BackColor {
@@ -292,7 +292,7 @@ namespace Poderosa.View {
             }
         }
         /// <summary>
-        /// <ja>JScript‚Å‚Í\‘¢‘Ì‚ªg—p‚Å‚«‚È‚¢‚Ì‚ÅABackColorƒvƒƒpƒeƒB‚ğİ’è‚·‚é‚©‚í‚è‚É‚±‚Ìƒƒ\ƒbƒh‚ğg‚Á‚Ä‚­‚¾‚³‚¢B</ja>
+        /// <ja>JScriptã§ã¯æ§‹é€ ä½“ãŒä½¿ç”¨ã§ããªã„ã®ã§ã€BackColorãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’è¨­å®šã™ã‚‹ã‹ã‚ã‚Šã«ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‚’ä½¿ã£ã¦ãã ã•ã„ã€‚</ja>
         /// <en>Because JScript cannot handle the Color structure, please use this method instead of the BackColor property.</en>
         /// </summary>
         public void SetBackColor(object value) {
@@ -301,7 +301,7 @@ namespace Poderosa.View {
         }
 
         /// <summary>
-        /// <ja>”wŒiF‚ğFƒe[ƒuƒ‹‚©‚ç‘I‘ğ‚·‚é‚Æ‚«‚ÉAˆÃ‚¢F‚É‚·‚é‚©‚Ç‚¤‚©‚ğİ’è‚Ü‚½‚Íæ“¾‚µ‚Ü‚·B</ja>
+        /// <ja>èƒŒæ™¯è‰²ã‚’è‰²ãƒ†ãƒ¼ãƒ–ãƒ«ã‹ã‚‰é¸æŠã™ã‚‹ã¨ãã«ã€æš—ã„è‰²ã«ã™ã‚‹ã‹ã©ã†ã‹ã‚’è¨­å®šã¾ãŸã¯å–å¾—ã—ã¾ã™ã€‚</ja>
         /// <en>Gets or sets whether the color is darken when the background color is chosen from the color table.</en>
         /// </summary>
         public bool DarkenEsColorForBackground {
@@ -314,7 +314,7 @@ namespace Poderosa.View {
         }
 
         /// <summary>
-        /// <ja>”wŒi‰æ‘œ‚Ìƒtƒ@ƒCƒ‹–¼‚Å‚·B</ja>
+        /// <ja>èƒŒæ™¯ç”»åƒã®ãƒ•ã‚¡ã‚¤ãƒ«åã§ã™ã€‚</ja>
         /// <en>Gets or set the file name of the background image.</en>
         /// </summary>
         public string BackgroundImageFileName {
@@ -327,7 +327,7 @@ namespace Poderosa.View {
             }
         }
         /// <summary>
-        /// <ja>”wŒi‰æ‘œ‚ÌˆÊ’u‚Å‚·B</ja>
+        /// <ja>èƒŒæ™¯ç”»åƒã®ä½ç½®ã§ã™ã€‚</ja>
         /// <en>Gets or sets the position of the background image.</en>
         /// </summary>
         public ImageStyle ImageStyle {
@@ -355,7 +355,7 @@ namespace Poderosa.View {
         }
 #endif
         /// <summary>
-        /// <ja>ƒRƒs[‚µ‚Äì¬‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚³ãƒ”ãƒ¼ã—ã¦ä½œæˆã—ã¾ã™ã€‚</ja>
         /// <en>Initializes with another instance.</en>
         /// </summary>
         public RenderProfile(RenderProfile src) {
@@ -439,7 +439,7 @@ namespace Poderosa.View {
 
             _usingIdenticalFont = (_font.Font.Name == _cjkFont.Font.Name);
 
-            //’Êí”Å
+            //é€šå¸¸ç‰ˆ
             Graphics g = Graphics.FromHwnd(Win32.GetDesktopWindow());
             IntPtr hdc = g.GetHdc();
             Win32.SelectObject(hdc, _font.HFONT);

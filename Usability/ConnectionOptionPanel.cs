@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 * Copyright (c) 2005 Poderosa Project, All Rights Reserved.
 * $Id: ConnectionOptionPanel.cs,v 1.5 2012/03/17 15:30:02 kzmi Exp $
 */
@@ -245,7 +245,7 @@ namespace Poderosa.Forms {
                 itemname = sr.GetString("Caption.OptionDialog.NetworkAddress");
                 foreach (string c in _socksNANetworksBox.Text.Split(';')) {
                     if (c.Length > 0 && !NetAddressUtil.IsNetworkAddress(c))
-                        throw new FormatException(); //TODO‚±‚±‚¾‚¯ƒiƒ“ƒgƒJ‚·‚ê‚ÎNetUtil‚Íinternal‚É‚Å‚«‚é
+                        throw new FormatException(); //TODOã“ã“ã ã‘ãƒŠãƒ³ãƒˆã‚«ã™ã‚Œã°NetUtilã¯internalã«ã§ãã‚‹
                 }
                 options.SocksNANetworks = _socksNANetworksBox.Text;
 

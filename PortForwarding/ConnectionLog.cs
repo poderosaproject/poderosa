@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  Copyright (c) 2005 Poderosa Project, All Rights Reserved.
 
  $Id: ConnectionLog.cs,v 1.2 2011/10/27 23:21:57 kzmi Exp $
@@ -8,7 +8,7 @@ using System.IO;
 
 namespace Poderosa.PortForwarding {
     /// <summary>
-    /// ConnectionLog ‚ÌŠT—v‚Ìà–¾‚Å‚·B
+    /// ConnectionLog ã®æ¦‚è¦ã®èª¬æ˜ã§ã™ã€‚
     /// </summary>
     internal class ConnectionLog {
         private StreamWriter _strm;

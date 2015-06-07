@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,8 +11,8 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace Poderosa.Util.Generics {
-    //ToString, Parse, Equals‚Ì‚R‚Â‚ğ”õ‚¦‚éBPreferenceItem—p‚É“±“ü‚³‚ê‚½B
-    //bool, int, string‚É‚Â‚¢‚Ä‚Í‚±‚±‚É—ñ‹“‚¾‚ªAEnum—p‚É‚ÍŠe©‚ÅB
+    //ToString, Parse, Equalsã®ï¼“ã¤ã‚’å‚™ãˆã‚‹ã€‚PreferenceItemç”¨ã«å°å…¥ã•ã‚ŒãŸã€‚
+    //bool, int, stringã«ã¤ã„ã¦ã¯ã“ã“ã«åˆ—æŒ™ã ãŒã€Enumç”¨ã«ã¯å„è‡ªã§ã€‚
     /// <summary>
     /// 
     /// </summary>

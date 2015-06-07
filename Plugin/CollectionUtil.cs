@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,7 +48,7 @@ namespace Poderosa.Util.Collections {
             T[] r = new T[collection.Count];
             int i = 0;
             foreach (object t in collection)
-                r[i++] = (T)t; //ƒLƒƒƒXƒg•K{‚©‚Ânull‹–‚³‚È‚¢
+                r[i++] = (T)t; //ã‚­ãƒ£ã‚¹ãƒˆå¿…é ˆã‹ã¤nullè¨±ã•ãªã„
             return r;
         }
 
@@ -60,7 +60,7 @@ namespace Poderosa.Util.Collections {
         }
     }
 
-    //STL‚Ìpair‚Æ“¯“™
+    //STLã®pairã¨åŒç­‰
     /// <summary>
     /// 
     /// </summary>
@@ -93,8 +93,8 @@ namespace Poderosa.Util.Collections {
     }
 
 
-    //Generic”ÅHashtable
-    //System.Collections.Generic.Dictionary ‚ÍAItemƒvƒƒpƒeƒB‚ªuƒL[‚ª‘¶İ‚µ‚È‚¢‚Æ—áŠO‚ğ“Š‚°‚év‚Æ‚¢‚¤ƒNƒT‚êd—l‚Ì‚½‚ß
+    //Genericç‰ˆHashtable
+    //System.Collections.Generic.Dictionary ã¯ã€Itemãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ãŒã€Œã‚­ãƒ¼ãŒå­˜åœ¨ã—ãªã„ã¨ä¾‹å¤–ã‚’æŠ•ã’ã‚‹ã€ã¨ã„ã†ã‚¯ã‚µã‚Œä»•æ§˜ã®ãŸã‚
     /// <summary>
     /// 
     /// </summary>
@@ -132,7 +132,7 @@ namespace Poderosa.Util.Collections {
         public bool Contains(K key) {
             return _data.Contains(key);
         }
-        public ICollection Values { //‚±‚ê‚Íƒ^ƒCƒvƒZ[ƒt‚É‚Å‚«‚È‚¢‚È
+        public ICollection Values { //ã“ã‚Œã¯ã‚¿ã‚¤ãƒ—ã‚»ãƒ¼ãƒ•ã«ã§ããªã„ãª
             get {
                 return _data.Values;
             }
@@ -147,7 +147,7 @@ namespace Poderosa.Util.Collections {
         }
     }
 
-    //’Ç‰Á‚µ‚½‡”Ô‚ğ•Û‚·‚éƒe[ƒuƒ‹B—v‘f‚Ì­‚È‚¢‚â‚Â—p
+    //è¿½åŠ ã—ãŸé †ç•ªã‚’ä¿æŒã™ã‚‹ãƒ†ãƒ¼ãƒ–ãƒ«ã€‚è¦ç´ ã®å°‘ãªã„ã‚„ã¤ç”¨
     /// <summary>
     /// 
     /// </summary>
@@ -209,10 +209,10 @@ namespace Poderosa.Util.Collections {
     }
 
 
-    //•ÏŠ·‰Â”\Œ^‚É‚Â‚¢‚ÄIEnumerator, IEnumerable‚ğÀ‘•
-    //‚±‚Æ‚Ì‹N‚±‚è‚ÍAŒp³ŠÖŒW‚É‚ ‚éƒNƒ‰ƒX‚ÌIEnumerator“¯m‚ªƒLƒƒƒXƒg‚Å‚«‚È‚¢‚±‚Æ‚É‹Æ‚ğÏ‚â‚µ‚½‚±‚Æ‚É‚æ‚éB
-    //‚½‚Æ‚¦‚ÎAIEnumerator<Form>‚©‚çIEnumerator<Control>‚É‚Í‚â‚Á‚Ï‚èŠÈ’P‚É•ÏŠ·‚µ‚½‚¢‚à‚Ì‚¾B
-    //‚Â‚¢‚Å‚ÉGeneric‚Å‚È‚¢A•’Ê‚ÌIEnumerator‚©‚ç‚Ì•ÏŠ·‚à‚Â‚¯‚½B
+    //å¤‰æ›å¯èƒ½å‹ã«ã¤ã„ã¦IEnumerator, IEnumerableã‚’å®Ÿè£…
+    //ã“ã¨ã®èµ·ã“ã‚Šã¯ã€ç¶™æ‰¿é–¢ä¿‚ã«ã‚ã‚‹ã‚¯ãƒ©ã‚¹ã®IEnumeratoråŒå£«ãŒã‚­ãƒ£ã‚¹ãƒˆã§ããªã„ã“ã¨ã«æ¥­ã‚’ç…®ã‚„ã—ãŸã“ã¨ã«ã‚ˆã‚‹ã€‚
+    //ãŸã¨ãˆã°ã€IEnumerator<Form>ã‹ã‚‰IEnumerator<Control>ã«ã¯ã‚„ã£ã±ã‚Šç°¡å˜ã«å¤‰æ›ã—ãŸã„ã‚‚ã®ã ã€‚
+    //ã¤ã„ã§ã«Genericã§ãªã„ã€æ™®é€šã®IEnumeratorã‹ã‚‰ã®å¤‰æ›ã‚‚ã¤ã‘ãŸã€‚
 
     /// <summary>
     /// 
@@ -224,7 +224,7 @@ namespace Poderosa.Util.Collections {
         where TX : class
         where TY : class {
 
-        //•ÏŠ·‚·‚édelegate
+        //å¤‰æ›ã™ã‚‹delegate
         public delegate TY Converter(TX value);
 
         private IEnumerator<TX> _ie;
@@ -276,7 +276,7 @@ namespace Poderosa.Util.Collections {
             _ie = ie;
             _converter = delegate(TX value) {
                 return value as TY;
-            }; //(TY)value‚Å‚ÍƒGƒ‰[‚¾
+            }; //(TY)valueã§ã¯ã‚¨ãƒ©ãƒ¼ã 
         }
         public ConvertingEnumerable(IEnumerable<TX> ie, Converter<TX, TY> conv) {
             _ie = ie;
@@ -292,7 +292,7 @@ namespace Poderosa.Util.Collections {
         }
     }
 
-    //•’Ê‚ÉƒLƒƒƒXƒg‚Å‚«‚é‚Æ‰¼’è‚µ‚Ä‚Ì—ñ‹“
+    //æ™®é€šã«ã‚­ãƒ£ã‚¹ãƒˆã§ãã‚‹ã¨ä»®å®šã—ã¦ã®åˆ—æŒ™
 
     /// <summary>
     /// 
@@ -302,7 +302,7 @@ namespace Poderosa.Util.Collections {
     public class ConvertingEnumerator<TX> : IEnumerator<TX>
         where TX : class {
 
-        //•ÏŠ·‚·‚édelegate
+        //å¤‰æ›ã™ã‚‹delegate
         public delegate TX Converter(object value);
 
         private IEnumerator _ie;
@@ -325,7 +325,7 @@ namespace Poderosa.Util.Collections {
             }
         }
         public void Dispose() {
-            //Dispose()‚ÍGenerics.IEnumeratorŒÅ—LIƒvƒMƒƒ[
+            //Dispose()ã¯Generics.IEnumeratorå›ºæœ‰ï¼ãƒ—ã‚®ãƒ£ãƒ¼
         }
 
         object IEnumerator.Current {
@@ -392,7 +392,7 @@ namespace Poderosa.Util.Collections {
         public void Test1() {
             V[] t = new V[] { 10, 20, 30 };
             StringBuilder bld = new StringBuilder();
-            //delegate‚ªŒø‚¢‚Ä‚¢‚é‚±‚Æ‚ğŠm”F‚·‚×‚­2”{‚É‚µ‚Ä‚İ‚é
+            //delegateãŒåŠ¹ã„ã¦ã„ã‚‹ã“ã¨ã‚’ç¢ºèªã™ã¹ã2å€ã«ã—ã¦ã¿ã‚‹
             foreach (string x in new ConvertingEnumerable<V, string>(t, delegate(V v) {
                 return (v._value * 2).ToString();
             })) {
@@ -404,7 +404,7 @@ namespace Poderosa.Util.Collections {
         public void Test2() {
             int[] t = new int[] { 10, 20, 30 };
             StringBuilder bld = new StringBuilder();
-            //’P‚È‚éIEnumerable‚Íint[]“™‚É‚à“K—p‰Â”\
+            //å˜ãªã‚‹IEnumerableã¯int[]ç­‰ã«ã‚‚é©ç”¨å¯èƒ½
             foreach (string x in new ConvertingEnumerable<string>(t, delegate(object v) {
                 return v.ToString();
             })) {

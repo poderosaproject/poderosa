@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,7 @@ using Poderosa.Util.Collections;
 
 namespace Poderosa.Usability {
     internal class SSHKnownHosts : IPreferenceSupplier, ISSHHostKeyVerifier {
-        private TypedHashtable<string, string> _dataForSSH1; //host‚©‚çƒGƒ“ƒgƒŠ‚Ö‚Ìƒ}ƒbƒv
+        private TypedHashtable<string, string> _dataForSSH1; //hostã‹ã‚‰ã‚¨ãƒ³ãƒˆãƒªã¸ã®ãƒãƒƒãƒ—
         private TypedHashtable<string, string> _dataForSSH2;
         private bool _modified;
         private bool _loaded;
@@ -62,7 +62,7 @@ namespace Poderosa.Usability {
                 try {
                     Load();
                 }
-                catch (Exception ex) { //ƒ[ƒh’†‚ÌƒGƒ‰[‚Ì‚Æ‚«‚ÍŒ®‚Í‹‘”ÛBˆÀ‘S‘¤‚ÉI
+                catch (Exception ex) { //ãƒ­ãƒ¼ãƒ‰ä¸­ã®ã‚¨ãƒ©ãƒ¼ã®ã¨ãã¯éµã¯æ‹’å¦ã€‚å®‰å…¨å´ã«ï¼
                     RuntimeUtil.ReportException(ex);
                     return false;
                 }
@@ -82,9 +82,9 @@ namespace Poderosa.Usability {
         }
 
         private bool AskUserReliability(ISSHLoginParameter param, SSHConnectionInfo info, string keystr, string message_text_id) {
-            //”äŠrŒ‹‰Ê‚ÉŠî‚Ã‚­ˆ—
+            //æ¯”è¼ƒçµæœã«åŸºã¥ãå‡¦ç†
             IPoderosaForm form = UsabilityPlugin.Instance.WindowManager.ActiveWindow;
-            Debug.Assert(form.AsForm().InvokeRequired); //•ÊƒXƒŒƒbƒh‚ÅÀs‚µ‚Ä‚¢‚é‚Í‚¸
+            Debug.Assert(form.AsForm().InvokeRequired); //åˆ¥ã‚¹ãƒ¬ãƒƒãƒ‰ã§å®Ÿè¡Œã—ã¦ã„ã‚‹ã¯ãš
 
             //fingerprint
             StringBuilder bld = new StringBuilder();

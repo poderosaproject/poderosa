@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@ using System.Windows.Forms;
 
 namespace Poderosa.Forms {
     /// <summary>
-    /// ThreeButtonMessageBox ‚ÌŠT—v‚Ìà–¾‚Å‚·B
+    /// ThreeButtonMessageBox ã®æ¦‚è¦ã®èª¬æ˜ã§ã™ã€‚
     /// </summary>
     /// <exclude/>
     public class ThreeButtonMessageBox : System.Windows.Forms.Form {
@@ -24,20 +24,20 @@ namespace Poderosa.Forms {
         private System.Windows.Forms.Button _button3;
         private System.Windows.Forms.Label _message;
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.Container components = null;
 
         public ThreeButtonMessageBox() {
             //
-            // Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Å‚·B
+            // Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ã§ã™ã€‚
             //
             InitializeComponent();
 
         }
 
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -50,8 +50,8 @@ namespace Poderosa.Forms {
 
         #region Windows Form Designer generated code
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this._button1 = new System.Windows.Forms.Button();
@@ -151,7 +151,7 @@ namespace Poderosa.Forms {
         }
         protected override void OnPaint(PaintEventArgs a) {
             base.OnPaint(a);
-            //ƒAƒCƒRƒ“‚Ì•`‰æ@.NET Framework‚¾‚¯‚ÅƒVƒXƒeƒ€‚Å‚Á‚Ä‚¢‚éƒAƒCƒRƒ“‚Ìƒ[ƒh‚Í‚Å‚«‚È‚¢‚æ‚¤‚¾
+            //ã‚¢ã‚¤ã‚³ãƒ³ã®æç”»ã€€.NET Frameworkã ã‘ã§ã‚·ã‚¹ãƒ†ãƒ ã§æŒã£ã¦ã„ã‚‹ã‚¢ã‚¤ã‚³ãƒ³ã®ãƒ­ãƒ¼ãƒ‰ã¯ã§ããªã„ã‚ˆã†ã 
             if (_questionIcon == null)
                 LoadQuestionIcon();
             a.Graphics.DrawIcon(_questionIcon, 16, 8);

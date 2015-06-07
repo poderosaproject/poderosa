@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,7 +40,7 @@ namespace Poderosa.MacroInternal {
                 JScriptCodeProvider compiler = new JScriptCodeProvider();
                 CompilerParameters param = new CompilerParameters();
                 param.IncludeDebugInformation = true;
-                param.GenerateInMemory = false; //‚±‚ê‚ªƒvƒ‰ƒOƒCƒ“‚ğƒ[ƒh‚Å‚«‚é‚©‚Ç‚¤‚©‚ÌŒˆ‚ßè‚É‚È‚Á‚½Bü•Ó‚ğ‚·‚×‚Ä—‰ğ‚µ‚½‚í‚¯‚Å‚Í‚È‚¢‚ªA‚Æ‚è‚ ‚¦‚¸‚±‚ê‚Å‚æ‚µ‚Æ‚·‚éB[“ü‚è‚µ‚Ä‚¢‚éŠÔ‚Í‚ ‚Ü‚è‚È‚¢‚µ
+                param.GenerateInMemory = false; //ã“ã‚ŒãŒãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’ãƒ­ãƒ¼ãƒ‰ã§ãã‚‹ã‹ã©ã†ã‹ã®æ±ºã‚æ‰‹ã«ãªã£ãŸã€‚å‘¨è¾ºã‚’ã™ã¹ã¦ç†è§£ã—ãŸã‚ã‘ã§ã¯ãªã„ãŒã€ã¨ã‚Šã‚ãˆãšã“ã‚Œã§ã‚ˆã—ã¨ã™ã‚‹ã€‚æ·±å…¥ã‚Šã—ã¦ã„ã‚‹æ™‚é–“ã¯ã‚ã¾ã‚Šãªã„ã—
                 param.GenerateExecutable = true;
 
                 StringCollection sc = param.ReferencedAssemblies;
@@ -129,20 +129,20 @@ namespace Poderosa.MacroInternal {
         }
         private static string GetMacroPath() {
             string t = typeof(MacroUtil).Assembly.CodeBase;
-            int c1 = t.IndexOf(':'); //æ“ª‚Ífile://...‚Æ‚­‚é
-            int c2 = t.IndexOf(':', c1 + 1); //‚±‚ê‚ªƒhƒ‰ƒCƒu–¼’¼Œã‚ÌƒRƒƒ“
+            int c1 = t.IndexOf(':'); //å…ˆé ­ã¯file://...ã¨ãã‚‹
+            int c2 = t.IndexOf(':', c1 + 1); //ã“ã‚ŒãŒãƒ‰ãƒ©ã‚¤ãƒ–åç›´å¾Œã®ã‚³ãƒ­ãƒ³
             t = t.Substring(c2 - 1);
             return t.Replace('/', '\\');
         }
         private static string GetCorePath() {
             string t = typeof(Poderosa.View.RenderProfile).Assembly.CodeBase;
-            int c1 = t.IndexOf(':'); //æ“ª‚Ífile://...‚Æ‚­‚é
-            int c2 = t.IndexOf(':', c1 + 1); //‚±‚ê‚ªƒhƒ‰ƒCƒu–¼’¼Œã‚ÌƒRƒƒ“
+            int c1 = t.IndexOf(':'); //å…ˆé ­ã¯file://...ã¨ãã‚‹
+            int c2 = t.IndexOf(':', c1 + 1); //ã“ã‚ŒãŒãƒ‰ãƒ©ã‚¤ãƒ–åç›´å¾Œã®ã‚³ãƒ­ãƒ³
             t = t.Substring(c2 - 1);
             return t.Replace('/', '\\');
         }
 
-        //InvokeŒn
+        //Invokeç³»
         public static void InvokeMessageBox(string msg) {
             Form f = MacroPlugin.Instance.WindowManager.ActiveWindow.AsForm();
             f.Invoke(new MessageBoxDelegate(GUtil.Warning), f, msg);
@@ -152,10 +152,10 @@ namespace Poderosa.MacroInternal {
             ITerminalSettings ts = CreateTerminalSettings(param);
 
             IViewManager pm = CommandTargetUtil.AsWindow(target).ViewManager;
-            //“Æ—§ƒEƒBƒ“ƒhƒE‚Éƒ|ƒbƒvƒAƒbƒv‚³‚¹‚é‚æ‚¤‚È‚±‚Æ‚Íl‚¦‚Ä‚¢‚È‚¢
+            //ç‹¬ç«‹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã«ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã•ã›ã‚‹ã‚ˆã†ãªã“ã¨ã¯è€ƒãˆã¦ã„ãªã„
             IContentReplaceableView rv = (IContentReplaceableView)pm.GetCandidateViewForNewDocument().GetAdapter(typeof(IContentReplaceableView));
             TerminalControl tc = (TerminalControl)rv.GetCurrentContent().GetAdapter(typeof(TerminalControl));
-            if (tc != null) { //ƒ^[ƒ~ƒiƒ‹ƒRƒ“ƒgƒ[ƒ‹‚ª‚È‚¢‚Æ‚«‚Í–³—‚Éİ’è‚µ‚É‚¢‚©‚È‚¢
+            if (tc != null) { //ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ãŒãªã„ã¨ãã¯ç„¡ç†ã«è¨­å®šã—ã«ã„ã‹ãªã„
                 RenderProfile rp = ts.UsingDefaultRenderProfile ? MacroPlugin.Instance.TerminalEmulatorService.TerminalEmulatorOptions.CreateRenderProfile() : ts.RenderProfile;
                 Size sz = tc.CalcTerminalSize(rp);
                 tp.SetTerminalSize(sz.Width, sz.Height);
@@ -334,7 +334,7 @@ namespace Poderosa.MacroInternal {
             _macroThread.Abort();
         }
 
-        //Às‚·‚éƒZƒbƒVƒ‡ƒ“‚Éƒ^ƒXƒN“o˜^Bƒ}ƒNƒÀs‚É“®‚¢‚Ä‚¢‚½ƒZƒbƒVƒ‡ƒ“‚¾‚¯‚Å‚È‚­Aƒ}ƒNƒ‚É‚æ‚Á‚ÄŠJİ‚³‚ê‚éƒZƒbƒVƒ‡ƒ“‚à“¯—l
+        //å®Ÿè¡Œã™ã‚‹ã‚»ãƒƒã‚·ãƒ§ãƒ³ã«ã‚¿ã‚¹ã‚¯ç™»éŒ²ã€‚ãƒã‚¯ãƒ­å®Ÿè¡Œæ™‚ã«å‹•ã„ã¦ã„ãŸã‚»ãƒƒã‚·ãƒ§ãƒ³ã ã‘ã§ãªãã€ãƒã‚¯ãƒ­ã«ã‚ˆã£ã¦é–‹è¨­ã•ã‚Œã‚‹ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚‚åŒæ§˜
         public void AddRuntimeSession(ITerminalSession session) {
             ReceptionDataPool pool = new ReceptionDataPool();
             _receptionDataPool.Add(pool);
@@ -397,7 +397,7 @@ namespace Poderosa.MacroInternal {
         #endregion
     }
 
-    //óMƒf[ƒ^‚ğ‚½‚ß‚Ä‚¨‚­
+    //å—ä¿¡ãƒ‡ãƒ¼ã‚¿ã‚’ãŸã‚ã¦ãŠã
     internal class ReceptionDataPool : IModalCharacterTask {
         private IModalTerminalTaskSite _site;
         private StringBuilder _bufferForMacro;
@@ -461,7 +461,7 @@ namespace Poderosa.MacroInternal {
             }
         }
 
-        //ƒ}ƒNƒÀsƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é‚Ps“Ç‚İo‚µƒƒ\ƒbƒh
+        //ãƒã‚¯ãƒ­å®Ÿè¡Œã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰å‘¼ã°ã‚Œã‚‹ï¼‘è¡Œèª­ã¿å‡ºã—ãƒ¡ã‚½ãƒƒãƒ‰
 
         public string ReadLineFromMacroBuffer() {
             return ReadLineFromMacroBuffer(false, 0);
@@ -489,10 +489,10 @@ namespace Poderosa.MacroInternal {
                             break;
                     }
 
-                    if (l > 0 && i < l) { //‚ß‚Å‚½‚­s––‚ª‚İ‚Â‚©‚Á‚½
+                    if (l > 0 && i < l) { //ã‚ã§ãŸãè¡Œæœ«ãŒã¿ã¤ã‹ã£ãŸ
                         int j = i;
                         if (i > 0 && _bufferForMacro[i - 1] == '\r')
-                            j = i - 1; //CRLF‚Ì‚Æ‚«‚Íœ‚¢‚Ä‚â‚é
+                            j = i - 1; //CRLFã®ã¨ãã¯é™¤ã„ã¦ã‚„ã‚‹
                         string r;
                         lock (_bufferForMacro) {
                             r = _bufferForMacro.ToString(0, j);
@@ -530,7 +530,7 @@ namespace Poderosa.MacroInternal {
         }
 
 
-        //ƒ}ƒNƒÀsƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚éAu‰½‚©ƒf[ƒ^‚ª‚ ‚ê‚Î‘S•”‚à‚Á‚Ä‚¢‚­vƒƒ\ƒbƒh
+        //ãƒã‚¯ãƒ­å®Ÿè¡Œã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰å‘¼ã°ã‚Œã‚‹ã€ã€Œä½•ã‹ãƒ‡ãƒ¼ã‚¿ãŒã‚ã‚Œã°å…¨éƒ¨ã‚‚ã£ã¦ã„ãã€ãƒ¡ã‚½ãƒƒãƒ‰
 
         public string ReadAllFromMacroBuffer() {
             return ReadAllFromMacroBuffer(false, 0);
@@ -575,7 +575,7 @@ namespace Poderosa.MacroInternal {
                 return;
 
             lock (_bufferForMacro) {
-                _bufferForMacro.Append(ch); //!!’·‚³‚ÉãŒÀ‚ğ‚Â‚¯‚½‚Ù‚¤‚ªˆÀ‘S‚©‚à
+                _bufferForMacro.Append(ch); //!!é•·ã•ã«ä¸Šé™ã‚’ã¤ã‘ãŸã»ã†ãŒå®‰å…¨ã‹ã‚‚
             }
         }
 

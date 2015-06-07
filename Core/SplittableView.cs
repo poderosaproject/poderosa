@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +30,7 @@ namespace Poderosa.Forms {
         //IMainWindowContentFactory
         public IViewManager Create(IPoderosaMainWindow parent) {
             Debug.Assert(parent != null);
-            Debug.Assert(_defaultViewFactory != null); //–{“–‚ÍAssert‚Å‚Í‚Ü‚¸‚¢
+            Debug.Assert(_defaultViewFactory != null); //æœ¬å½“ã¯Assertã§ã¯ã¾ãšã„
             SplittableViewManager pm = new SplittableViewManager(parent, _defaultViewFactory);
             return pm;
         }
@@ -80,7 +80,7 @@ namespace Poderosa.Forms {
             throw new ArgumentException("ViewFactory not found: docclass=" + documentclass.FullName);
         }
 
-        //ViewFactory‚ğ’x‰„ì¬
+        //ViewFactoryã‚’é…å»¶ä½œæˆ
         private void LateCheck() {
             IExtensionPoint fs = WindowManagerPlugin.Instance.PoderosaWorld.PluginManager.FindExtensionPoint(WindowManagerConstants.VIEW_FACTORY_ID);
             _viewFactories = (IViewFactory[])fs.GetExtensions();
@@ -90,7 +90,7 @@ namespace Poderosa.Forms {
     }
 
     internal class SplittableViewManager : ISplittableViewManager, PaneDivision.IUIActionHandler {
-        private PaneDivision.IPane _singlePane; //•ªŠ„‚µ‚Ä‚¢‚È‚¢‚Æ‚«‚É‚Ì‚İ”ñnull
+        private PaneDivision.IPane _singlePane; //åˆ†å‰²ã—ã¦ã„ãªã„ã¨ãã«ã®ã¿énull
         private PaneDivision _paneDivision;
         private IViewFactory _defaultViewFactory;
         private IPoderosaMainWindow _parent;
@@ -100,7 +100,7 @@ namespace Poderosa.Forms {
             _defaultViewFactory = defaultviewfactory;
 
             Debug.Assert(_paneDivision == null);
-            _singlePane = CreateNewPane(_defaultViewFactory, DockStyle.Fill); //æ“ª‚ÌFactory‚Åì‚Á‚Ä‚µ‚Ü‚¤‚Æ‚¢‚¤‚Ì‚Í‚Ç‚¤‚©‚È
+            _singlePane = CreateNewPane(_defaultViewFactory, DockStyle.Fill); //å…ˆé ­ã®Factoryã§ä½œã£ã¦ã—ã¾ã†ã¨ã„ã†ã®ã¯ã©ã†ã‹ãª
 
             _paneDivision = new PaneDivision();
             _paneDivision.CountLimit = WindowManagerPlugin.Instance.WindowPreference.OriginalPreference.SplitLimitCount;
@@ -118,11 +118,11 @@ namespace Poderosa.Forms {
             IPoderosaView firstPane = null;
             IPoderosaView result = null;
             _paneDivision.FindFirst(delegate(PaneDivision.IPane p) {
-                IPoderosaView v = (IPoderosaView)p; //TODO GetAdapter‚©. ã‚ÌƒLƒƒƒXƒg‚à‚¨‚È‚¶
+                IPoderosaView v = (IPoderosaView)p; //TODO GetAdapterã‹. ä¸Šã®ã‚­ãƒ£ã‚¹ãƒˆã‚‚ãŠãªã˜
                 if (firstPane == null)
-                    firstPane = v; //æ“ª
+                    firstPane = v; //å…ˆé ­
 
-                if (v.Document == null) { //ƒhƒLƒ…ƒƒ“ƒg‚Ì‚È‚¢ƒrƒ…[—Dæ
+                if (v.Document == null) { //ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã®ãªã„ãƒ“ãƒ¥ãƒ¼å„ªå…ˆ
                     result = v;
                     return true;
                 }
@@ -130,7 +130,7 @@ namespace Poderosa.Forms {
                     return false;
             });
 
-            //‹ó‚«ƒrƒ…[‚ª‚ ‚ê‚Î‚»‚±‚ÖA‚È‚¯‚ê‚Înull
+            //ç©ºããƒ“ãƒ¥ãƒ¼ãŒã‚ã‚Œã°ãã“ã¸ã€ãªã‘ã‚Œã°null
             if (result != null)
                 return result;
             else
@@ -145,7 +145,7 @@ namespace Poderosa.Forms {
                     IPoderosaView view = (IPoderosaView)p;
                     result.Add(view);
                     return false;
-                }); //í‚Éfalse•Ô‚·‚±‚Æ‚Å—ñ‹“‚Å‚«‚é
+                }); //å¸¸ã«falseè¿”ã™ã“ã¨ã§åˆ—æŒ™ã§ãã‚‹
             }
             return result.ToArray();
         }
@@ -170,7 +170,7 @@ namespace Poderosa.Forms {
         public CommandResult Unify(IContentReplaceableView view, out IContentReplaceableView next) {
             PaneDivision.IPane nextfocus = null;
             bool r = Unify((PaneDivision.IPane)view.GetAdapter(typeof(PaneDivision.IPane)), out nextfocus);
-            next = r ? (IContentReplaceableView)nextfocus : null; //TODO ‚¿‚å‚¢‚Ü‚¸
+            next = r ? (IContentReplaceableView)nextfocus : null; //TODO ã¡ã‚‡ã„ã¾ãš
             return r ? CommandResult.Succeeded : CommandResult.Failed;
         }
         public CommandResult UnifyAll(out IContentReplaceableView next) {
@@ -193,9 +193,9 @@ namespace Poderosa.Forms {
         }
         public void ApplySplitInfo(string format) {
             try {
-                //Œ»ó‚ğŠl“¾
+                //ç¾çŠ¶ã‚’ç²å¾—
                 IPoderosaView[] previous_views = GetAllViews();
-                IPoderosaDocument[] documents = new IPoderosaDocument[previous_views.Length]; //•ªŠ„“K—pŒãƒAƒNƒeƒBƒu‚É‚È‚é‚â‚Â
+                IPoderosaDocument[] documents = new IPoderosaDocument[previous_views.Length]; //åˆ†å‰²é©ç”¨å¾Œã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã‚‹ã‚„ã¤
                 for (int i = 0; i < previous_views.Length; i++)
                     documents[i] = previous_views[i].Document;
                 IPoderosaView[] new_views;
@@ -209,10 +209,10 @@ namespace Poderosa.Forms {
                     _paneDivision.ApplySplitInfo(old_root.Parent, old_root, format,
                         delegate(string label) {
                             return CreateNewPane(_defaultViewFactory, DockStyle.Fill);
-                        }); //‚Æ‚è‚ ‚¦‚¸ƒfƒtƒHƒ‹ƒgƒtƒ@ƒNƒgƒŠ‚Åì¬
+                        }); //ã¨ã‚Šã‚ãˆãšãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ•ã‚¡ã‚¯ãƒˆãƒªã§ä½œæˆ
                     container.ResumeLayout(true);
-                    _singlePane = null; //¬Œ÷— ‚ÉI‚í‚Á‚½‚Æ‚«‚Ì‚İ
-                    new_views = GetAllViews(); //V‚µ‚¢‚Ì‚ğæ“¾
+                    _singlePane = null; //æˆåŠŸè£ã«çµ‚ã‚ã£ãŸã¨ãã®ã¿
+                    new_views = GetAllViews(); //æ–°ã—ã„ã®ã‚’å–å¾—
                 }
                 else {
                     IContentReplaceableView view;
@@ -220,19 +220,19 @@ namespace Poderosa.Forms {
                     new_views = new IPoderosaView[] { view };
                 }
 
-                //Šù‘¶ƒhƒLƒ…ƒƒ“ƒg‚ÉÄ“K—p
+                //æ—¢å­˜ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã«å†é©ç”¨
                 foreach (DocumentHost dh in sm.GetAllDocumentHosts()) {
                     int index = CollectionUtil.ArrayIndexOf(previous_views, dh.LastAttachedView);
                     if (index != -1) {
-                        IPoderosaView new_view = index < new_views.Length ? new_views[index] : new_views[0]; //ŒÂ”‚ªŒ¸‚Á‚½‚çæ“ª‚É
+                        IPoderosaView new_view = index < new_views.Length ? new_views[index] : new_views[0]; //å€‹æ•°ãŒæ¸›ã£ãŸã‚‰å…ˆé ­ã«
                         dh.AlternateView(new_view);
                     }
                 }
 
-                //‚à‚Æ‚à‚ÆActive‚¾‚Á‚½‚â‚Â‚ğÄ“K—p
+                //ã‚‚ã¨ã‚‚ã¨Activeã ã£ãŸã‚„ã¤ã‚’å†é©ç”¨
                 for (int i = 0; i < documents.Length; i++) {
                     if (documents[i] != null)
-                        sm.AttachDocumentAndView(documents[i], sm.FindDocumentHost(documents[i]).LastAttachedView); //LastAttachedView‚Í‚±‚Ìã‚Ìƒ‹[ƒv‚Å“K—pÏ‚İ
+                        sm.AttachDocumentAndView(documents[i], sm.FindDocumentHost(documents[i]).LastAttachedView); //LastAttachedViewã¯ã“ã®ä¸Šã®ãƒ«ãƒ¼ãƒ—ã§é©ç”¨æ¸ˆã¿
                 }
 
             }
@@ -244,11 +244,11 @@ namespace Poderosa.Forms {
 
         public Control RootControl {
             get {
-                if (_singlePane == null) { //•ªŠ„Ï‚İ
+                if (_singlePane == null) { //åˆ†å‰²æ¸ˆã¿
                     Debug.Assert(_paneDivision != null);
                     return _paneDivision.RootControl;
                 }
-                else { //•ªŠ„‚µ‚Ä‚¢‚È‚¢
+                else { //åˆ†å‰²ã—ã¦ã„ãªã„
                     Debug.Assert(_paneDivision.IsEmpty);
                     return _singlePane.AsDotNet();
                 }
@@ -262,7 +262,7 @@ namespace Poderosa.Forms {
         }
         #endregion
 
-        //•ªŠ„EŒ‹‡ƒƒ\ƒbƒh
+        //åˆ†å‰²ãƒ»çµåˆãƒ¡ã‚½ãƒƒãƒ‰
         public void SplitHorizontal(PaneDivision.IPane view, IViewFactory factory) {
             InternalSplit(view, factory, PaneDivision.Direction.TB);
         }
@@ -383,7 +383,7 @@ namespace Poderosa.Forms {
         }
 
         #region IControlReplaceableView
-        //Document, CurrentSelection‚É‚Â‚¢‚Ä‚ÍˆÏ÷‚·‚é
+        //Document, CurrentSelectionã«ã¤ã„ã¦ã¯å§”è­²ã™ã‚‹
         public IPoderosaDocument Document {
             get {
                 return _content.Document;
@@ -411,19 +411,19 @@ namespace Poderosa.Forms {
         }
         public IPoderosaView AssureViewClass(Type viewclass) {
             if (viewclass == _content.GetType())
-                return _content; //ƒ_ƒCƒiƒ~ƒbƒN‚È’uŠ·‚Í•s—vAOKI
+                return _content; //ãƒ€ã‚¤ãƒŠãƒŸãƒƒã‚¯ãªç½®æ›ã¯ä¸è¦ã€OKï¼
 
             IContentReplaceableViewSite site = (IContentReplaceableViewSite)_content.GetAdapter(typeof(IContentReplaceableViewSite));
 
             Control p = _content.AsControl().Parent;
             p.SuspendLayout();
             if (site != null)
-                site.CurrentContentReplaceableView = null; //IContentReplaceableViewSite‚ªæ‚ê‚é‚©‚Ç‚¤‚©‚ÍƒIƒvƒVƒ‡ƒiƒ‹
+                site.CurrentContentReplaceableView = null; //IContentReplaceableViewSiteãŒå–ã‚Œã‚‹ã‹ã©ã†ã‹ã¯ã‚ªãƒ—ã‚·ãƒ§ãƒŠãƒ«
 
             Debug.WriteLineIf(DebugOpt.ViewManagement, String.Format("Replace ViewClass {0} => {1}", _content.GetType().Name, viewclass.Name));
             IPoderosaView newview = CreateView(viewclass);
             UIUtil.ReplaceControl(p, _content.AsControl(), newview.AsControl());
-            //‹ŒƒRƒ“ƒgƒ[ƒ‹‚ÉƒhƒLƒ…ƒƒ“ƒg‚ª‚­‚Á‚Â‚¢‚Ä‚¢‚½‚çA‚»‚ê‚ğŠO‚³‚È‚¢‚Æ•s®‡¶‚¶‚é
+            //æ—§ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã«ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒãã£ã¤ã„ã¦ã„ãŸã‚‰ã€ãã‚Œã‚’å¤–ã•ãªã„ã¨ä¸æ•´åˆç”Ÿã˜ã‚‹
             if (_content.Document != null) {
                 SessionManagerPlugin.Instance.FindDocumentHost(_content.Document).DetachView();
             }
@@ -443,7 +443,7 @@ namespace Poderosa.Forms {
             return vf.CreateNew(_parent.ParentWindow);
         }
 
-        //‹ó‚ÍTerminalView‚Å
+        //ç©ºã¯TerminalViewã§
         public void AssureEmptyViewClass() {
             IViewManagerFactory[] vm = (IViewManagerFactory[])WindowManagerPlugin.Instance.PoderosaWorld.PluginManager.FindExtensionPoint(WindowManagerConstants.MAINWINDOWCONTENT_ID).GetExtensions();
             Debug.Assert(vm.Length > 0);
@@ -458,7 +458,7 @@ namespace Poderosa.Forms {
             if (r != null)
                 return r;
             else
-                return _content.GetAdapter(adapter); //©g‚ª’m‚ç‚È‚¢Œ^‚Í’†g‘¤‚ÉˆÏ÷‚·‚éBIGeneralViewCommand‚ ‚½‚è‚ªŠY“–
+                return _content.GetAdapter(adapter); //è‡ªèº«ãŒçŸ¥ã‚‰ãªã„å‹ã¯ä¸­èº«å´ã«å§”è­²ã™ã‚‹ã€‚IGeneralViewCommandã‚ãŸã‚ŠãŒè©²å½“
         }
         #endregion
 

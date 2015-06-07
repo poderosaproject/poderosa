@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@ using NUnit.Framework;
 #endif
 
 namespace Poderosa.Protocols {
-    //V4/V6‚»‚ê‚¼‚ê‚P‚Â‚ÌƒAƒhƒŒƒX‚ğ‚¿Au—¼‘Î‰A‚½‚¾‚µ—¼•ûg‚¦‚é‚Æ‚«‚ÍV6—Dæv‚Æ‚¢‚¤«¿‚ğ‚à‚Â‚æ‚¤‚É‚·‚é
+    //V4/V6ãã‚Œãã‚Œï¼‘ã¤ã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’æŒã¡ã€ã€Œä¸¡å¯¾å¿œã€ãŸã ã—ä¸¡æ–¹ä½¿ãˆã‚‹ã¨ãã¯V6å„ªå…ˆã€ã¨ã„ã†æ€§è³ªã‚’ã‚‚ã¤ã‚ˆã†ã«ã™ã‚‹
     internal class IPAddressList {
         private IPAddress[] _addresses;
 
@@ -34,14 +34,14 @@ namespace Poderosa.Protocols {
         public IPAddressList(IPAddress[] addresses) {
             _addresses = addresses;
         }
-        //V4,6—¼•ûæ‚ê‚é‚Æ‚«‚ÍV6—DæBƒIƒvƒVƒ‡ƒ“İ’è‚Æ‚¢‚¤‚Ì‚Í‚ ‚é‚©‚à‚µ‚ê‚ñ‚ª
+        //V4,6ä¸¡æ–¹å–ã‚Œã‚‹ã¨ãã¯V6å„ªå…ˆã€‚ã‚ªãƒ—ã‚·ãƒ§ãƒ³è¨­å®šã¨ã„ã†ã®ã¯ã‚ã‚‹ã‹ã‚‚ã—ã‚Œã‚“ãŒ
         public IPAddress[] AvailableAddresses {
             get {
                 IPVersionPriority pr = ProtocolsPlugin.Instance.ProtocolOptions.IPVersionPriority;
                 if (pr == IPVersionPriority.Both)
-                    return _addresses; //–³§ŒÀ
+                    return _addresses; //ç„¡åˆ¶é™
 
-                //‚Å‚È‚¯‚ê‚Î“K“–‚ÉƒRƒs[‚ğ
+                //ã§ãªã‘ã‚Œã°é©å½“ã«ã‚³ãƒ”ãƒ¼ã‚’
                 List<IPAddress> result = new List<IPAddress>();
                 foreach (IPAddress a in _addresses) {
                     if (pr == IPVersionPriority.V6Only && a.AddressFamily == AddressFamily.InterNetworkV6)
@@ -53,7 +53,7 @@ namespace Poderosa.Protocols {
             }
         }
 
-        //•s³‚Å‚àƒGƒ‰[‚É‚Í‚µ‚È‚¢ƒ^ƒCƒv
+        //ä¸æ­£ã§ã‚‚ã‚¨ãƒ©ãƒ¼ã«ã¯ã—ãªã„ã‚¿ã‚¤ãƒ—
         public static IPAddressList SilentGetAddress(string host) {
             IPAddress address;
             if (IPAddress.TryParse(host, out address))
@@ -119,7 +119,7 @@ namespace Poderosa.Protocols {
                 try {
                     Socket s = ConnectTCPSocket(addr, port, timeout);
                     if (s != null)
-                        return s; //ˆê‚Â‚Å‚à¬Œ÷‚·‚ê‚Î‚»‚ê‚ğg‚¤
+                        return s; //ä¸€ã¤ã§ã‚‚æˆåŠŸã™ã‚Œã°ãã‚Œã‚’ä½¿ã†
                 }
                 catch (Exception ex) {
                     ProtocolsPlugin.Instance.NetLog(ex.Message);
@@ -138,7 +138,7 @@ namespace Poderosa.Protocols {
                 ar = s.BeginConnect(new IPEndPoint(addr, port), new AsyncCallback(proc.End), null);
                 timed_out = !ar.AsyncWaitHandle.WaitOne(timeout, false);
             }
-            catch (Exception ex) { //ƒuƒƒbƒN’†‚Ì—áŠO‚Í‚±‚±‚Å
+            catch (Exception ex) { //ãƒ–ãƒ­ãƒƒã‚¯ä¸­ã®ä¾‹å¤–ã¯ã“ã“ã§
                 proc.EndConnectRequired = false;
                 s.Close();
                 ProtocolsPlugin.Instance.NetLog(ex.Message);
@@ -174,7 +174,7 @@ namespace Poderosa.Protocols {
                 if (m.Length != netaddress.Length || m.Index != 0)
                     return false;
 
-                //‚©‚Á‚±‚ªIPƒAƒhƒŒƒX‚È‚çOK
+                //ã‹ã£ã“ãŒIPã‚¢ãƒ‰ãƒ¬ã‚¹ãªã‚‰OK
                 string a = m.Groups[1].Value;
                 IPAddress.Parse(a);
                 return true;
@@ -222,7 +222,7 @@ namespace Poderosa.Protocols {
         public void TestTimeout() {
             Exception e = null;
             try {
-                Socket s = NetUtil.ConnectTCPSocket(new IPAddress46Pair(IPAddress.Parse("1.1.1.1")), 10); //Ú‘±‚Å‚«‚È‚¢‚Í‚¸‚Ì‚à‚Ì‚ğƒeƒXƒg
+                Socket s = NetUtil.ConnectTCPSocket(new IPAddress46Pair(IPAddress.Parse("1.1.1.1")), 10); //æ¥ç¶šã§ããªã„ã¯ãšã®ã‚‚ã®ã‚’ãƒ†ã‚¹ãƒˆ
             }
             catch (Exception ex) {
                 e = ex;
@@ -234,7 +234,7 @@ namespace Poderosa.Protocols {
 
         [Test]
         public void TestSuccessful() {
-            Socket s = NetUtil.ConnectTCPSocket(new IPAddress46Pair(IPAddress.Loopback), 8888); //listen‚µ‚Ä‚é“K“–‚Èƒ|[ƒg‚É‚Â‚È‚®
+            Socket s = NetUtil.ConnectTCPSocket(new IPAddress46Pair(IPAddress.Loopback), 8888); //listenã—ã¦ã‚‹é©å½“ãªãƒãƒ¼ãƒˆã«ã¤ãªã
             Assert.IsTrue(s.Connected);
         }
 
@@ -245,7 +245,7 @@ namespace Poderosa.Protocols {
             Assert.IsTrue(t1.AddressFamily==AddressFamily.InterNetworkV6);
             IPAddress t2 = IPAddress46Pair.DetermineIPAddress(IPAddress.Loopback, IPAddress.IPv6Loopback, IPVersionPriority.PriorityV4);
             Assert.IsTrue(t2.AddressFamily==AddressFamily.InterNetwork);
-            //•Ğ•ûnull‚È‚ç‚»‚ê‚Íg‚í‚È‚¢
+            //ç‰‡æ–¹nullãªã‚‰ãã‚Œã¯ä½¿ã‚ãªã„
             IPAddress t3 = IPAddress46Pair.DetermineIPAddress(null, IPAddress.IPv6Loopback, IPVersionPriority.PriorityV4);
             Assert.IsTrue(t3.AddressFamily==AddressFamily.InterNetworkV6);
             IPAddress t4 = IPAddress46Pair.DetermineIPAddress(IPAddress.Loopback, null, IPVersionPriority.PriorityV6);

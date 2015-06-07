@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,20 +21,20 @@ using Poderosa.Forms;
 
 namespace Poderosa.Usability {
 
-    //“`“‚ÌƒQƒoƒ‰ƒ‚[ƒh
+    //ä¼çµ±ã®ã‚²ãƒãƒ©ãƒ¢ãƒ¼ãƒ‰
     internal class GuevaraAboutBox : System.Windows.Forms.Form {
         //private Image _bgImage;
         private System.Windows.Forms.Button _okButton;
         private System.Windows.Forms.TextBox _versionText;
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.Container components = null;
         private System.Windows.Forms.PictureBox _pictureBox;
 
         public GuevaraAboutBox() {
             //
-            // Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Å‚·B
+            // Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ã§ã™ã€‚
             //
             InitializeComponent();
 
@@ -44,7 +44,7 @@ namespace Poderosa.Usability {
         }
 
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -57,8 +57,8 @@ namespace Poderosa.Usability {
 
         #region Windows Form Designer generated code
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             System.Resources.ResourceManager resources = new System.Resources.ResourceManager(typeof(GuevaraAboutBox));
@@ -126,7 +126,7 @@ namespace Poderosa.Usability {
 
 
         private void OnLoad(object sender, System.EventArgs e) {
-            //_creditButton.Visible = false; //¡‚Í‚Ü‚¾‚È‚¢
+            //_creditButton.Visible = false; //ä»Šã¯ã¾ã ãªã„
             _versionText.Lines = AboutBoxUtil.GetVersionInfoContent();
         }
 

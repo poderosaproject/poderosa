@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,7 +54,7 @@ namespace Poderosa.Forms {
             Debug.Assert(key != null);
 
             if (key.Status == PrivateKeyStatus.OK)
-                return; //Šù‚ÉŠm”FÏ‚İ
+                return; //æ—¢ã«ç¢ºèªæ¸ˆã¿
 
             if (key.GuessValidKeyFileOrWarn(this)) {
                 InputPassphraseDialog dlg = new InputPassphraseDialog(key);

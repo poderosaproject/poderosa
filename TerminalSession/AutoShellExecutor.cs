@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,18 +21,18 @@ using Poderosa.Commands;
 using Poderosa.Terminal;
 
 namespace Poderosa.Sessions {
-    //ƒRƒ}ƒ“ƒh‚Ì’€ŸÀsBƒ}ƒNƒ‚ÅÀs‚·‚éƒpƒ^[ƒ“‚Ìi‰»Œ`B
+    //ã‚³ãƒãƒ³ãƒ‰ã®é€æ¬¡å®Ÿè¡Œã€‚ãƒã‚¯ãƒ­ã§å®Ÿè¡Œã™ã‚‹ãƒ‘ã‚¿ãƒ¼ãƒ³ã®é€²åŒ–å½¢ã€‚
     public class AutoShellExecutionCommand : IPoderosaCommand, ICommandResultProcessor {
-        //ƒƒCƒ“ƒXƒŒƒbƒh‚ÅÀs‚·‚éƒRƒ}ƒ“ƒhŒ‹‰Ê‚Ìˆ—
+        //ãƒ¡ã‚¤ãƒ³ã‚¹ãƒ¬ãƒƒãƒ‰ã§å®Ÿè¡Œã™ã‚‹ã‚³ãƒãƒ³ãƒ‰çµæœã®å‡¦ç†
         public delegate void MainThreadAction(string[] command_result);
-        //óMƒXƒŒƒbƒh‚ÅÀs‚·‚éƒRƒ}ƒ“ƒhŒ‹‰Ê‚Ìˆ—
+        //å—ä¿¡ã‚¹ãƒ¬ãƒƒãƒ‰ã§å®Ÿè¡Œã™ã‚‹ã‚³ãƒãƒ³ãƒ‰çµæœã®å‡¦ç†
         public delegate void ReceiverThreadAction(string[] command_result);
 
-        //ƒRƒ}ƒ“ƒhÀs’PˆÊ
+        //ã‚³ãƒãƒ³ãƒ‰å®Ÿè¡Œå˜ä½
         public class Action {
             private string _command;
             private ITerminalSession _target;
-            private MainThreadAction _mainThreadAction; //‚±‚ê‚ç‚Q‚Â‚Í•Ğ•û‚Ì‚İ‚É’l‚ğƒZƒbƒg
+            private MainThreadAction _mainThreadAction; //ã“ã‚Œã‚‰ï¼’ã¤ã¯ç‰‡æ–¹ã®ã¿ã«å€¤ã‚’ã‚»ãƒƒãƒˆ
             private ReceiverThreadAction _receiverThreadAction;
 
             public Action(ITerminalSession target, string command, MainThreadAction ma) {
@@ -77,7 +77,7 @@ namespace Poderosa.Sessions {
         public AutoShellExecutionCommand() {
             _actions = new LinkedList<Action>();
         }
-        //ƒAƒNƒVƒ‡ƒ“‚ğ’Ê’m
+        //ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã‚’é€šçŸ¥
         public void AddAction(Action action) {
             _actions.AddLast(action);
         }
@@ -95,7 +95,7 @@ namespace Poderosa.Sessions {
             if (_actions.Count == 0)
                 return CommandResult.Ignored;
             else {
-                //‚·‚®‚ÉI‚í‚é‚à‚Ì‚Å‚È‚¢
+                //ã™ãã«çµ‚ã‚ã‚‹ã‚‚ã®ã§ãªã„
                 ProcessNextAction();
                 return CommandResult.Succeeded;
             }
@@ -117,8 +117,8 @@ namespace Poderosa.Sessions {
         private void ProcessAction(Action act) {
             _currentAction = act;
 
-            //TODO ƒ†[ƒU‚É‚æ‚é‘€ì‚ÌƒƒbƒN
-            //ƒRƒ}ƒ“ƒhÀsŠJn
+            //TODO ãƒ¦ãƒ¼ã‚¶ã«ã‚ˆã‚‹æ“ä½œã®ãƒ­ãƒƒã‚¯
+            //ã‚³ãƒãƒ³ãƒ‰å®Ÿè¡Œé–‹å§‹
             _currentAction.TargetSession.Terminal.ShellCommandExecutor.StartCommandResultProcessor(this, _currentAction.CommandString, true);
         }
 
@@ -129,7 +129,7 @@ namespace Poderosa.Sessions {
         public void EndCommand(List<GLine> command_result) {
             string[] stringarray_result = AsStringArrayResult(command_result);
             Debug.Assert(_window.AsForm().InvokeRequired);
-            //‚±‚Ìˆ—’†‚ÉŸ‚ÌƒAƒNƒVƒ‡ƒ“‚ªƒZƒbƒg‚³‚ê‚é‚±‚Æ‚à‚ ‚é
+            //ã“ã®å‡¦ç†ä¸­ã«æ¬¡ã®ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ãŒã‚»ãƒƒãƒˆã•ã‚Œã‚‹ã“ã¨ã‚‚ã‚ã‚‹
             if (_currentAction.ReceiverThreadAction != null)
                 _currentAction.ReceiverThreadAction(stringarray_result);
             else {

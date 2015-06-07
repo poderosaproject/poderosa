@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -127,7 +127,7 @@ namespace Poderosa.Protocols {
         }
     }
 
-    //Option, String‚Ö‚ÌƒAƒNƒZƒXƒ|ƒCƒ“ƒg, ‹ŒGEnv‚©‚ç•K—v‚È‚Æ‚±‚ë‚ğ”²‚«o‚·
+    //Option, Stringã¸ã®ã‚¢ã‚¯ã‚»ã‚¹ãƒã‚¤ãƒ³ãƒˆ, æ—§GEnvã‹ã‚‰å¿…è¦ãªã¨ã“ã‚ã‚’æŠœãå‡ºã™
     internal class PEnv {
         private static StringResource _strings;
         private static IWindowManager _windowManager;
@@ -157,7 +157,7 @@ namespace Poderosa.Protocols {
     }
 
     internal static class ProtocolUtil {
-        //“à•”‚Å‚ÍITCPParameter‚©ICygwinParameter‚Ì‚Ç‚Á‚¿‚©‚µ‚©ŒÄ‚Î‚ê‚È‚¢‚Í‚¸
+        //å†…éƒ¨ã§ã¯ITCPParameterã‹ICygwinParameterã®ã©ã£ã¡ã‹ã—ã‹å‘¼ã°ã‚Œãªã„ã¯ãš
         public static void FireConnectionSucceeded(IAdaptable param) {
             ITerminalParameter t = (ITerminalParameter)param.GetAdapter(typeof(ITerminalParameter));
             Debug.Assert(t != null);
@@ -189,7 +189,7 @@ namespace Poderosa.Protocols {
     }
 
 
-    //ƒƒ‚ƒŠ‚É‚Ì‚İ•Û
+    //ãƒ¡ãƒ¢ãƒªã«ã®ã¿ä¿æŒ
     internal class PassphraseCache : IPassphraseCache {
         private TypedHashtable<string, string> _data;
 

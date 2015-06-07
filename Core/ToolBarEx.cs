@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@ using Poderosa.Commands;
 namespace Poderosa.Forms {
     /// <summary>
     /// <ja>
-    /// ƒc[ƒ‹ƒo[‚ÉŠÜ‚Ü‚ê‚é—v‘f‚ğ¦‚·Šî’êƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã«å«ã¾ã‚Œã‚‹è¦ç´ ã‚’ç¤ºã™åŸºåº•ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Base interface that shows element included in toolbar.
@@ -25,7 +25,7 @@ namespace Poderosa.Forms {
     public interface IToolBarElement : IAdaptable {
         /// <summary>
         /// <ja>
-        /// —v‘f‚Ìƒc[ƒ‹ƒ`ƒbƒvƒeƒLƒXƒg‚ğ¦‚µ‚Ü‚·B
+        /// è¦ç´ ã®ãƒ„ãƒ¼ãƒ«ãƒãƒƒãƒ—ãƒ†ã‚­ã‚¹ãƒˆã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The tooltip text of the element is shown. 
@@ -38,7 +38,7 @@ namespace Poderosa.Forms {
 
     /// <summary>
     /// <ja>
-    /// ƒc[ƒ‹ƒo[“à‚Ìƒ‰ƒxƒ‹‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼å†…ã®ãƒ©ãƒ™ãƒ«ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows label in toolbar.
@@ -46,7 +46,7 @@ namespace Poderosa.Forms {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ŠJ”­Ò‚ªƒ‰ƒxƒ‹‚ğì‚éê‡A‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğÀ‘•‚µ‚½ƒIƒuƒWƒFƒNƒg‚ğì‚é‘ã‚í‚è‚ÉA<seealso cref="ToolBarLabelImpl">ToolBarLabelImpl</seealso>‚ğg‚¤‚±‚Æ‚ª‚Å‚«‚Ü‚·B
+    /// é–‹ç™ºè€…ãŒãƒ©ãƒ™ãƒ«ã‚’ä½œã‚‹å ´åˆã€ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’å®Ÿè£…ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œã‚‹ä»£ã‚ã‚Šã«ã€<seealso cref="ToolBarLabelImpl">ToolBarLabelImpl</seealso>ã‚’ä½¿ã†ã“ã¨ãŒã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// <seealso cref="ToolBarLabelImpl">ToolBarLabelImpl</seealso> can be used instead of making the object that mounts this interface when the developer creates labels. 
@@ -54,14 +54,14 @@ namespace Poderosa.Forms {
     /// </remarks>
     public interface IToolBarLabel : IToolBarElement {
         /// <summary>
-        /// <ja>ƒ‰ƒxƒ‹‚ÌƒeƒLƒXƒg‚Å‚·B</ja>
+        /// <ja>ãƒ©ãƒ™ãƒ«ã®ãƒ†ã‚­ã‚¹ãƒˆã§ã™ã€‚</ja>
         /// <en>Text of the label.</en>
         /// </summary>
         string Text {
             get;
         }
         /// <summary>
-        /// <ja>ƒ‰ƒxƒ‹‚Ì•‚Å‚·B’PˆÊ‚ÍƒsƒNƒZƒ‹‚Å‚·B</ja>
+        /// <ja>ãƒ©ãƒ™ãƒ«ã®å¹…ã§ã™ã€‚å˜ä½ã¯ãƒ”ã‚¯ã‚»ãƒ«ã§ã™ã€‚</ja>
         /// <en>Width of the label. The unit is a pixel. </en>
         /// </summary>
         int Width {
@@ -71,7 +71,7 @@ namespace Poderosa.Forms {
 
     /// <summary>
     /// <ja>
-    /// ƒc[ƒ‹ƒo[“à‚Ìƒ{ƒ^ƒ“‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼å†…ã®ãƒœã‚¿ãƒ³ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows button in toolbar.
@@ -79,7 +79,7 @@ namespace Poderosa.Forms {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ŠJ”­Ò‚ªƒ{ƒ^ƒ“‚ğì‚éê‡A‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğÀ‘•‚µ‚½ƒIƒuƒWƒFƒNƒg‚ğì‚é‘ã‚í‚è‚ÉA<seealso cref="ToolBarCommandButtonImpl">ToolBarCommandButtonImpl</seealso>‚ğg‚¤‚±‚Æ‚ª‚Å‚«‚Ü‚·B
+    /// é–‹ç™ºè€…ãŒãƒœã‚¿ãƒ³ã‚’ä½œã‚‹å ´åˆã€ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’å®Ÿè£…ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œã‚‹ä»£ã‚ã‚Šã«ã€<seealso cref="ToolBarCommandButtonImpl">ToolBarCommandButtonImpl</seealso>ã‚’ä½¿ã†ã“ã¨ãŒã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// <seealso cref="ToolBarCommandButtonImpl">ToolBarCommandButtonImpl</seealso> can be used instead of making the object that implements this interface when the developer makes the button. 
@@ -88,7 +88,7 @@ namespace Poderosa.Forms {
     public interface IToolBarCommandButton : IToolBarElement {
         /// <summary>
         /// <ja>
-        /// ƒ{ƒ^ƒ“‚ªƒNƒŠƒbƒN‚³‚ê‚½‚Æ‚«‚ÉÀs‚³‚ê‚éƒRƒ}ƒ“ƒh‚Å‚·B
+        /// ãƒœã‚¿ãƒ³ãŒã‚¯ãƒªãƒƒã‚¯ã•ã‚ŒãŸã¨ãã«å®Ÿè¡Œã•ã‚Œã‚‹ã‚³ãƒãƒ³ãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is a command executed when the button is clicked. 
@@ -99,7 +99,7 @@ namespace Poderosa.Forms {
         }
         /// <summary>
         /// <ja>
-        /// ƒ{ƒ^ƒ“•\–Ê‚É•\¦‚·‚éƒAƒCƒRƒ“‚Å‚·B
+        /// ãƒœã‚¿ãƒ³è¡¨é¢ã«è¡¨ç¤ºã™ã‚‹ã‚¢ã‚¤ã‚³ãƒ³ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Icon displayed on the surface of the button. 
@@ -107,10 +107,10 @@ namespace Poderosa.Forms {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ƒAƒCƒRƒ“‚Ì‘å‚«‚³‚Í16~16ƒsƒNƒZƒ‹‚Å‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// ã‚¢ã‚¤ã‚³ãƒ³ã®å¤§ãã•ã¯16Ã—16ãƒ”ã‚¯ã‚»ãƒ«ã§ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
-        /// The size of the icon should be 16~16 pixels. 
+        /// The size of the icon should be 16Ã—16 pixels. 
         /// </en>
         /// </remarks>
         Image Icon {
@@ -120,7 +120,7 @@ namespace Poderosa.Forms {
 
     /// <summary>
     /// <ja>
-    /// ƒc[ƒ‹ƒo[“à‚ÌƒRƒ“ƒ{ƒ{ƒbƒNƒX‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼å†…ã®ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows combobox in toolbar.
@@ -128,7 +128,7 @@ namespace Poderosa.Forms {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ŠJ”­Ò‚ªƒRƒ“ƒ{ƒ{ƒbƒNƒX‚ğì‚éê‡A‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğÀ‘•‚µ‚½ƒIƒuƒWƒFƒNƒg‚ğì‚é‘ã‚í‚è‚ÉA<seealso cref="ToolBarComboBoxImpl">ToolBarComboBoxImpl</seealso>‚ğg‚¤‚±‚Æ‚ª‚Å‚«‚Ü‚·B
+    /// é–‹ç™ºè€…ãŒã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ã‚’ä½œã‚‹å ´åˆã€ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’å®Ÿè£…ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œã‚‹ä»£ã‚ã‚Šã«ã€<seealso cref="ToolBarComboBoxImpl">ToolBarComboBoxImpl</seealso>ã‚’ä½¿ã†ã“ã¨ãŒã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// <seealso cref="ToolBarComboBoxImpl">ToolBarComboBoxImpl</seealso> can be used instead of making the object that implements this interface when the developer makes the combo box. 
@@ -137,7 +137,7 @@ namespace Poderosa.Forms {
     public interface IToolBarComboBox : IToolBarElement {
         /// <summary>
         /// <ja>
-        /// ƒRƒ“ƒ{ƒ{ƒbƒNƒX“à‚É•\¦‚·‚é‘I‘ğˆ‚Æ‚È‚éƒAƒCƒeƒ€‚Å‚·B
+        /// ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹å†…ã«è¡¨ç¤ºã™ã‚‹é¸æŠè‚¢ã¨ãªã‚‹ã‚¢ã‚¤ãƒ†ãƒ ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Item that becomes choices displayed in combo box.
@@ -148,7 +148,7 @@ namespace Poderosa.Forms {
         }
         /// <summary>
         /// <ja>
-        /// ƒRƒ“ƒ{ƒ{ƒbƒNƒX‚Ì•‚Å‚·B’PˆÊ‚ÍƒsƒNƒZƒ‹‚Å‚·B
+        /// ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ã®å¹…ã§ã™ã€‚å˜ä½ã¯ãƒ”ã‚¯ã‚»ãƒ«ã§ã™ã€‚
         /// </ja>
         /// <en>Width of the combo box. The unit is a pixel. </en>
         /// </summary>
@@ -156,14 +156,14 @@ namespace Poderosa.Forms {
             get;
         }
         /// <summary>
-        /// <ja>‚±‚ÌƒRƒ“ƒ{ƒ{ƒbƒNƒX‚ª‘I‘ğ‚Å‚«‚é‚©‚Ç‚¤‚©‚ğ¦‚µ‚Ü‚·B</ja>
+        /// <ja>ã“ã®ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ãŒé¸æŠã§ãã‚‹ã‹ã©ã†ã‹ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
         /// <en>It is shown whether this combo box can be selected. </en>
         /// </summary>
-        /// <param name="target"><ja>Às‚Ì‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja><en>target for execution. </en></param>
-        /// <returns><ja>‘I‘ğ‚Å‚«‚é‚Æ‚«‚É‚ÍtrueA‚»‚¤‚Å‚È‚¢‚Æ‚«‚É‚Ífalse‚ª•Ô‚³‚ê‚Ü‚·B</ja><en>False is returned when it is not true so when it is possible to select it. </en></returns>
+        /// <param name="target"><ja>å®Ÿè¡Œã®å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja><en>target for execution. </en></param>
+        /// <returns><ja>é¸æŠã§ãã‚‹ã¨ãã«ã¯trueã€ãã†ã§ãªã„ã¨ãã«ã¯falseãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja><en>False is returned when it is not true so when it is possible to select it. </en></returns>
         /// <remarks>
         /// <ja>
-        /// <paramref name="target">target</paramref>‚ÍA‚±‚Ìƒc[ƒ‹ƒo[‚ª‘®‚·‚é<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>‚Å‚·B
+        /// <paramref name="target">target</paramref>ã¯ã€ã“ã®ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒå±ã™ã‚‹<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// <paramref name="target">target</paramref> is a toolbar that belongs to <see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>.
@@ -172,19 +172,19 @@ namespace Poderosa.Forms {
         bool IsEnabled(ICommandTarget target);
         /// <summary>
         /// <ja>
-        /// Œ»İ‘I‘ğ‚³‚ê‚Ä‚¢‚éƒAƒCƒeƒ€‚ÌƒCƒ“ƒfƒbƒNƒX”Ô†‚ğ•Ô‚µ‚Ü‚·B
+        /// ç¾åœ¨é¸æŠã•ã‚Œã¦ã„ã‚‹ã‚¢ã‚¤ãƒ†ãƒ ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ç•ªå·ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the index of the item that has been selected now.
         /// </en>
         /// </summary>
-        /// <param name="target"><ja>Às‚Ì‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja><en>Target for execution</en></param>
-        /// <returns><ja><paramref name="target">target</paramref>‚ÌƒCƒ“ƒfƒbƒNƒXˆÊ’u‚ª•Ô‚³‚ê‚Ü‚·B</ja>
+        /// <param name="target"><ja>å®Ÿè¡Œã®å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja><en>Target for execution</en></param>
+        /// <returns><ja><paramref name="target">target</paramref>ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ä½ç½®ãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>Return index position of the <paramref name="target">target</paramref></en>
         /// </returns>
         /// <remarks>
         /// <ja>
-        /// <paramref name="target">target</paramref>‚ÍA‚±‚Ìƒc[ƒ‹ƒo[‚ª‘®‚·‚é<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>‚Å‚·B
+        /// <paramref name="target">target</paramref>ã¯ã€ã“ã®ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒå±ã™ã‚‹<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// <paramref name="target">target</paramref> is a toolbar that belongs to <see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>.
@@ -193,18 +193,18 @@ namespace Poderosa.Forms {
         int GetSelectedIndex(ICommandTarget target);
         /// <summary>
         /// <ja>
-        /// ƒRƒ“ƒ{ƒ{ƒbƒNƒX‚Å‘I‘ğ‚³‚ê‚Ä‚¢‚é‘I‘ğˆ‚ª•Ï‰»‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒƒ\ƒbƒh‚Å‚·B
+        /// ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ã§é¸æŠã•ã‚Œã¦ã„ã‚‹é¸æŠè‚¢ãŒå¤‰åŒ–ã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Method of call when choices that have been selected in combobox change
         /// </en>
         /// </summary>
-        /// <param name="target"><ja>Às‚Ì‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja><en>Target for execution.</en></param>
-        /// <param name="selectedIndex"><ja>ƒ†[ƒU[‚ª‘I‘ğ‚µ‚½ƒAƒCƒeƒ€‚ÌƒCƒ“ƒfƒbƒNƒX”Ô†‚Å‚·B</ja><en>Index of item that user selected.</en></param>
-        /// <param name="selectedItem"><ja>ƒ†[ƒU[‚ª‘I‘ğ‚µ‚½ƒAƒCƒeƒ€‚ÌƒIƒuƒWƒFƒNƒg‚Å‚·B</ja><en>An object of item that user selected.</en></param>
+        /// <param name="target"><ja>å®Ÿè¡Œã®å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja><en>Target for execution.</en></param>
+        /// <param name="selectedIndex"><ja>ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒé¸æŠã—ãŸã‚¢ã‚¤ãƒ†ãƒ ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ç•ªå·ã§ã™ã€‚</ja><en>Index of item that user selected.</en></param>
+        /// <param name="selectedItem"><ja>ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒé¸æŠã—ãŸã‚¢ã‚¤ãƒ†ãƒ ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚</ja><en>An object of item that user selected.</en></param>
         /// <remarks>
         /// <ja>
-        /// <paramref name="target">target</paramref>‚ÍA‚±‚Ìƒc[ƒ‹ƒo[‚ª‘®‚·‚é<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>‚Å‚·B
+        /// <paramref name="target">target</paramref>ã¯ã€ã“ã®ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒå±ã™ã‚‹<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// <paramref name="target">target</paramref> is <see cref="IPoderosaMainWindow">IPoderosaMainWindow</see> that this toolbar belongs. 
@@ -215,7 +215,7 @@ namespace Poderosa.Forms {
 
     /// <summary>
     /// <ja>
-    /// ƒc[ƒ‹ƒo[“à‚ÌƒgƒOƒ‹ƒ{ƒ^ƒ“‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼å†…ã®ãƒˆã‚°ãƒ«ãƒœã‚¿ãƒ³ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows Toggle button in toolbar.
@@ -223,7 +223,7 @@ namespace Poderosa.Forms {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ŠJ”­Ò‚ªƒgƒOƒ‹ƒ{ƒ^ƒ“‚ğì‚éê‡A‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğÀ‘•‚µ‚½ƒIƒuƒWƒFƒNƒg‚ğì‚é‘ã‚í‚è‚ÉA<seealso cref="ToolBarToggleButtonImpl">ToolBarToggleButtonImpl</seealso>‚ğg‚¤‚±‚Æ‚ª‚Å‚«‚Ü‚·B
+    /// é–‹ç™ºè€…ãŒãƒˆã‚°ãƒ«ãƒœã‚¿ãƒ³ã‚’ä½œã‚‹å ´åˆã€ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’å®Ÿè£…ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œã‚‹ä»£ã‚ã‚Šã«ã€<seealso cref="ToolBarToggleButtonImpl">ToolBarToggleButtonImpl</seealso>ã‚’ä½¿ã†ã“ã¨ãŒã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// <seealso cref="ToolBarToggleButtonImpl">ToolBarToggleButtonImpl</seealso> can be used instead of making the object that implements this interface when the developer makes the toggle button. 
@@ -232,7 +232,7 @@ namespace Poderosa.Forms {
     public interface IToolBarToggleButton : IToolBarElement {
         /// <summary>
         /// <ja>
-        /// ƒ{ƒ^ƒ“•\–Ê‚É•\¦‚·‚éƒAƒCƒRƒ“‚Å‚·B
+        /// ãƒœã‚¿ãƒ³è¡¨é¢ã«è¡¨ç¤ºã™ã‚‹ã‚¢ã‚¤ã‚³ãƒ³ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Icon displayed on surface of button
@@ -240,24 +240,24 @@ namespace Poderosa.Forms {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ƒAƒCƒRƒ“‚Ì‘å‚«‚³‚Í16~16ƒsƒNƒZƒ‹‚Å‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// ã‚¢ã‚¤ã‚³ãƒ³ã®å¤§ãã•ã¯16Ã—16ãƒ”ã‚¯ã‚»ãƒ«ã§ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
-        /// The size of the icon should be 16~16 pixels. 
+        /// The size of the icon should be 16Ã—16 pixels. 
         /// </en>
         /// </remarks>
         Image Icon {
             get;
         }
         /// <summary>
-        /// <ja>‚±‚ÌƒgƒOƒ‹ƒ{ƒ^ƒ“‚ª‘I‘ğ‚Å‚«‚é‚©‚Ç‚¤‚©‚ğ¦‚µ‚Ü‚·B</ja>
+        /// <ja>ã“ã®ãƒˆã‚°ãƒ«ãƒœã‚¿ãƒ³ãŒé¸æŠã§ãã‚‹ã‹ã©ã†ã‹ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
         /// <en>It is shown whether this toggle button can be selected. </en>
         /// </summary>
-        /// <param name="target"><ja>Às‚Ì‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja><en>Target for execution</en></param>
-        /// <returns><ja>‘I‘ğ‚Å‚«‚é‚Æ‚«‚É‚ÍtrueA‚»‚¤‚Å‚È‚¢‚Æ‚«‚É‚Ífalse‚ª•Ô‚³‚ê‚Ü‚·B</ja><en>False is returned when it is not true so when it is possible to select it. </en></returns>
+        /// <param name="target"><ja>å®Ÿè¡Œã®å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja><en>Target for execution</en></param>
+        /// <returns><ja>é¸æŠã§ãã‚‹ã¨ãã«ã¯trueã€ãã†ã§ãªã„ã¨ãã«ã¯falseãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja><en>False is returned when it is not true so when it is possible to select it. </en></returns>
         /// <remarks>
         /// <ja>
-        /// <paramref name="target">target</paramref>‚ÍA‚±‚Ìƒc[ƒ‹ƒo[‚ª‘®‚·‚é<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>‚Å‚·B
+        /// <paramref name="target">target</paramref>ã¯ã€ã“ã®ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒå±ã™ã‚‹<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// <paramref name="target">target</paramref> is <see cref="IPoderosaMainWindow">IPoderosaMainWindow</see> that this toolbar belongs. 
@@ -265,18 +265,18 @@ namespace Poderosa.Forms {
         /// </remarks>
         bool IsEnabled(ICommandTarget target);
         /// <summary>
-        /// <ja>‚±‚ÌƒgƒOƒ‹ƒ{ƒ^ƒ“‚ÌƒIƒ“^ƒIƒt‚Ìó‘Ô‚ğ¦‚µ‚Ü‚·B</ja>
+        /// <ja>ã“ã®ãƒˆã‚°ãƒ«ãƒœã‚¿ãƒ³ã®ã‚ªãƒ³ï¼ã‚ªãƒ•ã®çŠ¶æ…‹ã‚’ç¤ºã—ã¾ã™ã€‚</ja>
         /// <en>The state of on/off of this toggle button is shown. </en>
         /// </summary>
-        /// <param name="target"><ja>Às‚Ì‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja>
+        /// <param name="target"><ja>å®Ÿè¡Œã®å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja>
         /// <en>Target for execution</en>
         /// </param>
-        /// <returns><ja>ƒIƒ“‚Ì‚Æ‚«i‰š‚ñ‚Å‚¢‚éó‘Ôj‚Ì‚Æ‚«‚É‚ÍtrueAƒIƒt‚Å‚ ‚é‚Æ‚«i‰š‚ñ‚Å‚¢‚È‚¢ó‘Ôj‚Ì‚Æ‚«‚É‚Ífalse‚ª•Ô‚³‚ê‚Ü‚·B</ja>
+        /// <returns><ja>ã‚ªãƒ³ã®ã¨ãï¼ˆå‡¹ã‚“ã§ã„ã‚‹çŠ¶æ…‹ï¼‰ã®ã¨ãã«ã¯trueã€ã‚ªãƒ•ã§ã‚ã‚‹ã¨ãï¼ˆå‡¹ã‚“ã§ã„ãªã„çŠ¶æ…‹ï¼‰ã®ã¨ãã«ã¯falseãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>False is returned when it is true off (state that doesn't dent) when turning it on (state that has dented). </en>
         /// </returns>
         /// <remarks>
         /// <ja>
-        /// <paramref name="target">target</paramref>‚ÍA‚±‚Ìƒc[ƒ‹ƒo[‚ª‘®‚·‚é<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>‚Å‚·B
+        /// <paramref name="target">target</paramref>ã¯ã€ã“ã®ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒå±ã™ã‚‹<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// <paramref name="target">target</paramref> is <see cref="IPoderosaMainWindow">IPoderosaMainWindow</see> that this toolbar belongs. 
@@ -285,19 +285,19 @@ namespace Poderosa.Forms {
         bool IsChecked(ICommandTarget target);
         /// <summary>
         /// <ja>
-        /// ƒgƒOƒ‹ƒ{ƒ^ƒ“‚ÌƒIƒ“^ƒIƒt‚Ìó‘Ô‚ª•Ï‚í‚Á‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒƒ\ƒbƒh‚Å‚·B
+        /// ãƒˆã‚°ãƒ«ãƒœã‚¿ãƒ³ã®ã‚ªãƒ³ï¼ã‚ªãƒ•ã®çŠ¶æ…‹ãŒå¤‰ã‚ã£ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Method of the call when the state of on/off of the toggle button changes. 
         /// </en>
         /// </summary>
-        /// <param name="target"><ja>Às‚Ì‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja><en>Target for execution</en></param>
-        /// <param name="is_checked"><ja>ƒIƒ“‚É‚³‚ê‚½‚Æ‚«‚É‚ÍtrueAƒIƒt‚É‚³‚ê‚½‚Æ‚«‚É‚Ífalse‚Å‚·B</ja>
+        /// <param name="target"><ja>å®Ÿè¡Œã®å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja><en>Target for execution</en></param>
+        /// <param name="is_checked"><ja>ã‚ªãƒ³ã«ã•ã‚ŒãŸã¨ãã«ã¯trueã€ã‚ªãƒ•ã«ã•ã‚ŒãŸã¨ãã«ã¯falseã§ã™ã€‚</ja>
         /// <en>When turned off true, it is false when turned on. </en>
         /// </param>
         /// <remarks>
         /// <ja>
-        /// <paramref name="target">target</paramref>‚ÍA‚±‚Ìƒc[ƒ‹ƒo[‚ª‘®‚·‚é<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>‚Å‚·B
+        /// <paramref name="target">target</paramref>ã¯ã€ã“ã®ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒå±ã™ã‚‹<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// <paramref name="target">target</paramref> is a toolbar that belongs to <see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>.
@@ -308,7 +308,7 @@ namespace Poderosa.Forms {
 
     /// <summary>
     /// <ja>
-    /// ƒc[ƒ‹ƒo[‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows toolbar.
@@ -316,35 +316,35 @@ namespace Poderosa.Forms {
     /// </summary>
     public interface IToolBar : IAdaptable {
         /// <summary>
-        /// <ja>ƒc[ƒ‹ƒo[‚ª‘®‚·‚éƒEƒBƒ“ƒhƒE‚Å‚·B</ja>
+        /// <ja>ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒå±ã™ã‚‹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã§ã™ã€‚</ja>
         /// <en>Window to which toolbar belongs</en>
         /// </summary>
         IPoderosaMainWindow ParentWindow {
             get;
         }
         /// <summary>
-        /// <ja>‚·‚×‚Ä‚Ì—v‘f‚ğÄ•`‰æ‚µ‚Ü‚·B</ja>
+        /// <ja>ã™ã¹ã¦ã®è¦ç´ ã‚’å†æç”»ã—ã¾ã™ã€‚</ja>
         /// <en>It draws in all elements again. </en>
         /// </summary>
         void RefreshAll();
         /// <summary>
-        /// <ja>w’è‚µ‚½ƒRƒ“ƒ|[ƒlƒ“ƒg‚ğÄ•`‰æ‚µ‚Ü‚·B</ja>
+        /// <ja>æŒ‡å®šã—ãŸã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’å†æç”»ã—ã¾ã™ã€‚</ja>
         /// <en>It draws in the specified component again. </en>
         /// </summary>
-        /// <param name="component"><ja>Ä•`‰æ‚µ‚½‚¢ƒRƒ“ƒ|[ƒlƒ“ƒg</ja><en>Component where it wants to draw again</en></param>
+        /// <param name="component"><ja>å†æç”»ã—ãŸã„ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ</ja><en>Component where it wants to draw again</en></param>
         void RefreshComponent(IToolBarComponent component);
         /// <summary>
         /// <ja>
-        /// ƒc[ƒ‹ƒo[‚ÌˆÊ’u‚ğ•¶š—ñ‚Æ‚µ‚Ä\¬‚µ‚½‚à‚Ì‚ğ•Ô‚µ‚Ü‚·B
+        /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã®ä½ç½®ã‚’æ–‡å­—åˆ—ã¨ã—ã¦æ§‹æˆã—ãŸã‚‚ã®ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the one that the position of the toolbar was composed as a character string.
         /// </en>
         /// </summary>
-        /// <returns><ja>ƒc[ƒ‹ƒo[‚ÌˆÊ’u‚ğ‘®‰»‚µ‚½•¶š—ñ</ja><en>Character string that makes position of toolbar format</en></returns>
+        /// <returns><ja>ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã®ä½ç½®ã‚’æ›¸å¼åŒ–ã—ãŸæ–‡å­—åˆ—</ja><en>Character string that makes position of toolbar format</en></returns>
         /// <remarks>
         /// <ja>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚©‚ç–ß‚³‚ê‚½•¶š—ñ‚ÍAPreference‚Éƒc[ƒ‹ƒo[ˆÊ’u‚ğ•Û‘¶‚·‚é‚Æ‚«‚Ég‚í‚ê‚Ü‚·B
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‹ã‚‰æˆ»ã•ã‚ŒãŸæ–‡å­—åˆ—ã¯ã€Preferenceã«ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ä½ç½®ã‚’ä¿å­˜ã™ã‚‹ã¨ãã«ä½¿ã‚ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When the toolbar position is preserved in Preference, the character string returned from this method is used. 
@@ -355,7 +355,7 @@ namespace Poderosa.Forms {
 
     /// <summary>
     /// <ja>
-    /// ƒc[ƒ‹ƒo[ƒRƒ“ƒ|[ƒlƒ“ƒg‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows toolbar component.
@@ -363,7 +363,7 @@ namespace Poderosa.Forms {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ƒc[ƒ‹ƒo[“à‚Ìƒ‰ƒxƒ‹Aƒ{ƒ^ƒ“AƒgƒOƒ‹ƒ{ƒ^ƒ“AƒRƒ“ƒ{ƒ{ƒbƒNƒX‚ÍA<see cref="ToolBarElements">ToolBarElemnentsƒvƒƒpƒeƒB</see>‚É”z—ñ‚Æ‚µ‚ÄŠi”[‚µ‚Ü‚·B
+    /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼å†…ã®ãƒ©ãƒ™ãƒ«ã€ãƒœã‚¿ãƒ³ã€ãƒˆã‚°ãƒ«ãƒœã‚¿ãƒ³ã€ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ã¯ã€<see cref="ToolBarElements">ToolBarElemnentsãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>ã«é…åˆ—ã¨ã—ã¦æ ¼ç´ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The label, the button, the toggle button, and the combobox in the toolbar are stored in the <see cref="ToolBarElements">ToolBarElemnents property</see> as an array. 
@@ -371,7 +371,7 @@ namespace Poderosa.Forms {
     /// </remarks>
     /// <example>
     /// <ja>
-    /// ƒc[ƒ‹ƒo[ƒRƒ“ƒ|[ƒlƒ“ƒg‚ğì‚é—á‚ğ¦‚µ‚Ü‚·B
+    /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’ä½œã‚‹ä¾‹ã‚’ç¤ºã—ã¾ã™ã€‚
     /// <code>
     /// [assembly: PluginDeclaration(typeof(MyPlugin.HelloWorldPlugin))]
     /// namespace MyPlugin
@@ -379,7 +379,7 @@ namespace Poderosa.Forms {
     ///    [PluginInfo(ID="jp.example.helloworld", Version="1.0",
     ///        Dependencies="org.poderosa.core.window")]
     ///
-    ///    // ‚±‚±‚Å‚Íƒvƒ‰ƒOƒCƒ“©g‚ÉIToolBarComponent‚ğÀ‘•
+    ///    // ã“ã“ã§ã¯ãƒ—ãƒ©ã‚°ã‚¤ãƒ³è‡ªèº«ã«IToolBarComponentã‚’å®Ÿè£…
     ///    internal class HelloWorldPlugin : PluginBase, IToolBarComponent
     ///    {
     ///        private IToolBarElement[] _elements;
@@ -388,40 +388,40 @@ namespace Poderosa.Forms {
     ///        {
     ///            base.InitializePlugin(poderosa);
     ///            
-    ///            // i1jƒRƒ}ƒ“ƒhƒIƒuƒWƒFƒNƒg‚ğ—pˆÓ‚·‚é
+    ///            // ï¼ˆ1ï¼‰ã‚³ãƒãƒ³ãƒ‰ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”¨æ„ã™ã‚‹
     ///            PoderosaCommandImpl btncommand = new PoderosaCommandImpl(
     ///              delegate(ICommandTarget target)
     ///              {
-    ///                  // Às‚³‚ê‚½‚Æ‚«‚ÌƒRƒ}ƒ“ƒh
-    ///                  MessageBox.Show("ƒ{ƒ^ƒ“‚ªƒNƒŠƒbƒN‚³‚ê‚Ü‚µ‚½");
+    ///                  // å®Ÿè¡Œã•ã‚ŒãŸã¨ãã®ã‚³ãƒãƒ³ãƒ‰
+    ///                  MessageBox.Show("ãƒœã‚¿ãƒ³ãŒã‚¯ãƒªãƒƒã‚¯ã•ã‚Œã¾ã—ãŸ");
     ///                  return CommandResult.Succeeded;
     ///              },
     ///              delegate(ICommandTarget target)
     ///              {
-    ///                  // ƒRƒ}ƒ“ƒh‚ªÀs‚Å‚«‚é‚©‚Ç‚¤‚©‚ğ¦‚·ƒfƒŠƒQ[ƒg
+    ///                  // ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã§ãã‚‹ã‹ã©ã†ã‹ã‚’ç¤ºã™ãƒ‡ãƒªã‚²ãƒ¼ãƒˆ
     ///                  return true;
     ///              }
     ///            );
     ///
-    ///            // i2j—v‘f‚Æ‚µ‚Äƒ{ƒ^ƒ“‚ğì‚éimyImage‚Í16~16‚Ìƒrƒbƒgƒ}ƒbƒvj
+    ///            // ï¼ˆ2ï¼‰è¦ç´ ã¨ã—ã¦ãƒœã‚¿ãƒ³ã‚’ä½œã‚‹ï¼ˆmyImageã¯16Ã—16ã®ãƒ“ãƒƒãƒˆãƒãƒƒãƒ—ï¼‰
     ///            System.Drawing.Image myImage = 
-    ///              new System.Drawing.Bitmap("‰æ‘œƒtƒ@ƒCƒ‹–¼");
+    ///              new System.Drawing.Bitmap("ç”»åƒãƒ•ã‚¡ã‚¤ãƒ«å");
     ///            ToolBarCommandButtonImpl btn = ]
     ///              new ToolBarCommandButtonImpl(btncommand, myImage);
     ///
-    ///            // —v‘f‚Æ‚µ‚Äİ’è
+    ///            // è¦ç´ ã¨ã—ã¦è¨­å®š
     ///            _elements = new IToolBarElement[]{ btn };
     ///
-    ///            // i3jŠg’£ƒ|ƒCƒ“ƒg‚ğŒŸõ‚µ‚Ä“o˜^
+    ///            // ï¼ˆ3ï¼‰æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã‚’æ¤œç´¢ã—ã¦ç™»éŒ²
     ///            IExtensionPoint toolbarExt = 
     ///              poderosa.PluginManager.FindExtensionPoint("org.poderosa.core.window.toolbar");
-    ///            // “o˜^
+    ///            // ç™»éŒ²
     ///            toolbarExt.RegisterExtension(this);
     ///        }
     ///
     ///        public IToolBarElement[] ToolBarElements
     ///        {
-    ///            // —v‘f‚ğ•Ô‚·
+    ///            // è¦ç´ ã‚’è¿”ã™
     ///            get { return _elements; }
     ///        }
     ///    }
@@ -490,7 +490,7 @@ namespace Poderosa.Forms {
     public interface IToolBarComponent : IAdaptable {
         /// <summary>
         /// <ja>
-        /// ƒc[ƒ‹ƒo[ƒRƒ“ƒ|[ƒlƒ“ƒg‚ÉŠÜ‚Ü‚ê‚éAƒ‰ƒxƒ‹Aƒ{ƒ^ƒ“AƒgƒOƒ‹ƒ{ƒ^ƒ“AƒRƒ“ƒ{ƒ{ƒbƒNƒX‚Ì”z—ñ‚Å‚·B
+        /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã«å«ã¾ã‚Œã‚‹ã€ãƒ©ãƒ™ãƒ«ã€ãƒœã‚¿ãƒ³ã€ãƒˆã‚°ãƒ«ãƒœã‚¿ãƒ³ã€ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ã®é…åˆ—ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Inclusion in toolbar component, and array of label, button, toggle button, and combobox
@@ -501,10 +501,10 @@ namespace Poderosa.Forms {
         }
     }
 
-    //ŠeToolBarElement‚Ì•W€À‘•
+    //å„ToolBarElementã®æ¨™æº–å®Ÿè£…
     /// <summary>
     /// <ja>
-    /// ƒc[ƒ‹ƒo[‚Ì—v‘f‚ÌŠî’ê‚Æ‚È‚éƒNƒ‰ƒX‚Å‚·B
+    /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã®è¦ç´ ã®åŸºåº•ã¨ãªã‚‹ã‚¯ãƒ©ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Class that becomes base of element of toolbar.
@@ -516,7 +516,7 @@ namespace Poderosa.Forms {
         }
         /// <summary>
         /// <ja>
-        /// ƒc[ƒ‹ƒ`ƒbƒvƒeƒLƒXƒg‚ğ•Ô‚µ‚Ü‚·B
+        /// ãƒ„ãƒ¼ãƒ«ãƒãƒƒãƒ—ãƒ†ã‚­ã‚¹ãƒˆã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the tooltip text.
@@ -524,7 +524,7 @@ namespace Poderosa.Forms {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ƒfƒtƒHƒ‹ƒg‚Å‚ÍA‚©‚ç•¶ši""j‚ğ•Ô‚·‚æ‚¤‚ÉÀ‘•‚³‚ê‚Ä‚¢‚Ü‚·B•K—v‚É‰‚¶‚ÄƒI[ƒo[ƒ‰ƒCƒh‚µ‚Ä‚­‚¾‚³‚¢B
+        /// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§ã¯ã€ã‹ã‚‰æ–‡å­—ï¼ˆ""ï¼‰ã‚’è¿”ã™ã‚ˆã†ã«å®Ÿè£…ã•ã‚Œã¦ã„ã¾ã™ã€‚å¿…è¦ã«å¿œã˜ã¦ã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰ã—ã¦ãã ã•ã„ã€‚
         /// </ja>
         /// <en>
         /// In default, to return the null character (""), it is implemente. Please do override if necessary. 
@@ -538,7 +538,7 @@ namespace Poderosa.Forms {
     }
     /// <summary>
     /// <ja>
-    /// ƒc[ƒ‹ƒo[—v‘f‚Ìƒ‰ƒxƒ‹‚ğ\¬‚·‚é‹@”\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼è¦ç´ ã®ãƒ©ãƒ™ãƒ«ã‚’æ§‹æˆã™ã‚‹æ©Ÿèƒ½ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The function to compose the label of the toolbar element is offered. 
@@ -546,8 +546,8 @@ namespace Poderosa.Forms {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ŠJ”­Ò‚Í‚±‚ÌƒNƒ‰ƒX‚ğ—p‚¢‚é‚±‚Æ‚ÅA<seealso cref="IToolBarLabel">IToolBarLabel</seealso>
-    /// ‚ğ”õ‚¦‚½ƒIƒuƒWƒFƒNƒg‚ğ\¬‚Å‚«‚Ü‚·B
+    /// é–‹ç™ºè€…ã¯ã“ã®ã‚¯ãƒ©ã‚¹ã‚’ç”¨ã„ã‚‹ã“ã¨ã§ã€<seealso cref="IToolBarLabel">IToolBarLabel</seealso>
+    /// ã‚’å‚™ãˆãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ§‹æˆã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The developer can compose the object that has <seealso cref="IToolBarLabel">IToolBarLabel</seealso> by using this class. 
@@ -556,7 +556,7 @@ namespace Poderosa.Forms {
     public class ToolBarLabelImpl : ToolBarElementImpl, IToolBarLabel {
         /// <summary>
         /// <ja>
-        /// ƒJƒ‹ƒ`ƒƒî•ñ‚ğ¦‚·“à•”•Ï”‚Å‚·B
+        /// ã‚«ãƒ«ãƒãƒ£æƒ…å ±ã‚’ç¤ºã™å†…éƒ¨å¤‰æ•°ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Internal variable that shows culture information
@@ -565,7 +565,7 @@ namespace Poderosa.Forms {
         protected StringResource _res;
         /// <summary>
         /// <ja>
-        /// ƒJƒ‹ƒ`ƒƒî•ñ‚ğg‚¤‚©‚Ç‚¤‚©‚ğ¦‚·“à•”•Ï”‚Å‚·B
+        /// ã‚«ãƒ«ãƒãƒ£æƒ…å ±ã‚’ä½¿ã†ã‹ã©ã†ã‹ã‚’ç¤ºã™å†…éƒ¨å¤‰æ•°ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is an internal variable that shows whether to use culture information. 
@@ -574,7 +574,7 @@ namespace Poderosa.Forms {
         protected bool _usingStringResource;
         /// <summary>
         /// <ja>
-        /// ƒ‰ƒxƒ‹•‚ğ¦‚·“à•”•Ï”‚Å‚·B’PˆÊ‚ÍƒsƒNƒZƒ‹‚Å‚·B
+        /// ãƒ©ãƒ™ãƒ«å¹…ã‚’ç¤ºã™å†…éƒ¨å¤‰æ•°ã§ã™ã€‚å˜ä½ã¯ãƒ”ã‚¯ã‚»ãƒ«ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is an internal variable that shows the width of the label. The unit is a pixel. 
@@ -582,7 +582,7 @@ namespace Poderosa.Forms {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ‚±‚ÌƒvƒƒpƒeƒB‚Ì’l‚Í<seealso cref="Width">WidthƒvƒƒpƒeƒB</seealso>‚©‚ç•Ô‚³‚ê‚Ü‚·B
+        /// ã“ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å€¤ã¯<seealso cref="Width">Widthãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</seealso>ã‹ã‚‰è¿”ã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The value of this property is returned by the Width property. 
@@ -591,7 +591,7 @@ namespace Poderosa.Forms {
         protected int _width;
         /// <summary>
         /// <ja>
-        /// ƒ‰ƒxƒ‹‚Æ‚µ‚Ä•\¦‚·‚éƒeƒLƒXƒg‚ğ•Û‚·‚é“à•”•Ï”‚Å‚·B
+        /// ãƒ©ãƒ™ãƒ«ã¨ã—ã¦è¡¨ç¤ºã™ã‚‹ãƒ†ã‚­ã‚¹ãƒˆã‚’ä¿æŒã™ã‚‹å†…éƒ¨å¤‰æ•°ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is an internal variable that holds the text to show as the label.
@@ -601,7 +601,7 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ‹ó‚Ìƒ‰ƒxƒ‹‚ğì¬‚µ‚Ü‚·B
+        /// ç©ºã®ãƒ©ãƒ™ãƒ«ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create a null label.
@@ -610,7 +610,7 @@ namespace Poderosa.Forms {
         /// <overloads>
         /// <summary>
         /// <ja>
-        /// ƒc[ƒ‹ƒo[‚Ìƒ‰ƒxƒ‹‚ğì¬‚µ‚Ü‚·B
+        /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã®ãƒ©ãƒ™ãƒ«ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create a label of toolbar.
@@ -621,12 +621,12 @@ namespace Poderosa.Forms {
         }
 
         /// <summary>
-        /// <ja>ƒJƒ‹ƒ`ƒƒî•ñ‚ğw’è‚µ‚Äƒ‰ƒxƒ‹‚ğì¬‚µ‚Ü‚·B</ja>
+        /// <ja>ã‚«ãƒ«ãƒãƒ£æƒ…å ±ã‚’æŒ‡å®šã—ã¦ãƒ©ãƒ™ãƒ«ã‚’ä½œæˆã—ã¾ã™ã€‚</ja>
         /// <en>Create label specified with culture information</en>
         /// </summary>
-        /// <param name="res"><ja>ƒJƒ‹ƒ`ƒƒî•ñ‚Å‚·</ja><en>Culture information.</en></param>
-        /// <param name="text"><ja>ƒ‰ƒxƒ‹‚É•\¦‚·‚éƒeƒLƒXƒgID‚Å‚·B</ja><en>The text ID to show on the label.</en></param>
-        /// <param name="width"><ja>ƒ‰ƒxƒ‹‚Ì•‚Å‚·B’PˆÊ‚ÍƒsƒNƒZƒ‹‚Å‚·B</ja><en>WIdth of the label. The unit is a pixel.</en></param>
+        /// <param name="res"><ja>ã‚«ãƒ«ãƒãƒ£æƒ…å ±ã§ã™</ja><en>Culture information.</en></param>
+        /// <param name="text"><ja>ãƒ©ãƒ™ãƒ«ã«è¡¨ç¤ºã™ã‚‹ãƒ†ã‚­ã‚¹ãƒˆIDã§ã™ã€‚</ja><en>The text ID to show on the label.</en></param>
+        /// <param name="width"><ja>ãƒ©ãƒ™ãƒ«ã®å¹…ã§ã™ã€‚å˜ä½ã¯ãƒ”ã‚¯ã‚»ãƒ«ã§ã™ã€‚</ja><en>WIdth of the label. The unit is a pixel.</en></param>
 
         public ToolBarLabelImpl(StringResource res, string text, int width) {
             _res = res;
@@ -637,14 +637,14 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒeƒLƒXƒg‚Æ•‚ğw’è‚µ‚Äƒ‰ƒxƒ‹‚ğì¬‚µ‚Ü‚·B
+        /// ãƒ†ã‚­ã‚¹ãƒˆã¨å¹…ã‚’æŒ‡å®šã—ã¦ãƒ©ãƒ™ãƒ«ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create the label specifying the text and width. 
         /// </en>
         /// </summary>
-        /// <param name="text"><ja>ƒ‰ƒxƒ‹‚É•\¦‚·‚éƒeƒLƒXƒg‚Å‚·B</ja><en>The text to show on the label.</en></param>
-        /// <param name="width"><ja>ƒ‰ƒxƒ‹‚Ì•‚Å‚·B’PˆÊ‚ÍƒsƒNƒZƒ‹‚Å‚·B</ja><en>WIdth of the label. The unit is a pixel.</en></param>
+        /// <param name="text"><ja>ãƒ©ãƒ™ãƒ«ã«è¡¨ç¤ºã™ã‚‹ãƒ†ã‚­ã‚¹ãƒˆã§ã™ã€‚</ja><en>The text to show on the label.</en></param>
+        /// <param name="width"><ja>ãƒ©ãƒ™ãƒ«ã®å¹…ã§ã™ã€‚å˜ä½ã¯ãƒ”ã‚¯ã‚»ãƒ«ã§ã™ã€‚</ja><en>WIdth of the label. The unit is a pixel.</en></param>
         public ToolBarLabelImpl(string text, int width) {
             _usingStringResource = false;
             _text = text;
@@ -653,7 +653,7 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒ‰ƒxƒ‹‚É•\¦‚·‚éƒeƒLƒXƒg‚ğ•Ô‚µ‚Ü‚·B
+        /// ãƒ©ãƒ™ãƒ«ã«è¡¨ç¤ºã™ã‚‹ãƒ†ã‚­ã‚¹ãƒˆã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the text to show on the label.
@@ -661,8 +661,8 @@ namespace Poderosa.Forms {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ƒJƒ‹ƒ`ƒƒî•ñ•t‚«‚ÌƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Åì¬‚³‚ê‚½ê‡‚É‚ÍA<seealso cref="StringResource">StringResource</seealso>
-        /// ‚Ì<see cref="StringResource.GetString">GetStringƒƒ\ƒbƒh</see>‚ªŒÄ‚Ño‚³‚ê‚½Œ‹‰Ê‚ª–ß‚è‚Ü‚·B
+        /// ã‚«ãƒ«ãƒãƒ£æƒ…å ±ä»˜ãã®ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ä½œæˆã•ã‚ŒãŸå ´åˆã«ã¯ã€<seealso cref="StringResource">StringResource</seealso>
+        /// ã®<see cref="StringResource.GetString">GetStringãƒ¡ã‚½ãƒƒãƒ‰</see>ãŒå‘¼ã³å‡ºã•ã‚ŒãŸçµæœãŒæˆ»ã‚Šã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The result that the <see cref="StringResource.GetString">GetString method</see> of <seealso cref="StringResource">StringResource</seealso> is called returns when made by the constructor with culture information. 
@@ -676,7 +676,7 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒ‰ƒxƒ‹•‚ğ•Ô‚µ‚Ü‚·B’PˆÊ‚ÍƒsƒNƒZƒ‹‚Å‚·B
+        /// ãƒ©ãƒ™ãƒ«å¹…ã‚’è¿”ã—ã¾ã™ã€‚å˜ä½ã¯ãƒ”ã‚¯ã‚»ãƒ«ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the width of the label. The unit is a pixel. 
@@ -691,7 +691,7 @@ namespace Poderosa.Forms {
 
     /// <summary>
     /// <ja>
-    /// ƒc[ƒ‹ƒo[—v‘f‚Ìƒ{ƒ^ƒ“‚ğ\¬‚·‚é‹@”\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼è¦ç´ ã®ãƒœã‚¿ãƒ³ã‚’æ§‹æˆã™ã‚‹æ©Ÿèƒ½ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Offer the function to compose the button of the toolbar element.
@@ -699,8 +699,8 @@ namespace Poderosa.Forms {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ŠJ”­Ò‚Í‚±‚ÌƒNƒ‰ƒX‚ğ—p‚¢‚é‚±‚Æ‚ÅA<seealso cref="IToolBarCommandButton">IToolBarCommandButton</seealso>
-    /// ‚ğ”õ‚¦‚½ƒIƒuƒWƒFƒNƒg‚ğ\¬‚Å‚«‚Ü‚·B
+    /// é–‹ç™ºè€…ã¯ã“ã®ã‚¯ãƒ©ã‚¹ã‚’ç”¨ã„ã‚‹ã“ã¨ã§ã€<seealso cref="IToolBarCommandButton">IToolBarCommandButton</seealso>
+    /// ã‚’å‚™ãˆãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ§‹æˆã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The developer can compose the object that has <seealso cref="IToolBarCommandButton">IToolBarCommandButton</seealso> by using this class. 
@@ -709,7 +709,7 @@ namespace Poderosa.Forms {
     public class ToolBarCommandButtonImpl : ToolBarElementImpl, IToolBarCommandButton {
         /// <summary>
         /// <ja>
-        /// ƒc[ƒ‹ƒo[‚ªƒNƒŠƒbƒN‚³‚ê‚½‚Æ‚«‚ÉÀs‚³‚ê‚éƒRƒ}ƒ“ƒh‚Å‚·B
+        /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒã‚¯ãƒªãƒƒã‚¯ã•ã‚ŒãŸã¨ãã«å®Ÿè¡Œã•ã‚Œã‚‹ã‚³ãƒãƒ³ãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Command executed when toolbar is clicked.
@@ -717,7 +717,7 @@ namespace Poderosa.Forms {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ƒRƒ}ƒ“ƒh‚ÍƒRƒ“ƒXƒgƒ‰ƒNƒ^‚É‚æ‚Á‚Äİ’è‚³‚êA<seealso cref="Command">CommandƒvƒƒpƒeƒB</seealso>‚Å•Ô‚³‚ê‚Ü‚·B
+        /// ã‚³ãƒãƒ³ãƒ‰ã¯ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã«ã‚ˆã£ã¦è¨­å®šã•ã‚Œã€<seealso cref="Command">Commandãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</seealso>ã§è¿”ã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The command is set by the constractor, and return by <seealso cref="Command">Command property</seealso>.
@@ -726,14 +726,14 @@ namespace Poderosa.Forms {
         protected IPoderosaCommand _command;
         /// <summary>
         /// <ja>
-        /// ƒAƒCƒRƒ“‚ğ•Û‚·‚é“à•”•Ï”‚Å‚·BƒAƒCƒRƒ“‚Ì‘å‚«‚³‚Í16~16ƒsƒNƒZƒ‹‚Å‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// ã‚¢ã‚¤ã‚³ãƒ³ã‚’ä¿æŒã™ã‚‹å†…éƒ¨å¤‰æ•°ã§ã™ã€‚ã‚¢ã‚¤ã‚³ãƒ³ã®å¤§ãã•ã¯16Ã—16ãƒ”ã‚¯ã‚»ãƒ«ã§ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
-        /// Inside variable that holds the icon. The size of the icon should be 16~16 pixels. 
+        /// Inside variable that holds the icon. The size of the icon should be 16Ã—16 pixels. 
         /// </en>
         /// </summary>
         /// <ja>
-        /// ƒAƒCƒRƒ“‚ÍƒRƒ“ƒXƒgƒ‰ƒNƒ^‚É‚æ‚Á‚Äİ’è‚³‚êA<seealso cref="Icon">IconƒvƒƒpƒeƒB</seealso>‚Å•Ô‚³‚ê‚Ü‚·B
+        /// ã‚¢ã‚¤ã‚³ãƒ³ã¯ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã«ã‚ˆã£ã¦è¨­å®šã•ã‚Œã€<seealso cref="Icon">Iconãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</seealso>ã§è¿”ã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The icon is set by the constractor, and return by <seealso cref="Command">Command property</seealso>.
@@ -742,7 +742,7 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒc[ƒ‹ƒo[‚Ìƒ{ƒ^ƒ“‚ğì¬‚µ‚Ü‚·B
+        /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã®ãƒœã‚¿ãƒ³ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create the button of the toolbar.
@@ -750,7 +750,7 @@ namespace Poderosa.Forms {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ˆø”‚È‚µ‚ÌƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Å‚ÍA‰½‚àƒRƒ}ƒ“ƒh‚ªÀs‚³‚ê‚¸AƒAƒCƒRƒ“‚àİ’è‚³‚ê‚Ü‚¹‚ñB
+        /// å¼•æ•°ãªã—ã®ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ã¯ã€ä½•ã‚‚ã‚³ãƒãƒ³ãƒ‰ãŒå®Ÿè¡Œã•ã‚Œãšã€ã‚¢ã‚¤ã‚³ãƒ³ã‚‚è¨­å®šã•ã‚Œã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
         /// For the constructor who doesn't have the argument, as for anything, the command is not executed, and the icon is not set. 
@@ -760,16 +760,16 @@ namespace Poderosa.Forms {
         }
         /// <summary>
         /// <ja>
-        /// ƒc[ƒ‹ƒo[‚Ìƒ{ƒ^ƒ“‚ğì¬‚µ‚Ü‚·B
+        /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã®ãƒœã‚¿ãƒ³ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create the button on the toolbar.
         /// </en>
         /// </summary>
-        /// <param name="command"><ja>ƒ{ƒ^ƒ“‚ªƒNƒŠƒbƒN‚³‚ê‚½‚Æ‚«‚ÉÀs‚³‚ê‚éƒRƒ}ƒ“ƒh‚Å‚·B</ja><en>Command that execuses when the button is clicked</en></param>
-        /// <param name="icon"><ja>ƒ{ƒ^ƒ“‚É•\¦‚·‚éƒAƒCƒRƒ“‚Å‚·BƒAƒCƒRƒ“‚Ì‘å‚«‚³‚Í16~16ƒhƒbƒg‚Å‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñ</ja>
+        /// <param name="command"><ja>ãƒœã‚¿ãƒ³ãŒã‚¯ãƒªãƒƒã‚¯ã•ã‚ŒãŸã¨ãã«å®Ÿè¡Œã•ã‚Œã‚‹ã‚³ãƒãƒ³ãƒ‰ã§ã™ã€‚</ja><en>Command that execuses when the button is clicked</en></param>
+        /// <param name="icon"><ja>ãƒœã‚¿ãƒ³ã«è¡¨ç¤ºã™ã‚‹ã‚¢ã‚¤ã‚³ãƒ³ã§ã™ã€‚ã‚¢ã‚¤ã‚³ãƒ³ã®å¤§ãã•ã¯16Ã—16ãƒ‰ãƒƒãƒˆã§ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“</ja>
         /// <en>
-        /// Icon that show on the button. The size of the icon should be 16~16 pixels. 
+        /// Icon that show on the button. The size of the icon should be 16Ã—16 pixels. 
         /// </en></param>
         public ToolBarCommandButtonImpl(IPoderosaCommand command, Image icon) {
             _command = command;
@@ -778,7 +778,7 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒ{ƒ^ƒ“‚ªƒNƒŠƒbƒN‚³‚ê‚½‚Æ‚«‚ÉÀs‚·‚éƒRƒ}ƒ“ƒh‚ğ¦‚µ‚Ü‚·B
+        /// ãƒœã‚¿ãƒ³ãŒã‚¯ãƒªãƒƒã‚¯ã•ã‚ŒãŸã¨ãã«å®Ÿè¡Œã™ã‚‹ã‚³ãƒãƒ³ãƒ‰ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The command executed when the button is clicked is shown. 
@@ -792,7 +792,7 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒ{ƒ^ƒ“‚É•\¦‚·‚éƒAƒCƒRƒ“‚Å‚·B
+        /// ãƒœã‚¿ãƒ³ã«è¡¨ç¤ºã™ã‚‹ã‚¢ã‚¤ã‚³ãƒ³ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Icon displayed in button
@@ -807,7 +807,7 @@ namespace Poderosa.Forms {
 
     /// <summary>
     /// <ja>
-    /// ƒc[ƒ‹ƒo[—v‘f‚ÌƒRƒ“ƒ{ƒ{ƒbƒNƒX‚ğ\¬‚·‚é‹@”\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼è¦ç´ ã®ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ã‚’æ§‹æˆã™ã‚‹æ©Ÿèƒ½ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Offers the function to compose the combobox of the toolbar element. 
@@ -816,11 +816,11 @@ namespace Poderosa.Forms {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ŠJ”­Ò‚Í‚±‚ÌƒNƒ‰ƒX‚ğ—p‚¢‚é‚±‚Æ‚ÅA<seealso cref="IToolBarComboBox">IToolBarComboBox</seealso>
-    /// ‚ğ”õ‚¦‚½ƒIƒuƒWƒFƒNƒg‚ğ\¬‚Å‚«‚Ü‚·B
+    /// é–‹ç™ºè€…ã¯ã“ã®ã‚¯ãƒ©ã‚¹ã‚’ç”¨ã„ã‚‹ã“ã¨ã§ã€<seealso cref="IToolBarComboBox">IToolBarComboBox</seealso>
+    /// ã‚’å‚™ãˆãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ§‹æˆã§ãã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// ‚±‚ÌƒNƒ‰ƒX‚Í’ŠÛƒNƒ‰ƒX‚Å‚ ‚èA‚Ğ‚ÈŒ`‚É‚·‚¬‚Ü‚¹‚ñB•K—v‚É‰‚¶‚ÄƒI[ƒo[ƒ‰ƒCƒh‚ª•K—v‚Å‚·B
+    /// ã“ã®ã‚¯ãƒ©ã‚¹ã¯æŠ½è±¡ã‚¯ãƒ©ã‚¹ã§ã‚ã‚Šã€ã²ãªå½¢ã«ã™ãã¾ã›ã‚“ã€‚å¿…è¦ã«å¿œã˜ã¦ã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰ãŒå¿…è¦ã§ã™ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -835,7 +835,7 @@ namespace Poderosa.Forms {
     public abstract class ToolBarComboBoxImpl : ToolBarElementImpl, IToolBarComboBox {
         /// <summary>
         /// <ja>
-        /// ƒRƒ“ƒ{ƒ{ƒbƒNƒX‚Ì‘I‘ğˆiƒAƒCƒeƒ€j‚ğ¦‚·•Ï”‚Å‚·B
+        /// ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ã®é¸æŠè‚¢ï¼ˆã‚¢ã‚¤ãƒ†ãƒ ï¼‰ã‚’ç¤ºã™å¤‰æ•°ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Variable that shows item of combobox.
@@ -843,7 +843,7 @@ namespace Poderosa.Forms {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ‚±‚Ì’l‚ÍA<seealso cref="Items">ItemsƒvƒƒpƒeƒB</seealso>‚©‚ç•Ô‚³‚ê‚Ü‚·B
+        /// ã“ã®å€¤ã¯ã€<seealso cref="Items">Itemsãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</seealso>ã‹ã‚‰è¿”ã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// This variable is returned from <seealso cref="Items">Items property</seealso>.
@@ -853,7 +853,7 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒRƒ“ƒ{ƒ{ƒbƒNƒX‚Ì•‚Å‚·B’PˆÊ‚ÍƒsƒNƒZƒ‹‚Å‚·B
+        /// ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ã®å¹…ã§ã™ã€‚å˜ä½ã¯ãƒ”ã‚¯ã‚»ãƒ«ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Width of the combobox. This unit is pixel.
@@ -861,7 +861,7 @@ namespace Poderosa.Forms {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ‚±‚Ì’l‚ÍA<seealso cref="Width">WidthƒvƒƒpƒeƒB</seealso>‚©‚ç•Ô‚³‚ê‚Ü‚·B
+        /// ã“ã®å€¤ã¯ã€<seealso cref="Width">Widthãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</seealso>ã‹ã‚‰è¿”ã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// This variable is returned from <seealso cref="Items">Width property</seealso>.
@@ -871,7 +871,7 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒRƒ“ƒ{ƒ{ƒbƒNƒX‚Ì‘I‘ğˆiƒAƒCƒeƒ€j‚ğ¦‚µ‚Ü‚·B
+        /// ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ã®é¸æŠè‚¢ï¼ˆã‚¢ã‚¤ãƒ†ãƒ ï¼‰ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The item of the combobox is shown. 
@@ -885,7 +885,7 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒRƒ“ƒ{ƒ{ƒbƒNƒX‚Ì•‚Å‚·B’PˆÊ‚ÍƒsƒNƒZƒ‹‚Å‚·B
+        /// ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ã®å¹…ã§ã™ã€‚å˜ä½ã¯ãƒ”ã‚¯ã‚»ãƒ«ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the width of the combobox. The unit is a pixel. 
@@ -899,17 +899,17 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒRƒ“ƒ{ƒ{ƒbƒNƒX‚ª‘I‘ğ‚Å‚«‚é‚©‚Ç‚¤‚©‚ğ¦‚µ‚Ü‚·B
+        /// ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ãŒé¸æŠã§ãã‚‹ã‹ã©ã†ã‹ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is shown whether the combobox can be selected. 
         /// </en>
         /// </summary>
-        /// <param name="target"><ja>Às‚Ì‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja><en>Target for execution</en></param>
-        /// <returns><ja>‘I‘ğ‚Å‚«‚é‚Æ‚«‚É‚ÍtrueA‚»‚¤‚Å‚È‚¢‚Æ‚«‚É‚Ífalse‚ª•Ô‚³‚ê‚Ü‚·B</ja><en>False is returned when it is not true so when it is possible to select it. </en></returns>
+        /// <param name="target"><ja>å®Ÿè¡Œã®å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja><en>Target for execution</en></param>
+        /// <returns><ja>é¸æŠã§ãã‚‹ã¨ãã«ã¯trueã€ãã†ã§ãªã„ã¨ãã«ã¯falseãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja><en>False is returned when it is not true so when it is possible to select it. </en></returns>
         /// <remarks>
         /// <ja>
-        /// <paramref name="target">target</paramref>‚ÍA‚±‚Ìƒc[ƒ‹ƒo[‚ª‘®‚·‚é<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>‚Å‚·B
+        /// <paramref name="target">target</paramref>ã¯ã€ã“ã®ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒå±ã™ã‚‹<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// <paramref name="target">target</paramref> is <see cref="IPoderosaMainWindow">IPoderosaMainWindow</see> that this toolbar belongs. 
@@ -921,19 +921,19 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// Œ»İ‘I‘ğ‚³‚ê‚Ä‚¢‚éƒAƒCƒeƒ€‚ÌƒCƒ“ƒfƒbƒNƒX”Ô†‚ğ•Ô‚µ‚Ü‚·B
+        /// ç¾åœ¨é¸æŠã•ã‚Œã¦ã„ã‚‹ã‚¢ã‚¤ãƒ†ãƒ ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ç•ªå·ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The index number of the item that has been selected now is returned. 
         /// </en>
         /// </summary>
-        /// <param name="target"><ja>Às‚Ì‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja><en>Target for execution</en></param>
-        /// <returns><ja><paramref name="target">target</paramref>‚ÌƒCƒ“ƒfƒbƒNƒXˆÊ’u‚ğ•Ô‚µ‚Ü‚·B</ja>
+        /// <param name="target"><ja>å®Ÿè¡Œã®å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja><en>Target for execution</en></param>
+        /// <returns><ja><paramref name="target">target</paramref>ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ä½ç½®ã‚’è¿”ã—ã¾ã™ã€‚</ja>
         /// <en>Return index position of the <paramref name="target">target</paramref></en>
         /// </returns>
         /// <remarks>
         /// <ja>
-        /// <paramref name="target">target</paramref>‚ÍA‚±‚Ìƒc[ƒ‹ƒo[‚ª‘®‚·‚é<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>‚Å‚·B
+        /// <paramref name="target">target</paramref>ã¯ã€ã“ã®ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒå±ã™ã‚‹<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// <paramref name="target">target</paramref> is <see cref="IPoderosaMainWindow">IPoderosaMainWindow</see> that this toolbar belongs. 
@@ -942,18 +942,18 @@ namespace Poderosa.Forms {
         public abstract int GetSelectedIndex(ICommandTarget target);
         /// <summary>
         /// <ja>
-        /// ƒRƒ“ƒ{ƒ{ƒbƒNƒX‚Å‘I‘ğ‚³‚ê‚Ä‚¢‚é‘I‘ğˆ‚ª•Ï‰»‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒƒ\ƒbƒh‚Å‚·B
+        /// ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ã§é¸æŠã•ã‚Œã¦ã„ã‚‹é¸æŠè‚¢ãŒå¤‰åŒ–ã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is a method of the call when choices that have been selected in the combobox change. 
         /// </en>
         /// </summary>
-        /// <param name="target"><ja>Às‚Ì‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja><en>Target for execution</en></param>
-        /// <param name="selectedIndex"><ja>ƒ†[ƒU[‚ª‘I‘ğ‚µ‚½ƒAƒCƒeƒ€‚ÌƒCƒ“ƒfƒbƒNƒX”Ô†‚Å‚·B</ja><en>It is an index number of the item that the user selected. </en></param>
-        /// <param name="selectedItem"><ja>ƒ†[ƒU[‚ª‘I‘ğ‚µ‚½ƒAƒCƒeƒ€‚ÌƒIƒuƒWƒFƒNƒg‚Å‚·B</ja><en>An object of the item that the user selected. </en></param>
+        /// <param name="target"><ja>å®Ÿè¡Œã®å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja><en>Target for execution</en></param>
+        /// <param name="selectedIndex"><ja>ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒé¸æŠã—ãŸã‚¢ã‚¤ãƒ†ãƒ ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ç•ªå·ã§ã™ã€‚</ja><en>It is an index number of the item that the user selected. </en></param>
+        /// <param name="selectedItem"><ja>ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒé¸æŠã—ãŸã‚¢ã‚¤ãƒ†ãƒ ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚</ja><en>An object of the item that the user selected. </en></param>
         /// <remarks>
         /// <ja>
-        /// <paramref name="target">target</paramref>‚ÍA‚±‚Ìƒc[ƒ‹ƒo[‚ª‘®‚·‚é<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>‚Å‚·B
+        /// <paramref name="target">target</paramref>ã¯ã€ã“ã®ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒå±ã™ã‚‹<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// <paramref name="target">target</paramref> is <see cref="IPoderosaMainWindow">IPoderosaMainWindow</see> that this toolbar belongs. 
@@ -965,7 +965,7 @@ namespace Poderosa.Forms {
 
     /// <summary>
     /// <ja>
-    /// ƒc[ƒ‹ƒo[—v‘f‚ÌƒgƒOƒ‹ƒ{ƒ^ƒ“‚ğ\¬‚·‚é‹@”\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// ãƒ„ãƒ¼ãƒ«ãƒãƒ¼è¦ç´ ã®ãƒˆã‚°ãƒ«ãƒœã‚¿ãƒ³ã‚’æ§‹æˆã™ã‚‹æ©Ÿèƒ½ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Offers the function to compose the toggle button of the toolbar element.
@@ -973,8 +973,8 @@ namespace Poderosa.Forms {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ŠJ”­Ò‚Í‚±‚ÌƒNƒ‰ƒX‚ğ—p‚¢‚é‚±‚Æ‚ÅA<seealso cref="IToolBarToggleButton">IToolBarToggleButton</seealso>
-    /// ‚ğ”õ‚¦‚½ƒIƒuƒWƒFƒNƒg‚ğ\¬‚Å‚«‚Ü‚·B
+    /// é–‹ç™ºè€…ã¯ã“ã®ã‚¯ãƒ©ã‚¹ã‚’ç”¨ã„ã‚‹ã“ã¨ã§ã€<seealso cref="IToolBarToggleButton">IToolBarToggleButton</seealso>
+    /// ã‚’å‚™ãˆãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ§‹æˆã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The developer can compose the object that has <seealso cref="IToolBarToggleButton">IToolBarToggleButton</seealso> by using this class. 
@@ -983,17 +983,17 @@ namespace Poderosa.Forms {
     public abstract class ToolBarToggleButtonImpl : ToolBarElementImpl, IToolBarToggleButton {
         /// <summary>
         /// <ja>
-        /// ƒAƒCƒRƒ“‚ğ¦‚·“à•”•Ï”‚Å‚·BƒAƒCƒRƒ“‚Ì‘å‚«‚³‚Í16~16ƒsƒNƒZƒ‹‚Å‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// ã‚¢ã‚¤ã‚³ãƒ³ã‚’ç¤ºã™å†…éƒ¨å¤‰æ•°ã§ã™ã€‚ã‚¢ã‚¤ã‚³ãƒ³ã®å¤§ãã•ã¯16Ã—16ãƒ”ã‚¯ã‚»ãƒ«ã§ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
-        /// Inside variable that holds the icon. The size of the icon should be 16~16 pixels. 
+        /// Inside variable that holds the icon. The size of the icon should be 16Ã—16 pixels. 
         /// </en>
         /// </summary>
         protected Image _icon;
 
         /// <summary>
         /// <ja>
-        /// ƒAƒCƒRƒ“‚ğ•Ô‚µ‚Ü‚·B
+        /// ã‚¢ã‚¤ã‚³ãƒ³ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the icon.
@@ -1007,17 +1007,17 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒgƒOƒ‹ƒ{ƒ^ƒ“‚ª‘I‘ğ‚Å‚«‚é‚©‚Ç‚¤‚©‚ğ¦‚µ‚Ü‚·B
+        /// ãƒˆã‚°ãƒ«ãƒœã‚¿ãƒ³ãŒé¸æŠã§ãã‚‹ã‹ã©ã†ã‹ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is shown whether the toggle button can be selected. 
         /// </en>
         /// </summary>
-        /// <param name="target"><ja>Às‚Ì‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja><en>Target for execution</en></param>
-        /// <returns><ja>‘I‘ğ‚Å‚«‚é‚Æ‚«‚É‚ÍtrueA‚»‚¤‚Å‚È‚¢‚Æ‚«‚É‚Ífalse‚ª•Ô‚³‚ê‚Ü‚·B</ja><en>False is returned when it is not true so when it is possible to select it. </en></returns>
+        /// <param name="target"><ja>å®Ÿè¡Œã®å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja><en>Target for execution</en></param>
+        /// <returns><ja>é¸æŠã§ãã‚‹ã¨ãã«ã¯trueã€ãã†ã§ãªã„ã¨ãã«ã¯falseãŒè¿”ã•ã‚Œã¾ã™ã€‚</ja><en>False is returned when it is not true so when it is possible to select it. </en></returns>
         /// <remarks>
         /// <ja>
-        /// <paramref name="target">target</paramref>‚ÍA‚±‚Ìƒc[ƒ‹ƒo[‚ª‘®‚·‚é<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>‚Å‚·B
+        /// <paramref name="target">target</paramref>ã¯ã€ã“ã®ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒå±ã™ã‚‹<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// <paramref name="target">target</paramref> is <see cref="IPoderosaMainWindow">IPoderosaMainWindow</see> that this toolbar belongs. 
@@ -1029,17 +1029,17 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒgƒOƒ‹ƒ{ƒ^ƒ“‚ÌƒIƒ“^ƒIƒt‚Ìó‘Ô‚ğ•Ô‚µ‚Ü‚·B
+        /// ãƒˆã‚°ãƒ«ãƒœã‚¿ãƒ³ã®ã‚ªãƒ³ï¼ã‚ªãƒ•ã®çŠ¶æ…‹ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Return the state of on/off of the toggle button.
         /// </en>
         /// </summary>
-        /// <param name="target"><ja>Às‚Ì‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja><en>Target for execution</en></param>
-        /// <returns><ja>ƒIƒ“‚Ì‚Æ‚«i‰š‚ñ‚Å‚¢‚é‚Æ‚«j‚É‚ÍtrueAƒIƒt‚Ì‚Æ‚«i‰š‚ñ‚Å‚¢‚È‚¢‚Æ‚«j‚É‚Ífalse‚ğ•Ô‚µ‚Ü‚·B</ja><en>False is returned when true off (When not denting) when turning it on (When denting). </en></returns>
+        /// <param name="target"><ja>å®Ÿè¡Œã®å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja><en>Target for execution</en></param>
+        /// <returns><ja>ã‚ªãƒ³ã®ã¨ãï¼ˆå‡¹ã‚“ã§ã„ã‚‹ã¨ãï¼‰ã«ã¯trueã€ã‚ªãƒ•ã®ã¨ãï¼ˆå‡¹ã‚“ã§ã„ãªã„ã¨ãï¼‰ã«ã¯falseã‚’è¿”ã—ã¾ã™ã€‚</ja><en>False is returned when true off (When not denting) when turning it on (When denting). </en></returns>
         /// <remarks>
         /// <ja>
-        /// <paramref name="target">target</paramref>‚ÍA‚±‚Ìƒc[ƒ‹ƒo[‚ª‘®‚·‚é<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>‚Å‚·B
+        /// <paramref name="target">target</paramref>ã¯ã€ã“ã®ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒå±ã™ã‚‹<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// <paramref name="target">target</paramref> is <see cref="IPoderosaMainWindow">IPoderosaMainWindow</see> that this toolbar belongs. 
@@ -1051,17 +1051,17 @@ namespace Poderosa.Forms {
 
         /// <summary>
         /// <ja>
-        /// ƒIƒ“^ƒIƒt‚Ìó‘Ô‚ª•Ï‰»‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒƒ\ƒbƒh‚Å‚·B
+        /// ã‚ªãƒ³ï¼ã‚ªãƒ•ã®çŠ¶æ…‹ãŒå¤‰åŒ–ã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is a method of the call when the state of on/off changes. 
         /// </en>
         /// </summary>
-        /// <param name="target"><ja>Às‚Ì‘ÎÛ‚Æ‚È‚éƒ^[ƒQƒbƒg‚Å‚·B</ja><en>Target for execution</en></param>
-        /// <param name="is_checked"><ja>ƒIƒ“^ƒIƒt‚Ìó‘Ô‚Å‚·Btrue‚Ì‚Æ‚«‚É‚ÍƒIƒ“i‰š‚ñ‚Å‚¢‚éó‘ÔjAfalse‚Ì‚Æ‚«‚É‚ÍƒIƒti‰š‚ñ‚Å‚¢‚È‚¢ó‘Ôj‚Å‚·B</ja><en>It is a state of on/off. At on (state that has dented) and false at true, it is off (state that doesn't dent). </en></param>
+        /// <param name="target"><ja>å®Ÿè¡Œã®å¯¾è±¡ã¨ãªã‚‹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã§ã™ã€‚</ja><en>Target for execution</en></param>
+        /// <param name="is_checked"><ja>ã‚ªãƒ³ï¼ã‚ªãƒ•ã®çŠ¶æ…‹ã§ã™ã€‚trueã®ã¨ãã«ã¯ã‚ªãƒ³ï¼ˆå‡¹ã‚“ã§ã„ã‚‹çŠ¶æ…‹ï¼‰ã€falseã®ã¨ãã«ã¯ã‚ªãƒ•ï¼ˆå‡¹ã‚“ã§ã„ãªã„çŠ¶æ…‹ï¼‰ã§ã™ã€‚</ja><en>It is a state of on/off. At on (state that has dented) and false at true, it is off (state that doesn't dent). </en></param>
         /// <remarks>
         /// <ja>
-        /// <paramref name="target">target</paramref>‚ÍA‚±‚Ìƒc[ƒ‹ƒo[‚ª‘®‚·‚é<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>‚Å‚·B
+        /// <paramref name="target">target</paramref>ã¯ã€ã“ã®ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒå±ã™ã‚‹<see cref="IPoderosaMainWindow">IPoderosaMainWindow</see>ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// <paramref name="target">target</paramref> is <see cref="IPoderosaMainWindow">IPoderosaMainWindow</see> that this toolbar belongs. 

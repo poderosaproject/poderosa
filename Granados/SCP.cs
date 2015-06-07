@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
@@ -282,11 +282,11 @@ namespace Granados {
         public override void Run(SSHChannel channel) {
             _channel = channel;
             _channelReadyEvent.WaitOne();
-            SendResponse(); //‚±‚ê‚Å‚â‚è‚Æ‚è‚ª‚Í‚¶‚Ü‚é
+            SendResponse(); //ã“ã‚Œã§ã‚„ã‚Šã¨ã‚ŠãŒã¯ã˜ã¾ã‚‹
         }
 
         public override void OnData(byte[] data, int offset, int length) {
-            // ƒ[ƒJƒ‹‚Ìƒtƒ@ƒCƒ‹‚¨‚æ‚Ñƒƒ‚ƒŠ‚Ö‘‚«‚Ş
+            // ãƒ­ãƒ¼ã‚«ãƒ«ã®ãƒ•ã‚¡ã‚¤ãƒ«ãŠã‚ˆã³ãƒ¡ãƒ¢ãƒªã¸æ›¸ãè¾¼ã‚€
             try {
                 if (_state == State.WaitingFileInfo) {
                     ParseFileInfo(Encoding.ASCII.GetString(data, offset, length));

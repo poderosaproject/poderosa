@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,7 +40,7 @@ namespace Poderosa.SerialPort {
             _portName = "COM1";
         }
 
-        //ƒVƒŠƒAƒ‹‚Å‚Í•E‚‚³‚ÍŠÖ’m‚¹‚¸B‚µ‚©‚µ‚±‚Ì’l‚ÍÅ‰‚ÌGLine‚Ì’·‚³‚É‚à‚È‚é‚Ì‚Å‚O‚É‚Í‚Å‚«‚È‚¢
+        //ã‚·ãƒªã‚¢ãƒ«ã§ã¯å¹…ãƒ»é«˜ã•ã¯é–¢çŸ¥ã›ãšã€‚ã—ã‹ã—ã“ã®å€¤ã¯æœ€åˆã®GLineã®é•·ã•ã«ã‚‚ãªã‚‹ã®ã§ï¼ã«ã¯ã§ããªã„
         public int InitialWidth {
             get {
                 return 80;
@@ -99,33 +99,33 @@ namespace Poderosa.SerialPort {
     internal class SerialTerminalSettings : TerminalSettings {
 
         private int _baudRate;
-        private byte _byteSize;  //7,8‚Ì‚Ç‚¿‚ç‚©
-        private Parity _parity; //Win32ƒNƒ‰ƒX“à‚Ì’è”‚Ì‚¢‚¸‚ê‚©
-        private StopBits _stopBits; //Win32ƒNƒ‰ƒX“à‚Ì’è”‚Ì‚¢‚¸‚ê‚©
+        private byte _byteSize;  //7,8ã®ã©ã¡ã‚‰ã‹
+        private Parity _parity; //Win32ã‚¯ãƒ©ã‚¹å†…ã®å®šæ•°ã®ã„ãšã‚Œã‹
+        private StopBits _stopBits; //Win32ã‚¯ãƒ©ã‚¹å†…ã®å®šæ•°ã®ã„ãšã‚Œã‹
         private FlowControl _flowControl;
         private int _transmitDelayPerChar;
         private int _transmitDelayPerLine;
 
         /// <summary>
-        /// <ja>ƒfƒtƒHƒ‹ƒgİ’è‚Å‰Šú‰»‚µ‚Ü‚·B</ja>
+        /// <ja>ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆè¨­å®šã§åˆæœŸåŒ–ã—ã¾ã™ã€‚</ja>
         /// <en>Initializes with default values.</en>
         /// <seealso cref="Poderosa.Macro.ConnectionList.Open"/>
         /// </summary>
         /// <remarks>
-        /// <ja>ƒpƒ‰ƒ[ƒ^‚ÍŸ‚Ì‚æ‚¤‚É‰Šú‰»‚³‚ê‚Ü‚·B</ja>
+        /// <ja>ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã¯æ¬¡ã®ã‚ˆã†ã«åˆæœŸåŒ–ã•ã‚Œã¾ã™ã€‚</ja>
         /// <en>The parameters are set as following:</en>
         /// <list type="table">
-        ///   <item><term><ja>ƒGƒ“ƒR[ƒfƒBƒ“ƒO</ja><en>Encoding</en></term><description><ja>EUC-JP</ja><en>iso-8859-1</en></description></item>@
-        ///   <item><term><ja>ƒƒO</ja><en>Log</en></term><description><ja>æ“¾‚µ‚È‚¢</ja><en>None</en></description></item>@@@@@@@
-        ///   <item><term><ja>ƒ[ƒJƒ‹ƒGƒR[</ja><en>Local echo</en></term><description><ja>‚µ‚È‚¢</ja><en>Don't</en></description></item>@@
-        ///   <item><term><ja>‘—M‰üs</ja><en>New line</en></term><description>CR</description></item>@@@@
-        ///   <item><term><ja>ƒ{[ƒŒ[ƒg</ja><en>Baud Rate</en></term><description>9600</description></item>
-        ///   <item><term><ja>ƒf[ƒ^</ja><en>Data Bits</en></term><description><ja>8ƒrƒbƒg</ja><en>8 bits</en></description></item>
-        ///   <item><term><ja>ƒpƒŠƒeƒB</ja><en>Parity</en></term><description><ja>‚È‚µ</ja><en>None</en></description></item>
-        ///   <item><term><ja>ƒXƒgƒbƒvƒrƒbƒg</ja><en>Stop Bits</en></term><description><ja>‚Pƒrƒbƒg</ja><en>1 bit</en></description></item>
-        ///   <item><term><ja>ƒtƒ[ƒRƒ“ƒgƒ[ƒ‹</ja><en>Flow Control</en></term><description><ja>‚È‚µ</ja><en>None</en></description></item>
+        ///   <item><term><ja>ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°</ja><en>Encoding</en></term><description><ja>EUC-JP</ja><en>iso-8859-1</en></description></item>ã€€
+        ///   <item><term><ja>ãƒ­ã‚°</ja><en>Log</en></term><description><ja>å–å¾—ã—ãªã„</ja><en>None</en></description></item>ã€€ã€€ã€€ã€€ã€€ã€€ã€€
+        ///   <item><term><ja>ãƒ­ãƒ¼ã‚«ãƒ«ã‚¨ã‚³ãƒ¼</ja><en>Local echo</en></term><description><ja>ã—ãªã„</ja><en>Don't</en></description></item>ã€€ã€€
+        ///   <item><term><ja>é€ä¿¡æ™‚æ”¹è¡Œ</ja><en>New line</en></term><description>CR</description></item>ã€€ã€€ã€€ã€€
+        ///   <item><term><ja>ãƒœãƒ¼ãƒ¬ãƒ¼ãƒˆ</ja><en>Baud Rate</en></term><description>9600</description></item>
+        ///   <item><term><ja>ãƒ‡ãƒ¼ã‚¿</ja><en>Data Bits</en></term><description><ja>8ãƒ“ãƒƒãƒˆ</ja><en>8 bits</en></description></item>
+        ///   <item><term><ja>ãƒ‘ãƒªãƒ†ã‚£</ja><en>Parity</en></term><description><ja>ãªã—</ja><en>None</en></description></item>
+        ///   <item><term><ja>ã‚¹ãƒˆãƒƒãƒ—ãƒ“ãƒƒãƒˆ</ja><en>Stop Bits</en></term><description><ja>ï¼‘ãƒ“ãƒƒãƒˆ</ja><en>1 bit</en></description></item>
+        ///   <item><term><ja>ãƒ•ãƒ­ãƒ¼ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«</ja><en>Flow Control</en></term><description><ja>ãªã—</ja><en>None</en></description></item>
         /// </list>
-        /// <ja>Ú‘±‚ğŠJ‚­‚É‚ÍA<see cref="Poderosa.Macro.ConnectionList.Open"/>ƒƒ\ƒbƒh‚Ìˆø”‚Æ‚µ‚ÄSerialTerminalParamƒIƒuƒWƒFƒNƒg‚ğ“n‚µ‚Ü‚·B</ja>
+        /// <ja>æ¥ç¶šã‚’é–‹ãã«ã¯ã€<see cref="Poderosa.Macro.ConnectionList.Open"/>ãƒ¡ã‚½ãƒƒãƒ‰ã®å¼•æ•°ã¨ã—ã¦SerialTerminalParamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ¸¡ã—ã¾ã™ã€‚</ja>
         /// <en>To open a new connection, pass the SerialTerminalParam object to the <see cref="Poderosa.Macro.ConnectionList.Open"/> method.</en>
         /// </remarks>
         public SerialTerminalSettings() {
@@ -143,7 +143,7 @@ namespace Poderosa.SerialPort {
 
         public void BaseImport(ITerminalSettings ts) {
             base.Import(ts);
-            //ƒAƒCƒRƒ“‚Í•Û‚·‚é
+            //ã‚¢ã‚¤ã‚³ãƒ³ã¯ä¿æŒã™ã‚‹
             this.BeginUpdate();
             this.Icon = SerialPortPlugin.Instance.LoadIcon();
             this.EndUpdate();
@@ -165,10 +165,10 @@ namespace Poderosa.SerialPort {
 
 
 
-        //TODO ˆÈ‰º‚Å‚ÍEnsureUpdate‚Å‚È‚­‚Ä‚¢‚¢‚Ì‚©H
+        //TODO ä»¥ä¸‹ã§ã¯EnsureUpdateã§ãªãã¦ã„ã„ã®ã‹ï¼Ÿ
 
         /// <summary>
-        /// <ja>ƒ{[ƒŒ[ƒg‚Å‚·B</ja>
+        /// <ja>ãƒœãƒ¼ãƒ¬ãƒ¼ãƒˆã§ã™ã€‚</ja>
         /// <en>Gets or sets the baud rate.</en>
         /// </summary>
         [MacroConnectionParameter]
@@ -181,11 +181,11 @@ namespace Poderosa.SerialPort {
             }
         }
         /// <summary>
-        /// <ja>ƒf[ƒ^‚Ìƒrƒbƒg”‚Å‚·B</ja>
+        /// <ja>ãƒ‡ãƒ¼ã‚¿ã®ãƒ“ãƒƒãƒˆæ•°ã§ã™ã€‚</ja>
         /// <en>Gets or sets the bit count of the data.</en>
         /// </summary>
         /// <remarks>
-        /// <ja>‚V‚©‚W‚Å‚È‚¢‚Æ‚¢‚¯‚Ü‚¹‚ñB</ja>
+        /// <ja>ï¼—ã‹ï¼˜ã§ãªã„ã¨ã„ã‘ã¾ã›ã‚“ã€‚</ja>
         /// <en>The value must be 7 or 8.</en>
         /// </remarks>
         [MacroConnectionParameter]
@@ -198,7 +198,7 @@ namespace Poderosa.SerialPort {
             }
         }
         /// <summary>
-        /// <ja>ƒpƒŠƒeƒB‚Å‚·B</ja>
+        /// <ja>ãƒ‘ãƒªãƒ†ã‚£ã§ã™ã€‚</ja>
         /// <en>Gets or sets the parity.</en>
         /// </summary>
         [MacroConnectionParameter]
@@ -211,7 +211,7 @@ namespace Poderosa.SerialPort {
             }
         }
         /// <summary>
-        /// <ja>ƒXƒgƒbƒvƒrƒbƒg‚Å‚·B</ja>
+        /// <ja>ã‚¹ãƒˆãƒƒãƒ—ãƒ“ãƒƒãƒˆã§ã™ã€‚</ja>
         /// <en>Gets or sets the stop bit.</en>
         /// </summary>
         [MacroConnectionParameter]
@@ -224,7 +224,7 @@ namespace Poderosa.SerialPort {
             }
         }
         /// <summary>
-        /// <ja>ƒtƒ[ƒRƒ“ƒgƒ[ƒ‹‚Å‚·B</ja>
+        /// <ja>ãƒ•ãƒ­ãƒ¼ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã§ã™ã€‚</ja>
         /// <en>Gets or sets the flow control.</en>
         /// </summary>
         [MacroConnectionParameter]
@@ -238,7 +238,7 @@ namespace Poderosa.SerialPort {
         }
 
         /// <summary>
-        /// <ja>•¶š‚ ‚½‚è‚ÌƒfƒBƒŒƒC(ƒ~ƒŠ•b’PˆÊ)‚Å‚·B</ja>
+        /// <ja>æ–‡å­—ã‚ãŸã‚Šã®ãƒ‡ã‚£ãƒ¬ã‚¤(ãƒŸãƒªç§’å˜ä½)ã§ã™ã€‚</ja>
         /// <en>Gets or sets the delay time per a character in milliseconds.</en>
         /// </summary>
         public int TransmitDelayPerChar {
@@ -250,7 +250,7 @@ namespace Poderosa.SerialPort {
             }
         }
         /// <summary>
-        /// <ja>s‚ ‚½‚è‚ÌƒfƒBƒŒƒC(ƒ~ƒŠ•b’PˆÊ)‚Å‚·B</ja>
+        /// <ja>è¡Œã‚ãŸã‚Šã®ãƒ‡ã‚£ãƒ¬ã‚¤(ãƒŸãƒªç§’å˜ä½)ã§ã™ã€‚</ja>
         /// <en>Gets or sets the delay time per a line in milliseconds.</en>
         /// </summary>
         public int TransmitDelayPerLine {
@@ -334,7 +334,7 @@ namespace Poderosa.SerialPort {
         public object Deserialize(StructuredText node) {
             SerialTerminalSettings ts = SerialPortUtil.CreateDefaultSerialTerminalSettings("COM1");
 
-            //TODO Deserialize‚Ì•Êƒo[ƒWƒ‡ƒ“‚ğì‚Á‚Äimport‚³‚¹‚é‚×‚«‚¾‚ë‚¤B‚à‚µ‚­‚ÍService‘¤‚ÌÀ‘•‚©‚ç•Ï‚¦‚éB—v‘f‘¤‚É‚Í‹óˆø”ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚ğ‹­§‚·‚ê‚Î‚¢‚¢‚©
+            //TODO Deserializeã®åˆ¥ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã‚’ä½œã£ã¦importã•ã›ã‚‹ã¹ãã ã‚ã†ã€‚ã‚‚ã—ãã¯Serviceå´ã®å®Ÿè£…ã‹ã‚‰å¤‰ãˆã‚‹ã€‚è¦ç´ å´ã«ã¯ç©ºå¼•æ•°ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã‚’å¼·åˆ¶ã™ã‚Œã°ã„ã„ã‹
             StructuredText basenode = node.FindChild(typeof(TerminalSettings).FullName);
             if (basenode != null)
                 ts.BaseImport((ITerminalSettings)SerialPortPlugin.Instance.SerializeService.Deserialize(basenode));

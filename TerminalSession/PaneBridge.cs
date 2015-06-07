@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,11 +38,11 @@ namespace Poderosa.Terminal {
         }
     }
 
-    //TerminalControl‚Éƒrƒ…[‹@”\‚ğ—^‚¦‚éƒNƒ‰ƒX
+    //TerminalControlã«ãƒ“ãƒ¥ãƒ¼æ©Ÿèƒ½ã‚’ä¸ãˆã‚‹ã‚¯ãƒ©ã‚¹
     internal class TerminalView : IPoderosaView, IContentReplaceableViewSite, IGeneralViewCommands {
         private IPoderosaForm _parent;
         private TerminalControl _control;
-        private IContentReplaceableView _contentReplaceableView; //•ïŠÜ‚·‚é‚â‚Â
+        private IContentReplaceableView _contentReplaceableView; //åŒ…å«ã™ã‚‹ã‚„ã¤
         private IPoderosaCommand _copyCommand;
         private PasteToTerminalCommand _pasteCommand;
 

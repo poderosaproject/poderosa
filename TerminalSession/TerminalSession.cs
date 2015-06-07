@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,7 @@ using Poderosa.Forms;
 using Poderosa.Util;
 
 namespace Poderosa.Sessions {
-    //NOTE Invalidate‚É•K—v‚Èƒpƒ‰ƒ[ƒ^ ‚±‚ê‚àˆÓ}‚ª‚¢‚Ü‚¢‚¿‚¾‚È‚ 
+    //NOTE Invalidateã«å¿…è¦ãªãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ ã“ã‚Œã‚‚æ„å›³ãŒã„ã¾ã„ã¡ã ãªã‚
     internal class InvalidateParam {
         private Delegate _delegate;
         private object[] _param;
@@ -40,7 +40,7 @@ namespace Poderosa.Sessions {
         }
     }
 
-    //Ú‘±‚É‘Î‚µ‚ÄŠÖ˜A•t‚¯‚éƒf[ƒ^
+    //æ¥ç¶šã«å¯¾ã—ã¦é–¢é€£ä»˜ã‘ã‚‹ãƒ‡ãƒ¼ã‚¿
     internal class TerminalSession : ITerminalSession, IAbstractTerminalHost, ITerminalControlHost {
         private delegate void HostCauseCloseDelagate(string msg);
 
@@ -53,7 +53,7 @@ namespace Poderosa.Sessions {
 
         public TerminalSession(ITerminalConnection connection, ITerminalSettings terminalSettings) {
             _terminalSettings = terminalSettings;
-            //VT100w’è‚Å‚àxtermƒV[ƒPƒ“ƒX‚ğ‘—‚Á‚Ä‚­‚éƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ªŒã‚ğ‚½‚½‚È‚¢‚Ì‚Å
+            //VT100æŒ‡å®šã§ã‚‚xtermã‚·ãƒ¼ã‚±ãƒ³ã‚¹ã‚’é€ã£ã¦ãã‚‹ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ãŒå¾Œã‚’ãŸãŸãªã„ã®ã§
             _terminal = AbstractTerminal.Create(new TerminalInitializeInfo(this, connection.Destination));
             _output = new TerminalTransmission(_terminal, _terminalSettings, connection);
 
@@ -67,7 +67,7 @@ namespace Poderosa.Sessions {
             TerminalDocument doc = _terminal.GetDocument();
             _output.Revive(connection, doc.TerminalWidth, doc.TerminalHeight);
             this.OwnerWindow.DocumentTabFeature.Update(_terminal.IDocument);
-            _output.Connection.Socket.RepeatAsyncRead(_terminal); //ÄóM
+            _output.Connection.Socket.RepeatAsyncRead(_terminal); //å†å—ä¿¡
         }
 
         //IAdaptable
@@ -89,7 +89,7 @@ namespace Poderosa.Sessions {
         public IPoderosaMainWindow OwnerWindow {
             get {
                 if (_terminated)
-                    return TerminalSessionsPlugin.Instance.WindowManager.ActiveWindow; //I—¹‚µ‚Ä‚¢‚é‚Æ‚«‚ÍSessionHost“™‚àæ“¾•s”\
+                    return TerminalSessionsPlugin.Instance.WindowManager.ActiveWindow; //çµ‚äº†ã—ã¦ã„ã‚‹ã¨ãã¯SessionHostç­‰ã‚‚å–å¾—ä¸èƒ½
                 else
                     return (IPoderosaMainWindow)_sessionHost.GetParentFormFor(_terminal.IDocument).GetAdapter(typeof(IPoderosaMainWindow));
             }
@@ -122,19 +122,19 @@ namespace Poderosa.Sessions {
         }*/
         #endregion
 
-        //óMƒXƒŒƒbƒh‚©‚çŒÄ‚ÔADocumentXV‚Ì’Ê’m
+        //å—ä¿¡ã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰å‘¼ã¶ã€Documentæ›´æ–°ã®é€šçŸ¥
         public void NotifyViewsDataArrived() {
             if (_terminalControl != null)
                 _terminalControl.DataArrived();
         }
-        //³íEˆÙí‚Æ‚àŒÄ‚Î‚ê‚é
+        //æ­£å¸¸ãƒ»ç•°å¸¸ã¨ã‚‚å‘¼ã°ã‚Œã‚‹
         public void CloseByReceptionThread(string msg) {
             if (_terminated)
                 return;
             IPoderosaMainWindow window = this.OwnerWindow;
             if (window != null) {
                 Debug.Assert(window.AsControl().InvokeRequired);
-                //TerminalSession‚ÍƒRƒ“ƒgƒ[ƒ‹‚ğ•Û—L‚µ‚È‚¢‚Ì‚ÅAƒEƒBƒ“ƒhƒE‚Å‘ã—p‚·‚é
+                //TerminalSessionã¯ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã‚’ä¿æœ‰ã—ãªã„ã®ã§ã€ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã§ä»£ç”¨ã™ã‚‹
                 window.AsControl().Invoke(new HostCauseCloseDelagate(HostCauseClose), msg);
             }
         }
@@ -161,7 +161,7 @@ namespace Poderosa.Sessions {
                 return _terminalSettings.Icon;
             }
         }
-        //TerminalSession‚ÌŠJn
+        //TerminalSessionã®é–‹å§‹
         public void InternalStart(ISessionHost host) {
             _sessionHost = host;
             host.RegisterDocument(_terminal.IDocument);
@@ -173,7 +173,7 @@ namespace Poderosa.Sessions {
                 _output.Connection.Close();
                 _output.Connection.Socket.ForceDisposed();
             }
-            catch (Exception) { //‚±‚±‚Å‚Ì—áŠO‚Í–³‹
+            catch (Exception) { //ã“ã“ã§ã®ä¾‹å¤–ã¯ç„¡è¦–
             }
             _terminal.CloseBySession();
         }
@@ -210,7 +210,7 @@ namespace Poderosa.Sessions {
             TerminalView tv = (TerminalView)view.GetAdapter(typeof(TerminalView));
             Debug.Assert(tv != null);
             TerminalControl tp = tv.TerminalControl;
-            Debug.Assert(tp != null); //Detach‚·‚é‚Æ‚«‚É‚Í‚±‚Ìƒrƒ…[‚É‚È‚Á‚Ä‚¢‚é•K—v‚ ‚è
+            Debug.Assert(tp != null); //Detachã™ã‚‹ã¨ãã«ã¯ã“ã®ãƒ“ãƒ¥ãƒ¼ã«ãªã£ã¦ã„ã‚‹å¿…è¦ã‚ã‚Š
 
             if (!tp.IsDisposed) {
                 _terminal.Detach(tp);
@@ -222,11 +222,11 @@ namespace Poderosa.Sessions {
         public void InternalCloseDocument(IPoderosaDocument document) {
             //do nothing
         }
-#if false //”p~
-        //ƒrƒ…[‚©‚ç‚ÌƒRƒ“ƒgƒ[ƒ‹‚Ìæ“¾
+#if false //å»ƒæ­¢
+        //ãƒ“ãƒ¥ãƒ¼ã‹ã‚‰ã®ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã®å–å¾—
         private static TerminalControl CastTerminalControl(IPoderosaView view) {
             IContentReplaceableView rv = (IContentReplaceableView)view.GetAdapter(typeof(IContentReplaceableView));
-            Debug.Assert(rv!=null); //Œ»ó‚Å‚Í•ªŠ„•û®‚Å‚µ‚©“®ì‚µ‚Ä‚¢‚È‚¢‚Ì‚Å‚±‚±‚Ü‚Å‚Í•K‚¸¬Œ÷
+            Debug.Assert(rv!=null); //ç¾çŠ¶ã§ã¯åˆ†å‰²æ–¹å¼ã§ã—ã‹å‹•ä½œã—ã¦ã„ãªã„ã®ã§ã“ã“ã¾ã§ã¯å¿…ãšæˆåŠŸ
             IPoderosaView content = rv.GetCurrentContent();
 
             if(content is TerminalView)
@@ -236,7 +236,7 @@ namespace Poderosa.Sessions {
         }
         private static TerminalControl CastOrCreateTerminalControl(IPoderosaView view) {
             TerminalControl c = CastTerminalControl(view);
-            if(c!=null) return c; //ƒLƒƒƒXƒg‚Å‚«‚ê‚Î‚»‚ê‚ÅOKB‚Å‚È‚¯‚ê‚Îì‚é
+            if(c!=null) return c; //ã‚­ãƒ£ã‚¹ãƒˆã§ãã‚Œã°ãã‚Œã§OKã€‚ã§ãªã‘ã‚Œã°ä½œã‚‹
 
             Debug.WriteLine("Creating New TerminalControl");
             IContentReplaceableView rv = (IContentReplaceableView)view.GetAdapter(typeof(IContentReplaceableView));

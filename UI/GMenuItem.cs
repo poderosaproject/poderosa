@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -57,8 +57,8 @@ namespace Poderosa.UI {
             }
         }
 
-        //NOTE Popup‚ğƒR[ƒh‚©‚ç‹ì“®‚·‚é‚±‚Æ‚Í‚Å‚«‚È‚¢B‚ªA‚»‚ê‚¾‚ÆƒeƒXƒg‚Ì‚Æ‚«¢‚éB
-        //‚Â‚¢‚Å‚ÉA‰½‚©‚Æ–â‘è‚ ‚é•W€EventHandler‚ğ”ğ‚¯A‚½‚¾‚Ìdelegate‚É‚·‚é
+        //NOTE Popupã‚’ã‚³ãƒ¼ãƒ‰ã‹ã‚‰é§†å‹•ã™ã‚‹ã“ã¨ã¯ã§ããªã„ã€‚ãŒã€ãã‚Œã ã¨ãƒ†ã‚¹ãƒˆã®ã¨ãå›°ã‚‹ã€‚
+        //ã¤ã„ã§ã«ã€ä½•ã‹ã¨å•é¡Œã‚ã‚‹æ¨™æº–EventHandlerã‚’é¿ã‘ã€ãŸã ã®delegateã«ã™ã‚‹
         protected override void OnPopup(EventArgs e) {
             base.OnPopup(e);
             PerformPopup();

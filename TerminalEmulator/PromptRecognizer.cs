@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,13 +20,13 @@ using Poderosa.Document;
 using Poderosa.Preferences;
 
 namespace Poderosa.Terminal {
-    //ŠO•”‚É’Ê’m‚·‚éƒCƒ“ƒ^ƒtƒF[ƒX
+    //å¤–éƒ¨ã«é€šçŸ¥ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹
     /// <summary>
     /// 
     /// </summary>
     /// <exclude/>
     public interface IPromptProcessor {
-        void OnPromptLine(GLine line, string prompt, string command); //line‚Íƒvƒƒ“ƒvƒg‚Ì‚ ‚ésBƒJƒŒƒ“ƒg‚Ìs‚Æ‚ÍŒÀ‚ç‚È‚¢
+        void OnPromptLine(GLine line, string prompt, string command); //lineã¯ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã®ã‚ã‚‹è¡Œã€‚ã‚«ãƒ¬ãƒ³ãƒˆã®è¡Œã¨ã¯é™ã‚‰ãªã„
         void OnNotPromptLine();
     }
 
@@ -146,7 +146,7 @@ namespace Poderosa.Terminal {
             _commandBuffer = new StringBuilder();
             ITerminalSettings ts = term.TerminalHost.TerminalSettings;
             ts.AddListener(this);
-            _promptExpression = new Regex(ts.ShellScheme.PromptExpression, RegexOptions.Compiled); //‚±‚ê‚ÍƒVƒFƒ‹‚É‚æ‚è‰Â•Ï
+            _promptExpression = new Regex(ts.ShellScheme.PromptExpression, RegexOptions.Compiled); //ã“ã‚Œã¯ã‚·ã‚§ãƒ«ã«ã‚ˆã‚Šå¯å¤‰
             _listeners = new List<IPromptProcessor>();
             _lineCache = new LineCache(PromptRecognizerPreferences.Instance.PromptSearchMaxLines);
             _lastCachedLineID = -1;
@@ -159,7 +159,7 @@ namespace Poderosa.Terminal {
             _listeners.Remove(l);
         }
 
-        //³‹K•\Œ»‚Ìƒ}ƒbƒ`‚ğ‚µ‚½‚è‚·‚é‚Ì‚ğŒ¸‚ç‚·‚×‚­Aƒ^ƒCƒ}[‚ª—ˆ‚½‚Æ‚«‚ÉXV‚·‚éƒXƒ^ƒCƒ‹‚ğŠm•Û
+        //æ­£è¦è¡¨ç¾ã®ãƒãƒƒãƒã‚’ã—ãŸã‚Šã™ã‚‹ã®ã‚’æ¸›ã‚‰ã™ã¹ãã€ã‚¿ã‚¤ãƒãƒ¼ãŒæ¥ãŸã¨ãã«æ›´æ–°ã™ã‚‹ã‚¹ã‚¿ã‚¤ãƒ«ã‚’ç¢ºä¿
         public void SetContentUpdateMark() {
             _contentUpdateMark = true;
         }
@@ -174,8 +174,8 @@ namespace Poderosa.Terminal {
             if (_promptExpression == null)
                 return;
             if (_terminal.TerminalMode == TerminalMode.Application)
-                return; //ƒAƒvƒŠƒP[ƒVƒ‡ƒ“ƒ‚[ƒh‚Í’Ê’m‚Ì•K—v‚È‚µ
-            //ˆê‰A‘O‰ñƒ`ƒFƒbƒN‚Æƒf[ƒ^óM‚Ì—L–³‚ğ‚à‚ç‚Á‚Ä‚­‚ê‚Îˆ—‚ÌŠÈ—ª‰»‚Í‰Â”\
+                return; //ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ãƒ¢ãƒ¼ãƒ‰ã¯é€šçŸ¥ã®å¿…è¦ãªã—
+            //ä¸€å¿œã€å‰å›ãƒã‚§ãƒƒã‚¯æ™‚ã¨ãƒ‡ãƒ¼ã‚¿å—ä¿¡ã®æœ‰ç„¡ã‚’ã‚‚ã‚‰ã£ã¦ãã‚Œã°å‡¦ç†ã®ç°¡ç•¥åŒ–ã¯å¯èƒ½
 
             TerminalDocument doc = _terminal.GetDocument();
             int maxLines = PromptRecognizerPreferences.Instance.PromptSearchMaxLines;
@@ -186,7 +186,7 @@ namespace Poderosa.Terminal {
             string prompt;
             string command;
 
-            if (!DeterminePromptLine(promptCandidate, doc.CurrentLine.ID, doc.CaretColumn, out prompt, out command)) { //ƒvƒƒ“ƒvƒg‚Å‚Í‚È‚¢‚Æ‚«
+            if (!DeterminePromptLine(promptCandidate, doc.CurrentLine.ID, doc.CaretColumn, out prompt, out command)) { //ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã§ã¯ãªã„ã¨ã
                 NotifyNotPromptLine();
             }
             else {
@@ -195,16 +195,16 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //ŠO•”‚Åw’è‚µ‚½GLine‚É‚Â‚¢‚ÄACurrentLine‚Ü‚Å‚Ì—Ìˆæ‚ÉŠÖ‚µ‚Ä”»’è‚ğs‚¤
+        //å¤–éƒ¨ã§æŒ‡å®šã—ãŸGLineã«ã¤ã„ã¦ã€CurrentLineã¾ã§ã®é ˜åŸŸã«é–¢ã—ã¦åˆ¤å®šã‚’è¡Œã†
         public bool DeterminePromptLine(GLine line, int limitLineID, int limitColumn, out string prompt, out string command) {
             prompt = command = null;
             if (_promptExpression == null)
                 return false;
             if (_terminal.TerminalMode == TerminalMode.Application)
-                return false; //ƒAƒvƒŠƒP[ƒVƒ‡ƒ“ƒ‚[ƒh‚Í’Ê’m‚Ì•K—v‚È‚µ
+                return false; //ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ãƒ¢ãƒ¼ãƒ‰ã¯é€šçŸ¥ã®å¿…è¦ãªã—
 
             PromptInfo promptInfo = CheckPrompt(line);
-            if (promptInfo.Prompt == null) //ƒvƒƒ“ƒvƒg‚Å‚Í‚È‚¢‚Æ‚«
+            if (promptInfo.Prompt == null) //ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã§ã¯ãªã„ã¨ã
                 return false;
             else {
                 prompt = promptInfo.Prompt;
@@ -213,7 +213,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //‚Ó‚Â‚¤‚ÍŒ»İs‚¾‚ªA‘Os‚ª”ñ‰üsI’[‚È‚ç‚³‚©‚Ì‚Ú‚é
+        //ãµã¤ã†ã¯ç¾åœ¨è¡Œã ãŒã€å‰è¡ŒãŒéæ”¹è¡Œçµ‚ç«¯ãªã‚‰ã•ã‹ã®ã¼ã‚‹
         private GLine FindPromptCandidateLine(TerminalDocument doc, int maxLines) {
             GLine line = doc.CurrentLine;
             for (int i = 0; i < maxLines; i++) {
@@ -240,7 +240,7 @@ namespace Poderosa.Terminal {
             bool forceUpdate = (promptCandidate.ID == _lastCachedLineID) ? true : false;
             string lineText = GetTextAndUpdateCache(promptCandidate, forceUpdate);
 
-            //’†g‚ª‚È‚¯‚ê‚Îƒ`ƒFƒbƒN‚à‚µ‚È‚¢
+            //ä¸­èº«ãŒãªã‘ã‚Œã°ãƒã‚§ãƒƒã‚¯ã‚‚ã—ãªã„
             if (lineText.Length == 0)
                 return new PromptInfo(null, 0);
 
@@ -251,7 +251,7 @@ namespace Poderosa.Terminal {
                 return new PromptInfo(null, 0);
         }
 
-        //ƒRƒ}ƒ“ƒh‘S—e‚ğŒ©‚é Œ©‚éˆÊ’u‚ÌI’[‚ğlimit_line_id, limit_column‚ÅŒˆ‚ß‚ç‚ê‚é
+        //ã‚³ãƒãƒ³ãƒ‰å…¨å®¹ã‚’è¦‹ã‚‹ è¦‹ã‚‹ä½ç½®ã®çµ‚ç«¯ã‚’limit_line_id, limit_columnã§æ±ºã‚ã‚‰ã‚Œã‚‹
         private string ParseCommand(GLine promptCandidate, int limitLineID, int limitColumn, PromptInfo promptInfo) {
             _commandBuffer.Remove(0, _commandBuffer.Length);
 

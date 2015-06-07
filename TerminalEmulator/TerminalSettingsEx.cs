@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +28,7 @@ namespace Poderosa.Terminal {
 
     /// <summary>
     /// <ja>
-    /// ŠeíƒƒOİ’è‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÌŠî’ê‚Å‚·B
+    /// å„ç¨®ãƒ­ã‚°è¨­å®šã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã®åŸºåº•ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Base class of interface of log setting.
@@ -36,15 +36,15 @@ namespace Poderosa.Terminal {
     /// </summary>
     public interface ILogSettings : IAdaptable {
         /// <summary>
-        /// <ja>ƒƒOİ’è‚ğ•¡»‚µ‚Ü‚·B</ja><en>Duplicate the log setting.</en>
+        /// <ja>ãƒ­ã‚°è¨­å®šã‚’è¤‡è£½ã—ã¾ã™ã€‚</ja><en>Duplicate the log setting.</en>
         /// </summary>
-        /// <returns><en>Interface that shows object after it duplidates</en><ja>•¡»Œã‚ÌƒIƒuƒWƒFƒNƒg‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX</ja></returns>
+        /// <returns><en>Interface that shows object after it duplidates</en><ja>è¤‡è£½å¾Œã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹</ja></returns>
         ILogSettings Clone();
     }
-    //ƒƒOİ’è@Terminal‚Ìİ’èã‚Í•¡”ƒXƒgƒŠ[ƒ€‚Éo—Í‚Å‚«‚é‚æ‚¤‚É‚È‚Á‚Ä‚¢‚é‚ªATerminalSettingã‚Íƒtƒ@ƒCƒ‹‚Ö‚Ì‚Pí‚Ì‚İ
+    //ãƒ­ã‚°è¨­å®šã€€Terminalã®è¨­å®šä¸Šã¯è¤‡æ•°ã‚¹ãƒˆãƒªãƒ¼ãƒ ã«å‡ºåŠ›ã§ãã‚‹ã‚ˆã†ã«ãªã£ã¦ã„ã‚‹ãŒã€TerminalSettingä¸Šã¯ãƒ•ã‚¡ã‚¤ãƒ«ã¸ã®ï¼‘ç¨®ã®ã¿
     /// <summary>
     /// <ja>
-    /// ŠÈˆÕ‚ÈƒƒOİ’è‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ç°¡æ˜“ãªãƒ­ã‚°è¨­å®šã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows simple log setting
@@ -53,7 +53,7 @@ namespace Poderosa.Terminal {
     public interface ISimpleLogSettings : ILogSettings {
         /// <summary>
         /// <ja>
-        /// ƒƒO‚Ìí—Ş‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ­ã‚°ã®ç¨®é¡ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Type of log.
@@ -65,7 +65,7 @@ namespace Poderosa.Terminal {
         }
         /// <summary>
         /// <ja>
-        /// ƒƒO‚ÌƒpƒX‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ­ã‚°ã®ãƒ‘ã‚¹ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Path of the log.
@@ -77,7 +77,7 @@ namespace Poderosa.Terminal {
         }
         /// <summary>
         /// <ja>
-        /// ƒƒO‚ğ’Ç‹L‚·‚é‚©‚µ‚È‚¢‚©‚ğ¦‚µ‚Ü‚·Btrue‚Ì‚Æ‚«’Ç‹L‚µ‚Ü‚·B
+        /// ãƒ­ã‚°ã‚’è¿½è¨˜ã™ã‚‹ã‹ã—ãªã„ã‹ã‚’ç¤ºã—ã¾ã™ã€‚trueã®ã¨ãè¿½è¨˜ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Whether the log is append is shown. At true, append
@@ -89,7 +89,7 @@ namespace Poderosa.Terminal {
         }
     }
 
-    //•¡”o—Í
+    //è¤‡æ•°å‡ºåŠ›
     /// <summary>
     /// 
     /// </summary>
@@ -124,7 +124,7 @@ namespace Poderosa.Terminal {
 
     /// <summary>
     /// <ja>
-    /// ƒ^[ƒ~ƒiƒ‹İ’è‚ğ‘€ì‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«è¨­å®šã‚’æ“ä½œã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that control terminal setting.
@@ -133,29 +133,29 @@ namespace Poderosa.Terminal {
     public interface ITerminalSettings : IListenerRegistration<ITerminalSettingsChangeListener>, IAdaptable {
         /// <summary>
         /// <ja>
-        /// ƒ^[ƒ~ƒiƒ‹İ’è‚Ì•¡»‚ğì‚è‚Ü‚·B
+        /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«è¨­å®šã®è¤‡è£½ã‚’ä½œã‚Šã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Duplicate terminal setting.
         /// </en>
         /// </summary>
-        /// <returns><ja>•¡»‚³‚ê‚½ƒ^[ƒ~ƒiƒ‹İ’èƒIƒuƒWƒFƒNƒg‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B</ja><en>Interface that shows duplicated terminal setting object</en></returns>
+        /// <returns><ja>è¤‡è£½ã•ã‚ŒãŸã‚¿ãƒ¼ãƒŸãƒŠãƒ«è¨­å®šã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚</ja><en>Interface that shows duplicated terminal setting object</en></returns>
         ITerminalSettings Clone();
         /// <summary>
         /// <ja>
-        /// ƒ^[ƒ~ƒiƒ‹İ’è‚ğƒCƒ“ƒ|[ƒg‚µ‚Ü‚·B
+        /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«è¨­å®šã‚’ã‚¤ãƒ³ãƒãƒ¼ãƒˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Import the terminal setting.
         /// </en>
         /// </summary>
-        /// <param name="src"><ja>ƒCƒ“ƒ|[ƒg‚·‚éƒ^[ƒ~ƒiƒ‹İ’èB</ja><en>Terminal setting to import.</en></param>
+        /// <param name="src"><ja>ã‚¤ãƒ³ãƒãƒ¼ãƒˆã™ã‚‹ã‚¿ãƒ¼ãƒŸãƒŠãƒ«è¨­å®šã€‚</ja><en>Terminal setting to import.</en></param>
         void Import(ITerminalSettings src);
 
-        //•ÏX‚·‚é‚Æ‚«‚ÍStartUpdate...EndUpdate‚ğs‚¤BEndUpdate‚Ì“_‚ÅƒŠƒXƒi‚É’Ê’m
+        //å¤‰æ›´ã™ã‚‹ã¨ãã¯StartUpdate...EndUpdateã‚’è¡Œã†ã€‚EndUpdateã®æ™‚ç‚¹ã§ãƒªã‚¹ãƒŠã«é€šçŸ¥
         /// <summary>
         /// <ja>
-        /// ƒvƒƒpƒeƒB‚Ì•ÏX‚ğŠJn‚µ‚Ü‚·B
+        /// ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å¤‰æ›´ã‚’é–‹å§‹ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Start changing the property.
@@ -164,11 +164,11 @@ namespace Poderosa.Terminal {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ƒvƒƒpƒeƒB‚ğ•ÏX‚·‚é‘O‚É‚ÍA<see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚µAƒvƒƒpƒeƒB‚Ì•ÏX‚ªI‚í‚Á‚½‚çA
-        /// <see cref="EndUpdate">EndUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚³‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã™ã‚‹å‰ã«ã¯ã€<see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã—ã€ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å¤‰æ›´ãŒçµ‚ã‚ã£ãŸã‚‰ã€
+        /// <see cref="EndUpdate">EndUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã•ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// <see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚·‘O‚ÉƒvƒƒpƒeƒB‚ğ•ÏX‚µ‚æ‚¤‚Æ‚·‚é‚Æ—áŠO‚ª”­¶‚µ‚Ü‚·B
+        /// <see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã™å‰ã«ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã—ã‚ˆã†ã¨ã™ã‚‹ã¨ä¾‹å¤–ãŒç™ºç”Ÿã—ã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -183,19 +183,19 @@ namespace Poderosa.Terminal {
         void BeginUpdate();
         /// <summary>
         /// <ja>
-        /// ƒvƒƒpƒeƒB‚Ì•ÏX‚ğŠ®—¹‚µ‚Ü‚·B
+        /// ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å¤‰æ›´ã‚’å®Œäº†ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Finish changing the property.
         /// </en>
         /// <remarks>
-        /// <ja>‚±‚Ìƒƒ\ƒbƒh‚ğŒÄ‚Ño‚·‚ÆƒvƒƒpƒeƒB‚Ì•ÏX‚ªŠ®—¹‚µ‚½‚à‚Ì‚Æ‚³‚êAŠeíƒCƒxƒ“ƒg‚ª”­¶‚µ‚Ü‚·B</ja><en>It is assumed that the change in property was completed when this method is called, and generates various events. </en>
+        /// <ja>ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‚’å‘¼ã³å‡ºã™ã¨ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å¤‰æ›´ãŒå®Œäº†ã—ãŸã‚‚ã®ã¨ã•ã‚Œã€å„ç¨®ã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ã¾ã™ã€‚</ja><en>It is assumed that the change in property was completed when this method is called, and generates various events. </en>
         /// </remarks>
         /// </summary>
         void EndUpdate();
         /// <summary>
         /// <ja>
-        /// ƒGƒ“ƒR[ƒh•û®‚ğæ“¾^İ’è‚µ‚Ü‚·B
+        /// ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰æ–¹å¼ã‚’å–å¾—ï¼è¨­å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Set / get the encode type.
@@ -204,11 +204,11 @@ namespace Poderosa.Terminal {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ƒvƒƒpƒeƒB‚ğ•ÏX‚·‚é‘O‚É‚ÍA<see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚µAƒvƒƒpƒeƒB‚Ì•ÏX‚ªI‚í‚Á‚½‚çA
-        /// <see cref="EndUpdate">EndUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚³‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã™ã‚‹å‰ã«ã¯ã€<see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã—ã€ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å¤‰æ›´ãŒçµ‚ã‚ã£ãŸã‚‰ã€
+        /// <see cref="EndUpdate">EndUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã•ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// <see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚·‘O‚ÉƒvƒƒpƒeƒB‚ğ•ÏX‚µ‚æ‚¤‚Æ‚·‚é‚Æ—áŠO‚ª”­¶‚µ‚Ü‚·B
+        /// <see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã™å‰ã«ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã—ã‚ˆã†ã¨ã™ã‚‹ã¨ä¾‹å¤–ãŒç™ºç”Ÿã—ã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -226,7 +226,7 @@ namespace Poderosa.Terminal {
         }
         /// <summary>
         /// <ja>
-        /// ƒ^[ƒ~ƒiƒ‹‚Ìí—Ş‚ğæ“¾^İ’è‚µ‚Ü‚·B
+        /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã®ç¨®é¡ã‚’å–å¾—ï¼è¨­å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Set / get the type of termina.
@@ -238,7 +238,7 @@ namespace Poderosa.Terminal {
         }
         /// <summary>
         /// <ja>
-        /// ‰üsƒR[ƒh‚Ìæ‚èˆµ‚¢•û–@‚ğæ“¾^İ’è‚µ‚Ü‚·B
+        /// æ”¹è¡Œã‚³ãƒ¼ãƒ‰ã®å–ã‚Šæ‰±ã„æ–¹æ³•ã‚’å–å¾—ï¼è¨­å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Set / get the rule of line feed code.
@@ -247,11 +247,11 @@ namespace Poderosa.Terminal {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ƒvƒƒpƒeƒB‚ğ•ÏX‚·‚é‘O‚É‚ÍA<see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚µAƒvƒƒpƒeƒB‚Ì•ÏX‚ªI‚í‚Á‚½‚çA
-        /// <see cref="EndUpdate">EndUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚³‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã™ã‚‹å‰ã«ã¯ã€<see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã—ã€ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å¤‰æ›´ãŒçµ‚ã‚ã£ãŸã‚‰ã€
+        /// <see cref="EndUpdate">EndUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã•ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// <see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚·‘O‚ÉƒvƒƒpƒeƒB‚ğ•ÏX‚µ‚æ‚¤‚Æ‚·‚é‚Æ—áŠO‚ª”­¶‚µ‚Ü‚·B
+        /// <see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã™å‰ã«ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã—ã‚ˆã†ã¨ã™ã‚‹ã¨ä¾‹å¤–ãŒç™ºç”Ÿã—ã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -269,7 +269,7 @@ namespace Poderosa.Terminal {
         }
         /// <summary>
         /// <ja>
-        /// ‘—M‚Ì‰üsƒR[ƒh‚Ìí—Ş‚ğæ“¾^İ’è‚µ‚Ü‚·B
+        /// é€ä¿¡æ™‚ã®æ”¹è¡Œã‚³ãƒ¼ãƒ‰ã®ç¨®é¡ã‚’å–å¾—ï¼è¨­å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Set / get the line feed code when transmitting.
@@ -278,11 +278,11 @@ namespace Poderosa.Terminal {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ƒvƒƒpƒeƒB‚ğ•ÏX‚·‚é‘O‚É‚ÍA<see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚µAƒvƒƒpƒeƒB‚Ì•ÏX‚ªI‚í‚Á‚½‚çA
-        /// <see cref="EndUpdate">EndUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚³‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã™ã‚‹å‰ã«ã¯ã€<see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã—ã€ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å¤‰æ›´ãŒçµ‚ã‚ã£ãŸã‚‰ã€
+        /// <see cref="EndUpdate">EndUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã•ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// <see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚·‘O‚ÉƒvƒƒpƒeƒB‚ğ•ÏX‚µ‚æ‚¤‚Æ‚·‚é‚Æ—áŠO‚ª”­¶‚µ‚Ü‚·B
+        /// <see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã™å‰ã«ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã—ã‚ˆã†ã¨ã™ã‚‹ã¨ä¾‹å¤–ãŒç™ºç”Ÿã—ã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -300,7 +300,7 @@ namespace Poderosa.Terminal {
         }
         /// <summary>
         /// <ja>
-        /// ƒ[ƒJƒ‹ƒGƒR[‚Ì—L–³‚ğæ“¾^İ’è‚µ‚Ü‚·B
+        /// ãƒ­ãƒ¼ã‚«ãƒ«ã‚¨ã‚³ãƒ¼ã®æœ‰ç„¡ã‚’å–å¾—ï¼è¨­å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Set / get the local echo.
@@ -309,11 +309,11 @@ namespace Poderosa.Terminal {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ƒvƒƒpƒeƒB‚ğ•ÏX‚·‚é‘O‚É‚ÍA<see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚µAƒvƒƒpƒeƒB‚Ì•ÏX‚ªI‚í‚Á‚½‚çA
-        /// <see cref="EndUpdate">EndUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚³‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã™ã‚‹å‰ã«ã¯ã€<see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã—ã€ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å¤‰æ›´ãŒçµ‚ã‚ã£ãŸã‚‰ã€
+        /// <see cref="EndUpdate">EndUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã•ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// <see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚·‘O‚ÉƒvƒƒpƒeƒB‚ğ•ÏX‚µ‚æ‚¤‚Æ‚·‚é‚Æ—áŠO‚ª”­¶‚µ‚Ü‚·B
+        /// <see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã™å‰ã«ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã—ã‚ˆã†ã¨ã™ã‚‹ã¨ä¾‹å¤–ãŒç™ºç”Ÿã—ã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -331,7 +331,7 @@ namespace Poderosa.Terminal {
         }
         /// <summary>
         /// <ja>
-        /// ƒvƒƒ“ƒvƒg‚Ì”F¯‚âƒRƒ}ƒ“ƒh‚Ì—š—ğ‚ğ‹L‰¯‚·‚é‹@”\‚ğ‚à‚ÂƒIƒuƒWƒFƒNƒg‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã®èªè­˜ã‚„ã‚³ãƒãƒ³ãƒ‰ã®å±¥æ­´ã‚’è¨˜æ†¶ã™ã‚‹æ©Ÿèƒ½ã‚’ã‚‚ã¤ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Object that memorizes recognition of prompt and history of command.
@@ -340,11 +340,11 @@ namespace Poderosa.Terminal {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ƒvƒƒpƒeƒB‚ğ•ÏX‚·‚é‘O‚É‚ÍA<see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚µAƒvƒƒpƒeƒB‚Ì•ÏX‚ªI‚í‚Á‚½‚çA
-        /// <see cref="EndUpdate">EndUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚³‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã™ã‚‹å‰ã«ã¯ã€<see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã—ã€ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å¤‰æ›´ãŒçµ‚ã‚ã£ãŸã‚‰ã€
+        /// <see cref="EndUpdate">EndUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã•ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// <see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚·‘O‚ÉƒvƒƒpƒeƒB‚ğ•ÏX‚µ‚æ‚¤‚Æ‚·‚é‚Æ—áŠO‚ª”­¶‚µ‚Ü‚·B
+        /// <see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã™å‰ã«ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã—ã‚ˆã†ã¨ã™ã‚‹ã¨ä¾‹å¤–ãŒç™ºç”Ÿã—ã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -362,7 +362,7 @@ namespace Poderosa.Terminal {
         }
         /// <summary>
         /// <ja>
-        /// ’Êí‚Ì•¶š“ü—Í‚É”º‚¤ƒCƒ“ƒeƒŠƒZƒ“ƒX‚ğ—LŒø‚É‚·‚é‚©”Û‚©‚Ìİ’è‚Å‚·B
+        /// é€šå¸¸ã®æ–‡å­—å…¥åŠ›ã«ä¼´ã†ã‚¤ãƒ³ãƒ†ãƒªã‚»ãƒ³ã‚¹ã‚’æœ‰åŠ¹ã«ã™ã‚‹ã‹å¦ã‹ã®è¨­å®šã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Setting whether to make IntelliSense according to usual character input effective.
@@ -371,11 +371,11 @@ namespace Poderosa.Terminal {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ƒvƒƒpƒeƒB‚ğ•ÏX‚·‚é‘O‚É‚ÍA<see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚µAƒvƒƒpƒeƒB‚Ì•ÏX‚ªI‚í‚Á‚½‚çA
-        /// <see cref="EndUpdate">EndUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚³‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã™ã‚‹å‰ã«ã¯ã€<see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã—ã€ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å¤‰æ›´ãŒçµ‚ã‚ã£ãŸã‚‰ã€
+        /// <see cref="EndUpdate">EndUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã•ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// <see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚·‘O‚ÉƒvƒƒpƒeƒB‚ğ•ÏX‚µ‚æ‚¤‚Æ‚·‚é‚Æ—áŠO‚ª”­¶‚µ‚Ü‚·B
+        /// <see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã™å‰ã«ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã—ã‚ˆã†ã¨ã™ã‚‹ã¨ä¾‹å¤–ãŒç™ºç”Ÿã—ã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -394,7 +394,7 @@ namespace Poderosa.Terminal {
 
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒgƒo[‚É•\¦‚·‚éƒLƒƒƒvƒVƒ‡ƒ“‚Å‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãƒãƒ¼ã«è¡¨ç¤ºã™ã‚‹ã‚­ãƒ£ãƒ—ã‚·ãƒ§ãƒ³ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Caption displayed in document bar.
@@ -403,11 +403,11 @@ namespace Poderosa.Terminal {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ƒvƒƒpƒeƒB‚ğ•ÏX‚·‚é‘O‚É‚ÍA<see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚µAƒvƒƒpƒeƒB‚Ì•ÏX‚ªI‚í‚Á‚½‚çA
-        /// <see cref="EndUpdate">EndUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚³‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã™ã‚‹å‰ã«ã¯ã€<see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã—ã€ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å¤‰æ›´ãŒçµ‚ã‚ã£ãŸã‚‰ã€
+        /// <see cref="EndUpdate">EndUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã•ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// <see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚·‘O‚ÉƒvƒƒpƒeƒB‚ğ•ÏX‚µ‚æ‚¤‚Æ‚·‚é‚Æ—áŠO‚ª”­¶‚µ‚Ü‚·B
+        /// <see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã™å‰ã«ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã—ã‚ˆã†ã¨ã™ã‚‹ã¨ä¾‹å¤–ãŒç™ºç”Ÿã—ã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -426,7 +426,7 @@ namespace Poderosa.Terminal {
 
         /// <summary>
         /// <ja>
-        /// ƒhƒLƒ…ƒƒ“ƒgƒo[‚É•\¦‚·‚éƒAƒCƒRƒ“‚Å‚·B
+        /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãƒãƒ¼ã«è¡¨ç¤ºã™ã‚‹ã‚¢ã‚¤ã‚³ãƒ³ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Icon displayed in document bar
@@ -435,11 +435,11 @@ namespace Poderosa.Terminal {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ƒvƒƒpƒeƒB‚ğ•ÏX‚·‚é‘O‚É‚ÍA<see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚µAƒvƒƒpƒeƒB‚Ì•ÏX‚ªI‚í‚Á‚½‚çA
-        /// <see cref="EndUpdate">EndUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚³‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã™ã‚‹å‰ã«ã¯ã€<see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã—ã€ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å¤‰æ›´ãŒçµ‚ã‚ã£ãŸã‚‰ã€
+        /// <see cref="EndUpdate">EndUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã•ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// <see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚·‘O‚ÉƒvƒƒpƒeƒB‚ğ•ÏX‚µ‚æ‚¤‚Æ‚·‚é‚Æ—áŠO‚ª”­¶‚µ‚Ü‚·B
+        /// <see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã™å‰ã«ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã—ã‚ˆã†ã¨ã™ã‚‹ã¨ä¾‹å¤–ãŒç™ºç”Ÿã—ã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -458,7 +458,7 @@ namespace Poderosa.Terminal {
 
         /// <summary>
         /// <ja>
-        /// ƒRƒ“ƒ\[ƒ‹‚Ì•\¦•û–@‚ğw’è‚·‚éRenderProfileƒIƒuƒWƒFƒNƒg‚Å‚·BƒtƒHƒ“ƒgA”wŒiF‚È‚Ç‚Ìî•ñ‚ªŠÜ‚Ü‚ê‚Ü‚·B
+        /// ã‚³ãƒ³ã‚½ãƒ¼ãƒ«ã®è¡¨ç¤ºæ–¹æ³•ã‚’æŒ‡å®šã™ã‚‹RenderProfileã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚ãƒ•ã‚©ãƒ³ãƒˆã€èƒŒæ™¯è‰²ãªã©ã®æƒ…å ±ãŒå«ã¾ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is RenderProfile object that specifies the method of displaying the console. Information of the font and the background color, etc. is included. 
@@ -467,11 +467,11 @@ namespace Poderosa.Terminal {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ƒvƒƒpƒeƒB‚ğ•ÏX‚·‚é‘O‚É‚ÍA<see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚µAƒvƒƒpƒeƒB‚Ì•ÏX‚ªI‚í‚Á‚½‚çA
-        /// <see cref="EndUpdate">EndUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚³‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã™ã‚‹å‰ã«ã¯ã€<see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã—ã€ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å¤‰æ›´ãŒçµ‚ã‚ã£ãŸã‚‰ã€
+        /// <see cref="EndUpdate">EndUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã•ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// <see cref="BeginUpdate">BeginUpdateƒƒ\ƒbƒh</see>‚ğŒÄ‚Ño‚·‘O‚ÉƒvƒƒpƒeƒB‚ğ•ÏX‚µ‚æ‚¤‚Æ‚·‚é‚Æ—áŠO‚ª”­¶‚µ‚Ü‚·B
+        /// <see cref="BeginUpdate">BeginUpdateãƒ¡ã‚½ãƒƒãƒ‰</see>ã‚’å‘¼ã³å‡ºã™å‰ã«ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å¤‰æ›´ã—ã‚ˆã†ã¨ã™ã‚‹ã¨ä¾‹å¤–ãŒç™ºç”Ÿã—ã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -490,7 +490,7 @@ namespace Poderosa.Terminal {
 
         /// <summary>
         /// <ja>
-        /// ƒfƒtƒHƒ‹ƒg‚Ì•\¦ƒvƒƒtƒ@ƒCƒ‹‚ğ—p‚¢‚Ä‚¢‚é‚©‚Ç‚¤‚©‚ğæ“¾‚µ‚Ü‚·B
+        /// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®è¡¨ç¤ºãƒ—ãƒ­ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ç”¨ã„ã¦ã„ã‚‹ã‹ã©ã†ã‹ã‚’å–å¾—ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Get whether to use the display profile of default. 
@@ -502,7 +502,7 @@ namespace Poderosa.Terminal {
 
         /// <summary>
         /// <ja>
-        /// ƒƒO‚Ìİ’èî•ñ‚Å‚·B
+        /// ãƒ­ã‚°ã®è¨­å®šæƒ…å ±ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Setting of log.
@@ -512,7 +512,7 @@ namespace Poderosa.Terminal {
             get;
         }
 
-        //TODO ‚±‚ê‚ç‚ÍITerminalSettingsChangeListener‚É“‡‚¹‚æ
+        //TODO ã“ã‚Œã‚‰ã¯ITerminalSettingsChangeListenerã«çµ±åˆã›ã‚ˆ
         /// <summary>
         /// 
         /// </summary>

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,15 +12,15 @@ using System.Text;
 using Poderosa.Util;
 
 namespace Poderosa.SerialPort {
-    //ƒVƒŠƒAƒ‹‚É•K—v‚ÈEnum
+    //ã‚·ãƒªã‚¢ãƒ«ã«å¿…è¦ãªEnum
     /// <summary>
-    /// <ja>ƒtƒ[ƒRƒ“ƒgƒ[ƒ‹‚Ìİ’è</ja>
+    /// <ja>ãƒ•ãƒ­ãƒ¼ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã®è¨­å®š</ja>
     /// <en>Specifies the flow control.</en>
     /// </summary>
     /// <exclude/>
     public enum FlowControl {
         /// <summary>
-        /// <ja>‚È‚µ</ja>
+        /// <ja>ãªã—</ja>
         /// <en>None</en>
         /// </summary>
         [EnumValue(Description = "Enum.FlowControl.None")]
@@ -31,7 +31,7 @@ namespace Poderosa.SerialPort {
         [EnumValue(Description = "Enum.FlowControl.Xon_Xoff")]
         Xon_Xoff,
         /// <summary>
-        /// <ja>ƒn[ƒhƒEƒFƒA</ja>
+        /// <ja>ãƒãƒ¼ãƒ‰ã‚¦ã‚§ã‚¢</ja>
         /// <en>Hardware</en>
         /// </summary>
         [EnumValue(Description = "Enum.FlowControl.Hardware")]
@@ -39,25 +39,25 @@ namespace Poderosa.SerialPort {
     }
 
     /// <summary>
-    /// <ja>ƒpƒŠƒeƒB‚Ìİ’è</ja>
+    /// <ja>ãƒ‘ãƒªãƒ†ã‚£ã®è¨­å®š</ja>
     /// <en>Specifies the parity.</en>
     /// </summary>
     /// <exclude/>
     public enum Parity {
         /// <summary>
-        /// <ja>‚È‚µ</ja>
+        /// <ja>ãªã—</ja>
         /// <en>None</en>
         /// </summary>
         [EnumValue(Description = "Enum.Parity.NOPARITY")]
         NOPARITY = 0,
         /// <summary>
-        /// <ja>Šï”</ja>
+        /// <ja>å¥‡æ•°</ja>
         /// <en>Odd</en>
         /// </summary>
         [EnumValue(Description = "Enum.Parity.ODDPARITY")]
         ODDPARITY = 1,
         /// <summary>
-        /// <ja>‹ô”</ja>
+        /// <ja>å¶æ•°</ja>
         /// <en>Even</en>
         /// </summary>
         [EnumValue(Description = "Enum.Parity.EVENPARITY")]
@@ -67,25 +67,25 @@ namespace Poderosa.SerialPort {
     }
 
     /// <summary>
-    /// <ja>ƒXƒgƒbƒvƒrƒbƒg‚Ìİ’è</ja>
+    /// <ja>ã‚¹ãƒˆãƒƒãƒ—ãƒ“ãƒƒãƒˆã®è¨­å®š</ja>
     /// <en>Specifies the stop bits.</en>
     /// </summary>
     /// <exclude/>
     public enum StopBits {
         /// <summary>
-        /// <ja>1ƒrƒbƒg</ja>
+        /// <ja>1ãƒ“ãƒƒãƒˆ</ja>
         /// <en>1 bit</en>
         /// </summary>
         [EnumValue(Description = "Enum.StopBits.ONESTOPBIT")]
         ONESTOPBIT = 0,
         /// <summary>
-        /// <ja>1.5ƒrƒbƒg</ja>
+        /// <ja>1.5ãƒ“ãƒƒãƒˆ</ja>
         /// <en>1.5 bits</en>
         /// </summary>
         [EnumValue(Description = "Enum.StopBits.ONE5STOPBITS")]
         ONE5STOPBITS = 1,
         /// <summary>
-        /// <ja>2ƒrƒbƒg</ja>
+        /// <ja>2ãƒ“ãƒƒãƒˆ</ja>
         /// <en>2 bits</en>
         /// </summary>
         [EnumValue(Description = "Enum.StopBits.TWOSTOPBITS")]

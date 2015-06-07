@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,11 +12,11 @@ using System.Diagnostics;
 using Poderosa.Util.Collections;
 
 namespace Poderosa {
-    //•’Ê‚ÍƒAƒvƒŠ‚Å—BˆêBŠeAdapterFactory‚ğŠÇ—‚·‚é
+    //æ™®é€šã¯ã‚¢ãƒ—ãƒªã§å”¯ä¸€ã€‚å„AdapterFactoryã‚’ç®¡ç†ã™ã‚‹
     internal class AdapterManager : IAdapterManager {
 
-        //•ÏŠ·‚·‚éƒIƒuƒWƒFƒNƒg‚ÌType‚©‚ç‘Î‰‚·‚éFactory‚ÌƒRƒŒƒNƒVƒ‡ƒ“‚Ö‚Ìƒ}ƒbƒsƒ“ƒO
-        //‘o•ûŒü‚Ì‚Ç‚¿‚ç‘¤‚È‚Ì‚©‚Í–ˆ‰ñŒ^‚ğq‚Ë‚éA’ˆÓ
+        //å¤‰æ›ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®Typeã‹ã‚‰å¯¾å¿œã™ã‚‹Factoryã®ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã¸ã®ãƒãƒƒãƒ”ãƒ³ã‚°
+        //åŒæ–¹å‘ã®ã©ã¡ã‚‰å´ãªã®ã‹ã¯æ¯å›å‹ã‚’å°‹ã­ã‚‹ã€æ³¨æ„
         private TypedHashtable<Type, List<IDualDirectionalAdapterFactory>> _classToFactoryList;
 
         public AdapterManager() {
@@ -53,11 +53,11 @@ namespace Poderosa {
         }
 
         public IAdaptable GetAdapter(IAdaptable obj, Type adapter) {
-            //ƒVƒ‡[ƒgƒJƒbƒg: ’¼ÚŒ^‚ª‚ ‚éê‡‚ÍAdapterFactory‚Ì‘¶İ‚ÉŠÖŒW‚È‚­•ÏŠ·‰Â”\
+            //ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆ: ç›´æ¥å‹ãŒã‚ã‚‹å ´åˆã¯AdapterFactoryã®å­˜åœ¨ã«é–¢ä¿‚ãªãå¤‰æ›å¯èƒ½
             if (adapter.IsInstanceOfType(obj))
                 return obj;
 
-            //’T‚µ‚Ä‚İ‚é
+            //æ¢ã—ã¦ã¿ã‚‹
             List<IDualDirectionalAdapterFactory> l = FindFactoryList(obj.GetType());
             if (l == null)
                 return null;
@@ -72,22 +72,22 @@ namespace Poderosa {
         }
 
         private IAdaptable ChallengeUsingAdapterFactory(IDualDirectionalAdapterFactory factory, IAdaptable obj, Type adapter) {
-            Type dest = factory.SourceType == obj.GetType() ? factory.AdapterType : factory.SourceType; //•ÏŠ·æƒNƒ‰ƒX
+            Type dest = factory.SourceType == obj.GetType() ? factory.AdapterType : factory.SourceType; //å¤‰æ›å…ˆã‚¯ãƒ©ã‚¹
 
-            if (adapter.IsAssignableFrom(dest)) { //‚±‚ê‚È‚çƒrƒ“ƒS‚Æ‚¢‚Á‚Ä‚¢‚¢BŒ»İ‚Í‚±‚ÌƒP[ƒX‚µ‚©‚È‚¢‚Í‚¸
+            if (adapter.IsAssignableFrom(dest)) { //ã“ã‚Œãªã‚‰ãƒ“ãƒ³ã‚´ã¨ã„ã£ã¦ã„ã„ã€‚ç¾åœ¨ã¯ã“ã®ã‚±ãƒ¼ã‚¹ã—ã‹ãªã„ã¯ãš
                 IAdaptable t = factory.SourceType == obj.GetType() ? factory.GetAdapter(obj) : factory.GetSource(obj);
                 Debug.Assert(adapter.IsInstanceOfType(t));
                 return t;
             }
 
-            //•¡G‚ÈƒP[ƒXB
-            //•ÏŠ·Œã‚ÌƒIƒuƒWƒFƒNƒg‚ÌGetAdapter‚ğ“Ç‚ñ‚Å‚İ‚éiÄ‹AŒÄ‚Ño‚µ‘Îô•K—vjA
-            //‚QƒXƒeƒbƒvˆÈã‚ÌFactory‚ğg—p‚·‚éA‚È‚Ç‚ª•K—vB
-            //TODO Œ»İ–¢ƒTƒ|[ƒg
+            //è¤‡é›‘ãªã‚±ãƒ¼ã‚¹ã€‚
+            //å¤‰æ›å¾Œã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®GetAdapterã‚’èª­ã‚“ã§ã¿ã‚‹ï¼ˆå†å¸°å‘¼ã³å‡ºã—å¯¾ç­–å¿…è¦ï¼‰ã€
+            //ï¼’ã‚¹ãƒ†ãƒƒãƒ—ä»¥ä¸Šã®Factoryã‚’ä½¿ç”¨ã™ã‚‹ã€ãªã©ãŒå¿…è¦ã€‚
+            //TODO ç¾åœ¨æœªã‚µãƒãƒ¼ãƒˆ
             return null;
         }
 
-        //ã‚ÌGeneric”Å
+        //ä¸Šã®Genericç‰ˆ
         T IAdapterManager.GetAdapter<T>(IAdaptable obj) {
             return (T)GetAdapter(obj, typeof(T));
         }

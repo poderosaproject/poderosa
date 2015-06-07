@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,11 +54,11 @@ namespace Poderosa.Forms {
             string caption = "Init1";
             MenuTestPlugin._instance.SetContent(caption, 1);
             IWindowManager wm = (IWindowManager)_poderosaWorld.PluginManager.FindPlugin("org.poderosa.core.window", typeof(IWindowManager));
-            //TODO –¾¦“I‚ÉƒŠƒ[ƒh‹­—v‚Í‚¢‚â‚ç‚µ‚¢
+            //TODO æ˜ç¤ºçš„ã«ãƒªãƒ­ãƒ¼ãƒ‰å¼·è¦ã¯ã„ã‚„ã‚‰ã—ã„
             wm.ReloadMenu();
 
             GMainMenuItem fm = (GMainMenuItem)wm.MainWindows[0].AsForm().Menu.MenuItems[0];
-            Assert.AreEqual(3, fm.MenuItems.Count); //ƒfƒŠƒ~ƒ^‚ª“ü‚é‚Ì‚Å
+            Assert.AreEqual(3, fm.MenuItems.Count); //ãƒ‡ãƒªãƒŸã‚¿ãŒå…¥ã‚‹ã®ã§
             Assert.AreEqual(caption, fm.MenuItems[0].Text);
             Assert.AreEqual(caption, fm.MenuItems[2].Text);
         }
@@ -87,7 +87,7 @@ namespace Poderosa.Forms {
             Assert.IsTrue(fm.MenuItems[0].Checked);
             Assert.IsFalse(fm.MenuItems[0].Enabled);
 
-            MenuTestPlugin._instance.ResetEnabledChecked(true, false); //‹tŒü‚«
+            MenuTestPlugin._instance.ResetEnabledChecked(true, false); //é€†å‘ã
             fm.PerformPopup();
             Assert.IsFalse(fm.MenuItems[0].Checked);
             Assert.IsTrue(fm.MenuItems[0].Enabled);
@@ -106,7 +106,7 @@ namespace Poderosa.Forms {
             string caption2 = "Changed";
             MenuTestPlugin._instance.SetContent(caption2, 3);
             fm.PerformPopup();
-            //Volatile‚ÈGroup2‚É‚Ì‚İ•ÏX‚ª”½‰f‚³‚ê‚Ä‚¢‚é‚±‚Æ‚ğŠm”F
+            //VolatileãªGroup2ã«ã®ã¿å¤‰æ›´ãŒåæ˜ ã•ã‚Œã¦ã„ã‚‹ã“ã¨ã‚’ç¢ºèª
             Assert.AreEqual(5, fm.MenuItems.Count);
             Assert.AreEqual(caption, fm.MenuItems[0].Text);
             Assert.AreEqual(caption2, fm.MenuItems[4].Text);

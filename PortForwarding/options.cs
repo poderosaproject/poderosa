@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  Copyright (c) 2005 Poderosa Project, All Rights Reserved.
 
  $Id: options.cs,v 1.4 2012/03/18 12:05:53 kzmi Exp $
@@ -15,14 +15,14 @@ using Poderosa.Toolkit;
 
 namespace Poderosa.PortForwarding {
     /// <summary>
-    /// options ‚ÌŠT—v‚Ìà–¾‚Å‚·B
+    /// options ã®æ¦‚è¦ã®èª¬æ˜ã§ã™ã€‚
     /// </summary>
     internal class Options : ICloneable {
-        //‚±‚ê‚ÍÅ‰‚Ìƒƒ“ƒo‚Å‚ ‚é‚±‚Æ
+        //ã“ã‚Œã¯æœ€åˆã®ãƒ¡ãƒ³ãƒã§ã‚ã‚‹ã“ã¨
         [ConfigEnumElement(typeof(Language))]
         protected Language _language;
 
-        protected Language _envLanguage; //‚±‚¿‚ç‚Í•Û‘¶‚³‚ê‚¸
+        protected Language _envLanguage; //ã“ã¡ã‚‰ã¯ä¿å­˜ã•ã‚Œãš
 
         [ConfigEnumElement(typeof(FormWindowState), InitialAsInt = (int)FormWindowState.Normal)]
         protected FormWindowState _frameState;
@@ -47,7 +47,7 @@ namespace Poderosa.PortForwarding {
         [ConfigBoolElement(Initial = false)]
         protected bool _warningOnExit;
 
-        //SOCKSŠÖŒW
+        //SOCKSé–¢ä¿‚
         [ConfigBoolElement(Initial = false)]
         protected bool _useSocks;
         [ConfigStringElement(Initial = "")]
@@ -257,7 +257,7 @@ namespace Poderosa.PortForwarding {
                     attr.FieldInfo = field;
                     if (!language_found) {
                         Debug.Assert(field.Name == "_language");
-                        //Language‚Ì‰Šú’l‚ÍÀs‚Å‚È‚¢‚ÆŒˆ‚Ü‚ç‚È‚¢
+                        //Languageã®åˆæœŸå€¤ã¯å®Ÿè¡Œæ™‚ã§ãªã„ã¨æ±ºã¾ã‚‰ãªã„
                         (attr as ConfigEnumElementAttribute).InitialAsInt = (int)Util.CurrentLanguage;
                         language_found = true;
                     }
@@ -284,13 +284,13 @@ namespace Poderosa.PortForwarding {
         public void Load(ConfigNode parent) {
             ConfigNode node = parent.FindChildConfigNode("options");
             if (node != null) {
-                //Šî–{‚ÌƒAƒgƒŠƒrƒ…[ƒg
+                //åŸºæœ¬ã®ã‚¢ãƒˆãƒªãƒ“ãƒ¥ãƒ¼ãƒˆ
                 foreach (ConfigElementAttribute attr in _configAttributes) {
                     attr.ImportFrom(this, node);
                 }
             }
 
-            //frame state‚Í•Ê‚Ìˆµ‚¢
+            //frame stateã¯åˆ¥ã®æ‰±ã„
             string frame_pos = node == null ? null : node.GetValue("framePosition", null);
             bool frame_filled = false;
             if (_frameState == FormWindowState.Normal && frame_pos != null) {
@@ -307,7 +307,7 @@ namespace Poderosa.PortForwarding {
 
             if (!frame_filled) {
                 if (_frameState == FormWindowState.Minimized)
-                    _frameState = FormWindowState.Normal; //Å¬‰»‚Å‹N“®‚µ‚Ä‚àd•û‚È‚¢‚Ì‚Åƒm[ƒ}ƒ‹‚É‚·‚é
+                    _frameState = FormWindowState.Normal; //æœ€å°åŒ–ã§èµ·å‹•ã—ã¦ã‚‚ä»•æ–¹ãªã„ã®ã§ãƒãƒ¼ãƒãƒ«ã«ã™ã‚‹
                 Rectangle r = Screen.PrimaryScreen.Bounds;
                 _framePosition.X = r.Width / 3;
                 _framePosition.Y = r.Height / 3;

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -137,14 +137,14 @@ namespace Poderosa.MacroInternal {
         public IEnumerable<MacroModule> Modules {
             get {
                 if (!_touchedPreference)
-                    LoadFromPreference(); //’x‰„•]‰¿
+                    LoadFromPreference(); //é…å»¶è©•ä¾¡
                 return _entries;
             }
         }
         public int ModuleCount {
             get {
                 if (!_touchedPreference)
-                    LoadFromPreference(); //’x‰„•]‰¿
+                    LoadFromPreference(); //é…å»¶è©•ä¾¡
                 return _entries.Count;
             }
         }

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -75,8 +75,8 @@ namespace Poderosa.Protocols {
             SSHConnection ssh = SSHConnection.Connect(con, r.ConnectionEventReceiver, _socket);
             if (ssh != null) {
                 if (PEnv.Options.RetainsPassphrase && _destination.AuthenticationType != AuthenticationType.KeyboardInteractive)
-                    ProtocolsPlugin.Instance.PassphraseCache.Add(tcp.Destination, _destination.Account, _destination.PasswordOrPassphrase); //Ú‘±¬Œ÷‚Ì‚İƒZƒbƒg
-                //_destination.PasswordOrPassphrase = ""; Ú‘±‚Ì•¡»‚Ì‚½‚ß‚É‚±‚±‚ÅÁ‚³‚¸‚Éc‚µ‚Ä‚¨‚­
+                    ProtocolsPlugin.Instance.PassphraseCache.Add(tcp.Destination, _destination.Account, _destination.PasswordOrPassphrase); //æ¥ç¶šæˆåŠŸæ™‚ã®ã¿ã‚»ãƒƒãƒˆ
+                //_destination.PasswordOrPassphrase = ""; æ¥ç¶šã®è¤‡è£½ã®ãŸã‚ã«ã“ã“ã§æ¶ˆã•ãšã«æ®‹ã—ã¦ãŠã
                 r.AttachTransmissionSide(ssh);
                 r.UsingSocks = _socks != null;
                 _result = r;
@@ -153,12 +153,12 @@ namespace Poderosa.Protocols {
         }
 
         public ITerminalConnection WaitConnection(IInterruptable intr, int timeout) {
-            //‚¿‚å‚Á‚Æ‹ê‚µ‚¢”»’è
+            //ã¡ã‚‡ã£ã¨è‹¦ã—ã„åˆ¤å®š
             if (!(intr is InterruptableConnector) && !(intr is LocalShellUtil.Connector))
                 throw new ArgumentException("IInterruptable object is not correct");
 
             if (!_event.WaitOne(timeout, true)) {
-                _timeout = true; //TODO Ú‘±‚ğ’†~‚·‚×‚«‚©
+                _timeout = true; //TODO æ¥ç¶šã‚’ä¸­æ­¢ã™ã¹ãã‹
                 _errorMessage = PEnv.Strings.GetString("Message.ConnectionTimedOut");
             }
             _event.Close();

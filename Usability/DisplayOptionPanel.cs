@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -491,7 +491,7 @@ namespace Poderosa.Forms {
         private void AdjustFontDescription(Font ascii, Font cjk) {
             int sz = (int)(ascii.Size + 0.5);
             if (/*GEnv.Options.Language==Language.English ||*/ ascii.Name == cjk.Name)
-                _fontDescription.Text = String.Format("{0},{1}pt", ascii.Name, sz); //Single‚ğint‚ÉƒLƒƒƒXƒg‚·‚é‚ÆØ‚èÌ‚Ä‚¾‚ªAlÌŒÜ“ü‚É‚µ‚Ä‚Ù‚µ‚¢‚Ì‚Å0.5‚ğ‘«‚µ‚Ä‚©‚çØ‚èÌ‚Ä‚é
+                _fontDescription.Text = String.Format("{0},{1}pt", ascii.Name, sz); //Singleã‚’intã«ã‚­ãƒ£ã‚¹ãƒˆã™ã‚‹ã¨åˆ‡ã‚Šæ¨ã¦ã ãŒã€å››æ¨äº”å…¥ã«ã—ã¦ã»ã—ã„ã®ã§0.5ã‚’è¶³ã—ã¦ã‹ã‚‰åˆ‡ã‚Šæ¨ã¦ã‚‹
             else
                 _fontDescription.Text = String.Format("{0}/{1},{2}pt", ascii.Name, cjk.Name, sz);
         }

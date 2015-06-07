@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -67,12 +67,12 @@ namespace Poderosa.LogViewer {
         }
 
         private CommandResult CmdShowPoderosaLog(ICommandTarget target) {
-            if (_session.IsWindowVisible) { //•\¦’†‚Ìê‡
+            if (_session.IsWindowVisible) { //è¡¨ç¤ºä¸­ã®å ´åˆ
                 _session.CurrentView.ParentForm.AsForm().Activate();
                 return CommandResult.Succeeded;
             }
             else {
-                //ƒZƒbƒVƒ‡ƒ“‚Ìì¬iƒIƒuƒWƒFƒNƒg‚Æ‚µ‚Ä‚ÍÄ—˜—pj
+                //ã‚»ãƒƒã‚·ãƒ§ãƒ³ã®ä½œæˆï¼ˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¨ã—ã¦ã¯å†åˆ©ç”¨ï¼‰
                 PopupViewCreationParam cp = new PopupViewCreationParam(_viewFactory);
                 cp.InitialSize = new Size(PoderosaLogViewControl.DefaultWidth, 300);
                 IPoderosaPopupWindow window = _coreServices.WindowManager.CreatePopupView(cp);

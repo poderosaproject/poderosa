@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,7 +46,7 @@ namespace Poderosa.Forms {
             this.DialogResult = DialogResult.None;
             try {
                 SSH2UserAuthKey key = SSH2UserAuthKey.FromSECSHStyleFile(_key.FileName, _passphraseBox.Text);
-                Debug.Assert(key != null); //—áŠO‚Å‚È‚¯‚ê‚Î¬Œ÷
+                Debug.Assert(key != null); //ä¾‹å¤–ã§ãªã‘ã‚Œã°æˆåŠŸ
                 _key.SetStatus(PrivateKeyStatus.OK, key);
                 this.DialogResult = DialogResult.OK;
             }

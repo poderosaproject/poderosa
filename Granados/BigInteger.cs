@@ -1,4 +1,4 @@
-//************************************************************************************
+﻿//************************************************************************************
 // BigInteger Class Version 1.03
 //
 // Copyright (c) 2002 Chew Keong TAN
@@ -118,7 +118,7 @@
 // [6] R. Baillie and S. S. Wagstaff Jr, "Lucas Pseudoprimes", Mathematics of Computation,
 //     Vol. 35, No. 152, Oct 1980, pp. 1391-1417.
 //
-// [7] H. C. Williams, "�douard Lucas and Primality Testing", Canadian Mathematical
+// [7] H. C. Williams, "ﾉdouard Lucas and Primality Testing", Canadian Mathematical
 //     Society Series of Monographs and Advance Texts, vol. 22, John Wiley & Sons, New York,
 //     NY, 1998.
 //

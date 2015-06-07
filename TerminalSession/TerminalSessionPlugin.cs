@@ -1,4 +1,4 @@
-/*
+Ôªø/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,11 +52,11 @@ namespace Poderosa.Sessions {
             TEnv.ReloadStringResource();
             _terminalViewFactory = new TerminalViewFactory();
             pm.FindExtensionPoint(WindowManagerConstants.VIEW_FACTORY_ID).RegisterExtension(_terminalViewFactory);
-            //Ç±ÇÃViewFactoryÇÕÉfÉtÉH
+            //„Åì„ÅÆViewFactory„ÅØ„Éá„Éï„Ç©
             foreach (IViewManagerFactory mf in pm.FindExtensionPoint(WindowManagerConstants.MAINWINDOWCONTENT_ID).GetExtensions())
                 mf.DefaultViewFactory = _terminalViewFactory;
 
-            //ÉçÉOÉCÉìÉ_ÉCÉAÉçÉOÇÃÉTÉ|Å[Égóp
+            //„É≠„Ç∞„Ç§„É≥„ÉÄ„Ç§„Ç¢„É≠„Ç∞„ÅÆ„Çµ„Éù„Éº„ÉàÁî®
             pm.CreateExtensionPoint("org.poderosa.terminalsessions.telnetSSHLoginDialogInitializer", typeof(ITelnetSSHLoginDialogInitializer), this);
             pm.CreateExtensionPoint("org.poderosa.terminalsessions.loginDialogUISupport", typeof(ILoginDialogUISupport), this);
             IExtensionPoint factory_point = pm.CreateExtensionPoint(TERMINAL_CONNECTION_FACTORY_ID, typeof(ITerminalConnectionFactory), this);
@@ -199,7 +199,7 @@ namespace Poderosa.Sessions {
             _identityFiles = new List<string>();
             _ports = new List<int>();
             _ports.Add(22);
-            _ports.Add(23); //Ç±ÇÍÇÁÇÕÉfÉtÉH
+            _ports.Add(23); //„Åì„Çå„Çâ„ÅØ„Éá„Éï„Ç©
         }
 
         public string[] Hosts {

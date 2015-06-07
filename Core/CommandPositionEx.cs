@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@ using System.Text;
 namespace Poderosa.Commands {
     /// <summary>
     /// <ja>
-    /// ƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚ÌˆÊ’u‚ğw’è‚µ‚Ü‚·B
+    /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã®ä½ç½®ã‚’æŒ‡å®šã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Specifies the position of the menu and the toolbar.
@@ -23,7 +23,7 @@ namespace Poderosa.Commands {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// Ú×‚ÍA<seealso cref="IPositionDesignation">IPositionDesignation</seealso>‚Ì‰ğà‚ğQÆ‚µ‚Ä‚­‚¾‚³‚¢B
+    /// è©³ç´°ã¯ã€<seealso cref="IPositionDesignation">IPositionDesignation</seealso>ã®è§£èª¬ã‚’å‚ç…§ã—ã¦ãã ã•ã„ã€‚
     /// </ja>
     /// <en>
     /// For more information, please refer to <seealso cref="IPositionDesignation">IPositionDesignation</seealso>.
@@ -31,27 +31,27 @@ namespace Poderosa.Commands {
     /// </remarks>
     public enum PositionType {
         /// <summary>
-        /// <ja>æ“ª</ja>
+        /// <ja>å…ˆé ­</ja>
         /// <en>First</en>
         /// </summary>
         First,
         /// <summary>
-        /// <ja>––”ö</ja>
+        /// <ja>æœ«å°¾</ja>
         /// <en>Last</en>
         /// </summary>
         Last,
         /// <summary>
-        /// <ja>‘ÎÛ‚Ì’¼‘O</ja>
+        /// <ja>å¯¾è±¡ã®ç›´å‰</ja>
         /// <en>Previous to the object.</en>
         /// </summary>
         PreviousTo,
         /// <summary>
-        /// <ja>‘ÎÛ‚Ì’¼Œã</ja>
+        /// <ja>å¯¾è±¡ã®ç›´å¾Œ</ja>
         /// <en>Next to the object.</en>
         /// </summary>
         NextTo,
         /// <summary>
-        /// <ja>–¾¦“I‚Éw’è‚µ‚È‚¢</ja>
+        /// <ja>æ˜ç¤ºçš„ã«æŒ‡å®šã—ãªã„</ja>
         /// <en>It doesn't specify it specifying it. </en>
         /// </summary>
         DontCare
@@ -60,18 +60,18 @@ namespace Poderosa.Commands {
 
     /// <summary>
     /// <ja>
-    /// ƒƒjƒ…[‚âƒc[ƒ‹ƒo[‚ÌˆÊ’u‚ğ§Œä‚·‚é‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚„ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã®ä½ç½®ã‚’åˆ¶å¾¡ã™ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface to control position of menu and toolbar
     /// </en>
     /// </summary>
     public interface IPositionDesignation : IAdaptable {
-        //Target‚Énull‚ğw’è‚µ‚½‚Æ‚«‚ÍAFirst, Last, DontCare‚Ì‚Ç‚ê‚©B
-        //Target‚ª”ñnull‚Ì‚Æ‚«‚ÍAPreviousTo, NextTo‚Ì‚Ç‚ê‚©B
+        //Targetã«nullã‚’æŒ‡å®šã—ãŸã¨ãã¯ã€First, Last, DontCareã®ã©ã‚Œã‹ã€‚
+        //TargetãŒénullã®ã¨ãã¯ã€PreviousTo, NextToã®ã©ã‚Œã‹ã€‚
         /// <summary>
         /// <ja>
-        /// ‚Ç‚Ì€–Ú‚É‘Î‚µ‚Ä‘OŒãŠÖŒW‚ğ¦‚·‚Ì‚©‚ğw’è‚µ‚Ü‚·B
+        /// ã©ã®é …ç›®ã«å¯¾ã—ã¦å‰å¾Œé–¢ä¿‚ã‚’ç¤ºã™ã®ã‹ã‚’æŒ‡å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Specifies items the context is shown.
@@ -80,11 +80,11 @@ namespace Poderosa.Commands {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ‚±‚ÌƒvƒƒpƒeƒB‚ÍA<seealso cref="DesignationPosition">DesignationPosition</seealso>‚Ì‘ÎÛ‚ğ¦‚µ‚Ü‚·B
+        /// ã“ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã¯ã€<seealso cref="DesignationPosition">DesignationPosition</seealso>ã®å¯¾è±¡ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </para>
         /// <para>
-        /// ƒƒjƒ…[‚Ìê‡‚É‚ÍA<seealso cref="IPoderosaMenuGroup">IPoderosaMenuGroup</seealso>‚ğAƒc[ƒ‹ƒo[‚Ìê‡‚É‚Í
-        /// <seealso cref="Poderosa.Forms.IToolBarComponent">IToolBarComponent</seealso>‚ğw’è‚µ‚Ü‚·B
+        /// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®å ´åˆã«ã¯ã€<seealso cref="IPoderosaMenuGroup">IPoderosaMenuGroup</seealso>ã‚’ã€ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã®å ´åˆã«ã¯
+        /// <seealso cref="Poderosa.Forms.IToolBarComponent">IToolBarComponent</seealso>ã‚’æŒ‡å®šã—ã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -101,7 +101,7 @@ namespace Poderosa.Commands {
         } //can be null
         /// <summary>
         /// <ja>
-        /// <seealso cref="DesignationTarget">DesignationTarget</seealso>‚É‘Î‚·‚éˆÊ’u‚ğw’è‚µ‚Ü‚·B
+        /// <seealso cref="DesignationTarget">DesignationTarget</seealso>ã«å¯¾ã™ã‚‹ä½ç½®ã‚’æŒ‡å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The position to <seealso cref="DesignationTarget">DesignationTarget</seealso> is specified. 
@@ -110,41 +110,41 @@ namespace Poderosa.Commands {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// w’è‚Å‚«‚éˆÊ’u‚ÍAuæ“ªvu––”övu’¼‘Ovu’¼Œãvu–¾¦“I‚Éw’è‚µ‚È‚¢v‚Ì‚¢‚¸‚ê‚©‚Å‚·B
+        /// æŒ‡å®šã§ãã‚‹ä½ç½®ã¯ã€ã€Œå…ˆé ­ã€ã€Œæœ«å°¾ã€ã€Œç›´å‰ã€ã€Œç›´å¾Œã€ã€Œæ˜ç¤ºçš„ã«æŒ‡å®šã—ãªã„ã€ã®ã„ãšã‚Œã‹ã§ã™ã€‚
         /// </para>
         /// <note type="implementnotes">
-        /// 2‚Â‚ÌˆÙ‚È‚éƒƒjƒ…[‚ª—¼Ò‚Æ‚àuæ“ªv‚ğ—v‹‚µ‚½ê‡‚È‚ÇAÀŒ»•s”\‚ÈˆÊ’u‚ª\¬‚³‚ê‚½‚Æ‚«‚É‚ÍA‡˜‚ÍPoderosa‚É‚æ‚Á‚Ä’²’â‚³‚ê‚Ü‚·B‚»‚Ì‚½‚ßA•K‚¸‚µ‚àw’è‚µ‚½ˆÊ’u‚Ç‚¨‚è‚É•À‚Ô‚Æ‚ÍŒÀ‚è‚Ü‚¹‚ñB
+        /// 2ã¤ã®ç•°ãªã‚‹ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒä¸¡è€…ã¨ã‚‚ã€Œå…ˆé ­ã€ã‚’è¦æ±‚ã—ãŸå ´åˆãªã©ã€å®Ÿç¾ä¸èƒ½ãªä½ç½®ãŒæ§‹æˆã•ã‚ŒãŸã¨ãã«ã¯ã€é †åºã¯Poderosaã«ã‚ˆã£ã¦èª¿åœã•ã‚Œã¾ã™ã€‚ãã®ãŸã‚ã€å¿…ãšã—ã‚‚æŒ‡å®šã—ãŸä½ç½®ã©ãŠã‚Šã«ä¸¦ã¶ã¨ã¯é™ã‚Šã¾ã›ã‚“ã€‚
         /// </note>
         /// <list type="table">
         ///     <listheader>
-        ///         <term>’l</term>
-        ///         <description>ˆÓ–¡</description>
-        ///         <description><seealso cref="DesignationTarget">DesignationTarget</seealso>‚Ì’l</description>
+        ///         <term>å€¤</term>
+        ///         <description>æ„å‘³</description>
+        ///         <description><seealso cref="DesignationTarget">DesignationTarget</seealso>ã®å€¤</description>
         ///     </listheader>
         ///     <item>
         ///         <term>First</term>
-        ///         <description>æ“ª</description>
-        ///         <description>null‚ğw’è‚µ‚Ä‚­‚¾‚³‚¢</description>
+        ///         <description>å…ˆé ­</description>
+        ///         <description>nullã‚’æŒ‡å®šã—ã¦ãã ã•ã„</description>
         ///     </item>
         ///     <item>
         ///         <term>Last</term>
-        ///         <description>––”ö</description>
-        ///         <description>null‚ğw’è‚µ‚Ä‚­‚¾‚³‚¢</description>
+        ///         <description>æœ«å°¾</description>
+        ///         <description>nullã‚’æŒ‡å®šã—ã¦ãã ã•ã„</description>
         ///     </item>
         ///     <item>
         ///         <term>PreviousTo</term>
-        ///         <description><seealso cref="DesignationTarget">DesignationTarget</seealso>‚Åw’è‚µ‚½€–Ú‚Ì’¼‘O</description>
-        ///         <description>‘ÎÛ€–Ú‚ğ“n‚µ‚Ä‚­‚¾‚³‚¢</description>
+        ///         <description><seealso cref="DesignationTarget">DesignationTarget</seealso>ã§æŒ‡å®šã—ãŸé …ç›®ã®ç›´å‰</description>
+        ///         <description>å¯¾è±¡é …ç›®ã‚’æ¸¡ã—ã¦ãã ã•ã„</description>
         ///     </item>
         ///     <item>
         ///         <term>NextTo</term>
-        ///         <description><seealso cref="DesignationTarget">DesignationTarget</seealso>‚Åw’è‚µ‚½€–Ú‚Ì’¼Œã</description>
-        ///         <description>‘ÎÛ€–Ú‚ğ“n‚µ‚Ä‚­‚¾‚³‚¢</description>
+        ///         <description><seealso cref="DesignationTarget">DesignationTarget</seealso>ã§æŒ‡å®šã—ãŸé …ç›®ã®ç›´å¾Œ</description>
+        ///         <description>å¯¾è±¡é …ç›®ã‚’æ¸¡ã—ã¦ãã ã•ã„</description>
         ///     </item>
         ///     <item>
         ///         <term>DontCare</term>
-        ///         <description>–¾¦“I‚Éw’è‚µ‚È‚¢</description>
-        ///         <description>null‚ğw’è‚µ‚Ä‚­‚¾‚³‚¢</description>
+        ///         <description>æ˜ç¤ºçš„ã«æŒ‡å®šã—ãªã„</description>
+        ///         <description>nullã‚’æŒ‡å®šã—ã¦ãã ã•ã„</description>
         ///     </item>
         /// </list>
         /// </ja>
@@ -195,7 +195,7 @@ namespace Poderosa.Commands {
         }
     }
 
-    //‚±‚ê‚¾‚¯‚È‚Ì‚Å“¯‚¶ƒtƒ@ƒCƒ‹‚Éƒ\[ƒ^‚ÆƒeƒXƒgƒP[ƒX‚Ü‚Å‘‚¢‚Ä‚µ‚Ü‚¤
+    //ã“ã‚Œã ã‘ãªã®ã§åŒã˜ãƒ•ã‚¡ã‚¤ãƒ«ã«ã‚½ãƒ¼ã‚¿ã¨ãƒ†ã‚¹ãƒˆã‚±ãƒ¼ã‚¹ã¾ã§æ›¸ã„ã¦ã—ã¾ã†
     /// <exclude/>
     public class PositionDesignationSorter {
         private class Entry : IComparable<Entry> {
@@ -216,45 +216,45 @@ namespace Poderosa.Commands {
                 }
             }
 
-            //ˆË‘¶‚µ‚Ä‚¢‚é‚à‚Ì‚ªæ‚É—ˆ‚é‚æ‚¤‚É•À‚Ñ‘Ö‚¦‚é
+            //ä¾å­˜ã—ã¦ã„ã‚‹ã‚‚ã®ãŒå…ˆã«æ¥ã‚‹ã‚ˆã†ã«ä¸¦ã³æ›¿ãˆã‚‹
             public int CompareTo(Entry other) {
                 if (this.IsIndependent) {
                     if (other.IsIndependent)
-                        return this.index - other.index; //Œ³‚Ì‡˜‚ğ•Û
+                        return this.index - other.index; //å…ƒã®é †åºã‚’ä¿æŒ
                     else
-                        return -1; //©•ª‚ª‘O‚É—ˆ‚é
+                        return -1; //è‡ªåˆ†ãŒå‰ã«æ¥ã‚‹
                 }
                 else {
                     if (other.IsIndependent)
-                        return 1; //©•ª‚ªŒã‚É—ˆ‚é
+                        return 1; //è‡ªåˆ†ãŒå¾Œã«æ¥ã‚‹
                     else {
                         int r = this.dependency.CompareTo(other.dependency);
                         if (r == 0)
-                            r = this.index - other.index; //ˆË‘¶æ‚Å”»’è‚Å‚«‚È‚¢ê‡‚Íd•û‚È‚¢
+                            r = this.index - other.index; //ä¾å­˜å…ˆã§åˆ¤å®šã§ããªã„å ´åˆã¯ä»•æ–¹ãªã„
                         return r;
                     }
                 }
             }
         }
 
-        //ˆË‘¶ŠÖŒW‚É]‚Á‚Äƒ\[ƒg‚·‚éBŠeIAdaptable‚ÍAƒIƒvƒVƒ‡ƒiƒ‹‚ÅIPositionDesignation‚ğÀ‘•‚·‚éB
-        //ˆË‘¶æ‚ª‚ ‚é‚È‚ç‚ÎAsrc‚ÉŠÜ‚Ü‚ê‚Ä‚¢‚é•K—v‚ª‚ ‚éB
+        //ä¾å­˜é–¢ä¿‚ã«å¾“ã£ã¦ã‚½ãƒ¼ãƒˆã™ã‚‹ã€‚å„IAdaptableã¯ã€ã‚ªãƒ—ã‚·ãƒ§ãƒŠãƒ«ã§IPositionDesignationã‚’å®Ÿè£…ã™ã‚‹ã€‚
+        //ä¾å­˜å…ˆãŒã‚ã‚‹ãªã‚‰ã°ã€srcã«å«ã¾ã‚Œã¦ã„ã‚‹å¿…è¦ãŒã‚ã‚‹ã€‚
         public static ICollection SortItems(ICollection src) {
             List<Entry> map = new List<Entry>(src.Count);
             int i = 0;
-            //Entry‚ğ\¬
+            //Entryã‚’æ§‹æˆ
             foreach (IAdaptable a in src) {
                 Debug.Assert(a != null);
                 map.Add(new Entry(i++, a));
             }
-            //ˆË‘¶æ‚ğƒ`ƒFƒbƒN
+            //ä¾å­˜å…ˆã‚’ãƒã‚§ãƒƒã‚¯
             foreach (Entry e in map)
                 e.dependency = FindDependencyFor(e, map);
-            //ƒ\[ƒg
-            //TODO ˆË‘¶ŠÖŒW‚Éƒ‹[ƒv‚ª‚ ‚é‚Æ‚«‚ğ‹~Ï
+            //ã‚½ãƒ¼ãƒˆ
+            //TODO ä¾å­˜é–¢ä¿‚ã«ãƒ«ãƒ¼ãƒ—ãŒã‚ã‚‹ã¨ãã‚’æ•‘æ¸ˆ
             map.Sort();
 
-            //Œ‹‰Ê‚Ì\’z
+            //çµæœã®æ§‹ç¯‰
             return BuildResult(map);
         }
 
@@ -264,9 +264,9 @@ namespace Poderosa.Commands {
             LinkedListNode<IAdaptable> lastzone = null;
             foreach (Entry e in map) {
                 if (e.dependency == null) {
-                    //ˆË‘¶•¨‚È‚µ‚Ì‚Î‚ ‚¢Afirst-dontcare-last‚ÌŠeƒ][ƒ“‡‚Å•À‚ÔBŠeƒ][ƒ““à‚ÍŒ³‚Ì“ü—Í‡‚ğ•Û
+                    //ä¾å­˜ç‰©ãªã—ã®ã°ã‚ã„ã€first-dontcare-lastã®å„ã‚¾ãƒ¼ãƒ³é †ã§ä¸¦ã¶ã€‚å„ã‚¾ãƒ¼ãƒ³å†…ã¯å…ƒã®å…¥åŠ›é †ã‚’ä¿æŒ
 
-                    //designation‚È‚µ‚ÍDontCare‚É“™‚µ‚¢
+                    //designationãªã—ã¯DontCareã«ç­‰ã—ã„
                     if (e.designation == null || e.designation.DesignationPosition == PositionType.DontCare) {
                         if (lastzone == null)
                             result.AddLast(e.content);
@@ -286,7 +286,7 @@ namespace Poderosa.Commands {
                             lastzone = result.AddBefore(lastzone, e.content);
                     }
                 }
-                else { //ˆË‘¶•¨‚ ‚è
+                else { //ä¾å­˜ç‰©ã‚ã‚Š
                     LinkedListNode<IAdaptable> n = result.Find(e.dependency.content);
                     Debug.Assert(n != null);
                     Debug.Assert(e.designation.DesignationPosition != PositionType.DontCare);
@@ -299,7 +299,7 @@ namespace Poderosa.Commands {
             return result;
         }
 
-        //ˆË‘¶æ‚ğŒ©‚Â‚¯‚é
+        //ä¾å­˜å…ˆã‚’è¦‹ã¤ã‘ã‚‹
         private static Entry FindDependencyFor(Entry e, List<Entry> map) {
             if (e.designation == null)
                 return null;

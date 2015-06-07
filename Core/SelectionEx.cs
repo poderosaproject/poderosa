@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +15,12 @@ using Poderosa.Commands;
 
 namespace Poderosa.View {
 
-    //‘I‘ğƒT[ƒrƒX
-    // “¯‚É•¡”‚ÌSelection‚ğ‚Â‚±‚Æ‚ª‚Å‚«‚é‚ªiFireFox‚È‚Ç‚à‚»‚¤‚È‚Á‚Ä‚¢‚éjAƒAƒNƒeƒBƒu‚È‚Ì‚Í“¯‚É‚Íˆê‚Â‚¾‚¯B
+    //é¸æŠã‚µãƒ¼ãƒ“ã‚¹
+    // åŒæ™‚ã«è¤‡æ•°ã®Selectionã‚’æŒã¤ã“ã¨ãŒã§ãã‚‹ãŒï¼ˆFireFoxãªã©ã‚‚ãã†ãªã£ã¦ã„ã‚‹ï¼‰ã€ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªã®ã¯åŒæ™‚ã«ã¯ä¸€ã¤ã ã‘ã€‚
 
     /// <summary>
     /// <ja>
-    /// ƒIƒuƒWƒFƒNƒg‚Ì‘I‘ğ‚ÉŠÖ‚·‚é‹@”\‚ğ’ñ‹Ÿ‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®é¸æŠã«é–¢ã™ã‚‹æ©Ÿèƒ½ã‚’æä¾›ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that offers function concerning selection of object
@@ -29,7 +29,7 @@ namespace Poderosa.View {
     public interface ISelectionService {
         /// <summary>
         /// <ja>
-        /// Œ»İ‚Ì‘I‘ğó‹µ‚ğŠÜ‚ŞISelection‚Å‚·B
+        /// ç¾åœ¨ã®é¸æŠçŠ¶æ³ã‚’å«ã‚€ISelectionã§ã™ã€‚
         /// </ja>
         /// <en>
         /// ISelection including present selection situation
@@ -37,7 +37,7 @@ namespace Poderosa.View {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// Œ»İƒAƒNƒeƒBƒu‚Èƒrƒ…[‚Ì<see cref="IPoderosaView.CurrentSelection">CurrentSelectionƒvƒƒpƒeƒB</see>‚ğQÆ‚·‚é‚Ì‚Æ“¯‚¶‚Å‚·B
+        /// ç¾åœ¨ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªãƒ“ãƒ¥ãƒ¼ã®<see cref="IPoderosaView.CurrentSelection">CurrentSelectionãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>ã‚’å‚ç…§ã™ã‚‹ã®ã¨åŒã˜ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is the same as the reference to the <see cref="IPoderosaView.CurrentSelection">CurrentSelection property</see> of an active view at present. 
@@ -45,10 +45,10 @@ namespace Poderosa.View {
         /// </remarks>
         ISelection ActiveSelection {
             get;
-        } //ActiveView‚ÌSelection‚Æ“¯‹`
+        } //ActiveViewã®Selectionã¨åŒç¾©
         /// <summary>
         /// <ja>
-        /// ƒfƒtƒHƒ‹ƒg‚ÌƒRƒs[‚â“\‚è•t‚¯‚ÉŠÖ‚·‚éƒRƒ}ƒ“ƒh‚Ö‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+        /// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ã‚³ãƒ”ãƒ¼ã‚„è²¼ã‚Šä»˜ã‘ã«é–¢ã™ã‚‹ã‚³ãƒãƒ³ãƒ‰ã¸ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Interface to command concerning copy and putting default.
@@ -61,7 +61,7 @@ namespace Poderosa.View {
 
     /// <summary>
     /// <ja>
-    /// ‘I‘ğó‘Ô‚ª•Ï‰»‚µ‚½‚Æ‚«‚Ì’Ê’m‚ğó‚¯æ‚éƒŠƒXƒi‚Å‚·B
+    /// é¸æŠçŠ¶æ…‹ãŒå¤‰åŒ–ã—ãŸã¨ãã®é€šçŸ¥ã‚’å—ã‘å–ã‚‹ãƒªã‚¹ãƒŠã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Listener that receives notification when selection changes.
@@ -70,7 +70,7 @@ namespace Poderosa.View {
     public interface ISelectionListener {
         /// <summary>
         /// <ja>
-        /// ‘I‘ğ‚ªŠJn‚³‚ê‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// é¸æŠãŒé–‹å§‹ã•ã‚ŒãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When the selection is begun, it is called. 
@@ -79,7 +79,7 @@ namespace Poderosa.View {
         void OnSelectionStarted();
         /// <summary>
         /// <ja>
-        /// ‘I‘ğ‚ªŠm’è‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// é¸æŠãŒç¢ºå®šã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When the selection is fixed, it is called. 
@@ -88,10 +88,10 @@ namespace Poderosa.View {
         void OnSelectionFixed();
     }
 
-    //‘I‘ğ‚µ‚Ä‚¢‚éƒIƒuƒWƒFƒNƒg ‘½‚­‚ÍŠeIPoderosaView‚ªŠÇ—‚·‚é‚¾‚ë‚¤
+    //é¸æŠã—ã¦ã„ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ å¤šãã¯å„IPoderosaViewãŒç®¡ç†ã™ã‚‹ã ã‚ã†
     /// <summary>
     /// <ja>
-    /// ‘I‘ğ‚µ‚Ä‚¢‚éƒIƒuƒWƒFƒNƒg‚ğ‘€ì‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// é¸æŠã—ã¦ã„ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ“ä½œã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that operates object that has been selected
@@ -99,8 +99,8 @@ namespace Poderosa.View {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ƒ^[ƒ~ƒiƒ‹ƒGƒ~ƒ…ƒŒ[ƒ^‚Å‚ ‚éƒrƒ…[‚Ìê‡AGetAdapterƒƒ\ƒbƒh‚ğg‚¤‚±‚Æ‚Å
-    /// <seealso cref="ITextSelection">ITextSelecton</seealso>‚Ö‚Æ•ÏŠ·‚Å‚«‚Ü‚·B
+    /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚¨ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚¿ã§ã‚ã‚‹ãƒ“ãƒ¥ãƒ¼ã®å ´åˆã€GetAdapterãƒ¡ã‚½ãƒƒãƒ‰ã‚’ä½¿ã†ã“ã¨ã§
+    /// <seealso cref="ITextSelection">ITextSelecton</seealso>ã¸ã¨å¤‰æ›ã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// It is possible to convert it into <seealso cref="ITextSelection">ITextSelecton</seealso> by using the GetAdapter 
@@ -110,7 +110,7 @@ namespace Poderosa.View {
     public interface ISelection : ICommandTarget {
         /// <summary>
         /// <ja>
-        /// Š—L‚·‚éƒrƒ…[‚ğ¦‚µ‚Ü‚·B
+        /// æ‰€æœ‰ã™ã‚‹ãƒ“ãƒ¥ãƒ¼ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The owned view is shown. 
@@ -122,40 +122,40 @@ namespace Poderosa.View {
 
         /// <summary>
         /// <ja>
-        /// ‘I‘ğ”ÍˆÍ‚ª•Ï‰»‚µ‚½‚Æ‚«‚ÌƒŠƒXƒi‚ğ“o˜^‚µ‚Ü‚·B
+        /// é¸æŠç¯„å›²ãŒå¤‰åŒ–ã—ãŸã¨ãã®ãƒªã‚¹ãƒŠã‚’ç™»éŒ²ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The listener when the range of the selection changes is registered. 
         /// </en>
         /// </summary>
-        /// <param name="listener"><ja>“o˜^‚·‚éƒŠƒXƒi</ja><en>The listener to regist.</en></param>
+        /// <param name="listener"><ja>ç™»éŒ²ã™ã‚‹ãƒªã‚¹ãƒŠ</ja><en>The listener to regist.</en></param>
         void AddSelectionListener(ISelectionListener listener);
         /// <summary>
         /// <ja>
-        /// ‘I‘ğ”ÍˆÍ‚ª•Ï‰»‚µ‚½‚Æ‚«‚ÌƒŠƒXƒi‚ğ‰ğœ‚µ‚Ü‚·B
+        /// é¸æŠç¯„å›²ãŒå¤‰åŒ–ã—ãŸã¨ãã®ãƒªã‚¹ãƒŠã‚’è§£é™¤ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The listener when the range of the selection changes is released. 
         /// </en>
         /// </summary>
         /// <param name="listener">
-        /// <ja>‰ğœ‚·‚éƒŠƒXƒi</ja>
+        /// <ja>è§£é™¤ã™ã‚‹ãƒªã‚¹ãƒŠ</ja>
         /// <en>The listener to remove.</en>
         /// </param>
         void RemoveSelectionListener(ISelectionListener listener);
     }
 
-    /* “TŒ^“I‚ÈƒVƒiƒŠƒI
-     * @‘I‘ğŠJnEI—¹‚ÌUI‘€ì‚ÍView“à‚Å•Â‚¶‚éB‚»‚Ì’†‚ÅSelection‚Ì“à•”ó‘Ô‚ğXV‚·‚éB
-     * @View‚Ì•`‰æ‚É‚¨‚¢‚Ä‚ÍA©g‚ÌSelection‚ª‚ ‚ê‚Î‚»‚ê‚ğ‚à‚Æ‚É•`‰æ‚·‚éB
-     * @ƒRƒs[‚È‚Ç‚Ì”Ä—pƒRƒ}ƒ“ƒh‚ÍASelection‚É‘Î‚µ‚ÄTranslateCommand‚ğŒÄ‚ñ‚ÅASelection‚Ìƒ^ƒCƒv‚É‚æ‚éŒÅ—LƒRƒ}ƒ“ƒh‚ğ•Ô‚³‚¹‚éB
-     * @ƒRƒ“ƒeƒLƒXƒgƒƒjƒ…[‚ÍASelection‚ğCommandTarget‚Æ‚·‚éƒƒjƒ…[ƒcƒŠ[‚ğƒrƒ…[‚ª—pˆÓ‚µ‚Ä•\¦‚·‚é
+    /* å…¸å‹çš„ãªã‚·ãƒŠãƒªã‚ª
+     * ã€€é¸æŠé–‹å§‹ãƒ»çµ‚äº†ã®UIæ“ä½œã¯Viewå†…ã§é–‰ã˜ã‚‹ã€‚ãã®ä¸­ã§Selectionã®å†…éƒ¨çŠ¶æ…‹ã‚’æ›´æ–°ã™ã‚‹ã€‚
+     * ã€€Viewã®æç”»ã«ãŠã„ã¦ã¯ã€è‡ªèº«ã®SelectionãŒã‚ã‚Œã°ãã‚Œã‚’ã‚‚ã¨ã«æç”»ã™ã‚‹ã€‚
+     * ã€€ã‚³ãƒ”ãƒ¼ãªã©ã®æ±ç”¨ã‚³ãƒãƒ³ãƒ‰ã¯ã€Selectionã«å¯¾ã—ã¦TranslateCommandã‚’å‘¼ã‚“ã§ã€Selectionã®ã‚¿ã‚¤ãƒ—ã«ã‚ˆã‚‹å›ºæœ‰ã‚³ãƒãƒ³ãƒ‰ã‚’è¿”ã•ã›ã‚‹ã€‚
+     * ã€€ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼ã¯ã€Selectionã‚’CommandTargetã¨ã™ã‚‹ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãƒ„ãƒªãƒ¼ã‚’ãƒ“ãƒ¥ãƒ¼ãŒç”¨æ„ã—ã¦è¡¨ç¤ºã™ã‚‹
      */
 
-    //ƒeƒLƒXƒg‚Ì‘I‘ğ—p
+    //ãƒ†ã‚­ã‚¹ãƒˆã®é¸æŠç”¨
     /// <summary>
     /// <ja>
-    /// ƒeƒLƒXƒg‚ğ‘I‘ğ‚·‚é‚Æ‚«‚Ì‘®‚ğw’è‚µ‚Ü‚·B
+    /// ãƒ†ã‚­ã‚¹ãƒˆã‚’é¸æŠã™ã‚‹ã¨ãã®æ›¸å¼ã‚’æŒ‡å®šã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The format when the text is selected is specified. 
@@ -164,7 +164,7 @@ namespace Poderosa.View {
     public enum TextFormatOption {
         /// <summary>
         /// <ja>
-        /// •W€“I‚ÈƒeƒLƒXƒg‚Æ‚µ‚Ä•Ô‚µ‚Ü‚·B
+        /// æ¨™æº–çš„ãªãƒ†ã‚­ã‚¹ãƒˆã¨ã—ã¦è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Returns as a standard text. 
@@ -173,7 +173,7 @@ namespace Poderosa.View {
         Default,
         /// <summary>
         /// <ja>
-        /// Œ©‚½‚Ü‚Ü‚Ìó‘Ô‚Å•Ô‚µ‚Ü‚·B‚·‚È‚í‚¿ƒrƒ…[‚Ì‰E’[‚ÅÜ‚è•Ô‚³‚ê‚½‰ÓŠ‚É\r\n‚ª•t‚«‚Ü‚·B
+        /// è¦‹ãŸã¾ã¾ã®çŠ¶æ…‹ã§è¿”ã—ã¾ã™ã€‚ã™ãªã‚ã¡ãƒ“ãƒ¥ãƒ¼ã®å³ç«¯ã§æŠ˜ã‚Šè¿”ã•ã‚ŒãŸç®‡æ‰€ã«\r\nãŒä»˜ãã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It returns it while seen. That is, \r\n adheres to the part turned on a right edge of the view. 
@@ -184,7 +184,7 @@ namespace Poderosa.View {
 
     /// <summary>
     /// <ja>
-    /// ‘I‘ğ‚³‚ê‚Ä‚¢‚éƒeƒLƒXƒg‚ğ‘€ì‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// é¸æŠã•ã‚Œã¦ã„ã‚‹ãƒ†ã‚­ã‚¹ãƒˆã‚’æ“ä½œã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that operates text that has been selected.
@@ -192,7 +192,7 @@ namespace Poderosa.View {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ƒ^[ƒ~ƒiƒ‹ƒGƒ~ƒ…ƒŒ[ƒ^‚ğ¦‚·ƒrƒ…[‚Ìê‡AISelection‚ÍA‚±‚ÌITextSelection‚Ö‚Æ•ÏŠ·‚Å‚«‚Ü‚·B
+    /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚¨ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚¿ã‚’ç¤ºã™ãƒ“ãƒ¥ãƒ¼ã®å ´åˆã€ISelectionã¯ã€ã“ã®ITextSelectionã¸ã¨å¤‰æ›ã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// ISelection can be converted into this ITextSelection for the view that shows the terminal emulator. 
@@ -200,14 +200,14 @@ namespace Poderosa.View {
     /// </remarks>
     /// <example>
     /// <ja>
-    /// ƒAƒNƒeƒBƒu‚Èƒrƒ…[‚Å‘I‘ğ‚³‚ê‚Ä‚¢‚éƒeƒLƒXƒg‚ğæ“¾‚µ‚Ü‚·B
+    /// ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªãƒ“ãƒ¥ãƒ¼ã§é¸æŠã•ã‚Œã¦ã„ã‚‹ãƒ†ã‚­ã‚¹ãƒˆã‚’å–å¾—ã—ã¾ã™ã€‚
     /// <code>
-    /// // <value>target</value>‚©‚çƒAƒNƒeƒBƒu‚Èƒrƒ…[‚ğ“¾‚Ü‚·
+    /// // <value>target</value>ã‹ã‚‰ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªãƒ“ãƒ¥ãƒ¼ã‚’å¾—ã¾ã™
     /// IPoderosaView view = CommandTargetUtil.AsViewOrLastActivatedView(target);
-    /// // ITextSelection‚ğ“¾‚Ü‚·B
+    /// // ITextSelectionã‚’å¾—ã¾ã™ã€‚
     /// ITextSelection select = (ITextSelection)view.CurrentSelection.GetAdapter(
     ///   typeof(ITextSelection));
-    /// // ‘I‘ğ‚³‚ê‚Ä‚¢‚éƒeƒLƒXƒg‚ğ“¾‚Ü‚·
+    /// // é¸æŠã•ã‚Œã¦ã„ã‚‹ãƒ†ã‚­ã‚¹ãƒˆã‚’å¾—ã¾ã™
     /// if ((select != null) &amp;&amp; (!select.IsEmpty))
     /// {
     ///   MessageBox.Show(select.GetSelectedText(TextFormatOption.Default));
@@ -233,18 +233,18 @@ namespace Poderosa.View {
     public interface ITextSelection : ISelection {
         /// <summary>
         /// <ja>
-        /// ‘I‘ğ‚³‚ê‚Ä‚¢‚éƒeƒLƒXƒg‚ğ“¾‚Ü‚·B
+        /// é¸æŠã•ã‚Œã¦ã„ã‚‹ãƒ†ã‚­ã‚¹ãƒˆã‚’å¾—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The text that has been selected is obtained. 
         /// </en>
         /// </summary>
-        /// <param name="opt"><ja>æ“¾‚·‚éƒtƒH[ƒ}ƒbƒg‚ğw’è‚µ‚Ü‚·B</ja><en>Specifies the acquired format.</en></param>
-        /// <returns><ja>‘I‘ğ‚³‚ê‚Ä‚¢‚éƒeƒLƒXƒg‚Å‚·B</ja><en>Selected text</en></returns>
+        /// <param name="opt"><ja>å–å¾—ã™ã‚‹ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã‚’æŒ‡å®šã—ã¾ã™ã€‚</ja><en>Specifies the acquired format.</en></param>
+        /// <returns><ja>é¸æŠã•ã‚Œã¦ã„ã‚‹ãƒ†ã‚­ã‚¹ãƒˆã§ã™ã€‚</ja><en>Selected text</en></returns>
         string GetSelectedText(TextFormatOption opt);
         /// <summary>
         /// <ja>
-        /// ‘I‘ğ‚³‚ê‚Ä‚¢‚éƒeƒLƒXƒg‚ª‘¶İ‚·‚é‚©‚Ç‚¤‚©‚ğ¦‚µ‚Ü‚·B‰½‚à‘I‘ğ‚³‚ê‚Ä‚¢‚È‚¢‚Æ‚«‚É‚ÍtrueA‘I‘ğ‚³‚ê‚Ä‚¢‚é‚Æ‚«‚É‚Ífalse‚Å‚·B
+        /// é¸æŠã•ã‚Œã¦ã„ã‚‹ãƒ†ã‚­ã‚¹ãƒˆãŒå­˜åœ¨ã™ã‚‹ã‹ã©ã†ã‹ã‚’ç¤ºã—ã¾ã™ã€‚ä½•ã‚‚é¸æŠã•ã‚Œã¦ã„ãªã„ã¨ãã«ã¯trueã€é¸æŠã•ã‚Œã¦ã„ã‚‹ã¨ãã«ã¯falseã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is shown whether the text that has been selected exists. When true and selected, it is false when nothing has been selected. 
@@ -255,7 +255,7 @@ namespace Poderosa.View {
         }
         /// <summary>
         /// <ja>
-        /// ‚·‚×‚Ä‘I‘ğó‘Ô‚É‚µ‚Ü‚·B
+        /// ã™ã¹ã¦é¸æŠçŠ¶æ…‹ã«ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It all puts it into the state of the selection. 
@@ -264,7 +264,7 @@ namespace Poderosa.View {
         void SelectAll();
         /// <summary>
         /// <ja>
-        /// ‰½‚à‘I‘ğ‚³‚ê‚Ä‚¢‚È‚¢ó‘Ô‚É‚µ‚Ü‚·B
+        /// ä½•ã‚‚é¸æŠã•ã‚Œã¦ã„ãªã„çŠ¶æ…‹ã«ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It puts it into the state that nothing has been selected. 

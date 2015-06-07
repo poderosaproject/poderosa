@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,12 +23,12 @@ using Poderosa.Terminal;
 using Poderosa.Preferences;
 using Poderosa.Sessions;
 
-//‹N“®‚Ì‚‘¬‰»‚Ì‚½‚ßA‚±‚±‚Å‚ÍGranados‚ğŒÄ‚Î‚È‚¢‚æ‚¤‚É’ˆÓ‚·‚é
+//èµ·å‹•ã®é«˜é€ŸåŒ–ã®ãŸã‚ã€ã“ã“ã§ã¯Granadosã‚’å‘¼ã°ãªã„ã‚ˆã†ã«æ³¨æ„ã™ã‚‹
 
 namespace Poderosa.Terminal {
     /// <summary>
     /// <ja>
-    /// ƒ^[ƒ~ƒiƒ‹ƒGƒ~ƒ…ƒŒ[ƒ^‚ÌƒIƒvƒVƒ‡ƒ“‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã‚¿ãƒ¼ãƒŸãƒŠãƒ«ã‚¨ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚¿ã®ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows option of terminal emulator
@@ -37,14 +37,14 @@ namespace Poderosa.Terminal {
     /// <exclude/>
     public interface ITerminalEmulatorOptions {
         /// <summary>
-        /// <ja>ƒtƒHƒ“ƒg‚ğ¦‚µ‚Ü‚·B</ja><en>The font is shown. </en>
+        /// <ja>ãƒ•ã‚©ãƒ³ãƒˆã‚’ç¤ºã—ã¾ã™ã€‚</ja><en>The font is shown. </en>
         /// </summary>
         Font Font {
             get;
             set;
         }
         /// <summary>
-        /// <ja>CJKƒtƒHƒ“ƒg‚ğ¦‚µ‚Ü‚·</ja>
+        /// <ja>CJKãƒ•ã‚©ãƒ³ãƒˆã‚’ç¤ºã—ã¾ã™</ja>
         /// <en>A CJK font is shown. </en>
         /// </summary>
         Font CJKFont {
@@ -53,7 +53,7 @@ namespace Poderosa.Terminal {
         }
 
         /// <summary>
-        /// <ja>Ø’f‚³‚ê‚½‚Æ‚«‚É•Â‚¶‚é‚©‚Ç‚¤‚©‚Ìƒtƒ‰ƒO‚Å‚·B</ja>
+        /// <ja>åˆ‡æ–­ã•ã‚ŒãŸã¨ãã«é–‰ã˜ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°ã§ã™ã€‚</ja>
         /// <en>Flag whether close when closed</en>
         /// </summary>
         bool CloseOnDisconnect {
@@ -62,7 +62,7 @@ namespace Poderosa.Terminal {
         }
 
         /// <summary>
-        /// <ja>ƒxƒ‹‹L†‚ª“—ˆ‚µ‚½‚Æ‚«‚Éƒr[ƒv‚ğ–Â‚ç‚·‚©‚Ç‚¤‚©‚Ìƒtƒ‰ƒO‚Å‚·B</ja>
+        /// <ja>ãƒ™ãƒ«è¨˜å·ãŒåˆ°æ¥ã—ãŸã¨ãã«ãƒ“ãƒ¼ãƒ—ã‚’é³´ã‚‰ã™ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°ã§ã™ã€‚</ja>
         /// <en>Flag whether to sound beep when the bell character comes. </en>
         /// </summary>
         bool BeepOnBellChar {
@@ -71,7 +71,7 @@ namespace Poderosa.Terminal {
         }
 
         /// <summary>
-        /// <ja>ƒ{[ƒ‹ƒh‚ğ‹­§‚·‚é‚©‚Ç‚¤‚©‚Ìƒtƒ‰ƒO</ja>
+        /// <ja>ãƒœãƒ¼ãƒ«ãƒ‰ã‚’å¼·åˆ¶ã™ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°</ja>
         /// <en>Flag whether force bold style</en>
         /// </summary>
         bool ForceBoldStyle {
@@ -80,7 +80,7 @@ namespace Poderosa.Terminal {
         }
 
         /// <summary>
-        /// <ja>sŠÔƒXƒy[ƒX (ƒsƒNƒZƒ‹)</ja>
+        /// <ja>è¡Œé–“ã‚¹ãƒšãƒ¼ã‚¹ (ãƒ”ã‚¯ã‚»ãƒ«)</ja>
         /// <en>Line spacing (pixels)</en>
         /// </summary>
         int LineSpacing {
@@ -88,9 +88,9 @@ namespace Poderosa.Terminal {
             set;
         }
 
-        //ƒL[İ’èŒn
+        //ã‚­ãƒ¼è¨­å®šç³»
         /// <summary>
-        /// <ja>DELƒL[‚Å0x7FƒR[ƒh‚ğ‘—M‚·‚é‚©‚Ç‚¤‚©‚Ìƒtƒ‰ƒO‚Å‚·B</ja>
+        /// <ja>DELã‚­ãƒ¼ã§0x7Fã‚³ãƒ¼ãƒ‰ã‚’é€ä¿¡ã™ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°ã§ã™ã€‚</ja>
         /// <en>Flag whether to transmit 0x7F code with DEL key.</en>
         /// </summary>
         bool Send0x7FByDel {
@@ -214,7 +214,7 @@ namespace Poderosa.Terminal {
             set;
         }
 
-        //ShellSupport‚ª‚ç‚İ
+        //ShellSupportãŒã‚‰ã¿
         bool EnableComplementForNewConnections {
             get;
             set;
@@ -232,7 +232,7 @@ namespace Poderosa.Terminal {
         // Copy and Paste
 
         /// <summary>
-        /// <ja>‰üs•¶š‚ªƒy[ƒXƒg‚³‚ê‚é‚ÉŒx‚ğ•\¦‚·‚é‚©‚Ç‚¤‚©</ja>
+        /// <ja>æ”¹è¡Œæ–‡å­—ãŒãƒšãƒ¼ã‚¹ãƒˆã•ã‚Œã‚‹æ™‚ã«è­¦å‘Šã‚’è¡¨ç¤ºã™ã‚‹ã‹ã©ã†ã‹</ja>
         /// <en>Setting whether alert is shown when a new-line character will be pasted</en>
         /// </summary>
         bool AlertOnPasteNewLineChar {
@@ -241,7 +241,7 @@ namespace Poderosa.Terminal {
         }
 
 
-        //PreferenceEditor‚Ì‚İ‚Å•ÒW‰Â”\
+        //PreferenceEditorã®ã¿ã§ç·¨é›†å¯èƒ½
         Keys IntelliSenseKey {
             get;
         }
@@ -253,14 +253,14 @@ namespace Poderosa.Terminal {
         }
 
 
-        RenderProfile CreateRenderProfile(); //NOTE ‚±‚ê‚ÍˆÓ–¡“I‚É‚¿‚å‚Á‚Æ‚Ü‚¸‚¢‚©‚àBPreference‚É“Á‰»‚·‚×‚«‚©
+        RenderProfile CreateRenderProfile(); //NOTE ã“ã‚Œã¯æ„å‘³çš„ã«ã¡ã‚‡ã£ã¨ã¾ãšã„ã‹ã‚‚ã€‚Preferenceã«ç‰¹åŒ–ã™ã¹ãã‹
     }
 
     internal class TerminalOptions : SnapshotAwarePreferenceBase, ITerminalEmulatorOptions {
-        //•\¦
+        //è¡¨ç¤º
         private IStringPreferenceItem _fontName;
         private IStringPreferenceItem _cjkFontName;
-        private IIntPreferenceItem _fontSize; //float‚É‚·‚×‚«‚©‚È‚ 
+        private IIntPreferenceItem _fontSize; //floatã«ã™ã¹ãã‹ãªã‚
         private IBoolPreferenceItem _useClearType;
         private IBoolPreferenceItem _enableBoldStyle;
         private IBoolPreferenceItem _forceBoldStyle;
@@ -277,7 +277,7 @@ namespace Poderosa.Terminal {
         private EnumPreferenceItem<CaretType> _caretType;
         private IBoolPreferenceItem _caretBlink;
 
-        //ƒ^[ƒ~ƒiƒ‹
+        //ã‚¿ãƒ¼ãƒŸãƒŠãƒ«
         private IBoolPreferenceItem _closeOnDisconnect;
         private IBoolPreferenceItem _beepOnBellChar;
         private IBoolPreferenceItem _askCloseOnExit;
@@ -289,7 +289,7 @@ namespace Poderosa.Terminal {
         private IBoolPreferenceItem _commandPopupInTaskBar;
 
 
-        //‘€ì
+        //æ“ä½œ
         private IIntPreferenceItem _terminalBufferSize;
         private IBoolPreferenceItem _send0x7FByDel;
         private IBoolPreferenceItem _send0x7FByBack;
@@ -299,21 +299,21 @@ namespace Poderosa.Terminal {
         private IIntPreferenceItem _keepAliveInterval;
         private IStringPreferenceItem _additionalWordElement;
 
-        //ƒ}ƒEƒX‚ÆƒL[ƒ{[ƒh
+        //ãƒã‚¦ã‚¹ã¨ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰
         private IIntPreferenceItem _wheelAmount;
         private EnumPreferenceItem<AltKeyAction> _leftAltKey;
         private EnumPreferenceItem<AltKeyAction> _rightAltKey;
         private EnumPreferenceItem<MouseButtonAction> _rightButtonAction;
         private EnumPreferenceItem<MouseButtonAction> _middleButtonAction;
 
-        //ƒƒO
+        //ãƒ­ã‚°
         private EnumPreferenceItem<LogType> _defaultLogType;
         private IStringPreferenceItem _defaultLogDirectory;
 
         // Copy and Paste
         private IBoolPreferenceItem _alertOnPasteNewLineChar;
 
-        //PreferenceEditor‚Ì‚İ
+        //PreferenceEditorã®ã¿
         private bool _parseKeyRequired;
         private Keys _intelliSenseKeyCache;
         private Keys _commandPopupKeyCache;
@@ -321,7 +321,7 @@ namespace Poderosa.Terminal {
         private IStringPreferenceItem _commandPopupKey;
         private IIntPreferenceItem _shellHistoryLimitCount;
 
-        //‚±‚Ì‚Q‚Â‚Íã‹L—v‘f‚©‚çì¬
+        //ã“ã®ï¼’ã¤ã¯ä¸Šè¨˜è¦ç´ ã‹ã‚‰ä½œæˆ
         private Font _font;
         private Font _cjkFont;
 
@@ -331,10 +331,10 @@ namespace Poderosa.Terminal {
         }
 
         public override void DefineItems(IPreferenceBuilder builder) {
-            //•\¦
+            //è¡¨ç¤º
             _fontName = builder.DefineStringValue(_folder, "fontName", "Courier New", null);
-            _cjkFontName = builder.DefineStringValue(_folder, "cjkFontName", "‚l‚r ƒSƒVƒbƒN", null);
-            _fontSize = builder.DefineIntValue(_folder, "fontSize", 10, PreferenceValidatorUtil.PositiveIntegerValidator); //float‚É‚·‚×‚«‚©‚È‚ 
+            _cjkFontName = builder.DefineStringValue(_folder, "cjkFontName", "ï¼­ï¼³ ã‚´ã‚·ãƒƒã‚¯", null);
+            _fontSize = builder.DefineIntValue(_folder, "fontSize", 10, PreferenceValidatorUtil.PositiveIntegerValidator); //floatã«ã™ã¹ãã‹ãªã‚
             _useClearType = builder.DefineBoolValue(_folder, "useClearType", true, null);
             _enableBoldStyle = builder.DefineBoolValue(_folder, "enableBoldStyle", true, null);
             _forceBoldStyle = builder.DefineBoolValue(_folder, "forceBoldStyle", false, null);
@@ -350,7 +350,7 @@ namespace Poderosa.Terminal {
             _caretType = new EnumPreferenceItem<CaretType>(builder.DefineStringValue(_folder, "caretType", "Box", null), CaretType.Box);
             _caretBlink = builder.DefineBoolValue(_folder, "caretBlink", true, null);
 
-            //ƒ^[ƒ~ƒiƒ‹
+            //ã‚¿ãƒ¼ãƒŸãƒŠãƒ«
             _closeOnDisconnect = builder.DefineBoolValue(_folder, "closeOnDisconnect", true, null);
             _beepOnBellChar = builder.DefineBoolValue(_folder, "beepOnBellChar", false, null);
             _askCloseOnExit = builder.DefineBoolValue(_folder, "askCloseOnExit", true, null);
@@ -360,7 +360,7 @@ namespace Poderosa.Terminal {
             _commandPopupAlwaysOnTop = builder.DefineBoolValue(_folder, "commandPopupAlwaysOnTop", false, null);
             _commandPopupInTaskBar = builder.DefineBoolValue(_folder, "commandPopupInTaskBar", false, null);
 
-            //‘€ì
+            //æ“ä½œ
             _terminalBufferSize = builder.DefineIntValue(_folder, "terminalBufferSize", 1000, PreferenceValidatorUtil.PositiveIntegerValidator);
             _send0x7FByDel = builder.DefineBoolValue(_folder, "send0x7FByDel", false, null);
             _send0x7FByBack = builder.DefineBoolValue(_folder, "send0x7FByBack", false, null);
@@ -370,31 +370,31 @@ namespace Poderosa.Terminal {
             _keepAliveInterval = builder.DefineIntValue(_folder, "keepAliveInterval", 60000, PreferenceValidatorUtil.IntRangeValidator(0, 100 * 60000));
             _additionalWordElement = builder.DefineStringValue(_folder, "additionalWordElement", "", null);
 
-            //ƒ}ƒEƒX‚ÆƒL[ƒ{[ƒh
+            //ãƒã‚¦ã‚¹ã¨ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰
             _wheelAmount = builder.DefineIntValue(_folder, "wheelAmount", 3, PreferenceValidatorUtil.PositiveIntegerValidator);
             _leftAltKey = new EnumPreferenceItem<AltKeyAction>(builder.DefineStringValue(_folder, "leftAltKey", "Menu", null), AltKeyAction.Menu);
             _rightAltKey = new EnumPreferenceItem<AltKeyAction>(builder.DefineStringValue(_folder, "rightAltKey", "Menu", null), AltKeyAction.Menu);
             _rightButtonAction = new EnumPreferenceItem<MouseButtonAction>(builder.DefineStringValue(_folder, "rightButtonAction", "ContextMenu", null), MouseButtonAction.ContextMenu);
             _middleButtonAction = new EnumPreferenceItem<MouseButtonAction>(builder.DefineStringValue(_folder, "middleButtonAction", "None", null), MouseButtonAction.None);
 
-            //ƒƒO
+            //ãƒ­ã‚°
             _defaultLogType = new EnumPreferenceItem<LogType>(builder.DefineStringValue(_folder, "defaultLogType", "None", null), LogType.None);
             _defaultLogDirectory = builder.DefineStringValue(_folder, "defaultLogDirectory", "", null);
 
             // Copy and Paste
             _alertOnPasteNewLineChar = builder.DefineBoolValue(_folder, "alertOnPasteNewLineChar", true, null);
 
-            //PreferenceEditor‚Ì‚İ
+            //PreferenceEditorã®ã¿
             _intelliSenseKey = builder.DefineStringValue(_folder, "intelliSenseKey", "Ctrl+OemPeriod", PreferenceValidatorUtil.KeyWithModifierValidator);
             _commandPopupKey = builder.DefineStringValue(_folder, "commandPopupKey", "Ctrl+Oemcomma", PreferenceValidatorUtil.KeyWithModifierValidator);
             _parseKeyRequired = true;
             _shellHistoryLimitCount = builder.DefineIntValue(_folder, "shellHistoryLimitCount", 100, PreferenceValidatorUtil.PositiveIntegerValidator);
         }
         public TerminalOptions Import(TerminalOptions src) {
-            //•\¦
+            //è¡¨ç¤º
             _fontName = ConvertItem(src._fontName);
             _cjkFontName = ConvertItem(src._cjkFontName);
-            _fontSize = ConvertItem(src._fontSize); //float‚É‚·‚×‚«‚©‚È‚ 
+            _fontSize = ConvertItem(src._fontSize); //floatã«ã™ã¹ãã‹ãªã‚
             _useClearType = ConvertItem(src._useClearType);
             _enableBoldStyle = ConvertItem(src._enableBoldStyle);
             _forceBoldStyle = ConvertItem(src._forceBoldStyle);
@@ -410,7 +410,7 @@ namespace Poderosa.Terminal {
             _caretType = ConvertItem<CaretType>(src._caretType);
             _caretBlink = ConvertItem(src._caretBlink);
 
-            //ƒ^[ƒ~ƒiƒ‹
+            //ã‚¿ãƒ¼ãƒŸãƒŠãƒ«
             _closeOnDisconnect = ConvertItem(src._closeOnDisconnect);
             _beepOnBellChar = ConvertItem(src._beepOnBellChar);
             _askCloseOnExit = ConvertItem(src._askCloseOnExit);
@@ -420,7 +420,7 @@ namespace Poderosa.Terminal {
             _commandPopupAlwaysOnTop = ConvertItem(src._commandPopupAlwaysOnTop);
             _commandPopupInTaskBar = ConvertItem(src._commandPopupInTaskBar);
 
-            //‘€ì
+            //æ“ä½œ
             _terminalBufferSize = ConvertItem(src._terminalBufferSize);
             _send0x7FByDel = ConvertItem(src._send0x7FByDel);
             _send0x7FByBack = ConvertItem(src._send0x7FByBack);
@@ -430,21 +430,21 @@ namespace Poderosa.Terminal {
             _keepAliveInterval = ConvertItem(src._keepAliveInterval);
             _additionalWordElement = ConvertItem(src._additionalWordElement);
 
-            //ƒ}ƒEƒX‚ÆƒL[ƒ{[ƒh
+            //ãƒã‚¦ã‚¹ã¨ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰
             _wheelAmount = ConvertItem(src._wheelAmount);
             _leftAltKey = ConvertItem<AltKeyAction>(src._leftAltKey);
             _rightAltKey = ConvertItem<AltKeyAction>(src._rightAltKey);
             _rightButtonAction = ConvertItem<MouseButtonAction>(src._rightButtonAction);
             _middleButtonAction = ConvertItem<MouseButtonAction>(src._middleButtonAction);
 
-            //ƒƒO
+            //ãƒ­ã‚°
             _defaultLogType = ConvertItem<LogType>(src._defaultLogType);
             _defaultLogDirectory = ConvertItem(src._defaultLogDirectory);
 
             // Copy and Paste
             _alertOnPasteNewLineChar = ConvertItem(src._alertOnPasteNewLineChar);
 
-            //PreferenceEditor‚Ì‚İ
+            //PreferenceEditorã®ã¿
             _intelliSenseKey = ConvertItem(src._intelliSenseKey);
             _commandPopupKey = ConvertItem(src._commandPopupKey);
             _parseKeyRequired = true;
@@ -460,7 +460,7 @@ namespace Poderosa.Terminal {
                 }
                 return _font;
             }
-            set { //ƒTƒCƒY‚Ì•ÏX‚Í‚±‚Á‚¿‚Å
+            set { //ã‚µã‚¤ã‚ºã®å¤‰æ›´ã¯ã“ã£ã¡ã§
                 _font = value;
                 _fontName.Value = GetFontName(value);
                 _fontSize.Value = (int)value.Size;
@@ -827,7 +827,7 @@ namespace Poderosa.Terminal {
         }
 
         public RenderProfile CreateRenderProfile() {
-            //‹N“®‚Ì‚‘¬‰»‚Ì‚½‚ßAƒtƒHƒ“ƒg‚Ìì¬‚Í’x‰„•]‰¿
+            //èµ·å‹•ã®é«˜é€ŸåŒ–ã®ãŸã‚ã€ãƒ•ã‚©ãƒ³ãƒˆã®ä½œæˆã¯é…å»¶è©•ä¾¡
             RenderProfile p = new RenderProfile();
             p.FontName = _fontName.Value;
             p.CJKFontName = _cjkFontName.Value;
@@ -856,9 +856,9 @@ namespace Poderosa.Terminal {
         private IPreferenceFolder _originalFolder;
         private TerminalOptions _originalOptions;
 
-        //TerminalOptions‚ª•p”É‚ÉƒAƒNƒZƒX‚·‚é‚Ì‚Åinternal‚É
+        //TerminalOptionsãŒé »ç¹ã«ã‚¢ã‚¯ã‚»ã‚¹ã™ã‚‹ã®ã§internalã«
 
-        //ƒ^[ƒ~ƒiƒ‹
+        //ã‚¿ãƒ¼ãƒŸãƒŠãƒ«
         //[ConfigFlagElement(typeof(CaretType), Initial=(int)(CaretType.Blink|CaretType.Box), Max=(int)CaretType.Max)]
         //                                  private CaretType _caretType;
 
@@ -872,7 +872,7 @@ namespace Poderosa.Terminal {
         //[ConfigEnumElement(typeof(Keys), InitialAsInt=(int)Keys.None)]
         //                                    private Keys _localBufferScrollModifier;
 
-        //ƒ}ƒEƒX‚ÆƒL[ƒ{[ƒh
+        //ãƒã‚¦ã‚¹ã¨ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰
         //[ConfigEnumElement(typeof(AltKeyAction), InitialAsInt=(int)AltKeyAction.Menu)]
         //                                    private AltKeyAction _leftAltKey;
         //[ConfigEnumElement(typeof(AltKeyAction), InitialAsInt=(int)AltKeyAction.Menu)]
@@ -882,10 +882,10 @@ namespace Poderosa.Terminal {
 
 
 #if false
-        //•\¦
+        //è¡¨ç¤º
         [ConfigStringElement(Initial = "Courier New")]
         protected string _fontName;
-        [ConfigStringElement(Initial = "‚l‚r ƒSƒVƒbƒN")]
+        [ConfigStringElement(Initial = "ï¼­ï¼³ ã‚´ã‚·ãƒƒã‚¯")]
         protected string _japaneseFontName;
         [ConfigFloatElement(Initial = 9)]
         protected float _fontSize;
@@ -905,9 +905,9 @@ namespace Poderosa.Terminal {
         [ConfigEnumElement(typeof(ImageStyle), InitialAsInt = (int)ImageStyle.Center)]
         protected ImageStyle _imageStyle;
         [ConfigColorElement(Initial = LateBindColors.Empty)]
-        protected Color _caretColor; //Color.Empty‚Ì‚Æ‚«‚Í’ÊíƒeƒLƒXƒg‚ğ”½“]‚·‚é‚Ì‚İ
+        protected Color _caretColor; //Color.Emptyã®ã¨ãã¯é€šå¸¸ãƒ†ã‚­ã‚¹ãƒˆã‚’åè»¢ã™ã‚‹ã®ã¿
 
-        //ƒ^[ƒ~ƒiƒ‹
+        //ã‚¿ãƒ¼ãƒŸãƒŠãƒ«
         [ConfigFlagElement(typeof(CaretType), Initial = (int)(CaretType.Blink | CaretType.Box), Max = (int)CaretType.Max)]
         protected CaretType _caretType;
 
@@ -940,7 +940,7 @@ namespace Poderosa.Terminal {
         [ConfigEnumElement(typeof(Keys), InitialAsInt = (int)Keys.None)]
         protected Keys _localBufferScrollModifier;
 
-        //ƒ}ƒEƒX‚ÆƒL[ƒ{[ƒh
+        //ãƒã‚¦ã‚¹ã¨ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰
         [ConfigEnumElement(typeof(AltKeyAction), InitialAsInt = (int)AltKeyAction.Menu)]
         protected AltKeyAction _leftAltKey;
         [ConfigEnumElement(typeof(AltKeyAction), InitialAsInt = (int)AltKeyAction.Menu)]
@@ -965,7 +965,7 @@ namespace Poderosa.Terminal {
             _originalOptions.DefineItems(builder);
 
 
-            //defaultRenderProfile‚ÌƒŠƒZƒbƒg‚ğ‚·‚é
+            //defaultRenderProfileã®ãƒªã‚»ãƒƒãƒˆã‚’ã™ã‚‹
             _originalFolder.AddChangeListener(this);
         }
 
@@ -1004,14 +1004,14 @@ namespace Poderosa.Terminal {
         }
 
         #region IPreferenceFolderChangeListener
-        //•K‚¸import‚³‚ê‚é‚Æ‚¢‚¤‘O’ñ‚È‚Ì‚Å‚¿‚å‚Á‚ÆŠëŒ¯
+        //å¿…ãšimportã•ã‚Œã‚‹ã¨ã„ã†å‰æãªã®ã§ã¡ã‚‡ã£ã¨å±é™º
         public void OnPreferenceImport(IPreferenceFolder oldvalues, IPreferenceFolder newvalues) {
             ITerminalEmulatorOptions opt = (ITerminalEmulatorOptions)newvalues.QueryAdapter(typeof(ITerminalEmulatorOptions));
 
             //DefaultRenderProfile
             GEnv.DefaultRenderProfile = opt.CreateRenderProfile();
 
-            //•K—v‚ÈTerminalSession‚ÉApplyTerminalOptions
+            //å¿…è¦ãªTerminalSessionã«ApplyTerminalOptions
             ISessionManager sm = TerminalEmulatorPlugin.Instance.GetSessionManager();
             foreach (ISession session in sm.AllSessions) {
                 IAbstractTerminalHost ts = (IAbstractTerminalHost)session.GetAdapter(typeof(IAbstractTerminalHost));
@@ -1029,10 +1029,10 @@ namespace Poderosa.Terminal {
             foreach (char ch in opt.AdditionalWordElement)
                 table.Set(ch, ASCIIWordBreakTable.LETTER);
 
-            //ƒL[ƒoƒCƒ“ƒhŒn‚ğƒŠƒZƒbƒg
+            //ã‚­ãƒ¼ãƒã‚¤ãƒ³ãƒ‰ç³»ã‚’ãƒªã‚»ãƒƒãƒˆ
             TerminalEmulatorPlugin.Instance.CustomKeySettings.Reset(opt);
 
-            //KeepAlive‚ÌƒŠƒtƒŒƒbƒVƒ…
+            //KeepAliveã®ãƒªãƒ•ãƒ¬ãƒƒã‚·ãƒ¥
             TerminalEmulatorPlugin.Instance.KeepAlive.Refresh(opt.KeepAliveInterval);
 
             _originalOptions.ResetParseKeyFlag();
@@ -1044,23 +1044,23 @@ namespace Poderosa.Terminal {
     }
 
     /// <summary>
-    /// <ja>ƒyƒCƒ“‚ÌˆÊ’u‚ğw’è‚µ‚Ü‚·B</ja>
+    /// <ja>ãƒšã‚¤ãƒ³ã®ä½ç½®ã‚’æŒ‡å®šã—ã¾ã™ã€‚</ja>
     /// <en>Set position of pane.</en>
     /// </summary>
     public enum PanePosition {
         /// <summary>
-        /// <ja>ã‰º•ªŠ„‚Ì‚Æ‚«‚ÌãA¶‰E•ªŠ„‚Ì‚Æ‚«‚Ì¶‚ÌˆÊ’u‚Å‚·B</ja>
+        /// <ja>ä¸Šä¸‹åˆ†å‰²ã®ã¨ãã®ä¸Šã€å·¦å³åˆ†å‰²ã®ã¨ãã®å·¦ã®ä½ç½®ã§ã™ã€‚</ja>
         /// <en>upper side when vertical division, left side transverse division.</en>
         /// </summary>
         First,
         /// <summary>
-        /// <ja>ã‰º•ªŠ„‚Ì‚Æ‚«‚Ì‰ºA¶‰E•ªŠ„‚Ì‚Æ‚«‚Ì‰E‚ÌˆÊ’u‚Å‚·B</ja>
+        /// <ja>ä¸Šä¸‹åˆ†å‰²ã®ã¨ãã®ä¸‹ã€å·¦å³åˆ†å‰²ã®ã¨ãã®å³ã®ä½ç½®ã§ã™ã€‚</ja>
         /// <en>lower side when vertical division, right side transverse division.</en>
         /// </summary>
         Second
     }
 
-    //‚¨‚©‚µ‚È•¶š‚ª—ˆ‚½‚Æ‚«‚Ç‚¤‚·‚é‚©
+    //ãŠã‹ã—ãªæ–‡å­—ãŒæ¥ãŸã¨ãã©ã†ã™ã‚‹ã‹
     /// <summary>
     /// 
     /// </summary>
@@ -1115,7 +1115,7 @@ namespace Poderosa.Terminal {
 
     /// <summary>
     /// <ja>
-    /// ƒIƒvƒVƒ‡ƒ“‚ª•s³‚È‚Æ‚«‚É”­¶‚·‚é—áŠO‚Å‚·B
+    /// ã‚ªãƒ—ã‚·ãƒ§ãƒ³ãŒä¸æ­£ãªã¨ãã«ç™ºç”Ÿã™ã‚‹ä¾‹å¤–ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Exception generated when option is illegal.
@@ -1124,13 +1124,13 @@ namespace Poderosa.Terminal {
     public class InvalidOptionException : Exception {
         /// <summary>
         /// <ja>
-        /// ƒIƒvƒVƒ‡ƒ“‚ª•s³‚È‚Æ‚«‚É”­¶‚·‚é—áŠO‚ğì¬‚µ‚Ü‚·B
+        /// ã‚ªãƒ—ã‚·ãƒ§ãƒ³ãŒä¸æ­£ãªã¨ãã«ç™ºç”Ÿã™ã‚‹ä¾‹å¤–ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Generate Exception when option is illegal
         /// </en>
         /// </summary>
-        /// <param name="msg"><ja>—áŠO‚ÌƒƒbƒZ[ƒW‚Å‚·B</ja>
+        /// <param name="msg"><ja>ä¾‹å¤–ã®ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã§ã™ã€‚</ja>
         /// <en>Message of exception.</en>
         /// </param>
         public InvalidOptionException(string msg)

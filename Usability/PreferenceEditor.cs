@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,14 +21,14 @@ namespace Poderosa.Usability {
     internal class PreferenceEditor : Form {
 
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
-        /// g—p’†‚ÌƒŠƒ\[ƒX‚ğ‚·‚×‚ÄƒNƒŠ[ƒ“ƒAƒbƒv‚µ‚Ü‚·B
+        /// ä½¿ç”¨ä¸­ã®ãƒªã‚½ãƒ¼ã‚¹ã‚’ã™ã¹ã¦ã‚¯ãƒªãƒ¼ãƒ³ã‚¢ãƒƒãƒ—ã—ã¾ã™ã€‚
         /// </summary>
-        /// <param name="disposing">ƒ}ƒl[ƒW ƒŠƒ\[ƒX‚ª”jŠü‚³‚ê‚éê‡ trueA”jŠü‚³‚ê‚È‚¢ê‡‚Í false ‚Å‚·B</param>
+        /// <param name="disposing">ãƒãƒãƒ¼ã‚¸ ãƒªã‚½ãƒ¼ã‚¹ãŒç ´æ£„ã•ã‚Œã‚‹å ´åˆ trueã€ç ´æ£„ã•ã‚Œãªã„å ´åˆã¯ false ã§ã™ã€‚</param>
         protected override void Dispose(bool disposing) {
             if (disposing && (components != null)) {
                 components.Dispose();
@@ -38,11 +38,11 @@ namespace Poderosa.Usability {
             base.Dispose(disposing);
         }
 
-        #region Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi‚Å¶¬‚³‚ê‚½ƒR[ƒh
+        #region Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠã§ç”Ÿæˆã•ã‚ŒãŸã‚³ãƒ¼ãƒ‰
 
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this._okButton = new System.Windows.Forms.Button();
@@ -258,7 +258,7 @@ namespace Poderosa.Usability {
             _resetButton.Text = sr.GetString("Form.PreferenceEditor._resetButton");
             this.Text = sr.GetString("Form.PreferenceEditor.Text");
 
-            //ô‚¢o‚µ
+            //æ´—ã„å‡ºã—
             _folderTags = new List<FolderTag>();
             _itemTags = new List<ItemTag>();
             foreach (IPreferenceFolder folder in _preferences.GetAllFolders()) {
@@ -273,7 +273,7 @@ namespace Poderosa.Usability {
                     }
                 }
             }
-            //ƒ\[ƒg
+            //ã‚½ãƒ¼ãƒˆ
             _itemTags.Sort();
 
             InitList();
@@ -306,7 +306,7 @@ namespace Poderosa.Usability {
 
         private bool IsVisibleItem(IPreferenceItem item) {
             string filter = _filterBox.Text;
-            return filter.Length == 0 ? true : item.FullQualifiedId.Contains(filter); //ƒeƒLƒXƒg‚Ìi‚İ
+            return filter.Length == 0 ? true : item.FullQualifiedId.Contains(filter); //ãƒ†ã‚­ã‚¹ãƒˆã®çµè¾¼ã¿
         }
 
         private void OnListViewDoubleClick(object sender, EventArgs args) {
@@ -317,7 +317,7 @@ namespace Poderosa.Usability {
             ListViewItem item = col[0];
             ItemTag tag = (ItemTag)item.Tag;
 
-            //Œ^‚É‚æ‚Á‚Ä•ÒW
+            //å‹ã«ã‚ˆã£ã¦ç·¨é›†
             if (tag.Item.AsBool() != null) {
                 IBoolPreferenceItem boolitem = tag.Item.AsBool();
                 boolitem.Value = !boolitem.Value;
@@ -330,7 +330,7 @@ namespace Poderosa.Usability {
             }
         }
 
-        //Filter‚ğXV‚·‚é‚ÆƒŠƒXƒg‚ªŒÀ’è‚³‚ê‚Ä‚­‚é‚ªA
+        //Filterã‚’æ›´æ–°ã™ã‚‹ã¨ãƒªã‚¹ãƒˆãŒé™å®šã•ã‚Œã¦ãã‚‹ãŒã€
         private void OnFilterTextChanged(object sender, EventArgs e) {
             _filterChangeTimer.Stop();
             _filterChangeTimer.Start();

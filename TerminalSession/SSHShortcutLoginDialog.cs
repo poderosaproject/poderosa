@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,7 @@ using Granados;
 
 namespace Poderosa.Sessions {
     /// <summary>
-    /// SSHShortcutLoginDialog ‚ÌŠT—v‚Ìà–¾‚Å‚·B
+    /// SSHShortcutLoginDialog ã®æ¦‚è¦ã®èª¬æ˜ã§ã™ã€‚
     /// </summary>
     internal class SSHShortcutLoginDialog : LoginDialogBase {
 
@@ -55,7 +55,7 @@ namespace Poderosa.Sessions {
         private TextBox _autoExecMacroPathBox;
         private Button _selectAutoExecMacroButton;
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.Container components = null;
 
@@ -64,7 +64,7 @@ namespace Poderosa.Sessions {
             this.TerminalSettings = settings;
 
             //
-            // Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Å‚·B
+            // Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ã§ã™ã€‚
             //
             InitializeComponent();
 
@@ -89,7 +89,7 @@ namespace Poderosa.Sessions {
         }
 
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -102,8 +102,8 @@ namespace Poderosa.Sessions {
 
         #region Windows Form Designer generated code
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this._privateKeyBox = new System.Windows.Forms.TextBox();
@@ -441,7 +441,7 @@ namespace Poderosa.Sessions {
             _methodBox.Text = _sshParam.Method.ToString();
             //if(_sshParam.Port!=22) _methodBox.Text += String.Format(TEnv.Strings.GetString("Caption.SSHShortcutLoginDialog.NotStandardPort"), _sshParam.Port);
             _accountBox.Text = _sshParam.Account;
-            _authenticationTypeBox.Text = _sshParam.AuthenticationType.ToString(); //‚³‚Ú‚è
+            _authenticationTypeBox.Text = _sshParam.AuthenticationType.ToString(); //ã•ã¼ã‚Š
             _encodingBox.Text = EnumListItem<EncodingType>.CreateListItem(this.TerminalSettings.Encoding).Text;
             _logTypeBox.SelectedItem = LogType.None;    // select EnumListItem<T> by T
 
@@ -484,7 +484,7 @@ namespace Poderosa.Sessions {
             _selectlogButton.Enabled = e;
         }
 
-        //“ü—Í“à—e‚ÉŒë‚è‚ª‚ ‚ê‚Î‚»‚ê‚ğŒx‚µ‚Änull‚ğ•Ô‚·B‚È‚¯‚ê‚Î•K—v‚È‚Æ‚±‚ë‚ğ–„‚ß‚½TCPTerminalParam‚ğ•Ô‚·
+        //å…¥åŠ›å†…å®¹ã«èª¤ã‚ŠãŒã‚ã‚Œã°ãã‚Œã‚’è­¦å‘Šã—ã¦nullã‚’è¿”ã™ã€‚ãªã‘ã‚Œã°å¿…è¦ãªã¨ã“ã‚ã‚’åŸ‹ã‚ãŸTCPTerminalParamã‚’è¿”ã™
         private ISSHLoginParameter ValidateContent() {
             ISSHLoginParameter p = (ISSHLoginParameter)_sshParam.Clone();
             string msg = null;
@@ -495,7 +495,7 @@ namespace Poderosa.Sessions {
                 if (logtype != LogType.None) {
                     logsettings = CreateSimpleLogSettings(logtype, _logFileBox.Text);
                     if (logsettings == null)
-                        return null; //“®ìƒLƒƒƒ“ƒZƒ‹
+                        return null; //å‹•ä½œã‚­ãƒ£ãƒ³ã‚»ãƒ«
                 }
 
                 ITerminalSettings settings = this.TerminalSettings;

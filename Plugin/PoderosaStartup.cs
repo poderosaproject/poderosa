@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,7 @@ using NUnit.Framework;
 
 namespace Poderosa.Boot {
 
-    //ƒu[ƒg—p‚ÌƒGƒ“ƒgƒŠƒ|ƒCƒ“ƒg
+    //ãƒ–ãƒ¼ãƒˆç”¨ã®ã‚¨ãƒ³ãƒˆãƒªãƒã‚¤ãƒ³ãƒˆ
     /// <summary>
     /// 
     /// </summary>
@@ -45,7 +45,7 @@ namespace Poderosa.Boot {
             else
                 pm = PluginManifest.CreateByFileSystem(home_directory);
 
-            //ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“ˆø”‚ğ“Ç‚Ş
+            //ã‚³ãƒãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³å¼•æ•°ã‚’èª­ã‚€
             int i = 0;
             while (i < args.Length) {
                 string t = args[i];
@@ -77,7 +77,7 @@ namespace Poderosa.Boot {
             }
 
             if (open_file != null && TryToSendOpenFileMessage(open_file))
-                return null; //•ÊƒCƒ“ƒXƒ^ƒ“ƒX‚É‘—M
+                return null; //åˆ¥ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã«é€ä¿¡
 
             PoderosaStartupContext ctx = new PoderosaStartupContext(pm, home_directory, preference_home, args, open_file);
             return new InternalPoderosaWorld(ctx);
@@ -97,7 +97,7 @@ namespace Poderosa.Boot {
             return w;
         }
 
-        //“Áêw’è‚ÌƒpƒX‚ğƒ`ƒFƒbƒN
+        //ç‰¹æ®ŠæŒ‡å®šã®ãƒ‘ã‚¹ã‚’ãƒã‚§ãƒƒã‚¯
         private static string ResolveProfileDirectory(string value) {
             if (StringComparer.InvariantCultureIgnoreCase.Compare(value, "appdata") == 0)
                 return ConfirmDirectory(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
@@ -115,9 +115,9 @@ namespace Poderosa.Boot {
             return r;
         }
 
-        //•ÊƒCƒ“ƒXƒ^ƒ“ƒX‚Ö‚Ì‘—M‚ğ‚İ‚éBƒVƒ‡[ƒgƒJƒbƒg‚ğŠJ‚¢‚½‚Æ‚«‚Ì‘½d‹N“®‚ÉŠÖ‚·‚é‚Æ‚±‚ë‚ÅB
+        //åˆ¥ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã¸ã®é€ä¿¡ã‚’è©¦ã¿ã‚‹ã€‚ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚’é–‹ã„ãŸã¨ãã®å¤šé‡èµ·å‹•ã«é–¢ã™ã‚‹ã¨ã“ã‚ã§ã€‚
         private static bool TryToSendOpenFileMessage(string filename) {
-            //ƒEƒBƒ“ƒhƒE‚ğŒ©‚Â‚¯‚é
+            //ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’è¦‹ã¤ã‘ã‚‹
             unsafe {
                 //find target
                 IntPtr hwnd = Win32.FindWindowEx(IntPtr.Zero, IntPtr.Zero, null, null);
@@ -125,7 +125,7 @@ namespace Poderosa.Boot {
                 char[] mf = new char[256];
                 while (hwnd != IntPtr.Zero) {
                     int len = Win32.GetWindowText(hwnd, name, 256);
-                    if (new string(name, 0, len).IndexOf("Poderosa") != -1) { //Window Class‚ğŠm”F‚·‚é‚Æ‚©‰½‚Æ‚©‚·‚×‚«‚©‚àA‚¾‚ª
+                    if (new string(name, 0, len).IndexOf("Poderosa") != -1) { //Window Classã‚’ç¢ºèªã™ã‚‹ã¨ã‹ä½•ã¨ã‹ã™ã¹ãã‹ã‚‚ã€ã ãŒ
                         if (TryToSendOpenFileMessage(hwnd, filename))
                             return true;
                     }
@@ -154,7 +154,7 @@ namespace Poderosa.Boot {
     }
 
 
-    //‹N“®‚Ìƒpƒ‰ƒ[ƒ^@ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“ˆø”‚È‚Ç‚©‚ç\’z
+    //èµ·å‹•æ™‚ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã€€ã‚³ãƒãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³å¼•æ•°ãªã©ã‹ã‚‰æ§‹ç¯‰
     internal class PoderosaStartupContext {
         private static PoderosaStartupContext _instance;
         private string _homeDirectory;
@@ -163,8 +163,8 @@ namespace Poderosa.Boot {
         private string _initialOpenFile;
         private PluginManifest _pluginManifest;
         private StructuredText _preferences;
-        private string[] _args; //‹N“®‚ÌƒRƒ}ƒ“ƒhƒ‰ƒCƒ“ˆø”
-        private ITracer _tracer; //‹N“®’†‚ÌƒGƒ‰[‚Ì’Ê’mæ
+        private string[] _args; //èµ·å‹•æ™‚ã®ã‚³ãƒãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³å¼•æ•°
+        private ITracer _tracer; //èµ·å‹•ä¸­ã®ã‚¨ãƒ©ãƒ¼ã®é€šçŸ¥å…ˆ
 
         public static PoderosaStartupContext Instance {
             get {
@@ -230,7 +230,7 @@ namespace Poderosa.Boot {
             }
         }
 
-        //Å‰‚ÉƒI[ƒvƒ“‚·‚éƒtƒ@ƒCƒ‹B–³w’è‚È‚çnull
+        //æœ€åˆã«ã‚ªãƒ¼ãƒ—ãƒ³ã™ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«ã€‚ç„¡æŒ‡å®šãªã‚‰null
         public string InitialOpenFile {
             get {
                 return _initialOpenFile;
@@ -249,7 +249,7 @@ namespace Poderosa.Boot {
         }
 
         private static StructuredText BuildPreference(string preference_file) {
-            //TODO —áŠO‚È‚Ç‚Ç‚±‚©“K“–‚É’Ê’m‚ª•K—v
+            //TODO ä¾‹å¤–æ™‚ãªã©ã©ã“ã‹é©å½“ã«é€šçŸ¥ãŒå¿…è¦
             StructuredText pref = null;
             if (File.Exists(preference_file)) {
                 using (TextReader r = new StreamReader(preference_file, Encoding.Default)) {
@@ -299,7 +299,7 @@ namespace Poderosa.Boot {
 
         private readonly List<AssemblyEntry> _entries = new List<AssemblyEntry>();
 
-        //ŠO•”‚©‚ç‚Ìì¬‹Ö~BˆÈ‰º‚Ìstaticƒƒ\ƒbƒhg—p‚Ì‚±‚Æ
+        //å¤–éƒ¨ã‹ã‚‰ã®ä½œæˆç¦æ­¢ã€‚ä»¥ä¸‹ã®staticãƒ¡ã‚½ãƒƒãƒ‰ä½¿ç”¨ã®ã“ã¨
         private PluginManifest() {
         }
 
@@ -336,7 +336,7 @@ namespace Poderosa.Boot {
             return entry;
         }
 
-        //•¶š—ñŒ`®‚©‚çì¬
+        //æ–‡å­—åˆ—å½¢å¼ã‹ã‚‰ä½œæˆ
         public static PluginManifest CreateByText(string text) {
             PluginManifest m = new PluginManifest();
 
@@ -360,16 +360,16 @@ namespace Poderosa.Boot {
             return m;
         }
 
-        //ƒtƒ@ƒCƒ‹ƒVƒXƒeƒ€‚ğ“Ç‚ñ‚Åì¬
+        //ãƒ•ã‚¡ã‚¤ãƒ«ã‚·ã‚¹ãƒ†ãƒ ã‚’èª­ã‚“ã§ä½œæˆ
         public static PluginManifest CreateByFileSystem(string base_dir) {
             PluginManifest m = new PluginManifest();
 
-            //©•ª‚ÌƒfƒBƒŒƒNƒgƒŠ‚É‚ ‚é.dll‚ğŒŸõBƒAƒvƒŠƒP[ƒVƒ‡ƒ“”Å‚Å‚Í•s—v‚¾‚ªAŠJ”­‚ÌƒfƒoƒbƒOÀs‚É‚Í•K—v
+            //è‡ªåˆ†ã®ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã«ã‚ã‚‹.dllã‚’æ¤œç´¢ã€‚ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ç‰ˆã§ã¯ä¸è¦ã ãŒã€é–‹ç™ºæ™‚ã®ãƒ‡ãƒãƒƒã‚°å®Ÿè¡Œæ™‚ã«ã¯å¿…è¦
             string[] dlls = Directory.GetFiles(base_dir, "*.dll");
             foreach (string dll in dlls)
                 m.AddAssembly(dll);
 
-            //qƒfƒBƒŒƒNƒgƒŠ’¼‰º‚Ì‚İŒŸõB
+            //å­ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªç›´ä¸‹ã®ã¿æ¤œç´¢ã€‚
             string[] dirs = Directory.GetDirectories(base_dir);
             foreach (string dir in dirs) {
                 dlls = Directory.GetFiles(dir, "*.dll");
@@ -394,7 +394,7 @@ namespace Poderosa.Boot {
 
         [TestFixtureSetUp]
         public void Init() {
-            //Core.dll‚ ‚½‚è‚Í‚±‚ê‚ğ‚µ‚Æ‚©‚È‚¢‚Æƒ[ƒh‚Å‚«‚È‚¢
+            //Core.dllã‚ãŸã‚Šã¯ã“ã‚Œã‚’ã—ã¨ã‹ãªã„ã¨ãƒ­ãƒ¼ãƒ‰ã§ããªã„
             Assembly.LoadFrom(String.Format("{0}\\Plugin.dll", PoderosaAppDir()));
             _stringResource = new StringResource("Plugin.strings", typeof(PluginManifest).Assembly);
         }
@@ -407,7 +407,7 @@ namespace Poderosa.Boot {
             wr.Write(pm.RawData);
             strm.Close();
             UnitTestUtil.Trace(strm.ToString());
-            //NOTE ‚±‚ê‚Í‚³‚·‚ª‚É–Ú‹‚µ‚©‚È‚¢‚©
+            //NOTE ã“ã‚Œã¯ã•ã™ãŒã«ç›®è¦–ã—ã‹ãªã„ã‹
         }
 
         [Test]
@@ -418,11 +418,11 @@ namespace Poderosa.Boot {
             foreach (StructuredText t in pm.Children) {
                 PluginManifest.AssemblyNode node = pm.LoadAssemblyNode(t);
                 node.TryToBind(tracer);
-                Assert.AreEqual(1, node.PluginTypes.Length); //‚±‚ê‚É¸”s‚·‚é‚Æ‚«‚ÍŒ^‚ªŒ©‚Â‚©‚ç‚È‚¢
+                Assert.AreEqual(1, node.PluginTypes.Length); //ã“ã‚Œã«å¤±æ•—ã™ã‚‹ã¨ãã¯å‹ãŒè¦‹ã¤ã‹ã‚‰ãªã„
                 Assert.AreEqual("Poderosa.Preferences.PreferencePlugin", node.PluginTypes[0].FullName);
                 count++;
             }
-            Assert.AreEqual(1, count); //ƒAƒZƒ“ƒuƒŠw’è‚Í‚PŒÂ‚µ‚©‚È‚¢‚Ì‚Å
+            Assert.AreEqual(1, count); //ã‚¢ã‚»ãƒ³ãƒ–ãƒªæŒ‡å®šã¯ï¼‘å€‹ã—ã‹ãªã„ã®ã§
         }
 
         [Test]
@@ -454,17 +454,17 @@ namespace Poderosa.Boot {
         }
 
         //NOTE
-        // –{“–‚Í‚³‚ç‚Éplugin=...‚Ì‹Lq‚ğÈ—ª‚µ‚½Œ`‚ğƒeƒXƒg‚·‚é‚×‚«‚¾‚ªA‚»‚Ì‚Ü‚Ü‚Å‚ÍPluginDeclarationAttribute‚ğPoderosa.Monolithic.dll‚Ì‚à‚Ì‚É‚È‚Á‚Ä‚¢‚é
-        // ‚»‚ê‚ğƒeƒXƒg—p‚Éƒ[ƒh‚µ‚½Plugin.dll“à‚Ì‚à‚Ì‚ğQÆ‚·‚é‚æ‚¤‚É‚µ‚È‚¢‚ÆƒeƒXƒg‚ªÀs‚Å‚«‚¸A‚±‚ê‚Í‚©‚È‚èƒ€ƒY‚¢‚Ì‚Å’ú‚ß‚éB
-        // •ªŠ„ƒrƒ‹ƒhó‘Ô‚ÅPoderosa‚ª‚¿‚á‚ñ‚Æ‹N“®‚Å‚«‚Ä‚¢‚ê‚Î‚»‚±‚Ì‹@”\‚Í‚¿‚á‚ñ‚Æ‚µ‚Ä‚¢‚éA‚Æ‚İ‚È‚·B
+        // æœ¬å½“ã¯ã•ã‚‰ã«plugin=...ã®è¨˜è¿°ã‚’çœç•¥ã—ãŸå½¢ã‚’ãƒ†ã‚¹ãƒˆã™ã‚‹ã¹ãã ãŒã€ãã®ã¾ã¾ã§ã¯PluginDeclarationAttributeã‚’Poderosa.Monolithic.dllã®ã‚‚ã®ã«ãªã£ã¦ã„ã‚‹
+        // ãã‚Œã‚’ãƒ†ã‚¹ãƒˆç”¨ã«ãƒ­ãƒ¼ãƒ‰ã—ãŸPlugin.dllå†…ã®ã‚‚ã®ã‚’å‚ç…§ã™ã‚‹ã‚ˆã†ã«ã—ãªã„ã¨ãƒ†ã‚¹ãƒˆãŒå®Ÿè¡Œã§ããšã€ã“ã‚Œã¯ã‹ãªã‚Šãƒ ã‚ºã„ã®ã§è«¦ã‚ã‚‹ã€‚
+        // åˆ†å‰²ãƒ“ãƒ«ãƒ‰çŠ¶æ…‹ã§PoderosaãŒã¡ã‚ƒã‚“ã¨èµ·å‹•ã§ãã¦ã„ã‚Œã°ãã“ã®æ©Ÿèƒ½ã¯ã¡ã‚ƒã‚“ã¨ã—ã¦ã„ã‚‹ã€ã¨ã¿ãªã™ã€‚
 
-        //‚È‚¨APluginManifet‚Ås‚¤‚Ì‚ÍType‚ğƒ[ƒh‚·‚é‚Æ‚±‚ë‚Ü‚Å‚ÅA‚»‚ê‚ª‚¿‚á‚ñ‚Æ‚µ‚½ƒvƒ‰ƒOƒCƒ“‚Å‚ ‚é‚©‚Ç‚¤‚©‚ÌŒŸ¸‚ÍPluginManager‚ªs‚¤B
+        //ãªãŠã€PluginManifetã§è¡Œã†ã®ã¯Typeã‚’ãƒ­ãƒ¼ãƒ‰ã™ã‚‹ã¨ã“ã‚ã¾ã§ã§ã€ãã‚ŒãŒã¡ã‚ƒã‚“ã¨ã—ãŸãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã§ã‚ã‚‹ã‹ã©ã†ã‹ã®æ¤œæŸ»ã¯PluginManagerãŒè¡Œã†ã€‚
 
         private string PoderosaAppDir() {
             return UnitTestUtil.GetUnitTestConfig("poderosa_installed_dir");
         }
 
-        //PoderosaWorld‚ğŒo—R‚µ‚È‚¢ƒeƒXƒg‚È‚Ì‚Å‚±‚ê‚Å—½‚®
+        //PoderosaWorldã‚’çµŒç”±ã—ãªã„ãƒ†ã‚¹ãƒˆãªã®ã§ã“ã‚Œã§å‡Œã
         private ITracer CreateDefaultTracer() {
             return new DefaultTracer(_stringResource);
         }
@@ -472,7 +472,7 @@ namespace Poderosa.Boot {
         private void CheckOneErrorMessage(TraceDocument doc, string msg) {
             string actual = doc.GetDataAt(0);
             if (actual != msg) {
-                //‚µ‚Î‚µ‚Î’·‚­‚È‚éBDebug‚Éo‚³‚È‚¢‚Æ‚í‚©‚è‚Ã‚ç‚¢
+                //ã—ã°ã—ã°é•·ããªã‚‹ã€‚Debugã«å‡ºã•ãªã„ã¨ã‚ã‹ã‚Šã¥ã‚‰ã„
                 Debug.WriteLine("actual=" + actual);
             }
             Assert.AreEqual(msg, actual);

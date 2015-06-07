@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@ using Poderosa.View;
 using Poderosa.Util.Collections;
 
 namespace Poderosa.Forms {
-    //ƒƒCƒ“ƒEƒBƒ“ƒhƒE
+    //ãƒ¡ã‚¤ãƒ³ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦
     internal class MainWindow : PoderosaForm, IPoderosaMainWindow {
 
         private IViewManager _viewManager;
@@ -62,11 +62,11 @@ namespace Poderosa.Forms {
             _toolStripContainer = new PoderosaToolStripContainer(this, _argument.ToolBarInfo);
             this.Controls.Add(_toolStripContainer);
 
-            //ƒXƒe[ƒ^ƒXƒo[‚»‚Ì‘¼‚Ì‰Šú‰»
-            //ƒRƒ“ƒgƒ[ƒ‹‚ğ’Ç‰Á‚·‚é‡”Ô‚Íd—vI
+            //ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒãƒ¼ãã®ä»–ã®åˆæœŸåŒ–
+            //ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã‚’è¿½åŠ ã™ã‚‹é †ç•ªã¯é‡è¦ï¼
             _viewManager = f.Create(this);
             Control main = _viewManager.RootControl;
-            if (main != null) { //ƒeƒXƒgƒP[ƒX‚Å‚ÍƒEƒBƒ“ƒhƒE‚Ì’†g‚ª‚È‚¢‚±‚Æ‚à‚ ‚é
+            if (main != null) { //ãƒ†ã‚¹ãƒˆã‚±ãƒ¼ã‚¹ã§ã¯ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®ä¸­èº«ãŒãªã„ã“ã¨ã‚‚ã‚ã‚‹
                 main.Dock = DockStyle.Fill;
                 _toolStripContainer.ContentPanel.Controls.Add(main);
             }
@@ -79,7 +79,7 @@ namespace Poderosa.Forms {
             _statusBar = new PoderosaStatusBar();
 
             _toolStripContainer.ContentPanel.Controls.Add(_tabBarTable);
-            this.Controls.Add(_statusBar); //‚±‚¤‚Å‚È‚­A_toolStripContainer.BottomToolStripPanel‚É_statusBar‚ğ’Ç‰Á‚µ‚Ä‚à‚æ‚³‚»‚¤‚¾‚ªA‚»‚¤‚·‚é‚Æƒc[ƒ‹ƒo[€–Ú‚ªƒXƒe[ƒ^ƒXƒo[‚Ìã‰º‚É‘}“ü‰Â”\‚É‚È‚Á‚Ä‚µ‚Ü‚¤
+            this.Controls.Add(_statusBar); //ã“ã†ã§ãªãã€_toolStripContainer.BottomToolStripPanelã«_statusBarã‚’è¿½åŠ ã—ã¦ã‚‚ã‚ˆã•ãã†ã ãŒã€ãã†ã™ã‚‹ã¨ãƒ„ãƒ¼ãƒ«ãƒãƒ¼é …ç›®ãŒã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒãƒ¼ã®ä¸Šä¸‹ã«æŒ¿å…¥å¯èƒ½ã«ãªã£ã¦ã—ã¾ã†
 
             _tabBarTable.Create(rowcount);
 
@@ -127,11 +127,11 @@ namespace Poderosa.Forms {
 
 
         protected override void OnLoad(EventArgs e) {
-            //NOTE ‚È‚º‚©‚Í•s–¾‚¾‚ªAƒEƒBƒ“ƒhƒE‚ÌˆÊ’u‚ÍForm.Show()‚ÌŒÄ‚Ño‚µ‘O‚Éw’è‚µ‚Ä‚à–³‹‚³‚ê‚Ä“K“–‚ÈˆÊ’u‚ªİ’è‚³‚ê‚Ä‚µ‚Ü‚¤B
-            //‚È‚Ì‚Å‚±‚±‚Ås‚¤‚æ‚¤‚É‚µ‚½B
+            //NOTE ãªãœã‹ã¯ä¸æ˜ã ãŒã€ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®ä½ç½®ã¯Form.Show()ã®å‘¼ã³å‡ºã—å‰ã«æŒ‡å®šã—ã¦ã‚‚ç„¡è¦–ã•ã‚Œã¦é©å½“ãªä½ç½®ãŒè¨­å®šã•ã‚Œã¦ã—ã¾ã†ã€‚
+            //ãªã®ã§ã“ã“ã§è¡Œã†ã‚ˆã†ã«ã—ãŸã€‚
             _argument.ApplyToLoadedWindow(this);
             base.OnLoad(e);
-            //’Ê’m ƒNƒ[ƒY‚ÍWindowManager‚ª“o˜^‚·‚éƒCƒxƒ“ƒgƒnƒ“ƒhƒ‰‚©‚ç
+            //é€šçŸ¥ ã‚¯ãƒ­ãƒ¼ã‚ºæ™‚ã¯WindowManagerãŒç™»éŒ²ã™ã‚‹ã‚¤ãƒ™ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ©ã‹ã‚‰
             WindowManagerPlugin.Instance.NotifyMainWindowLoaded(this);
         }
 
@@ -139,7 +139,7 @@ namespace Poderosa.Forms {
             base.OnClosing(e);
             try {
                 if (SessionManagerPlugin.Instance == null)
-                    return; //’P‘ÌƒeƒXƒg‚Å‚ÍSession‚È‚µ‚Å‹N“®‚·‚é‚±‚Æ‚à‚ ‚è‚¾
+                    return; //å˜ä½“ãƒ†ã‚¹ãƒˆã§ã¯Sessionãªã—ã§èµ·å‹•ã™ã‚‹ã“ã¨ã‚‚ã‚ã‚Šã 
 
                 CommandResult r = CommandManagerPlugin.Instance.Execute(BasicCommandImplementation.CloseAll, this);
                 if (r == CommandResult.Cancelled) {
@@ -151,7 +151,7 @@ namespace Poderosa.Forms {
             }
             catch (Exception ex) {
                 RuntimeUtil.ReportException(ex);
-                e.Cancel = false; //ƒoƒO‚Ì‚½‚ß‚ÉƒEƒBƒ“ƒhƒE‚ğ•Â‚¶‚é‚±‚Æ‚à‚Å‚«‚È‚¢A‚Æ‚¢‚¤‚Ì‚Í‚Ü‚¸‚¢
+                e.Cancel = false; //ãƒã‚°ã®ãŸã‚ã«ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’é–‰ã˜ã‚‹ã“ã¨ã‚‚ã§ããªã„ã€ã¨ã„ã†ã®ã¯ã¾ãšã„
             }
         }
 
@@ -259,13 +259,13 @@ namespace Poderosa.Forms {
 
             _tabBarTable.UpdateDescription(DocumentToKey(document));
 
-            //ƒCƒxƒ“ƒg‚¾‚¯’Ê’m‚·‚ê‚Î‚¢‚¢‚Ì‚Å‚¿‚å‚Á‚Æ‰ßè‚Èˆ—‚¾‚ª
+            //ã‚¤ãƒ™ãƒ³ãƒˆã ã‘é€šçŸ¥ã™ã‚Œã°ã„ã„ã®ã§ã¡ã‚‡ã£ã¨éå‰°ãªå‡¦ç†ã ãŒ
             if (document == this.ActiveDocument)
                 SessionManagerPlugin.Instance.ActivateDocument(document, ActivateReason.InternalAction);
         }
         private delegate void UpdateDelegate(IPoderosaDocument document);
 
-        //SessionManager‚©‚ç‚Ì‚İŒÄ‚Ô‚±‚Æ
+        //SessionManagerã‹ã‚‰ã®ã¿å‘¼ã¶ã“ã¨
         public void Activate(IPoderosaDocument document) {
 #if DEBUG
             Debug.Assert(document == null || _tabBarTable.ContainsKey(DocumentToKey(document)));
@@ -283,7 +283,7 @@ namespace Poderosa.Forms {
 
         public int TabRowCount {
             get {
-                return _tabBarTable.TabBarCount; //Controls.Count‚É‚·‚é‚ÆAI—¹‚Épreference‚É‹L˜^‚·‚é‚±‚Æ‚ª‚¤‚Ü‚­‚Å‚«‚È‚¢
+                return _tabBarTable.TabBarCount; //Controls.Countã«ã™ã‚‹ã¨ã€çµ‚äº†æ™‚ã«preferenceã«è¨˜éŒ²ã™ã‚‹ã“ã¨ãŒã†ã¾ãã§ããªã„
             }
         }
         public void SetTabRowCount(int count) {
@@ -316,7 +316,7 @@ namespace Poderosa.Forms {
             IPoderosaView view = sm.FindDocumentHost(doc).LastAttachedView;
             sm.CloseDocument(doc);
 
-            //ƒAƒNƒeƒBƒu‚È‚â‚Â‚ğ•Â‚¶‚½‚ç‚Î
+            //ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªã‚„ã¤ã‚’é–‰ã˜ãŸã‚‰ã°
             if (was_active && view != null && view.Document != null) {
                 sm.ActivateDocument(view.Document, ActivateReason.InternalAction);
             }
@@ -325,7 +325,7 @@ namespace Poderosa.Forms {
             IPoderosaDocument doc = KeyToDocument(key);
             IPoderosaContextMenuPoint ctx_pt = (IPoderosaContextMenuPoint)doc.GetAdapter(typeof(IPoderosaContextMenuPoint));
 
-            //ƒƒjƒ…[‚ªæ‚ê‚È‚¢ê‡‚Í–³‹
+            //ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒå–ã‚Œãªã„å ´åˆã¯ç„¡è¦–
             if (ctx_pt == null || ctx_pt.ContextMenu == null || ctx_pt.ContextMenu.Length == 0)
                 return;
 
@@ -420,7 +420,7 @@ namespace Poderosa.Forms {
                 try {
                     if (cmd.CanExecute(_window))
                         CommandManagerPlugin.Instance.Execute(cmd, _window);
-                    return UIHandleResult.Stop; //ƒL[‚ªŠ„‚è“–‚Ä‚ç‚ê‚Ä‚¢‚ê‚ÎÀs‚ª‚Å‚«‚é‚©‚Ç‚¤‚©‚É‚©‚©‚í‚ç‚¸StopB‚Å‚È‚¢‚ÆAltƒL[‚ª‚ç‚İ‚Ì‚Æ‚«ƒƒjƒ…[‚ÉƒtƒH[ƒJƒX‚ª’D‚í‚ê‚Ä‚µ‚Ü‚¤
+                    return UIHandleResult.Stop; //ã‚­ãƒ¼ãŒå‰²ã‚Šå½“ã¦ã‚‰ã‚Œã¦ã„ã‚Œã°å®Ÿè¡ŒãŒã§ãã‚‹ã‹ã©ã†ã‹ã«ã‹ã‹ã‚ã‚‰ãšStopã€‚ã§ãªã„ã¨Altã‚­ãƒ¼ãŒã‚‰ã¿ã®ã¨ããƒ¡ãƒ‹ãƒ¥ãƒ¼ã«ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ãŒå¥ªã‚ã‚Œã¦ã—ã¾ã†
                 }
                 catch (Exception ex) {
                     RuntimeUtil.ReportException(ex);
@@ -436,7 +436,7 @@ namespace Poderosa.Forms {
         }
     }
 
-    //Alt+<n>, Ctrl+Tab‚È‚ÇAƒJƒXƒ^ƒ}ƒCƒY•s‰Â‚Ì“®ì‚ğˆµ‚¤
+    //Alt+<n>, Ctrl+Tabãªã©ã€ã‚«ã‚¹ã‚¿ãƒã‚¤ã‚ºä¸å¯ã®å‹•ä½œã‚’æ‰±ã†
     internal class FixedShortcutKeyHandler : IKeyHandler {
         private MainWindow _window;
 
@@ -448,7 +448,7 @@ namespace Poderosa.Forms {
             Keys modifier = key & Keys.Modifiers;
             Keys body = key & Keys.KeyCode;
             int n = (int)body - (int)Keys.D1;
-            if (modifier == Keys.Alt && n >= 0 && n <= 8) { //‚P‚©‚ç‚X‚ÌƒL[‚ª#0‚©‚ç#8‚Ü‚Å‚É‘Î‰‚·‚é
+            if (modifier == Keys.Alt && n >= 0 && n <= 8) { //ï¼‘ã‹ã‚‰ï¼™ã®ã‚­ãƒ¼ãŒ#0ã‹ã‚‰#8ã¾ã§ã«å¯¾å¿œã™ã‚‹
                 IPoderosaDocument doc = _window.DocumentTabFeature.GetAtOrNull(n);
                 if (doc != null) {
                     SessionManagerPlugin.Instance.ActivateDocument(doc, ActivateReason.InternalAction);
@@ -457,10 +457,10 @@ namespace Poderosa.Forms {
             }
             else if (body == Keys.Tab && (modifier == Keys.Control || modifier == (Keys.Control | Keys.Shift))) { //Ctrl+Tab, Ctrl+Shift+Tab
                 IPoderosaDocument doc = _window.DocumentTabFeature.ActiveDocument;
-                //ƒhƒLƒ…ƒƒ“ƒg‚Í‚ ‚é‚ªƒAƒNƒeƒBƒu‚È‚â‚Â‚Í‚È‚¢A‚Æ‚¢‚¤ó‘Ô‚à‚ ‚é
+                //ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã¯ã‚ã‚‹ãŒã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªã‚„ã¤ã¯ãªã„ã€ã¨ã„ã†çŠ¶æ…‹ã‚‚ã‚ã‚‹
                 int count = _window.DocumentTabFeature.DocumentCount;
                 if (count > 0) {
-                    int index = doc == null ? -1 : _window.DocumentTabFeature.IndexOf(doc); //doc‚ªnull‚Ì‚Æ‚«‚Í•Êˆµ‚¢
+                    int index = doc == null ? -1 : _window.DocumentTabFeature.IndexOf(doc); //docãŒnullã®ã¨ãã¯åˆ¥æ‰±ã„
 
                     if (modifier == Keys.Control)
                         index = (doc == null || index == count - 1) ? 0 : index + 1;

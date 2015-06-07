@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@ using Poderosa.Sessions;
 
 namespace Poderosa.Terminal {
 
-    //CommandTarget‚ÌƒLƒƒƒXƒgŒn
+    //CommandTargetã®ã‚­ãƒ£ã‚¹ãƒˆç³»
     /// <summary>
     /// 
     /// </summary>
@@ -50,16 +50,16 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //‚¿‚å‚Á‚Æœ“ˆÓ“I‚¾‚ªAƒrƒ…[’¼Ú‚Ü‚½‚ÍLastActivatedView‚Å
+        //ã¡ã‚‡ã£ã¨æ£æ„çš„ã ãŒã€ãƒ“ãƒ¥ãƒ¼ç›´æ¥ã¾ãŸã¯LastActivatedViewã§
         public static IPoderosaView AsViewOrLastActivatedView(ICommandTarget target) {
             IPoderosaView view = (IPoderosaView)target.GetAdapter(typeof(IPoderosaView));
             if (view != null)
-                return view; //¬Œ÷
+                return view; //æˆåŠŸ
             else
                 return AsLastActivatedView(target);
         }
 
-        //CommandTarget‚©‚çTerminalSession‚ğ“¾‚é
+        //CommandTargetã‹ã‚‰TerminalSessionã‚’å¾—ã‚‹
         public static ITerminalControlHost AsTerminal(ICommandTarget target) {
             IPoderosaView view = AsViewOrLastActivatedView(target);
             if (view == null)
@@ -177,7 +177,7 @@ namespace Poderosa.Terminal {
             _terminal = new CommandCategory("CommandCategory.Terminal").SetPosition(PositionType.NextTo, _terminalEdit);
             _hiddenTerminal = new CommandCategory("", false);
 
-            //ˆÈ‰ºA•ÒWƒƒjƒ…[“à‚É‚ ‚é‚à‚Ì
+            //ä»¥ä¸‹ã€ç·¨é›†ãƒ¡ãƒ‹ãƒ¥ãƒ¼å†…ã«ã‚ã‚‹ã‚‚ã®
             cm.Register(new TerminalCommand("org.poderosa.terminalemulator.copyaslook",
                 "Command.CopyAsLook", _terminalEdit, new ExecuteDelegate(CmdCopyAsLook), DoesExistSelection));
             cm.Register(new TerminalCommand("org.poderosa.terminalemulator.copytofile",
@@ -193,8 +193,8 @@ namespace Poderosa.Terminal {
             cm.Register(new TerminalCommand("org.poderosa.terminalemulator.selectall",
                 "Command.SelectAll", _terminalEdit, new ExecuteDelegate(CmdSelectAll), TerminalCommand.DoesExistCharacterDocumentViewer));
 
-            //ˆÈ‰ºAƒRƒ“ƒ\[ƒ‹ƒƒjƒ…[“à‚É‚ ‚é‚à‚Ì
-            //TODO ‚¢‚­‚Â‚©‚ÍTerminalSession‚É‚ ‚é‚×‚«ˆÓ–¡‡‚¢‚¾
+            //ä»¥ä¸‹ã€ã‚³ãƒ³ã‚½ãƒ¼ãƒ«ãƒ¡ãƒ‹ãƒ¥ãƒ¼å†…ã«ã‚ã‚‹ã‚‚ã®
+            //TODO ã„ãã¤ã‹ã¯TerminalSessionã«ã‚ã‚‹ã¹ãæ„å‘³åˆã„ã 
             //cm.Register(new TerminalCommand("org.poderosa.terminalemulator.reproduce", new ExecuteDelegate(CmdReproduce), new EnabledDelegate(DoesOpenTargetSession)));
 
             cm.Register(new TerminalCommand("org.poderosa.terminalemulator.newline.cr",
@@ -234,7 +234,7 @@ namespace Poderosa.Terminal {
         }
 
 
-        //ˆÈ‰ºƒRƒ}ƒ“ƒh‚ÌÀ‘•
+        //ä»¥ä¸‹ã‚³ãƒãƒ³ãƒ‰ã®å®Ÿè£…
         private static CommandResult CmdCopyAsLook(ICommandTarget target) {
             string t = GetSelectedText(target, TextFormatOption.AsLook);
             if (t == null)
@@ -412,7 +412,7 @@ namespace Poderosa.Terminal {
             settings.EndUpdate();
             return CommandResult.Succeeded;
         }
-        //TODO Break.AYT‚ÍÚ‘±í•Ê‚É‚æ‚é‰ÂE•s‰Â‚ ‚é‚Í‚¸BEnabledDelegate‘¤‚É‚à”½‰f‚³‚¹‚æ
+        //TODO Break.AYTã¯æ¥ç¶šç¨®åˆ¥ã«ã‚ˆã‚‹å¯ãƒ»ä¸å¯ã‚ã‚‹ã¯ãšã€‚EnabledDelegateå´ã«ã‚‚åæ˜ ã•ã›ã‚ˆ
         private static CommandResult CmdSendBreak(ICommandTarget target) {
             ITerminalControlHost ts = TerminalCommandTarget.AsOpenTerminal(target);
             if (ts == null)
@@ -492,7 +492,7 @@ namespace Poderosa.Terminal {
     }
 
     /////////////////////////////////////////////
-    // ƒƒjƒ…[
+    // ãƒ¡ãƒ‹ãƒ¥ãƒ¼
 
     internal class StandardTerminalMenuItem : PoderosaMenuItemImpl {
         public StandardTerminalMenuItem(string textID, string commandID)
@@ -658,7 +658,7 @@ namespace Poderosa.Terminal {
                 }
             }
         }
-        //ExtensionPoint‚©‚ç‚Ìæ“¾‚ğŠÜ‚ß‚Ä\’z
+        //ExtensionPointã‹ã‚‰ã®å–å¾—ã‚’å«ã‚ã¦æ§‹ç¯‰
         private IPoderosaMenuGroup[] GetTerminalSpecialMenuGroups() {
             return (IPoderosaMenuGroup[])TerminalEmulatorPlugin.Instance.PoderosaWorld.PluginManager.FindExtensionPoint(TerminalEmulatorConstants.TERMINALSPECIAL_EXTENSIONPOINT).GetExtensions();
         }

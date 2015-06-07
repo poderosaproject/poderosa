@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -122,7 +122,7 @@ namespace Poderosa.XZModem {
         public override void Start() {
             _timer = new Timer(new TimerCallback(OnTimeout), CRC_TIMEOUT, 3000, Timeout.Infinite);
             _crcEnabled = true;
-            SendByte((byte)'C'); //CRCƒ‚[ƒh‚Åƒgƒ‰ƒC
+            SendByte((byte)'C'); //CRCãƒ¢ãƒ¼ãƒ‰ã§ãƒˆãƒ©ã‚¤
         }
 
 
@@ -181,7 +181,7 @@ namespace Poderosa.XZModem {
             else {
                 int required = 3 + (head == STX ? 1024 : 128) + (_crcEnabled ? 2 : 1);
                 if (required > count) {
-                    ReserveBuffer(data, offset, count); //“r’†‚ÅØ‚ê‚Ä‚¢‚½ê‡
+                    ReserveBuffer(data, offset, count); //é€”ä¸­ã§åˆ‡ã‚Œã¦ã„ãŸå ´åˆ
                     //Debug.WriteLine(String.Format("Reserving #{0} last={1} offset={2} count={3}", seq, last, offset, count));
                     return;
                 }
@@ -210,14 +210,14 @@ namespace Poderosa.XZModem {
                         success = (sent == sum);
                     }
 
-                    _buffer = null; //ƒuƒƒbƒN‚²‚Æ‚ÉACK‚ğ‘Ò‚Âd—l‚È‚Ì‚ÅA‚à‚ç‚Á‚Ä‚«‚½ƒf[ƒ^‚ª•¡”ƒuƒƒbƒN‚É‚Ü‚½‚ª‚é‚±‚Æ‚Í‚È‚¢B‚µ‚½‚ª‚Á‚Ä‚±‚±‚Å”jŠü‚µ‚Ä\‚í‚È‚¢B
+                    _buffer = null; //ãƒ–ãƒ­ãƒƒã‚¯ã”ã¨ã«ACKã‚’å¾…ã¤ä»•æ§˜ãªã®ã§ã€ã‚‚ã‚‰ã£ã¦ããŸãƒ‡ãƒ¼ã‚¿ãŒè¤‡æ•°ãƒ–ãƒ­ãƒƒã‚¯ã«ã¾ãŸãŒã‚‹ã“ã¨ã¯ãªã„ã€‚ã—ãŸãŒã£ã¦ã“ã“ã§ç ´æ£„ã—ã¦æ§‹ã‚ãªã„ã€‚
                     if (success) {
                         SendByte(ACK);
                         _sequenceNumber++;
 
                         int t = checksum_offset - 1;
                         while (t >= body_offset && data[t] == 26)
-                            t--; //Ctrl+Z‚Å–„‚Ü‚Á‚Ä‚¢‚é‚Æ‚±‚ë‚Í–³‹
+                            t--; //Ctrl+Zã§åŸ‹ã¾ã£ã¦ã„ã‚‹ã¨ã“ã‚ã¯ç„¡è¦–
                         int len = t + 1 - body_offset;
                         _outputStream.Write(data, body_offset, len);
                         _processedLength += len;
@@ -226,7 +226,7 @@ namespace Poderosa.XZModem {
                     }
                     else {
                         //_debugStream.Close();
-                        if (++_retryCount == 3) { //‚à‚¤‚ ‚«‚ç‚ß‚é
+                        if (++_retryCount == 3) { //ã‚‚ã†ã‚ãã‚‰ã‚ã‚‹
                             Fail(XZModemPlugin.Instance.Strings.GetString("Message.XModem.CheckSumError"));
                         }
                         else {
@@ -325,7 +325,7 @@ namespace Poderosa.XZModem {
                     }
                 }
                 if (_negotiating)
-                    return; //‚ ‚½‚Ü‚ª‚«‚Ä‚¢‚È‚¢
+                    return; //ã‚ãŸã¾ãŒãã¦ã„ãªã„
             }
             else {
                 byte t = data[offset];

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,7 +39,7 @@ namespace Poderosa {
             if (t == null || t.Length == 0)
                 return defaultvalue;
             else {
-                if (t.Length == 8) { //16i‚Å•Û‘¶‚³‚ê‚Ä‚¢‚é‚±‚Æ‚à‚ ‚éB‹‡—]‚Ìô‚Å‚±‚Ì‚æ‚¤‚É
+                if (t.Length == 8) { //16é€²ã§ä¿å­˜ã•ã‚Œã¦ã„ã‚‹ã“ã¨ã‚‚ã‚ã‚‹ã€‚çª®ä½™ã®ç­–ã§ã“ã®ã‚ˆã†ã«
                     try {
                         int v = Int32.Parse(t, System.Globalization.NumberStyles.HexNumber);
                         return Color.FromArgb(v);
@@ -103,12 +103,12 @@ namespace Poderosa {
             Debug.WriteLine(ex.Message);
             Debug.WriteLine(ex.StackTrace);
 
-            //ƒGƒ‰[ƒtƒ@ƒCƒ‹‚É’Ç‹L
+            //ã‚¨ãƒ©ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«ã«è¿½è¨˜
             string dir = null;
             StreamWriter sw = GetDebugLog(ref dir);
             sw.WriteLine(DateTime.Now.ToString() + remark + ex.Message);
             sw.WriteLine(ex.StackTrace);
-            //inner exception‚ğ‡Ÿ
+            //inner exceptionã‚’é †æ¬¡
             Exception i = ex.InnerException;
             while (i != null) {
                 sw.WriteLine("[inner] " + i.Message);
@@ -117,10 +117,10 @@ namespace Poderosa {
             }
             sw.Close();
 
-            //ƒƒbƒZ[ƒWƒ{ƒbƒNƒX‚Å’Ê’mB
-            //‚¾‚ª‚±‚Ì’†‚Å—áŠO‚ª”­¶‚·‚é‚±‚Æ‚ªSP1‚Å‚Í‚ ‚é‚ç‚µ‚¢B‚µ‚©‚à‚»‚¤‚È‚é‚ÆƒAƒvƒŠ‚ª‹­§I—¹‚¾B
-            //Win32‚ÌƒƒbƒZ[ƒWƒ{ƒbƒNƒX‚ğo‚µ‚Ä‚à“¯‚¶BƒXƒe[ƒ^ƒXƒo[‚È‚ç‘åä•v‚Ì‚æ‚¤‚¾
-            //...‚µ‚©‚µA‚»‚ê‚Å‚àNullReferenceException‚ ‚é‚¢‚ÍExecutionEngineException(!)‚ª”­¶‚·‚éê‡‚ª‚ ‚éBWin32ŒÄ‚Ño‚µ‚Å‚à‚¾‚ß‚¾‚Æ‚à‚¤èo‚µ‚Å‚«‚ñ‚ÈB‚ ‚«‚ç‚ß‚ÄƒRƒƒ“ƒgƒAƒEƒg
+            //ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã§é€šçŸ¥ã€‚
+            //ã ãŒã“ã®ä¸­ã§ä¾‹å¤–ãŒç™ºç”Ÿã™ã‚‹ã“ã¨ãŒSP1ã§ã¯ã‚ã‚‹ã‚‰ã—ã„ã€‚ã—ã‹ã‚‚ãã†ãªã‚‹ã¨ã‚¢ãƒ—ãƒªãŒå¼·åˆ¶çµ‚äº†ã ã€‚
+            //Win32ã®ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã‚’å‡ºã—ã¦ã‚‚åŒã˜ã€‚ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒãƒ¼ãªã‚‰å¤§ä¸ˆå¤«ã®ã‚ˆã†ã 
+            //...ã—ã‹ã—ã€ãã‚Œã§ã‚‚NullReferenceExceptionã‚ã‚‹ã„ã¯ExecutionEngineException(!)ãŒç™ºç”Ÿã™ã‚‹å ´åˆãŒã‚ã‚‹ã€‚Win32å‘¼ã³å‡ºã—ã§ã‚‚ã ã‚ã ã¨ã‚‚ã†æ‰‹å‡ºã—ã§ãã‚“ãªã€‚ã‚ãã‚‰ã‚ã¦ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆ
             try {
                 string msg = String.Format(GEnv.Strings.GetString("Message.GUtil.InternalError"), dir, ex.Message);
                 MessageBox.Show(msg, "Poderosa", MessageBoxButtons.OK, MessageBoxIcon.Stop);
@@ -154,7 +154,7 @@ namespace Poderosa {
 
 
 
-        //Ÿ‚Éİ’è‚·‚×‚«ƒƒO‚Ìƒtƒ@ƒCƒ‹–¼ host‚ªnull‚¾‚Æ‚»‚±‚Í‹ó”’‚É‚È‚é
+        //æ¬¡ã«è¨­å®šã™ã¹ããƒ­ã‚°ã®ãƒ•ã‚¡ã‚¤ãƒ«å hostãŒnullã ã¨ãã“ã¯ç©ºç™½ã«ãªã‚‹
         public static string CreateLogFileName(string host) {
             DateTime now = DateTime.Now;
             string date = String.Format("{0}{1,2:D2}{2,2:D2}", now.Year, now.Month, now.Day);
@@ -164,7 +164,7 @@ namespace Poderosa {
                 basefile = String.Format("{0}\\{1}", GEnv.Options.DefaultLogDirectory, date);
             else {
                 if (host.StartsWith("rsp://"))
-                    host = host.Substring(6); //rsp://‚Ì‚ ‚Æ‚Ì•¶š—ñ
+                    host = host.Substring(6); //rsp://ã®ã‚ã¨ã®æ–‡å­—åˆ—
                 basefile = String.Format("{0}\\{1}_{2}", GEnv.Options.DefaultLogDirectory, ReplaceBadPathChar(host), date);
             }
 
@@ -210,7 +210,7 @@ namespace Poderosa {
         }
 
 
-        //KeyString‚Ì‹t•ÏŠ·@KeyConverter‚ÌÀ‘•‚Í€‚Ê‚Ù‚Ç’x‚¢
+        //KeyStringã®é€†å¤‰æ›ã€€KeyConverterã®å®Ÿè£…ã¯æ­»ã¬ã»ã©é…ã„
         public static Keys ParseKey(string s) {
             if (s.Length == 0)
                 return Keys.None;
@@ -224,9 +224,9 @@ namespace Poderosa {
             else
                 return (Keys)Enum.Parse(typeof(Keys), s);
         }
-        public static Keys ParseKey(string[] value) { //modifier‚İ‚Åƒp[ƒX
+        public static Keys ParseKey(string[] value) { //modifierè¾¼ã¿ã§ãƒ‘ãƒ¼ã‚¹
             Keys modifier = Keys.None;
-            for (int i = 0; i < value.Length - 1; i++) { //ÅŒãˆÈŠO
+            for (int i = 0; i < value.Length - 1; i++) { //æœ€å¾Œä»¥å¤–
                 string m = value[i];
                 if (m == "Alt")
                     modifier |= Keys.Alt;
@@ -240,7 +240,7 @@ namespace Poderosa {
             return modifier | GUtil.ParseKey(value[value.Length - 1]);
         }
 
-        //ƒL[‚©‚ç‘Î‰‚·‚éƒRƒ“ƒgƒ[ƒ‹ƒR[ƒh(ASCII 0 ‚©‚ç 31‚Ü‚Å)‚É•ÏŠ·‚·‚éB‘Î‰‚·‚é‚à‚Ì‚ª‚È‚¯‚ê‚Î-1
+        //ã‚­ãƒ¼ã‹ã‚‰å¯¾å¿œã™ã‚‹ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã‚³ãƒ¼ãƒ‰(ASCII 0 ã‹ã‚‰ 31ã¾ã§)ã«å¤‰æ›ã™ã‚‹ã€‚å¯¾å¿œã™ã‚‹ã‚‚ã®ãŒãªã‘ã‚Œã°-1
         public static int KeyToControlCode(Keys key) {
             Keys modifiers = key & Keys.Modifiers;
             Keys body = key & Keys.KeyCode;

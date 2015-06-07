@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,15 +19,15 @@ using Poderosa.Document;
 
 namespace Poderosa.Terminal {
     internal enum IntelliSenseMode {
-        CharComplement, //’¼‘O‚Ì•¶š—ñ‚Å‘O•ûˆê’v‚·‚é‚à‚Ì‚Ì‚İ‚ğƒŠƒXƒg‚·‚é
-        ArgComplement   //•¶š‚É‚æ‚éŒÀ’è‚È‚µ
+        CharComplement, //ç›´å‰ã®æ–‡å­—åˆ—ã§å‰æ–¹ä¸€è‡´ã™ã‚‹ã‚‚ã®ã®ã¿ã‚’ãƒªã‚¹ãƒˆã™ã‚‹
+        ArgComplement   //æ–‡å­—ã«ã‚ˆã‚‹é™å®šãªã—
     }
     internal enum IntelliSenseSort {
         Historical,
         Alphabet
     }
 
-    //‘—M->TerminalDocumentXV‚Ü‚Å‚ÌŠÔ‚É•âŠ®‚ğ‚İ‚½ê‡‚ÌƒJƒo[ƒŠƒ“ƒO‚Ì‚½‚ß‚ÌƒLƒ…[
+    //é€ä¿¡->TerminalDocumentæ›´æ–°ã¾ã§ã®é–“ã«è£œå®Œã‚’è©¦ã¿ãŸå ´åˆã®ã‚«ãƒãƒ¼ãƒªãƒ³ã‚°ã®ãŸã‚ã®ã‚­ãƒ¥ãƒ¼
     internal class CharQueue {
         private char[] _buffer;
         private int _start;
@@ -61,7 +61,7 @@ namespace Poderosa.Terminal {
             _offset = 0;
             _start = 0;
         }
-        //‰Šú‰»BƒL[“ü—Í•s—v‚Ì‚Æ‚«‚Í\0“n‚·
+        //åˆæœŸåŒ–ã€‚ã‚­ãƒ¼å…¥åŠ›ä¸è¦ã®ã¨ãã¯\0æ¸¡ã™
         public void LockedInit(char ch) {
             lock (this) {
                 Clear();
@@ -70,7 +70,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //•ÊƒXƒŒƒbƒh‚©‚ç‚ÌóM‚ÅA‚PŒÂƒ|ƒbƒv‚·‚éBˆê•¶š‘—M‚·‚ê‚Î‰½‚ç‚©‚ÌXV‚ª‚ ‚é‚Í‚¸
+        //åˆ¥ã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰ã®å—ä¿¡ã§ã€ï¼‘å€‹ãƒãƒƒãƒ—ã™ã‚‹ã€‚ä¸€æ–‡å­—é€ä¿¡ã™ã‚Œã°ä½•ã‚‰ã‹ã®æ›´æ–°ãŒã‚ã‚‹ã¯ãš
         public void LockedSafePopChar() {
             lock (this) {
                 if (!this.IsEmpty)
@@ -80,14 +80,14 @@ namespace Poderosa.Terminal {
     }
 
 
-    //ƒvƒƒ“ƒvƒgó‘Ô‚ÆƒL[“ü—Í‚ğó‚¯æ‚èAIntelliSenseContextì¬‚Æƒ|ƒbƒvƒAƒbƒv‚ğs‚¤
+    //ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆçŠ¶æ…‹ã¨ã‚­ãƒ¼å…¥åŠ›ã‚’å—ã‘å–ã‚Šã€IntelliSenseContextä½œæˆã¨ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã‚’è¡Œã†
     internal class IntelliSense : IPromptProcessor {
-        private static IntelliSenseWindow _intelliSenseWindow; //‚±‚ê‚Í‘S‘Ì‚Å‹¤’Ê‚Å‚æ‚¢
+        private static IntelliSenseWindow _intelliSenseWindow; //ã“ã‚Œã¯å…¨ä½“ã§å…±é€šã§ã‚ˆã„
         private IntelliSenseContext _context;
         private AbstractTerminal _terminal;
-        private string _currentCommand; //null‚Í”ñƒvƒƒ“ƒvƒgó‘Ô‚ğ¦‚·
+        private string _currentCommand; //nullã¯éãƒ—ãƒ­ãƒ³ãƒ—ãƒˆçŠ¶æ…‹ã‚’ç¤ºã™
         private GLine _promptLine;
-        private bool _cancelLockFlag; //è“®ƒLƒƒƒ“ƒZƒ‹‚µ‚½‚çè“®Enter‚ª‚ ‚é‚Ü‚Å©“®ƒ|ƒbƒvƒAƒbƒv‚Í‚µ‚È‚¢
+        private bool _cancelLockFlag; //æ‰‹å‹•ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã—ãŸã‚‰æ‰‹å‹•EnterãŒã‚ã‚‹ã¾ã§è‡ªå‹•ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã¯ã—ãªã„
 
         public IntelliSense(AbstractTerminal terminal) {
             _terminal = terminal;
@@ -118,7 +118,7 @@ namespace Poderosa.Terminal {
             _cancelLockFlag = true;
         }
 
-        //TerminalControl‚©‚ç—ˆ‚é‚â‚Â
+        //TerminalControlã‹ã‚‰æ¥ã‚‹ã‚„ã¤
         public bool ProcessKey(Keys modifiers, Keys keybody) {
             if (TerminalEmulatorPlugin.Instance.TerminalEmulatorOptions.IntelliSenseKey == (modifiers | keybody)) {
                 if (CanPopupIntelliSense()) {
@@ -126,14 +126,14 @@ namespace Poderosa.Terminal {
                     return true;
                 }
             }
-            else if (modifiers == Keys.None && keybody == Keys.Enter) { //ƒRƒ}ƒ“ƒh“ü—Í‚ÆƒŠƒXƒg‚ÌXV
+            else if (modifiers == Keys.None && keybody == Keys.Enter) { //ã‚³ãƒãƒ³ãƒ‰å…¥åŠ›ã¨ãƒªã‚¹ãƒˆã®æ›´æ–°
                 _cancelLockFlag = false;
-                //Enter‘O‚É‚Íƒvƒƒ“ƒvƒg”F¯‚ğ•K‚¸XV
+                //Enterå‰ã«ã¯ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆèªè­˜ã‚’å¿…ãšæ›´æ–°
                 _terminal.PromptRecognizer.CheckIfUpdated();
                 if (_currentCommand != null && _currentCommand.Length > 0) {
                     _context.UpdateCommandList(_currentCommand);
                 }
-                else { //•¡”s‚«‚½‚Æ‚«‚Ìê‡‚ğ‹~ÏB‚³‚·‚ª‚Ég‚¢Ÿè‚Íˆ«‚¢‚¾‚ë‚¤
+                else { //è¤‡æ•°è¡ŒããŸã¨ãã®å ´åˆã‚’æ•‘æ¸ˆã€‚ã•ã™ãŒã«ä½¿ã„å‹æ‰‹ã¯æ‚ªã„ã ã‚ã†
                     TryParseMultiLineCommand();
                 }
             }
@@ -145,11 +145,11 @@ namespace Poderosa.Terminal {
             GLine command_start_candidate = current;
             IShellScheme scheme = GetTerminalSettings().ShellScheme;
 
-            //‚±‚±‚¿‚å‚Á‚Æ—‚¿’…‚©‚È‚¢‚Ì‚Å•¡”s‚Í‚â‚ß‚Ä‚¨‚­B
-            //‚½‚Æ‚¦‚ÎA
+            //ã“ã“ã¡ã‚‡ã£ã¨è½ã¡ç€ã‹ãªã„ã®ã§è¤‡æ•°è¡Œã¯ã‚„ã‚ã¦ãŠãã€‚
+            //ãŸã¨ãˆã°ã€
             //  > user *****
             //  > Password:
-            //‚İ‚½‚¢‚È‚â‚è‚Æ‚è‚ğ‚·‚é‚ÆAŒ´—“I‚É•¡”sƒRƒ}ƒ“ƒh‚È‚Ì‚©‚Í‹æ•Ê‚ª•t‚©‚È‚¢B‘Ss‚Ì‰E‚Ì‚Ù‚¤‚Ü‚ÅƒeƒLƒXƒg‚ª–„‚Ü‚Á‚Ä‚¢‚é‚±‚Æ‚Å”»’f‚·‚é‚­‚ç‚¢‚¾‚ªA100%‚Å‚Í‚È‚¢
+            //ã¿ãŸã„ãªã‚„ã‚Šã¨ã‚Šã‚’ã™ã‚‹ã¨ã€åŸç†çš„ã«è¤‡æ•°è¡Œã‚³ãƒãƒ³ãƒ‰ãªã®ã‹ã¯åŒºåˆ¥ãŒä»˜ã‹ãªã„ã€‚å…¨è¡Œã®å³ã®ã»ã†ã¾ã§ãƒ†ã‚­ã‚¹ãƒˆãŒåŸ‹ã¾ã£ã¦ã„ã‚‹ã“ã¨ã§åˆ¤æ–­ã™ã‚‹ãã‚‰ã„ã ãŒã€100%ã§ã¯ãªã„
             int limit = 1;
             while (command_start_candidate != null && limit > 0) {
                 string prompt;
@@ -178,7 +178,7 @@ namespace Poderosa.Terminal {
             return 0x21 <= i && i <= 0x7E;
         }
 
-        //append_char‚ÍAƒCƒ“ƒeƒŠƒZƒ“ƒX‹N“®Œ³‚ª•¶š“ü—Í‚Å‚ ‚é‚Æ‚«‚»‚Ì•¶šACtrl+.‚È‚Ç‚Ì’¼Ú‹N“®‚Å‚ ‚é‚Æ‚«\0
+        //append_charã¯ã€ã‚¤ãƒ³ãƒ†ãƒªã‚»ãƒ³ã‚¹èµ·å‹•å…ƒãŒæ–‡å­—å…¥åŠ›ã§ã‚ã‚‹ã¨ããã®æ–‡å­—ã€Ctrl+.ãªã©ã®ç›´æ¥èµ·å‹•ã§ã‚ã‚‹ã¨ã\0
         private void PopupMain(char append_char) {
             IShellScheme ss = GetTerminalSettings().ShellScheme;
             StringBuilder buf = new StringBuilder();
@@ -188,14 +188,14 @@ namespace Poderosa.Terminal {
 
             string line = buf.ToString();
             string[] args = ss.ParseCommandInput(line);
-            //(ˆê’U”p~)“ú–{Œê‚ª“ü‚Á‚Ä‚¢‚é‚ÆCaretColumn‚Å’T‚·‚ÆƒAƒEƒg‚É‚È‚éBª–{“I‚É’¼‚·‚É‚ÍƒRƒ}ƒ“ƒhƒp[ƒT‚ªGLine‚Ì“à•”‚ğ’m‚Á‚Ä‚¢‚È‚¢‚Æ‚¢‚¯‚È‚¢
+            //(ä¸€æ—¦å»ƒæ­¢)æ—¥æœ¬èªãŒå…¥ã£ã¦ã„ã‚‹ã¨CaretColumnã§æ¢ã™ã¨ã‚¢ã‚¦ãƒˆã«ãªã‚‹ã€‚æ ¹æœ¬çš„ã«ç›´ã™ã«ã¯ã‚³ãƒãƒ³ãƒ‰ãƒ‘ãƒ¼ã‚µãŒGLineã®å†…éƒ¨ã‚’çŸ¥ã£ã¦ã„ãªã„ã¨ã„ã‘ãªã„
             //int cc = _terminal.GetDocument().CaretColumn;
             IntelliSenseMode mode = line.Length == 0 || ss.IsDelimiter(line[line.Length - 1]) ? IntelliSenseMode.ArgComplement : IntelliSenseMode.CharComplement;
 
             _context.Init(_terminal, ss, args, mode, append_char);
             if (!_context.IsEmpty) {
                 if (_intelliSenseWindow == null)
-                    _intelliSenseWindow = new IntelliSenseWindow(); //’x‰„ì¬
+                    _intelliSenseWindow = new IntelliSenseWindow(); //é…å»¶ä½œæˆ
                 _intelliSenseWindow.Popup(_context);
             }
         }
@@ -204,7 +204,7 @@ namespace Poderosa.Terminal {
         }
 
         #region IPromptProcessor
-        //óMƒXƒŒƒbƒh‚ÅÀs‚·‚é‚±‚Æ‚à‚ ‚é
+        //å—ä¿¡ã‚¹ãƒ¬ãƒƒãƒ‰ã§å®Ÿè¡Œã™ã‚‹ã“ã¨ã‚‚ã‚ã‚‹
         public void OnPromptLine(GLine line, string prompt, string command) {
             _currentCommand = command;
             Debug.WriteLineIf(DebugOpt.IntelliSense, "Command " + _currentCommand);
@@ -221,14 +221,14 @@ namespace Poderosa.Terminal {
                 IAsyncResult ar = _context.OwnerControl.BeginInvoke(_intelliSenseWindow.CancelDelegate);
 
                 /* NOTE
-                /*  ‚±‚±‚ÍTerminalDocument‚ÌƒƒbƒN’†‚ÉóMƒXƒŒƒbƒh‚É‚¨‚¢‚ÄÀs‚³‚ê‚é‚ªA‚±‚±‚ğÀs‚·‚é‚Æ‚«ƒƒCƒ“ƒXƒŒƒbƒh‚ªOnPaint“à‚Å‘Ò‹@‚µ‚Ä‚¢‚é
-                 *  ‚±‚Æ‚à‚ ‚éB‚»‚Ì‚Æ‚«‚ÍEndInvoke‚ÅƒfƒbƒhƒƒbƒN‚É‚È‚éB
-                 *  ‚±‚±‚Å‚ÌÀs‚ÍBeginInvoke‚³‚¦‚µ‚Ä‚¨‚¯‚Î‚æ‚­AÀsŠ®—¹‚ğ‘Ò‚Â•K—v‚Í‚È‚¢‚Ì‚Å‚ ‚é‚ªAEndInvoke‚ğŒÄ‚Î‚È‚¢‚ÆIAsyncResult“à‚Å‚Á‚Ä‚¢‚é
-                 *  ƒŠƒ\[ƒX‚ªƒŠ[ƒN‚·‚é‚©‚à‚µ‚ê‚È‚¢B
-                 *  ‚±‚ê‚Í‚¿‚á‚ñ‚Æ’²‚×‚é•K—v‚ª‚ ‚é‚ªA’²‚×‚é‚Ì‚à–Ê“|‚È‚Ì‚ÅuƒƒCƒ“ƒXƒŒƒbƒh‚ªƒuƒƒbƒN‚µ‚Ä‚¢‚é‚Æ‚«‚Ì‚İiWait‚É¸”s‚µ‚½‚Æ‚«‚Ì‚İj
-                 *  EndInvoke‚ğ‚³‚Ú‚év‚Æ‚¢‚¤‚æ‚¤‚É‚µ‚Ä‚¨‚­B‚à‚µƒŠƒ\[ƒXƒŠ[ƒN‚ÌŠëŒ¯‚ª‚È‚¢‚Ì‚Å‚ ‚ê‚ÎEndInvoke‚Í•s—vB
+                /*  ã“ã“ã¯TerminalDocumentã®ãƒ­ãƒƒã‚¯ä¸­ã«å—ä¿¡ã‚¹ãƒ¬ãƒƒãƒ‰ã«ãŠã„ã¦å®Ÿè¡Œã•ã‚Œã‚‹ãŒã€ã“ã“ã‚’å®Ÿè¡Œã™ã‚‹ã¨ããƒ¡ã‚¤ãƒ³ã‚¹ãƒ¬ãƒƒãƒ‰ãŒOnPaintå†…ã§å¾…æ©Ÿã—ã¦ã„ã‚‹
+                 *  ã“ã¨ã‚‚ã‚ã‚‹ã€‚ãã®ã¨ãã¯EndInvokeã§ãƒ‡ãƒƒãƒ‰ãƒ­ãƒƒã‚¯ã«ãªã‚‹ã€‚
+                 *  ã“ã“ã§ã®å®Ÿè¡Œã¯BeginInvokeã•ãˆã—ã¦ãŠã‘ã°ã‚ˆãã€å®Ÿè¡Œå®Œäº†ã‚’å¾…ã¤å¿…è¦ã¯ãªã„ã®ã§ã‚ã‚‹ãŒã€EndInvokeã‚’å‘¼ã°ãªã„ã¨IAsyncResultå†…ã§æŒã£ã¦ã„ã‚‹
+                 *  ãƒªã‚½ãƒ¼ã‚¹ãŒãƒªãƒ¼ã‚¯ã™ã‚‹ã‹ã‚‚ã—ã‚Œãªã„ã€‚
+                 *  ã“ã‚Œã¯ã¡ã‚ƒã‚“ã¨èª¿ã¹ã‚‹å¿…è¦ãŒã‚ã‚‹ãŒã€èª¿ã¹ã‚‹ã®ã‚‚é¢å€’ãªã®ã§ã€Œãƒ¡ã‚¤ãƒ³ã‚¹ãƒ¬ãƒƒãƒ‰ãŒãƒ–ãƒ­ãƒƒã‚¯ã—ã¦ã„ã‚‹ã¨ãã®ã¿ï¼ˆï¼Waitã«å¤±æ•—ã—ãŸã¨ãã®ã¿ï¼‰
+                 *  EndInvokeã‚’ã•ã¼ã‚‹ã€ã¨ã„ã†ã‚ˆã†ã«ã—ã¦ãŠãã€‚ã‚‚ã—ãƒªã‚½ãƒ¼ã‚¹ãƒªãƒ¼ã‚¯ã®å±é™ºãŒãªã„ã®ã§ã‚ã‚Œã°EndInvokeã¯ä¸è¦ã€‚
                  * 
-                 *  IAsyncResult‚ğƒRƒŒƒNƒVƒ‡ƒ“‚É—­‚ß‚Ä‚¨‚¢‚ÄA’ZŠÔ‚ÌWaitOne‚É¬Œ÷‚·‚é‚²‚Æ‚ÉƒRƒŒƒNƒVƒ‡ƒ“‚©‚çŠO‚·‚Æ‚¢‚¤è‚à‚ ‚é
+                 *  IAsyncResultã‚’ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã«æºœã‚ã¦ãŠã„ã¦ã€çŸ­æ™‚é–“ã®WaitOneã«æˆåŠŸã™ã‚‹ã”ã¨ã«ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã‹ã‚‰å¤–ã™ã¨ã„ã†æ‰‹ã‚‚ã‚ã‚‹
                  */
 
                 if (ar.AsyncWaitHandle.WaitOne(100, false))
@@ -240,7 +240,7 @@ namespace Poderosa.Terminal {
         #endregion
     }
 
-    //Œó•â‚ÌƒRƒŒƒNƒVƒ‡ƒ“
+    //å€™è£œã®ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³
     internal class IntelliSenseCandidateList : IIntelliSenseCandidateList {
         private List<IIntelliSenseItem> _items;
         public IntelliSenseCandidateList() {
@@ -279,10 +279,10 @@ namespace Poderosa.Terminal {
     }
 
 
-    //ˆê‰ñƒ|ƒbƒvƒAƒbƒv‚·‚é‚²‚Æ‚É‰Šú‰»‚³‚ê‚é‚à‚Ì
+    //ä¸€å›ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã™ã‚‹ã”ã¨ã«åˆæœŸåŒ–ã•ã‚Œã‚‹ã‚‚ã®
     internal class IntelliSenseContext {
         private IntelliSense _owner;
-        private Point _commandStartPoint; //ƒLƒƒƒŒƒbƒgˆÊ’u‚ğƒeƒLƒXƒgÀ•W‚Å
+        private Point _commandStartPoint; //ã‚­ãƒ£ãƒ¬ãƒƒãƒˆä½ç½®ã‚’ãƒ†ã‚­ã‚¹ãƒˆåº§æ¨™ã§
         private TerminalControl _ownerControl;
         private IShellScheme _scheme;
         private IntelliSenseMode _intelliSenseMode;
@@ -370,7 +370,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //ƒoƒbƒtƒ@ƒ}ƒl[ƒWƒƒ“ƒgŒn
+        //ãƒãƒƒãƒ•ã‚¡ãƒãƒãƒ¼ã‚¸ãƒ¡ãƒ³ãƒˆç³»
         public string AppendChar(char ch) {
             _buffer.Append(ch);
             return _buffer.ToString();
@@ -407,7 +407,7 @@ namespace Poderosa.Terminal {
 
         public void UpdateCommandList(string command) {
             if (_scheme == null)
-                return; //ŠÖ˜A•t‚¯‚ç‚ê‚½‚à‚Ì‚ª‚È‚¢‚Æ‚«‚Í‰½‚à‚µ‚È‚¢
+                return; //é–¢é€£ä»˜ã‘ã‚‰ã‚ŒãŸã‚‚ã®ãŒãªã„ã¨ãã¯ä½•ã‚‚ã—ãªã„
 
             string[] cmds = _scheme.ParseCommandInput(command);
             if (cmds.Length > 0) {
@@ -446,12 +446,12 @@ namespace Poderosa.Terminal {
                 else if (_intelliSenseMode == IntelliSenseMode.CharComplement && r == IntelliSenseItem.MatchForwardResult.PartialChar) {
                     IntelliSenseItem i = new IntelliSenseItem(item.Text, _currentInput.Length - 1, item);
                     if (initial == null)
-                        initial = i; //Partial‚Ìˆê’v‚ª‚«‚½Å‰‚Ì‚à‚Ì‚ğ‰Šú’l‚Æ‚·‚é
+                        initial = i; //Partialã®ä¸€è‡´ãŒããŸæœ€åˆã®ã‚‚ã®ã‚’åˆæœŸå€¤ã¨ã™ã‚‹
                     _candidates.AddItem(i);
                 }
             }
 
-            //ŠO•”‚É’²ß‚Ì‹@‰ï‚ğ—^‚¦‚é
+            //å¤–éƒ¨ã«èª¿ç¯€ã®æ©Ÿä¼šã‚’ä¸ãˆã‚‹
             IIntelliSenseCandidateExtension[] extensions = TerminalEmulatorPlugin.Instance.IntelliSenseExtensions;
             if (extensions.Length > 0) {
                 foreach (IIntelliSenseCandidateExtension e in extensions)
@@ -463,7 +463,7 @@ namespace Poderosa.Terminal {
             }
 
             if (initial == null && _candidates.Count > 0)
-                _initialSelectedIndex = 0; //d•û‚È‚­‚±‚ê‚ğ‘I‚Ô
+                _initialSelectedIndex = 0; //ä»•æ–¹ãªãã“ã‚Œã‚’é¸ã¶
             else
                 _initialSelectedIndex = _candidates.IndexOf(initial);
         }

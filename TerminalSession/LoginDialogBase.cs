@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -89,7 +89,7 @@ namespace Poderosa.Sessions {
 
         }
 
-        //Ÿ‚Ì‚Q‚Â‚Í¬Œ÷‚ÉƒZƒbƒg‚µ‚Ä‚¨‚­
+        //æ¬¡ã®ï¼’ã¤ã¯æˆåŠŸæ™‚ã«ã‚»ãƒƒãƒˆã—ã¦ãŠã
         public ITerminalConnection Result {
             get {
                 return _result;
@@ -141,7 +141,7 @@ namespace Poderosa.Sessions {
             _targetView = GetTargetView();
             ITerminalParameter term = PrepareTerminalParameter();
             if (term == null)
-                return; //İ’è‚ÉŒë‚è‚ª‚ ‚éê‡
+                return; //è¨­å®šã«èª¤ã‚ŠãŒã‚ã‚‹å ´åˆ
 
             TerminalControl tc = (TerminalControl)_targetView.GetAdapter(typeof(TerminalControl));
             Size sz = tc.CalcTerminalSize((_terminalSettings.RenderProfile == null) ?
@@ -165,7 +165,7 @@ namespace Poderosa.Sessions {
             else
                 return base.ProcessDialogKey(key);
         }
-        //ISocketWithTimeoutClient ‚±‚ê‚ç‚Í‚±‚ÌƒEƒBƒ“ƒhƒE‚Æ‚Í•Ê‚ÌƒXƒŒƒbƒh‚ÅÀs‚³‚ê‚é‚Ì‚ÅTd‚É
+        //ISocketWithTimeoutClient ã“ã‚Œã‚‰ã¯ã“ã®ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã¨ã¯åˆ¥ã®ã‚¹ãƒ¬ãƒƒãƒ‰ã§å®Ÿè¡Œã•ã‚Œã‚‹ã®ã§æ…é‡ã«
         public void SuccessfullyExit(ITerminalConnection result) {
             if (this.InvokeRequired) {
                 this.Invoke(new SuccessfullyExitDelegate(this.SuccessfullyExit), new object[] { result });
@@ -187,7 +187,7 @@ namespace Poderosa.Sessions {
             }
         }
 
-        //ƒƒOİ’è‚ğì‚éB’Pˆêƒtƒ@ƒCƒ‹”ÅB
+        //ãƒ­ã‚°è¨­å®šã‚’ä½œã‚‹ã€‚å˜ä¸€ãƒ•ã‚¡ã‚¤ãƒ«ç‰ˆã€‚
         protected ISimpleLogSettings CreateSimpleLogSettings(LogType logtype, string path) {
             ISimpleLogSettings logsettings = TerminalSessionsPlugin.Instance.TerminalEmulatorService.CreateDefaultSimpleLogSettings();
             logsettings.LogPath = path;
@@ -201,7 +201,7 @@ namespace Poderosa.Sessions {
 
         private IPoderosaView GetTargetView() {
             IViewManager pm = _parentWindow.ViewManager;
-            //“Æ—§ƒEƒBƒ“ƒhƒE‚Éƒ|ƒbƒvƒAƒbƒv‚³‚¹‚é‚æ‚¤‚È‚±‚Æ‚Íl‚¦‚Ä‚¢‚È‚¢
+            //ç‹¬ç«‹ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã«ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã•ã›ã‚‹ã‚ˆã†ãªã“ã¨ã¯è€ƒãˆã¦ã„ãªã„
             IContentReplaceableView rv = (IContentReplaceableView)pm.GetCandidateViewForNewDocument().GetAdapter(typeof(IContentReplaceableView));
             return rv.AssureViewClass(typeof(TerminalView));
         }
@@ -210,12 +210,12 @@ namespace Poderosa.Sessions {
 
         }
 
-        //ƒƒOƒCƒ“ƒ_ƒCƒAƒƒO“à‚Å“®“I‚ÉTerminalSetting“™‚ğU‚è•ª‚¯‚é“z‚ª‚¢‚ê‚ÎƒZƒbƒgB‚È‚¯‚ê‚Înull
+        //ãƒ­ã‚°ã‚¤ãƒ³ãƒ€ã‚¤ã‚¢ãƒ­ã‚°å†…ã§å‹•çš„ã«TerminalSettingç­‰ã‚’æŒ¯ã‚Šåˆ†ã‘ã‚‹å¥´ãŒã„ã‚Œã°ã‚»ãƒƒãƒˆã€‚ãªã‘ã‚Œã°null
         protected void AdjustLoginDialogUISupport(string extension_point_name, string logintype) {
             _loginDialogUISupport = null;
             IExtensionPoint ep = TerminalSessionsPlugin.Instance.PoderosaWorld.PluginManager.FindExtensionPoint(extension_point_name);
             if (ep != null && ep.ExtensionInterface == typeof(ILoginDialogUISupport)) {
-                //Preference‚ÅŠl“¾
+                //Preferenceã§ç²å¾—
                 string config = TerminalSessionsPlugin.Instance.TerminalSessionOptions.GetDefaultLoginDialogUISupportTypeName(logintype);
                 foreach (ILoginDialogUISupport sup in ep.GetExtensions()) {
                     if (sup.GetType().FullName == config) {

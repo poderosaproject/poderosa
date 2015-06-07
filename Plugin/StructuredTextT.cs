@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +31,7 @@ namespace Poderosa
 
         [Test]
         public void Test0_Preliminary() {
-            Assert.AreEqual(2, TextStructuredTextWriter.INDENT_UNIT); //‚±‚ê‚ª¸”s‚·‚é‚Æ‘¼‚ÌƒeƒXƒgƒP[ƒX‚ÌƒCƒ“ƒfƒ“ƒg’²®‚ª•K—v
+            Assert.AreEqual(2, TextStructuredTextWriter.INDENT_UNIT); //ã“ã‚ŒãŒå¤±æ•—ã™ã‚‹ã¨ä»–ã®ãƒ†ã‚¹ãƒˆã‚±ãƒ¼ã‚¹ã®ã‚¤ãƒ³ãƒ‡ãƒ³ãƒˆèª¿æ•´ãŒå¿…è¦
         }
 
         [Test]
@@ -111,7 +111,7 @@ namespace Poderosa
             StructuredText z2 = z.Parent.AddChild("ZZZ");
             z2.Set("E", "F");
 
-            //ˆê‰ñ•ÏŠ·‚µ‚ÄOKH
+            //ä¸€å›å¤‰æ›ã—ã¦OKï¼Ÿ
             StructuredText r2 = new TextStructuredTextReader(new StringReader(Dump(r))).Read();
             Assert.AreEqual(Dump(r), Dump(r2));
         }

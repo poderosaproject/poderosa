@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,10 +30,10 @@ namespace Poderosa.View {
         StyleMask = Box | Underline,
     }
 
-    //Caret‚ÌÀ•W‚Æó‘Ô‚ğû˜^
+    //Caretã®åº§æ¨™ã¨çŠ¶æ…‹ã‚’åéŒ²
     /// <summary>
     /// <ja>
-    /// ƒLƒƒƒŒƒbƒg‚ÌÀ•W‚Æó‘Ô‚ğŠi”[‚·‚éƒIƒuƒWƒFƒNƒg‚Å‚·B
+    /// ã‚­ãƒ£ãƒ¬ãƒƒãƒˆã®åº§æ¨™ã¨çŠ¶æ…‹ã‚’æ ¼ç´ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Object that stores coordinates and state of caret
@@ -43,11 +43,11 @@ namespace Poderosa.View {
     public class Caret {
         private const int TICKER_LOOP_INTERVAL = 2;
 
-        private CaretType _style; //Line, Box, Underline‚Ì‚¢‚¸‚ê‚©
+        private CaretType _style; //Line, Box, Underlineã®ã„ãšã‚Œã‹
         private Color _color;
-        private int _x; //•¶š’PˆÊ‚Å‚ÌÀ•W
+        private int _x; //æ–‡å­—å˜ä½ã§ã®åº§æ¨™
         private int _y;
-        private int _tick; //ˆê’èŠÔ–ˆ‚ÌØ‚è‘Ö‚í‚è
+        private int _tick; //ä¸€å®šæ™‚é–“æ¯ã®åˆ‡ã‚Šæ›¿ã‚ã‚Š
         private bool _enabled;
         private bool _blink;
         private Pen _pen;
@@ -120,7 +120,7 @@ namespace Poderosa.View {
                 _tick = 0;
         }
         public void KeepActiveUntilNextTick() {
-            //TODO ƒ^ƒCƒ}[‚ÌƒŠƒZƒbƒg‚Ü‚Å‚Å‚«‚é‚Æ‚æ‚¢
+            //TODO ã‚¿ã‚¤ãƒãƒ¼ã®ãƒªã‚»ãƒƒãƒˆã¾ã§ã§ãã‚‹ã¨ã‚ˆã„
             _tick = -1;
         }
         public void Reset() {
@@ -141,7 +141,7 @@ namespace Poderosa.View {
 
         private void DisposePen() {
             if (_pen != null) {
-                _pen.Dispose(); //ƒyƒ“‚ÌƒZƒbƒg‚ÅƒŠƒZƒbƒg
+                _pen.Dispose(); //ãƒšãƒ³ã®ã‚»ãƒƒãƒˆã§ãƒªã‚»ãƒƒãƒˆ
                 _pen = null;
             }
         }

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -98,7 +98,7 @@ namespace Poderosa.Usability {
             return CommandResult.Succeeded;
         }
 
-        //CommandTarget‚©‚çTerminalSession‚ğ“¾‚é
+        //CommandTargetã‹ã‚‰TerminalSessionã‚’å¾—ã‚‹
         public static ITerminalSession AsTerminalSession(ICommandTarget target) {
             IPoderosaDocument document = CommandTargetUtil.AsDocumentOrViewOrLastActivatedDocument(target);
             if (document == null)

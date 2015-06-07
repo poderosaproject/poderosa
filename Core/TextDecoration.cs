@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@ using System.Text;
 //using Poderosa.Util;
 
 namespace Poderosa.Document {
-    //TextDecoration‚ÅF‚ğw’è‚·‚é‚Ì‚©AŠO•”‚Å’è‹`‚³‚ê‚½F‚ğg‚¤‚Ì‚©‚Ì‹æ•Ê‚É‚Â‚©‚¤BColor‚ÌAƒvƒƒpƒeƒB‚Ì’l‚Å‘ã—p‚·‚ê‚Î‚¿‚å‚Á‚ÆŒø—¦‚Íã‚ª‚è‚»‚¤‚¾‚ª...
+    //TextDecorationã§è‰²ã‚’æŒ‡å®šã™ã‚‹ã®ã‹ã€å¤–éƒ¨ã§å®šç¾©ã•ã‚ŒãŸè‰²ã‚’ä½¿ã†ã®ã‹ã®åŒºåˆ¥ã«ã¤ã‹ã†ã€‚Colorã®Aãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®å€¤ã§ä»£ç”¨ã™ã‚Œã°ã¡ã‚‡ã£ã¨åŠ¹ç‡ã¯ä¸ŠãŒã‚Šãã†ã ãŒ...
     /// <exclude/>
     public enum ColorType {
         DefaultBack,
@@ -24,8 +24,8 @@ namespace Poderosa.Document {
         Custom
     }
 
-    //ƒeƒLƒXƒg‚Ì•`‰æî•ñ.
-    //•W€”wŒiF‚ğg‚¤‚Æ‚«‚Í_bgColor‚ªColor.Empty, •W€ƒeƒLƒXƒgF‚ğg‚¤‚Æ‚«‚Í_textColor‚ªColor.Empty‚É‚È‚é‚±‚Æ‚É’ˆÓ
+    //ãƒ†ã‚­ã‚¹ãƒˆã®æç”»æƒ…å ±.
+    //æ¨™æº–èƒŒæ™¯è‰²ã‚’ä½¿ã†ã¨ãã¯_bgColorãŒColor.Empty, æ¨™æº–ãƒ†ã‚­ã‚¹ãƒˆè‰²ã‚’ä½¿ã†ã¨ãã¯_textColorãŒColor.Emptyã«ãªã‚‹ã“ã¨ã«æ³¨æ„
 
     /// <summary>
     /// Text decoration.
@@ -197,7 +197,7 @@ namespace Poderosa.Document {
 
         public override string ToString() {
             StringBuilder b = new StringBuilder();
-            b.Append(_bgColor.ToString()); //‚±‚ê‚Å‚Ü‚Á‚Æ‚¤‚È•¶š—ñ‚ªo‚é‚Ì‚©?
+            b.Append(_bgColor.ToString()); //ã“ã‚Œã§ã¾ã£ã¨ã†ãªæ–‡å­—åˆ—ãŒå‡ºã‚‹ã®ã‹?
             b.Append('/');
             b.Append(_textColor.ToString());
             b.Append('/');

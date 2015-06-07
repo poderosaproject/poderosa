@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,7 +51,7 @@ namespace Poderosa.Commands {
                 }
             }
 
-            //TODO ’·•¶‚Ì‚Æ‚«‚Éƒ_ƒCƒAƒƒO‚ğo‚µ‚Ä’†“rƒLƒƒƒ“ƒZƒ‹‰Â”\‚É
+            //TODO é•·æ–‡ã®ã¨ãã«ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ã‚’å‡ºã—ã¦ä¸­é€”ã‚­ãƒ£ãƒ³ã‚»ãƒ«å¯èƒ½ã«
             StringReader reader = new StringReader(data);
             output.SendTextStream(reader, data[data.Length - 1] == '\n');
             return CommandResult.Succeeded;
@@ -65,7 +65,7 @@ namespace Poderosa.Commands {
             return TerminalSessionsPlugin.Instance.PoderosaWorld.AdapterManager.GetAdapter(this, adapter);
         }
 
-        //‘—M‰Â”\ó‘Ô‚Å‚ ‚é‚Æ‚«‚Ì‚İTerminalSession‚ğ•Ô‚·
+        //é€ä¿¡å¯èƒ½çŠ¶æ…‹ã§ã‚ã‚‹ã¨ãã®ã¿TerminalSessionã‚’è¿”ã™
         private ITerminalSession GetSession() {
             if (!_control.EnabledEx)
                 return null;

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -86,7 +86,7 @@ namespace Poderosa.Forms {
         public OptionDialog() {
             _instance = this;
             //
-            // Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Å‚·B
+            // Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ã§ã™ã€‚
             //
             InitializeComponent();
             IOptionPanelExtension[] extps = (IOptionPanelExtension[])OptionDialogPlugin.Instance.PoderosaWorld.PluginManager.FindExtensionPoint(OptionDialogPlugin.OPTION_PANEL_ID).GetExtensions();
@@ -95,11 +95,11 @@ namespace Poderosa.Forms {
                 _entries[i] = new PanelEntry(i, extps[i]);
             InitItems();
             FillText();
-            Debug.Assert(_entries.Length == _categoryItems.Controls.Count); //Šg’£‚Æ“¯”‚Ìƒpƒlƒ‹‚ª‚ ‚é‚±‚Æ
+            Debug.Assert(_entries.Length == _categoryItems.Controls.Count); //æ‹¡å¼µã¨åŒæ•°ã®ãƒ‘ãƒãƒ«ãŒã‚ã‚‹ã“ã¨
         }
 
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -112,10 +112,10 @@ namespace Poderosa.Forms {
             base.Dispose(disposing);
         }
 
-        #region Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi‚Å¶¬‚³‚ê‚½ƒR[ƒh
+        #region Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠã§ç”Ÿæˆã•ã‚ŒãŸã‚³ãƒ¼ãƒ‰
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
@@ -209,14 +209,14 @@ namespace Poderosa.Forms {
 
                 y += 52;
             }
-            this.ClientSize = new Size(this.ClientSize.Width, y + 42); //€–Ú‚ª‘‚¦‚½‚ç‚‚³‚ª‘‚¦‚é
+            this.ClientSize = new Size(this.ClientSize.Width, y + 42); //é …ç›®ãŒå¢—ãˆãŸã‚‰é«˜ã•ãŒå¢—ãˆã‚‹
         }
         private PanelItem PanelItemAt(int index) {
             return (PanelItem)_categoryItems.Controls[index];
         }
 
 
-        //TODO ”’l‚Ìindex‚Íƒiƒ“ƒgƒJ‚µ‚½‚¢
+        //TODO æ•°å€¤ã®indexã¯ãƒŠãƒ³ãƒˆã‚«ã—ãŸã„
         public Image GetPanelIcon(int index) {
             return _imageList.Images[index];
         }
@@ -225,7 +225,7 @@ namespace Poderosa.Forms {
             if (index == _currentEntry.Index)
                 return;
 
-            //Œ»İ‚Ì“à—e‚ÅCommit‚Å‚«‚½ê‡‚Ì‚İ‘I‘ğ‚³‚ê‚½ƒy[ƒW‚ğ•\¦
+            //ç¾åœ¨ã®å†…å®¹ã§Commitã§ããŸå ´åˆã®ã¿é¸æŠã•ã‚ŒãŸãƒšãƒ¼ã‚¸ã‚’è¡¨ç¤º
             if (ClosePage())
                 ShowPage(index);
         }
@@ -273,11 +273,11 @@ namespace Poderosa.Forms {
             bool ok = ClosePage();
             if (ok) {
                 DialogResult = DialogResult.OK;
-                //‘S‘Ì‚ÌƒRƒ~ƒbƒgFƒRƒ~ƒbƒg‚Ì“ÁêƒAƒNƒVƒ‡ƒ“‚à•K—v‚©‚à
+                //å…¨ä½“ã®ã‚³ãƒŸãƒƒãƒˆï¼šã‚³ãƒŸãƒƒãƒˆæ™‚ã®ç‰¹æ®Šã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã‚‚å¿…è¦ã‹ã‚‚
                 foreach (WorkPreference wp in _idToWorkPreference.Values) {
                     wp.Original.Import(wp.Work);
                 }
-                //‚±‚±‚Å•Û‘¶‚à•K—v‚©H
+                //ã“ã“ã§ä¿å­˜ã‚‚å¿…è¦ã‹ï¼Ÿ
 
             }
             else {
@@ -287,7 +287,7 @@ namespace Poderosa.Forms {
 
         private void CategoryItemsMouseLeave(object sender, EventArgs args) {
             SetHilightingItemIndex(-1);
-            _categoryItems.Invalidate(true); //ƒ}ƒEƒX‚Ì“®‚©‚µ•û‚É‚æ‚Á‚ÄAMouseLeave‚Í”­¶‚µ‚È‚¢‚±‚Æ‚à‚ ‚é
+            _categoryItems.Invalidate(true); //ãƒã‚¦ã‚¹ã®å‹•ã‹ã—æ–¹ã«ã‚ˆã£ã¦ã€MouseLeaveã¯ç™ºç”Ÿã—ãªã„ã“ã¨ã‚‚ã‚ã‚‹
         }
 
         private IPreferenceFolder[] GetWorkPreferencesFor(PanelEntry entry) {

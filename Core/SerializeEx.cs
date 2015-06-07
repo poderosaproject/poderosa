@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,13 +17,13 @@ namespace Poderosa.Serializing {
     /// <exclude/>
     public interface ISerializeService {
         StructuredText Serialize(object obj);
-        StructuredText Serialize(Type type, object obj); //Œ^‚ğ–¾¦
+        StructuredText Serialize(Type type, object obj); //å‹ã‚’æ˜ç¤º
         object Deserialize(StructuredText node);
     }
 
-    //ExtensionPoint‚ÉÚ‘±‚·‚éƒCƒ“ƒ^ƒtƒF[ƒXB
-    //ConcreteType‚É‘Î‰‚·‚éƒIƒuƒWƒFƒNƒg‚É‘Î‚µ‚Äg—p‚·‚éB
-    //ˆµ‚¤StructuredText‚ÌŒ`‚Í
+    //ExtensionPointã«æ¥ç¶šã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹ã€‚
+    //ConcreteTypeã«å¯¾å¿œã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«å¯¾ã—ã¦ä½¿ç”¨ã™ã‚‹ã€‚
+    //æ‰±ã†StructuredTextã®å½¢ã¯
     // <ConcreteType.FullName> {
     //   ...
     // }

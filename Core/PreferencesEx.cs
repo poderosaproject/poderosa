@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,7 +11,7 @@ using System.IO;
 using System.Collections;
 
 /*
- * StructuredText‚Ìã‚ÉAŒ^î•ñAƒgƒ‰ƒ“ƒUƒNƒVƒ‡ƒ“‚È‚Ç‚Ì‹@”\‚ğÚ‚¹‚ÄPreference‚Æ‚µ‚Äg‚¦‚é‚æ‚¤‚É‚·‚é
+ * StructuredTextã®ä¸Šã«ã€å‹æƒ…å ±ã€ãƒˆãƒ©ãƒ³ã‚¶ã‚¯ã‚·ãƒ§ãƒ³ãªã©ã®æ©Ÿèƒ½ã‚’è¼‰ã›ã¦Preferenceã¨ã—ã¦ä½¿ãˆã‚‹ã‚ˆã†ã«ã™ã‚‹
  */
 
 namespace Poderosa.Preferences {
@@ -19,7 +19,7 @@ namespace Poderosa.Preferences {
     // Exported Part
     /// <summary>
     /// <ja>
-    /// ƒ†[ƒU[İ’è’l‚ÌŒŸØŒ‹‰Ê‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã®æ¤œè¨¼çµæœã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows verification result of user setting value.
@@ -28,7 +28,7 @@ namespace Poderosa.Preferences {
     public interface IPreferenceValidationResult {
         /// <summary>
         /// <ja>
-        /// ŒŸØ‚ª¬Œ÷‚µ‚½‚©”Û‚©‚ğ¦‚µ‚Ü‚·B
+        /// æ¤œè¨¼ãŒæˆåŠŸã—ãŸã‹å¦ã‹ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is shown whether the verification succeeded. 
@@ -36,7 +36,7 @@ namespace Poderosa.Preferences {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// true‚Ì‚Æ‚«¬Œ÷Afalse‚Ì‚Æ‚«¸”s‚ğˆÓ–¡‚µ‚Ü‚·B
+        /// trueã®ã¨ãæˆåŠŸã€falseã®ã¨ãå¤±æ•—ã‚’æ„å‘³ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It succeeds at true, and the failure is meant at false. 
@@ -47,7 +47,7 @@ namespace Poderosa.Preferences {
         }
         /// <summary>
         /// <ja>
-        /// ŒŸØ‚ÌƒGƒ‰[ƒƒbƒZ[ƒW‚ğ¦‚µ‚Ü‚·B
+        /// æ¤œè¨¼æ™‚ã®ã‚¨ãƒ©ãƒ¼ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The error message when verifying it is shown. 
@@ -61,7 +61,7 @@ namespace Poderosa.Preferences {
 
     /// <summary>
     /// <ja>
-    /// ŒŸØ‚ª¸”s‚µ‚½‚Æ‚«‚Ì—áŠO‚ğ¦‚·ƒNƒ‰ƒX‚Å‚·B
+    /// æ¤œè¨¼ãŒå¤±æ•—ã—ãŸã¨ãã®ä¾‹å¤–ã‚’ç¤ºã™ã‚¯ãƒ©ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Class that shows exception when verification fails
@@ -73,14 +73,14 @@ namespace Poderosa.Preferences {
 
         /// <summary>
         /// <ja>
-        /// ŒŸØ‚ª¸”s‚µ‚½‚Æ‚«‚Ì—áŠO‚ğ¶¬‚µ‚Ü‚·B
+        /// æ¤œè¨¼ãŒå¤±æ•—ã—ãŸã¨ãã®ä¾‹å¤–ã‚’ç”Ÿæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The exception when the verification fails is generated. 
         /// </en>
         /// </summary>
-        /// <param name="source"><ja>—áŠO‚ÌŒ´ˆö‚Æ‚È‚Á‚½ƒ\[ƒX‚Å‚·B</ja><en>Source that causes exception</en></param>
-        /// <param name="result"><ja>ŒŸØŒ‹‰Ê‚Å‚·B</ja><en>Verification result</en></param>
+        /// <param name="source"><ja>ä¾‹å¤–ã®åŸå› ã¨ãªã£ãŸã‚½ãƒ¼ã‚¹ã§ã™ã€‚</ja><en>Source that causes exception</en></param>
+        /// <param name="result"><ja>æ¤œè¨¼çµæœã§ã™ã€‚</ja><en>Verification result</en></param>
         public ValidationException(IPreferenceItemBase source, IPreferenceValidationResult result)
             : base(result.ErrorMessage) {
             _sourceItem = source;
@@ -89,7 +89,7 @@ namespace Poderosa.Preferences {
 
         /// <summary>
         /// <ja>
-        /// —áŠO‚ÌŒ´ˆö‚Æ‚È‚Á‚½ƒ\[ƒX‚ğ¦‚µ‚Ü‚·B
+        /// ä¾‹å¤–ã®åŸå› ã¨ãªã£ãŸã‚½ãƒ¼ã‚¹ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The source that causes the exception is shown. 
@@ -103,7 +103,7 @@ namespace Poderosa.Preferences {
 
         /// <summary>
         /// <ja>
-        /// ŒŸØŒ‹‰Ê‚ğ¦‚µ‚Ü‚·B
+        /// æ¤œè¨¼çµæœã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The verification result is shown. 
@@ -116,10 +116,10 @@ namespace Poderosa.Preferences {
         }
     }
 
-    //Preference Plugin‚ª’ñ‹Ÿ
+    //Preference PluginãŒæä¾›
     /// <summary>
     /// <ja>
-    /// PreferencePluginƒvƒ‰ƒOƒCƒ“‚ª’ñ‹Ÿ‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// PreferencePluginãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒæä¾›ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that PreferencePlugin plug-in offers.
@@ -127,8 +127,8 @@ namespace Poderosa.Preferences {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÍA<seealso cref="Poderosa.Plugins.ICoreServices">ICoreServices</seealso>‚Ì<see cref="Poderosa.Plugins.ICoreServices.Preferences">PreferencesƒvƒƒpƒeƒB</see>
-    /// ‚©‚çæ“¾‚Å‚«‚Ü‚·B
+    /// ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ã€<seealso cref="Poderosa.Plugins.ICoreServices">ICoreServices</seealso>ã®<see cref="Poderosa.Plugins.ICoreServices.Preferences">Preferencesãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>
+    /// ã‹ã‚‰å–å¾—ã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// This interface can be get from the <see cref="Poderosa.Plugins.ICoreServices.Preferences">Preferences property</see> of <seealso cref="Poderosa.Plugins.ICoreServices">ICoreServices</seealso>. 
@@ -136,10 +136,10 @@ namespace Poderosa.Preferences {
     /// </remarks>
     /// <example>
     /// <ja>
-    /// IPreferences‚ğ“¾‚Ü‚·B
+    /// IPreferencesã‚’å¾—ã¾ã™ã€‚
     /// <code>
     /// ICoreServices cs = PoderosaWorld.GetAdapter(typeof(ICoreServices));
-    /// // IPreferences‚ğæ“¾‚µ‚Ü‚·
+    /// // IPreferencesã‚’å–å¾—ã—ã¾ã™
     /// IPreferences pref = cs.Preferences;
     /// </code>
     /// </ja>
@@ -155,28 +155,28 @@ namespace Poderosa.Preferences {
     public interface IPreferences {
         /// <summary>
         /// <ja>
-        /// ƒtƒHƒ‹ƒ_‚ğŒŸõ‚µ‚Ü‚·B
+        /// ãƒ•ã‚©ãƒ«ãƒ€ã‚’æ¤œç´¢ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Retrieve the folder.
         /// </en>
         /// </summary>
-        /// <param name="id"><ja>ŒŸõ‚·‚éƒtƒHƒ‹ƒ_–¼</ja><en>Retrieved folder name</en></param>
-        /// <returns><ja>Œ©‚Â‚©‚Á‚½ƒtƒHƒ‹ƒ_‚ğ¦‚·IPreferenceFolderBŒ©‚Â‚©‚ç‚È‚¢‚Æ‚«‚É‚Ínull</ja><en>IPreferenceFolder that shows found folder. When not found, null returns.</en></returns>
+        /// <param name="id"><ja>æ¤œç´¢ã™ã‚‹ãƒ•ã‚©ãƒ«ãƒ€å</ja><en>Retrieved folder name</en></param>
+        /// <returns><ja>è¦‹ã¤ã‹ã£ãŸãƒ•ã‚©ãƒ«ãƒ€ã‚’ç¤ºã™IPreferenceFolderã€‚è¦‹ã¤ã‹ã‚‰ãªã„ã¨ãã«ã¯null</ja><en>IPreferenceFolder that shows found folder. When not found, null returns.</en></returns>
         IPreferenceFolder FindPreferenceFolder(string id);
         /// <summary>
-        /// <ja>‚·‚×‚Ä‚ÌƒtƒHƒ‹ƒ_‚ğ”z—ñ‚Æ‚µ‚Ä“¾‚Ü‚·B</ja>
+        /// <ja>ã™ã¹ã¦ã®ãƒ•ã‚©ãƒ«ãƒ€ã‚’é…åˆ—ã¨ã—ã¦å¾—ã¾ã™ã€‚</ja>
         /// <en>All folders are obtained as an array.</en>
         /// </summary>
-        /// <returns><ja>•Û‚µ‚Ä‚¢‚é‚·‚×‚Ä‚ÌƒtƒHƒ‹ƒ_</ja><en>All held folders</en></returns>
+        /// <returns><ja>ä¿æŒã—ã¦ã„ã‚‹ã™ã¹ã¦ã®ãƒ•ã‚©ãƒ«ãƒ€</ja><en>All held folders</en></returns>
         IPreferenceFolder[] GetAllFolders();
     }
 
 
-    //İ’è€–Ú‚ğ’è‹`‚·‚é‘¤‚ª’ñ‹Ÿ
+    //è¨­å®šé …ç›®ã‚’å®šç¾©ã™ã‚‹å´ãŒæä¾›
     /// <summary>
     /// <ja>
-    /// ƒ†[ƒU[İ’è€–Ú‚ğ’è‹`‚·‚éƒvƒ‰ƒOƒCƒ“‚ªÀ‘•‚·‚×‚«ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šé …ç›®ã‚’å®šç¾©ã™ã‚‹ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒå®Ÿè£…ã™ã¹ãã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that plug-in that defines user setting item should implement.
@@ -185,24 +185,24 @@ namespace Poderosa.Preferences {
     /// <remarks>
     /// <ja>
     /// <para>
-    /// ƒ†[ƒU[İ’è€–Ú‚ğ“Ç‚İ‘‚«‚·‚éƒvƒ‰ƒOƒCƒ“‚ÍA‚±‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğÀ‘•‚µ‚½ƒIƒuƒWƒFƒNƒg‚ğ—pˆÓ‚µA
-    /// PreferencePluginƒvƒ‰ƒOƒCƒ“‚ª’ñ‹Ÿ‚·‚éuorg.poderosa.core.preferencesv‚Æ‚¢‚¤Šg’£ƒ|ƒCƒ“ƒg‚Ö‚Æ
-    /// “o˜^‚µ‚Ü‚·B
+    /// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šé …ç›®ã‚’èª­ã¿æ›¸ãã™ã‚‹ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã¯ã€ã“ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’å®Ÿè£…ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”¨æ„ã—ã€
+    /// PreferencePluginãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒæä¾›ã™ã‚‹ã€Œorg.poderosa.core.preferencesã€ã¨ã„ã†æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã¸ã¨
+    /// ç™»éŒ²ã—ã¾ã™ã€‚
     /// </para>
     /// <para>
-    /// uorg.poderosa.core.preferencesvŠg’£ƒ|ƒCƒ“ƒg‚ÍA<seealso cref="Poderosa.Plugins.ICoreServices">ICoreServices</seealso>‚Ì
-    /// <see cref="Poderosa.Plugins.ICoreServices.PreferenceExtensionPoint">PreferenceExtensionPointƒvƒƒpƒeƒB</see>‚©‚çæ“¾‚Å‚«‚Ü‚·B
+    /// ã€Œorg.poderosa.core.preferencesã€æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã¯ã€<seealso cref="Poderosa.Plugins.ICoreServices">ICoreServices</seealso>ã®
+    /// <see cref="Poderosa.Plugins.ICoreServices.PreferenceExtensionPoint">PreferenceExtensionPointãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>ã‹ã‚‰å–å¾—ã§ãã¾ã™ã€‚
     /// </para>
     /// <code>
     /// ICoreServices cs = PoderosaWorld.GetAdapter(typeof(ICoreServices));
-    /// // PreferencesPluginƒvƒ‰ƒOƒCƒ“‚ÌŠg’£ƒ|ƒCƒ“ƒg‚ğæ“¾‚µ‚Ü‚·
+    /// // PreferencesPluginãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã‚’å–å¾—ã—ã¾ã™
     /// IExtensionPoint prefext =cs.PreferenceExtensionPoint;
     /// 
-    /// // ©g‚ğ“o˜^‚µ‚Ü‚·B
+    /// // è‡ªèº«ã‚’ç™»éŒ²ã—ã¾ã™ã€‚
     /// prefext.RegisterExtension(this);
     /// </code>
     /// <para>
-    /// ‹ï‘Ì“I‚Èg‚¢•û‚É‚Â‚¢‚Ä‚ÍA<see href="/chap04_05.html">ƒ†[ƒU[İ’è’l‚Ì‘€ì</see>‚ğQÆ‚µ‚Ä‚­‚¾‚³‚¢B
+    /// å…·ä½“çš„ãªä½¿ã„æ–¹ã«ã¤ã„ã¦ã¯ã€<see href="/chap04_05.html">ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã®æ“ä½œ</see>ã‚’å‚ç…§ã—ã¦ãã ã•ã„ã€‚
     /// </para>
     /// </ja>
     /// <en>
@@ -232,7 +232,7 @@ namespace Poderosa.Preferences {
     public interface IPreferenceSupplier {
         /// <summary>
         /// <ja>
-        /// İ’è’l‚ğƒvƒ‰ƒOƒCƒ“‚²‚Æ‚É¯•Ê‚·‚é€–Ú–¼‚Å‚·B
+        /// è¨­å®šå€¤ã‚’ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã”ã¨ã«è­˜åˆ¥ã™ã‚‹é …ç›®åã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Item name that identifies set value of each plug-in.
@@ -241,8 +241,8 @@ namespace Poderosa.Preferences {
         /// <remarks>
         /// <ja>
         /// <para>
-        /// ‚±‚Ì’l‚ÍAoptions.conf‚É‘‚«‚Ü‚ê‚é‚Æ‚«‚Ìƒ‹[ƒg’¼‰º‚Ì–¼‘O‚Æ‚µ‚ÄÌ—p‚³‚ê‚Ü‚·B‘¼‚Ìƒvƒ‰ƒOƒCƒ“‚Æd•¡‚µ‚È‚¢‚æ‚¤‚É‚·‚é‚½‚ßA
-        /// ƒvƒ‰ƒOƒCƒ“ID‚Æ“¯‚¶‚à‚Ì‚ğİ’è‚·‚é‚±‚Æ‚ª„§‚³‚ê‚Ü‚·i‚ ‚¦‚Ä‘¼‚Ìƒvƒ‰ƒOƒCƒ“‚Ìİ’è’l‚ğ“Ç‚İ‘‚«‚µ‚½‚¢ê‡‚É‚ÍA‚±‚ÌŒÀ‚è‚Å‚Í‚ ‚è‚Ü‚¹‚ñjB
+        /// ã“ã®å€¤ã¯ã€options.confã«æ›¸ãè¾¼ã¾ã‚Œã‚‹ã¨ãã®ãƒ«ãƒ¼ãƒˆç›´ä¸‹ã®åå‰ã¨ã—ã¦æ¡ç”¨ã•ã‚Œã¾ã™ã€‚ä»–ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã¨é‡è¤‡ã—ãªã„ã‚ˆã†ã«ã™ã‚‹ãŸã‚ã€
+        /// ãƒ—ãƒ©ã‚°ã‚¤ãƒ³IDã¨åŒã˜ã‚‚ã®ã‚’è¨­å®šã™ã‚‹ã“ã¨ãŒæ¨å¥¨ã•ã‚Œã¾ã™ï¼ˆã‚ãˆã¦ä»–ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®è¨­å®šå€¤ã‚’èª­ã¿æ›¸ãã—ãŸã„å ´åˆã«ã¯ã€ã“ã®é™ã‚Šã§ã¯ã‚ã‚Šã¾ã›ã‚“ï¼‰ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -258,18 +258,18 @@ namespace Poderosa.Preferences {
         }
         /// <summary>
         /// <ja>
-        /// ‰Šú‰»‚ÉPreferencesPluginƒvƒ‰ƒOƒCƒ“‚©‚çŒÄ‚Ño‚³‚ê‚éƒƒ\ƒbƒh‚Å‚·B
+        /// åˆæœŸåŒ–æ™‚ã«PreferencesPluginãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Method that calls from PreferencesPlugin plug-in when initializing it
         /// </en>
         /// </summary>
-        /// <param name="builder"><ja>İ’è€–Ú‚ğ“o˜^‚·‚é‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B</ja><en>Interface to register set item</en></param>
-        /// <param name="folder"><ja>e‚Æ‚È‚éƒtƒHƒ‹ƒ_‚Å‚·B</ja><en>Folder that becomes parents</en></param>
+        /// <param name="builder"><ja>è¨­å®šé …ç›®ã‚’ç™»éŒ²ã™ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚</ja><en>Interface to register set item</en></param>
+        /// <param name="folder"><ja>è¦ªã¨ãªã‚‹ãƒ•ã‚©ãƒ«ãƒ€ã§ã™ã€‚</ja><en>Folder that becomes parents</en></param>
         /// <remarks>
         /// <ja>
-        /// ŠJ”­Ò‚ÍA‚±‚Ìƒƒ\ƒbƒh“à‚Å<paramref name="bulder"/>‚ÌŠeƒƒ\ƒbƒh‚ğŒÄ‚Ño‚µ‚ÄA
-        /// İ’è’l‚ğ“o˜^‚µ‚Ü‚·B
+        /// é–‹ç™ºè€…ã¯ã€ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰å†…ã§<paramref name="bulder"/>ã®å„ãƒ¡ã‚½ãƒƒãƒ‰ã‚’å‘¼ã³å‡ºã—ã¦ã€
+        /// è¨­å®šå€¤ã‚’ç™»éŒ²ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The developer calls each method of <paramref name="bulder"/> in this method, and registers a set value. 
@@ -278,18 +278,18 @@ namespace Poderosa.Preferences {
         void InitializePreference(IPreferenceBuilder builder, IPreferenceFolder folder);
         /// <summary>
         /// <ja>
-        /// ƒ†[ƒU[İ’è’l‚ğ“Á—L‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚Ö‚Æ•ÏŠ·‚µ‚½‚¢‚Æ‚«‚É—p‚¢‚Ü‚·B
+        /// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã‚’ç‰¹æœ‰ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¸ã¨å¤‰æ›ã—ãŸã„ã¨ãã«ç”¨ã„ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It uses it to convert the user setting value into a peculiar interface. 
         /// </en>
         /// </summary>
-        /// <param name="folder"><ja>e‚Æ‚È‚éƒtƒHƒ‹ƒ_‚Å‚·B</ja><en>Folder that becomes parents</en></param>
-        /// <param name="type"><ja>•ÏŠ·‚µ‚æ‚¤‚Æ‚·‚éŒ^‚Å‚·B</ja><en>Type that tries to be converted</en></param>
-        /// <returns><ja>•ÏŠ·Œã‚ÌŒ^‚ğ•Ô‚µ‚Ü‚·B</ja><en>The type after it converts it is returned. </en></returns>
+        /// <param name="folder"><ja>è¦ªã¨ãªã‚‹ãƒ•ã‚©ãƒ«ãƒ€ã§ã™ã€‚</ja><en>Folder that becomes parents</en></param>
+        /// <param name="type"><ja>å¤‰æ›ã—ã‚ˆã†ã¨ã™ã‚‹å‹ã§ã™ã€‚</ja><en>Type that tries to be converted</en></param>
+        /// <returns><ja>å¤‰æ›å¾Œã®å‹ã‚’è¿”ã—ã¾ã™ã€‚</ja><en>The type after it converts it is returned. </en></returns>
         /// <remarks>
         /// <ja>
-        /// Œ^‚Ì•ÏŠ·‹@”\‚ğ•K—v‚Æ‚µ‚È‚¢‚Æ‚«‚É‚ÍA’Pƒ‚Énull‚ğ•Ô‚·‚æ‚¤‚ÉÀ‘•‚µ‚Ä‚­‚¾‚³‚¢B
+        /// å‹ã®å¤‰æ›æ©Ÿèƒ½ã‚’å¿…è¦ã¨ã—ãªã„ã¨ãã«ã¯ã€å˜ç´”ã«nullã‚’è¿”ã™ã‚ˆã†ã«å®Ÿè£…ã—ã¦ãã ã•ã„ã€‚
         /// </ja>
         /// <en>
         /// Please implement to return null simply when the conversion function of the type is not needed. 
@@ -299,17 +299,17 @@ namespace Poderosa.Preferences {
 
         /// <summary>
         /// <ja>
-        /// “¯‚¶ƒtƒHƒ‹ƒ_‚ÉŠÜ‚Ü‚ê‚é•¡”‚Ìƒ†[ƒU[İ’è’l‚ğŒŸ¸‚µ‚½‚¢‚Æ‚«‚É—p‚¢‚Ü‚·B
+        /// åŒã˜ãƒ•ã‚©ãƒ«ãƒ€ã«å«ã¾ã‚Œã‚‹è¤‡æ•°ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã‚’æ¤œæŸ»ã—ãŸã„ã¨ãã«ç”¨ã„ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It uses it to inspect two or more user setting values included in the same folder. 
         /// </en>
         /// </summary>
-        /// <param name="folder"><ja>ŒŸØ‚Ì‘ÎÛ‚Æ‚È‚éƒtƒHƒ‹ƒ_‚ª“n‚³‚ê‚Ü‚·B</ja><en>Target folder for verification</en></param>
-        /// <param name="output"><ja>ŒŸØŒ‹‰Ê‚ğİ’è‚µ‚Ü‚·B</ja><en>The verification result is set. </en></param>
+        /// <param name="folder"><ja>æ¤œè¨¼ã®å¯¾è±¡ã¨ãªã‚‹ãƒ•ã‚©ãƒ«ãƒ€ãŒæ¸¡ã•ã‚Œã¾ã™ã€‚</ja><en>Target folder for verification</en></param>
+        /// <param name="output"><ja>æ¤œè¨¼çµæœã‚’è¨­å®šã—ã¾ã™ã€‚</ja><en>The verification result is set. </en></param>
         /// <remarks>
         /// <ja>
-        /// •¡”‚Ìƒ†[ƒU[İ’è’l‚ğŒŸ¸‚·‚é‹@”\‚ğ•K—v‚Æ‚µ‚È‚¢‚Æ‚«‚É‚ÍA‚±‚Ìˆ—‚Í‹ó‚Å‚©‚Ü‚¢‚Ü‚¹‚ñB
+        /// è¤‡æ•°ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã‚’æ¤œæŸ»ã™ã‚‹æ©Ÿèƒ½ã‚’å¿…è¦ã¨ã—ãªã„ã¨ãã«ã¯ã€ã“ã®å‡¦ç†ã¯ç©ºã§ã‹ã¾ã„ã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
         /// This processing is not cared about in the sky when the function to inspect two or more user setting values is not needed. 
@@ -318,10 +318,10 @@ namespace Poderosa.Preferences {
         void ValidateFolder(IPreferenceFolder folder, IPreferenceValidationResult output);
     }
 
-    //•ÏX’Ê’m
+    //å¤‰æ›´é€šçŸ¥
     /// <summary>
     /// <ja>
-    /// ƒtƒHƒ‹ƒ_“à‚Ìƒ†[ƒU[İ’è’l‚ª•Ï‰»‚µ‚½‚Æ‚«‚É’Ê’m‚ğó‚¯æ‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ•ã‚©ãƒ«ãƒ€å†…ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ãŒå¤‰åŒ–ã—ãŸã¨ãã«é€šçŸ¥ã‚’å—ã‘å–ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that receives notification when user setting value in folder changes.
@@ -330,21 +330,21 @@ namespace Poderosa.Preferences {
     public interface IPreferenceChangeListener {
         /// <summary>
         /// <ja>
-        /// ƒ†[ƒU[İ’è’l‚ª•Ï‰»‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒƒ\ƒbƒh‚Å‚·B
+        /// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ãŒå¤‰åŒ–ã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Method of call when user setting value changes.
         /// </en>
         /// </summary>
-        /// <param name="oldvalues"><ja>İ’è‘O‚ÌŒÃ‚¢’l‚Å‚·B</ja><en>Old value before it sets it</en></param>
-        /// <param name="newvalues"><ja>İ’èŒã‚ÌV‚µ‚¢’l‚Å‚·B</ja><en>New value after it sets it</en></param>
+        /// <param name="oldvalues"><ja>è¨­å®šå‰ã®å¤ã„å€¤ã§ã™ã€‚</ja><en>Old value before it sets it</en></param>
+        /// <param name="newvalues"><ja>è¨­å®šå¾Œã®æ–°ã—ã„å€¤ã§ã™ã€‚</ja><en>New value after it sets it</en></param>
         void OnPreferenceImport(IPreferenceFolder oldvalues, IPreferenceFolder newvalues);
     }
 
-    //‰Šú‰»‚Ì‚İ—LŒø
+    //åˆæœŸåŒ–æ™‚ã®ã¿æœ‰åŠ¹
     /// <summary>
     /// <ja>
-    /// ƒ†[ƒU[İ’è’liPreferencej‚Æ‚µ‚Ä€–Ú‚ğ“o˜^‚·‚é‹@”\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ï¼ˆPreferenceï¼‰ã¨ã—ã¦é …ç›®ã‚’ç™»éŒ²ã™ã‚‹æ©Ÿèƒ½ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The function to register the item as user setting value (Preference) is offered. 
@@ -353,21 +353,21 @@ namespace Poderosa.Preferences {
     public interface IPreferenceBuilder {
         /// <summary>
         /// <ja>
-        /// ŠK‘w‰»‚·‚éƒtƒHƒ‹ƒ_‚ğ’è‹`‚µ‚Ü‚·B
+        /// éšå±¤åŒ–ã™ã‚‹ãƒ•ã‚©ãƒ«ãƒ€ã‚’å®šç¾©ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The hierarchized folder is defined. 
         /// </en>
         /// </summary>
-        /// <param name="parent"><ja>e‚Æ‚È‚éƒtƒHƒ‹ƒ_</ja><en>Folder that becomes parents</en></param>
+        /// <param name="parent"><ja>è¦ªã¨ãªã‚‹ãƒ•ã‚©ãƒ«ãƒ€</ja><en>Folder that becomes parents</en></param>
         /// <param name="supplier"></param>
         /// <param name="id"></param>
         /// <returns></returns>
         /// <remarks>
         /// <ja>
-        /// <paramref name="parent"/>‚É‚ÍA<seealso cref="IPreferenceSupplier">IPreferenceSupplier</seealso>‚Ì
-        /// <see href="IPreferenceSupplier.InitializePreference">InitializePreference</see>‚Ì‘æ2ˆø”‚É“n‚³‚ê‚½
-        /// ’l‚ğ‚»‚Ì‚Ü‚Üˆø‚«“n‚·‚Ì‚ª’Ê—á‚Å‚·B
+        /// <paramref name="parent"/>ã«ã¯ã€<seealso cref="IPreferenceSupplier">IPreferenceSupplier</seealso>ã®
+        /// <see href="IPreferenceSupplier.InitializePreference">InitializePreference</see>ã®ç¬¬2å¼•æ•°ã«æ¸¡ã•ã‚ŒãŸ
+        /// å€¤ã‚’ãã®ã¾ã¾å¼•ãæ¸¡ã™ã®ãŒé€šä¾‹ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// In <paramref name="parent"/>, it is usual to pass the value passed to the second argument of 
@@ -376,43 +376,43 @@ namespace Poderosa.Preferences {
         /// </en>
         /// </remarks>
         /// <exclude/>
-        IPreferenceFolder DefineFolder(IPreferenceFolder parent, IPreferenceSupplier supplier, string id); //q‚ÌSupplier‚Ínull
+        IPreferenceFolder DefineFolder(IPreferenceFolder parent, IPreferenceSupplier supplier, string id); //å­ã®Supplierã¯null
         /// <exclude/>
-        IPreferenceFolder DefineFolderArray(IPreferenceFolder parent, IPreferenceSupplier supplier, string id); //Array‚ğ•Ô‚·‚í‚¯‚Å‚Í‚È‚¢‚±‚Æ‚É’ˆÓ
+        IPreferenceFolder DefineFolderArray(IPreferenceFolder parent, IPreferenceSupplier supplier, string id); //Arrayã‚’è¿”ã™ã‚ã‘ã§ã¯ãªã„ã“ã¨ã«æ³¨æ„
         /// <exclude/>
         IPreferenceLooseNode DefineLooseNode(IPreferenceFolder parent, IPreferenceLooseNodeContent content, string id);
 
-        //validator•s—v‚È‚Æ‚«‚Ínull
+        //validatorä¸è¦ãªã¨ãã¯null
         /// <summary>
         /// <ja>
-        /// boolŒ^‚Ìƒ†[ƒU[İ’è’l‚ğ’è‹`‚µ‚Ü‚·B
+        /// boolå‹ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã‚’å®šç¾©ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The user setting value of the bool type is defined. 
         /// </en>
         /// </summary>
-        /// <param name="parent"><ja>e‚Æ‚È‚éƒtƒHƒ‹ƒ_</ja><en>Folder that becomes parents</en></param>
-        /// <param name="id"><ja>’l‚ÌƒL[‚Æ‚È‚éİ’è–¼</ja><en>Set name that becomes key to value.</en></param>
-        /// <param name="initial_value"><ja>‰Šú’l</ja><en>Initial value</en></param>
-        /// <param name="validator"><ja>’l‚ğŒŸØ‚·‚éÛ‚ÌƒoƒŠƒf[ƒ^</ja><en>Validator when value is verified</en></param>
-        /// <returns><ja>’l‚ğ“Ç‚İ‘‚«‚·‚é‚½‚ß‚Ì<seealso cref="IBoolPreferenceItem">IBoolPreferenceItem</seealso></ja><en><seealso cref="IBoolPreferenceItem">IBoolPreferenceItem</seealso> to read and write value.</en></returns>
+        /// <param name="parent"><ja>è¦ªã¨ãªã‚‹ãƒ•ã‚©ãƒ«ãƒ€</ja><en>Folder that becomes parents</en></param>
+        /// <param name="id"><ja>å€¤ã®ã‚­ãƒ¼ã¨ãªã‚‹è¨­å®šå</ja><en>Set name that becomes key to value.</en></param>
+        /// <param name="initial_value"><ja>åˆæœŸå€¤</ja><en>Initial value</en></param>
+        /// <param name="validator"><ja>å€¤ã‚’æ¤œè¨¼ã™ã‚‹éš›ã®ãƒãƒªãƒ‡ãƒ¼ã‚¿</ja><en>Validator when value is verified</en></param>
+        /// <returns><ja>å€¤ã‚’èª­ã¿æ›¸ãã™ã‚‹ãŸã‚ã®<seealso cref="IBoolPreferenceItem">IBoolPreferenceItem</seealso></ja><en><seealso cref="IBoolPreferenceItem">IBoolPreferenceItem</seealso> to read and write value.</en></returns>
         /// <remarks>
         /// <ja>
         /// <para>
-        /// <paramref name="parent"/>‚É‚ÍA<seealso cref="IPreferenceSupplier">IPreferenceSupplier</seealso>‚Ì
-        /// <see href="IPreferenceSupplier.InitializePreference">InitializePreference</see>‚Ì‘æ2ˆø”‚É“n‚³‚ê‚½
-        /// ’l‚ğ‚»‚Ì‚Ü‚Üˆø‚«“n‚·‚Ì‚ª’Ê—á‚Å‚·B
+        /// <paramref name="parent"/>ã«ã¯ã€<seealso cref="IPreferenceSupplier">IPreferenceSupplier</seealso>ã®
+        /// <see href="IPreferenceSupplier.InitializePreference">InitializePreference</see>ã®ç¬¬2å¼•æ•°ã«æ¸¡ã•ã‚ŒãŸ
+        /// å€¤ã‚’ãã®ã¾ã¾å¼•ãæ¸¡ã™ã®ãŒé€šä¾‹ã§ã™ã€‚
         /// </para>
         /// <para>
-        /// <paramref name="id"/>‚ÍAƒ†[ƒU[İ’è’l‚ğ¯•Ê‚·‚é‚½‚ß‚Ì”CˆÓ‚Ì–¼‘O‚Å‚·B<paramref name="parent"/>
-        /// ‚ÅŠK‘w‰»‚³‚ê‚é‚½‚ßA‚Ù‚©‚Ìƒvƒ‰ƒOƒCƒ“‚Æ‚Ì–¼‘O‚Ìd•¡‚ğl‚¦‚é•K—v‚Í‚ ‚è‚Ü‚¹‚ñB
+        /// <paramref name="id"/>ã¯ã€ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã‚’è­˜åˆ¥ã™ã‚‹ãŸã‚ã®ä»»æ„ã®åå‰ã§ã™ã€‚<paramref name="parent"/>
+        /// ã§éšå±¤åŒ–ã•ã‚Œã‚‹ãŸã‚ã€ã»ã‹ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã¨ã®åå‰ã®é‡è¤‡ã‚’è€ƒãˆã‚‹å¿…è¦ã¯ã‚ã‚Šã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// <paramref name="initial_value"/>‚ÍAŠY“–‚·‚éƒ†[ƒU[İ’è’l‚ª‚Ü‚¾‘¶İ‚µ‚È‚¢ê‡‚Ì‰Šú’l‚Å‚·B
-        /// ‚·‚Å‚É‚±‚Ìƒ†[ƒU[İ’è’l‚ª‘¶İ‚·‚éê‡‚É‚Í–³‹‚³‚êAŠù‘¶‚Ì’l‚ª“Ç‚İ‚Ü‚ê‚Ü‚·B
+        /// <paramref name="initial_value"/>ã¯ã€è©²å½“ã™ã‚‹ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ãŒã¾ã å­˜åœ¨ã—ãªã„å ´åˆã®åˆæœŸå€¤ã§ã™ã€‚
+        /// ã™ã§ã«ã“ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ãŒå­˜åœ¨ã™ã‚‹å ´åˆã«ã¯ç„¡è¦–ã•ã‚Œã€æ—¢å­˜ã®å€¤ãŒèª­ã¿è¾¼ã¾ã‚Œã¾ã™ã€‚
         /// </para>
         /// <para>
-        /// ŒŸØ‹@”\‚ğ•K—v‚Æ‚µ‚È‚¢‚Æ‚«‚É‚ÍA<paramref name="validator"/>‚ğnull‚É‚·‚é‚±‚Æ‚à‚Å‚«‚Ü‚·B
+        /// æ¤œè¨¼æ©Ÿèƒ½ã‚’å¿…è¦ã¨ã—ãªã„ã¨ãã«ã¯ã€<paramref name="validator"/>ã‚’nullã«ã™ã‚‹ã“ã¨ã‚‚ã§ãã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -439,34 +439,34 @@ namespace Poderosa.Preferences {
         IBoolPreferenceItem DefineBoolValue(IPreferenceFolder parent, string id, bool initial_value, PreferenceItemValidator<bool> validator);
         /// <summary>
         /// <ja>
-        /// intŒ^‚Ìƒ†[ƒU[İ’è’l‚ğ’è‹`‚µ‚Ü‚·B
+        /// intå‹ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã‚’å®šç¾©ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The user setting value of the int type is defined. 
         /// </en>
         /// </summary>
-        /// <param name="parent"><ja>e‚Æ‚È‚éƒtƒHƒ‹ƒ_</ja><en>Folder that becomes parents</en></param>
-        /// <param name="id"><ja>’l‚ÌƒL[‚Æ‚È‚éİ’è–¼</ja><en>Set name that becomes key to value.</en></param>
-        /// <param name="initial_value"><ja>‰Šú’l</ja><en>Initial value</en></param>
-        /// <param name="validator"><ja>’l‚ğŒŸØ‚·‚éÛ‚ÌƒoƒŠƒf[ƒ^</ja><en>Validator when value is verified</en></param>
-        /// <returns><ja>’l‚ğ“Ç‚İ‘‚«‚·‚é‚½‚ß‚Ì<seealso cref="IIntPreferenceItem">IIntPreferenceItem</seealso></ja><en><seealso cref="IIntPreferenceItem">IIntPreferenceItem</seealso> to read and write value.</en></returns>
+        /// <param name="parent"><ja>è¦ªã¨ãªã‚‹ãƒ•ã‚©ãƒ«ãƒ€</ja><en>Folder that becomes parents</en></param>
+        /// <param name="id"><ja>å€¤ã®ã‚­ãƒ¼ã¨ãªã‚‹è¨­å®šå</ja><en>Set name that becomes key to value.</en></param>
+        /// <param name="initial_value"><ja>åˆæœŸå€¤</ja><en>Initial value</en></param>
+        /// <param name="validator"><ja>å€¤ã‚’æ¤œè¨¼ã™ã‚‹éš›ã®ãƒãƒªãƒ‡ãƒ¼ã‚¿</ja><en>Validator when value is verified</en></param>
+        /// <returns><ja>å€¤ã‚’èª­ã¿æ›¸ãã™ã‚‹ãŸã‚ã®<seealso cref="IIntPreferenceItem">IIntPreferenceItem</seealso></ja><en><seealso cref="IIntPreferenceItem">IIntPreferenceItem</seealso> to read and write value.</en></returns>
         /// <remarks>
         /// <ja>
         /// <para>
-        /// <paramref name="parent"/>‚É‚ÍA<seealso cref="IPreferenceSupplier">IPreferenceSupplier</seealso>‚Ì
-        /// <see href="IPreferenceSupplier.InitializePreference">InitializePreference</see>‚Ì‘æ2ˆø”‚É“n‚³‚ê‚½
-        /// ’l‚ğ‚»‚Ì‚Ü‚Üˆø‚«“n‚·‚Ì‚ª’Ê—á‚Å‚·B
+        /// <paramref name="parent"/>ã«ã¯ã€<seealso cref="IPreferenceSupplier">IPreferenceSupplier</seealso>ã®
+        /// <see href="IPreferenceSupplier.InitializePreference">InitializePreference</see>ã®ç¬¬2å¼•æ•°ã«æ¸¡ã•ã‚ŒãŸ
+        /// å€¤ã‚’ãã®ã¾ã¾å¼•ãæ¸¡ã™ã®ãŒé€šä¾‹ã§ã™ã€‚
         /// </para>
         /// <para>
-        /// <paramref name="id"/>‚ÍAƒ†[ƒU[İ’è’l‚ğ¯•Ê‚·‚é‚½‚ß‚Ì”CˆÓ‚Ì–¼‘O‚Å‚·B<paramref name="parent"/>
-        /// ‚ÅŠK‘w‰»‚³‚ê‚é‚½‚ßA‚Ù‚©‚Ìƒvƒ‰ƒOƒCƒ“‚Æ‚Ì–¼‘O‚Ìd•¡‚ğl‚¦‚é•K—v‚Í‚ ‚è‚Ü‚¹‚ñB
+        /// <paramref name="id"/>ã¯ã€ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã‚’è­˜åˆ¥ã™ã‚‹ãŸã‚ã®ä»»æ„ã®åå‰ã§ã™ã€‚<paramref name="parent"/>
+        /// ã§éšå±¤åŒ–ã•ã‚Œã‚‹ãŸã‚ã€ã»ã‹ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã¨ã®åå‰ã®é‡è¤‡ã‚’è€ƒãˆã‚‹å¿…è¦ã¯ã‚ã‚Šã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// <paramref name="initial_value"/>‚ÍAŠY“–‚·‚éƒ†[ƒU[İ’è’l‚ª‚Ü‚¾‘¶İ‚µ‚È‚¢ê‡‚Ì‰Šú’l‚Å‚·B
-        /// ‚·‚Å‚É‚±‚Ìƒ†[ƒU[İ’è’l‚ª‘¶İ‚·‚éê‡‚É‚Í–³‹‚³‚êAŠù‘¶‚Ì’l‚ª“Ç‚İ‚Ü‚ê‚Ü‚·B
+        /// <paramref name="initial_value"/>ã¯ã€è©²å½“ã™ã‚‹ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ãŒã¾ã å­˜åœ¨ã—ãªã„å ´åˆã®åˆæœŸå€¤ã§ã™ã€‚
+        /// ã™ã§ã«ã“ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ãŒå­˜åœ¨ã™ã‚‹å ´åˆã«ã¯ç„¡è¦–ã•ã‚Œã€æ—¢å­˜ã®å€¤ãŒèª­ã¿è¾¼ã¾ã‚Œã¾ã™ã€‚
         /// </para>
         /// <para>
-        /// ŒŸØ‹@”\‚ğ•K—v‚Æ‚µ‚È‚¢‚Æ‚«‚É‚ÍA<paramref name="validator"/>‚ğnull‚É‚·‚é‚±‚Æ‚à‚Å‚«‚Ü‚·B
+        /// æ¤œè¨¼æ©Ÿèƒ½ã‚’å¿…è¦ã¨ã—ãªã„ã¨ãã«ã¯ã€<paramref name="validator"/>ã‚’nullã«ã™ã‚‹ã“ã¨ã‚‚ã§ãã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -494,34 +494,34 @@ namespace Poderosa.Preferences {
 
         /// <summary>
         /// <ja>
-        /// stringŒ^‚Ìƒ†[ƒU[İ’è’l‚ğ’è‹`‚µ‚Ü‚·B
+        /// stringå‹ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã‚’å®šç¾©ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The user setting value of the string type is defined. 
         /// </en>
         /// </summary>
-        /// <param name="parent"><ja>e‚Æ‚È‚éƒtƒHƒ‹ƒ_</ja><en>Folder that becomes parents</en></param>
-        /// <param name="id"><ja>’l‚ÌƒL[‚Æ‚È‚éİ’è–¼</ja><en>Set name that becomes key to value.</en></param>
-        /// <param name="initial_value"><ja>‰Šú’l</ja><en>Initial value</en></param>
-        /// <param name="validator"><ja>’l‚ğŒŸØ‚·‚éÛ‚ÌƒoƒŠƒf[ƒ^</ja><en>Validator when value is verified</en></param>
-        /// <returns><ja>’l‚ğ“Ç‚İ‘‚«‚·‚é‚½‚ß‚Ì<seealso cref="IIntPreferenceItem">IIntPreferenceItem</seealso></ja><en><seealso cref="IIntPreferenceItem">IIntPreferenceItem</seealso> to read and write value.</en></returns>
+        /// <param name="parent"><ja>è¦ªã¨ãªã‚‹ãƒ•ã‚©ãƒ«ãƒ€</ja><en>Folder that becomes parents</en></param>
+        /// <param name="id"><ja>å€¤ã®ã‚­ãƒ¼ã¨ãªã‚‹è¨­å®šå</ja><en>Set name that becomes key to value.</en></param>
+        /// <param name="initial_value"><ja>åˆæœŸå€¤</ja><en>Initial value</en></param>
+        /// <param name="validator"><ja>å€¤ã‚’æ¤œè¨¼ã™ã‚‹éš›ã®ãƒãƒªãƒ‡ãƒ¼ã‚¿</ja><en>Validator when value is verified</en></param>
+        /// <returns><ja>å€¤ã‚’èª­ã¿æ›¸ãã™ã‚‹ãŸã‚ã®<seealso cref="IIntPreferenceItem">IIntPreferenceItem</seealso></ja><en><seealso cref="IIntPreferenceItem">IIntPreferenceItem</seealso> to read and write value.</en></returns>
         /// <remarks>
         /// <ja>
         /// <para>
-        /// <paramref name="parent"/>‚É‚ÍA<seealso cref="IPreferenceSupplier">IPreferenceSupplier</seealso>‚Ì
-        /// <see href="IPreferenceSupplier.InitializePreference">InitializePreference</see>‚Ì‘æ2ˆø”‚É“n‚³‚ê‚½
-        /// ’l‚ğ‚»‚Ì‚Ü‚Üˆø‚«“n‚·‚Ì‚ª’Ê—á‚Å‚·B
+        /// <paramref name="parent"/>ã«ã¯ã€<seealso cref="IPreferenceSupplier">IPreferenceSupplier</seealso>ã®
+        /// <see href="IPreferenceSupplier.InitializePreference">InitializePreference</see>ã®ç¬¬2å¼•æ•°ã«æ¸¡ã•ã‚ŒãŸ
+        /// å€¤ã‚’ãã®ã¾ã¾å¼•ãæ¸¡ã™ã®ãŒé€šä¾‹ã§ã™ã€‚
         /// </para>
         /// <para>
-        /// <paramref name="id"/>‚ÍAƒ†[ƒU[İ’è’l‚ğ¯•Ê‚·‚é‚½‚ß‚Ì”CˆÓ‚Ì–¼‘O‚Å‚·B<paramref name="parent"/>
-        /// ‚ÅŠK‘w‰»‚³‚ê‚é‚½‚ßA‚Ù‚©‚Ìƒvƒ‰ƒOƒCƒ“‚Æ‚Ì–¼‘O‚Ìd•¡‚ğl‚¦‚é•K—v‚Í‚ ‚è‚Ü‚¹‚ñB
+        /// <paramref name="id"/>ã¯ã€ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã‚’è­˜åˆ¥ã™ã‚‹ãŸã‚ã®ä»»æ„ã®åå‰ã§ã™ã€‚<paramref name="parent"/>
+        /// ã§éšå±¤åŒ–ã•ã‚Œã‚‹ãŸã‚ã€ã»ã‹ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã¨ã®åå‰ã®é‡è¤‡ã‚’è€ƒãˆã‚‹å¿…è¦ã¯ã‚ã‚Šã¾ã›ã‚“ã€‚
         /// </para>
         /// <para>
-        /// <paramref name="initial_value"/>‚ÍAŠY“–‚·‚éƒ†[ƒU[İ’è’l‚ª‚Ü‚¾‘¶İ‚µ‚È‚¢ê‡‚Ì‰Šú’l‚Å‚·B
-        /// ‚·‚Å‚É‚±‚Ìƒ†[ƒU[İ’è’l‚ª‘¶İ‚·‚éê‡‚É‚Í–³‹‚³‚êAŠù‘¶‚Ì’l‚ª“Ç‚İ‚Ü‚ê‚Ü‚·B
+        /// <paramref name="initial_value"/>ã¯ã€è©²å½“ã™ã‚‹ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ãŒã¾ã å­˜åœ¨ã—ãªã„å ´åˆã®åˆæœŸå€¤ã§ã™ã€‚
+        /// ã™ã§ã«ã“ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ãŒå­˜åœ¨ã™ã‚‹å ´åˆã«ã¯ç„¡è¦–ã•ã‚Œã€æ—¢å­˜ã®å€¤ãŒèª­ã¿è¾¼ã¾ã‚Œã¾ã™ã€‚
         /// </para>
         /// <para>
-        /// ŒŸØ‹@”\‚ğ•K—v‚Æ‚µ‚È‚¢‚Æ‚«‚É‚ÍA<paramref name="validator"/>‚ğnull‚É‚·‚é‚±‚Æ‚à‚Å‚«‚Ü‚·B
+        /// æ¤œè¨¼æ©Ÿèƒ½ã‚’å¿…è¦ã¨ã—ãªã„ã¨ãã«ã¯ã€<paramref name="validator"/>ã‚’nullã«ã™ã‚‹ã“ã¨ã‚‚ã§ãã¾ã™ã€‚
         /// </para>
         /// </ja>
         /// <en>
@@ -551,7 +551,7 @@ namespace Poderosa.Preferences {
 
     /// <summary>
     /// <ja>
-    /// ƒ†[ƒU[İ’è’liPreferencej‚Ì€–Ú‚âƒtƒHƒ‹ƒ_‚ÌŠî’ê‚Æ‚È‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ï¼ˆPreferenceï¼‰ã®é …ç›®ã‚„ãƒ•ã‚©ãƒ«ãƒ€ã®åŸºåº•ã¨ãªã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// It is an interface that becomes the item of user setting value (Preference) and basic of the folder. 
@@ -560,7 +560,7 @@ namespace Poderosa.Preferences {
     public interface IPreferenceItemBase {
         /// <summary>
         /// <ja>
-        /// İ’è–¼‚Å‚·B
+        /// è¨­å®šåã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Name of setting
@@ -571,7 +571,7 @@ namespace Poderosa.Preferences {
         }
         /// <summary>
         /// <ja>
-        /// ƒtƒHƒ‹ƒ_–¼‚àŠÜ‚ß‚½Š®‘S‚Èİ’è–¼‚Å‚·B
+        /// ãƒ•ã‚©ãƒ«ãƒ€åã‚‚å«ã‚ãŸå®Œå…¨ãªè¨­å®šåã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Complete set name including folder name
@@ -582,7 +582,7 @@ namespace Poderosa.Preferences {
         }
         /// <summary>
         /// <ja>
-        /// e‚©‚ç‚ÌƒCƒ“ƒfƒbƒNƒXˆÊ’u‚Å‚·B
+        /// è¦ªã‹ã‚‰ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ä½ç½®ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// It is an index position from parents. 
@@ -591,17 +591,17 @@ namespace Poderosa.Preferences {
         int Index {
             get;
         }
-        //cast: NOTE:”p~—\’è
+        //cast: NOTE:å»ƒæ­¢äºˆå®š
         /// <exclude/>
         IPreferenceItem AsItem();
         /// <exclude/>
         IPreferenceFolder AsFolder();
         /// <exclude/>
         IPreferenceFolderArray AsFolderArray();
-        //‚·‚×‚Ä‰Šú‰»
+        //ã™ã¹ã¦åˆæœŸåŒ–
         /// <summary>
         /// <ja>
-        /// ’l‚ğ‚·‚×‚Ä‰Šú‰»‚µ‚Ü‚·B
+        /// å€¤ã‚’ã™ã¹ã¦åˆæœŸåŒ–ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// All the values are initialized. 
@@ -612,7 +612,7 @@ namespace Poderosa.Preferences {
 
     /// <summary>
     /// <ja>
-    /// ƒ†[ƒU[İ’è’liPreferencej‚ğŠK‘w‰»‚·‚éƒtƒHƒ‹ƒ_‚ğ‘€ì‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ï¼ˆPreferenceï¼‰ã‚’éšå±¤åŒ–ã™ã‚‹ãƒ•ã‚©ãƒ«ãƒ€ã‚’æ“ä½œã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// It is an interface that operates the folder that hierarchizes user setting value (Preference). 
@@ -621,66 +621,66 @@ namespace Poderosa.Preferences {
     public interface IPreferenceFolder : IPreferenceItemBase {
         /// <summary>
         /// <ja>
-        /// •¡»‚ğì¬‚µ‚Ü‚·B
+        /// è¤‡è£½ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create a copy.
         /// </en>
         /// </summary>
-        /// <returns><ja>•¡»‚µ‚½IPreferenceFolder</ja><en>Duplicated IPreferenceFolder</en></returns>
+        /// <returns><ja>è¤‡è£½ã—ãŸIPreferenceFolder</ja><en>Duplicated IPreferenceFolder</en></returns>
         IPreferenceFolder Clone();
         /// <summary>
         /// <ja>
-        /// •Ê‚ÌƒtƒHƒ‹ƒ_‚©‚çƒCƒ“ƒ|[ƒg‚µ‚Ü‚·B
+        /// åˆ¥ã®ãƒ•ã‚©ãƒ«ãƒ€ã‹ã‚‰ã‚¤ãƒ³ãƒãƒ¼ãƒˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Import from another folder.
         /// </en>
         /// </summary>
-        /// <param name="newvalues"><ja>ƒCƒ“ƒ|[ƒg‚·‚é’l‚ğŠÜ‚ŞƒtƒHƒ‹ƒ_</ja><en>Folder including value in which import.</en></param>
+        /// <param name="newvalues"><ja>ã‚¤ãƒ³ãƒãƒ¼ãƒˆã™ã‚‹å€¤ã‚’å«ã‚€ãƒ•ã‚©ãƒ«ãƒ€</ja><en>Folder including value in which import.</en></param>
         void Import(IPreferenceFolder newvalues);
 
-        //TODO ŠO•”‚©‚ç‚Ì–¾¦“Ifolder validation‚ğ‚±‚±‚Ö
+        //TODO å¤–éƒ¨ã‹ã‚‰ã®æ˜ç¤ºçš„folder validationã‚’ã“ã“ã¸
 
         /// <summary>
         /// <ja>
-        /// q‚ÌƒtƒHƒ‹ƒ_‚ğŒŸõ‚µ‚Ü‚·B
+        /// å­ã®ãƒ•ã‚©ãƒ«ãƒ€ã‚’æ¤œç´¢ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Child's folder is retrieved. 
         /// </en>
         /// </summary>
-        /// <param name="id"><ja>q‚ÌƒtƒHƒ‹ƒ_‚ÌID</ja><en>ID of child's folder.</en></param>
-        /// <returns><ja>Œ©‚Â‚©‚Á‚½ƒtƒHƒ‹ƒ_‚ğ¦‚·IPreferenceFolderBŒ©‚Â‚©‚ç‚È‚¢‚Æ‚«‚É‚Ínull</ja><en>IPreferenceFolder that shows found folder. When not found, null returns.</en></returns>
+        /// <param name="id"><ja>å­ã®ãƒ•ã‚©ãƒ«ãƒ€ã®ID</ja><en>ID of child's folder.</en></param>
+        /// <returns><ja>è¦‹ã¤ã‹ã£ãŸãƒ•ã‚©ãƒ«ãƒ€ã‚’ç¤ºã™IPreferenceFolderã€‚è¦‹ã¤ã‹ã‚‰ãªã„ã¨ãã«ã¯null</ja><en>IPreferenceFolder that shows found folder. When not found, null returns.</en></returns>
         IPreferenceFolder FindChildFolder(string id);
         /// <summary>
         /// <ja>
-        /// q‚ÌƒtƒHƒ‹ƒ_‚Ì”z—ñ‚ğŒŸõ‚µ‚Ü‚·B
+        /// å­ã®ãƒ•ã‚©ãƒ«ãƒ€ã®é…åˆ—ã‚’æ¤œç´¢ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Array of child's folder is retrieved. 
         /// </en>
         /// </summary>
         /// <param name="id">
-        /// <ja>q‚ÌƒtƒHƒ‹ƒ_‚ÌID</ja>
+        /// <ja>å­ã®ãƒ•ã‚©ãƒ«ãƒ€ã®ID</ja>
         /// <en>ID of child's folder.</en>
         /// </param>
-        /// <returns><ja>Œ©‚Â‚©‚Á‚½ƒtƒHƒ‹ƒ_‚ğ¦‚·IPreferenceFolderBŒ©‚Â‚©‚ç‚È‚¢‚Æ‚«‚É‚Ínull</ja><en>IPreferenceFolder that shows found folder. When not found, null returns.</en></returns>
+        /// <returns><ja>è¦‹ã¤ã‹ã£ãŸãƒ•ã‚©ãƒ«ãƒ€ã‚’ç¤ºã™IPreferenceFolderã€‚è¦‹ã¤ã‹ã‚‰ãªã„ã¨ãã«ã¯null</ja><en>IPreferenceFolder that shows found folder. When not found, null returns.</en></returns>
         IPreferenceFolderArray FindChildFolderArray(string id);
         /// <summary>
         /// <ja>
-        /// ‚±‚ÌƒtƒHƒ‹ƒ_“à‚Ìİ’è’l‚ğŒŸõ‚µ‚Ü‚·B
+        /// ã“ã®ãƒ•ã‚©ãƒ«ãƒ€å†…ã®è¨­å®šå€¤ã‚’æ¤œç´¢ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// A set value in this folder is retrieved. 
         /// </en>
         /// </summary>
-        /// <param name="id"><ja>ŒŸõ‚·‚éİ’è–¼</ja><en>Retrieved set name</en></param>
-        /// <returns><ja>Œ©‚Â‚©‚Á‚½ƒtƒHƒ‹ƒ_‚ğ¦‚·IPreferenceFolderBŒ©‚Â‚©‚ç‚È‚¢‚Æ‚«‚É‚Ínull</ja><en>IPreferenceFolder that shows found folder. When not found, null returns.</en></returns>
+        /// <param name="id"><ja>æ¤œç´¢ã™ã‚‹è¨­å®šå</ja><en>Retrieved set name</en></param>
+        /// <returns><ja>è¦‹ã¤ã‹ã£ãŸãƒ•ã‚©ãƒ«ãƒ€ã‚’ç¤ºã™IPreferenceFolderã€‚è¦‹ã¤ã‹ã‚‰ãªã„ã¨ãã«ã¯null</ja><en>IPreferenceFolder that shows found folder. When not found, null returns.</en></returns>
         IPreferenceItem FindItem(string id);
         /// <summary>
         /// <ja>
-        /// q‚Ì”‚ğ¦‚µ‚Ü‚·B
+        /// å­ã®æ•°ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Number of children
@@ -691,55 +691,55 @@ namespace Poderosa.Preferences {
         }
         /// <summary>
         /// <ja>
-        /// w’è‚µ‚½ƒCƒ“ƒfƒbƒNƒXˆÊ’u‚É‚ ‚éİ’è€–Ú‚ğ•Ô‚µ‚Ü‚·B
+        /// æŒ‡å®šã—ãŸã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ä½ç½®ã«ã‚ã‚‹è¨­å®šé …ç›®ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// A set item at the specified index position is returned. 
         /// </en>
         /// </summary>
-        /// <param name="index"><ja>ƒCƒ“ƒfƒbƒNƒXˆÊ’u</ja><en>Position of index.</en></param>
-        /// <returns><ja>‚»‚ÌƒCƒ“ƒfƒbƒNƒXˆÊ’u‚É‚ ‚éİ’è€–Ú‚ğ¦‚·IPreferenceItemBaseBŒ©‚Â‚©‚ç‚È‚¢‚Æ‚«‚É‚Ínull</ja><en>IPreferenceItemBase that shows set item at the index position. When not found, returns null.</en></returns>
+        /// <param name="index"><ja>ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ä½ç½®</ja><en>Position of index.</en></param>
+        /// <returns><ja>ãã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ä½ç½®ã«ã‚ã‚‹è¨­å®šé …ç›®ã‚’ç¤ºã™IPreferenceItemBaseã€‚è¦‹ã¤ã‹ã‚‰ãªã„ã¨ãã«ã¯null</ja><en>IPreferenceItemBase that shows set item at the index position. When not found, returns null.</en></returns>
         IPreferenceItemBase ChildAt(int index);
 
-        //UserFriendly interface‚Ö‚ÌƒLƒƒƒXƒg—p
+        //UserFriendly interfaceã¸ã®ã‚­ãƒ£ã‚¹ãƒˆç”¨
         /// <summary>
         /// <ja>
-        /// ‚»‚ê‚¼‚ê‚Ìƒvƒ‰ƒOƒCƒ“‚É“Á—L‚ÌPreference‚Ö‚Æ•ÏŠ·‚µ‚Ü‚·B
+        /// ãã‚Œãã‚Œã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã«ç‰¹æœ‰ã®Preferenceã¸ã¨å¤‰æ›ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It converts it into peculiar Preference to each plug-in. 
         /// </en>
         /// </summary>
-        /// <param name="type"><ja>•ÏŠ·‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÌŒ^</ja><en>Type in converted interface</en></param>
-        /// <returns><ja>•ÏŠ·Œã‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒXB•ÏŠ·‚Å‚«‚È‚¢‚Æ‚«‚É‚Ínull</ja><en>Interface after it converts it. When it is not possible to convert it, returns null. </en></returns>
+        /// <param name="type"><ja>å¤‰æ›ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã®å‹</ja><en>Type in converted interface</en></param>
+        /// <returns><ja>å¤‰æ›å¾Œã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã€‚å¤‰æ›ã§ããªã„ã¨ãã«ã¯null</ja><en>Interface after it converts it. When it is not possible to convert it, returns null. </en></returns>
         object QueryAdapter(Type type);
 
-        //æ‘c‚Ö‚à“`”d
+        //å…ˆç¥–ã¸ã‚‚ä¼æ’­
         /// <summary>
         /// <ja>
-        /// ‚±‚ÌƒtƒHƒ‹ƒ_“à‚Ìİ’è’l‚ª•Ï‰»‚µ‚½‚Æ‚«‚É’Ê’m‚·‚éƒIƒuƒWƒFƒNƒg‚ğ“o˜^‚µ‚Ü‚·B
+        /// ã“ã®ãƒ•ã‚©ãƒ«ãƒ€å†…ã®è¨­å®šå€¤ãŒå¤‰åŒ–ã—ãŸã¨ãã«é€šçŸ¥ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç™»éŒ²ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The object notified when a set value in this folder changes is registered. 
         /// </en>
         /// </summary>
-        /// <param name="listener"><ja>’Ê’mæ‚ÌƒIƒuƒWƒFƒNƒg</ja><en>Object at notification destination</en></param>
+        /// <param name="listener"><ja>é€šçŸ¥å…ˆã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>Object at notification destination</en></param>
         void AddChangeListener(IPreferenceChangeListener listener);
         /// <summary>
         /// <ja>
-        /// <seealso cref="AddChangeListener">AddChangeListener</seealso>‚Å“o˜^‚µ‚½ƒIƒuƒWƒFƒNƒg‚ğ‰ğœ‚µ‚Ü‚·B
+        /// <seealso cref="AddChangeListener">AddChangeListener</seealso>ã§ç™»éŒ²ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è§£é™¤ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The object registered with AddChangeListener is released. 
         /// </en>
         /// </summary>
-        /// <param name="listener"><ja>‰ğœ‚·‚éƒIƒuƒWƒFƒNƒg</ja><en>Object to release.</en></param>
+        /// <param name="listener"><ja>è§£é™¤ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</ja><en>Object to release.</en></param>
         void RemoveChangeListener(IPreferenceChangeListener listener);
     }
 
     /// <summary>
     /// <ja>
-    /// ƒ†[ƒU[İ’è’liPreferencej‚ÌƒtƒHƒ‹ƒ_‚ğ‚Ü‚Æ‚ß‚Äˆµ‚¤‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ï¼ˆPreferenceï¼‰ã®ãƒ•ã‚©ãƒ«ãƒ€ã‚’ã¾ã¨ã‚ã¦æ‰±ã†ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface to handle the folder of the user setting value collectively. 
@@ -748,28 +748,28 @@ namespace Poderosa.Preferences {
     public interface IPreferenceFolderArray : IPreferenceItemBase {
         /// <summary>
         /// <ja>
-        /// •¡»‚ğì¬‚µ‚Ü‚·B
+        /// è¤‡è£½ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create a copy.
         /// </en>
         /// </summary>
-        /// <returns><ja>•¡»‚µ‚½IPreferenceFolderArray</ja><en>Duplicated IPreferenceFolderArray</en></returns>
+        /// <returns><ja>è¤‡è£½ã—ãŸIPreferenceFolderArray</ja><en>Duplicated IPreferenceFolderArray</en></returns>
         IPreferenceFolderArray Clone();
         /// <summary>
         /// <ja>
-        /// •Ê‚ÌƒtƒHƒ‹ƒ_‚©‚çƒCƒ“ƒ|[ƒg‚µ‚Ü‚·B
+        /// åˆ¥ã®ãƒ•ã‚©ãƒ«ãƒ€ã‹ã‚‰ã‚¤ãƒ³ãƒãƒ¼ãƒˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Import from another folder.
         /// </en>
         /// </summary>
-        /// <param name="newvalues"><ja>ƒCƒ“ƒ|[ƒg‚·‚é’l‚ğŠÜ‚ŞƒtƒHƒ‹ƒ_</ja><en>Folder including value in which import is done</en></param>
+        /// <param name="newvalues"><ja>ã‚¤ãƒ³ãƒãƒ¼ãƒˆã™ã‚‹å€¤ã‚’å«ã‚€ãƒ•ã‚©ãƒ«ãƒ€</ja><en>Folder including value in which import is done</en></param>
         void Import(IPreferenceFolderArray newvalues);
 
         /// <summary>
         /// <ja>
-        /// •Û‚µ‚Ä‚¢‚é“à—e‚ğIPreferenceFolder‚Ì”z—ñ‚Æ‚µ‚Ä“¾‚Ü‚·B
+        /// ä¿æŒã—ã¦ã„ã‚‹å†…å®¹ã‚’IPreferenceFolderã®é…åˆ—ã¨ã—ã¦å¾—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The held content is obtained as an array of IPreferenceFolder. 
@@ -781,7 +781,7 @@ namespace Poderosa.Preferences {
 
         /// <summary>
         /// <ja>
-        /// •Û‚µ‚Ä‚¢‚é“à—e‚ğƒNƒŠƒA‚µ‚Ü‚·B
+        /// ä¿æŒã—ã¦ã„ã‚‹å†…å®¹ã‚’ã‚¯ãƒªã‚¢ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Clear the held content.
@@ -791,46 +791,46 @@ namespace Poderosa.Preferences {
 
         /// <summary>
         /// <ja>
-        /// V‚µ‚¢ƒtƒHƒ‹ƒ_‚ğì¬‚µ‚Ü‚·B
+        /// æ–°ã—ã„ãƒ•ã‚©ãƒ«ãƒ€ã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Create a new folder.
         /// </en>
         /// </summary>
-        /// <returns><ja>ì‚ç‚ê‚½V‚µ‚¢ƒtƒHƒ‹ƒ_‚ğ¦‚·IPreferenceFolder</ja>
+        /// <returns><ja>ä½œã‚‰ã‚ŒãŸæ–°ã—ã„ãƒ•ã‚©ãƒ«ãƒ€ã‚’ç¤ºã™IPreferenceFolder</ja>
         /// <en>IPreferenceFolder that shows made new folder</en>
         /// </returns>
         IPreferenceFolder CreateNewFolder();
 
         /// <summary>
         /// <ja>
-        /// ƒeƒ“ƒvƒŒ[ƒg‚ğ—p‚¢‚ÄAq‚ÌƒtƒHƒ‹ƒ_‚ğƒAƒCƒeƒ€‚Ö‚Æ•ÏŠ·‚µ‚Ü‚·B
+        /// ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã‚’ç”¨ã„ã¦ã€å­ã®ãƒ•ã‚©ãƒ«ãƒ€ã‚’ã‚¢ã‚¤ãƒ†ãƒ ã¸ã¨å¤‰æ›ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Child's folder is converted into the item with a template. 
         /// </en>
         /// </summary>
-        /// <param name="child_folder"><ja>•ÏŠ·‚·‚éqƒtƒHƒ‹ƒ_</ja><en>Converted child folder</en></param>
-        /// <param name="item_in_template"><ja>—p‚¢‚éƒeƒ“ƒvƒŒ[ƒg</ja><en>Used template.</en></param>
-        /// <returns><ja>ƒeƒ“ƒvƒŒ[ƒg‚É‚æ‚Á‚Ä•ÏŠ·‚³‚ê‚½€–Ú‚ğ¦‚·IPreferenceItem</ja><en>IPreferenceItem that shows item converted with template</en></returns>
+        /// <param name="child_folder"><ja>å¤‰æ›ã™ã‚‹å­ãƒ•ã‚©ãƒ«ãƒ€</ja><en>Converted child folder</en></param>
+        /// <param name="item_in_template"><ja>ç”¨ã„ã‚‹ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆ</ja><en>Used template.</en></param>
+        /// <returns><ja>ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã«ã‚ˆã£ã¦å¤‰æ›ã•ã‚ŒãŸé …ç›®ã‚’ç¤ºã™IPreferenceItem</ja><en>IPreferenceItem that shows item converted with template</en></returns>
         IPreferenceItem ConvertItem(IPreferenceFolder child_folder, IPreferenceItem item_in_template);
     }
 
     /// <summary>
     /// <ja>
-    /// ƒ†[ƒU[İ’è’l‚ğŒŸØ‚·‚é‚½‚ß‚ÌƒfƒŠƒQ[ƒg‚Å‚·B
+    /// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã‚’æ¤œè¨¼ã™ã‚‹ãŸã‚ã®ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã§ã™ã€‚
     /// </ja>
     /// <en>
     /// It is delegate to verify the user setting value. 
     /// </en>
     /// </summary>
-    /// <typeparam name="T"><ja>ƒ†[ƒU[İ’è’l‚ÌŒ^î•ñ‚Å‚·B</ja><en>It is type information on the user setting value. </en></typeparam>
-    /// <param name="value"><ja>ŒŸØ‚·‚×‚«’l‚Å‚·B</ja><en>It is a value that should be verified. </en></param>
-    /// <param name="result"><ja>ŒŸØŒ‹‰Ê‚ğŠi”[‚µ‚Ü‚·B</ja><en>The verification result is stored. </en></param>
+    /// <typeparam name="T"><ja>ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã®å‹æƒ…å ±ã§ã™ã€‚</ja><en>It is type information on the user setting value. </en></typeparam>
+    /// <param name="value"><ja>æ¤œè¨¼ã™ã¹ãå€¤ã§ã™ã€‚</ja><en>It is a value that should be verified. </en></param>
+    /// <param name="result"><ja>æ¤œè¨¼çµæœã‚’æ ¼ç´ã—ã¾ã™ã€‚</ja><en>The verification result is stored. </en></param>
     /// <remarks>
     /// <ja>
-    /// ƒ†[ƒU[İ’è’l‚ğŒŸØ‚·‚é‹@”\‚ğ’ñ‹Ÿ‚·‚éƒvƒ‰ƒOƒCƒ“‚Å‚ÍA<paramref name="value"/>‚Ì’l‚Ì‘Ã“–«‚ğŒŸØ‚µA
-    /// ‚»‚ÌŒ‹‰Ê‚ğ<paramref name="result"/>‚Éİ’è‚µ‚Ä‚­‚¾‚³‚¢B
+    /// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã‚’æ¤œè¨¼ã™ã‚‹æ©Ÿèƒ½ã‚’æä¾›ã™ã‚‹ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã§ã¯ã€<paramref name="value"/>ã®å€¤ã®å¦¥å½“æ€§ã‚’æ¤œè¨¼ã—ã€
+    /// ãã®çµæœã‚’<paramref name="result"/>ã«è¨­å®šã—ã¦ãã ã•ã„ã€‚
     /// </ja>
     /// <en>Please verify the validity of the value of <paramref name="value"/>, and set the result to <paramref name="result"/> in the plug-in that offers the function to verify the user setting value. </en>
     /// </remarks>
@@ -838,7 +838,7 @@ namespace Poderosa.Preferences {
 
     /// <summary>
     /// <ja>
-    /// ƒ†[ƒU[İ’è’liPreferencej‚Ì€–Ú‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ï¼ˆPreferenceï¼‰ã®é …ç›®ã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows item of user setting value (Preference).
@@ -847,40 +847,40 @@ namespace Poderosa.Preferences {
     public interface IPreferenceItem : IPreferenceItemBase {
         /// <summary>
         /// <ja>
-        /// boolŒ^‚Æ‚µ‚Ä’l‚ğ“¾‚é‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğæ“¾‚µ‚Ü‚·B
+        /// boolå‹ã¨ã—ã¦å€¤ã‚’å¾—ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’å–å¾—ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The interface to obtain the value as bool type is got. 
         /// </en>
         /// </summary>
-        /// <returns><ja>bool’l‚Æ‚µ‚ÄƒAƒNƒZƒX‚·‚é‚½‚ß‚ÌIBoolPreferenceItem</ja><en>IBoolPreferenceItem to access it as bool value</en></returns>
+        /// <returns><ja>boolå€¤ã¨ã—ã¦ã‚¢ã‚¯ã‚»ã‚¹ã™ã‚‹ãŸã‚ã®IBoolPreferenceItem</ja><en>IBoolPreferenceItem to access it as bool value</en></returns>
         IBoolPreferenceItem AsBool();
         /// <summary>
         /// <ja>
-        /// intŒ^‚Æ‚µ‚Ä’l‚ğ“¾‚é‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğæ“¾‚µ‚Ü‚·B
+        /// intå‹ã¨ã—ã¦å€¤ã‚’å¾—ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’å–å¾—ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The interface to obtain the value as int type is got. 
         /// </en>
         /// </summary>
-        /// <returns><ja>int’l‚Æ‚µ‚ÄƒAƒNƒZƒX‚·‚é‚½‚ß‚ÌIIntPreferenceItem</ja><en>IIntPreferenceItem to access it as int value</en></returns>
+        /// <returns><ja>intå€¤ã¨ã—ã¦ã‚¢ã‚¯ã‚»ã‚¹ã™ã‚‹ãŸã‚ã®IIntPreferenceItem</ja><en>IIntPreferenceItem to access it as int value</en></returns>
         IIntPreferenceItem AsInt();
         /// <summary>
         /// <ja>
-        /// stringŒ^‚Æ‚µ‚Ä’l‚ğ“¾‚é‚½‚ß‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğæ“¾‚µ‚Ü‚·B
+        /// stringå‹ã¨ã—ã¦å€¤ã‚’å¾—ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’å–å¾—ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The interface to obtain the value as string type is got. 
         /// </en>
         /// </summary>
-        /// <returns><ja>string’l‚Æ‚µ‚ÄƒAƒNƒZƒX‚·‚é‚½‚ß‚ÌIStringPreferenceItem</ja><en>IStringPreferenceItem to access it as string value</en></returns>
+        /// <returns><ja>stringå€¤ã¨ã—ã¦ã‚¢ã‚¯ã‚»ã‚¹ã™ã‚‹ãŸã‚ã®IStringPreferenceItem</ja><en>IStringPreferenceItem to access it as string value</en></returns>
         IStringPreferenceItem AsString();
 
     }
 
     /// <summary>
     /// <ja>
-    /// IPoderosaItem‚ğŒ^•t‚¯‚µ‚½ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// IPoderosaItemã‚’å‹ä»˜ã‘ã—ãŸã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that puts the type as for IPoderosaItem. 
@@ -890,7 +890,7 @@ namespace Poderosa.Preferences {
     public interface ITypedPreferenceItem<T> : IPreferenceItem {
         /// <summary>
         /// <ja>
-        /// ƒ†[ƒU[İ’è’l‚ğ“Ç‚İ‘‚«‚µ‚Ü‚·B
+        /// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã‚’èª­ã¿æ›¸ãã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Read and write the user setting value.
@@ -903,7 +903,7 @@ namespace Poderosa.Preferences {
 
         /// <summary>
         /// <ja>
-        /// ƒ†[ƒU[İ’è’l‚Ì‰Šú’l‚ğ¦‚µ‚Ü‚·B
+        /// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã®åˆæœŸå€¤ã‚’ç¤ºã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Show the initial value of the user setting value.
@@ -915,7 +915,7 @@ namespace Poderosa.Preferences {
 
         /// <summary>
         /// <ja>
-        /// ƒ†[ƒU[İ’è’l‚ğŒŸØ‚·‚é‚½‚ß‚ÌPreferenceItemValidator‚ğæ“¾^İ’è‚µ‚Ü‚·B
+        /// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã‚’æ¤œè¨¼ã™ã‚‹ãŸã‚ã®PreferenceItemValidatorã‚’å–å¾—ï¼è¨­å®šã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Get / set the PreferenceItemValidator to verify the user setting value.
@@ -927,10 +927,10 @@ namespace Poderosa.Preferences {
         }
     }
 
-    //Generic Parameter‚ğƒvƒƒOƒ‰ƒ}‚É–ˆ‰ñw’è‚³‚¹‚é‚Ì‚à‚¢‚â‚ç‚µ‚¢‚µAIPreferenceItem“™‚ÌƒLƒƒƒXƒg—pƒƒ\ƒbƒh‚ğ‹CŒy‚Ég‚¢‚½‚¢‚Ì‚Å
+    //Generic Parameterã‚’ãƒ—ãƒ­ã‚°ãƒ©ãƒã«æ¯å›æŒ‡å®šã•ã›ã‚‹ã®ã‚‚ã„ã‚„ã‚‰ã—ã„ã—ã€IPreferenceItemç­‰ã®ã‚­ãƒ£ã‚¹ãƒˆç”¨ãƒ¡ã‚½ãƒƒãƒ‰ã‚’æ°—è»½ã«ä½¿ã„ãŸã„ã®ã§
     /// <summary>
     /// <ja>
-    /// boolŒ^‚Ìƒ†[ƒU[İ’è’l‚ğ“Ç‚İ‘‚«‚·‚é‹@”\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// boolå‹ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã‚’èª­ã¿æ›¸ãã™ã‚‹æ©Ÿèƒ½ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Offered the function to read and write the user setting value of the bool type.
@@ -941,7 +941,7 @@ namespace Poderosa.Preferences {
 
     /// <summary>
     /// <ja>
-    /// intŒ^‚Ìƒ†[ƒU[İ’è’l‚ğ“Ç‚İ‘‚«‚·‚é‹@”\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// intå‹ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã‚’èª­ã¿æ›¸ãã™ã‚‹æ©Ÿèƒ½ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Offered the function to read and write the user setting value of the int type.
@@ -952,7 +952,7 @@ namespace Poderosa.Preferences {
 
     /// <summary>
     /// <ja>
-    /// stringŒ^‚Ìƒ†[ƒU[İ’è’l‚ğ“Ç‚İ‘‚«‚·‚é‹@”\‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// stringå‹ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼è¨­å®šå€¤ã‚’èª­ã¿æ›¸ãã™ã‚‹æ©Ÿèƒ½ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Offered the function to read and write the user setting value of the string type.
@@ -972,7 +972,7 @@ namespace Poderosa.Preferences {
         }
     }
 
-    //TODO Folder‚ÍƒNƒ[ƒ“‚Å‚«‚é‚Ì‚ÉContent‚Í‚Å‚«‚È‚¢‚Ì‚Í•Ï‚¾B‘ÎÆ“I‚Å‚È‚¢
+    //TODO Folderã¯ã‚¯ãƒ­ãƒ¼ãƒ³ã§ãã‚‹ã®ã«Contentã¯ã§ããªã„ã®ã¯å¤‰ã ã€‚å¯¾ç…§çš„ã§ãªã„
     /// <summary>
     /// 
     /// </summary>

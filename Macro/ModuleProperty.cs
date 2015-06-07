@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@ using System.Windows.Forms;
 
 namespace Poderosa.MacroInternal {
     /// <summary>
-    /// ModuleProperty ‚ÌŠT—v‚Ìà–¾‚Å‚·B
+    /// ModuleProperty ã®æ¦‚è¦ã®èª¬æ˜ã§ã™ã€‚
     /// </summary>
     internal class ModuleProperty : System.Windows.Forms.Form {
         private System.Windows.Forms.Label _titleLabel;
@@ -34,7 +34,7 @@ namespace Poderosa.MacroInternal {
         private System.Windows.Forms.Button _okButton;
         private System.Windows.Forms.Button _cancelButton;
 
-        //•ÒW‘ÎÛ‚ÌMacroModule V‹Kì¬‚Ínull
+        //ç·¨é›†å¯¾è±¡ã®MacroModule æ–°è¦ä½œæˆæ™‚ã¯null
         private MacroList _parent;
         private MacroModule _module;
         //private Keys _prevShortCut;
@@ -53,7 +53,7 @@ namespace Poderosa.MacroInternal {
          */
 
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.Container components = null;
 
@@ -62,7 +62,7 @@ namespace Poderosa.MacroInternal {
             //_prevShortCut = shortcut;
             _module = mod == null ? new MacroModule(0, "", "") : (MacroModule)mod.Clone();
             //
-            // Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Å‚·B
+            // Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ã§ã™ã€‚
             //
             InitializeComponent();
 
@@ -89,7 +89,7 @@ namespace Poderosa.MacroInternal {
         }
 
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -102,8 +102,8 @@ namespace Poderosa.MacroInternal {
 
         #region Windows Form Designer generated code
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this._titleLabel = new System.Windows.Forms.Label();
@@ -256,7 +256,7 @@ namespace Poderosa.MacroInternal {
             if (path != null) {
                 _path.Text = path;
                 if (_title.Text.Length == 0)
-                    _title.Text = System.IO.Path.GetFileName(path); //ƒtƒ@ƒCƒ‹–¼–{‘Ì‚ğƒfƒtƒHƒ‹ƒg‚Ìƒ^ƒCƒgƒ‹‚É‚·‚é
+                    _title.Text = System.IO.Path.GetFileName(path); //ãƒ•ã‚¡ã‚¤ãƒ«åæœ¬ä½“ã‚’ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ã‚¿ã‚¤ãƒˆãƒ«ã«ã™ã‚‹
             }
         }
         private void OnOK(object sender, EventArgs args) {

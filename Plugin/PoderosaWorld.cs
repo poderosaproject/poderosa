@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@ namespace Poderosa.Boot {
             _stringResource = new StringResource("Poderosa.Plugin.strings", typeof(InternalPoderosaWorld).Assembly);
             _poderosaCulture.AddChangeListener(_stringResource);
             _pluginManager = new PluginManager(this);
-            //ƒ‹[ƒg
+            //ãƒ«ãƒ¼ãƒˆ
             _rootExtension = _pluginManager.CreateExtensionPoint(ExtensionPoint.ROOT, typeof(IRootExtension), null);
         }
 
@@ -73,7 +73,7 @@ namespace Poderosa.Boot {
 
         #region IAdaptable
         public IAdaptable GetAdapter(Type type) {
-            //ƒfƒtƒHƒ‹ƒgÀ‘•‚ÅOK
+            //ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå®Ÿè£…ã§OK
             return _adapterManager.GetAdapter(this, type);
         }
         #endregion
@@ -94,14 +94,14 @@ namespace Poderosa.Boot {
             DefaultTracer tracer = new DefaultTracer(_stringResource);
             _startupContext.Tracer = tracer;
 
-            //Step1 ƒvƒ‰ƒOƒCƒ“‚Ì\¬‚Æ‰Šú‰»
+            //Step1 ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®æ§‹æˆã¨åˆæœŸåŒ–
             _pluginManager.InitializePlugins(_startupContext);
 
-            //ƒGƒ‰[ƒŒƒ|[ƒg
+            //ã‚¨ãƒ©ãƒ¼ãƒ¬ãƒãƒ¼ãƒˆ
             if (!tracer.Document.IsEmpty)
                 ReportBootError(tracer.Document);
 
-            //Step2 ƒ‹[ƒgƒGƒNƒXƒeƒ“ƒVƒ‡ƒ“‚ÌÀs
+            //Step2 ãƒ«ãƒ¼ãƒˆã‚¨ã‚¯ã‚¹ãƒ†ãƒ³ã‚·ãƒ§ãƒ³ã®å®Ÿè¡Œ
             RunRootExtensions();
 
             return this;
@@ -149,13 +149,13 @@ namespace Poderosa.Boot {
                 extension.InitializeExtension();
             }
 
-            //ƒƒbƒZ[ƒWƒ‹[ƒv•t‚«‚Ì‚â‚Â‚ª‘¶İ‚·‚ê‚Î‚»‚ê‚ğÀsB
+            //ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒ«ãƒ¼ãƒ—ä»˜ãã®ã‚„ã¤ãŒå­˜åœ¨ã™ã‚Œã°ãã‚Œã‚’å®Ÿè¡Œã€‚
             if (message_loop != null)
                 message_loop.RunExtension();
         }
 
 
-        //ƒVƒ‡[ƒgƒJƒbƒg
+        //ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆ
         public static StringResource Strings {
             get {
                 return _instance._stringResource;
@@ -170,7 +170,7 @@ namespace Poderosa.Boot {
                 bld.Append(item.Data);
             }
 
-            //WinForms‚É—Š‚ç‚È‚¢‚Å‚à‚¢‚¯‚ê‚ÎƒxƒXƒg‚¾‚ª
+            //WinFormsã«é ¼ã‚‰ãªã„ã§ã‚‚ã„ã‘ã‚Œã°ãƒ™ã‚¹ãƒˆã ãŒ
             System.Windows.Forms.MessageBox.Show(bld.ToString(), "Poderosa", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
         }
     }
@@ -226,7 +226,7 @@ namespace Poderosa.Boot {
 
         public void SetCulture(CultureInfo culture) {
             _currentCulture = culture;
-            //•’Ê‚Íƒvƒ‰ƒOƒCƒ“‚Ìƒ[ƒh‡‚Å“o˜^‚³‚ê‚é‚Í‚¸B‘½‚­‚ÌƒP[ƒX‚Å‚Í‰º—¬ƒvƒ‰ƒOƒCƒ“‚ÌEXTP‚ğŒÄ‚Ño‚µ‚ÄƒeƒLƒXƒg‚ğæ“¾‚µ‚ª‚¿B‚È‚Ì‚ÅA‚±‚±‚Ìƒ‹[ƒv‚Í‹t‡‚Ì‚Ù‚¤‚ªƒgƒ‰ƒuƒ‹­‚È‚»‚¤
+            //æ™®é€šã¯ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®ãƒ­ãƒ¼ãƒ‰é †ã§ç™»éŒ²ã•ã‚Œã‚‹ã¯ãšã€‚å¤šãã®ã‚±ãƒ¼ã‚¹ã§ã¯ä¸‹æµãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®EXTPã‚’å‘¼ã³å‡ºã—ã¦ãƒ†ã‚­ã‚¹ãƒˆã‚’å–å¾—ã—ãŒã¡ã€‚ãªã®ã§ã€ã“ã“ã®ãƒ«ãƒ¼ãƒ—ã¯é€†é †ã®ã»ã†ãŒãƒˆãƒ©ãƒ–ãƒ«å°‘ãªãã†
             for (int i = _listeners.Count - 1; i >= 0; i--)
                 _listeners[i].OnCultureChanged(culture);
         }

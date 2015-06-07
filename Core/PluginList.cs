@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +31,7 @@ namespace Poderosa.Forms {
             _venderHeader.Text = sr.GetString("Form.PluginList._venderHeader");
             _okButton.Text = sr.GetString("Common.OK");
             _cancelButton.Text = sr.GetString("Common.Cancel");
-            //\¬•ÏX‚Í‚Æ‚è‚ ‚¦‚¸æ‘—‚è
+            //æ§‹æˆå¤‰æ›´ã¯ã¨ã‚Šã‚ãˆãšå…ˆé€ã‚Š
             _createShortcutButton.Visible = false;
         }
 

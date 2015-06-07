@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,7 +44,7 @@ namespace Poderosa.Plugins {
             return InternalPoderosaWorld.Strings;
         }
 
-        //Šú‘Ò’Ê‚è‚ÌƒGƒ‰[ƒƒbƒZ[ƒW‚ªo‚Ä‚¢‚é‚±‚Æ‚ğŠm”F
+        //æœŸå¾…é€šã‚Šã®ã‚¨ãƒ©ãƒ¼ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãŒå‡ºã¦ã„ã‚‹ã“ã¨ã‚’ç¢ºèª
         private void CheckErrorMessage(PluginManager pm, string string_id) {
             CheckOneErrorMessage(pm, GetStringResource().GetString(string_id));
         }
@@ -57,7 +57,7 @@ namespace Poderosa.Plugins {
         private void CheckOneErrorMessage(PluginManager pm, string msg) {
             string actual = pm.Tracer.Document.GetDataAt(0);
             if (actual != msg) {
-                //‚µ‚Î‚µ‚Î’·‚­‚È‚éBDebug‚Éo‚³‚È‚¢‚Æ‚í‚©‚è‚Ã‚ç‚¢
+                //ã—ã°ã—ã°é•·ããªã‚‹ã€‚Debugã«å‡ºã•ãªã„ã¨ã‚ã‹ã‚Šã¥ã‚‰ã„
                 Debug.WriteLine("actual=" + actual);
             }
             Assert.AreEqual(msg, actual);
@@ -107,7 +107,7 @@ namespace Poderosa.Plugins {
         }
         [Test]
         public void TestMissingDependency2() {
-            //MissingDependency2‚ÍMissingDependency‚ÉˆË‘¶‚µ‚Ä‚¢‚é‚ªAMissingDependency‚ªƒ[ƒh‚Å‚«‚È‚¢‚Æ‚«‚É‚Ç‚¤‚È‚é‚©
+            //MissingDependency2ã¯MissingDependencyã«ä¾å­˜ã—ã¦ã„ã‚‹ãŒã€MissingDependencyãŒãƒ­ãƒ¼ãƒ‰ã§ããªã„ã¨ãã«ã©ã†ãªã‚‹ã‹
             PluginManager pm = Init(CreateManifest2("MissingDependency", "MissingDependency2"));
             CheckErrorMessage(pm, "PluginManager.Messages.DependencyNotFound", "Poderosa.Plugins.MissingDependency", "MustNotExist");
         }
@@ -118,9 +118,9 @@ namespace Poderosa.Plugins {
         }
 
 
-        //TODO ƒeƒXƒg’Ç‰ÁFID‚Ì‘®‚ª³‚µ‚¢‚±‚Æ‚ÌŠm”F 
+        //TODO ãƒ†ã‚¹ãƒˆè¿½åŠ ï¼šIDã®æ›¸å¼ãŒæ­£ã—ã„ã“ã¨ã®ç¢ºèª 
 
-        //ˆÈ‰ºA³íŒn‚ÌƒeƒXƒg
+        //ä»¥ä¸‹ã€æ­£å¸¸ç³»ã®ãƒ†ã‚¹ãƒˆ
         [Test]
         public void TestNoDependencies() {
             PluginManager pm = Init(CreateManifest2("TestPlugin1", "TestPlugin2"));
@@ -133,7 +133,7 @@ namespace Poderosa.Plugins {
             PluginManager pm = Init(CreateManifest2("TestPluginDep", "TestPlugin1"));
             Assert.IsFalse(pm.HasError);
 
-            //Manifest‚Å‚Ì‡”Ô‚Æ‹t“]‚µ‚Ä‚¢‚é‚±‚Æ‚ğŠm”F
+            //Manifestã§ã®é †ç•ªã¨é€†è»¢ã—ã¦ã„ã‚‹ã“ã¨ã‚’ç¢ºèª
             VerifyPluginOrder(pm.GetOrderedPlugins(), new Type[] { typeof(TestPlugin1), typeof(TestPluginDep) });
         }
 

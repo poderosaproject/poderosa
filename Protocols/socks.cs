@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 * Copyright (c) 2005 Poderosa Project, All Rights Reserved.
 * $Id: socks.cs,v 1.2 2011/10/27 23:21:57 kzmi Exp $
 */
@@ -17,7 +17,7 @@ namespace Poderosa.Protocols {
         private short _serverPort;
         private string _account;
         private string _password;
-        private string _destName;       //_destName, _destAddress‚Í‚Ç‚¿‚ç‚©‚Ì‚İg—p
+        private string _destName;       //_destName, _destAddressã¯ã©ã¡ã‚‰ã‹ã®ã¿ä½¿ç”¨
         private string _excludingNetworks;
         private IPAddress _destAddress;
         private short _destPort;
@@ -115,8 +115,8 @@ namespace Poderosa.Protocols {
             wr.Write((byte)4);
             wr.Write((byte)1);
             wr.Write(IPAddress.HostToNetworkOrder(_destPort));
-            if (_destAddress == null) { //host‚ªw’è‚³‚ê‚½
-                //ˆÈ‰º‚Å‚æ‚¢‚Æv‚Á‚½‚ªA‚Ç‚¤‚à“®‚©‚È‚¢BƒvƒƒgƒRƒ‹4a‚Æ‚¢‚¤‚â‚Â‚ªƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚È‚¢‚Ì‚©H
+            if (_destAddress == null) { //hostãŒæŒ‡å®šã•ã‚ŒãŸ
+                //ä»¥ä¸‹ã§ã‚ˆã„ã¨æ€ã£ãŸãŒã€ã©ã†ã‚‚å‹•ã‹ãªã„ã€‚ãƒ—ãƒ­ãƒˆã‚³ãƒ«4aã¨ã„ã†ã‚„ã¤ãŒã‚µãƒãƒ¼ãƒˆã•ã‚Œã¦ã„ãªã„ã®ã‹ï¼Ÿ
                 throw new IOException("The address is not specified.");
                 /*
                 wr.Write(IPAddress.HostToNetworkOrder(1));

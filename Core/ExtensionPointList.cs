@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +37,7 @@ namespace Poderosa.Forms {
             IPluginInspector pi = (IPluginInspector)WindowManagerPlugin.Instance.PoderosaWorld.PluginManager.GetAdapter(typeof(IPluginInspector));
             foreach (IExtensionPoint pt in pi.ExtensionPoints) {
                 ListViewItem li = new ListViewItem(pt.ID);
-                li.SubItems.Add(pt.OwnerPlugin == null ? "" : pi.GetPluginInfo(pt.OwnerPlugin).PluginInfoAttribute.ID); //Root�ł̓I�[�i�Ȃ�
+                li.SubItems.Add(pt.OwnerPlugin == null ? "" : pi.GetPluginInfo(pt.OwnerPlugin).PluginInfoAttribute.ID); //Rootではオーナなし
                 li.SubItems.Add(pt.GetExtensions().Length.ToString());
 
                 _list.Items.Add(li);

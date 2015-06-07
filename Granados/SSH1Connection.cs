@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  Copyright (c) 2005 Poderosa Project, All Rights Reserved.
  This file is a part of the Granados SSH Client Library that is subject to
  the license included in the distributed package.
@@ -230,7 +230,7 @@ namespace Granados.SSH1 {
                     throw (IOException)e;
                 else {
                     string t = e.StackTrace;
-                    throw new SSHException(e.Message); //IOExceptionˆÈŠO‚Í‚İ‚ÈSSHException‚É‚µ‚Ä‚µ‚Ü‚¤
+                    throw new SSHException(e.Message); //IOExceptionä»¥å¤–ã¯ã¿ãªSSHExceptionã«ã—ã¦ã—ã¾ã†
                 }
             }
         }
@@ -292,7 +292,7 @@ namespace Granados.SSH1 {
 
             //building response
             MemoryStream bos = new MemoryStream();
-            bos.Write(rawchallenge, 0, rawchallenge.Length); //!!mindterm‚Å‚Í“ª‚ª‚O‚©‚Ç‚¤‚©‚Å•Ï‚Èƒnƒ“ƒhƒŠƒ“ƒO‚ª‚ ‚Á‚½
+            bos.Write(rawchallenge, 0, rawchallenge.Length); //!!mindtermã§ã¯é ­ãŒï¼ã‹ã©ã†ã‹ã§å¤‰ãªãƒãƒ³ãƒ‰ãƒªãƒ³ã‚°ãŒã‚ã£ãŸ
             bos.Write(_sessionID, 0, _sessionID.Length);
             byte[] reply = new MD5CryptoServiceProvider().ComputeHash(bos.ToArray());
 
@@ -321,7 +321,7 @@ namespace Granados.SSH1 {
         }
 
         // sending exec command for SCP
-        // TODO: ‚Ü‚¾À‘•’†‚Å‚·
+        // TODO: ã¾ã å®Ÿè£…ä¸­ã§ã™
         public override SSHChannel DoExecCommand(ISSHChannelEventReceiver receiver, string command) {
             //_executingExecCmd = true;
             SendExecCommand();

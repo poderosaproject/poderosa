@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,16 +23,16 @@ namespace Poderosa.View {
         Line
     }
     internal enum SelectionState {
-        Empty,     //–³‘I‘ğ
-        Pivot,     //‘I‘ğŠJn
-        Expansion, //‘I‘ğ’†
-        Fixed      //‘I‘ğ—ÌˆæŠm’è
+        Empty,     //ç„¡é¸æŠ
+        Pivot,     //é¸æŠé–‹å§‹
+        Expansion, //é¸æŠä¸­
+        Fixed      //é¸æŠé ˜åŸŸç¢ºå®š
     }
 
-    //CharacterDocument‚Ìˆê•”‚ğ‘I‘ğ‚·‚é‚½‚ß‚Ì‹@”\
+    //CharacterDocumentã®ä¸€éƒ¨ã‚’é¸æŠã™ã‚‹ãŸã‚ã®æ©Ÿèƒ½
     internal class TextSelection : ITextSelection {
 
-        //’[“_
+        //ç«¯ç‚¹
         internal class TextPoint : ICloneable {
             private int _line;
             private int _column;
@@ -78,21 +78,21 @@ namespace Poderosa.View {
         private List<ISelectionListener> _listeners;
 
         private CharacterDocumentViewer _owner;
-        //Å‰‚Ì‘I‘ğ“_B’PŒê‚âs‚ğ‘I‘ğ‚µ‚½‚Æ‚«‚Ì‚½‚ß‚É‚Q‚Â(forward/backward)İ‚¯‚éB
+        //æœ€åˆã®é¸æŠç‚¹ã€‚å˜èªã‚„è¡Œã‚’é¸æŠã—ãŸã¨ãã®ãŸã‚ã«ï¼’ã¤(forward/backward)è¨­ã‘ã‚‹ã€‚
         private TextPoint _forwardPivot;
         private TextPoint _backwardPivot;
-        //‘I‘ğ‚ÌÅI“_
+        //é¸æŠã®æœ€çµ‚ç‚¹
         private TextPoint _forwardDestination;
         private TextPoint _backwardDestination;
 
-        //pivot‚Ìó‘Ô
+        //pivotã®çŠ¶æ…‹
         private RangeType _pivotType;
 
-        //‘I‘ğ‚ğŠJn‚µ‚½‚Æ‚«‚Ìƒ}ƒEƒXÀ•W
+        //é¸æŠã‚’é–‹å§‹ã—ãŸã¨ãã®ãƒã‚¦ã‚¹åº§æ¨™
         private int _startX;
         private int _startY;
 
-        //‚¿‚å‚Á‚Æ‰˜‚¢ƒtƒ‰ƒO
+        //ã¡ã‚‡ã£ã¨æ±šã„ãƒ•ãƒ©ã‚°
         //private bool _disabledTemporary;
 
         public TextSelection(CharacterDocumentViewer owner) {
@@ -115,7 +115,7 @@ namespace Poderosa.View {
             }
         }
 
-        //ƒ}ƒEƒX‚ğ“®‚©‚³‚È‚­‚Ä‚àƒNƒŠƒbƒN‚¾‚¯‚ÅMouseMoveƒCƒxƒ“ƒg‚ª”­¶‚µ‚Ä‚µ‚Ü‚¤‚Ì‚ÅAˆÊ’u‚Ìƒ`ƒFƒbƒN‚Ì‚½‚ß‚Éƒ}ƒEƒXÀ•W‹L‰¯‚ª•K—v
+        //ãƒã‚¦ã‚¹ã‚’å‹•ã‹ã•ãªãã¦ã‚‚ã‚¯ãƒªãƒƒã‚¯ã ã‘ã§MouseMoveã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ã¦ã—ã¾ã†ã®ã§ã€ä½ç½®ã®ãƒã‚§ãƒƒã‚¯ã®ãŸã‚ã«ãƒã‚¦ã‚¹åº§æ¨™è¨˜æ†¶ãŒå¿…è¦
         public int StartX {
             get {
                 return _startX;
@@ -158,7 +158,7 @@ namespace Poderosa.View {
         }
         #endregion
 
-        //ƒhƒLƒ…ƒƒ“ƒg‚ªDiscard‚³‚ê‚½‚Æ‚«‚ÉŒÄ‚Î‚ê‚éBfirst_line‚æ‚è‘O‚É‘I‘ğ—Ìˆæ‚ªd‚È‚Á‚Ä‚¢‚½‚çƒNƒŠƒA‚·‚é
+        //ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆãŒDiscardã•ã‚ŒãŸã¨ãã«å‘¼ã°ã‚Œã‚‹ã€‚first_lineã‚ˆã‚Šå‰ã«é¸æŠé ˜åŸŸãŒé‡ãªã£ã¦ã„ãŸã‚‰ã‚¯ãƒªã‚¢ã™ã‚‹
         public void ClearIfOverlapped(int first_line) {
             if (_forwardPivot.Line != -1 && _forwardPivot.Line < first_line) {
                 _forwardPivot.Line = first_line;
@@ -184,7 +184,7 @@ namespace Poderosa.View {
 
         public bool StartSelection(GLine line, int position, RangeType type, int x, int y) {
             Debug.Assert(position >= 0);
-            //“ú–{Œê•¶š‚Ì‰E‘¤‚©‚ç‚Ì‘I‘ğ‚Í¶‘¤‚ÉC³
+            //æ—¥æœ¬èªæ–‡å­—ã®å³å´ã‹ã‚‰ã®é¸æŠã¯å·¦å´ã«ä¿®æ­£
             line.ExpandBuffer(position + 1);
             if (line.IsRightSideOfZenkaku(position))
                 position--;
@@ -257,32 +257,32 @@ namespace Poderosa.View {
             FixSelection();
         }
 
-        //‘I‘ğƒ‚[ƒh‚É‰‚¶‚Ä”ÍˆÍ‚ğ’è‚ß‚éBƒ}ƒEƒX‚Åƒhƒ‰ƒbƒO‚·‚é‚±‚Æ‚à‚ ‚é‚Ì‚ÅAcolumn<0‚ÌƒP[ƒX‚à‘¶İ‚·‚é
+        //é¸æŠãƒ¢ãƒ¼ãƒ‰ã«å¿œã˜ã¦ç¯„å›²ã‚’å®šã‚ã‚‹ã€‚ãƒã‚¦ã‚¹ã§ãƒ‰ãƒ©ãƒƒã‚°ã™ã‚‹ã“ã¨ã‚‚ã‚ã‚‹ã®ã§ã€column<0ã®ã‚±ãƒ¼ã‚¹ã‚‚å­˜åœ¨ã™ã‚‹
         public TextPoint ConvertSelectionPosition(GLine line, int column) {
             TextPoint result = new TextPoint(line.ID, column);
 
             int line_length = line.DisplayLength;
             if (_pivotType == RangeType.Line) {
-                //s‘I‘ğ‚Ì‚Æ‚«‚ÍA‘I‘ğŠJn“_ˆÈ‘O‚Ì‚Å‚ ‚Á‚½‚ç‚»‚Ìs‚Ìæ“ªA‚»‚¤‚Å‚È‚¢‚È‚ç‚»‚Ìs‚Ìƒ‰ƒXƒgB
-                //Œ¾‚¢Š·‚¦‚é‚Æ(Pivot-Destination)‚ğs“ªEs––•ûŒü‚ÉŠg‘å‚µ‚½‚à‚Ì‚É‚È‚é‚æ‚¤‚É
+                //è¡Œé¸æŠã®ã¨ãã¯ã€é¸æŠé–‹å§‹ç‚¹ä»¥å‰ã®ã§ã‚ã£ãŸã‚‰ãã®è¡Œã®å…ˆé ­ã€ãã†ã§ãªã„ãªã‚‰ãã®è¡Œã®ãƒ©ã‚¹ãƒˆã€‚
+                //è¨€ã„æ›ãˆã‚‹ã¨(Pivot-Destination)ã‚’è¡Œé ­ãƒ»è¡Œæœ«æ–¹å‘ã«æ‹¡å¤§ã—ãŸã‚‚ã®ã«ãªã‚‹ã‚ˆã†ã«
                 if (result.Line <= _forwardPivot.Line)
                     result.Column = 0;
                 else
                     result.Column = line.DisplayLength;
             }
-            else { //Word,Char‘I‘ğ
-                if (result.Line < _forwardPivot.Line) { //ŠJn“_‚æ‚è‘O‚Ì‚Æ‚«‚Í
+            else { //Word,Charé¸æŠ
+                if (result.Line < _forwardPivot.Line) { //é–‹å§‹ç‚¹ã‚ˆã‚Šå‰ã®ã¨ãã¯
                     if (result.Column < 0)
-                        result.Column = 0; //s“ª‚Ü‚ÅB
-                    else if (result.Column >= line_length) { //s‚Ì‰E’[‚Ì‰E‚Ü‚Å‘I‘ğ‚µ‚Ä‚¢‚é‚Æ‚«‚ÍAŸs‚Ìæ“ª‚Ü‚Å
+                        result.Column = 0; //è¡Œé ­ã¾ã§ã€‚
+                    else if (result.Column >= line_length) { //è¡Œã®å³ç«¯ã®å³ã¾ã§é¸æŠã—ã¦ã„ã‚‹ã¨ãã¯ã€æ¬¡è¡Œã®å…ˆé ­ã¾ã§
                         result.Line++;
                         result.Column = 0;
                     }
                 }
-                else if (result.Line == _forwardPivot.Line) { //“¯ˆês“à‘I‘ğ.‚»‚Ìs‚É‚¨‚³‚Ü‚é‚æ‚¤‚É
+                else if (result.Line == _forwardPivot.Line) { //åŒä¸€è¡Œå†…é¸æŠ.ãã®è¡Œã«ãŠã•ã¾ã‚‹ã‚ˆã†ã«
                     result.Column = RuntimeUtil.AdjustIntRange(result.Column, 0, line_length);
                 }
-                else { //ŠJn“_‚ÌŒã•û‚Ö‚Ì‘I‘ğ
+                else { //é–‹å§‹ç‚¹ã®å¾Œæ–¹ã¸ã®é¸æŠ
                     if (result.Column < 0) {
                         result.Line--;
                         result.Column = line.PrevLine == null ? 0 : line.PrevLine.DisplayLength;
@@ -314,22 +314,22 @@ namespace Poderosa.View {
 
             do {
                 bool eol_required = (opt == TextFormatOption.AsLook || l.EOLType != EOLType.Continue);
-                if (l.ID == b.Line) { //ÅIs
-                    //––”ö‚ÉNULL•¶š‚ª“ü‚éƒP[ƒX‚ª‚ ‚é‚æ‚¤‚¾
+                if (l.ID == b.Line) { //æœ€çµ‚è¡Œ
+                    //æœ«å°¾ã«NULLæ–‡å­—ãŒå…¥ã‚‹ã‚±ãƒ¼ã‚¹ãŒã‚ã‚‹ã‚ˆã†ã 
                     AppendTrim(bld, l, pos, b.Column - pos);
                     if (_pivotType == RangeType.Line && eol_required)
                         bld.Append("\r\n");
                     break;
                 }
-                else { //ÅIˆÈŠO‚Ìs
-                    if (l.Length - pos > 0) { //l.CharLength==pos‚Æ‚È‚éƒP[ƒX‚ª‚ ‚Á‚½B^‚Ì——R‚Í”[“¾‚µ‚Ä‚¢‚È‚¢‚ª
+                else { //æœ€çµ‚ä»¥å¤–ã®è¡Œ
+                    if (l.Length - pos > 0) { //l.CharLength==posã¨ãªã‚‹ã‚±ãƒ¼ã‚¹ãŒã‚ã£ãŸã€‚çœŸã®ç†ç”±ã¯ç´å¾—ã—ã¦ã„ãªã„ãŒ
                         AppendTrim(bld, l, pos, l.Length - pos);
                     }
-                    if (eol_required && bld.Length > 0) //bld.Length>0‚Ís’PˆÊ‘I‘ğ‚Å—]Œv‚È‰üs‚ª“ü‚é‚Ì‚ğ”ğ‚¯‚é‚½‚ß‚Ìˆ’u
-                        bld.Append("\r\n"); //LF‚Ì‚İ‚ğƒNƒŠƒbƒvƒ{[ƒh‚É‚Á‚Ä‚¢‚Á‚Ä‚à‘¼‚ÌƒAƒvƒŠ‚Ì¬—‚ª‚ ‚é‚¾‚¯‚È‚Ì‚Å‚â‚ß‚Ä‚¨‚­
+                    if (eol_required && bld.Length > 0) //bld.Length>0ã¯è¡Œå˜ä½é¸æŠã§ä½™è¨ˆãªæ”¹è¡ŒãŒå…¥ã‚‹ã®ã‚’é¿ã‘ã‚‹ãŸã‚ã®å‡¦ç½®
+                        bld.Append("\r\n"); //LFã®ã¿ã‚’ã‚¯ãƒªãƒƒãƒ—ãƒœãƒ¼ãƒ‰ã«æŒã£ã¦ã„ã£ã¦ã‚‚ä»–ã®ã‚¢ãƒ—ãƒªã®æ··ä¹±ãŒã‚ã‚‹ã ã‘ãªã®ã§ã‚„ã‚ã¦ãŠã
                     l = l.NextLine;
                     if (l == null)
-                        break; //!!–{—ˆ‚±‚ê‚Í‚È‚¢‚Í‚¸‚¾‚ªƒNƒ‰ƒbƒVƒ…ƒŒƒ|[ƒg‚Ì‚½‚ß‰ñ”ğ
+                        break; //!!æœ¬æ¥ã“ã‚Œã¯ãªã„ã¯ãšã ãŒã‚¯ãƒ©ãƒƒã‚·ãƒ¥ãƒ¬ãƒãƒ¼ãƒˆã®ãŸã‚å›é¿
                     pos = 0;
                 }
             } while (true);
@@ -340,7 +340,7 @@ namespace Poderosa.View {
         }
         private void AppendTrim(StringBuilder bld, GLine line, int pos, int length) {
             Debug.Assert(pos >= 0);
-            if (line.IsRightSideOfZenkaku(pos)) { //“ú–{Œê•¶š‚Ì‰E’[‚©‚ç‚Ì‚Æ‚«‚ÍŠg‘å‚·‚é
+            if (line.IsRightSideOfZenkaku(pos)) { //æ—¥æœ¬èªæ–‡å­—ã®å³ç«¯ã‹ã‚‰ã®ã¨ãã¯æ‹¡å¤§ã™ã‚‹
                 pos--;
                 length++;
             }
@@ -393,7 +393,7 @@ namespace Poderosa.View {
 
         }
 
-        //ListenerŒn
+        //Listenerç³»
         public void AddSelectionListener(ISelectionListener listener) {
             _listeners.Add(listener);
         }

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ using Poderosa.UI;
 using Poderosa.View;
 
 namespace Poderosa.Commands {
-    // ƒRƒ}ƒ“ƒh‚ÉŠÖ˜A•t‚¯‚ç‚ê‚½ƒƒjƒ…[
+    // ã‚³ãƒãƒ³ãƒ‰ã«é–¢é€£ä»˜ã‘ã‚‰ã‚ŒãŸãƒ¡ãƒ‹ãƒ¥ãƒ¼
     internal class BasicMenuItem : PoderosaMenuItemImpl {
         public BasicMenuItem(string textID, string commandID)
             : base(BindCommand(commandID), CoreUtil.Strings, textID) {
@@ -51,7 +51,7 @@ namespace Poderosa.Commands {
         }
     }
 
-    //ƒRƒs[‚Æƒy[ƒXƒg‚Í‚ ‚¦‚Ä•ÊƒOƒ‹[ƒv‚É‚·‚éBu‚İ‚½‚Ü‚ÜƒRƒs[v‚È‚Ç‚Ì•Ïí‚ª‘}“ü‚³‚ê‚é‚±‚Æ‚ğl—¶
+    //ã‚³ãƒ”ãƒ¼ã¨ãƒšãƒ¼ã‚¹ãƒˆã¯ã‚ãˆã¦åˆ¥ã‚°ãƒ«ãƒ¼ãƒ—ã«ã™ã‚‹ã€‚ã€Œã¿ãŸã¾ã¾ã‚³ãƒ”ãƒ¼ã€ãªã©ã®å¤‰ç¨®ãŒæŒ¿å…¥ã•ã‚Œã‚‹ã“ã¨ã‚’è€ƒæ…®
     internal class CopyGroup : PoderosaMenuGroupImpl {
         public CopyGroup()
             : base(CreateChildMenus()) {
@@ -78,7 +78,7 @@ namespace Poderosa.Commands {
             _positionType = PositionType.Last;
         }
         private static IPoderosaMenu[] CreateChildMenus() {
-            return new IPoderosaMenu[] { new BasicMenuItem("Menu.ConsoleClose", "org.poderosa.core.session.closedocument") }; //¡‚â•K‚¸‚µ‚àConsole‚Å‚Í‚È‚¢
+            return new IPoderosaMenu[] { new BasicMenuItem("Menu.ConsoleClose", "org.poderosa.core.session.closedocument") }; //ä»Šã‚„å¿…ãšã—ã‚‚Consoleã§ã¯ãªã„
         }
     }
 
@@ -152,11 +152,11 @@ namespace Poderosa.Commands {
         }
     }
 
-    //‚¿‚å‚Á‚Æ“Áê‚È“z
+    //ã¡ã‚‡ã£ã¨ç‰¹æ®Šãªå¥´
     internal class SetTabRowCountMenu : IPoderosaMenuFolder {
         public IPoderosaMenuGroup[] ChildGroups {
             get {
-                IPoderosaMainWindow w = WindowManagerPlugin.Instance.ActiveWindow; //TODO DocActivation‚Æ“¯‚¶–â‘è•ø‚¦‚Ä‚é
+                IPoderosaMainWindow w = WindowManagerPlugin.Instance.ActiveWindow; //TODO DocActivationã¨åŒã˜å•é¡ŒæŠ±ãˆã¦ã‚‹
                 return new IPoderosaMenuGroup[] { new PoderosaMenuGroupImpl(
                     new IPoderosaMenu[] {
                         new SetTabRowMenuItem(w, 1), new SetTabRowMenuItem(w, 2), new SetTabRowMenuItem(w, 3)

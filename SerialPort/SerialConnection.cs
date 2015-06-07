@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,7 +46,7 @@ namespace Poderosa.SerialPort {
         public static extern bool ClearCommError(
             IntPtr hFile,     // handle to communications device
             IntPtr lpErrors, // error codes
-            IntPtr lpStat  // communications status (–{“–‚ÍCommStat)
+            IntPtr lpStat  // communications status (æœ¬å½“ã¯CommStat)
             );
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool SetCommMask(
@@ -151,7 +151,7 @@ namespace Poderosa.SerialPort {
 
         public void SendBreak() {
             Win32Serial.SetCommBreak(_fileHandle);
-            System.Threading.Thread.Sleep(500); //500ms‘Ò‹@
+            System.Threading.Thread.Sleep(500); //500mså¾…æ©Ÿ
             Win32Serial.ClearCommBreak(_fileHandle);
         }
 
@@ -246,7 +246,7 @@ namespace Poderosa.SerialPort {
                     success = Win32Serial.ClearCommError(_fileHandle, IntPtr.Zero, IntPtr.Zero);
                     if (!success)
                         throw new Exception("ClearCommError failed " + Marshal.GetLastWin32Error());
-                    //‚±‚ÌSetCommMask‚ğÀs‚µ‚È‚¢‚ÆWaitCommEvent‚ª¸”s‚µ‚Ä‚µ‚Ü‚¤
+                    //ã“ã®SetCommMaskã‚’å®Ÿè¡Œã—ãªã„ã¨WaitCommEventãŒå¤±æ•—ã—ã¦ã—ã¾ã†
                     success = Win32Serial.SetCommMask(_fileHandle, 0);
                     if (!success)
                         throw new Exception("SetCommMask failed " + Marshal.GetLastWin32Error());
@@ -367,8 +367,8 @@ namespace Poderosa.SerialPort {
 
             if (_serialSettings.TransmitDelayPerChar == 0) {
                 if (_serialSettings.TransmitDelayPerLine == 0)
-                    WriteMain(data, offset, length); //Å‚à’Pƒ
-                else { //‰üs‚Ì‚İƒEƒFƒCƒg‘}“ü
+                    WriteMain(data, offset, length); //æœ€ã‚‚å˜ç´”
+                else { //æ”¹è¡Œã®ã¿ã‚¦ã‚§ã‚¤ãƒˆæŒ¿å…¥
                     int limit = offset + length;
                     int c = offset;
                     while (offset < limit) {
@@ -460,19 +460,19 @@ namespace Poderosa.SerialPort {
     }
 
     /*
-     * ƒm[ƒg@‚È‚ºƒVƒŠƒAƒ‹’ÊM‚ª‚±‚ñ‚È‚±‚Æ‚É‚È‚Á‚Ä‚¢‚é‚©
+     * ãƒãƒ¼ãƒˆã€€ãªãœã‚·ãƒªã‚¢ãƒ«é€šä¿¡ãŒã“ã‚“ãªã“ã¨ã«ãªã£ã¦ã„ã‚‹ã‹
      * 
-     * @ƒVƒŠƒAƒ‹’ÊM‚ª‚±‚ñ‚È‚É‘å•Ï‚È‚Ì‚ÍA‚à‚Æ‚ğ‚½‚¾‚¹‚ÎWindows‚ÌİŒv‚ªŒ´ˆö‚Å‚ ‚éB
-     * @•’Ê‚Å‚ ‚ê‚ÎAReadFile‚Å”ñ“¯Šú“Ç‚İæ‚è‚ğ‚İ‚ÄA‚»‚ê‚©‚çWaitForSingleObject‚ğŒÄ‚Ô‚Ì‚¾‚ªA
-     * ƒVƒŠƒAƒ‹‚Ìê‡‚Í‚»‚±‚Å‘¦–ß‚Á‚Ä‚µ‚Ü‚¤B]‚Á‚ÄA.NET Framework‚Ì‹““®‚Æ‚µ‚Ä‚ÍBeginRead‚Ì’¼Œã
-     * ‚ÉƒR[ƒ‹ƒoƒbƒN‚ªŒÄ‚Î‚ê‚Ä‚µ‚Ü‚¢A–ÀãƒrƒW[ƒ‹[ƒv‚É‚È‚é‚Ì‚Å‚ ‚éB
-     * @‚¿‚á‚ñ‚Æ‚µ‚½”ñ“¯Šú’ÊM‚ğ‚·‚é‚½‚ß‚É‚ÍAWaitCommEvent‚ğg‚í‚È‚­‚Ä‚Í‚È‚ç‚È‚¢‚Ì‚ÅA.NET Framework
-     * ‚ÌƒTƒ|[ƒgŠO‚É‚È‚Á‚Ä‚µ‚Ü‚¤B
+     * ã€€ã‚·ãƒªã‚¢ãƒ«é€šä¿¡ãŒã“ã‚“ãªã«å¤§å¤‰ãªã®ã¯ã€ã‚‚ã¨ã‚’ãŸã ã›ã°Windowsã®è¨­è¨ˆãŒåŸå› ã§ã‚ã‚‹ã€‚
+     * ã€€æ™®é€šã§ã‚ã‚Œã°ã€ReadFileã§éåŒæœŸèª­ã¿å–ã‚Šã‚’è©¦ã¿ã¦ã€ãã‚Œã‹ã‚‰WaitForSingleObjectã‚’å‘¼ã¶ã®ã ãŒã€
+     * ã‚·ãƒªã‚¢ãƒ«ã®å ´åˆã¯ãã“ã§å³æ™‚æˆ»ã£ã¦ã—ã¾ã†ã€‚å¾“ã£ã¦ã€.NET Frameworkã®æŒ™å‹•ã¨ã—ã¦ã¯BeginReadã®ç›´å¾Œ
+     * ã«ã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯ãŒå‘¼ã°ã‚Œã¦ã—ã¾ã„ã€äº‹å®Ÿä¸Šãƒ“ã‚¸ãƒ¼ãƒ«ãƒ¼ãƒ—ã«ãªã‚‹ã®ã§ã‚ã‚‹ã€‚
+     * ã€€ã¡ã‚ƒã‚“ã¨ã—ãŸéåŒæœŸé€šä¿¡ã‚’ã™ã‚‹ãŸã‚ã«ã¯ã€WaitCommEventã‚’ä½¿ã‚ãªãã¦ã¯ãªã‚‰ãªã„ã®ã§ã€.NET Framework
+     * ã®ã‚µãƒãƒ¼ãƒˆå¤–ã«ãªã£ã¦ã—ã¾ã†ã€‚
      * 
     */
 
     internal class SerialTerminalConnection : ITerminalConnection {
-        //ƒVƒŠƒAƒ‹‚Ì”ñ“¯Šú’ÊM‚ğ‚¿‚á‚ñ‚Æ‚â‚ë‚¤‚Æ‚·‚é‚Æ.NETƒ‰ƒCƒuƒ‰ƒŠ‚Å‚Í•s\•ª‚È‚Ì‚Å‚Ù‚ÚAPI’¼“Ç‚İ
+        //ã‚·ãƒªã‚¢ãƒ«ã®éåŒæœŸé€šä¿¡ã‚’ã¡ã‚ƒã‚“ã¨ã‚„ã‚ã†ã¨ã™ã‚‹ã¨.NETãƒ©ã‚¤ãƒ–ãƒ©ãƒªã§ã¯ä¸ååˆ†ãªã®ã§ã»ã¼APIç›´èª­ã¿
         private IntPtr _fileHandle;
         private SerialSocket _serialSocket;
         private SerialTerminalOutput _serialTerminalOutput;
@@ -489,7 +489,7 @@ namespace Poderosa.SerialPort {
         }
         public void Close() {
             if (_closed)
-                return; //‚Q“xˆÈãƒNƒ[ƒY‚µ‚Ä‚à•›ì—p‚È‚µ 
+                return; //ï¼’åº¦ä»¥ä¸Šã‚¯ãƒ­ãƒ¼ã‚ºã—ã¦ã‚‚å‰¯ä½œç”¨ãªã— 
 
             _closed = true;
             _serialSocket.Close();
@@ -501,7 +501,7 @@ namespace Poderosa.SerialPort {
 
 
         public void ApplySerialParam(SerialTerminalSettings settings) {
-            //param‚Ì“à—e‚ÅDCB‚ğXV‚µ‚ÄƒZƒbƒg‚µ‚È‚¨‚·
+            //paramã®å†…å®¹ã§DCBã‚’æ›´æ–°ã—ã¦ã‚»ãƒƒãƒˆã—ãªãŠã™
             Win32Serial.DCB dcb = new Win32Serial.DCB();
             SerialPortUtil.FillDCB(_fileHandle, ref dcb);
             SerialPortUtil.UpdateDCB(ref dcb, settings);
@@ -601,7 +601,7 @@ namespace Poderosa.SerialPort {
                 if (window != null)
                     window.Warning(ex.Message);
                 else
-                    GUtil.Warning(Form.ActiveForm, ex.Message); //TODO ‹ê‚µ‚¢“¦‚°BIPoderosaForm‚ğÀ‘•‚µ‚½ƒx[ƒXƒNƒ‰ƒX‚ğCore‚É‚Å‚à‚Á‚Ä‚¢‚½‚Ù‚¤‚ª‚¢‚¢‚Ì‚©
+                    GUtil.Warning(Form.ActiveForm, ex.Message); //TODO è‹¦ã—ã„é€ƒã’ã€‚IPoderosaFormã‚’å®Ÿè£…ã—ãŸãƒ™ãƒ¼ã‚¹ã‚¯ãƒ©ã‚¹ã‚’Coreã«ã§ã‚‚æŒã£ã¦ã„ãŸã»ã†ãŒã„ã„ã®ã‹
                 return null;
             }
             finally {
@@ -610,7 +610,7 @@ namespace Poderosa.SerialPort {
             }
         }
         public static bool FillDCB(IntPtr handle, ref Win32Serial.DCB dcb) {
-            dcb.DCBlength = (uint)System.Runtime.InteropServices.Marshal.SizeOf(typeof(Win32Serial.DCB)); //sizeof‚­‚ç‚¢unsafe‚Å‚È‚­‚Ä‚àg‚í‚¹‚Ä‚­‚ê‚æ
+            dcb.DCBlength = (uint)System.Runtime.InteropServices.Marshal.SizeOf(typeof(Win32Serial.DCB)); //sizeofãã‚‰ã„unsafeã§ãªãã¦ã‚‚ä½¿ã‚ã›ã¦ãã‚Œã‚ˆ
             return Win32Serial.GetCommState(handle, ref dcb);
         }
 
@@ -619,12 +619,12 @@ namespace Poderosa.SerialPort {
             dcb.ByteSize = param.ByteSize;
             dcb.Parity = (byte)param.Parity;
             dcb.StopBits = (byte)param.StopBits;
-            //ƒtƒ[§ŒäFTeraTerm‚Ìƒ\[ƒX‚©‚ç‚¿‚å‚Á‚Ï‚Á‚Ä‚«‚½
+            //ãƒ•ãƒ­ãƒ¼åˆ¶å¾¡ï¼šTeraTermã®ã‚½ãƒ¼ã‚¹ã‹ã‚‰ã¡ã‚‡ã£ã±ã£ã¦ããŸ
             if (param.FlowControl == FlowControl.Xon_Xoff) {
                 //dcb.fOutX = TRUE;
                 //dcb.fInX = TRUE;
-                //dcb‚ğŠ®‘S‚ÉƒRƒ“ƒgƒ[ƒ‹‚·‚éƒIƒvƒVƒ‡ƒ“‚ª•K—v‚©‚à‚È
-                dcb.Misc |= 0x300; //ã‹L‚Qs‚Ì‚©‚í‚è
+                //dcbã‚’å®Œå…¨ã«ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã™ã‚‹ã‚ªãƒ—ã‚·ãƒ§ãƒ³ãŒå¿…è¦ã‹ã‚‚ãª
+                dcb.Misc |= 0x300; //ä¸Šè¨˜ï¼’è¡Œã®ã‹ã‚ã‚Š
                 dcb.XonLim = 2048; //CommXonLim;
                 dcb.XoffLim = 2048; //CommXoffLim;
                 dcb.XonChar = 0x11;

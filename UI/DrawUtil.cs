@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@ namespace Poderosa.Util.Drawing {
     /// </summary>
     /// <exclude/>
     public class DrawUtil {
-        //ŠÛ‚İ‚Ì‚ ‚éBorder‚ğ•`‰æ‚·‚é
+        //ä¸¸ã¿ã®ã‚ã‚‹Borderã‚’æç”»ã™ã‚‹
         internal enum RoundBorderElement {
             Outer,
             Inner,
@@ -53,7 +53,7 @@ namespace Poderosa.Util.Drawing {
 
         }
 
-        //¶ã‚ÌŠÛ‚İ‚ğ•`‚­‚Æ‚«A[x,y]‚ÅQÆ‚·‚é
+        //å·¦ä¸Šã®ä¸¸ã¿ã‚’æãã¨ãã€[x,y]ã§å‚ç…§ã™ã‚‹
         private static readonly RoundBorderElement[,] _round_border_info = new RoundBorderElement[3, 3] {
           { RoundBorderElement.Outer,      RoundBorderElement.LightLight, RoundBorderElement.Light      },
           {	RoundBorderElement.LightLight, RoundBorderElement.Light,      RoundBorderElement.LightLight },
@@ -62,33 +62,33 @@ namespace Poderosa.Util.Drawing {
 
         public static void DrawRoundRect(Graphics g, int x, int y, int width, int height, RoundRectColors colors) {
             IntPtr hdc = g.GetHdc();
-            const int ROUND_SIZE = 3; //3*3ƒsƒNƒZƒ‹‚Í©‘O‚Å•`‰æ
+            const int ROUND_SIZE = 3; //3*3ãƒ”ã‚¯ã‚»ãƒ«ã¯è‡ªå‰ã§æç”»
             IntPtr pen = Win32.CreatePen(0, 1, colors.border_color);
             Win32.SelectObject(hdc, pen);
-            //ã
+            //ä¸Š
             Win32.MoveToEx(hdc, x + ROUND_SIZE, y);
             Win32.LineTo(hdc, x + width - ROUND_SIZE + 1, y);
-            //‰º
+            //ä¸‹
             Win32.MoveToEx(hdc, x + ROUND_SIZE, y + height);
             Win32.LineTo(hdc, x + width - ROUND_SIZE + 1, y + height);
-            //¶
+            //å·¦
             Win32.MoveToEx(hdc, x, y + ROUND_SIZE);
             Win32.LineTo(hdc, x, y + height - ROUND_SIZE + 1);
-            //‰E
+            //å³
             Win32.MoveToEx(hdc, x + width, y + ROUND_SIZE);
             Win32.LineTo(hdc, x + width, y + height - ROUND_SIZE + 1);
 
             Win32.DeleteObject(pen);
 
-            DrawRoundCorner(hdc, x, y, 1, 1, colors); //¶ã
-            DrawRoundCorner(hdc, x + width, y, -1, 1, colors); //‰Eã
-            DrawRoundCorner(hdc, x, y + height, 1, -1, colors); //¶‰º
-            DrawRoundCorner(hdc, x + width, y + height, -1, -1, colors); //‰E‰º
+            DrawRoundCorner(hdc, x, y, 1, 1, colors); //å·¦ä¸Š
+            DrawRoundCorner(hdc, x + width, y, -1, 1, colors); //å³ä¸Š
+            DrawRoundCorner(hdc, x, y + height, 1, -1, colors); //å·¦ä¸‹
+            DrawRoundCorner(hdc, x + width, y + height, -1, -1, colors); //å³ä¸‹
 
             g.ReleaseHdc(hdc);
         }
 
-        //”z—ñ‚ÌQÆ‚É‰ñ“]‚ª‚©‚©‚Á‚Ä‚¢‚é‚Ì‚É’ˆÓ
+        //é…åˆ—ã®å‚ç…§ã«å›è»¢ãŒã‹ã‹ã£ã¦ã„ã‚‹ã®ã«æ³¨æ„
         private static void DrawRoundCorner(IntPtr hdc, int bx, int by, int dx, int dy, RoundRectColors colors) {
             int y = by;
             for (int j = 0; j < 3; j++) {
@@ -101,7 +101,7 @@ namespace Poderosa.Util.Drawing {
             }
         }
 
-        //‹P“x‚ğ”¼•ª‚É‚µ‚½F‚ğ•Ô‚·
+        //è¼åº¦ã‚’åŠåˆ†ã«ã—ãŸè‰²ã‚’è¿”ã™
         public static Color DarkColor(Color src) {
             return Color.FromArgb(src.R / 2, src.G / 2, src.B / 2);
         }
@@ -109,10 +109,10 @@ namespace Poderosa.Util.Drawing {
             return Color.FromArgb(src.R / 2 + 128, src.G / 2 + 128, src.B / 2 + 128);
         }
 
-        //COLORREF‚É‘Î‰‚µ‚½®”‚ğ•Ô‚·
+        //COLORREFã«å¯¾å¿œã—ãŸæ•´æ•°ã‚’è¿”ã™
         public static uint ToCOLORREF(Color c) {
             uint t = (uint)c.ToArgb();
-            //COLORREF‚Í0x00BBGGRRAToArgb‚Í0x00RRGGBB
+            //COLORREFã¯0x00BBGGRRã€ToArgbã¯0x00RRGGBB
             return ((t & 0x000000FF) << 16) | (t & 0x0000FF00) | ((t & 0x00FF0000) >> 16);
         }
         public static uint MergeColor(uint col1, uint col2) {
@@ -132,7 +132,7 @@ namespace Poderosa.Util.Drawing {
             return Color.FromArgb((int)(r1 * v + r2 * (1 - v)), (int)(g1 * v + g2 * (1 - v)), (int)(b1 * v + b2 * (1 - v)));
         }
 
-        //ƒOƒ‰ƒf[ƒVƒ‡ƒ“‚ğ‚Â‚¯‚Ä‚Ì•`‰æ
+        //ã‚°ãƒ©ãƒ‡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’ã¤ã‘ã¦ã®æç”»
         public static void FillHorizontalGradation(Graphics g, int x, int y, int width, int height, Color top_color, Color bottom_color) {
             for (int i = 0; i < height; i++) {
                 double t = i / (double)height;
@@ -143,7 +143,7 @@ namespace Poderosa.Util.Drawing {
             }
         }
 
-        //È—ª‹L† ... ‚Ì•`‰æ
+        //çœç•¥è¨˜å· ... ã®æç”»
         public static void DrawOmittedMark(Graphics g, int x, int y, Color color, bool is_bold) {
 
             IntPtr hdc = g.GetHdc();

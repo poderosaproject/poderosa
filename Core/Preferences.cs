@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,7 +51,7 @@ namespace Poderosa.Preferences {
             base.TerminatePlugin();
             IStartupContextSupplier s = (IStartupContextSupplier)_poderosaWorld.GetAdapter(typeof(IStartupContextSupplier));
 
-            Flush(); //ƒtƒ@ƒCƒ‹‚Ì—L–³‚ÉŠÖ‚í‚ç‚¸“à•”‚ÌStorageNode‚ÍXV‚µ‚Æ‚­
+            Flush(); //ãƒ•ã‚¡ã‚¤ãƒ«ã®æœ‰ç„¡ã«é–¢ã‚ã‚‰ãšå†…éƒ¨ã®StorageNodeã¯æ›´æ–°ã—ã¨ã
 
             if (s.PreferenceFileName != null) {
                 string preferenceFileName = s.PreferenceFileName;
@@ -80,7 +80,7 @@ namespace Poderosa.Preferences {
             int index = 0;
             foreach (IPreferenceSupplier supplier in _extensionPoint.GetExtensions()) {
                 PlugInHost ph = new PlugInHost(this, supplier, s.Preferences, index++);
-                ph.Build(); //Note ’x‰„“Ç‚İ‚İ‚ğ‚µ‚Ä‚à‚¢‚¢‚©‚à
+                ph.Build(); //Note é…å»¶èª­ã¿è¾¼ã¿ã‚’ã—ã¦ã‚‚ã„ã„ã‹ã‚‚
                 _idToHosts[ph.PreferenceSupplier.PreferenceID] = ph;
             }
         }
@@ -109,7 +109,7 @@ namespace Poderosa.Preferences {
         #endregion
     }
 
-    //Supplier‚ªValidate‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é
+    //SupplierãŒValidateã—ãŸçµæœã‚’æ ¼ç´ã™ã‚‹
     internal class PreferenceValidationResult : IPreferenceValidationResult {
         private string _message;
 
@@ -120,7 +120,7 @@ namespace Poderosa.Preferences {
         //IPreferenceValidationResult
         public bool Validated {
             get {
-                return _message == null; //‰½‚©ƒZƒbƒg‚³‚ê‚Ä‚¢‚ê‚ÎƒGƒ‰[
+                return _message == null; //ä½•ã‹ã‚»ãƒƒãƒˆã•ã‚Œã¦ã„ã‚Œã°ã‚¨ãƒ©ãƒ¼
             }
         }
 
@@ -144,7 +144,7 @@ namespace Poderosa.Preferences {
         }
     }
 
-    //‚±‚¢‚Â‚ªƒvƒ‰ƒOƒCƒ“‚ğƒzƒXƒg‚µ‚Ä‰Šú‰»‚ğs‚¤
+    //ã“ã„ã¤ãŒãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’ãƒ›ã‚¹ãƒˆã—ã¦åˆæœŸåŒ–ã‚’è¡Œã†
     internal class PlugInHost : IPreferenceBuilder {
 
         private PreferencePlugin _parent;
@@ -163,7 +163,7 @@ namespace Poderosa.Preferences {
             _supplier = supplier;
             _storageNode = root.FindChild(supplier.PreferenceID);
             if (_storageNode == null)
-                _storageNode = root.AddChild(supplier.PreferenceID); //‹ó‚Åì¬‚µ‚Ä‚¨‚­
+                _storageNode = root.AddChild(supplier.PreferenceID); //ç©ºã§ä½œæˆã—ã¦ãŠã
             _supplierID = supplier.PreferenceID;
             _index = index;
             _sharedResult = new PreferenceValidationResult();
@@ -196,7 +196,7 @@ namespace Poderosa.Preferences {
             }
         }
 
-        //Preference‚Ì“à—e‚ğ\’z‚µAStorageNode‚©‚ç“Ç‚İ‚Ş
+        //Preferenceã®å†…å®¹ã‚’æ§‹ç¯‰ã—ã€StorageNodeã‹ã‚‰èª­ã¿è¾¼ã‚€
         internal void Build() {
             _supplierRootFolder = new PreferenceFolder(this, null, _supplierID, _index);
             _supplierRootFolder.PreferenceSupplier = _supplier;
@@ -212,27 +212,27 @@ namespace Poderosa.Preferences {
 
         }
 
-        //‘‚«o‚µ
+        //æ›¸ãå‡ºã—
         internal void Flush() {
             Debug.Assert(_storageNode.Parent != null);
             _supplierRootFolder.SaveTo(_storageNode);
         }
 
-        //ValidationError‚Ì’Ê’m
+        //ValidationErrorã®é€šçŸ¥
         internal void ValidationError(IPreferenceItemBase item, PreferenceValidationResult result) {
-            if (_loading) //ƒ[ƒh’†‚ÌƒGƒ‰[‚Í‰Šú’l‚É–ß‚·‚¾‚¯B‚Ç‚±‚©‚ÉWarning‚Ío‚µ‚Ä‚à‚¢‚¢‚©‚à‚È
+            if (_loading) //ãƒ­ãƒ¼ãƒ‰ä¸­ã®ã‚¨ãƒ©ãƒ¼ã¯åˆæœŸå€¤ã«æˆ»ã™ã ã‘ã€‚ã©ã“ã‹ã«Warningã¯å‡ºã—ã¦ã‚‚ã„ã„ã‹ã‚‚ãª
                 item.ResetValue();
             else
                 throw new ValidationException(item, result.Clone());
         }
 
-        //IPreferenceBuilderÀ‘•
-        //TODO ˆÈ‰º‚Åid duplication check ‚¾‚ª‚±‚Ì‚ ‚½‚è‚Í‹N“®‚·‚é‚½‚Ñ‚É•K—v‚È‚Ì‚Å‰ßè‚Èƒ`ƒFƒbƒN‚Í‚¢‚â‚ç‚µ‚¢‚ª
+        //IPreferenceBuilderå®Ÿè£…
+        //TODO ä»¥ä¸‹ã§id duplication check ã ãŒã“ã®ã‚ãŸã‚Šã¯èµ·å‹•ã™ã‚‹ãŸã³ã«å¿…è¦ãªã®ã§éå‰°ãªãƒã‚§ãƒƒã‚¯ã¯ã„ã‚„ã‚‰ã—ã„ãŒ
         public IPreferenceFolder DefineFolder(IPreferenceFolder parent, IPreferenceSupplier supplier, string id) {
             PreferenceFolder p = CastFolder(parent);
             PreferenceFolder ch = new PreferenceFolder(this, p, id, parent.ChildCount);
             p.AddChild(ch);
-            ch.PreferenceSupplier = supplier == null ? _supplier : supplier; //null‚Ì‚Æ‚«‚Í©•ª©g‚ğg‚¤
+            ch.PreferenceSupplier = supplier == null ? _supplier : supplier; //nullã®ã¨ãã¯è‡ªåˆ†è‡ªèº«ã‚’ä½¿ã†
             return ch;
         }
         public IPreferenceFolder DefineFolderArray(IPreferenceFolder parent, IPreferenceSupplier supplier, string id) {
@@ -240,7 +240,7 @@ namespace Poderosa.Preferences {
             PreferenceFolder template = new PreferenceFolder(this, p, id, parent.ChildCount);
             PreferenceFolderArray array = new PreferenceFolderArray(this, p, id, parent.ChildCount, template);
             p.AddChild(array);
-            template.PreferenceSupplier = supplier == null ? _supplier : supplier; //null‚Ì‚Æ‚«‚Í©•ª©g‚Ì‚ğg‚¤
+            template.PreferenceSupplier = supplier == null ? _supplier : supplier; //nullã®ã¨ãã¯è‡ªåˆ†è‡ªèº«ã®ã‚’ä½¿ã†
             return template;
         }
 
@@ -278,7 +278,7 @@ namespace Poderosa.Preferences {
         }
     }
 
-    //Folder, Item‚ÌŠî’ê
+    //Folder, Itemã®åŸºåº•
     internal abstract class PreferenceItemBase : IPreferenceItemBase {
 
         protected PreferenceFolder _parent;
@@ -311,7 +311,7 @@ namespace Poderosa.Preferences {
 
         //IPreferenceItemBase
 
-        //”ñnull‚ğ•Ô‚·‚â‚Â‚Ì‚İoverride‚¹‚æ
+        //énullã‚’è¿”ã™ã‚„ã¤ã®ã¿overrideã›ã‚ˆ
         public virtual IPreferenceFolder AsFolder() {
             return null;
         }
@@ -398,7 +398,7 @@ namespace Poderosa.Preferences {
         }
 
         public IPreferenceFolder Clone() {
-            return CreateSnapshot() as IPreferenceFolder; //CreateSnapshot‚ÍFolder‚ğ•Ô‚·‚Ì‚ÅOK
+            return CreateSnapshot() as IPreferenceFolder; //CreateSnapshotã¯Folderã‚’è¿”ã™ã®ã§OK
         }
         public object QueryAdapter(Type type) {
             return _supplier == null ? _parent.QueryAdapter(type) : _supplier.QueryAdapter(this, type);
@@ -427,7 +427,7 @@ namespace Poderosa.Preferences {
                 GetHost().ValidationError(this, r);
             else {
                 //fire listener
-                //‚±‚Ì‚ ‚½‚è‚Ìd—l‚¢‚Ü‚¢‚¿‚¾‚ÈBFolder‚ÌŠK‘w‚ÆƒCƒxƒ“ƒg‚ÌŠÖŒW‚ğ–¾‚ç‚©‚É‚µ‚Ä‚¨‚«‚½‚¢
+                //ã“ã®ã‚ãŸã‚Šã®ä»•æ§˜ã„ã¾ã„ã¡ã ãªã€‚Folderã®éšå±¤ã¨ã‚¤ãƒ™ãƒ³ãƒˆã®é–¢ä¿‚ã‚’æ˜ã‚‰ã‹ã«ã—ã¦ãŠããŸã„
                 if (_listenerList != null) {
                     foreach (IPreferenceChangeListener l in _listenerList)
                         l.OnPreferenceImport(this, newvalues);
@@ -437,7 +437,7 @@ namespace Poderosa.Preferences {
             }
         }
 
-        //“à•”‚ÌƒTƒ|[ƒgŒn
+        //å†…éƒ¨ã®ã‚µãƒãƒ¼ãƒˆç³»
 
         internal void AddChild(PreferenceItemBase item) {
             _children.Add(item);
@@ -464,10 +464,10 @@ namespace Poderosa.Preferences {
                 PreferenceItem ch_item = child as PreferenceItem;
                 PreferenceLooseNode ch_loose = child as PreferenceLooseNode;
 
-                //TODO ˆÈ‰º‚Ì•ªŠò‰˜‚·‚¬A‰½‚Æ‚©‚·‚é
+                //TODO ä»¥ä¸‹ã®åˆ†å²æ±šã™ãã€ä½•ã¨ã‹ã™ã‚‹
 
                 if (ch_folder != null) {
-                    StructuredText ch_data = node.GetChildOrNull(data_index); //‘å’ï‚Í‚¤‚Ü‚­®—ñ‚µ‚Ä‚¢‚é‚Ì‚ÅŒŸõ‚ÌèŠÔ‚ğÈ‚­
+                    StructuredText ch_data = node.GetChildOrNull(data_index); //å¤§æŠµã¯ã†ã¾ãæ•´åˆ—ã—ã¦ã„ã‚‹ã®ã§æ¤œç´¢ã®æ‰‹é–“ã‚’çœã
                     if (ch_data == null || ch_data.Name != ch_folder.Id) {
                         dirty = true;
                         ch_data = node.FindChild(ch_folder.Id);
@@ -481,7 +481,7 @@ namespace Poderosa.Preferences {
                         ch_folder.LoadFrom(ch_data);
                 }
                 else if (ch_item != null) {
-                    StructuredText.Entry ch_data = node.GetEntryOrNull(data_index); //‘å’ï‚Í‚¤‚Ü‚­®—ñ‚µ‚Ä‚¢‚é‚Ì‚ÅŒŸõ‚ÌèŠÔ‚ğÈ‚­
+                    StructuredText.Entry ch_data = node.GetEntryOrNull(data_index); //å¤§æŠµã¯ã†ã¾ãæ•´åˆ—ã—ã¦ã„ã‚‹ã®ã§æ¤œç´¢ã®æ‰‹é–“ã‚’çœã
                     if (ch_data == null || ch_data.name != ch_item.Id) {
                         dirty = true;
                         ch_data = node.FindEntry(ch_item.Id);
@@ -502,7 +502,7 @@ namespace Poderosa.Preferences {
                         ch_data.Clear();
                         ch_data.AddRange(node.FindMultipleNote(ch_array.Id));
                     }
-                    else { //Å‰‚Ìˆê‚Â‚ª‡Ši‚¾‚Á‚½‚çŒp‘±‚µ‚Ä“Ç‚İ‘±‚¯‚é
+                    else { //æœ€åˆã®ä¸€ã¤ãŒåˆæ ¼ã ã£ãŸã‚‰ç¶™ç¶šã—ã¦èª­ã¿ç¶šã‘ã‚‹
                         data_index++;
                         while (t != null && t.Name == ch_array.Id) {
                             ch_data.Add(t);
@@ -513,8 +513,8 @@ namespace Poderosa.Preferences {
                     ch_array.LoadFrom(ch_data);
                 }
                 else if (ch_loose != null) {
-                    //TODO ‚±‚ê‚ÍFolder‚Ì‚Æ‚«‚Æ“¯‚¶‚¾B‚Ü‚Æ‚ß‚æ‚¤
-                    StructuredText ch_data = node.GetChildOrNull(data_index); //‘å’ï‚Í‚¤‚Ü‚­®—ñ‚µ‚Ä‚¢‚é‚Ì‚ÅŒŸõ‚ÌèŠÔ‚ğÈ‚­
+                    //TODO ã“ã‚Œã¯Folderã®ã¨ãã¨åŒã˜ã ã€‚ã¾ã¨ã‚ã‚ˆã†
+                    StructuredText ch_data = node.GetChildOrNull(data_index); //å¤§æŠµã¯ã†ã¾ãæ•´åˆ—ã—ã¦ã„ã‚‹ã®ã§æ¤œç´¢ã®æ‰‹é–“ã‚’çœã
                     if (ch_data == null || ch_data.Name != ch_loose.Id) {
                         dirty = true;
                         ch_data = node.FindChild(ch_loose.Id);
@@ -528,10 +528,10 @@ namespace Poderosa.Preferences {
                         ch_loose.LoadFrom(ch_data);
                 }
 
-                child_index++; //©•ª‚Ìq‚ğƒXƒeƒbƒv
+                child_index++; //è‡ªåˆ†ã®å­ã‚’ã‚¹ãƒ†ãƒƒãƒ—
             }
 
-            //ˆê“xƒGƒ‰[‚È‚­“Ç‚Ş‚±‚Æ‚ª‚Å‚«‚Ä‚¢‚ê‚Îdirty‚Ífalse‚Ì‚Ü‚Ü
+            //ä¸€åº¦ã‚¨ãƒ©ãƒ¼ãªãèª­ã‚€ã“ã¨ãŒã§ãã¦ã„ã‚Œã°dirtyã¯falseã®ã¾ã¾
             node.IsDirty = dirty;
         }
 
@@ -548,7 +548,7 @@ namespace Poderosa.Preferences {
                     ch_folder.SaveTo(ch);
                 }
                 else if (ch_item != null) { //item
-                    if (ch_item.IsChanged) //ƒfƒtƒHƒ‹ƒg’l‚Æ•Ï‚í‚Á‚Ä‚¢‚½ê‡‚Ì‚İ‹L˜^
+                    if (ch_item.IsChanged) //ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤ã¨å¤‰ã‚ã£ã¦ã„ãŸå ´åˆã®ã¿è¨˜éŒ²
                         node.Set(ch_item.Id, ch_item.FormatValue());
                 }
                 else if (ch_array != null) { // array
@@ -574,7 +574,7 @@ namespace Poderosa.Preferences {
             return snapshot;
         }
 
-        //’†g‚ÍValidationÏ‚İ‚Å‚ ‚é‚±‚Æ‚É’ˆÓ
+        //ä¸­èº«ã¯Validationæ¸ˆã¿ã§ã‚ã‚‹ã“ã¨ã«æ³¨æ„
         internal void ImportSnapshot(PreferenceFolder newvalues) {
             foreach (PreferenceItemBase t in _children) {
                 PreferenceFolder child_folder = t as PreferenceFolder;
@@ -588,7 +588,7 @@ namespace Poderosa.Preferences {
                         PreferenceLooseNode child_loosenode = t as PreferenceLooseNode;
                         if (child_loosenode != null)
                             child_loosenode.ImportSnapshot(newvalues.ChildAt(child_loosenode.Index) as PreferenceLooseNode);
-                        //FolderArray–¢ƒTƒ|[ƒg
+                        //FolderArrayæœªã‚µãƒãƒ¼ãƒˆ
                     }
                 }
 
@@ -658,7 +658,7 @@ namespace Poderosa.Preferences {
             _folders.Clear();
         }
 
-        //‚±‚ê‚ç‚ÍFolder‚Æ‚Í‚¿‚å‚Á‚ÆƒRƒ“ƒxƒ“ƒVƒ‡ƒ“ˆá‚¤
+        //ã“ã‚Œã‚‰ã¯Folderã¨ã¯ã¡ã‚‡ã£ã¨ã‚³ãƒ³ãƒ™ãƒ³ã‚·ãƒ§ãƒ³é•ã†
         internal void LoadFrom(ArrayList notes) {
             _folders.Clear();
             foreach (StructuredText ch in notes) {
@@ -685,7 +685,7 @@ namespace Poderosa.Preferences {
     }
 
 
-    //Item‚ÌŠî’êB‚±‚±‚©‚çŠeŒ^‚É•ªŠò
+    //Itemã®åŸºåº•ã€‚ã“ã“ã‹ã‚‰å„å‹ã«åˆ†å²
     internal abstract class PreferenceItem : PreferenceItemBase, IPreferenceItem {
 
         public enum ErrorMode {
@@ -721,7 +721,7 @@ namespace Poderosa.Preferences {
             _parent.GetHost().ValidationError(this, result);
         }
 
-        //q‚ÅÀ‘•
+        //å­ã§å®Ÿè£…
         public virtual IBoolPreferenceItem AsBool() {
             return null;
         }
@@ -738,7 +738,7 @@ namespace Poderosa.Preferences {
         internal abstract void ImportSnapshot(PreferenceItem item);
         internal abstract bool IsChanged {
             get;
-        } //ƒfƒtƒHƒ‹ƒg’l‚Æˆá‚¤‚©‚Ç‚¤‚©
+        } //ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤ã¨é•ã†ã‹ã©ã†ã‹
 
         protected bool Validate<T>(T value, PreferenceItemValidator<T> validator, ErrorMode errormode) {
             if (validator != null) {
@@ -762,7 +762,7 @@ namespace Poderosa.Preferences {
         protected T _value;
         protected T _initialValue;
         protected PreferenceItemValidator<T> _validator;
-        protected IPrimitiveAdapter<T> _primitiveAdapter; //Parse“™‚ÍGenericsƒpƒ‰ƒ[ƒ^‚Å’¼Úg‚¦‚È‚¢
+        protected IPrimitiveAdapter<T> _primitiveAdapter; //Parseç­‰ã¯Genericsãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã§ç›´æ¥ä½¿ãˆãªã„
 
         public TypedPreferenceItem(PreferenceFolder parent, string id, int index, T initialValue, PreferenceItemValidator<T> validator, IPrimitiveAdapter<T> adapter)
             : base(parent, id, index) {
@@ -802,14 +802,14 @@ namespace Poderosa.Preferences {
 
         internal override PreferenceItemBase CreateSnapshot() {
             TypedPreferenceItem<T> item = InternalClone();
-            item._value = _value; //ƒm[ƒCƒxƒ“ƒg
+            item._value = _value; //ãƒãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆ
             return item;
         }
         internal override void ImportSnapshot(PreferenceItem item) {
             TypedPreferenceItem<T> i = item as TypedPreferenceItem<T>;
             Debug.Assert(i != null);
 
-            _value = i._value; //ƒ`ƒFƒbƒNÏ‚İ‚È‚Ì‚Åƒm[ƒCƒxƒ“ƒg‚Å
+            _value = i._value; //ãƒã‚§ãƒƒã‚¯æ¸ˆã¿ãªã®ã§ãƒãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆã§
         }
         internal override string FormatValue() {
             return _value.ToString();
@@ -845,8 +845,8 @@ namespace Poderosa.Preferences {
     }
 
     //NOTE
-    // ‚±‚±‚ªŒ^‚²‚Æ‚ÌƒNƒ‰ƒX‚É•ª‚©‚ê‚Ä‚¢‚é‚Ì‚ÍAI***PreferenceItem‚ÌŒÂ•ÊƒCƒ“ƒ^ƒtƒF[ƒX‚ÌƒTƒ|[ƒg‚Ì‚½‚ß‚ÆA
-    // objectŒ^‚ğGenericsƒpƒ‰ƒ[ƒ^‚É‚µ‚½‚Æ‚«, Equals‚ ‚½‚è‚Í‚È‚ñ‚Æ‚©‚È‚Á‚Ä‚àParse‚ª‚È‚¢‚½‚ß‚ÉƒgƒŠƒbƒN‚ª•K—v‚¾‚Á‚½‚±‚Æ‚É‚æ‚é
+    // ã“ã“ãŒå‹ã”ã¨ã®ã‚¯ãƒ©ã‚¹ã«åˆ†ã‹ã‚Œã¦ã„ã‚‹ã®ã¯ã€I***PreferenceItemã®å€‹åˆ¥ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹ã®ã‚µãƒãƒ¼ãƒˆã®ãŸã‚ã¨ã€
+    // objectå‹ã‚’Genericsãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã«ã—ãŸã¨ã, Equalsã‚ãŸã‚Šã¯ãªã‚“ã¨ã‹ãªã£ã¦ã‚‚ParseãŒãªã„ãŸã‚ã«ãƒˆãƒªãƒƒã‚¯ãŒå¿…è¦ã ã£ãŸã“ã¨ã«ã‚ˆã‚‹
     internal class BoolPreferenceItem : TypedPreferenceItem<bool>, IBoolPreferenceItem {
         private static IPrimitiveAdapter<bool> adapter = new BoolPrimitiveAdapter();
         public BoolPreferenceItem(PreferenceFolder parent, string id, int index, bool initialValue, PreferenceItemValidator<bool> validator)
@@ -928,7 +928,7 @@ namespace Poderosa.Preferences {
     /// <exclude/>
     public class EnumPreferenceItem<T> where T : struct {
         private IStringPreferenceItem _preferenceItem;
-        private string _description; //‹¤—L‚µ‚Ä‚¢‚éPrefItem‚ª‘‚«Š·‚¦‚ç‚ê‚½ê‡‚ÌƒJƒo[
+        private string _description; //å…±æœ‰ã—ã¦ã„ã‚‹PrefItemãŒæ›¸ãæ›ãˆã‚‰ã‚ŒãŸå ´åˆã®ã‚«ãƒãƒ¼
         private T _defaultValue;
         private T _value;
 
@@ -1012,7 +1012,7 @@ namespace Poderosa.Preferences {
         }
     }
 
-    //Snapshot‚ÆFriendlyInterface•t‚«‚ÌPreferenceƒx[ƒXƒNƒ‰ƒX
+    //Snapshotã¨FriendlyInterfaceä»˜ãã®Preferenceãƒ™ãƒ¼ã‚¹ã‚¯ãƒ©ã‚¹
     /// <summary>
     /// 
     /// </summary>
@@ -1041,12 +1041,12 @@ namespace Poderosa.Preferences {
             return new EnumPreferenceItem<T>(t, item.Value);
         }
 
-        //V‹Kì¬—p
+        //æ–°è¦ä½œæˆç”¨
         public abstract void DefineItems(IPreferenceBuilder builder);
 
     }
 
-    //ƒoƒŠƒf[ƒ^Œn
+    //ãƒãƒªãƒ‡ãƒ¼ã‚¿ç³»
     /// <summary>
     /// 
     /// </summary>

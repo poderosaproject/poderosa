@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,10 +12,10 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace Poderosa.Util.Collections {
-    //å‚ÉMRU‚Ég—p‚·‚éƒRƒŒƒNƒVƒ‡ƒ“B
-    //  * ãŒÀŒÂ”‚Â‚«ƒŠƒXƒg‚ğ•Û‚µA
-    //  * ŠO•”‚©‚ç‚à‚ç‚Á‚½”äŠrŠÖ”‚Å—v‘f‚ª“™‚µ‚¢‚©‚Ç‚¤‚©‚ğ‚İ‚ÄA
-    //  * ‘O•û‚É‚Á‚Ä‚­‚éB
+    //ä¸»ã«MRUã«ä½¿ç”¨ã™ã‚‹ã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã€‚
+    //  * ä¸Šé™å€‹æ•°ã¤ããƒªã‚¹ãƒˆã‚’ä¿æŒã—ã€
+    //  * å¤–éƒ¨ã‹ã‚‰ã‚‚ã‚‰ã£ãŸæ¯”è¼ƒé–¢æ•°ã§è¦ç´ ãŒç­‰ã—ã„ã‹ã©ã†ã‹ã‚’ã¿ã¦ã€
+    //  * å‰æ–¹ã«æŒã£ã¦ãã‚‹ã€‚
     /// <summary>
     /// 
     /// </summary>
@@ -32,7 +32,7 @@ namespace Poderosa.Util.Collections {
         public delegate bool Equality(T t1, T t2);
 
         private Equality _equality;
-        private List<T> _data; //[0]‚ªæ“ª
+        private List<T> _data; //[0]ãŒå…ˆé ­
 
         public OrderedCollection(Equality equality) {
             _equality = equality;
@@ -43,13 +43,13 @@ namespace Poderosa.Util.Collections {
             for (int i = 0; i < _data.Count; i++) {
                 if (_equality(_data[i], element)) {
                     _data.RemoveAt(i);
-                    break; //“™‚µ‚¢‚Ì‚ª‚İ‚Â‚©‚Á‚½‚ç‚»‚ê‚ğœ‹‚µ‚Ä”²‚¯‚é
+                    break; //ç­‰ã—ã„ã®ãŒã¿ã¤ã‹ã£ãŸã‚‰ãã‚Œã‚’é™¤å»ã—ã¦æŠœã‘ã‚‹
                 }
             }
             _data.Insert(0, element);
         }
 
-        public void Add(T element) { //‚Ó‚Â‚¤‚Ì’Ç‰Á
+        public void Add(T element) { //ãµã¤ã†ã®è¿½åŠ 
             _data.Add(element);
         }
 
@@ -68,7 +68,7 @@ namespace Poderosa.Util.Collections {
             }
         }
 
-        //ŒÂ”‚ÌãŒÀ‚ğŒˆ‚ß‚ÄØ‚é
+        //å€‹æ•°ã®ä¸Šé™ã‚’æ±ºã‚ã¦åˆ‡ã‚‹
         public void LimitCount(int value) {
             if (_data.Count > value) {
                 _data.RemoveRange(_data.Count - 1, _data.Count - value);
@@ -78,7 +78,7 @@ namespace Poderosa.Util.Collections {
         public IEnumerator<T> GetEnumerator() {
             return _data.GetEnumerator();
         }
-        IEnumerator IEnumerable.GetEnumerator() { //–{“–‚ÉAIEnumerator<T>‚ªIEnumerator‚©‚ç”h¶‚µ‚Ä‚é‚Ì‚Á‚ÄƒNƒ\ˆÈŠO‚Ì‰½Ò‚Å‚à‚È‚¢‚È
+        IEnumerator IEnumerable.GetEnumerator() { //æœ¬å½“ã«ã€IEnumerator<T>ãŒIEnumeratorã‹ã‚‰æ´¾ç”Ÿã—ã¦ã‚‹ã®ã£ã¦ã‚¯ã‚½ä»¥å¤–ã®ä½•è€…ã§ã‚‚ãªã„ãª
             return _data.GetEnumerator();
         }
 

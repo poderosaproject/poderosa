@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,7 @@ namespace Poderosa.Terminal {
         protected bool _insertMode;
         protected bool _scrollRegionRelative;
 
-        //Ú‘±‚Ìí—Ş‚É‚æ‚Á‚ÄƒGƒXƒP[ƒvƒV[ƒPƒ“ƒX‚Ì‰ğß‚ğ•Ï‚¦‚é•”•ª
+        //æ¥ç¶šã®ç¨®é¡ã«ã‚ˆã£ã¦ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ã®è§£é‡ˆã‚’å¤‰ãˆã‚‹éƒ¨åˆ†
         //protected bool _homePositionOnCSIJ2;
 
         public VT100Terminal(TerminalInitializeInfo info)
@@ -122,7 +122,7 @@ namespace Poderosa.Terminal {
                     ProcessCursorMove(param, code);
                     break;
                 case 'H':
-                case 'f': //f‚Í–{“–‚ÍxtermŒÅ—L
+                case 'f': //fã¯æœ¬å½“ã¯xtermå›ºæœ‰
                     ProcessCursorPosition(param);
                     break;
                 case 'J':
@@ -176,14 +176,14 @@ namespace Poderosa.Terminal {
                     state = 0;
                 }
                 else if (code >= 30 && code <= 37) {
-                    //‚±‚ê‚¾‚ÆF‚ğ•ÏX‚µ‚½‚Æ‚«Šù‚É‰æ–Ê‚É‚ ‚é‚à‚Ì‚Í˜A“®‚µ‚È‚­‚È‚é‚ªA‚»‚±‚ğ‚¿‚á‚ñ‚Æ‚·‚é‚Ì‚Í¢“ï‚Å‚ ‚é
+                    //ã“ã‚Œã ã¨è‰²ã‚’å¤‰æ›´ã—ãŸã¨ãæ—¢ã«ç”»é¢ã«ã‚ã‚‹ã‚‚ã®ã¯é€£å‹•ã—ãªããªã‚‹ãŒã€ãã“ã‚’ã¡ã‚ƒã‚“ã¨ã™ã‚‹ã®ã¯å›°é›£ã§ã‚ã‚‹
                     dec = SelectForeColor(dec, code - 30);
                 }
                 else if (code >= 40 && code <= 47) {
                     dec = SelectBackgroundColor(dec, code - 40);
                 }
                 else if (code >= 90 && code <= 97) {
-                    //‚±‚ê‚¾‚ÆF‚ğ•ÏX‚µ‚½‚Æ‚«Šù‚É‰æ–Ê‚É‚ ‚é‚à‚Ì‚Í˜A“®‚µ‚È‚­‚È‚é‚ªA‚»‚±‚ğ‚¿‚á‚ñ‚Æ‚·‚é‚Ì‚Í¢“ï‚Å‚ ‚é
+                    //ã“ã‚Œã ã¨è‰²ã‚’å¤‰æ›´ã—ãŸã¨ãæ—¢ã«ç”»é¢ã«ã‚ã‚‹ã‚‚ã®ã¯é€£å‹•ã—ãªããªã‚‹ãŒã€ãã“ã‚’ã¡ã‚ƒã‚“ã¨ã™ã‚‹ã®ã¯å›°é›£ã§ã‚ã‚‹
                     dec = SelectForeColor(dec, code - 90 + 8);
                 }
                 else if (code >= 100 && code <= 107) {
@@ -205,7 +205,7 @@ namespace Poderosa.Terminal {
                             dec = dec.GetInvertedCopy();
                             break;
                         case 2:
-                            dec = TextDecoration.Default; //•s–¾‚¾‚ªSGR 2‚ÅI‚í‚Á‚Ä‚¢‚é—á‚ª‚ ‚Á‚½
+                            dec = TextDecoration.Default; //ä¸æ˜ã ãŒSGR 2ã§çµ‚ã‚ã£ã¦ã„ã‚‹ä¾‹ãŒã‚ã£ãŸ
                             break;
                         case 22:
                         case 25:
@@ -231,7 +231,7 @@ namespace Poderosa.Terminal {
                         case 10:
                         case 11:
                         case 12:
-                            break; //'konsole'‚Æ‚¢‚¤‚â‚Â‚ç‚µ‚¢B–³‹‚Å–â‘è‚È‚³‚»‚¤
+                            break; //'konsole'ã¨ã„ã†ã‚„ã¤ã‚‰ã—ã„ã€‚ç„¡è¦–ã§å•é¡Œãªã•ãã†
                         default:
                             throw new UnknownEscapeSequenceException(String.Format("unknown SGR command {0}", param));
                     }
@@ -275,14 +275,14 @@ namespace Poderosa.Terminal {
         }
 
         protected virtual void ProcessDeviceAttributes(string param) {
-            byte[] data = Encoding.ASCII.GetBytes(" [?1;2c"); //‚È‚ñ‚©‚æ‚­‚í‚©‚ç‚È‚¢‚ªMindTerm“™‚ğ‚İ‚é‚Æ‚±‚ê‚Å‚¢‚¢‚ç‚µ‚¢
+            byte[] data = Encoding.ASCII.GetBytes(" [?1;2c"); //ãªã‚“ã‹ã‚ˆãã‚ã‹ã‚‰ãªã„ãŒMindTermç­‰ã‚’ã¿ã‚‹ã¨ã“ã‚Œã§ã„ã„ã‚‰ã—ã„
             data[0] = 0x1B; //ESC
             TransmitDirect(data);
         }
         protected virtual void ProcessDeviceStatusReport(string param) {
             string response;
             if (param == "5")
-                response = " [0n"; //‚±‚ê‚ÅOK‚ÌˆÓ–¡‚ç‚µ‚¢
+                response = " [0n"; //ã“ã‚Œã§OKã®æ„å‘³ã‚‰ã—ã„
             else if (param == "6")
                 response = String.Format(" [{0};{1}R", GetDocument().CurrentLineNumber - GetDocument().TopLineNumber + 1, _manipulator.CaretColumn + 1);
             else
@@ -294,7 +294,7 @@ namespace Poderosa.Terminal {
         }
 
         protected void ProcessCursorMove(string param, char method) {
-            int count = ParseInt(param, 1); //ƒpƒ‰ƒ[ƒ^‚ªÈ—ª‚³‚ê‚½‚Æ‚«‚ÌˆÚ“®—Ê‚Í‚P
+            int count = ParseInt(param, 1); //ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãŒçœç•¥ã•ã‚ŒãŸã¨ãã®ç§»å‹•é‡ã¯ï¼‘
 
             int column = _manipulator.CaretColumn;
             switch (method) {
@@ -391,7 +391,7 @@ namespace Poderosa.Terminal {
                         GetDocument().ApplicationModeBackColor = (_currentdecoration != null) ? _currentdecoration.BackColor : Color.Empty;
 
                         doc.ReplaceCurrentLine(_manipulator.Export());
-                        //if(_homePositionOnCSIJ2) { //SFU‚Å‚Í‚±‚¤‚È‚é
+                        //if(_homePositionOnCSIJ2) { //SFUã§ã¯ã“ã†ãªã‚‹
                         //	ProcessCursorPosition(1,1); 
                         //	col = 0;
                         //}
@@ -483,13 +483,13 @@ namespace Poderosa.Terminal {
                 v.second = 1;
             else if (v.second > height)
                 v.second = height;
-            if (v.first > v.second) { //–â“š–³—p‚ÅƒGƒ‰[‚ª—Ç‚¢‚æ‚¤‚É‚àv‚¤‚ª
+            if (v.first > v.second) { //å•ç­”ç„¡ç”¨ã§ã‚¨ãƒ©ãƒ¼ãŒè‰¯ã„ã‚ˆã†ã«ã‚‚æ€ã†ãŒ
                 int t = v.first;
                 v.first = v.second;
                 v.second = t;
             }
 
-            //w’è‚Í1-origin‚¾‚ªˆ—‚Í0-origin
+            //æŒ‡å®šã¯1-originã ãŒå‡¦ç†ã¯0-origin
             GetDocument().SetScrollingRegion(v.first - 1, v.second - 1);
         }
 
@@ -505,9 +505,9 @@ namespace Poderosa.Terminal {
 
             if (mode == TerminalMode.Normal) {
                 GetDocument().ClearScrollingRegion();
-                GetConnection().TerminalOutput.Resize(GetDocument().TerminalWidth, GetDocument().TerminalHeight); //‚½‚Æ‚¦‚Îemacs‹N“®’†‚ÉƒŠƒTƒCƒY‚µAƒVƒFƒ‹‚Ö–ß‚é‚ÆƒVƒFƒ‹‚ÍV‚µ‚¢ƒTƒCƒY‚ğ”F¯‚µ‚Ä‚¢‚È‚¢
-                //RMBox‚ÅŠm”F‚³‚ê‚½‚±‚Æ‚¾‚ªA–³—p‚ÉŒã•û‚ÉƒhƒLƒ…ƒƒ“ƒg‚ğL‚°‚Ä‚­‚é“z‚ª‚¢‚éBƒJ[ƒ\ƒ‹‚ğ123‰ñŒã•û‚ÖA‚È‚ÇB
-                //ê“–‚½‚è“I‚¾‚ªAƒm[ƒ}ƒ‹ƒ‚[ƒh‚É–ß‚éÛ‚ÉŒã‚ë‚Ì‹ós‚ğíœ‚·‚é‚±‚Æ‚Å‘Î‰‚·‚éB
+                GetConnection().TerminalOutput.Resize(GetDocument().TerminalWidth, GetDocument().TerminalHeight); //ãŸã¨ãˆã°emacsèµ·å‹•ä¸­ã«ãƒªã‚µã‚¤ã‚ºã—ã€ã‚·ã‚§ãƒ«ã¸æˆ»ã‚‹ã¨ã‚·ã‚§ãƒ«ã¯æ–°ã—ã„ã‚µã‚¤ã‚ºã‚’èªè­˜ã—ã¦ã„ãªã„
+                //RMBoxã§ç¢ºèªã•ã‚ŒãŸã“ã¨ã ãŒã€ç„¡ç”¨ã«å¾Œæ–¹ã«ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’åºƒã’ã¦ãã‚‹å¥´ãŒã„ã‚‹ã€‚ã‚«ãƒ¼ã‚½ãƒ«ã‚’123å›å¾Œæ–¹ã¸ã€ãªã©ã€‚
+                //å ´å½“ãŸã‚Šçš„ã ãŒã€ãƒãƒ¼ãƒãƒ«ãƒ¢ãƒ¼ãƒ‰ã«æˆ»ã‚‹éš›ã«å¾Œã‚ã®ç©ºè¡Œã‚’å‰Šé™¤ã™ã‚‹ã“ã¨ã§å¯¾å¿œã™ã‚‹ã€‚
                 GLine l = GetDocument().LastLine;
                 while (l != null && l.DisplayLength == 0 && l.ID > GetDocument().CurrentLineNumber)
                     l = l.PrevLine;
@@ -549,7 +549,7 @@ namespace Poderosa.Terminal {
             //Debug.WriteLine(String.Format("DECSET {0} {1}", param, code));
             switch (param) {
                 case "25":
-                    return ProcessCharResult.Processed; //!!Show/Hide Cursor‚¾‚ª‚Æ‚è‚ ‚¦‚¸–³‹
+                    return ProcessCharResult.Processed; //!!Show/Hide Cursorã ãŒã¨ã‚Šã‚ãˆãšç„¡è¦–
                 case "1":
                     ChangeCursorKeyMode(code == 'h' ? TerminalMode.Application : TerminalMode.Normal);
                     return ProcessCharResult.Processed;
@@ -561,34 +561,34 @@ namespace Poderosa.Terminal {
             bool set = code == 'h';
             switch (param) {
                 case "4":
-                    _insertMode = set; //h‚Ån‚Ü‚Á‚Äl‚ÅI‚í‚é
+                    _insertMode = set; //hã§å§‹ã¾ã£ã¦lã§çµ‚ã‚ã‚‹
                     return ProcessCharResult.Processed;
                 case "12":	//local echo
                     _afterExitLockActions.Add(new AfterExitLockDelegate(new LocalEchoChanger(GetTerminalSettings(), !set).Do));
                     return ProcessCharResult.Processed;
                 case "20":
-                    return ProcessCharResult.Processed; //!!WinXP‚ÌTelnet‚ÅŠm”F‚µ‚½
+                    return ProcessCharResult.Processed; //!!WinXPã®Telnetã§ç¢ºèªã—ãŸ
                 case "25":
                     return ProcessCharResult.Processed;
-                case "34":	//MakeCursorBig, putty‚É‚Í‚ ‚é
-                    //!set‚ÅƒJ[ƒ\ƒ‹‚ğ‹­§“I‚É” Œ^‚É‚µAset‚Å’Êí‚É–ß‚·‚Æ‚¢‚¤‚Ì‚ª³‚µ‚¢“®ì‚¾‚ªÀŠQ‚Í‚È‚¢‚Ì‚Å–³‹
+                case "34":	//MakeCursorBig, puttyã«ã¯ã‚ã‚‹
+                    //!setã§ã‚«ãƒ¼ã‚½ãƒ«ã‚’å¼·åˆ¶çš„ã«ç®±å‹ã«ã—ã€setã§é€šå¸¸ã«æˆ»ã™ã¨ã„ã†ã®ãŒæ­£ã—ã„å‹•ä½œã ãŒå®Ÿå®³ã¯ãªã„ã®ã§ç„¡è¦–
                     return ProcessCharResult.Processed;
                 default:
                     return ProcessCharResult.Unsupported;
             }
         }
 
-        //‚±‚ê‚Í‚³‚Ú‚èB‚¿‚á‚ñ‚Æ•Û‘¶‚µ‚È‚¢‚Æ‚¢‚¯‚È‚¢ó‘Ô‚Í‚Ù‚Æ‚ñ‚Ç‚È‚¢‚Ì‚Å
+        //ã“ã‚Œã¯ã•ã¼ã‚Šã€‚ã¡ã‚ƒã‚“ã¨ä¿å­˜ã—ãªã„ã¨ã„ã‘ãªã„çŠ¶æ…‹ã¯ã»ã¨ã‚“ã©ãªã„ã®ã§
         protected virtual ProcessCharResult ProcessSaveDECSET(string param, char code) {
-            //‚±‚Ìparam‚Í•¡”ŒÂƒpƒ‰ƒ[ƒ^
+            //ã“ã®paramã¯è¤‡æ•°å€‹ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
             return ProcessCharResult.Processed;
         }
         protected virtual ProcessCharResult ProcessRestoreDECSET(string param, char code) {
-            //‚±‚Ìparam‚Í•¡”ŒÂƒpƒ‰ƒ[ƒ^
+            //ã“ã®paramã¯è¤‡æ•°å€‹ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
             return ProcessCharResult.Processed;
         }
 
-        //‚±‚ê‚ğ‘—‚Á‚Ä‚­‚éƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Í vi‚Åã•ûƒXƒNƒ[ƒ‹
+        //ã“ã‚Œã‚’é€ã£ã¦ãã‚‹ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã¯ viã§ä¸Šæ–¹ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«
         protected void ProcessInsertLines(string param) {
             int d = ParseInt(param, 1);
 
@@ -607,7 +607,7 @@ namespace Poderosa.Terminal {
             _manipulator.Load(doc.CurrentLine, caret_pos);
         }
 
-        //‚±‚ê‚ğ‘—‚Á‚Ä‚­‚éƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Í vi‚Å‰º•ûƒXƒNƒ[ƒ‹
+        //ã“ã‚Œã‚’é€ã£ã¦ãã‚‹ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã¯ viã§ä¸‹æ–¹ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«
         protected void ProcessDeleteLines(string param) {
             int d = ParseInt(param, 1);
 
@@ -643,7 +643,7 @@ namespace Poderosa.Terminal {
               "11", "12", "13", "14", "15", "17", "18", "19", "20", "21", "23", "24",
         //     F13   F14   F15   F16   F17  F18   F19   F20   F21   F22
               "25", "26", "28", "29", "31", "32", "33", "34", "23", "24" };
-        //“Á’è‚Ìƒf[ƒ^‚ğ—¬‚·ƒ^ƒCƒvBŒ»İAƒJ[ƒ\ƒ‹ƒL[‚Æƒtƒ@ƒ“ƒNƒVƒ‡ƒ“ƒL[‚ªŠY“–‚·‚é         
+        //ç‰¹å®šã®ãƒ‡ãƒ¼ã‚¿ã‚’æµã™ã‚¿ã‚¤ãƒ—ã€‚ç¾åœ¨ã€ã‚«ãƒ¼ã‚½ãƒ«ã‚­ãƒ¼ã¨ãƒ•ã‚¡ãƒ³ã‚¯ã‚·ãƒ§ãƒ³ã‚­ãƒ¼ãŒè©²å½“ã™ã‚‹         
         internal override byte[] SequenceKeyData(Keys modifier, Keys body) {
             if ((int)Keys.F1 <= (int)body && (int)body <= (int)Keys.F12) {
                 byte[] r = new byte[5];
@@ -651,7 +651,7 @@ namespace Poderosa.Terminal {
                 r[1] = (byte)'[';
                 int n = (int)body - (int)Keys.F1;
                 if ((modifier & Keys.Shift) != Keys.None)
-                    n += 10; //shift‚Í’l‚ğ10‚¸‚ç‚·
+                    n += 10; //shiftã¯å€¤ã‚’10ãšã‚‰ã™
                 char tail;
                 if (n >= 20)
                     tail = (modifier & Keys.Control) != Keys.None ? '@' : '$';

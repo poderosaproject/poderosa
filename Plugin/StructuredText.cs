@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,12 +11,12 @@ using System.IO;
 using System.Collections;
 
 /*
-    [SPEC] İ’è‚ÌŠî–{Œ´‘¥
-    ‘S‘Ì‚ÍƒcƒŠ[‚ğ\¬‚µAƒfƒŠƒ~ƒ^‚Í . B
-    ‹É—ÍƒfƒtƒHƒ‹ƒg’l‚ğg‚¤B‚»‚¤‚·‚ê‚Îƒtƒ@ƒCƒ‹‚Ìƒp[ƒXŠÔ‚ğ’Zk‚Å‚«‚éB
-    name-value‚Í“¯ˆê–¼‚Ì‘¶İ‹–‚³‚¸B‚±‚ê‚ÍXMLŒ`®‚Æ‚Ì®‡«‚Ì‚½‚ß
+    [SPEC] è¨­å®šã®åŸºæœ¬åŸå‰‡
+    å…¨ä½“ã¯ãƒ„ãƒªãƒ¼ã‚’æ§‹æˆã—ã€ãƒ‡ãƒªãƒŸã‚¿ã¯ . ã€‚
+    æ¥µåŠ›ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤ã‚’ä½¿ã†ã€‚ãã†ã™ã‚Œã°ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‘ãƒ¼ã‚¹æ™‚é–“ã‚’çŸ­ç¸®ã§ãã‚‹ã€‚
+    name-valueã¯åŒä¸€åã®å­˜åœ¨è¨±ã•ãšã€‚ã“ã‚Œã¯XMLå½¢å¼ã¨ã®æ•´åˆæ€§ã®ãŸã‚
 
-    ‚Ü‚ ƒjƒZXML‚Å‚·‚æ‚±‚ê‚ÍBƒp[ƒX‚ª‘‚¢‚¾‚¯‚ÅB
+    ã¾ã‚ãƒ‹ã‚»XMLã§ã™ã‚ˆã“ã‚Œã¯ã€‚ãƒ‘ãƒ¼ã‚¹ãŒæ—©ã„ã ã‘ã§ã€‚
 
  */
 
@@ -32,7 +32,7 @@ namespace Poderosa {
         private string _name;
         private ArrayList _children;
 
-        //ŠO•”‚©‚çƒZƒbƒg‚Å‚«‚é‘¼Aó‘Ô•ÏX‚ª‚ ‚Á‚½‚ç—§‚Âƒtƒ‰ƒO
+        //å¤–éƒ¨ã‹ã‚‰ã‚»ãƒƒãƒˆã§ãã‚‹ä»–ã€çŠ¶æ…‹å¤‰æ›´ãŒã‚ã£ãŸã‚‰ç«‹ã¤ãƒ•ãƒ©ã‚°
         private bool _dirtyFlag;
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Poderosa {
             }
         }
         // child nodes
-        //q‘·‚Ü‚Åˆê‹C‚Éì¬‚àOK
+        //å­å­«ã¾ã§ä¸€æ°—ã«ä½œæˆã‚‚OK
         public StructuredText GetOrCreateChild(string name) {
             _dirtyFlag = true;
 
@@ -191,7 +191,7 @@ namespace Poderosa {
             }
             return null;
         }
-        //TODO À‚Í‚±‚Ì–ß‚è‚ğ‚Ü‚½ƒRƒŒƒNƒVƒ‡ƒ“‚ÉƒRƒs[‚·‚é‚±‚Æ‚ª‚æ‚­‚ ‚éB‚Ş‚¾‚¾
+        //TODO å®Ÿã¯ã“ã®æˆ»ã‚Šã‚’ã¾ãŸã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã«ã‚³ãƒ”ãƒ¼ã™ã‚‹ã“ã¨ãŒã‚ˆãã‚ã‚‹ã€‚ã‚€ã ã 
         public IList FindMultipleNote(string name) {
             ArrayList r = new ArrayList();
             foreach (object o in _children) {
@@ -206,13 +206,13 @@ namespace Poderosa {
             foreach (object o in _children) {
                 Entry e = o as Entry;
                 if (e != null && e.name == name)
-                    r.Add(e.value); //string collection•Ô‚µ‚¾‚æ
+                    r.Add(e.value); //string collectionè¿”ã—ã ã‚ˆ
             }
             return r;
         }
 
         /// <summary>
-        /// ƒfƒB[ƒvƒRƒs[‚·‚é‚ªAe‚©‚ç‚ÍØ‚è—£‚³‚ê‚é
+        /// ãƒ‡ã‚£ãƒ¼ãƒ—ã‚³ãƒ”ãƒ¼ã™ã‚‹ãŒã€è¦ªã‹ã‚‰ã¯åˆ‡ã‚Šé›¢ã•ã‚Œã‚‹
         /// </summary>
         public object Clone() {
             StructuredText np = new StructuredText(null, _name);
@@ -290,7 +290,7 @@ namespace Poderosa {
                 string name = line.Substring(0, line.IndexOf(' '));
                 _current = _current == null ? new StructuredText(null, name) : _current.AddChild(name);
                 if (_root == null)
-                    _root = _current; //Å‰‚ÌNode‚ğƒ‹[ƒg‚Æ‚·‚é
+                    _root = _current; //æœ€åˆã®Nodeã‚’ãƒ«ãƒ¼ãƒˆã¨ã™ã‚‹
             }
             else if (line[line.Length - 1] == '}') {
                 _current = _current.Parent;

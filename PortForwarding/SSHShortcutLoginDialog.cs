@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 * Copyright (c) 2005 Poderosa Project, All Rights Reserved.
 * $Id: SSHShortcutLoginDialog.cs,v 1.3 2012/03/18 12:05:53 kzmi Exp $
 */
@@ -16,7 +16,7 @@ using Poderosa.Toolkit;
 
 namespace Poderosa.PortForwarding {
     /// <summary>
-    /// SSHShortcutLoginDialog ‚ÌŠT—v‚Ìà–¾‚Å‚·B
+    /// SSHShortcutLoginDialog ã®æ¦‚è¦ã®èª¬æ˜ã§ã™ã€‚
     /// </summary>
     internal class SSHShortcutLoginDialog : System.Windows.Forms.Form, ISocketWithTimeoutClient {
         private ChannelProfile _profile;
@@ -39,26 +39,26 @@ namespace Poderosa.PortForwarding {
         private System.Windows.Forms.Label _privateKeyLabel;
         private System.Windows.Forms.Label _passphraseLabel;
         /// <summary>
-        /// •K—v‚ÈƒfƒUƒCƒi•Ï”‚Å‚·B
+        /// å¿…è¦ãªãƒ‡ã‚¶ã‚¤ãƒŠå¤‰æ•°ã§ã™ã€‚
         /// </summary>
         private System.ComponentModel.Container components = null;
 
         public SSHShortcutLoginDialog(ChannelProfile profile) {
             //
-            // Windows ƒtƒH[ƒ€ ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Å‚·B
+            // Windows ãƒ•ã‚©ãƒ¼ãƒ  ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ã§ã™ã€‚
             //
             InitializeComponent();
             InitializeText();
 
             //
-            // TODO: InitializeComponent ŒÄ‚Ño‚µ‚ÌŒã‚ÉAƒRƒ“ƒXƒgƒ‰ƒNƒ^ ƒR[ƒh‚ğ’Ç‰Á‚µ‚Ä‚­‚¾‚³‚¢B
+            // TODO: InitializeComponent å‘¼ã³å‡ºã—ã®å¾Œã«ã€ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ ã‚³ãƒ¼ãƒ‰ã‚’è¿½åŠ ã—ã¦ãã ã•ã„ã€‚
             //
             _profile = profile;
             InitUI();
         }
 
         /// <summary>
-        /// g—p‚³‚ê‚Ä‚¢‚éƒŠƒ\[ƒX‚ÉŒãˆ—‚ğÀs‚µ‚Ü‚·B
+        /// ä½¿ç”¨ã•ã‚Œã¦ã„ã‚‹ãƒªã‚½ãƒ¼ã‚¹ã«å¾Œå‡¦ç†ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
         /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
@@ -77,8 +77,8 @@ namespace Poderosa.PortForwarding {
 
         #region Windows Form Designer generated code
         /// <summary>
-        /// ƒfƒUƒCƒi ƒTƒ|[ƒg‚É•K—v‚Èƒƒ\ƒbƒh‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Ì“à—e‚ğ
-        /// ƒR[ƒh ƒGƒfƒBƒ^‚Å•ÏX‚µ‚È‚¢‚Å‚­‚¾‚³‚¢B
+        /// ãƒ‡ã‚¶ã‚¤ãƒŠ ã‚µãƒãƒ¼ãƒˆã«å¿…è¦ãªãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®å†…å®¹ã‚’
+        /// ã‚³ãƒ¼ãƒ‰ ã‚¨ãƒ‡ã‚£ã‚¿ã§å¤‰æ›´ã—ãªã„ã§ãã ã•ã„ã€‚
         /// </summary>
         private void InitializeComponent() {
             this._privateKeyBox = new Label();
@@ -297,7 +297,7 @@ namespace Poderosa.PortForwarding {
         private void OnOK(object sender, System.EventArgs e) {
             this.DialogResult = DialogResult.None;
             if (ValidateContent() == null)
-                return;  //ƒpƒ‰ƒ[ƒ^‚ÉŒë‚è‚ª‚ ‚ê‚Î‘¦’Eo
+                return;  //ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã«èª¤ã‚ŠãŒã‚ã‚Œã°å³è„±å‡º
 
             _loginButton.Enabled = false;
             _cancelButton.Enabled = false;
@@ -310,7 +310,7 @@ namespace Poderosa.PortForwarding {
             if (_connector == null)
                 ClearConnectingState();
         }
-        //“ü—Í“à—e‚ÉŒë‚è‚ª‚ ‚ê‚Î‚»‚ê‚ğŒx‚µ‚Änull‚ğ•Ô‚·B‚È‚¯‚ê‚Î•K—v‚È‚Æ‚±‚ë‚ğ–„‚ß‚½TCPTerminalParam‚ğ•Ô‚·
+        //å…¥åŠ›å†…å®¹ã«èª¤ã‚ŠãŒã‚ã‚Œã°ãã‚Œã‚’è­¦å‘Šã—ã¦nullã‚’è¿”ã™ã€‚ãªã‘ã‚Œã°å¿…è¦ãªã¨ã“ã‚ã‚’åŸ‹ã‚ãŸTCPTerminalParamã‚’è¿”ã™
         private ChannelProfile ValidateContent() {
             string msg = null;
 
@@ -361,7 +361,7 @@ namespace Poderosa.PortForwarding {
             _connector = null;
         }
 
-        //Invoke‚Å—ˆ‚é‚à‚Ì
+        //Invokeã§æ¥ã‚‹ã‚‚ã®
         private void SuccessfullyExitX() {
             this.DialogResult = DialogResult.OK;
             Close();
@@ -374,7 +374,7 @@ namespace Poderosa.PortForwarding {
         private delegate void ExitDelegate();
         private delegate void ShowErrorDelegate(string msg);
 
-        //ISocketWithTimeoutClient ‚±‚ê‚ç‚Í‚±‚ÌƒEƒBƒ“ƒhƒE‚Æ‚Í•Ê‚ÌƒXƒŒƒbƒh‚ÅÀs‚³‚ê‚é‚Ì‚ÅTd‚É
+        //ISocketWithTimeoutClient ã“ã‚Œã‚‰ã¯ã“ã®ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã¨ã¯åˆ¥ã®ã‚¹ãƒ¬ãƒƒãƒ‰ã§å®Ÿè¡Œã•ã‚Œã‚‹ã®ã§æ…é‡ã«
         public void SuccessfullyExit(object result) {
             _result = (ChannelFactory)result;
             Debug.Assert(InvokeRequired);

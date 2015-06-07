@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -209,25 +209,25 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //Ÿ‚Ì“ü—Í‚ÉŒq‚°‚é‚½‚ß‚Ìó‘Ô
+        //æ¬¡ã®å…¥åŠ›ã«ç¹‹ã’ã‚‹ãŸã‚ã®çŠ¶æ…‹
         private enum State {
-            Normal, //•W€
-            ESC,    //ESC‚ª—ˆ‚½‚Æ‚±‚ë
-            ESC_DOLLAR,    //ESC $‚ª—ˆ‚½‚Æ‚±‚ë
-            ESC_BRACKET,   //ESC (‚ª—ˆ‚½‚Æ‚±‚ë
-            ESC_ENDBRACKET,   //ESC )‚ª—ˆ‚½‚Æ‚±‚ë
-            ESC_DOLLAR_BRACKET,   //ESC $ (‚ª—ˆ‚½‚Æ‚±‚ë
-            ESC_DOLLAR_ENDBRACKET    //ESC $ )‚ª—ˆ‚½‚Æ‚±‚ë
+            Normal, //æ¨™æº–
+            ESC,    //ESCãŒæ¥ãŸã¨ã“ã‚
+            ESC_DOLLAR,    //ESC $ãŒæ¥ãŸã¨ã“ã‚
+            ESC_BRACKET,   //ESC (ãŒæ¥ãŸã¨ã“ã‚
+            ESC_ENDBRACKET,   //ESC )ãŒæ¥ãŸã¨ã“ã‚
+            ESC_DOLLAR_BRACKET,   //ESC $ (ãŒæ¥ãŸã¨ã“ã‚
+            ESC_DOLLAR_ENDBRACKET    //ESC $ )ãŒæ¥ãŸã¨ã“ã‚
         }
         private State _state;
 
         private EscapeSequenceBuffer _escseq;
 
-        //MBCS‚Ìó‘ÔŠÇ—
+        //MBCSã®çŠ¶æ…‹ç®¡ç†
         private EncodingProfile _encoding;
 
 
-        //•¶š‚ğˆ—‚·‚éƒ^[ƒ~ƒiƒ‹
+        //æ–‡å­—ã‚’å‡¦ç†ã™ã‚‹ã‚¿ãƒ¼ãƒŸãƒŠãƒ«
         private ICharProcessor _processor;
 
         public ISO2022CharDecoder(ICharProcessor processor, EncodingProfile enc) {
@@ -251,7 +251,7 @@ namespace Poderosa.Terminal {
 
 
         private IByteProcessor _currentByteProcessor;
-        private IByteProcessor _G0ByteProcessor; //iso2022‚ÌG0,G1
+        private IByteProcessor _G0ByteProcessor; //iso2022ã®G0,G1
         private IByteProcessor _G1ByteProcessor;
 
         private ASCIIByteProcessor _asciiByteProcessor;
@@ -288,7 +288,7 @@ namespace Poderosa.Terminal {
         }
 
         public void OnReception(ByteDataFragment data) {
-            //ˆ—–{‘Ì
+            //å‡¦ç†æœ¬ä½“
             byte[] t = data.Buffer;
             int last = data.Offset + data.Length;
             int offset = data.Offset;
@@ -339,7 +339,7 @@ namespace Poderosa.Terminal {
                                 ChangeProcessor(_G0ByteProcessor);
                                 _state = State.Normal;
                             }
-                            else if (b == (byte)'B' || b == (byte)'J' || b == (byte)'~') { //!!less‚Åssh2architecture.txt‚ğŒ©‚Ä‚¢‚½‚ç—ˆ‚½BÚ×‚Í‚Ü‚¾’²‚×‚Ä‚¢‚È‚¢B
+                            else if (b == (byte)'B' || b == (byte)'J' || b == (byte)'~') { //!!lessã§ssh2architecture.txtã‚’è¦‹ã¦ã„ãŸã‚‰æ¥ãŸã€‚è©³ç´°ã¯ã¾ã èª¿ã¹ã¦ã„ãªã„ã€‚
                                 _G0ByteProcessor = _asciiByteProcessor;
                                 ChangeProcessor(_G0ByteProcessor);
                                 _state = State.Normal;
@@ -356,7 +356,7 @@ namespace Poderosa.Terminal {
                                 _G1ByteProcessor = GetDECLineByteProcessor();
                                 _state = State.Normal;
                             }
-                            else if (b == (byte)'B' || b == (byte)'J' || b == (byte)'~') { //!!less‚Åssh2architecture.txt‚ğŒ©‚Ä‚¢‚½‚ç—ˆ‚½BÚ×‚Í‚Ü‚¾’²‚×‚Ä‚¢‚È‚¢B
+                            else if (b == (byte)'B' || b == (byte)'J' || b == (byte)'~') { //!!lessã§ssh2architecture.txtã‚’è¦‹ã¦ã„ãŸã‚‰æ¥ãŸã€‚è©³ç´°ã¯ã¾ã èª¿ã¹ã¦ã„ãªã„ã€‚
                                 _G1ByteProcessor = _asciiByteProcessor;
                                 _state = State.Normal;
                             }
@@ -425,7 +425,7 @@ namespace Poderosa.Terminal {
         }
 
         private void ChangeProcessor(IByteProcessor newprocessor) {
-            //Šù‘¶‚Ì‚â‚Â‚ª‚ ‚ê‚ÎƒŠƒZƒbƒg
+            //æ—¢å­˜ã®ã‚„ã¤ãŒã‚ã‚Œã°ãƒªã‚»ãƒƒãƒˆ
             if (_currentByteProcessor != null) {
                 _currentByteProcessor.Flush();
             }

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@ using Poderosa.Boot;
 namespace Poderosa {
     /// <summary>
     /// <ja>
-    /// •W€“I‚È¬Œ÷^¸”s‚ğ¦‚µ‚Ü‚·B
+    /// æ¨™æº–çš„ãªæˆåŠŸï¼å¤±æ•—ã‚’ç¤ºã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// A standard success/failure is shown. 
@@ -35,18 +35,18 @@ namespace Poderosa {
     /// </summary>
     public enum GenericResult {
         /// <summary>
-        /// <ja>¬Œ÷‚µ‚Ü‚µ‚½</ja>
+        /// <ja>æˆåŠŸã—ã¾ã—ãŸ</ja>
         /// <en>Succeeded</en>
         /// </summary>
         Succeeded,
         /// <summary>
-        /// <ja>¸”s‚µ‚Ü‚µ‚½</ja>
+        /// <ja>å¤±æ•—ã—ã¾ã—ãŸ</ja>
         /// <en>Failed</en>
         /// </summary>
         Failed
     }
 
-    //Debug.WriteLineIf‚ ‚½‚è‚Åg—p
+    //Debug.WriteLineIfã‚ãŸã‚Šã§ä½¿ç”¨
     /// <summary>
     /// 
     /// </summary>
@@ -97,9 +97,9 @@ namespace Poderosa {
 
             string errorfile = ReportExceptionToFile(ex);
 
-            //ƒƒbƒZ[ƒWƒ{ƒbƒNƒX‚Å’Ê’mB
-            //‚¾‚ª‚±‚Ì’†‚Å—áŠO‚ª”­¶‚·‚é‚±‚Æ‚ªSP1‚Å‚Í‚ ‚é‚ç‚µ‚¢B‚µ‚©‚à‚»‚¤‚È‚é‚ÆƒAƒvƒŠ‚ª‹­§I—¹‚¾B
-            //Win32‚ÌƒƒbƒZ[ƒWƒ{ƒbƒNƒX‚ğo‚µ‚Ä‚à“¯‚¶BƒXƒe[ƒ^ƒXƒo[‚È‚ç‘åä•v‚Ì‚æ‚¤‚¾
+            //ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã§é€šçŸ¥ã€‚
+            //ã ãŒã“ã®ä¸­ã§ä¾‹å¤–ãŒç™ºç”Ÿã™ã‚‹ã“ã¨ãŒSP1ã§ã¯ã‚ã‚‹ã‚‰ã—ã„ã€‚ã—ã‹ã‚‚ãã†ãªã‚‹ã¨ã‚¢ãƒ—ãƒªãŒå¼·åˆ¶çµ‚äº†ã ã€‚
+            //Win32ã®ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒœãƒƒã‚¯ã‚¹ã‚’å‡ºã—ã¦ã‚‚åŒã˜ã€‚ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒãƒ¼ãªã‚‰å¤§ä¸ˆå¤«ã®ã‚ˆã†ã 
             try {
                 string msg = String.Format(InternalPoderosaWorld.Strings.GetString("Message.Util.InternalError"), errorfile, ex.Message);
                 MessageBox.Show(msg, "Poderosa", MessageBoxButtons.OK, MessageBoxIcon.Stop);
@@ -118,10 +118,10 @@ namespace Poderosa {
             Debug.WriteLine(ex.Message);
             Debug.WriteLine(ex.StackTrace);
         }
-        //ƒtƒ@ƒCƒ‹–¼‚ğ•Ô‚·
+        //ãƒ•ã‚¡ã‚¤ãƒ«åã‚’è¿”ã™
         private static string ReportExceptionToFile(Exception ex) {
             string errorfile = null;
-            //ƒGƒ‰[ƒtƒ@ƒCƒ‹‚É’Ç‹L
+            //ã‚¨ãƒ©ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«ã«è¿½è¨˜
             StreamWriter sw = null;
             try {
                 sw = GetErrorLog(ref errorfile);
@@ -137,7 +137,7 @@ namespace Poderosa {
             sw.WriteLine(DateTime.Now.ToString());
             sw.WriteLine(ex.Message);
             sw.WriteLine(ex.StackTrace);
-            //inner exception‚ğ‡Ÿ
+            //inner exceptionã‚’é †æ¬¡
             Exception i = ex.InnerException;
             while (i != null) {
                 sw.WriteLine("[inner] " + i.Message);
@@ -155,7 +155,7 @@ namespace Poderosa {
                 return new Font(name, size);
             }
             catch (ArithmeticException) {
-                //JSPager‚ÌŒ‚Å‘Î‰Bmsvcr71‚ªƒ[ƒh‚Å‚«‚È‚¢ŠÂ‹«‚à‚ ‚é‚©‚à‚µ‚ê‚È‚¢‚Ì‚Å—áŠO‚ğ‚à‚ç‚Á‚Ä‚Í‚¶‚ß‚ÄŒÄ‚Ô‚æ‚¤‚É‚·‚é
+                //JSPagerã®ä»¶ã§å¯¾å¿œã€‚msvcr71ãŒãƒ­ãƒ¼ãƒ‰ã§ããªã„ç’°å¢ƒã‚‚ã‚ã‚‹ã‹ã‚‚ã—ã‚Œãªã„ã®ã§ä¾‹å¤–ã‚’ã‚‚ã‚‰ã£ã¦ã¯ã˜ã‚ã¦å‘¼ã¶ã‚ˆã†ã«ã™ã‚‹
                 Win32.ClearFPUOverflowFlag();
                 return new Font(name, size);
             }
@@ -171,7 +171,7 @@ namespace Poderosa {
             return bld.ToString();
         }
 
-        //min–¢–‚Ímin, maxˆÈã‚ÍmaxA‚»‚êˆÈŠO‚Ívalue‚ğ•Ô‚·
+        //minæœªæº€ã¯min, maxä»¥ä¸Šã¯maxã€ãã‚Œä»¥å¤–ã¯valueã‚’è¿”ã™
         public static int AdjustIntRange(int value, int min, int max) {
             Debug.Assert(min <= max);
             if (value < min)
@@ -242,7 +242,7 @@ namespace Poderosa {
             if (t == null || t.Length == 0)
                 return defaultvalue;
             else {
-                if (t.Length == 8) { //16i‚Å•Û‘¶‚³‚ê‚Ä‚¢‚é‚±‚Æ‚à‚ ‚éB‹‡—]‚Ìô‚Å‚±‚Ì‚æ‚¤‚É
+                if (t.Length == 8) { //16é€²ã§ä¿å­˜ã•ã‚Œã¦ã„ã‚‹ã“ã¨ã‚‚ã‚ã‚‹ã€‚çª®ä½™ã®ç­–ã§ã“ã®ã‚ˆã†ã«
                     int v;
                     if (Int32.TryParse(t, System.Globalization.NumberStyles.HexNumber, null, out v))
                         return Color.FromArgb(v);
@@ -250,10 +250,10 @@ namespace Poderosa {
                 else if (t.Length == 6) {
                     int v;
                     if (Int32.TryParse(t, System.Globalization.NumberStyles.HexNumber, null, out v))
-                        return Color.FromArgb((int)((uint)v | 0xFF000000)); //'A'—v‘f‚Í0xFF‚É
+                        return Color.FromArgb((int)((uint)v | 0xFF000000)); //'A'è¦ç´ ã¯0xFFã«
                 }
                 Color c = Color.FromName(t);
-                return c.ToArgb() == 0 ? defaultvalue : c; //‚Ö‚ñ‚È–¼‘O‚¾‚Á‚½‚Æ‚«AARGB‚Í‘S•”0‚É‚È‚é‚ªAIsEmpty‚ÍfalseB‚È‚Ì‚Å‚±‚ê‚Å”»’è‚·‚é‚µ‚©‚È‚¢
+                return c.ToArgb() == 0 ? defaultvalue : c; //ã¸ã‚“ãªåå‰ã ã£ãŸã¨ãã€ARGBã¯å…¨éƒ¨0ã«ãªã‚‹ãŒã€IsEmptyã¯falseã€‚ãªã®ã§ã“ã‚Œã§åˆ¤å®šã™ã‚‹ã—ã‹ãªã„
             }
         }
 
@@ -283,7 +283,7 @@ namespace Poderosa {
             }
         }
 
-        //TODO Generics‰»
+        //TODO GenericsåŒ–
         public static ValueType ParseMultipleEnum(Type enumtype, string t, ValueType defaultvalue) {
             try {
                 int r = 0;
@@ -309,7 +309,7 @@ namespace Poderosa {
             Trace(String.Format(fmt, args));
         }
 
-        //configuration file‚©‚çƒ[ƒh Œ»İ‚ÍPoderosa.Monolithic.configƒtƒ@ƒCƒ‹‚ğ‰¼’è
+        //configuration fileã‹ã‚‰ãƒ­ãƒ¼ãƒ‰ ç¾åœ¨ã¯Poderosa.Monolithic.configãƒ•ã‚¡ã‚¤ãƒ«ã‚’ä»®å®š
         public static string GetUnitTestConfig(string entry_name) {
             string r = ConfigurationManager.AppSettings[entry_name];
             if (r == null)
@@ -327,44 +327,44 @@ namespace Poderosa {
 
     [TestFixture]
     public class RuntimeUtilTests {
-        [Test] //‚²‚­‚Ó‚Â‚¤‚ÌƒP[ƒX
+        [Test] //ã”ããµã¤ã†ã®ã‚±ãƒ¼ã‚¹
         public void ParseColor1() {
             Color c1 = Color.Red;
             Color c2 = ParseUtil.ParseColor("Red", Color.White);
             Assert.AreEqual(c1, c2);
         }
-        [Test] //hex 8ƒPƒ^‚ÌARGB
+        [Test] //hex 8ã‚±ã‚¿ã®ARGB
         public void ParseColor2() {
             Color c1 = Color.FromArgb(10, 20, 30);
             Color c2 = ParseUtil.ParseColor("FF0A141E", Color.White);
             Assert.AreEqual(c1, c2);
         }
-        [Test] //hex 6ƒPƒ^‚ÌRGB
+        [Test] //hex 6ã‚±ã‚¿ã®RGB
         public void ParseColor3() {
             Color c1 = Color.FromArgb(10, 20, 30);
             Color c2 = ParseUtil.ParseColor("0A141E", Color.White);
             Assert.AreEqual(c1, c2);
         }
-        [Test] //KnownColor‚Å‚àOK
+        [Test] //KnownColorã§ã‚‚OK
         public void ParseColor4() {
             Color c1 = Color.FromKnownColor(KnownColor.WindowText);
             Color c2 = ParseUtil.ParseColor("WindowText", Color.White);
             Assert.AreEqual(c1, c2);
         }
-        [Test] //ARGB‚Íˆê’v‚Å‚àColor‚Ì”äŠr‚Æ‚µ‚Ä‚Í•sˆê’v
+        [Test] //ARGBã¯ä¸€è‡´ã§ã‚‚Colorã®æ¯”è¼ƒã¨ã—ã¦ã¯ä¸ä¸€è‡´
         public void ParseColor5() {
             Color c1 = Color.Blue;
             Color c2 = ParseUtil.ParseColor("0000FF", Color.White);
             Assert.AreNotEqual(c1, c2);
             Assert.AreEqual(c1.ToArgb(), c2.ToArgb());
         }
-        [Test]@//’m‚ç‚È‚¢–¼‘O‚Íƒ‰ƒXƒg‚Ìˆø”‚Æˆê’v
+        [Test]ã€€//çŸ¥ã‚‰ãªã„åå‰ã¯ãƒ©ã‚¹ãƒˆã®å¼•æ•°ã¨ä¸€è‡´
         public void ParseColor6() {
             Color c1 = Color.White;
-            Color c2 = ParseUtil.ParseColor("asdfghj", Color.White); //ƒp[ƒX‚Å‚«‚È‚¢ê‡
+            Color c2 = ParseUtil.ParseColor("asdfghj", Color.White); //ãƒ‘ãƒ¼ã‚¹ã§ããªã„å ´åˆ
             Assert.AreEqual(c1, c2);
         }
-        [Test] //‚Â‚¢‚Å‚È‚Ì‚Åd—lŠm”F ToString()‚Å‚Í‚¾‚ß‚Å‚·‚æ
+        [Test] //ã¤ã„ã§ãªã®ã§ä»•æ§˜ç¢ºèª ToString()ã§ã¯ã ã‚ã§ã™ã‚ˆ
         public void ColorToString() {
             Color c1 = Color.Red;
             Color c2 = Color.FromName("Red");

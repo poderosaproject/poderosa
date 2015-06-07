@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,9 +29,9 @@ namespace Poderosa.Forms {
             _parent = parent;
             _initialLocationInfo = location_info;
 
-            //this.Height = 25; //“KØ‚ÈƒTƒCƒY‚ğŒˆ‚ß‚é•û–@‚ª‚í‚©‚ç‚È‚¢
+            //this.Height = 25; //é©åˆ‡ãªã‚µã‚¤ã‚ºã‚’æ±ºã‚ã‚‹æ–¹æ³•ãŒã‚ã‹ã‚‰ãªã„
             this.Dock = DockStyle.Fill;
-            //¶‰E‚É“ü‚ê‚é‚Ì‚ÍŒ©‹ê‚µ‚¢B‚â‚ß‚éB
+            //å·¦å³ã«å…¥ã‚Œã‚‹ã®ã¯è¦‹è‹¦ã—ã„ã€‚ã‚„ã‚ã‚‹ã€‚
             this.LeftToolStripPanelVisible = false;
             this.RightToolStripPanelVisible = false;
             this.BottomToolStripPanelVisible = false;
@@ -48,14 +48,14 @@ namespace Poderosa.Forms {
             this.TopToolStripPanel.Size = new Size(TryParseInt(locations, 0), TryParseInt(locations, 1));
             int index = 1;
             foreach (IToolBarComponent comp in PositionDesignationSorter.SortItems(components)) {
-                //Location‚Ì”»’è
+                //Locationã®åˆ¤å®š
                 Point pt = new Point(TryParseInt(locations, index * 2), TryParseInt(locations, index * 2 + 1));
                 CreateToolBarComponent(comp, pt);
                 index++;
             }
         }
 
-        //ˆÊ’uw’è‚ÍƒtƒH[ƒ€‚ÌOnLoadŒã‚É‚â‚ç‚È‚­‚¿‚á‚¢‚©‚ñ‚Ì‚©B‚ß‚ñ‚Ç‚¤‚¾‚È
+        //ä½ç½®æŒ‡å®šã¯ãƒ•ã‚©ãƒ¼ãƒ ã®OnLoadå¾Œã«ã‚„ã‚‰ãªãã¡ã‚ƒã„ã‹ã‚“ã®ã‹ã€‚ã‚ã‚“ã©ã†ã ãª
         public void RestoreLayout() {
             ICommandTarget target = (ICommandTarget)_parent.GetAdapter(typeof(ICommandTarget));
 
@@ -64,9 +64,9 @@ namespace Poderosa.Forms {
             panel.SuspendLayout();
             bool location_available = _initialLocationInfo.Length > 0;
 
-            //ToolStripPanel‚Ö‚Ì’Ç‰Á‚Í‚©‚È‚è•s‰Âv‹cB
-            //BeginInit‚âSuspendLayout‚ğŒÄ‚Ô‚©‚Ç‚¤‚©‚Å‚à‘Š“–—lq‚ªˆá‚¤B
-            //‚È‚Ì‚Å‚â‚â‚¢‚¢‰ÁŒ¸‚¾‚ªA‰‰ñ‹N“®‚È‚ÇˆÊ’uî•ñ‚ª‚È‚¢‚Æ‚«‚ÍControls.AddRange‚ÅˆêŠ‡“o˜^‚Å.NET‚É”C‚¹A‚»‚êˆÈ~‚ÍˆÊ’uw’è‚Æ‚¢‚¤•ûj‚Å‚¢‚­
+            //ToolStripPanelã¸ã®è¿½åŠ ã¯ã‹ãªã‚Šä¸å¯æ€è­°ã€‚
+            //BeginInitã‚„SuspendLayoutã‚’å‘¼ã¶ã‹ã©ã†ã‹ã§ã‚‚ç›¸å½“æ§˜å­ãŒé•ã†ã€‚
+            //ãªã®ã§ã‚„ã‚„ã„ã„åŠ æ¸›ã ãŒã€åˆå›èµ·å‹•æ™‚ãªã©ä½ç½®æƒ…å ±ãŒãªã„ã¨ãã¯Controls.AddRangeã§ä¸€æ‹¬ç™»éŒ²ã§.NETã«ä»»ã›ã€ãã‚Œä»¥é™ã¯ä½ç½®æŒ‡å®šã¨ã„ã†æ–¹é‡ã§ã„ã
 
             if (!location_available)
                 panel.Controls.AddRange(_toolStrips.ToArray());
@@ -89,17 +89,17 @@ namespace Poderosa.Forms {
             this.TopToolStripPanelVisible = pref.ShowsToolBar;
         }
         public void Reload() {
-            //–{“–‚Í‘S•”\’z‚·‚×‚«
+            //æœ¬å½“ã¯å…¨éƒ¨æ§‹ç¯‰ã™ã¹ã
             RefreshAll();
         }
 
-        //Œ»İ‚ÍTopŒÀ’è
+        //ç¾åœ¨ã¯Topé™å®š
         private ControlCollection GetContents() {
             return this.TopToolStripPanel.Controls;
         }
 
         private void CreateToolBarComponent(IToolBarComponent comp, Point pt) {
-            //‚±‚Ì’†‚ÅIToolBar‚ÌŠeƒƒ\ƒbƒh‚ªŒÄ‚Î‚êAƒ‚ƒƒ‚ƒ‚Ì“o˜^‚ªs‚í‚ê‚é
+            //ã“ã®ä¸­ã§IToolBarã®å„ãƒ¡ã‚½ãƒƒãƒ‰ãŒå‘¼ã°ã‚Œã€ãƒ¢ãƒ­ãƒ¢ãƒ­ã®ç™»éŒ²ãŒè¡Œã‚ã‚Œã‚‹
             _currentToolStrip = new ToolStrip();
             IToolBarElement[] elements = comp.ToolBarElements;
             foreach (IToolBarElement e in elements) {
@@ -150,7 +150,7 @@ namespace Poderosa.Forms {
         private void DefineComboBox(IToolBarComponent comp, IToolBarComboBox element) {
             ToolStripComboBox cb = new ToolStripComboBox();
             cb.Items.AddRange(element.Items);
-            cb.Size = new Size(element.Width, cb.Height); //Width‚ğ’¼Úİ’è‚µ‚Ä‚à‚¢‚©‚ñ‚ç‚µ‚¢B‚È‚ñ‚¶‚á‚¢‚È
+            cb.Size = new Size(element.Width, cb.Height); //Widthã‚’ç›´æ¥è¨­å®šã—ã¦ã‚‚ã„ã‹ã‚“ã‚‰ã—ã„ã€‚ãªã‚“ã˜ã‚ƒã„ãª
             cb.DropDownStyle = ComboBoxStyle.DropDownList;
             ComboBoxTag tag = new ComboBoxTag(GetCommandTarget(), comp, element);
             cb.Tag = tag;
@@ -173,11 +173,11 @@ namespace Poderosa.Forms {
         }
 
         #region IToolBar
-        //UI‚ÌAdjustment
+        //UIã®Adjustment
         public void RefreshComponent(IToolBarComponent component) {
             ICommandTarget target = (ICommandTarget)_parent.GetAdapter(typeof(ICommandTarget));
             foreach (ToolStrip st in GetContents()) {
-                //TODO ƒ^ƒO‚ÌŠÖ˜A•t‚¯H•v‚Å‚«‚é
+                //TODO ã‚¿ã‚°ã®é–¢é€£ä»˜ã‘å·¥å¤«ã§ãã‚‹
                 foreach (ToolStripItem c in st.Items) {
                     ControlTagBase tag = c.Tag as ControlTagBase;
                     if (tag != null && tag.OwnerComponent == component) {
@@ -204,7 +204,7 @@ namespace Poderosa.Forms {
         }
         public string FormatLocations() {
             StringBuilder bld = new StringBuilder();
-            //Å‰‚ÍƒTƒCƒY
+            //æœ€åˆã¯ã‚µã‚¤ã‚º
             bld.Append(this.TopToolStripPanel.Width.ToString());
             bld.Append(',');
             bld.Append(this.TopToolStripPanel.Height.ToString());
@@ -251,7 +251,7 @@ namespace Poderosa.Forms {
                 return ParseUtil.ParseInt(values[index], 0);
         }
 
-        //UI‰Šú‰»
+        //UIåˆæœŸåŒ–
         protected override void OnCreateControl() {
             base.OnCreateControl();
             this.RefreshAll();
@@ -300,7 +300,7 @@ namespace Poderosa.Forms {
                 : base(owner) {
                 _target = target;
                 _associatedCommand = command;
-                _generalCommand = (IGeneralCommand)command.GetAdapter(typeof(IGeneralCommand)); //æ“¾‚Å‚«‚È‚«‚ánull
+                _generalCommand = (IGeneralCommand)command.GetAdapter(typeof(IGeneralCommand)); //å–å¾—ã§ããªãã‚ƒnull
             }
 
             public IPoderosaCommand AssociatedCommand {
@@ -345,7 +345,7 @@ namespace Poderosa.Forms {
                     ToolStripComboBox combobox = (ToolStripComboBox)combobox_;
                     combobox.Enabled = _handler.IsEnabled(_target);
                     combobox.Items.Clear();
-                    combobox.Items.AddRange(_handler.Items); //TODO €–Ú”‰Â•Ï‚©‚Ç‚¤‚©‚ğhandler‚Éq‚Ë‚é‚æ‚¤‚É‚à‚Å‚«‚é
+                    combobox.Items.AddRange(_handler.Items); //TODO é …ç›®æ•°å¯å¤‰ã‹ã©ã†ã‹ã‚’handlerã«å°‹ã­ã‚‹ã‚ˆã†ã«ã‚‚ã§ãã‚‹
                     if (combobox.Enabled)
                         combobox.SelectedIndex = _handler.GetSelectedIndex(_target);
                     else
@@ -356,7 +356,7 @@ namespace Poderosa.Forms {
                 }
             }
 
-            //NOTE ‰¼‚ÉOnChange‚©‚çRefresh‚·‚éƒnƒ“ƒhƒ‰‚ª‚¢‚Ä‚àA‚±‚Ì‚ ‚½‚è‚ÌƒR[ƒh‚ğ’Ê‚é‚Ì‚ÅÄ‹A–h‚®
+            //NOTE ä»®ã«OnChangeã‹ã‚‰Refreshã™ã‚‹ãƒãƒ³ãƒ‰ãƒ©ãŒã„ã¦ã‚‚ã€ã“ã®ã‚ãŸã‚Šã®ã‚³ãƒ¼ãƒ‰ã‚’é€šã‚‹ã®ã§å†å¸°é˜²ã
             public void OnSelectedIndexChanged(object sender, EventArgs args) {
                 if (_eventHandlerGuard)
                     return;
@@ -365,7 +365,7 @@ namespace Poderosa.Forms {
 
                 try {
                     _eventHandlerGuard = true;
-                    if (cb.Enabled) //ˆê‰ƒK[ƒh
+                    if (cb.Enabled) //ä¸€å¿œã‚¬ãƒ¼ãƒ‰
                         _handler.OnChange(_target, cb.SelectedIndex, cb.SelectedItem);
                 }
                 catch (Exception ex) {
@@ -392,7 +392,7 @@ namespace Poderosa.Forms {
                 Debug.Assert(button_.Tag == this);
                 ToolStripButton button = (ToolStripButton)button_;
                 button.Enabled = _handler.IsEnabled(_target);
-                button.Checked = button.Enabled && _handler.IsChecked(_target); //enabled‚Íchecked‚Ì‚½‚ß‚Ì•K—vğŒ
+                button.Checked = button.Enabled && _handler.IsChecked(_target); //enabledã¯checkedã®ãŸã‚ã®å¿…è¦æ¡ä»¶
                 button.ToolTipText = _handler.ToolTipText;
             }
 
@@ -406,7 +406,7 @@ namespace Poderosa.Forms {
                     bool value = tb.Checked;
                     _eventHandlerGuard = true;
                     tb.Checked = !value;
-                    _handler.OnChange(_target, !value); //”½“]’l‚ğƒZƒbƒg
+                    _handler.OnChange(_target, !value); //åè»¢å€¤ã‚’ã‚»ãƒƒãƒˆ
                 }
                 catch (Exception ex) {
                     RuntimeUtil.ReportException(ex);

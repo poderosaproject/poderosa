@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright 2004,2006 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@ namespace Poderosa.Plugins {
 
     /// <summary>
     /// <ja>
-    /// ƒvƒ‰ƒOƒCƒ“‚Ì‘®«‚ğİ’è‚µ‚Ü‚·B
+    /// ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®å±æ€§ã‚’è¨­å®šã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// Set the attribute of the plug-in
@@ -21,7 +21,7 @@ namespace Poderosa.Plugins {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ‚·‚×‚Ä‚Ìƒvƒ‰ƒOƒCƒ“‚ÍAPluginInfoAttribute‘®«‚ğ”õ‚¦‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+    /// ã™ã¹ã¦ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã¯ã€PluginInfoAttributeå±æ€§ã‚’å‚™ãˆãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
     /// </ja>
     /// <en>
     /// All plug-ins must have the PluginInfoAttribute attribute.
@@ -30,15 +30,15 @@ namespace Poderosa.Plugins {
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public class PluginInfoAttribute : Attribute {
         /// <summary>
-        /// <ja>ƒvƒ‰ƒOƒCƒ“‚Ì¯•Êq‚Æ‚È‚éuƒvƒ‰ƒOƒCƒ“IDv‚Å‚·B•K{‚Å‚·B</ja>
+        /// <ja>ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®è­˜åˆ¥å­ã¨ãªã‚‹ã€Œãƒ—ãƒ©ã‚°ã‚¤ãƒ³IDã€ã§ã™ã€‚å¿…é ˆã§ã™ã€‚</ja>
         /// <en>REQUIRED:Plug-in that identifies the plug-in.</en>
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ‚·‚×‚Ä‚Ìƒvƒ‰ƒOƒCƒ“‚Å—Bˆê–³“ñ‚Ì‚à‚Ì‚ğw’è‚·‚é•K—v‚ª‚ ‚è‚Ü‚·B
-        /// ¯•Êq‚ÍAJava‚ÌƒpƒbƒP[ƒW•W€‚É€‚¶‚½•û®‚Å¯•Ê‚³‚ê‚Ü‚·B
-        /// ŠJ”­Ò‚ª•Û—L‚·‚éƒhƒƒCƒ“–¼‚ª‚ ‚é‚È‚ç‚ÎA‚»‚ê‚ÉŠî‚Ã‚¢‚Äƒvƒ‰ƒOƒCƒ“ID‚ğ’è‚ß‚Ä‚­‚¾‚³‚¢i‚½‚Æ‚¦‚ÎAujp.co.example.”CˆÓ–¼v‚È‚Çj B
-        /// Poderosa•W€‚Ìƒvƒ‰ƒOƒCƒ“‚ÌID‘®«‚Å‚ÍAuorg.poderosav‚ªg‚í‚ê‚Ä‚¢‚Ü‚·BŠJ”­Ò‚ª“Æ©‚Ìƒvƒ‰ƒOƒCƒ“‚ğì¬‚·‚éÛ‚É‚ÍAuorg.poderosavˆÈ‰º‚ÌID’l‚ğ•t‚¯‚Ä‚Í‚¢‚¯‚Ü‚¹‚ñBuorg.poderosavˆÈ‰º‚ÌID’l‚ğ•t‚¯‚éê‡‚É‚ÍAPoderosaŠJ”­ÒƒRƒ~ƒ…ƒjƒeƒB‚Å‚Ì³”F‚ğ—v‚µ‚Ü‚·B 
+        /// ã™ã¹ã¦ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã§å”¯ä¸€ç„¡äºŒã®ã‚‚ã®ã‚’æŒ‡å®šã™ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™ã€‚
+        /// è­˜åˆ¥å­ã¯ã€Javaã®ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸æ¨™æº–ã«æº–ã˜ãŸæ–¹å¼ã§è­˜åˆ¥ã•ã‚Œã¾ã™ã€‚
+        /// é–‹ç™ºè€…ãŒä¿æœ‰ã™ã‚‹ãƒ‰ãƒ¡ã‚¤ãƒ³åãŒã‚ã‚‹ãªã‚‰ã°ã€ãã‚Œã«åŸºã¥ã„ã¦ãƒ—ãƒ©ã‚°ã‚¤ãƒ³IDã‚’å®šã‚ã¦ãã ã•ã„ï¼ˆãŸã¨ãˆã°ã€ã€Œjp.co.example.ä»»æ„åã€ãªã©ï¼‰ ã€‚
+        /// Poderosaæ¨™æº–ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®IDå±æ€§ã§ã¯ã€ã€Œorg.poderosaã€ãŒä½¿ã‚ã‚Œã¦ã„ã¾ã™ã€‚é–‹ç™ºè€…ãŒç‹¬è‡ªã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’ä½œæˆã™ã‚‹éš›ã«ã¯ã€ã€Œorg.poderosaã€ä»¥ä¸‹ã®IDå€¤ã‚’ä»˜ã‘ã¦ã¯ã„ã‘ã¾ã›ã‚“ã€‚ã€Œorg.poderosaã€ä»¥ä¸‹ã®IDå€¤ã‚’ä»˜ã‘ã‚‹å ´åˆã«ã¯ã€Poderosaé–‹ç™ºè€…ã‚³ãƒŸãƒ¥ãƒ‹ãƒ†ã‚£ã§ã®æ‰¿èªã‚’è¦ã—ã¾ã™ã€‚ 
         /// </ja>
         /// <en>
         /// It is necessary to specify the unique one by all plug-ins. 
@@ -51,18 +51,18 @@ namespace Poderosa.Plugins {
         /// </remarks>
         public string ID;
         /// <summary>
-        /// <ja>ƒvƒ‰ƒOƒCƒ“‚Ì–¼Ì‚Å‚·</ja>
+        /// <ja>ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®åç§°ã§ã™</ja>
         /// <en>Name of the plug-in.</en>
         /// </summary>
         public string Name;
         /// <summary>
-        /// <ja>ˆË‘¶‚·‚é‘¼‚Ìƒvƒ‰ƒOƒCƒ“‚Ìƒvƒ‰ƒOƒCƒ“ID‚Å‚·B</ja>
+        /// <ja>ä¾å­˜ã™ã‚‹ä»–ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³IDã§ã™ã€‚</ja>
         /// <en>The plug-in ID that depends other plug-ins. </en>
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ˆË‘¶‚·‚é‘¼‚Ìƒvƒ‰ƒOƒCƒ“‚ª‚ ‚éê‡‚É‚ÍA‚»‚Ìƒvƒ‰ƒOƒCƒ“ID‚ğƒZƒ~ƒRƒƒ“i;j‚Å‹æØ‚Á‚Ä—ñ‹“‚µ‚Ü‚·B
-        /// ‚±‚±‚Å—ñ‹“‚µ‚½ƒvƒ‰ƒOƒCƒ“‚æ‚è‚àŒã‚É“Ç‚İ‚Ü‚ê‚é‚±‚Æ‚ª•ÛØ‚³‚ê‚Ü‚·B
+        /// ä¾å­˜ã™ã‚‹ä»–ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒã‚ã‚‹å ´åˆã«ã¯ã€ãã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³IDã‚’ã‚»ãƒŸã‚³ãƒ­ãƒ³ï¼ˆ;ï¼‰ã§åŒºåˆ‡ã£ã¦åˆ—æŒ™ã—ã¾ã™ã€‚
+        /// ã“ã“ã§åˆ—æŒ™ã—ãŸãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚ˆã‚Šã‚‚å¾Œã«èª­ã¿è¾¼ã¾ã‚Œã‚‹ã“ã¨ãŒä¿è¨¼ã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When other depending plug-ins exist, the plug-in ID is delimited by semicolon (;) and enumerated. 
@@ -71,12 +71,12 @@ namespace Poderosa.Plugins {
         /// </remarks>
         public string Dependencies;
         /// <summary>
-        /// <ja>ƒvƒ‰ƒOƒCƒ“‚Ìƒo[ƒWƒ‡ƒ“”Ô†‚Å‚·B</ja>
+        /// <ja>ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³ç•ªå·ã§ã™ã€‚</ja>
         /// <en>Version number of the plug-in.</en>
         /// </summary>
         public string Version;
         /// <summary>
-        /// <ja>ƒvƒ‰ƒOƒCƒ“‚Ì’˜ìÒî•ñ‚Å‚·</ja>
+        /// <ja>ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®è‘—ä½œè€…æƒ…å ±ã§ã™</ja>
         /// <en>Copyright information of the plug-in.</en>
         /// </summary>
         public string Author;
@@ -84,7 +84,7 @@ namespace Poderosa.Plugins {
 
     /// <summary>
     /// <ja>
-    /// ƒvƒ‰ƒOƒCƒ“‚ğ\¬‚·‚éƒAƒZƒ“ƒuƒŠ‚ª‚Â‚×‚«‘®«‚Å‚·B
+    /// ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’æ§‹æˆã™ã‚‹ã‚¢ã‚»ãƒ³ãƒ–ãƒªãŒæŒã¤ã¹ãå±æ€§ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// It is an attribute that the assembly that composes the plug-in should have. 
@@ -93,19 +93,19 @@ namespace Poderosa.Plugins {
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
     public class PluginDeclarationAttribute : Attribute {
         /// <summary>
-        /// <ja>‚±‚ÌƒAƒZƒ“ƒuƒŠ‚ÉŠÜ‚Ü‚ê‚éƒvƒ‰ƒOƒCƒ“‚ÌƒNƒ‰ƒX‚ğ’è‹`‚µ‚Ü‚·B</ja>
+        /// <ja>ã“ã®ã‚¢ã‚»ãƒ³ãƒ–ãƒªã«å«ã¾ã‚Œã‚‹ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®ã‚¯ãƒ©ã‚¹ã‚’å®šç¾©ã—ã¾ã™ã€‚</ja>
         /// <en>
         /// Define the class of the plug-in included in this assembly.
         /// </en>
         /// </summary>
-        /// <param name="type"><ja>ƒvƒ‰ƒOƒCƒ“‚ÌƒNƒ‰ƒX‚Å‚·</ja>
+        /// <param name="type"><ja>ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®ã‚¯ãƒ©ã‚¹ã§ã™</ja>
         /// <en>
         /// Class of plug-in.
         /// </en>
         /// </param>
         /// <remarks>
         /// <ja>
-        /// Poderosa‚Í<var>type</var>‚Éw’è‚³‚ê‚½ƒNƒ‰ƒX‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ğì‚èA‚»‚ÌInitializePluginƒƒ\ƒbƒh‚ğŒÄ‚Ño‚·‚±‚Æ‚Åƒvƒ‰ƒOƒCƒ“‚ğ‰Šú‰»‚µA“®ì‰Â”\‚Èó‘Ô‚É‚µ‚Ü‚·B
+        /// Poderosaã¯<var>type</var>ã«æŒ‡å®šã•ã‚ŒãŸã‚¯ãƒ©ã‚¹ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’ä½œã‚Šã€ãã®InitializePluginãƒ¡ã‚½ãƒƒãƒ‰ã‚’å‘¼ã³å‡ºã™ã“ã¨ã§ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’åˆæœŸåŒ–ã—ã€å‹•ä½œå¯èƒ½ãªçŠ¶æ…‹ã«ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The plug-in is initialized by making the instance of the class specified for type, 
@@ -116,7 +116,7 @@ namespace Poderosa.Plugins {
             Target = type;
         }
         /// <summary>
-        /// <ja>ƒvƒ‰ƒOƒCƒ“‚ğ\¬‚·‚éƒNƒ‰ƒX‚Å‚·B</ja>
+        /// <ja>ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’æ§‹æˆã™ã‚‹ã‚¯ãƒ©ã‚¹ã§ã™ã€‚</ja>
         /// <en>Class that composes plug-in</en>
         /// </summary>
         public Type Target;
@@ -124,7 +124,7 @@ namespace Poderosa.Plugins {
 
     /// <summary>
     /// <ja>
-    /// ‚·‚×‚Ä‚Ìƒvƒ‰ƒOƒCƒ“‚ªÀ‘•‚µ‚È‚¯‚ê‚Î‚È‚ç‚È‚¢ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ã™ã¹ã¦ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒå®Ÿè£…ã—ãªã‘ã‚Œã°ãªã‚‰ãªã„ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that all plug-ins should implement
@@ -132,8 +132,8 @@ namespace Poderosa.Plugins {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ŠJ”­Ò‚ÍAIPluginƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğÀ‘•‚·‚é‘ã‚í‚è‚ÉA<seealso cref="PluginBase">PluginBaseƒNƒ‰ƒX</seealso>
-    /// ‚©‚çŒp³‚µ‚½ƒNƒ‰ƒX‚Æ‚µ‚Äì¬‚·‚é‚±‚Æ‚à‚Å‚«‚Ü‚·B
+    /// é–‹ç™ºè€…ã¯ã€IPluginã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’å®Ÿè£…ã™ã‚‹ä»£ã‚ã‚Šã«ã€<seealso cref="PluginBase">PluginBaseã‚¯ãƒ©ã‚¹</seealso>
+    /// ã‹ã‚‰ç¶™æ‰¿ã—ãŸã‚¯ãƒ©ã‚¹ã¨ã—ã¦ä½œæˆã™ã‚‹ã“ã¨ã‚‚ã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// The developer can make it as a class that inheritances to from the 
@@ -143,7 +143,7 @@ namespace Poderosa.Plugins {
     public interface IPlugin : IAdaptable {
         /// <summary>
         /// <ja>
-        /// ƒvƒ‰ƒOƒCƒ“‚ª‰Šú‰»‚³‚ê‚éÛ‚ÉŒÄ‚Ño‚³‚ê‚éƒƒ\ƒbƒh‚Å‚·B
+        /// ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒåˆæœŸåŒ–ã•ã‚Œã‚‹éš›ã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Method of call when plug-in is initialized
@@ -151,7 +151,7 @@ namespace Poderosa.Plugins {
         /// </summary>
         /// <param name="poderosa">
         /// <ja>
-        /// Poderosa–{‘Ì‚Æ’ÊM‚·‚é‚½‚ß‚ÌIPoderosaWorldƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+        /// Poderosaæœ¬ä½“ã¨é€šä¿¡ã™ã‚‹ãŸã‚ã®IPoderosaWorldã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// IPoderosaWorld interface to communicate with Poderosa
@@ -159,9 +159,9 @@ namespace Poderosa.Plugins {
         /// </param>
         /// <remarks>
         /// <ja>
-        /// ‚±‚Ìƒƒ\ƒbƒh‚ÍAPoderosa–{‘Ì‚É‚æ‚Á‚Äƒvƒ‰ƒOƒCƒ“‚ª“Ç‚İ‚Ü‚ê‚½’¼Œã‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B<br/>
-        /// ˆø‚«“n‚³‚ê‚éIPoderosaWorldƒCƒ“ƒ^[ƒtƒFƒCƒX‚Íƒvƒ‰ƒOƒCƒ“‚ª‰ğ•ú‚³‚ê‚é‚Ü‚Å•s•Ï‚Å‚·B<br/>
-        /// ƒvƒ‰ƒOƒCƒ“ŠJ”­Ò‚ÍA‚±‚Ìƒƒ\ƒbƒh“à‚Åƒvƒ‰ƒOƒCƒ“‚Ì‰Šú‰»ˆ—‚ğ‚·‚é‚±‚Æ‚É‚È‚è‚Ü‚·B
+        /// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã€Poderosaæœ¬ä½“ã«ã‚ˆã£ã¦ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒèª­ã¿è¾¼ã¾ã‚ŒãŸç›´å¾Œã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚<br/>
+        /// å¼•ãæ¸¡ã•ã‚Œã‚‹IPoderosaWorldã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¯ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒè§£æ”¾ã•ã‚Œã‚‹ã¾ã§ä¸å¤‰ã§ã™ã€‚<br/>
+        /// ãƒ—ãƒ©ã‚°ã‚¤ãƒ³é–‹ç™ºè€…ã¯ã€ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰å†…ã§ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®åˆæœŸåŒ–å‡¦ç†ã‚’ã™ã‚‹ã“ã¨ã«ãªã‚Šã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// This method is called immediately after the plug-in was read by Poderosa. 
@@ -172,7 +172,7 @@ namespace Poderosa.Plugins {
         void InitializePlugin(IPoderosaWorld poderosa);
         /// <summary>
         /// <ja>
-        /// ƒvƒ‰ƒOƒCƒ“‚ª‰ğ•ú‚³‚ê‚é’¼‘O‚ÉŒÄ‚Ño‚³‚ê‚éƒƒ\ƒbƒh‚Å‚·B
+        /// ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒè§£æ”¾ã•ã‚Œã‚‹ç›´å‰ã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Method of call immediately before plug-in is released.
@@ -180,7 +180,7 @@ namespace Poderosa.Plugins {
         /// </summary>
         /// <remarks>
         /// <ja>
-        /// ƒvƒ‰ƒOƒCƒ“ŠJ”­Ò‚ÍA‚±‚Ìƒƒ\ƒbƒh“à‚Åƒvƒ‰ƒOƒCƒ“‚ÌŒãˆ—‚ğ‚µ‚Ä‚­‚¾‚³‚¢B
+        /// ãƒ—ãƒ©ã‚°ã‚¤ãƒ³é–‹ç™ºè€…ã¯ã€ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰å†…ã§ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®å¾Œå‡¦ç†ã‚’ã—ã¦ãã ã•ã„ã€‚
         /// </ja>
         /// <en>
         /// The developer must postprocess the plug-in in this method. 
@@ -191,7 +191,7 @@ namespace Poderosa.Plugins {
 
     /// <summary>
     /// <ja>
-    /// ƒvƒ‰ƒOƒCƒ“‚ğ“Š‡ŠÇ—‚·‚éuƒvƒ‰ƒOƒCƒ“ƒ}ƒl[ƒWƒƒv‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’çµ±æ‹¬ç®¡ç†ã™ã‚‹ã€Œãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãƒãƒãƒ¼ã‚¸ãƒ£ã€ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface of "Plug-in manager" that manages generalization as for the plug-in. 
@@ -199,7 +199,7 @@ namespace Poderosa.Plugins {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// IPluginManager‚ÍA<seealso cref="IPoderosaWorld">IPoderosaWorld</seealso>‚Ì<see cref="IPoderosaWorld.PluginManager">PluginManagerƒvƒƒpƒeƒB</see>‚©‚çæ“¾‚Å‚«‚Ü‚·B
+    /// IPluginManagerã¯ã€<seealso cref="IPoderosaWorld">IPoderosaWorld</seealso>ã®<see cref="IPoderosaWorld.PluginManager">PluginManagerãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</see>ã‹ã‚‰å–å¾—ã§ãã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// IPluginManager can be acquired from the <see cref="IPoderosaWorld.PluginManager">PluginManager property</see> of 
@@ -209,18 +209,18 @@ namespace Poderosa.Plugins {
     public interface IPluginManager : IAdaptable {
         //Plugins
         /// <summary>
-        /// <ja>ƒvƒ‰ƒOƒCƒ“‚ğŒŸõ‚µ‚Ü‚·B</ja>
+        /// <ja>ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’æ¤œç´¢ã—ã¾ã™ã€‚</ja>
         /// <en>Retrieval of the plug-in.</en>
         /// </summary>
         /// <param name="id">
-        /// <ja>ŒŸõ‚·‚éƒvƒ‰ƒOƒCƒ“ID‚Å‚·B
+        /// <ja>æ¤œç´¢ã™ã‚‹ãƒ—ãƒ©ã‚°ã‚¤ãƒ³IDã§ã™ã€‚
         /// </ja>
         /// <en>Retrieved plug-in ID
         /// </en>
         /// </param>
         /// <param name="adapter">
         /// <ja>
-        /// æ“¾‚·‚éƒvƒ‰ƒOƒCƒ“‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÌŒ^‚Å‚·B
+        /// å–å¾—ã™ã‚‹ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã®å‹ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Type in interface of acquired plug-in.
@@ -228,7 +228,7 @@ namespace Poderosa.Plugins {
         /// </param>
         /// <returns>
         /// <ja>
-        /// Œ©‚Â‚©‚Á‚½ƒvƒ‰ƒOƒCƒ“‚ÌƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ•Ô‚µ‚Ü‚·BŠY“–‚Ìƒvƒ‰ƒOƒCƒ“‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½ê‡‚É‚ÍAnull‚ª–ß‚è‚Ü‚·B
+        /// è¦‹ã¤ã‹ã£ãŸãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’è¿”ã—ã¾ã™ã€‚è©²å½“ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒè¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸå ´åˆã«ã¯ã€nullãŒæˆ»ã‚Šã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The interface of the found plug-in is returned. Null returns when the plug-in of the correspondence is not found. 
@@ -238,7 +238,7 @@ namespace Poderosa.Plugins {
         //Extension Points
         /// <summary>
         /// <ja>
-        /// Šg’£ƒ|ƒCƒ“ƒg‚ğì¬‚µ‚Ü‚·B
+        /// æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã‚’ä½œæˆã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Making of the extension point.
@@ -246,7 +246,7 @@ namespace Poderosa.Plugins {
         /// </summary>
         /// <param name="id">
         /// <ja>
-        /// ì¬‚·‚éŠg’£ƒ|ƒCƒ“ƒg‚ÌuŠg’£ƒ|ƒCƒ“ƒgIDv‚Å‚·B
+        /// ä½œæˆã™ã‚‹æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã®ã€Œæ‹¡å¼µãƒã‚¤ãƒ³ãƒˆIDã€ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Extension point ID of made extension point
@@ -254,7 +254,7 @@ namespace Poderosa.Plugins {
         /// </param>
         /// <param name="requiredInterface">
         /// <ja>
-        /// Šg’£ƒ|ƒCƒ“ƒg‚ª—v‹‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+        /// æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆãŒè¦æ±‚ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Interface that extension point demands.
@@ -262,7 +262,7 @@ namespace Poderosa.Plugins {
         /// </param>
         /// <param name="owner">
         /// <ja>
-        /// Šg’£ƒ|ƒCƒ“ƒg‚ÌŠ—LÒ‚Æ‚È‚éƒvƒ‰ƒOƒCƒ“‚ÌƒIƒuƒWƒFƒNƒg‚Å‚·B‘½‚­‚Ìê‡Authisv‚ğ“n‚µ‚Ü‚·B
+        /// æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã®æ‰€æœ‰è€…ã¨ãªã‚‹ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚å¤šãã®å ´åˆã€ã€Œthisã€ã‚’æ¸¡ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is an object of the plug-in that becomes the owner of the extension point.
@@ -271,8 +271,8 @@ namespace Poderosa.Plugins {
         /// </param>
         /// <returns>
         /// <ja>
-        /// ³í‚ÉŠg’£ƒ|ƒCƒ“ƒg‚ªì¬‚³‚ê‚½ê‡Aì¬‚³‚ê‚½Šg’£ƒ|ƒCƒ“ƒg‚ÌIExtensionPointƒCƒ“ƒ^[ƒtƒFƒCƒX‚ª–ß‚è‚Ü‚·B
-        /// Šg’£ƒ|ƒCƒ“ƒg‚Ìì¬‚É¸”s‚µ‚½ê‡‚É‚ÍAnull‚ª–ß‚è‚Ü‚·B
+        /// æ­£å¸¸ã«æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆãŒä½œæˆã•ã‚ŒãŸå ´åˆã€ä½œæˆã•ã‚ŒãŸæ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã®IExtensionPointã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ãŒæˆ»ã‚Šã¾ã™ã€‚
+        /// æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã®ä½œæˆã«å¤±æ•—ã—ãŸå ´åˆã«ã¯ã€nullãŒæˆ»ã‚Šã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The IExtensionPoint interface of the made extension point returns when the extension point is normally made. 
@@ -282,7 +282,7 @@ namespace Poderosa.Plugins {
         IExtensionPoint CreateExtensionPoint(string id, Type requiredInterface, IPlugin owner);
         /// <summary>
         /// <ja>
-        /// Šg’£ƒ|ƒCƒ“ƒg‚ğŒŸõ‚µ‚Ü‚·B
+        /// æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã‚’æ¤œç´¢ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Retrieval of the extension point.
@@ -290,7 +290,7 @@ namespace Poderosa.Plugins {
         /// </summary>
         /// <param name="id">
         /// <ja>
-        /// ŒŸõ‚·‚éŠg’£ƒ|ƒCƒ“ƒgID‚Å‚·B
+        /// æ¤œç´¢ã™ã‚‹æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆIDã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Retrieved extension point ID
@@ -298,8 +298,8 @@ namespace Poderosa.Plugins {
         /// </param>
         /// <returns>
         /// <ja>
-        /// ŠY“–‚ÌŠg’£ƒ|ƒCƒ“ƒg‚ªŒ©‚Â‚©‚Á‚½ê‡‚É‚ÍA‚»‚ÌIExtensionPointƒCƒ“ƒ^[ƒtƒFƒCƒX‚ª–ß‚è‚Ü‚·B
-        /// Šg’£ƒ|ƒCƒ“ƒg‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½ê‡‚É‚ÍAnull‚ª–ß‚è‚Ü‚·B
+        /// è©²å½“ã®æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆãŒè¦‹ã¤ã‹ã£ãŸå ´åˆã«ã¯ã€ãã®IExtensionPointã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ãŒæˆ»ã‚Šã¾ã™ã€‚
+        /// æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆãŒè¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸå ´åˆã«ã¯ã€nullãŒæˆ»ã‚Šã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The IExtensionPoint interface returns when the extension point of the correspondence is found. 
@@ -311,7 +311,7 @@ namespace Poderosa.Plugins {
 
     /// <summary>
     /// <ja>
-    /// Šg’£ƒ|ƒCƒ“ƒg‚ğ¦‚·ƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+    /// æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã‚’ç¤ºã™ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
     /// </ja>
     /// <en>
     /// Interface that shows extension point.
@@ -320,7 +320,7 @@ namespace Poderosa.Plugins {
     public interface IExtensionPoint {
         /// <summary>
         /// <ja>
-        /// Šg’£ƒ|ƒCƒ“ƒg‚ğŠ—L‚·‚éƒvƒ‰ƒOƒCƒ“‚ÌIPluginƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+        /// æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã‚’æ‰€æœ‰ã™ã‚‹ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®IPluginã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// IPlugin interface of plug-in to own extension point.
@@ -331,7 +331,7 @@ namespace Poderosa.Plugins {
         }
         /// <summary>
         /// <ja>
-        /// Šg’£ƒ|ƒCƒ“ƒgID‚Å‚·B
+        /// æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆIDã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Extension point ID.
@@ -342,7 +342,7 @@ namespace Poderosa.Plugins {
         }
         /// <summary>
         /// <ja>
-        /// Šg’£ƒ|ƒCƒ“ƒg‚ª—v‹‚·‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚Å‚·B
+        /// æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆãŒè¦æ±‚ã™ã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã§ã™ã€‚
         /// </ja>
         /// <en>
         /// Interface that entension point demands
@@ -353,7 +353,7 @@ namespace Poderosa.Plugins {
         }
         /// <summary>
         /// <ja>
-        /// Šg’£ƒ|ƒCƒ“ƒg‚ÉƒIƒuƒWƒFƒNƒg‚ğ“o˜^‚µ‚Ü‚·B
+        /// æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã«ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç™»éŒ²ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The object is registered in the extension point. 
@@ -361,8 +361,8 @@ namespace Poderosa.Plugins {
         /// </summary>
         /// <param name="extension">
         /// <ja>
-        /// “o˜^‚·‚éƒIƒuƒWƒFƒNƒg‚Å‚·B‚±‚ÌƒIƒuƒWƒFƒNƒg‚ÍExtensionInterfaceƒvƒƒpƒeƒB‚Åw’è‚³‚ê‚é
-        /// ƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ”õ‚¦‚Ä‚¢‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñB
+        /// ç™»éŒ²ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¯ExtensionInterfaceãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã§æŒ‡å®šã•ã‚Œã‚‹
+        /// ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’å‚™ãˆã¦ã„ãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
         /// It is a registered object. This object should have the interface specified in the ExtensionInterface property. 
@@ -370,7 +370,7 @@ namespace Poderosa.Plugins {
         /// </param>
         /// <exception cref="ArgumentException">
         /// <ja>
-        /// extension‚Éw’è‚³‚ê‚½ƒIƒuƒWƒFƒNƒg‚ªExtensionInterfaceƒvƒƒpƒeƒB‚Åw’è‚³‚ê‚éƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ”õ‚¦‚Ä‚¢‚Ü‚¹‚ñB
+        /// extensionã«æŒ‡å®šã•ã‚ŒãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒExtensionInterfaceãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã§æŒ‡å®šã•ã‚Œã‚‹ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’å‚™ãˆã¦ã„ã¾ã›ã‚“ã€‚
         /// </ja>
         /// <en>
         /// The interface for which the object specified for extension is specified in the ExtensionInterface property is not provided with. 
@@ -379,7 +379,7 @@ namespace Poderosa.Plugins {
         void RegisterExtension(object extension);
         /// <summary>
         /// <ja>
-        /// ‚±‚ÌŠg’£ƒ|ƒCƒ“ƒg‚É“o˜^‚³‚ê‚Ä‚¢‚éƒIƒuƒWƒFƒNƒg‚Ì”z—ñ‚ğæ“¾‚µ‚Ü‚·B
+        /// ã“ã®æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã«ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®é…åˆ—ã‚’å–å¾—ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// Get the array of the object registered in this extension point.
@@ -387,7 +387,7 @@ namespace Poderosa.Plugins {
         /// </summary>
         /// <returns>
         /// <ja>
-        /// ‚±‚ÌŠg’£ƒ|ƒCƒ“ƒg‚É“o˜^‚³‚ê‚Ä‚¢‚éƒIƒuƒWƒFƒNƒg‚Ì”z—ñ‚ª•Ô‚³‚ê‚Ü‚·B
+        /// ã“ã®æ‹¡å¼µãƒã‚¤ãƒ³ãƒˆã«ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®é…åˆ—ãŒè¿”ã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The array of the object registered in this extension point is returned. 
@@ -396,7 +396,7 @@ namespace Poderosa.Plugins {
         Array GetExtensions();
     }
 
-    //Å‰‚ÌExtensionPoint—p‚ÌƒCƒ“ƒ^ƒtƒF[ƒX
+    //æœ€åˆã®ExtensionPointç”¨ã®ã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹
     /// <summary>
     /// 
     /// </summary>
@@ -413,7 +413,7 @@ namespace Poderosa.Plugins {
         void RunExtension();
     }
 
-    //Plugin Inspector—p‚É
+    //Plugin Inspectorç”¨ã«
     /// <summary>
     /// 
     /// </summary>
@@ -446,7 +446,7 @@ namespace Poderosa.Plugins {
 
     /// <summary>
     /// <ja>
-    /// ƒvƒ‰ƒOƒCƒ“ŠJ”­Ò‚ÉAIPluginƒCƒ“ƒ^[ƒtƒFƒCƒX‚ÆIAdaptableƒCƒ“ƒ^[ƒtƒFƒCƒX‚Ì•W€À‘•‚ğ’ñ‹Ÿ‚µ‚Ü‚·B
+    /// ãƒ—ãƒ©ã‚°ã‚¤ãƒ³é–‹ç™ºè€…ã«ã€IPluginã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã¨IAdaptableã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã®æ¨™æº–å®Ÿè£…ã‚’æä¾›ã—ã¾ã™ã€‚
     /// </ja>
     /// <en>
     /// A default implementation in the IPlugin interface and the IAdaptable interface is offered to the developer. 
@@ -454,8 +454,8 @@ namespace Poderosa.Plugins {
     /// </summary>
     /// <remarks>
     /// <ja>
-    /// ƒvƒ‰ƒOƒCƒ“ŠJ”­Ò‚ÍA‚±‚ÌƒNƒ‰ƒX‚©‚çŒp³‚³‚¹‚é‚±‚Æ‚Å­‚È‚¢ƒR[ƒh‚Åƒvƒ‰ƒOƒCƒ“‚ğ‘‚­‚±‚Æ‚ª‚Å‚«‚Ü‚·B
-    /// ‰º‹L‚ÌÀ‘•‚É‚È‚Á‚Ä‚¢‚Ü‚·B
+    /// ãƒ—ãƒ©ã‚°ã‚¤ãƒ³é–‹ç™ºè€…ã¯ã€ã“ã®ã‚¯ãƒ©ã‚¹ã‹ã‚‰ç¶™æ‰¿ã•ã›ã‚‹ã“ã¨ã§å°‘ãªã„ã‚³ãƒ¼ãƒ‰ã§ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’æ›¸ãã“ã¨ãŒã§ãã¾ã™ã€‚
+    /// ä¸‹è¨˜ã®å®Ÿè£…ã«ãªã£ã¦ã„ã¾ã™ã€‚
     /// <code>
     /// public abstract class PluginBase : MarshalByRefObject, IPlugin
     /// {
@@ -513,7 +513,7 @@ namespace Poderosa.Plugins {
     public abstract class PluginBase : MarshalByRefObject, IPlugin {
         /// <summary>
         /// <ja>
-        /// ‰Šú‰»‚Ì‚Æ‚«‚Éó‚¯æ‚Á‚½IPoderosaWorldƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ•Û‚µ‚Ü‚·B
+        /// åˆæœŸåŒ–ã®ã¨ãã«å—ã‘å–ã£ãŸIPoderosaWorldã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’ä¿æŒã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The IPoderosaWorld interface received when initializing it is maintained. 
@@ -522,7 +522,7 @@ namespace Poderosa.Plugins {
         protected IPoderosaWorld _poderosaWorld;
         /// <summary>
         /// <ja>
-        /// ƒvƒ‰ƒOƒCƒ“‚Ì‰Šú‰»‚ÌÛ‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·BƒfƒtƒHƒ‹ƒg‚ÌÀ‘•‚Å‚ÍA_poderosaWorld‚Éó‚¯æ‚Á‚½IPoderosaWorldƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ•Û‘¶‚µ‚Ü‚·B
+        /// ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®åˆæœŸåŒ–ã®éš›ã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®å®Ÿè£…ã§ã¯ã€_poderosaWorldã«å—ã‘å–ã£ãŸIPoderosaWorldã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’ä¿å­˜ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// When the plug-in is initialized, it is called.
@@ -530,7 +530,7 @@ namespace Poderosa.Plugins {
         /// </en>
         /// </summary>
         /// <param name="poderosa">
-        /// <ja>Poderosa–{‘Ì‚ª“n‚³‚ê‚éIPoderosaWorldƒCƒ“ƒ^[ƒtƒFƒCƒX</ja>
+        /// <ja>Poderosaæœ¬ä½“ãŒæ¸¡ã•ã‚Œã‚‹IPoderosaWorldã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹</ja>
         /// <en>IPoderosaWorld interface to which Poderosa is passed</en>
         /// </param>
         public virtual void InitializePlugin(IPoderosaWorld poderosa) {
@@ -539,7 +539,7 @@ namespace Poderosa.Plugins {
 
         /// <summary>
         /// <ja>
-        /// Poderosa–{‘Ì‚Æ’ÊM‚·‚é‚½‚ß‚ÌIPoderosaWorldƒCƒ“ƒ^[ƒtƒFƒCƒX‚ğ•Ô‚µ‚Ü‚·B
+        /// Poderosaæœ¬ä½“ã¨é€šä¿¡ã™ã‚‹ãŸã‚ã®IPoderosaWorldã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ã‚’è¿”ã—ã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// The IPoderosaWorld interface to communicate with Poderosa is returned. 
@@ -553,7 +553,7 @@ namespace Poderosa.Plugins {
 
         /// <summary>
         /// <ja>
-        /// ƒvƒ‰ƒOƒCƒ“‚ª‰ğ•ú‚³‚ê‚é‘O‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·B
+        /// ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒè§£æ”¾ã•ã‚Œã‚‹å‰ã«å‘¼ã³å‡ºã•ã‚Œã¾ã™ã€‚
         /// </ja>
         /// <en>
         /// It is called before the plug-in is released. 

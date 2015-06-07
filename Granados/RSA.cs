@@ -1,4 +1,4 @@
-/*
+﻿/*
  Copyright (c) 2005 Poderosa Project, All Rights Reserved.
  This file is a part of the Granados SSH Client Library that is subject to
  the license included in the distributed package.
@@ -267,7 +267,7 @@ namespace Granados.PKI {
                 byte[] b = new byte[1];
                 rand.NextBytes(b);
                 while (b[0] == 0)
-                    rand.NextBytes(b); //0�ł͂��߂�
+                    rand.NextBytes(b); //0ではだめだ
                 pad[i] = b[0];
             }
 
