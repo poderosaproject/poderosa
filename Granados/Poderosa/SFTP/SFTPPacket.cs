@@ -56,16 +56,16 @@ namespace Granados.Poderosa.SFTP {
         /// Overrides Close()
         /// </summary>
         /// <param name="cipher"></param>
-        /// <param name="rnd"></param>
+        /// <param name="rng"></param>
         /// <param name="mac"></param>
         /// <param name="sequence"></param>
         /// <returns></returns>
-        public override DataFragment Close(Cipher cipher, Random rnd, MAC mac, int sequence) {
+        public override DataFragment Close(Cipher cipher, System.Security.Cryptography.RNGCryptoServiceProvider rng, MAC mac, int sequence) {
             byte[] buf = DataWriter.UnderlyingBuffer;
             int sftpDataLength = DataWriter.Length - OFFSET_SFTP_PACKET_TYPE;
             SSHUtil.WriteIntToByteArray(buf, OFFSET_CHANNEL_DATA_LENGTH, sftpDataLength + 4);
             SSHUtil.WriteIntToByteArray(buf, OFFSET_SFTP_DATA_LENGTH, sftpDataLength);
-            return base.Close(cipher, rnd, mac, sequence);
+            return base.Close(cipher, rng, mac, sequence);
         }
     }
 }
