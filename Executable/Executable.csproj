@@ -23,28 +23,28 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;EXECUTABLE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\Poderosa.XML</DocumentationFile>
+    <DocumentationFile>..\bin\Debug\Poderosa.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\bin\Release\</OutputPath>
     <DefineConstants>TRACE;EXECUTABLE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Poderosa.XML</DocumentationFile>
+    <DocumentationFile>..\bin\Release\Poderosa.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UnitTest|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\UnitTest\</OutputPath>
+    <OutputPath>..\bin\UnitTest\</OutputPath>
     <DefineConstants>TRACE;EXECUTABLE,UNITTEST</DefineConstants>
-    <DocumentationFile>bin\UnitTest\Poderosa.XML</DocumentationFile>
+    <DocumentationFile>..\bin\UnitTest\Poderosa.XML</DocumentationFile>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -65,6 +65,7 @@
     <ProjectReference Include="..\Plugin\Plugin.csproj">
       <Project>{D84B661B-503E-4C22-892B-7499B72C7E04}</Project>
       <Name>Plugin</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -23,30 +23,30 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    <DocumentationFile>bin\Debug\Poderosa.TerminalEmulator.XML</DocumentationFile>
+    <DocumentationFile>..\bin\Debug\Poderosa.TerminalEmulator.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    <DocumentationFile>bin\Release\Poderosa.TerminalEmulator.XML</DocumentationFile>
+    <DocumentationFile>..\bin\Release\Poderosa.TerminalEmulator.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UnitTest|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\UnitTest\</OutputPath>
+    <OutputPath>..\bin\UnitTest\</OutputPath>
     <DefineConstants>TRACE;UNITTEST</DefineConstants>
-    <DocumentationFile>bin\UnitTest\Poderosa.TerminalEmulator.XML</DocumentationFile>
+    <DocumentationFile>..\bin\UnitTest\Poderosa.TerminalEmulator.XML</DocumentationFile>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -137,22 +137,27 @@
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{8A416F19-9031-44A1-B225-BCB31A6BC6A7}</Project>
       <Name>Core</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\Granados\Granados.csproj">
       <Project>{9D114B8B-E62C-4FBF-B281-0227755C8091}</Project>
       <Name>Granados</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\Plugin\Plugin.csproj">
       <Project>{D84B661B-503E-4C22-892B-7499B72C7E04}</Project>
       <Name>Plugin</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\Protocols\Protocols.csproj">
       <Project>{04F18DA5-BF47-48A3-9B8B-B6B93DCBA875}</Project>
       <Name>Protocols</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\UI\UI.csproj">
       <Project>{9568D8AC-7B55-42E0-ACD7-204E397E7048}</Project>
       <Name>UI</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
