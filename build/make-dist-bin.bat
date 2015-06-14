@@ -5,7 +5,7 @@ set DISTBASE=%PROJDIR%\dist
 set DIST=%DISTBASE%\Poderosa
 set DOCDIST_EN=%DISTBASE%\EN\Documents
 set DOCDIST_JA=%DISTBASE%\JA\Documents
-set BINDIR=\bin\Release
+set BINDIR=\..\bin\Release
 
 RD /S /Q "%DISTBASE%"
 MD "%DISTBASE%"

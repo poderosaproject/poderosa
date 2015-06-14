@@ -23,6 +23,8 @@ call :clean "%PROJDIR%\UI"
 call :clean "%PROJDIR%\Usability"
 call :clean "%PROJDIR%\XZModem"
 
+call :clean "%PROJDIR%"
+
 pause
 goto :end
 
