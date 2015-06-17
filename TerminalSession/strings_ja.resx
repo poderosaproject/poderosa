@@ -264,7 +264,44 @@ New Line</value>
   <data name="Command.SaveShortcutFile">
     <value>接続へのショートカットを保存</value>
   </data>
-  <data name="Message.AskPasteNewLineChar">
-    <value>クリップボードのデータに改行が含まれています。貼り付けますか？</value>
+  <data name="Form.PasteConfirm.Confirmed">
+    <value>確認しました(&amp;C)</value>
+  </data>
+  <data name="Form.PasteConfirm.FindNext">
+    <value>次を検索</value>
+  </data>
+  <data name="Form.PasteConfirm.FindPrev">
+    <value>前を検索</value>
+  </data>
+  <data name="Form.PasteConfirm.HighlightInfo">
+    <value>強調キーワード検出数: {0}</value>
+  </data>
+  <data name="Form.PasteConfirm.LineInfo">
+    <value>行数 : {0}</value>
+  </data>
+  <data name="Form.PasteConfirm.MainLabel">
+    <value>クリップボードのデータを貼り付けますか？</value>
+  </data>
+  <data name="Form.PasteConfirm.NewLineInfo">
+    <value>改行文字 : {0}</value>
+  </data>
+  <data name="Form.PasteConfirm.SessionInfo">
+    <value>セッション : {0}</value>
+  </data>
+  <data name="Form.PasteConfirm.WaitMessage">
+    <value>貼り付けを {0} 秒後に実行します (キャンセルまたはESCキーで中断)</value>
+  </data>
+  <data name="Form.PasteConfirm.NewLineInfo_Exist">
+    <value>あり</value>
+  </data>
+  <data name="Form.PasteConfirm.NewLineInfo_NotExist">
+    <value>なし</value>
+  </data>
+  <data name="Form.PasteConfirm.CheckBoxMessage">
+    <value>内容を確認後にチェックボックスをONにしてください</value>
+  </data>
+  <data name="Message.PasteConfirm.RegExpError">
+    <value>正規表現パターンの指定が正しくありません。
+{0}</value>
   </data>
 </root>
