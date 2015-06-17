@@ -328,9 +328,6 @@
   <data name="Form.OptionDialog._commandPopupInTaskBar">
     <value>Shows command result pop-ups in the task ba&amp;r</value>
   </data>
-  <data name="Form.OptionDialog._alertOnPasteNewLineCharCheck">
-    <value>Show alert when new-line character will be pasted</value>
-  </data>
   <data name="Form.OptionDialog._commandPanel">
     <value>Command</value>
   </data>
@@ -801,5 +798,32 @@
   </data>
   <data name="Form.AboutBox.Text">
     <value>About Poderosa</value>
+  </data>
+  <data name="Form.OptionDialog._copyAndPasteGroup">
+    <value>Paste confirmation message</value>
+  </data>
+  <data name="Caption.OptionDialog.PasteAfterSpecifiedTime">
+    <value>Paste until the number of seconds</value>
+  </data>
+  <data name="Form.OptionDialog._enableChangeDialogSize">
+    <value>Allow changing dialog box size</value>
+  </data>
+  <data name="Form.OptionDialog._enablePasteConfirm">
+    <value>Paste containing a new-line character when confirmed contents of Clipboard.</value>
+  </data>
+  <data name="Form.OptionDialog._enablePasteConfirmAlways">
+    <value>Always check (See also contain new-line characters)</value>
+  </data>
+  <data name="Form.OptionDialog._highlightKeywordLabel">
+    <value>Highlight keyword (regex)</value>
+  </data>
+  <data name="Form.OptionDialog._pasteAfterSpecifiedTime">
+    <value>Paste press the OK button until the seconds (1-60 sec)</value>
+  </data>
+  <data name="Form.OptionDialog._showConfirmedCheckBox">
+    <value>Displays the check boxes labeled "Confirmed" in the dialog box.</value>
+  </data>
+  <data name="Caption.OptionDialog.RegExpPettern">
+    <value>Regular expression pattern</value>
   </data>
 </root>

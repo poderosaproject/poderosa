@@ -11,6 +11,8 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
 using System.Drawing;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 using Poderosa.ConnectionParam;
 using Poderosa.Util;
@@ -18,7 +20,6 @@ using Poderosa.UI;
 using Poderosa.Usability;
 using Poderosa.Preferences;
 using Poderosa.Terminal;
-using System.Collections.Generic;
 
 namespace Poderosa.Forms {
     internal class TerminalOptionPanel : UserControl {
@@ -47,7 +48,14 @@ namespace Poderosa.Forms {
         private CheckBox _enableComplementForNewConnections;
         private CheckBox _commandPopupAlwaysOnTop;
         private GroupBox _copyAndPasteGroup;
-        private CheckBox _alertOnPasteNewLineCharCheck;
+        private CheckBox _enablePasteConfirm;
+        private CheckBox _enablePasteConfirmAlways;
+        private CheckBox _enableChangeDialogSize;
+        private CheckBox _showConfirmedCheckBox;
+        private TextBox _pasteAfterSpecifiedTimeBox;
+        private CheckBox _pasteAfterSpecifiedTime;
+        private Label _highlightKeywordLabel;
+        private TextBox _highlightKeyword;
         private CheckBox _commandPopupInTaskBar;
 
         public TerminalOptionPanel() {
@@ -81,7 +89,14 @@ namespace Poderosa.Forms {
             this._commandPopupAlwaysOnTop = new System.Windows.Forms.CheckBox();
             this._commandPopupInTaskBar = new System.Windows.Forms.CheckBox();
             this._copyAndPasteGroup = new System.Windows.Forms.GroupBox();
-            this._alertOnPasteNewLineCharCheck = new System.Windows.Forms.CheckBox();
+            this._highlightKeyword = new System.Windows.Forms.TextBox();
+            this._highlightKeywordLabel = new System.Windows.Forms.Label();
+            this._pasteAfterSpecifiedTimeBox = new System.Windows.Forms.TextBox();
+            this._enableChangeDialogSize = new System.Windows.Forms.CheckBox();
+            this._showConfirmedCheckBox = new System.Windows.Forms.CheckBox();
+            this._pasteAfterSpecifiedTime = new System.Windows.Forms.CheckBox();
+            this._enablePasteConfirmAlways = new System.Windows.Forms.CheckBox();
+            this._enablePasteConfirm = new System.Windows.Forms.CheckBox();
             this._defaultLogGroup.SuspendLayout();
             this._shellSupportGroup.SuspendLayout();
             this._copyAndPasteGroup.SuspendLayout();
@@ -304,22 +319,93 @@ namespace Poderosa.Forms {
             // 
             // _copyAndPasteGroup
             // 
-            this._copyAndPasteGroup.Controls.Add(this._alertOnPasteNewLineCharCheck);
+            this._copyAndPasteGroup.Controls.Add(this._highlightKeyword);
+            this._copyAndPasteGroup.Controls.Add(this._highlightKeywordLabel);
+            this._copyAndPasteGroup.Controls.Add(this._pasteAfterSpecifiedTimeBox);
+            this._copyAndPasteGroup.Controls.Add(this._enableChangeDialogSize);
+            this._copyAndPasteGroup.Controls.Add(this._showConfirmedCheckBox);
+            this._copyAndPasteGroup.Controls.Add(this._pasteAfterSpecifiedTime);
+            this._copyAndPasteGroup.Controls.Add(this._enablePasteConfirmAlways);
+            this._copyAndPasteGroup.Controls.Add(this._enablePasteConfirm);
             this._copyAndPasteGroup.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this._copyAndPasteGroup.Location = new System.Drawing.Point(16, 374);
             this._copyAndPasteGroup.Name = "_copyAndPasteGroup";
-            this._copyAndPasteGroup.Size = new System.Drawing.Size(392, 42);
+            this._copyAndPasteGroup.Size = new System.Drawing.Size(392, 150);
             this._copyAndPasteGroup.TabIndex = 18;
             this._copyAndPasteGroup.TabStop = false;
             // 
-            // _alertOnPasteNewLineCharCheck
+            // _highlightKeyword
             // 
-            this._alertOnPasteNewLineCharCheck.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this._alertOnPasteNewLineCharCheck.Location = new System.Drawing.Point(8, 12);
-            this._alertOnPasteNewLineCharCheck.Name = "_alertOnPasteNewLineCharCheck";
-            this._alertOnPasteNewLineCharCheck.Size = new System.Drawing.Size(375, 24);
-            this._alertOnPasteNewLineCharCheck.TabIndex = 0;
-            this._alertOnPasteNewLineCharCheck.UseVisualStyleBackColor = true;
+            this._highlightKeyword.Font = new System.Drawing.Font("ＭＳ ゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this._highlightKeyword.Location = new System.Drawing.Point(163, 36);
+            this._highlightKeyword.MaxLength = 0;
+            this._highlightKeyword.Name = "_highlightKeyword";
+            this._highlightKeyword.Size = new System.Drawing.Size(220, 19);
+            this._highlightKeyword.TabIndex = 7;
+            // 
+            // _highlightKeywordLabel
+            // 
+            this._highlightKeywordLabel.Location = new System.Drawing.Point(22, 35);
+            this._highlightKeywordLabel.Name = "_highlightKeywordLabel";
+            this._highlightKeywordLabel.Size = new System.Drawing.Size(140, 23);
+            this._highlightKeywordLabel.TabIndex = 15;
+            this._highlightKeywordLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // _pasteAfterSpecifiedTimeBox
+            // 
+            this._pasteAfterSpecifiedTimeBox.Location = new System.Drawing.Point(343, 103);
+            this._pasteAfterSpecifiedTimeBox.MaxLength = 2;
+            this._pasteAfterSpecifiedTimeBox.Name = "_pasteAfterSpecifiedTimeBox";
+            this._pasteAfterSpecifiedTimeBox.Size = new System.Drawing.Size(40, 19);
+            this._pasteAfterSpecifiedTimeBox.TabIndex = 5;
+            this._pasteAfterSpecifiedTimeBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // _enableChangeDialogSize
+            // 
+            this._enableChangeDialogSize.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this._enableChangeDialogSize.Location = new System.Drawing.Point(8, 122);
+            this._enableChangeDialogSize.Name = "_enableChangeDialogSize";
+            this._enableChangeDialogSize.Size = new System.Drawing.Size(375, 24);
+            this._enableChangeDialogSize.TabIndex = 6;
+            this._enableChangeDialogSize.UseVisualStyleBackColor = true;
+            // 
+            // _showConfirmedCheckBox
+            // 
+            this._showConfirmedCheckBox.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this._showConfirmedCheckBox.Location = new System.Drawing.Point(8, 78);
+            this._showConfirmedCheckBox.Name = "_showConfirmedCheckBox";
+            this._showConfirmedCheckBox.Size = new System.Drawing.Size(375, 24);
+            this._showConfirmedCheckBox.TabIndex = 3;
+            this._showConfirmedCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // _pasteAfterSpecifiedTime
+            // 
+            this._pasteAfterSpecifiedTime.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this._pasteAfterSpecifiedTime.Location = new System.Drawing.Point(8, 100);
+            this._pasteAfterSpecifiedTime.Name = "_pasteAfterSpecifiedTime";
+            this._pasteAfterSpecifiedTime.Size = new System.Drawing.Size(323, 24);
+            this._pasteAfterSpecifiedTime.TabIndex = 4;
+            this._pasteAfterSpecifiedTime.UseVisualStyleBackColor = true;
+            this._pasteAfterSpecifiedTime.CheckedChanged += new System.EventHandler(this._pasteAfterSpecifiedTime_CheckedChanged);
+            // 
+            // _enablePasteConfirmAlways
+            // 
+            this._enablePasteConfirmAlways.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this._enablePasteConfirmAlways.Location = new System.Drawing.Point(8, 56);
+            this._enablePasteConfirmAlways.Name = "_enablePasteConfirmAlways";
+            this._enablePasteConfirmAlways.Size = new System.Drawing.Size(375, 24);
+            this._enablePasteConfirmAlways.TabIndex = 2;
+            this._enablePasteConfirmAlways.UseVisualStyleBackColor = true;
+            // 
+            // _enablePasteConfirm
+            // 
+            this._enablePasteConfirm.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this._enablePasteConfirm.Location = new System.Drawing.Point(8, 12);
+            this._enablePasteConfirm.Name = "_enablePasteConfirm";
+            this._enablePasteConfirm.Size = new System.Drawing.Size(375, 24);
+            this._enablePasteConfirm.TabIndex = 1;
+            this._enablePasteConfirm.UseVisualStyleBackColor = true;
+            this._enablePasteConfirm.CheckedChanged += new System.EventHandler(this._enablePasteConfirm_CheckedChanged);
             // 
             // TerminalOptionPanel
             // 
@@ -343,11 +429,12 @@ namespace Poderosa.Forms {
             this.Controls.Add(this._defaultLogGroup);
             this.Controls.Add(this._shellSupportGroup);
             this.Name = "TerminalOptionPanel";
-            this.Size = new System.Drawing.Size(426, 423);
+            this.Size = new System.Drawing.Size(426, 532);
             this._defaultLogGroup.ResumeLayout(false);
             this._defaultLogGroup.PerformLayout();
             this._shellSupportGroup.ResumeLayout(false);
             this._copyAndPasteGroup.ResumeLayout(false);
+            this._copyAndPasteGroup.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -367,10 +454,16 @@ namespace Poderosa.Forms {
             this._autoLogCheckBox.Text = sr.GetString("Form.OptionDialog._autoLogCheckBox");
             this._additionalWordElementLabel.Text = sr.GetString("Form.OptionDialog._additionalWordElementLabel");
             this._shellSupportGroup.Text = sr.GetString("Form.OptionDialog._shellSupportGroup");
+            this._copyAndPasteGroup.Text = sr.GetString("Form.OptionDialog._copyAndPasteGroup");
             this._enableComplementForNewConnections.Text = sr.GetString("Form.OptionDialog._enableComplementForNewConnections");
             this._commandPopupAlwaysOnTop.Text = sr.GetString("Form.OptionDialog._commandPopupAlwaysOnTop");
             this._commandPopupInTaskBar.Text = sr.GetString("Form.OptionDialog._commandPopupInTaskBar");
-            this._alertOnPasteNewLineCharCheck.Text = sr.GetString("Form.OptionDialog._alertOnPasteNewLineCharCheck");
+            this._enablePasteConfirm.Text = sr.GetString("Form.OptionDialog._enablePasteConfirm");
+            this._enablePasteConfirmAlways.Text = sr.GetString("Form.OptionDialog._enablePasteConfirmAlways");
+            this._showConfirmedCheckBox.Text = sr.GetString("Form.OptionDialog._showConfirmedCheckBox");
+            this._pasteAfterSpecifiedTime.Text = sr.GetString("Form.OptionDialog._pasteAfterSpecifiedTime");
+            this._enableChangeDialogSize.Text = sr.GetString("Form.OptionDialog._enableChangeDialogSize");
+            this._highlightKeywordLabel.Text = sr.GetString("Form.OptionDialog._highlightKeywordLabel");
 
             _charDecodeErrorBehaviorBox.Items.AddRange(EnumListItem<WarningOption>.GetListItems());
             _disconnectNotification.Items.AddRange(EnumListItem<WarningOption>.GetListItems());
@@ -393,7 +486,13 @@ namespace Poderosa.Forms {
             _enableComplementForNewConnections.Checked = options.EnableComplementForNewConnections;
             _commandPopupAlwaysOnTop.Checked = options.CommandPopupAlwaysOnTop;
             _commandPopupInTaskBar.Checked = options.CommandPopupInTaskBar;
-            _alertOnPasteNewLineCharCheck.Checked = options.AlertOnPasteNewLineChar;
+            _enablePasteConfirm.Checked = options.EnablePasteConfirm;
+            _enablePasteConfirmAlways.Checked = options.EnablePasteConfirmAlways;
+            _showConfirmedCheckBox.Checked = options.ShowConfirmedCheckBox;
+            _pasteAfterSpecifiedTime.Checked = options.PasteAfterSpecifiedTimeValue != 0;
+            _pasteAfterSpecifiedTimeBox.Text = options.PasteAfterSpecifiedTimeValue.ToString();
+            _enableChangeDialogSize.Checked = options.EnableChangeDialogSize;
+            _highlightKeyword.Text = options.HighlightKeyword;
         }
         public bool Commit(ITerminalEmulatorOptions options) {
             StringResource sr = OptionDialogPlugin.Instance.Strings;
@@ -451,7 +550,24 @@ namespace Poderosa.Forms {
                 options.EnableComplementForNewConnections = _enableComplementForNewConnections.Checked;
                 options.CommandPopupAlwaysOnTop = _commandPopupAlwaysOnTop.Checked;
                 options.CommandPopupInTaskBar = _commandPopupInTaskBar.Checked;
-                options.AlertOnPasteNewLineChar = _alertOnPasteNewLineCharCheck.Checked;
+
+                options.EnablePasteConfirm = _enablePasteConfirm.Checked;
+                options.HighlightKeyword = _highlightKeyword.Text;
+                options.EnablePasteConfirmAlways = _enablePasteConfirmAlways.Checked;
+                options.ShowConfirmedCheckBox = _showConfirmedCheckBox.Checked;
+                options.PasteAfterSpecifiedTime = _pasteAfterSpecifiedTime.Checked;
+                options.EnableChangeDialogSize = _enableChangeDialogSize.Checked;
+
+                itemname = sr.GetString("Caption.OptionDialog.RegExpPettern");
+                Regex RegExp = new Regex(options.HighlightKeyword, RegexOptions.Multiline);
+                
+                itemname = sr.GetString("Caption.OptionDialog.PasteAfterSpecifiedTime");
+                if ((_pasteAfterSpecifiedTime.Checked) && (int.Parse(_pasteAfterSpecifiedTimeBox.Text) > 0)) {
+                    options.PasteAfterSpecifiedTimeValue = Int32.Parse(_pasteAfterSpecifiedTimeBox.Text);
+                } else {
+                    options.PasteAfterSpecifiedTimeValue = 0;
+                    options.PasteAfterSpecifiedTime = false;
+                }
 
                 successful = true;
             }
@@ -484,6 +600,19 @@ namespace Poderosa.Forms {
         }
         private void OnKeepAliveCheckChanged(object sender, EventArgs args) {
             _keepAliveIntervalBox.Enabled = _keepAliveCheck.Checked;
+        }
+        private void _enablePasteConfirm_CheckedChanged(object sender, EventArgs e) {
+            bool Flg = _enablePasteConfirm.Checked;
+            _enablePasteConfirmAlways.Enabled = Flg;
+            _showConfirmedCheckBox.Enabled = Flg;
+            _pasteAfterSpecifiedTime.Enabled = Flg;
+            _pasteAfterSpecifiedTimeBox.Enabled = (_pasteAfterSpecifiedTime.Enabled && _pasteAfterSpecifiedTime.Checked);
+            _enableChangeDialogSize.Enabled = Flg;
+            _highlightKeyword.Enabled = Flg;
+        }
+        private void _pasteAfterSpecifiedTime_CheckedChanged(object sender, EventArgs e) {
+            bool Flg = _pasteAfterSpecifiedTime.Checked;
+            _pasteAfterSpecifiedTimeBox.Enabled = Flg;
         }
     }
 

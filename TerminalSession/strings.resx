@@ -264,7 +264,44 @@ New Line</value>
   <data name="Command.SaveShortcutFile">
     <value>Save Shortcut File</value>
   </data>
-  <data name="Message.AskPasteNewLineChar">
-    <value>Clipboard data contains a new-line character. Do you want to paste it ?</value>
+  <data name="Form.PasteConfirm.Confirmed">
+    <value>Confirmed(&amp;C)</value>
+  </data>
+  <data name="Form.PasteConfirm.FindNext">
+    <value>Next</value>
+  </data>
+  <data name="Form.PasteConfirm.FindPrev">
+    <value>Prev</value>
+  </data>
+  <data name="Form.PasteConfirm.HighlightInfo">
+    <value>Detect highlight keywords : {0}</value>
+  </data>
+  <data name="Form.PasteConfirm.LineInfo">
+    <value>Lines : {0}</value>
+  </data>
+  <data name="Form.PasteConfirm.MainLabel">
+    <value>Do you want to paste it ?</value>
+  </data>
+  <data name="Form.PasteConfirm.NewLineInfo">
+    <value>New-lines : {0}</value>
+  </data>
+  <data name="Form.PasteConfirm.SessionInfo">
+    <value>Session : {0}</value>
+  </data>
+  <data name="Form.PasteConfirm.WaitMessage">
+    <value>Paste with {0} seconds to run. (Cancel or ESC key abort)</value>
+  </data>
+  <data name="Form.PasteConfirm.NewLineInfo_Exist">
+    <value>Yes</value>
+  </data>
+  <data name="Form.PasteConfirm.NewLineInfo_NotExist">
+    <value>No</value>
+  </data>
+  <data name="Form.PasteConfirm.CheckBoxMessage">
+    <value>Contents see check box ON the confirmation.</value>
+  </data>
+  <data name="Message.PasteConfirm.RegExpError">
+    <value>The value of regular expression pattern is invalid.
+{0}</value>
   </data>
 </root>

@@ -364,10 +364,4 @@ $Id: stringresource.xml,v 1.7 2012/03/14 16:33:38 kzmi Exp $
   <en>Save Shortcut File</en>
 </record>
 
-<!-- CopyPaste.cs -->
-<record name="Message.AskPasteNewLineChar">
-  <ja>クリップボードのデータに改行が含まれています。貼り付けますか？</ja>
-  <en>Clipboard data contains a new-line character. Do you want to paste it ?</en>
-</record>
-
 </string-resource>
