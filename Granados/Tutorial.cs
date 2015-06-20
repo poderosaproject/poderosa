@@ -57,7 +57,7 @@ namespace Granados.Tutorial {
         private static void GenerateRSAKey() {
             //RSA KEY GENERATION TEST
             byte[] testdata = Encoding.ASCII.GetBytes("CHRISTIAN VIERI");
-            RSAKeyPair kp = RSAKeyPair.GenerateNew(2048, new Random());
+            RSAKeyPair kp = RSAKeyPair.GenerateNew(2048, RngManager.GetSecureRng());
 
             //sign and verify test
             byte[] sig = kp.Sign(testdata);
@@ -75,7 +75,7 @@ namespace Granados.Tutorial {
         private static void GenerateDSAKey() {
             //DSA KEY GENERATION TEST
             byte[] testdata = Encoding.ASCII.GetBytes("CHRISTIAN VIERI");
-            DSAKeyPair kp = DSAKeyPair.GenerateNew(2048, new Random());
+            DSAKeyPair kp = DSAKeyPair.GenerateNew(2048, RngManager.GetSecureRng());
 
             //sign and verify test
             byte[] sig = kp.Sign(testdata);

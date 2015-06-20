@@ -70,7 +70,7 @@ namespace Granados.SSH2 {
         }
 
         // Derived class can override this method to modify the buffer.
-        public virtual DataFragment Close(Cipher cipher, RNGCryptoServiceProvider rng, MAC mac, int sequence) {
+        public virtual DataFragment Close(Cipher cipher, MAC mac, int sequence) {
             if (!_isOpen)
                 throw new SSHException("internal state error");
 
@@ -83,11 +83,12 @@ namespace Granados.SSH2 {
             int imageLength = packetLength + LENGTH_MARGIN;
 
             //fill padding
-	    byte[] tmp = new byte[4];
+	        byte[] tmp = new byte[4];
+            Rng rng = RngManager.GetSecureRng();
             for (int i = 0; i < paddingLength; i += 4) {
-		rng.GetBytes(tmp);
+                rng.GetBytes(tmp);
                 _writer.Write(tmp);
-	    }
+            }
 
             //manipulate stream
             byte[] rawbuf = _writer.UnderlyingBuffer;

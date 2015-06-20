@@ -169,6 +169,7 @@
     <Compile Include="Rijndael.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Rng.cs" />
     <Compile Include="RSA.cs">
       <SubType>Code</SubType>
     </Compile>
