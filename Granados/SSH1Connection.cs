@@ -175,7 +175,7 @@ namespace Granados.SSH1 {
         private byte[] GenerateSessionKey() {
             //session key(256bits)
             byte[] session_key = new byte[32];
-            _param.Random.NextBytes(session_key);
+            RngManager.GetSecureRng().GetBytes(session_key);
 
             return session_key;
         }
@@ -207,8 +207,9 @@ namespace Granados.SSH1 {
                     second_key_bytelen = (si.server_key_bits + 7) / 8;
                 }
 
-                BigInteger first_result = RSAUtil.PKCS1PadType2(new BigInteger(working_data), first_key_bytelen, _param.Random).modPow(first_encryption.Exponent, first_encryption.Modulus);
-                BigInteger second_result = RSAUtil.PKCS1PadType2(first_result, second_key_bytelen, _param.Random).modPow(second_encryption.Exponent, second_encryption.Modulus);
+                Rng rng = RngManager.GetSecureRng();
+                BigInteger first_result = RSAUtil.PKCS1PadType2(new BigInteger(working_data), first_key_bytelen, rng).modPow(first_encryption.Exponent, first_encryption.Modulus);
+                BigInteger second_result = RSAUtil.PKCS1PadType2(first_result, second_key_bytelen, rng).modPow(second_encryption.Exponent, second_encryption.Modulus);
 
                 //output
                 SSH1DataWriter writer = new SSH1DataWriter();

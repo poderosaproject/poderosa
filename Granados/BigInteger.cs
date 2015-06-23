@@ -1,5 +1,10 @@
 ﻿//************************************************************************************
-// BigInteger Class Version 1.03
+// BigInteger Class
+//
+// Copyright (c) 2015 Proderosa Project.
+// All rights reserved.
+//
+// Based on BigInteger Class Version 1.03
 //
 // Copyright (c) 2002 Chew Keong TAN
 // All rights reserved.
@@ -1728,7 +1733,7 @@ namespace Granados {
         // Populates "this" with the specified amount of random bits
         //***********************************************************************
 
-        public void genRandomBits(int bits, Random rand) {
+        public void genRandomBits(int bits, Rng rand) {
             int dwords = bits >> 5;
             int remBits = bits & 0x1F;
 
@@ -1738,8 +1743,11 @@ namespace Granados {
             if (dwords > maxLength)
                 throw (new ArithmeticException("Number of required bits > maxLength."));
 
-            for (int i = 0; i < dwords; i++)
-                data[i] = (uint)(rand.NextDouble() * 0x100000000);
+            byte[] uintBits = new byte[4];
+            for (int i = 0; i < dwords; i++) {
+                rand.GetBytes(uintBits);
+                data[i] = BitConverter.ToUInt32(uintBits, 0);
+            }
 
             for (int i = dwords; i < maxLength; i++)
                 data[i] = 0;
@@ -1831,7 +1839,7 @@ namespace Granados {
             int bits = thisVal.bitCount();
             BigInteger a = new BigInteger();
             BigInteger p_sub1 = thisVal - (new BigInteger(1));
-            Random rand = new Random();
+            Rng rand = RngManager.GetSystemRandomRng();
 
             for (int round = 0; round < confidence; round++) {
                 bool done = false;
@@ -1841,7 +1849,7 @@ namespace Granados {
 
                     // make sure "a" has at least 2 bits
                     while (testBits < 2)
-                        testBits = (int)(rand.NextDouble() * bits);
+                        testBits = rand.GetInt(bits);
 
                     a.genRandomBits(testBits, rand);
 
@@ -1935,7 +1943,7 @@ namespace Granados {
 
             int bits = thisVal.bitCount();
             BigInteger a = new BigInteger();
-            Random rand = new Random();
+            Rng rand = RngManager.GetSystemRandomRng();
 
             for (int round = 0; round < confidence; round++) {
                 bool done = false;
@@ -1945,7 +1953,7 @@ namespace Granados {
 
                     // make sure "a" has at least 2 bits
                     while (testBits < 2)
-                        testBits = (int)(rand.NextDouble() * bits);
+                        testBits = rand.GetInt(bits);
 
                     a.genRandomBits(testBits, rand);
 
@@ -2035,7 +2043,7 @@ namespace Granados {
             BigInteger p_sub1 = thisVal - 1;
             BigInteger p_sub1_shift = p_sub1 >> 1;
 
-            Random rand = new Random();
+            Rng rand = RngManager.GetSystemRandomRng();
 
             for (int round = 0; round < confidence; round++) {
                 bool done = false;
@@ -2045,7 +2053,7 @@ namespace Granados {
 
                     // make sure "a" has at least 2 bits
                     while (testBits < 2)
-                        testBits = (int)(rand.NextDouble() * bits);
+                        testBits = rand.GetInt(bits);
 
                     a.genRandomBits(testBits, rand);
 
@@ -2472,7 +2480,7 @@ namespace Granados {
         // Generates a positive BigInteger that is probably prime.
         //***********************************************************************
 
-        public static BigInteger genPseudoPrime(int bits, int confidence, Random rand) {
+        public static BigInteger genPseudoPrime(int bits, int confidence, Rng rand) {
             BigInteger result = new BigInteger();
             bool done = false;
 
@@ -2492,7 +2500,7 @@ namespace Granados {
         // that gcd(number, this) = 1
         //***********************************************************************
 
-        public BigInteger genCoPrime(int bits, Random rand) {
+        public BigInteger genCoPrime(int bits, Rng rand) {
             bool done = false;
             BigInteger result = new BigInteger();
 
@@ -3020,8 +3028,7 @@ namespace Granados {
         // for each round of testing.
         //***********************************************************************
 
-        public static void RSATest2(int rounds) {
-            Random rand = new Random();
+        public static void RSATest2(int rounds, Rng rand) {
             byte[] val = new byte[64];
 
             byte[] pseudoPrime1 = {
@@ -3070,13 +3077,13 @@ namespace Granados {
                 // generate data of random length
                 int t1 = 0;
                 while (t1 == 0)
-                    t1 = (int)(rand.NextDouble() * 65);
+                    t1 = rand.GetInt(65);
 
                 bool done = false;
                 while (!done) {
                     for (int i = 0; i < 64; i++) {
                         if (i < t1)
-                            val[i] = (byte)(rand.NextDouble() * 256);
+                            val[i] = (byte)rand.GetInt(256);
                         else
                             val[i] = 0;
 
@@ -3086,7 +3093,7 @@ namespace Granados {
                 }
 
                 while (val[0] == 0)
-                    val[0] = (byte)(rand.NextDouble() * 256);
+                    val[0] = (byte)rand.GetInt(256);
 
                 Console.Write("Round = " + count);
 
@@ -3111,13 +3118,12 @@ namespace Granados {
         // Tests the correct implementation of sqrt() method.
         //***********************************************************************
 
-        public static void SqrtTest(int rounds) {
-            Random rand = new Random();
+        public static void SqrtTest(int rounds, Rng rand) {
             for (int count = 0; count < rounds; count++) {
                 // generate data of random length
                 int t1 = 0;
                 while (t1 == 0)
-                    t1 = (int)(rand.NextDouble() * 1024);
+                    t1 = rand.GetInt(1024);
 
                 Console.Write("Round = " + count);
 
@@ -3197,7 +3203,7 @@ namespace Granados {
             Console.WriteLine("isProbablePrime() = " + bi1.isProbablePrime());
 
             Console.Write("\nGenerating 512-bits random pseudoprime. . .");
-            Random rand = new Random();
+            Rng rand = RngManager.GetSecureRng();
             BigInteger prime = BigInteger.genPseudoPrime(512, 5, rand);
             Console.WriteLine("\n" + prime);
 
