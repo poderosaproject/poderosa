@@ -16,7 +16,7 @@ using System.Collections;
 using System.IO;
 using System.Threading;
 using System.Diagnostics;
-using HMACSHA1 = System.Security.Cryptography.HMACSHA1;
+using System.Security.Cryptography;
 
 using Granados.Crypto;
 using Granados.IO;
@@ -70,7 +70,7 @@ namespace Granados.SSH2 {
         }
 
         // Derived class can override this method to modify the buffer.
-        public virtual DataFragment Close(Cipher cipher, Random rnd, MAC mac, int sequence) {
+        public virtual DataFragment Close(Cipher cipher, MAC mac, int sequence) {
             if (!_isOpen)
                 throw new SSHException("internal state error");
 
@@ -83,8 +83,12 @@ namespace Granados.SSH2 {
             int imageLength = packetLength + LENGTH_MARGIN;
 
             //fill padding
-            for (int i = 0; i < paddingLength; i += 4)
-                _writer.WriteInt32(rnd.Next());
+	        byte[] tmp = new byte[4];
+            Rng rng = RngManager.GetSecureRng();
+            for (int i = 0; i < paddingLength; i += 4) {
+                rng.GetBytes(tmp);
+                _writer.Write(tmp);
+            }
 
             //manipulate stream
             byte[] rawbuf = _writer.UnderlyingBuffer;

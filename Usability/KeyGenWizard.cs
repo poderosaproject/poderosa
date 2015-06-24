@@ -535,7 +535,6 @@ namespace Poderosa.Forms {
             }
             catch (Exception ex) {
                 RuntimeUtil.ReportException(ex);
-
             }
         }
 
@@ -559,43 +558,57 @@ namespace Poderosa.Forms {
 
         }
 
-        private class KeyGenRandomGenerator : Random {
-            private Random _internal;
-            public int _doubleCount;
-            private int _internalAvailableCount;
-            private bool _abortFlag;
+        private class KeyGenRandomGenerator : Rng {
+            private readonly Rng _rng = RngManager.GetSecureRng();
+            private volatile Random _random = new Random();
+            private volatile int _availableCount = 0;
+            private volatile bool _abortFlag = false;
+            private readonly byte[] _prefetch = new byte[100];
+            private int _prefetchLeft = 0;
 
             public KeyGenRandomGenerator() {
-                _internalAvailableCount = 0;
-                _abortFlag = false;
             }
-
-            public override double NextDouble() {
-
-                while (_internalAvailableCount == 0) {
-                    Debug.WriteLine("WAITING");
-                    Thread.Sleep(100); //同期オブジェクトを使うまでもないだろう
-                    if (_abortFlag)
-                        throw new Exception("key generation aborted");
-                }
-
-                _internalAvailableCount--;
-                _doubleCount++;
-                return _internal.NextDouble();
-            }
-            //他はoverrideしない
 
             public void Refresh(int seed) {
-                _internal = new Random(seed);
-                _internalAvailableCount = 50;
+                _random = new Random(seed);
+                _availableCount = 50;
             }
+
             public void RefreshFinal(int seed) {
-                _internal = new Random(seed);
-                _internalAvailableCount = Int32.MaxValue;
+                _random = new Random(seed);
+                _availableCount = Int32.MaxValue;
             }
 
             public void SetAbortFlag() {
                 _abortFlag = true;
+            }
+
+            // implements Rng
+            public void GetBytes(byte[] data) {
+                if (_availableCount <= 0) {
+                    Thread.Sleep(100);
+                    if (_abortFlag) {
+                        throw new Exception("key generation aborted");
+                    }
+                    _prefetchLeft = 0;
+                }
+
+                _availableCount--;
+
+                _rng.GetBytes(data);
+
+                for (int i = 0; i < data.Length; ++i) {
+                    if (_prefetchLeft <= 0) {
+                        _random.NextBytes(_prefetch);
+                        _prefetchLeft = _prefetch.Length;
+                    }
+                    data[i] ^= _prefetch[--_prefetchLeft];
+                }
+            }
+
+            // implements Rng
+            public int GetInt(int maxValue) {
+                return _rng.GetInt(maxValue);
             }
         }
     }

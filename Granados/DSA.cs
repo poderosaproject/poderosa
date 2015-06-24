@@ -57,7 +57,7 @@ namespace Granados.PKI {
             _publickey.Verify(data, expecteddata);
         }
 
-        public static DSAKeyPair GenerateNew(int bits, Random random) {
+        public static DSAKeyPair GenerateNew(int bits, Rng random) {
             BigInteger one = new BigInteger(1);
             BigInteger[] pq = findRandomStrongPrime((uint)bits, 160, random);
             BigInteger p = pq[0], q = pq[1];
@@ -74,7 +74,7 @@ namespace Granados.PKI {
             return new DSAKeyPair(p, g, q, y, x);
         }
 
-        private static BigInteger[] findRandomStrongPrime(uint primeBits, int orderBits, Random random) {
+        private static BigInteger[] findRandomStrongPrime(uint primeBits, int orderBits, Rng random) {
             BigInteger one = new BigInteger(1);
             BigInteger u, aux, aux2;
             long[] table_q, table_u, prime_table;
@@ -154,7 +154,7 @@ namespace Granados.PKI {
             return new BigInteger[] { prime, order };
         }
 
-        private static BigInteger findRandomGenerator(BigInteger order, BigInteger modulo, Random random) {
+        private static BigInteger findRandomGenerator(BigInteger order, BigInteger modulo, Rng random) {
             BigInteger one = new BigInteger(1);
             BigInteger aux = modulo - new BigInteger(1);
             BigInteger t = aux % order;
