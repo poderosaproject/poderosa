@@ -164,6 +164,7 @@ namespace Poderosa.Terminal {
 
         private static CommandCategory _terminal;
         private static CommandCategory _terminalEdit;
+        private static CommandCategory _encoding;
         private static CommandCategory _hiddenTerminal;
 
         public static CommandCategory TerminalCommandCategory {
@@ -175,6 +176,7 @@ namespace Poderosa.Terminal {
         public static void Register(ICommandManager cm) {
             _terminalEdit = new CommandCategory("CommandCategory.TerminalEdit");
             _terminal = new CommandCategory("CommandCategory.Terminal").SetPosition(PositionType.NextTo, _terminalEdit);
+            _encoding = new CommandCategory("CommandCategory.Encoding");
             _hiddenTerminal = new CommandCategory("", false);
 
             //以下、編集メニュー内にあるもの
@@ -208,7 +210,7 @@ namespace Poderosa.Terminal {
                 EncodingType encodingType = enc;
                 cm.Register(
                     new TerminalCommand("org.poderosa.terminalemulator.encoding." + encodingType.ToString(),
-                    "Command.Encoding." + encodingType.ToString(), _hiddenTerminal,
+                    "Command.Encoding." + encodingType.ToString(), _encoding,
                     delegate(ICommandTarget target) {
                         return CmdEncoding(target, encodingType);
                     },

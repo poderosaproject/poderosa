@@ -127,6 +127,9 @@
   <data name="CommandCategory.TerminalEdit">
     <value>Edit-Terminal</value>
   </data>
+  <data name="CommandCategory.Encoding">
+    <value>Encoding</value>
+  </data>
   <data name="Command.CopyAsLook">
     <value>Copy As You Look</value>
   </data>
@@ -165,6 +168,36 @@
   </data>
   <data name="Command.IntelliSense">
     <value>Shell complement</value>
+  </data>
+  <data name="Command.Encoding.ISO8859_1">
+    <value>iso-8859-1</value>
+  </data>
+  <data name="Command.Encoding.UTF8">
+    <value>utf-8 (cjk)</value>
+  </data>
+  <data name="Command.Encoding.UTF8_Latin">
+    <value>utf-8 (latin)</value>
+  </data>
+  <data name="Command.Encoding.EUC_JP">
+    <value>euc-jp</value>
+  </data>
+  <data name="Command.Encoding.SHIFT_JIS">
+    <value>shift-jis</value>
+  </data>
+  <data name="Command.Encoding.GB2312">
+    <value>gb2312</value>
+  </data>
+  <data name="Command.Encoding.BIG5">
+    <value>big5</value>
+  </data>
+  <data name="Command.Encoding.EUC_CN">
+    <value>euc-cn</value>
+  </data>
+  <data name="Command.Encoding.EUC_KR">
+    <value>euc-kr</value>
+  </data>
+  <data name="Command.Encoding.OEM850">
+    <value>oem850</value>
   </data>
   <data name="Caption.SelectPasteFile">
     <value>File to paste</value>
