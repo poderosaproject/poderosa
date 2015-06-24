@@ -326,9 +326,6 @@
   <data name="Form.OptionDialog._commandPopupInTaskBar">
     <value>コマンド結果ポップアップをタスクバーに表示(&amp;R)</value>
   </data>
-  <data name="Form.OptionDialog._alertOnPasteNewLineCharCheck">
-    <value>改行文字を含む貼り付けで警告を表示</value>
-  </data>
   <data name="Form.OptionDialog._commandPanel">
     <value>コマンド</value>
   </data>
@@ -799,5 +796,32 @@
   </data>
   <data name="Form.AboutBox.Text">
     <value>バージョン情報</value>
+  </data>
+  <data name="Form.OptionDialog._copyAndPasteGroup">
+    <value>貼り付け確認メッセージ</value>
+  </data>
+  <data name="Form.OptionDialog._enableChangeDialogSize">
+    <value>ダイアログのサイズ変更を許可</value>
+  </data>
+  <data name="Form.OptionDialog._enablePasteConfirm">
+    <value>改行文字を含む貼り付け時にクリップボードの内容を確認</value>
+  </data>
+  <data name="Form.OptionDialog._enablePasteConfirmAlways">
+    <value>常に確認(改行文字を含まない場合も確認)</value>
+  </data>
+  <data name="Form.OptionDialog._highlightKeywordLabel">
+    <value>強調キーワード(正規表現)</value>
+  </data>
+  <data name="Form.OptionDialog._pasteAfterSpecifiedTime">
+    <value>OKボタンを押して貼り付けするまでの秒数(1-60秒)</value>
+  </data>
+  <data name="Form.OptionDialog._showConfirmedCheckBox">
+    <value>ダイアログ内に「確認しました」チェックボックスを表示</value>
+  </data>
+  <data name="Caption.OptionDialog.PasteAfterSpecifiedTime">
+    <value>貼り付けするまでの秒数</value>
+  </data>
+  <data name="Caption.OptionDialog.RegExpPettern">
+    <value>正規表現パターン</value>
   </data>
 </root>

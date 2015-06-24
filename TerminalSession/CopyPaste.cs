@@ -36,15 +36,19 @@ namespace Poderosa.Commands {
                 return CommandResult.Ignored;
 
             ITerminalEmulatorOptions options = TerminalSessionsPlugin.Instance.TerminalEmulatorService.TerminalEmulatorOptions;
-            if (options.AlertOnPasteNewLineChar) {
+            if (options.EnablePasteConfirm) {
                 // Data will be split by CR, LF, CRLF or Environment.NewLine by TextReader.ReadLine,
                 // So we check the data about CR, LF and Environment.NewLine.
-                if (data.IndexOfAny(new char[] { '\r', '\n' }) >= 0 || data.Contains(Environment.NewLine)) {
+                if (data.IndexOfAny(new char[] { '\r', '\n' }) >= 0 || data.Contains(Environment.NewLine) || options.EnablePasteConfirmAlways) {
                     IPoderosaView view = (IPoderosaView)_control.GetAdapter(typeof(IPoderosaView));
                     IPoderosaForm form = view.ParentForm;
                     if (form != null) {
-                        DialogResult res = form.AskUserYesNo(TEnv.Strings.GetString("Message.AskPasteNewLineChar"));
-                        if (res != DialogResult.Yes) {
+                        PasteConfirmDialog ConfirmDlg = new PasteConfirmDialog();
+                        ITerminalSession Session = (ITerminalSession)view.Document.OwnerSession.GetAdapter(typeof(ITerminalSession));
+                        ConfirmDlg.ClipBoardData = data;
+                        ConfirmDlg.SessionName = Session.Caption;
+                        DialogResult res = ConfirmDlg.ShowDialog();
+                        if (res != DialogResult.OK) {
                             return CommandResult.Ignored;
                         }
                     }
