@@ -171,6 +171,10 @@ $Id: stringresource.xml,v 1.7 2012/03/18 01:26:33 kzmi Exp $
   <ja>編集-ターミナル</ja>
   <en>Edit-Terminal</en>
 </record>
+<record name="CommandCategory.Encoding">
+  <ja>エンコーディング</ja>
+  <en>Encoding</en>
+</record>
 <record name="Command.CopyAsLook">
   <ja>表示イメージをコピー</ja>
   <en>Copy As You Look</en>
@@ -222,6 +226,46 @@ $Id: stringresource.xml,v 1.7 2012/03/18 01:26:33 kzmi Exp $
 <record name="Command.IntelliSense">
   <ja>シェル補完</ja>
   <en>Shell complement</en>
+</record>
+<record name="Command.Encoding.ISO8859_1">
+  <ja>iso-8859-1</ja>
+  <en>iso-8859-1</en>
+</record>
+<record name="Command.Encoding.UTF8">
+  <ja>utf-8 (cjk)</ja>
+  <en>utf-8 (cjk)</en>
+</record>
+<record name="Command.Encoding.UTF8_Latin">
+  <ja>utf-8 (latin)</ja>
+  <en>utf-8 (latin)</en>
+</record>
+<record name="Command.Encoding.EUC_JP">
+  <ja>euc-jp</ja>
+  <en>euc-jp</en>
+</record>
+<record name="Command.Encoding.SHIFT_JIS">
+  <ja>shift-jis</ja>
+  <en>shift-jis</en>
+</record>
+<record name="Command.Encoding.GB2312">
+  <ja>gb2312</ja>
+  <en>gb2312</en>
+</record>
+<record name="Command.Encoding.BIG5">
+  <ja>big5</ja>
+  <en>big5</en>
+</record>
+<record name="Command.Encoding.EUC_CN">
+  <ja>euc-cn</ja>
+  <en>euc-cn</en>
+</record>
+<record name="Command.Encoding.EUC_KR">
+  <ja>euc-kr</ja>
+  <en>euc-kr</en>
+</record>
+<record name="Command.Encoding.OEM850">
+  <ja>oem850</ja>
+  <en>oem850</en>
 </record>
 <record name="Caption.SelectPasteFile">
   <ja>ペーストするファイルの選択</ja>
