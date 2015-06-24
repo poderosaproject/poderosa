@@ -1,3 +1,9 @@
+4.3.15b
+-------
+    * Added a dialog box to confirm when you paste contents of the Clipboard.
+
+    * Key assignment setting added to the encoding.
+
 4.3.14b
 -------
     * Fix deadlock which occurs when a socket was closed by the peer.

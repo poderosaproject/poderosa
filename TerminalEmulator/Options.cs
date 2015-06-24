@@ -232,10 +232,57 @@ namespace Poderosa.Terminal {
         // Copy and Paste
 
         /// <summary>
-        /// <ja>改行文字がペーストされる時に警告を表示するかどうか</ja>
-        /// <en>Setting whether alert is shown when a new-line character will be pasted</en>
+        /// <ja>貼り付け時にクリップボードの内容を表示</ja>
         /// </summary>
-        bool AlertOnPasteNewLineChar {
+        bool EnablePasteConfirm {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// <ja>改行文字を含まない場合も表示</ja>
+        /// </summary>
+        bool EnablePasteConfirmAlways {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// <ja>確認済みチェックボックスを表示</ja>
+        /// </summary>
+        bool ShowConfirmedCheckBox {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// <ja>指定秒数経過後に貼り付けを実行</ja>
+        /// </summary>
+        bool PasteAfterSpecifiedTime {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// <ja>指定秒数経過後に貼り付けを実行する秒数</ja>
+        /// </summary>
+        int PasteAfterSpecifiedTimeValue {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// <ja>ダイアログボックスのサイズ変更を許可</ja>
+        /// </summary>
+        bool EnableChangeDialogSize {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// <ja>要確認文字</ja>
+        /// </summary>
+        string HighlightKeyword {
             get;
             set;
         }
@@ -311,7 +358,13 @@ namespace Poderosa.Terminal {
         private IStringPreferenceItem _defaultLogDirectory;
 
         // Copy and Paste
-        private IBoolPreferenceItem _alertOnPasteNewLineChar;
+        private IBoolPreferenceItem _enablePasteConfirm;
+        private IBoolPreferenceItem _enablePasteConfirmAlways;
+        private IBoolPreferenceItem _showConfirmedCheckBox;
+        private IBoolPreferenceItem _pasteAfterSpecifiedTime;
+        private IIntPreferenceItem _pasteAfterSpecifiedTimeValue;
+        private IBoolPreferenceItem _enableChangeDialogSize;
+        private IStringPreferenceItem _highlightKeyword;
 
         //PreferenceEditorのみ
         private bool _parseKeyRequired;
@@ -382,7 +435,13 @@ namespace Poderosa.Terminal {
             _defaultLogDirectory = builder.DefineStringValue(_folder, "defaultLogDirectory", "", null);
 
             // Copy and Paste
-            _alertOnPasteNewLineChar = builder.DefineBoolValue(_folder, "alertOnPasteNewLineChar", true, null);
+            _enablePasteConfirm = builder.DefineBoolValue(_folder, "enablePasteConfirm", true, null);
+            _enablePasteConfirmAlways = builder.DefineBoolValue(_folder, "enablePasteConfirmAlways", false, null);
+            _showConfirmedCheckBox = builder.DefineBoolValue(_folder, "showConfirmedCheckBox", false, null);
+            _pasteAfterSpecifiedTime = builder.DefineBoolValue(_folder, "pasteAfterSpecifiedTime", false, null);
+            _pasteAfterSpecifiedTimeValue = builder.DefineIntValue(_folder, "pasteAfterSpecifiedTimeValue", 0, PreferenceValidatorUtil.IntRangeValidator(0, 60));
+            _enableChangeDialogSize = builder.DefineBoolValue(_folder, "enableChangeDialogSize", false, null);
+            _highlightKeyword = builder.DefineStringValue(_folder, "highlightKeyword", "rm|kill|killall|shutdown|reboot|halt", null);
 
             //PreferenceEditorのみ
             _intelliSenseKey = builder.DefineStringValue(_folder, "intelliSenseKey", "Ctrl+OemPeriod", PreferenceValidatorUtil.KeyWithModifierValidator);
@@ -442,7 +501,13 @@ namespace Poderosa.Terminal {
             _defaultLogDirectory = ConvertItem(src._defaultLogDirectory);
 
             // Copy and Paste
-            _alertOnPasteNewLineChar = ConvertItem(src._alertOnPasteNewLineChar);
+            _enablePasteConfirm = ConvertItem(src._enablePasteConfirm);
+            _enablePasteConfirmAlways = ConvertItem(src._enablePasteConfirmAlways);
+            _showConfirmedCheckBox = ConvertItem(src._showConfirmedCheckBox);
+            _pasteAfterSpecifiedTime = ConvertItem(src._pasteAfterSpecifiedTime);
+            _pasteAfterSpecifiedTimeValue = ConvertItem(src._pasteAfterSpecifiedTimeValue);
+            _enableChangeDialogSize = ConvertItem(src._enableChangeDialogSize);
+            _highlightKeyword = ConvertItem(src._highlightKeyword);
 
             //PreferenceEditorのみ
             _intelliSenseKey = ConvertItem(src._intelliSenseKey);
@@ -786,12 +851,66 @@ namespace Poderosa.Terminal {
             }
         }
 
-        public bool AlertOnPasteNewLineChar {
+        public bool EnablePasteConfirm {
             get {
-                return _alertOnPasteNewLineChar.Value;
+                return _enablePasteConfirm.Value;
             }
             set {
-                _alertOnPasteNewLineChar.Value = value;
+                _enablePasteConfirm.Value = value;
+            }
+        }
+
+        public bool EnablePasteConfirmAlways {
+            get {
+                return _enablePasteConfirmAlways.Value;
+            }
+            set {
+                _enablePasteConfirmAlways.Value = value;
+            }
+        }
+
+        public bool ShowConfirmedCheckBox {
+            get {
+                return _showConfirmedCheckBox.Value;
+            }
+            set {
+                _showConfirmedCheckBox.Value = value;
+            }
+        }
+
+        public bool PasteAfterSpecifiedTime {
+            get {
+                return _pasteAfterSpecifiedTime.Value;
+            }
+            set {
+                _pasteAfterSpecifiedTime.Value = value;
+            }
+        }
+
+        public int PasteAfterSpecifiedTimeValue {
+            get {
+                return _pasteAfterSpecifiedTimeValue.Value;
+            }
+            set {
+                _pasteAfterSpecifiedTimeValue.Value = value;
+            }
+        }
+
+        public bool EnableChangeDialogSize {
+            get {
+                return _enableChangeDialogSize.Value;
+            }
+            set {
+                _enableChangeDialogSize.Value = value;
+            }
+        }
+
+        public string HighlightKeyword {
+            get {
+                return _highlightKeyword.Value;
+            }
+            set {
+                _highlightKeyword.Value = value;
             }
         }
 
