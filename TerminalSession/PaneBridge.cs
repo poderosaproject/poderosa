@@ -44,13 +44,13 @@ namespace Poderosa.Terminal {
         private TerminalControl _control;
         private IContentReplaceableView _contentReplaceableView; //包含するやつ
         private IPoderosaCommand _copyCommand;
-        private PasteToTerminalCommand _pasteCommand;
+        private IPoderosaCommand _pasteCommand;
 
         public TerminalView(IPoderosaForm parent, TerminalControl control) {
             _parent = parent;
             _control = control;
             _copyCommand = TerminalSessionsPlugin.Instance.WindowManager.SelectionService.DefaultCopyCommand;
-            _pasteCommand = new PasteToTerminalCommand(_control);
+            _pasteCommand = TerminalSessionsPlugin.Instance.GetPasteCommand();
             control.Tag = this;
         }
 

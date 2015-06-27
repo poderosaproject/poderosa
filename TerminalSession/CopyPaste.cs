@@ -20,18 +20,24 @@ using Poderosa.Forms;
 
 namespace Poderosa.Commands {
 
+    /// <summary>
+    /// Default Paste command
+    /// </summary>
     internal class PasteToTerminalCommand : IPoderosaCommand {
-        private TerminalControl _control;
-        public PasteToTerminalCommand(TerminalControl control) {
-            _control = control;
+
+        public PasteToTerminalCommand() {
         }
+
         public CommandResult InternalExecute(ICommandTarget target, params IAdaptable[] args) {
-            if (!CanExecute(target))
+            IPoderosaView view;
+            ITerminalSession session;
+            if (!GetViewAndSession(target, out view, out session))
                 return CommandResult.Ignored;
-            TerminalTransmission output = GetSession().TerminalTransmission;
+            var clipboardData = Clipboard.GetDataObject();
+            if (!clipboardData.GetDataPresent("Text"))
+                return CommandResult.Ignored;
 
-            string data = Clipboard.GetDataObject().GetData("Text") as string;
-
+            string data = clipboardData.GetData("Text") as string;
             if (data == null)
                 return CommandResult.Ignored;
 
@@ -40,7 +46,6 @@ namespace Poderosa.Commands {
                 // Data will be split by CR, LF, CRLF or Environment.NewLine by TextReader.ReadLine,
                 // So we check the data about CR, LF and Environment.NewLine.
                 if (data.IndexOfAny(new char[] { '\r', '\n' }) >= 0 || data.Contains(Environment.NewLine)) {
-                    IPoderosaView view = (IPoderosaView)_control.GetAdapter(typeof(IPoderosaView));
                     IPoderosaForm form = view.ParentForm;
                     if (form != null) {
                         DialogResult res = form.AskUserYesNo(TEnv.Strings.GetString("Message.AskPasteNewLineChar"));
@@ -51,28 +56,39 @@ namespace Poderosa.Commands {
                 }
             }
 
-            //TODO 長文のときにダイアログを出して中途キャンセル可能に
             StringReader reader = new StringReader(data);
+            TerminalTransmission output = session.TerminalTransmission;
             output.SendTextStream(reader, data[data.Length - 1] == '\n');
             return CommandResult.Succeeded;
         }
 
         public bool CanExecute(ICommandTarget target) {
-            return GetSession() != null && Clipboard.GetDataObject().GetDataPresent("Text");
+            IPoderosaView view;
+            ITerminalSession session;
+            if (!GetViewAndSession(target, out view, out session))
+                return false;
+            var clipboardData = Clipboard.GetDataObject();
+            if (!clipboardData.GetDataPresent("Text"))
+                return false;
+            return true;
         }
 
         public IAdaptable GetAdapter(Type adapter) {
             return TerminalSessionsPlugin.Instance.PoderosaWorld.AdapterManager.GetAdapter(this, adapter);
         }
 
-        //送信可能状態であるときのみTerminalSessionを返す
-        private ITerminalSession GetSession() {
-            if (!_control.EnabledEx)
-                return null;
-
-            IPoderosaView view = (IPoderosaView)_control.GetAdapter(typeof(IPoderosaView));
-            ITerminalSession s = (ITerminalSession)view.Document.OwnerSession.GetAdapter(typeof(ITerminalSession));
-            return s.TerminalConnection.IsClosed ? null : s;
+        private bool GetViewAndSession(ICommandTarget target, out IPoderosaView view, out ITerminalSession session) {
+            view = (IPoderosaView)target.GetAdapter(typeof(IPoderosaView));
+            if (view != null && view.Document != null) {
+                session = (ITerminalSession)view.Document.OwnerSession.GetAdapter(typeof(ITerminalSession));
+                if (!session.TerminalConnection.IsClosed) {
+                    return true;
+                }
+            }
+            else {
+                session = null;
+            }
+            return false;
         }
     }
 }

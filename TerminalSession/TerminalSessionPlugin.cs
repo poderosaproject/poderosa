@@ -42,6 +42,8 @@ namespace Poderosa.Sessions {
 
         private StartCommand _startCommand;
         private ReproduceCommand _reproduceCommand;
+        private IPoderosaCommand _pasteCommand;
+        private IExtensionPoint _pasteCommandExt;
 
         public override void InitializePlugin(IPoderosaWorld poderosa) {
             base.InitializePlugin(poderosa);
@@ -60,6 +62,8 @@ namespace Poderosa.Sessions {
             pm.CreateExtensionPoint("org.poderosa.terminalsessions.telnetSSHLoginDialogInitializer", typeof(ITelnetSSHLoginDialogInitializer), this);
             pm.CreateExtensionPoint("org.poderosa.terminalsessions.loginDialogUISupport", typeof(ILoginDialogUISupport), this);
             IExtensionPoint factory_point = pm.CreateExtensionPoint(TERMINAL_CONNECTION_FACTORY_ID, typeof(ITerminalConnectionFactory), this);
+
+            _pasteCommandExt = pm.CreateExtensionPoint("org.poderosa.terminalsessions.pasteCommand", typeof(IPoderosaCommand), this);
 
             _terminalSessionsOptionSupplier = new TerminalSessionOptionsSupplier();
             _coreServices.PreferenceExtensionPoint.RegisterExtension(_terminalSessionsOptionSupplier);
@@ -169,6 +173,27 @@ namespace Poderosa.Sessions {
                 return (ICoreServicePreference)folder.QueryAdapter(typeof(ICoreServicePreference));
             }
         }
+
+        /// <summary>
+        /// Get a Paste command object
+        /// </summary>
+        /// <remarks>
+        /// If an instance was registered on the extension point, this method returns it.
+        /// Otherwise, returns the default implementation.
+        /// </remarks>
+        /// <returns></returns>
+        public IPoderosaCommand GetPasteCommand() {
+            if (_pasteCommand == null) {
+                if (_pasteCommandExt != null && _pasteCommandExt.GetExtensions().Length > 0) {
+                    _pasteCommand = ((IPoderosaCommand[])_pasteCommandExt.GetExtensions())[0];
+                }
+                else {
+                    _pasteCommand = new PasteToTerminalCommand();
+                }
+            }
+            return _pasteCommand;
+        }
+
     }
 
     internal class TEnv {
