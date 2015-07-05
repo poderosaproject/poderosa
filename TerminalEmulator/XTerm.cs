@@ -961,7 +961,7 @@ namespace Poderosa.Terminal {
             if ((int)Keys.F1 <= (int)key && (int)key <= (int)Keys.F12)
                 return base.SequenceKeyData(modifier, key);
             else if (GUtil.IsCursorKey(key)) {
-                byte[] data = modifyCursorKey(modifier, key);
+                byte[] data = ModifyCursorKey(modifier, key);
                 if (data != null)
                     return data;
                 return base.SequenceKeyData(modifier, key);
@@ -990,7 +990,7 @@ namespace Poderosa.Terminal {
         }
 
         // emulate Xterm's modifyCursorKeys
-        private byte[] modifyCursorKey(Keys modifier, Keys key) {
+        private byte[] ModifyCursorKey(Keys modifier, Keys key) {
             char c;
             switch (key) {
                 case Keys.Up:
