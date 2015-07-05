@@ -959,7 +959,7 @@ namespace Poderosa.Terminal {
 
         internal override byte[] SequenceKeyData(Keys modifier, Keys key) {
             if ((int)Keys.F1 <= (int)key && (int)key <= (int)Keys.F12)
-                return base.SequenceKeyData(modifier, key);
+                return XtermFunctionKey(modifier, key);
             else if (GUtil.IsCursorKey(key)) {
                 byte[] data = ModifyCursorKey(modifier, key);
                 if (data != null)
@@ -986,6 +986,65 @@ namespace Poderosa.Terminal {
                 else
                     throw new ArgumentException("unknown key " + key.ToString());
                 return r;
+            }
+        }
+
+        private byte[] XtermFunctionKey(Keys modifier, Keys key) {
+            int m = 1;
+            if ((modifier & Keys.Shift) != Keys.None) {
+                m += 1;
+            }
+            if ((modifier & Keys.Alt) != Keys.None) {
+                m += 2;
+            }
+            if ((modifier & Keys.Control) != Keys.None) {
+                m += 4;
+            }
+            switch (key) {
+                case Keys.F1:
+                    return XtermFunctionKeyF1ToF4(m, (byte)'P');
+                case Keys.F2:
+                    return XtermFunctionKeyF1ToF4(m, (byte)'Q');
+                case Keys.F3:
+                    return XtermFunctionKeyF1ToF4(m, (byte)'R');
+                case Keys.F4:
+                    return XtermFunctionKeyF1ToF4(m, (byte)'S');
+                case Keys.F5:
+                    return XtermFunctionKeyF5ToF12(m, (byte)'1', (byte)'5');
+                case Keys.F6:
+                    return XtermFunctionKeyF5ToF12(m, (byte)'1', (byte)'7');
+                case Keys.F7:
+                    return XtermFunctionKeyF5ToF12(m, (byte)'1', (byte)'8');
+                case Keys.F8:
+                    return XtermFunctionKeyF5ToF12(m, (byte)'1', (byte)'9');
+                case Keys.F9:
+                    return XtermFunctionKeyF5ToF12(m, (byte)'2', (byte)'0');
+                case Keys.F10:
+                    return XtermFunctionKeyF5ToF12(m, (byte)'2', (byte)'1');
+                case Keys.F11:
+                    return XtermFunctionKeyF5ToF12(m, (byte)'2', (byte)'3');
+                case Keys.F12:
+                    return XtermFunctionKeyF5ToF12(m, (byte)'2', (byte)'4');
+                default:
+                    throw new ArgumentException("unexpected key value : " + key.ToString(), "key");
+            }
+        }
+
+        private byte[] XtermFunctionKeyF1ToF4(int m, byte c) {
+            if (m > 1) {
+                return new byte[] { 0x1b, (byte)'[', (byte)'1', (byte)';', (byte)('0' + m), c };
+            }
+            else {
+                return new byte[] { 0x1b, (byte)'O', c };
+            }
+        }
+
+        private byte[] XtermFunctionKeyF5ToF12(int m, byte c1, byte c2) {
+            if (m > 1) {
+                return new byte[] { 0x1b, (byte)'[', c1, c2, (byte)';', (byte)('0' + m), (byte)'~' };
+            }
+            else {
+                return new byte[] { 0x1b, (byte)'[', c1, c2, (byte)'~' };
             }
         }
 
