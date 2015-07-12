@@ -4,6 +4,7 @@ setlocal
 set PROJDIR=%~dp0..
 
 call :clean "%PROJDIR%\Benchmark"
+call :clean "%PROJDIR%\ConnectProfile"
 call :clean "%PROJDIR%\Core"
 call :clean "%PROJDIR%\Executable"
 call :clean "%PROJDIR%\Granados"

@@ -18,7 +18,7 @@ namespace Poderosa.Protocols {
     /// <summary>
     /// Simple string encyption with constant key.
     /// </summary>
-    internal class SimpleStringEncrypt {
+    public class SimpleStringEncrypt {
 
         // Method : DES
         //   Mode : CBC

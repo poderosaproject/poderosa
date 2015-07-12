@@ -1,0 +1,424 @@
+﻿<root>
+  <resheader name="ResMimeType">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="Version">
+    <value>1.0.0.0</value>
+  </resheader>
+  <resheader name="Reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="Writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Caption.AddProfile">
+    <value>プロファイルの編集</value>
+  </data>
+  <data name="Caption.ConnectProfile">
+    <value>Telnet/SSH接続プロファイル</value>
+  </data>
+  <data name="Command.ConnectProfile">
+    <value>Telnet/SSH接続プロファイル</value>
+  </data>
+  <data name="Form.AddProfile._authTypeLabel">
+    <value>認証方法</value>
+  </data>
+  <data name="Form.AddProfile._autoLoginCheck">
+    <value>使用する</value>
+  </data>
+  <data name="Form.AddProfile._basicGroup">
+    <value>基本情報</value>
+  </data>
+  <data name="Form.AddProfile._charCodeLabel">
+    <value>文字コード</value>
+  </data>
+  <data name="Form.AddProfile._descriptionLabel">
+    <value>備考</value>
+  </data>
+  <data name="Form.AddProfile._etcGroup">
+    <value>その他</value>
+  </data>
+  <data name="Form.AddProfile._execCommandLabel">
+    <value>実行コマンド</value>
+  </data>
+  <data name="Form.AddProfile._hostNameLabel">
+    <value>ホスト名</value>
+  </data>
+  <data name="Form.AddProfile._keyFileLabel">
+    <value>秘密鍵ファイル</value>
+  </data>
+  <data name="Form.AddProfile._newLineTypeLabel">
+    <value>改行コード</value>
+  </data>
+  <data name="Form.AddProfile._openKeyFileButton">
+    <value>...</value>
+  </data>
+  <data name="Form.AddProfile._passwordLabel">
+    <value>パスワード</value>
+  </data>
+  <data name="Form.AddProfile._passwordPromptLabel">
+    <value>パスワードプロンプト</value>
+  </data>
+  <data name="Form.AddProfile._portLabel">
+    <value>ポート</value>
+  </data>
+  <data name="Form.AddProfile._profileItemColorLabel">
+    <value>プロファイル項目色</value>
+  </data>
+  <data name="Form.AddProfile._protocolLabel">
+    <value>プロトコル</value>
+  </data>
+  <data name="Form.AddProfile._sshGroup">
+    <value>SSHパラメータ</value>
+  </data>
+  <data name="Form.AddProfile._suGroup">
+    <value>SUスイッチ</value>
+  </data>
+  <data name="Form.AddProfile._suPasswordLabel">
+    <value>SUパスワード</value>
+  </data>
+  <data name="Form.AddProfile._suTypeLabel">
+    <value>SUコマンド</value>
+  </data>
+  <data name="Form.AddProfile._suTypeRadio1">
+    <value>su</value>
+  </data>
+  <data name="Form.AddProfile._suTypeRadio2">
+    <value>su -</value>
+  </data>
+  <data name="Form.AddProfile._suUserNameLabel">
+    <value>SUユーザ名</value>
+  </data>
+  <data name="Form.AddProfile._terminalBGColorLabel">
+    <value>ターミナル背景色</value>
+  </data>
+  <data name="Form.AddProfile._terminalFontColorLabel">
+    <value>フォント色</value>
+  </data>
+  <data name="Form.AddProfile._terminalGroup">
+    <value>ターミナル</value>
+  </data>
+  <data name="Form.AddProfile._terminalTypeLabel">
+    <value>種類</value>
+  </data>
+  <data name="Form.AddProfile._userNameLabel">
+    <value>ユーザ名</value>
+  </data>
+  <data name="Form.AddProfile._loginPromptLabel">
+    <value>ログインプロンプト</value>
+  </data>
+  <data name="Form.Common._cancelButton">
+    <value>キャンセル</value>
+  </data>
+  <data name="Form.Common._okButton">
+    <value>OK</value>
+  </data>
+  <data name="Form.ConnectProfile._addProfileButton">
+    <value>追加(&amp;A)</value>
+  </data>
+  <data name="Form.ConnectProfile._autoLoginColumn">
+    <value>自動ログイン</value>
+  </data>
+  <data name="Form.ConnectProfile._charCodeColumn">
+    <value>文字コード</value>
+  </data>
+  <data name="Form.ConnectProfile._checkAllOffButton">
+    <value>チェック全解除(&amp;U)</value>
+  </data>
+  <data name="Form.ConnectProfile._csvExportButton">
+    <value>CSV出力(&amp;X)</value>
+  </data>
+  <data name="Form.ConnectProfile._csvImportButton">
+    <value>CSV入力(&amp;I)</value>
+  </data>
+  <data name="Form.ConnectProfile._delProfileButton">
+    <value>削除(&amp;D)</value>
+  </data>
+  <data name="Form.ConnectProfile._descriptionColumn">
+    <value>説明</value>
+  </data>
+  <data name="Form.ConnectProfile._editProfileButton">
+    <value>編集(&amp;E)</value>
+  </data>
+  <data name="Form.ConnectProfile._execCommandColumn">
+    <value>実行コマンド</value>
+  </data>
+  <data name="Form.ConnectProfile._filterLabel">
+    <value>フィルタ</value>
+  </data>
+  <data name="Form.ConnectProfile._hostNameColumn">
+    <value>ホスト名</value>
+  </data>
+  <data name="Form.ConnectProfile._newLineColumn">
+    <value>改行コード</value>
+  </data>
+  <data name="Form.ConnectProfile._portColumn">
+    <value>ポート</value>
+  </data>
+  <data name="Form.ConnectProfile._profileCountLabel">
+    <value>プロファイル数：{0}</value>
+  </data>
+  <data name="Form.ConnectProfile._protocolColumn">
+    <value>プロトコル</value>
+  </data>
+  <data name="Form.ConnectProfile._selectedProfileCountLabel">
+    <value>選択数：{0}</value>
+  </data>
+  <data name="Form.ConnectProfile._suSwitchColumn">
+    <value>SUスイッチ</value>
+  </data>
+  <data name="Form.ConnectProfile._terminalBGColorColumn">
+    <value>背景色</value>
+  </data>
+  <data name="Form.ConnectProfile._userNameColumn">
+    <value>ユーザ名</value>
+  </data>
+  <data name="Form.ConnectProfile_profileListView.No">
+    <value>しない</value>
+  </data>
+  <data name="Form.ConnectProfile_profileListView.Yes">
+    <value>する</value>
+  </data>
+  <data name="Menu.ConnectProfile">
+    <value>Telnet/SSH接続プロファイル</value>
+  </data>
+  <data name="Message.AddProfile.EmptyHostName">
+    <value>ホスト名が入力されていません。</value>
+  </data>
+  <data name="Message.AddProfile.EmptyKeyFile">
+    <value>秘密鍵ファイルが指定されていません。</value>
+  </data>
+  <data name="Message.AddProfile.EmptyPassword">
+    <value>パスワードが入力されていません。</value>
+  </data>
+  <data name="Message.AddProfile.EmptyPasswordPrompt">
+    <value>パスワードプロンプトが入力されていません。</value>
+  </data>
+  <data name="Message.AddProfile.EmptySUPassword">
+    <value>スイッチするユーザのパスワードが入力されていません。</value>
+  </data>
+  <data name="Message.AddProfile.EmptyUserName">
+    <value>ユーザ名が入力されていません。</value>
+  </data>
+  <data name="Message.AddProfile.EmptyLoginPrompt">
+    <value>ログインプロンプトが入力されていません。</value>
+  </data>
+  <data name="Message.AddProfile.KeyFileNotExist">
+    <value>指定した秘密鍵ファイルが存在しません。</value>
+  </data>
+  <data name="Message.AddProfile.SUTypeNotSelect">
+    <value>SUコマンドの種類が選択されていません。</value>
+  </data>
+  <data name="Message.Connect.LoginPromptNotFound">
+    <value>指定されたログインプロンプトが見つかりませんでした。</value>
+  </data>
+  <data name="Message.Connect.PasswordPromptNotFound">
+    <value>指定されたパスワードプロンプトが見つかりませんでした。</value>
+  </data>
+  <data name="Form.AddProfile.Hint.None">
+    <value>ここに説明が表示されます。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._authTypeBox">
+    <value>SSH接続の認証方法を選択します。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._autoLoginCheck">
+    <value>自動ログインを使用する場合はチェックをONにします。
+この機能を使用した場合は「実行コマンド」と「SUスイッチ」が使用できます。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._charCodeBox">
+    <value>文字コードを選択します。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._commandSendIntBox">
+    <value>コマンド発行の間隔を入力します。単位はミリ秒です。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._descriptionBox">
+    <value>プロファイルの説明を入力します。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._execCommandBox">
+    <value>自動ログイン完了後に実行するコマンドをワンライナーで入力します。
+この機能を使用する場合は注意してください。
+未入力の場合はこの機能は使用されません。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._hostNameBox">
+    <value>接続先のホスト名またはIPアドレスを入力します。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._keyFileBox">
+    <value>秘密鍵ファイルを指定します。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._loginPromptBox">
+    <value>ログインプロンプトを入力します。
+指定されたプロンプト文字列を受信後に自動的にユーザ名が入力されます。
+この項目では正規表現を使用することができます。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._newLineTypeBox">
+    <value>改行コードを選択します。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._passwordBox">
+    <value>ログインパスワードを入力します。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._passwordPromptBox">
+    <value>パスワードプロンプトを入力します。
+指定されたプロンプト文字列を受信後に自動的にパスワードが入力されます。
+この項目では正規表現を使用することができます。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._portBox">
+    <value>接続ポート番号を入力します。
+通常、Telnetは23番、SSHは22番です。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._profileItemColorButton">
+    <value>プロファイルの表示色を選択します。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._promptRecvTimeoutBox">
+    <value>自動ログイン機能を使用する際のプロンプトの受信タイムアウトを入力します。
+単位はミリ秒です。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._protocolBox">
+    <value>接続プロトコルを選択します。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._suPasswordBox">
+    <value>スイッチするユーザのパスワードを入力します。
+パスワードは「SU パスワード」で指定されたプロンプト文字列を受信後に自動的にパスワードが入力されます。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._suTypeRadio">
+    <value>スイッチコマンドを選択します。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._suUserNameBox">
+    <value>自動ログイン完了後にスイッチするユーザ名を入力します。
+この機能を使用する場合は注意してください。
+未入力の場合はこの機能は使用されません。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._telnetNewLineCheck">
+    <value>TelnetNewLineを使用する場合はチェックをONにします。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._terminalBGColorButton">
+    <value>背景色を選択します。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._terminalFontColorButton">
+    <value>フォント色を選択します。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._terminalTypeBox">
+    <value>ターミナルの種類を選択します。</value>
+  </data>
+  <data name="Form.AddProfile.Hint._userNameBox">
+    <value>ログインユーザ名を入力します。</value>
+  </data>
+  <data name="Form.AddProfile._accountGroup">
+    <value>アカウント</value>
+  </data>
+  <data name="Form.AddProfile._autoLoginGroup">
+    <value>自動ログイン</value>
+  </data>
+  <data name="Form.AddProfile._commandSendIntLabel">
+    <value>コマンド発行間隔 (ミリ秒)</value>
+  </data>
+  <data name="Form.AddProfile._promptRecvTimeoutLabel">
+    <value>プロンプト受信タイムアウト (ミリ秒)</value>
+  </data>
+  <data name="Form.AddProfile._telnetNewLineCheck">
+    <value>TelnetNewLine</value>
+  </data>
+  <data name="Form.ConnectProfile._displaySelectedOnlyCheck">
+    <value>選択済みプロファイルのみ表示(&amp;S)</value>
+  </data>
+  <data name="Form.ConnectProfile._filterTextBox">
+    <value>空白区切りでAND条件検索</value>
+  </data>
+  <data name="Message.ConnectProfile.ConnectConfirm">
+    <value>{0}個のプロファイルが選択されています。接続しますか？
+{1}</value>
+  </data>
+  <data name="Message.ConnectProfile.ProfileNotSelected">
+    <value>プロファイルが選択されていません。</value>
+  </data>
+  <data name="Form.Common.WaterMark.Required">
+    <value>必須</value>
+  </data>
+  <data name="Form.ConnectProfile._openCSVFileDialog.Caption">
+    <value>CSVファイルを選択</value>
+  </data>
+  <data name="Form.ConnectProfile._openCSVFileDialog.Filter">
+    <value>CSVファイル (*.csv)|*.csv|すべてのファイル (*.*)|*.*</value>
+  </data>
+  <data name="Form.ConnectProfile._saveCSVFileDialog.Caption">
+    <value>接続プロファイルをCSVに保存</value>
+  </data>
+  <data name="Form.ConnectProfile._saveCSVFileDialog.Filter">
+    <value>CSVファイル (*.csv)|*.csv|すべてのファイル (*.*)|*.*</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVExportComplete">
+    <value>CSVエクスポートが完了しました。文字コードはUTF8です。
+CSVヘッダー情報はインポート時に整合性確認を行っているため変更や削除は行わないでください。</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVExportDetetePasssword">
+    <value>パスワードを削除して出力しますか？</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportComplete">
+    <value>CSVインポートが完了しました。</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportAppendProfileList">
+    <value>現在のプロファイルリストに追加しますか？
+いいえを選択した場合は現在のプロファイルリストは全て削除されます。</value>
+  </data>
+  <data name="Form.ConnectProfile._hintLabel">
+    <value>リスト上のダブルクリック操作 (左ボタン = 接続 / 中ボタン = 追加 / 右ボタン = 編集)</value>
+  </data>
+  <data name="Form.ConnectProfile._copyButton">
+    <value>コピー(&amp;C)</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidHeader">
+    <value>CSVヘッダーの整合性チェックに失敗しました。({0}行目)
+CSVエクスポート時に出力されるヘッダーと同一にしてください。</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportFailed">
+    <value>CSVインポートに失敗しました。({0}行目)</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidAuthType">
+    <value>SSH認証方法の指定が正しくありません。</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidAutoLogin">
+    <value>SSH認証方法の指定が正しくありません。</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidCharCode">
+    <value>文字コードの指定が正しくありません。</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidCommandSendInterval">
+    <value>コマンド発行間隔の指定が正しくありません。</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidFieldCount">
+    <value>CSVのフィールド数が正しくありません。 ({0}行目)</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidHostName">
+    <value>ホスト名の指定が正しくありません。</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidNewLine">
+    <value>改行コードの指定が正しくありません。</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidPort">
+    <value>ポートの指定が正しくありません。</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidPromptRecvTimeout">
+    <value>プロンプト受信タイムアウトの指定が正しくありません。</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidProtocol">
+    <value>プロトコルの指定が正しくありません。</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidSUType">
+    <value>SUコマンドの指定が正しくありません。</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidTelnetNewLine">
+    <value>TelnetNewLineの指定が正しくありません。</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidTerminalType">
+    <value>ターミナル種類の指定が正しくありません。</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportCancel">
+    <value>インポートをキャンセルしました。</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportConfirm">
+    <value>インポートを実行しますか？
+インポート中にエラーが発生した場合は処理が中止され、現在のプロファイルリストが保持されます。</value>
+  </data>
+  <data name="Message.ConnectProfile.ConnectCancel">
+    <value>キャンセルしました。</value>
+  </data>
+</root>
