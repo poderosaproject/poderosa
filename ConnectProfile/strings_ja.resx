@@ -20,6 +20,9 @@
   <data name="Command.ConnectProfile">
     <value>Telnet/SSH接続プロファイル</value>
   </data>
+  <data name="Caption.ConnectProfile.Connecting">
+    <value>Telnet/SSH接続プロファイル ({0} に接続中)</value>
+  </data>
   <data name="Form.AddProfile._authTypeLabel">
     <value>認証方法</value>
   </data>
@@ -33,7 +36,7 @@
     <value>文字コード</value>
   </data>
   <data name="Form.AddProfile._descriptionLabel">
-    <value>備考</value>
+    <value>説明</value>
   </data>
   <data name="Form.AddProfile._etcGroup">
     <value>その他</value>
@@ -119,11 +122,8 @@
   <data name="Form.ConnectProfile._autoLoginColumn">
     <value>自動ログイン</value>
   </data>
-  <data name="Form.ConnectProfile._charCodeColumn">
-    <value>文字コード</value>
-  </data>
   <data name="Form.ConnectProfile._checkAllOffButton">
-    <value>チェック全解除(&amp;U)</value>
+    <value>チェック全解除(&amp;O)</value>
   </data>
   <data name="Form.ConnectProfile._csvExportButton">
     <value>CSV出力(&amp;X)</value>
@@ -148,9 +148,6 @@
   </data>
   <data name="Form.ConnectProfile._hostNameColumn">
     <value>ホスト名</value>
-  </data>
-  <data name="Form.ConnectProfile._newLineColumn">
-    <value>改行コード</value>
   </data>
   <data name="Form.ConnectProfile._portColumn">
     <value>ポート</value>
@@ -229,14 +226,16 @@
     <value>文字コードを選択します。</value>
   </data>
   <data name="Form.AddProfile.Hint._commandSendIntBox">
-    <value>コマンド発行の間隔を入力します。単位はミリ秒です。</value>
+    <value>コマンド発行の間隔を入力します。
+単位はミリ秒です。</value>
   </data>
   <data name="Form.AddProfile.Hint._descriptionBox">
     <value>プロファイルの説明を入力します。</value>
   </data>
   <data name="Form.AddProfile.Hint._execCommandBox">
     <value>自動ログイン完了後に実行するコマンドをワンライナーで入力します。
-この機能を使用する場合は注意してください。
+SUスイッチ機能を使用する場合は、SUスイッチ後に実行されます。
+この機能を使用する場合は十分注意してください。
 未入力の場合はこの機能は使用されません。</value>
   </data>
   <data name="Form.AddProfile.Hint._hostNameBox">
@@ -277,14 +276,14 @@
   </data>
   <data name="Form.AddProfile.Hint._suPasswordBox">
     <value>スイッチするユーザのパスワードを入力します。
-パスワードは「SU パスワード」で指定されたプロンプト文字列を受信後に自動的にパスワードが入力されます。</value>
+パスワードは「パスワードプロンプト」で指定された文字列を受信後に自動的に入力されます。</value>
   </data>
   <data name="Form.AddProfile.Hint._suTypeRadio">
     <value>スイッチコマンドを選択します。</value>
   </data>
   <data name="Form.AddProfile.Hint._suUserNameBox">
     <value>自動ログイン完了後にスイッチするユーザ名を入力します。
-この機能を使用する場合は注意してください。
+この機能を使用する場合は十分注意してください。
 未入力の場合はこの機能は使用されません。</value>
   </data>
   <data name="Form.AddProfile.Hint._telnetNewLineCheck">

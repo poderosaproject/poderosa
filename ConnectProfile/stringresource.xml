@@ -11,6 +11,11 @@
   <en>Telnet/SSH Connection Profile</en>
 </record>
 
+<record name="Caption.ConnectProfile.Connecting">
+  <ja>Telnet/SSH接続プロファイル ({0} に接続中)</ja>
+  <en>Telnet/SSH Connection Profile (Connecting to {0})</en>
+</record>
+
 <record name="Command.ConnectProfile">
   <ja>Telnet/SSH接続プロファイル</ja>
   <en>Telnet/SSH Connection Profile</en>
@@ -216,10 +221,12 @@ Unit is milliseconds.</en>
 
 <record name="Form.AddProfile.Hint._execCommandBox">
    <ja>自動ログイン完了後に実行するコマンドをワンライナーで入力します。
-この機能を使用する場合は注意してください。
+SUスイッチ機能を使用する場合は、SUスイッチ後に実行されます。
+この機能を使用する場合は十分注意してください。
 未入力の場合はこの機能は使用されません。</ja>
-   <en>Enter the one-liner command to run automatically after login
-Note that if you use this feature.
+   <en>Enter the one-liner command to run automatically after login.
+If you use SU switch function runs SU switch later.
+If you use this feature with caution.
 This feature is not used if left blank.</en>
 </record>
 
@@ -286,9 +293,9 @@ Unit is milliseconds.</en>
 
 <record name="Form.AddProfile.Hint._suPasswordBox">
    <ja>スイッチするユーザのパスワードを入力します。
-パスワードは「SU パスワード」で指定されたプロンプト文字列を受信後に自動的にパスワードが入力されます。</ja>
+パスワードは「パスワードプロンプト」で指定された文字列を受信後に自動的に入力されます。</ja>
    <en>Enter the password for the user to switch.
-Passwords are automatically populated after receiving prompt string specified in item SU Password"".""</en>
+Passwords are automatically populated after receiving prompt string specified in item "Password Prompt".</en>
 </record>
 
 <record name="Form.AddProfile.Hint._suTypeRadio">
@@ -298,10 +305,10 @@ Passwords are automatically populated after receiving prompt string specified in
 
 <record name="Form.AddProfile.Hint._suUserNameBox">
    <ja>自動ログイン完了後にスイッチするユーザ名を入力します。
-この機能を使用する場合は注意してください。
+この機能を使用する場合は十分注意してください。
 未入力の場合はこの機能は使用されません。</ja>
    <en>Enter the user name to switch to auto login after.
-Note that if you use this feature.
+If you use this feature with caution.
 This feature is not used if left blank.</en>
 </record>
 
@@ -358,11 +365,6 @@ This feature is not used if left blank.</en>
 <record name="Form.ConnectProfile._autoLoginColumn">
   <ja>自動ログイン</ja>
   <en>Auto Login</en>
-</record>
-
-<record name="Form.ConnectProfile._charCodeColumn">
-  <ja>文字コード</ja>
-  <en>Char Code</en>
 </record>
 
 <record name="Form.ConnectProfile._checkAllOffButton">
@@ -428,11 +430,6 @@ This feature is not used if left blank.</en>
 <record name="Form.ConnectProfile._hostNameColumn">
   <ja>ホスト名</ja>
   <en>Host Name</en>
-</record>
-
-<record name="Form.ConnectProfile._newLineColumn">
-  <ja>改行コード</ja>
-  <en>New Line</en>
 </record>
 
 <record name="Form.ConnectProfile._openCSVFileDialog.Caption">

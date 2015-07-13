@@ -261,8 +261,8 @@ namespace Poderosa.ConnectProfile {
             _terminalType = builder.DefineStringValue(_profileDefinition, "terminalType", "", null);
             _terminalFontColor = new ColorPreferenceItem(builder.DefineStringValue(_profileDefinition, "terminalFontColor", "White", null), KnownColor.White);
             _terminalBGColor = new ColorPreferenceItem(builder.DefineStringValue(_profileDefinition, "terminalBGColor", "Black", null), KnownColor.Black);
-            _commandSendInterval = builder.DefineIntValue(_profileDefinition, "commandSendInterval", 500, null);
-            _promptRecvTimeout = builder.DefineIntValue(_profileDefinition, "promptRecvTimeout", 5000, null);
+            _commandSendInterval = builder.DefineIntValue(_profileDefinition, "commandSendInterval", ConnectProfileStruct.DEFAULT_CMD_SEND_INTERVAL, null);
+            _promptRecvTimeout = builder.DefineIntValue(_profileDefinition, "promptRecvTimeout", ConnectProfileStruct.DEFAULT_PROMPT_RECV_TIMEOUT, null);
             _profileItemColor = new ColorPreferenceItem(builder.DefineStringValue(_profileDefinition, "profileItemColor", "Black", null), KnownColor.Black);
             _description = builder.DefineStringValue(_profileDefinition, "description", "", null);
         }

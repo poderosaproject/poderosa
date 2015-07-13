@@ -41,7 +41,6 @@ namespace Poderosa.ConnectProfile {
             this._addProfileButton.Text = ConnectProfilePlugin.Strings.GetString("Form.ConnectProfile._addProfileButton");
             this._autoLoginColumn.Text = ConnectProfilePlugin.Strings.GetString("Form.ConnectProfile._autoLoginColumn");
             this._cancelButton.Text = ConnectProfilePlugin.Strings.GetString("Form.Common._cancelButton");
-            this._charCodeColumn.Text = ConnectProfilePlugin.Strings.GetString("Form.ConnectProfile._charCodeColumn");
             this._checkAllOffButton.Text = ConnectProfilePlugin.Strings.GetString("Form.ConnectProfile._checkAllOffButton");
             this._copyButton.Text = ConnectProfilePlugin.Strings.GetString("Form.ConnectProfile._copyButton");
             this._csvExportButton.Text = ConnectProfilePlugin.Strings.GetString("Form.ConnectProfile._csvExportButton");
@@ -55,7 +54,6 @@ namespace Poderosa.ConnectProfile {
             this._filterTextBox.WaterMarkText = ConnectProfilePlugin.Strings.GetString("Form.ConnectProfile._filterTextBox");
             this._hintLabel.Text = ConnectProfilePlugin.Strings.GetString("Form.ConnectProfile._hintLabel");
             this._hostNameColumn.Text = ConnectProfilePlugin.Strings.GetString("Form.ConnectProfile._hostNameColumn");
-            this._newLineColumn.Text = ConnectProfilePlugin.Strings.GetString("Form.ConnectProfile._newLineColumn");
             this._okButton.Text = ConnectProfilePlugin.Strings.GetString("Form.Common._okButton");
             this._openCSVFileDialog.Filter = ConnectProfilePlugin.Strings.GetString("Form.ConnectProfile._openCSVFileDialog.Filter");
             this._openCSVFileDialog.Title = ConnectProfilePlugin.Strings.GetString("Form.ConnectProfile._openCSVFileDialog.Caption");
@@ -83,9 +81,7 @@ namespace Poderosa.ConnectProfile {
             this._protocolColumn.Width = -2;
             this._portColumn.Width = -2;
             this._suSwitchColumn.Width = -2;
-            this._charCodeColumn.Width = -2;
-            this._newLineColumn.Width = -2;
-            this._execCommandColumn.Width = -2;
+            this._execCommandColumn.Width = -1;
             this._terminalBGColorColumn.Width = -2;
             this._descriptionColumn.Width = -2;
 
@@ -118,7 +114,7 @@ namespace Poderosa.ConnectProfile {
 
             // 各データ代入
             foreach (ConnectProfileStruct prof in ConnectProfilePlugin.Profiles) {
-                str = string.Format("{0} {1} {2} {3} {4} {5} {6} {7} {8}", prof.HostName, prof.UserName, prof.Protocol.ToString(), prof.Port.ToString(), prof.SUUserName, prof.CharCode.ToString(), prof.NewLine, prof.ExecCommand, prof.Description);
+                str = string.Format("{0} {1} {2} {3} {4} {5} {6}", prof.HostName, prof.UserName, prof.Protocol.ToString(), prof.Port.ToString(), prof.SUUserName, prof.ExecCommand, prof.Description);
                 // フィルタ
                 if (IsVisibleItem(str) == true) {
                     // チェックONのみ表示
@@ -137,8 +133,6 @@ namespace Poderosa.ConnectProfile {
                     li.SubItems.Add(prof.Protocol.ToString());
                     li.SubItems.Add(prof.Port.ToString());
                     li.SubItems.Add((prof.SUUserName != "") ? prof.SUUserName : "");
-                    li.SubItems.Add(prof.CharCode.ToString());
-                    li.SubItems.Add(prof.NewLine.ToString());
                     li.SubItems.Add((prof.ExecCommand != "") ? prof.ExecCommand : "");
                     li.SubItems.Add(""); // 背景色
                     li.SubItems.Add((prof.Description != "") ? prof.Description : "");
@@ -147,7 +141,7 @@ namespace Poderosa.ConnectProfile {
                     li.ForeColor = prof.ProfileItemColor;
                     for (int i = 0; i < li.SubItems.Count; i++) {
                         li.SubItems[i].ForeColor = prof.ProfileItemColor;
-                        if (i == 9) li.SubItems[i].BackColor = prof.TerminalBGColor;
+                        if (i == 7) li.SubItems[i].BackColor = prof.TerminalBGColor;
                     }
 
                     // チェック状態復元
@@ -216,7 +210,10 @@ namespace Poderosa.ConnectProfile {
         /// </summary>
         private void Connect(ConnectProfileStruct prof) {
             if (prof != null) {
+                // 接続中はダイアログタイトルにホスト名を表示
+                this.Text = string.Format(ConnectProfilePlugin.Strings.GetString("Caption.ConnectProfile.Connecting"), prof.HostName);
                 _cmd.ConnectProfile(prof);
+                this.Text = ConnectProfilePlugin.Strings.GetString("Caption.ConnectProfile");
             }
         }
 
@@ -326,6 +323,7 @@ namespace Poderosa.ConnectProfile {
                         if (_connectCancelFlg != true) {
                             if (prof.Check == true) Connect(prof);
                         } else {
+                            // キャンセルボタン押下
                             ConnectProfilePlugin.MessageBoxInvoke(ConnectProfilePlugin.Strings.GetString("Message.ConnectProfile.ConnectCancel"), MessageBoxIcon.Warning);
                             this.DialogResult = DialogResult.None;
                             EnableControl(true);
@@ -521,7 +519,11 @@ namespace Poderosa.ConnectProfile {
 
             // 左ダブルクリック=接続, 中ダブルクリック=追加, 右ダブルクリック=編集
             if ((_doubleClickFlg == true) && (_clickButton == MouseButtons.Left)) {
-                if (_selectCnt == 0) Connect(GetSelectedProfile());
+                if (_selectCnt == 0) {
+                    EnableControl(false);
+                    Connect(GetSelectedProfile());
+                    EnableControl(true);
+                }
             } else if ((_doubleClickFlg == true) && (_clickButton == MouseButtons.Middle)) {
                 AddProfile();
             } else if ((_doubleClickFlg == true) && (_clickButton == MouseButtons.Right)) {

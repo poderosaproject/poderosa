@@ -46,8 +46,6 @@
             this._protocolColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this._portColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this._suSwitchColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this._charCodeColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this._newLineColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this._execCommandColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this._terminalBGColorColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this._descriptionColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -82,8 +80,6 @@
             this._protocolColumn,
             this._portColumn,
             this._suSwitchColumn,
-            this._charCodeColumn,
-            this._newLineColumn,
             this._execCommandColumn,
             this._terminalBGColorColumn,
             this._descriptionColumn});
@@ -149,37 +145,22 @@
             // _autoLoginColumn
             // 
             this._autoLoginColumn.Text = "_autoLoginColumn";
-            this._autoLoginColumn.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this._autoLoginColumn.Width = 103;
             // 
             // _protocolColumn
             // 
             this._protocolColumn.Text = "_protocolColumn";
-            this._protocolColumn.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this._protocolColumn.Width = 95;
             // 
             // _portColumn
             // 
             this._portColumn.Text = "_portColumn";
-            this._portColumn.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this._portColumn.Width = 74;
             // 
             // _suSwitchColumn
             // 
             this._suSwitchColumn.Text = "_suSwitchColumn";
             this._suSwitchColumn.Width = 100;
-            // 
-            // _charCodeColumn
-            // 
-            this._charCodeColumn.Text = "_charCodeColumn";
-            this._charCodeColumn.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this._charCodeColumn.Width = 102;
-            // 
-            // _newLineColumn
-            // 
-            this._newLineColumn.Text = "_newLineColumn";
-            this._newLineColumn.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this._newLineColumn.Width = 95;
             // 
             // _execCommandColumn
             // 
@@ -408,8 +389,6 @@
         private System.Windows.Forms.ColumnHeader _protocolColumn;
         private System.Windows.Forms.ColumnHeader _portColumn;
         private System.Windows.Forms.ColumnHeader _suSwitchColumn;
-        private System.Windows.Forms.ColumnHeader _charCodeColumn;
-        private System.Windows.Forms.ColumnHeader _newLineColumn;
         private System.Windows.Forms.ColumnHeader _execCommandColumn;
         private System.Windows.Forms.Button _addProfileButton;
         private System.Windows.Forms.Button _delProfileButton;

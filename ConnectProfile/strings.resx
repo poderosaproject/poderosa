@@ -20,6 +20,9 @@
   <data name="Command.ConnectProfile">
     <value>Telnet/SSH Connection Profile</value>
   </data>
+  <data name="Caption.ConnectProfile.Connecting">
+    <value>Telnet/SSH Connection Profile (Connecting to {0})</value>
+  </data>
   <data name="Form.AddProfile._authTypeLabel">
     <value>Auth Type</value>
   </data>
@@ -119,11 +122,8 @@
   <data name="Form.ConnectProfile._autoLoginColumn">
     <value>Auto Login</value>
   </data>
-  <data name="Form.ConnectProfile._charCodeColumn">
-    <value>Char Code</value>
-  </data>
   <data name="Form.ConnectProfile._checkAllOffButton">
-    <value>Check All OFF(&amp;U)</value>
+    <value>Check All OFF(&amp;O)</value>
   </data>
   <data name="Form.ConnectProfile._csvExportButton">
     <value>Export(&amp;X)</value>
@@ -148,9 +148,6 @@
   </data>
   <data name="Form.ConnectProfile._hostNameColumn">
     <value>Host Name</value>
-  </data>
-  <data name="Form.ConnectProfile._newLineColumn">
-    <value>New Line</value>
   </data>
   <data name="Form.ConnectProfile._portColumn">
     <value>Port</value>
@@ -236,8 +233,9 @@ Unit is milliseconds.</value>
     <value>Enter a description for the profile.</value>
   </data>
   <data name="Form.AddProfile.Hint._execCommandBox">
-    <value>Enter the one-liner command to run automatically after login
-Note that if you use this feature.
+    <value>Enter the one-liner command to run automatically after login.
+If you use SU switch function runs SU switch later.
+If you use this feature with caution.
 This feature is not used if left blank.</value>
   </data>
   <data name="Form.AddProfile.Hint._hostNameBox">
@@ -277,14 +275,14 @@ Unit is milliseconds.</value>
   </data>
   <data name="Form.AddProfile.Hint._suPasswordBox">
     <value>Enter the password for the user to switch.
-Passwords are automatically populated after receiving prompt string specified in item "SU Password".</value>
+Passwords are automatically populated after receiving prompt string specified in item "Password Prompt".</value>
   </data>
   <data name="Form.AddProfile.Hint._suTypeRadio">
     <value>Select the switch command.</value>
   </data>
   <data name="Form.AddProfile.Hint._suUserNameBox">
     <value>Enter the user name to switch to auto login after.
-Note that if you use this feature.
+If you use this feature with caution.
 This feature is not used if left blank.</value>
   </data>
   <data name="Form.AddProfile.Hint._telnetNewLineCheck">

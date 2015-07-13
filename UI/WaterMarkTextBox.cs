@@ -47,7 +47,7 @@ namespace Poderosa.UI {
                 using (Graphics g = Graphics.FromHwnd(this.Handle)) {
                     StringFormat sf = new StringFormat();
                     float textHeight = g.MeasureString(this.WaterMarkText, this.Font, this.Width, sf).Height;
-                    float textY = ((float)this.Height - textHeight) / (float)2.0;
+                    float textY = ((float)this.Height - textHeight) / (float)4.0;
                     RectangleF bounds = new RectangleF(0, textY, (float)this.Width, (float)this.Height - (textY * (float)2.0));
                     g.DrawString(this.WaterMarkText, this.Font, new SolidBrush(this.WaterMarkColor), bounds, sf);
                 }
