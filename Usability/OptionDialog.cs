@@ -191,6 +191,7 @@ namespace Poderosa.Forms {
             _idToWorkPreference = new TypedHashtable<string, WorkPreference>();
             IPreferences preferences = OptionDialogPlugin.Instance.RootPreferences;
             int y = 8;
+            int addWidthValue = 20;
 
             for (int i = 0; i < _entries.Length; i++) {
                 IOptionPanelExtension e = _entries[i].Extension;
@@ -209,7 +210,16 @@ namespace Poderosa.Forms {
 
                 y += 52;
             }
-            this.ClientSize = new Size(this.ClientSize.Width, y + 42); //項目が増えたら高さが増える
+
+            // 項目が増えた場合はパネルにスクロールを表示させてパネル幅/フォーム幅を変更する
+            // ※デフォルトの7項目を基準にして8項目以上になった場合はスクロールを表示して幅を変更
+            // ※項目数が増えれば増えるほどフォーム自体が縦長になってしまい表示しきれない懸念がある
+            // ※今後プラグインでどれだけ項目数を増やしてもスクロールを表示することで対応
+            if (_entries.Length > 7) {
+                _categoryItems.AutoScroll = true;
+                _categoryItems.Width += addWidthValue;
+                this.Width += addWidthValue;
+            }
         }
         private PanelItem PanelItemAt(int index) {
             return (PanelItem)_categoryItems.Controls[index];
