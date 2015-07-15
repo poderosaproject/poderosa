@@ -1,0 +1,112 @@
+﻿<root>
+  <resheader name="ResMimeType">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="Version">
+    <value>1.0.0.0</value>
+  </resheader>
+  <resheader name="Reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="Writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Common.Cancel">
+    <value>キャンセル</value>
+  </data>
+  <data name="Common.OK">
+    <value>OK</value>
+  </data>
+  <data name="Enum.UseAction.Always">
+    <value>常に使用</value>
+  </data>
+  <data name="Enum.UseAction.NewLine">
+    <value>改行を含む場合に使用</value>
+  </data>
+  <data name="Enum.UseAction.NotUse">
+    <value>使用しない</value>
+  </data>
+  <data name="Form.ExtendPasteDialog.NewLineExist">
+    <value>あり</value>
+  </data>
+  <data name="Form.ExtendPasteDialog.NewLineNotExist">
+    <value>なし</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._confirmedCheck">
+    <value>確認しました(&amp;C)</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._findNextButton">
+    <value>次を検索(&amp;D)</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._findPrevButton">
+    <value>前を検索(&amp;U)</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._keywordMatchLabel">
+    <value>強調キーワード検出数：{0}</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._lineCountLabel">
+    <value>行数：{0}</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._messageLabel">
+    <value>クリップボードのデータを貼り付けますか？</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._newLineLabel">
+    <value>改行：{0}</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._subMessageLabel.Check">
+    <value>内容確認後にチェックボックスをONにしてください</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._subMessageLabel.Wait">
+    <value>貼り付けを {0} 秒後に実行します (キャンセルまたはESCキーで中断)</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._targetSessionLabel">
+    <value>対象セッション：{0}</value>
+  </data>
+  <data name="Form.ExtendPasteOptionPanel.Caption">
+    <value>拡張ペースト</value>
+  </data>
+  <data name="Form.ExtendPasteOptionPanel._afterSpecifiedTimePasteCheck">
+    <value>指定秒数経過後にペースト(0-60秒)
+(待機中はペーストキャンセル可能)</value>
+  </data>
+  <data name="Form.ExtendPasteOptionPanel._changeDialogSize">
+    <value>ダイアログのサイズ変更を許可
+(クリップボートの内容を広範囲で確認したい場合に有効)</value>
+  </data>
+  <data name="Form.ExtendPasteOptionPanel._descriptionLabel">
+    <value>拡張ペーストプラグインは、ペースト時にクリップボードの内容を表示するプラグインです。
+
+クリップボードのデータに指定したキーワードが含まれる場合は、該当する文字を強調表示します。
+ペーストを実行しても指定した秒数経過後に実際にペーストすることができ、その時間内であればペーストをキャンセルすることができます。
+
+これらの機能により、意図しないコマンドのペーストを防ぎ、ヒューマンエラーを極力防止することができます。
+
+標準のペーストコマンドは拡張ペーストコマンドに置き換えられます。</value>
+  </data>
+  <data name="Form.ExtendPasteOptionPanel._extendPasteOptionGroup">
+    <value>拡張ペースト</value>
+  </data>
+  <data name="Form.ExtendPasteOptionPanel._highlightKeywordLabel">
+    <value>強調キーワード(正規表現)</value>
+  </data>
+  <data name="Form.ExtendPasteOptionPanel._showConfirmCheck">
+    <value>ダイアログ内に「確認しました」チェックボックスを表示
+(チェックをONにするまでOKボタンが有効化されない)</value>
+  </data>
+  <data name="Form.ExtendPasteOptionPanel._useActionLabel">
+    <value>使用アクション</value>
+  </data>
+  <data name="Message.ExtendPasteDialog.InvalidRegEx">
+    <value>正規表現パターンの指定が正しくありません。
+{0}</value>
+  </data>
+  <data name="Message.ExtendPasteOptionPanel.AfterSpecifiedTimePaste">
+    <value>ペースト秒数</value>
+  </data>
+  <data name="Message.ExtendPasteOptionPanel.InvalidItem">
+    <value>{0}の指定が正しくありません。</value>
+  </data>
+  <data name="Message.ExtendPasteOptionPanel.RegExpPettern">
+    <value>強調キーワード</value>
+  </data>
+</root>
