@@ -1,3 +1,20 @@
+4.3.15
+------
+    * Use larger random number bits in the Diffie-Hellman key exchange.
+      (by IWAMOTO Kouichi)
+
+    * Use RNGCryptoServiceProvider for generating random number
+      in the cryptographic protocol. (by IWAMOTO Kouichi)
+
+    * Text encoding can be assigned shortcut key (by yoshikixxxx)
+
+    * Fixed escape sequences of the function keys (F1-F12) in XTerm.
+
+    * Migrated to Visual Studio 2013.
+      All source files were converted to use UTF-8-SIG.
+
+    * Remove 'b' suffix from the version number.
+
 4.3.14b
 -------
     * Fix deadlock which occurs when a socket was closed by the peer.
