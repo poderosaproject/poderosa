@@ -1,0 +1,112 @@
+﻿<root>
+  <resheader name="ResMimeType">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="Version">
+    <value>1.0.0.0</value>
+  </resheader>
+  <resheader name="Reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="Writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Common.Cancel">
+    <value>Cancel</value>
+  </data>
+  <data name="Common.OK">
+    <value>OK</value>
+  </data>
+  <data name="Enum.UseAction.Always">
+    <value>Always</value>
+  </data>
+  <data name="Enum.UseAction.NewLine">
+    <value>Used if NewLine</value>
+  </data>
+  <data name="Enum.UseAction.NotUse">
+    <value>Not use</value>
+  </data>
+  <data name="Form.ExtendPasteDialog.NewLineExist">
+    <value>Yes</value>
+  </data>
+  <data name="Form.ExtendPasteDialog.NewLineNotExist">
+    <value>No</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._confirmedCheck">
+    <value>Confirmed(&amp;C)</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._findNextButton">
+    <value>Next(&amp;D)</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._findPrevButton">
+    <value>Prev(&amp;U)</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._keywordMatchLabel">
+    <value>Detect Highlight Keywords : {0}</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._lineCountLabel">
+    <value>Lines : {0}</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._messageLabel">
+    <value>Do you want to paste it ?</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._newLineLabel">
+    <value>NewLines : {0}</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._subMessageLabel.Check">
+    <value>Contents see check box ON the confirmation.</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._subMessageLabel.Wait">
+    <value>Paste with {0} seconds to run. (Cancel or ESC key abort)</value>
+  </data>
+  <data name="Form.ExtendPasteDialog._targetSessionLabel">
+    <value>Target Session : {0}</value>
+  </data>
+  <data name="Form.ExtendPasteOptionPanel.Caption">
+    <value>ExtendPaste</value>
+  </data>
+  <data name="Form.ExtendPasteOptionPanel._afterSpecifiedTimePasteCheck">
+    <value>Paste after specified time elapsed (0-60sec)
+(Waiting time can cancel a paste)</value>
+  </data>
+  <data name="Form.ExtendPasteOptionPanel._changeDialogSize">
+    <value>Allow change dialog size
+(Use if you want to check the contents of the clipboard in a wide range)</value>
+  </data>
+  <data name="Form.ExtendPasteOptionPanel._descriptionLabel">
+    <value>ExtendPaste plugin is a plugin to display the contents of the Clipboard when pasting.
+
+Highlight characters that contain the keyword specified in the data on the Clipboard.
+Run paste actually can paste even after the specified number of seconds has elapsed, the it is possible to cancel the paste if within that time.
+
+These features prevent the paste of unintended command, it will be able to prevent human error as much as possible.
+
+Also, standard paste command replaces extended paste command.</value>
+  </data>
+  <data name="Form.ExtendPasteOptionPanel._extendPasteOptionGroup">
+    <value>Extend Paste</value>
+  </data>
+  <data name="Form.ExtendPasteOptionPanel._highlightKeywordLabel">
+    <value>Highlight Keyword (RegEx)</value>
+  </data>
+  <data name="Form.ExtendPasteOptionPanel._showConfirmCheck">
+    <value>Show "Confirmed" check box in dialog
+(OK button is not enabled until you check to ON)</value>
+  </data>
+  <data name="Form.ExtendPasteOptionPanel._useActionLabel">
+    <value>Use Action</value>
+  </data>
+  <data name="Message.ExtendPasteDialog.InvalidRegEx">
+    <value>The value of regular expression pattern is invalid.
+{0}</value>
+  </data>
+  <data name="Message.ExtendPasteOptionPanel.AfterSpecifiedTimePaste">
+    <value>Paste Time</value>
+  </data>
+  <data name="Message.ExtendPasteOptionPanel.InvalidItem">
+    <value>The value of {0} is invalid.</value>
+  </data>
+  <data name="Message.ExtendPasteOptionPanel.RegExpPettern">
+    <value>Highlight Keyword</value>
+  </data>
+</root>

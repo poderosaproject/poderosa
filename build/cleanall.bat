@@ -6,6 +6,7 @@ set PROJDIR=%~dp0..
 call :clean "%PROJDIR%\Benchmark"
 call :clean "%PROJDIR%\Core"
 call :clean "%PROJDIR%\Executable"
+call :clean "%PROJDIR%\ExtendPaste"
 call :clean "%PROJDIR%\Granados"
 call :clean "%PROJDIR%\Macro"
 call :clean "%PROJDIR%\Misc"
