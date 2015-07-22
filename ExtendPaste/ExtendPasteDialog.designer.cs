@@ -1,4 +1,10 @@
-﻿namespace Poderosa.ExtendPaste
+﻿/*
+ * Copyright 2015 yoshikixxxx.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ */
+namespace Poderosa.ExtendPaste
 {
     partial class ExtendPasteDialog
     {

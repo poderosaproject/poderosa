@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*
+ * Copyright 2015 yoshikixxxx.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ */
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
