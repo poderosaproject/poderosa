@@ -16,7 +16,7 @@ set ASSYS=
 
 call :addfile "%PROJDIR%\Executable\bin\%CONFIG%\Poderosa.exe"
 
-for %%D in (Core Granados Macro Pipe Plugin PortForwardingCommand Protocols SerialPort SFTP TerminalEmulator TerminalSession UI Usability XZModem Benchmark ExtendPaste) do (
+for %%D in (Core Granados Macro Pipe Plugin PortForwardingCommand Protocols SerialPort SFTP TerminalEmulator TerminalSession UI Usability XZModem Benchmark) do (
   if exist "%PROJDIR%\%%D\bin\%CONFIG%\%%D.dll" (
     call :addfile "%PROJDIR%\%%D\bin\%CONFIG%\%%D.dll"
   ) else if exist "%PROJDIR%\%%D\bin\%CONFIG%\Poderosa.%%D.dll" (
