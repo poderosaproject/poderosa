@@ -17,24 +17,42 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\bin\Debug\Poderosa.ExtendPaste.xml</DocumentationFile>
+    <DocumentationFile>..\..\bin\Debug\Poderosa.ExtendPaste.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\bin\Release\</OutputPath>
+    <OutputPath>..\..\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\bin\Release\Poderosa.ExtendPaste.xml</DocumentationFile>
+    <DocumentationFile>..\..\bin\Release\Poderosa.ExtendPaste.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Poderosa.Core">
+      <HintPath>..\..\bin\Release\Poderosa.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Poderosa.Plugin">
+      <HintPath>..\..\bin\Release\Poderosa.Plugin.dll</HintPath>
+    </Reference>
+    <Reference Include="Poderosa.Protocols">
+      <HintPath>..\..\bin\Release\Poderosa.Protocols.dll</HintPath>
+    </Reference>
+    <Reference Include="Poderosa.TerminalEmulator">
+      <HintPath>..\..\bin\Release\Poderosa.TerminalEmulator.dll</HintPath>
+    </Reference>
+    <Reference Include="Poderosa.TerminalSession">
+      <HintPath>..\..\bin\Release\Poderosa.TerminalSession.dll</HintPath>
+    </Reference>
+    <Reference Include="Poderosa.Usability">
+      <HintPath>..\..\bin\Release\Poderosa.Usability.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -58,32 +76,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj">
-      <Project>{8a416f19-9031-44a1-b225-bcb31a6bc6a7}</Project>
-      <Name>Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Plugin\Plugin.csproj">
-      <Project>{d84b661b-503e-4c22-892b-7499b72c7e04}</Project>
-      <Name>Plugin</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Protocols\Protocols.csproj">
-      <Project>{04f18da5-bf47-48a3-9b8b-b6b93dcba875}</Project>
-      <Name>Protocols</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TerminalEmulator\TerminalEmulator.csproj">
-      <Project>{7f80731c-443a-4533-90d1-1643a5c1364e}</Project>
-      <Name>TerminalEmulator</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TerminalSession\TerminalSession.csproj">
-      <Project>{4554e83a-2a00-47e2-ab5b-14a228895c17}</Project>
-      <Name>TerminalSession</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Usability\Usability.csproj">
-      <Project>{7b6ba4da-8390-4605-b979-c2d1cc09bd9a}</Project>
-      <Name>Usability</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ExtendPasteOptionPanel.resx">
