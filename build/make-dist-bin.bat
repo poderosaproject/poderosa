@@ -57,7 +57,12 @@ copy "%PROJDIR%\Doc\Help\*_ja.chm" "%DOCDIST_JA%"
 REM =====================================
 
 for %%P in ( ExtendPaste ) do (
-  xcopy "%BINDIR%\%%P" "%DISTCONTRIB%\%%P\" /S
+  MD "%DISTCONTRIB%\%%P"
+  copy "%BINDIR%\%%P\*.dll" "%DISTCONTRIB%\%%P"
+  copy "%BINDIR%\%%P\*.pdb" "%DISTCONTRIB%\%%P"
+  if exist "%BINDIR%\%%P\README*.txt" (
+    copy "%BINDIR%\%%P\README*.txt" "%DISTCONTRIB%\%%P"
+  )
 )
 
 pause
