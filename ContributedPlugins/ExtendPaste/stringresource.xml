@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<string-resource>
+
+<record name=Common.Cancel>
+  <ja>キャンセル</ja>
+  <en>Cancel</en>
+</record>
+
+<record name=Common.OK>
+  <ja>OK</ja>
+  <en>OK</en>
+</record>
+
+<record name=Enum.UseAction.Always>
+  <ja>常に使用</ja>
+  <en>Always</en>
+</record>
+
+<record name=Enum.UseAction.NewLine>
+  <ja>改行を含む場合に使用</ja>
+  <en>Used if NewLine</en>
+</record>
+
+<record name=Enum.UseAction.NotUse>
+  <ja>使用しない</ja>
+  <en>Not use</en>
+</record>
+
+<record name=Form.ExtendPasteDialog._confirmedCheck>
+  <ja>確認しました(&C)</ja>
+  <en>Confirmed(&C)</en>
+</record>
+
+<record name=Form.ExtendPasteDialog._findNextButton>
+  <ja>次を検索(&D)</ja>
+  <en>Next(&D)</en>
+</record>
+
+<record name=Form.ExtendPasteDialog._findPrevButton>
+  <ja>前を検索(&U)</ja>
+  <en>Prev(&U)</en>
+</record>
+
+<record name=Form.ExtendPasteDialog._keywordMatchLabel>
+  <ja>強調キーワード検出数：{0}</ja>
+  <en>Detect Highlight Keywords : {0}</en>
+</record>
+
+<record name=Form.ExtendPasteDialog._lineCountLabel>
+  <ja>行数：{0}</ja>
+  <en>Lines : {0}</en>
+</record>
+
+<record name=Form.ExtendPasteDialog._messageLabel>
+  <ja>クリップボードのデータを貼り付けますか？</ja>
+  <en>Do you want to paste it ?</en>
+</record>
+
+<record name=Form.ExtendPasteDialog._newLineLabel>
+  <ja>改行：{0}</ja>
+  <en>NewLines : {0}</en>
+</record>
+
+<record name=Form.ExtendPasteDialog._subMessageLabel.Check>
+  <ja>内容確認後にチェックボックスをONにしてください</ja>
+  <en>Contents see check box ON the confirmation.</en>
+</record>
+
+<record name=Form.ExtendPasteDialog._subMessageLabel.Wait>
+  <ja>貼り付けを {0} 秒後に実行します (キャンセルまたはESCキーで中断)</ja>
+  <en>Paste with {0} seconds to run. (Cancel or ESC key abort)</en>
+</record>
+
+<record name=Form.ExtendPasteDialog._targetSessionLabel>
+  <ja>対象セッション：{0}</ja>
+  <en>Target Session : {0}</en>
+</record>
+
+<record name=Form.ExtendPasteDialog.NewLineExist>
+  <ja>あり</ja>
+  <en>Yes</en>
+</record>
+
+<record name=Form.ExtendPasteDialog.NewLineNotExist>
+  <ja>なし</ja>
+  <en>No</en>
+</record>
+
+<record name=Form.ExtendPasteOptionPanel._afterSpecifiedTimePasteCheck>
+  <ja>指定秒数経過後にペースト(0-60秒)
+(待機中はペーストキャンセル可能)</ja>
+  <en>Paste after specified time elapsed (0-60sec)
+(Waiting time can cancel a paste)</en>
+</record>
+
+<record name=Form.ExtendPasteOptionPanel._changeDialogSize>
+  <ja>ダイアログのサイズ変更を許可
+(クリップボートの内容を広範囲で確認したい場合に有効)</ja>
+  <en>Allow change dialog size
+(Use if you want to check the contents of the clipboard in a wide range)</en>
+</record>
+
+<record name=Form.ExtendPasteOptionPanel._descriptionLabel>
+  <ja>拡張ペーストプラグインは、ペースト時にクリップボードの内容を表示するプラグインです。
+
+クリップボードのデータに指定したキーワードが含まれる場合は、該当する文字を強調表示します。
+ペーストを実行しても指定した秒数経過後に実際にペーストすることができ、その時間内であればペーストをキャンセルすることができます。
+
+これらの機能により、意図しないコマンドのペーストを防ぎ、ヒューマンエラーを極力防止することができます。
+
+標準のペーストコマンドは拡張ペーストコマンドに置き換えられます。</ja>
+  <en>ExtendPaste plugin is a plugin to display the contents of the Clipboard when pasting.
+
+Highlight characters that contain the keyword specified in the data on the Clipboard.
+Run paste actually can paste even after the specified number of seconds has elapsed, the it is possible to cancel the paste if within that time.
+
+These features prevent the paste of unintended command, it will be able to prevent human error as much as possible.
+
+Also, standard paste command replaces extended paste command.</en>
+</record>
+
+<record name=Form.ExtendPasteOptionPanel._extendPasteOptionGroup>
+  <ja>拡張ペースト</ja>
+  <en>Extend Paste</en>
+</record>
+
+<record name=Form.ExtendPasteOptionPanel._highlightKeywordLabel>
+  <ja>強調キーワード(正規表現)</ja>
+  <en>Highlight Keyword (RegEx)</en>
+</record>
+
+<record name=Form.ExtendPasteOptionPanel._showConfirmCheck>
+  <ja>ダイアログ内に「確認しました」チェックボックスを表示
+(チェックをONにするまでOKボタンが有効化されない)</ja>
+  <en>Show Confirmed check box in dialog
+(OK button is not enabled until you check to ON)</en>
+</record>
+
+<record name=Form.ExtendPasteOptionPanel._useActionLabel>
+  <ja>使用アクション</ja>
+  <en>Use Action</en>
+</record>
+
+<record name=Form.ExtendPasteOptionPanel.Caption>
+  <ja>拡張ペースト</ja>
+  <en>ExtendPaste</en>
+</record>
+
+<record name=Message.ExtendPasteDialog.InvalidRegEx>
+  <ja>正規表現パターンの指定が正しくありません。
+{0}</ja>
+  <en>The value of regular expression pattern is invalid.
+{0}</en>
+</record>
+
+<record name=Message.ExtendPasteOptionPanel.AfterSpecifiedTimePaste>
+  <ja>ペースト秒数</ja>
+  <en>Paste Time</en>
+</record>
+
+<record name=Message.ExtendPasteOptionPanel.InvalidItem>
+  <ja>{0}の指定が正しくありません。</ja>
+  <en>The value of {0} is invalid.</en>
+</record>
+
+<record name=Message.ExtendPasteOptionPanel.RegExpPettern>
+  <ja>強調キーワード</ja>
+  <en>Highlight Keyword</en>
+</record>
+
+</string-resource>

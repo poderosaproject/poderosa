@@ -134,6 +134,7 @@ namespace Poderosa.Forms {
             // 
             // _categoryItems
             // 
+            this._categoryItems.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Bottom;
             this._categoryItems.BackColor = System.Drawing.SystemColors.Window;
             this._categoryItems.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this._categoryItems.Location = new System.Drawing.Point(4, 0);
@@ -144,6 +145,7 @@ namespace Poderosa.Forms {
             // 
             // _okButton
             // 
+            this._okButton.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
             this._okButton.DialogResult = System.Windows.Forms.DialogResult.OK;
             this._okButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this._okButton.Location = new System.Drawing.Point(336, 384);
@@ -153,6 +155,7 @@ namespace Poderosa.Forms {
             // 
             // _cancelButton
             // 
+            this._cancelButton.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
             this._cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this._cancelButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this._cancelButton.Location = new System.Drawing.Point(432, 384);
@@ -204,12 +207,20 @@ namespace Poderosa.Forms {
                     }
                 }
                 PanelItem item = new PanelItem(this, i, e.Icon, e.Caption);
-                item.Location = new Point(4, y);
+                item.Location = new Point(3, y);
                 _categoryItems.Controls.Add(item);
 
                 y += 52;
             }
-            this.ClientSize = new Size(this.ClientSize.Width, y + 42); //項目が増えたら高さが増える
+
+            // 項目が増えた場合はパネルにスクロールを表示させてパネル幅/フォーム幅を変更する
+            // ※項目数が増えれば増えるほどフォーム自体が縦長になってしまい表示しきれない懸念がある
+            // ※今後プラグインでどれだけ項目数を増やしてもスクロールを表示することで対応
+            if (y > _categoryItems.ClientSize.Height) {
+                _categoryItems.AutoScroll = true;
+                _categoryItems.Width += SystemInformation.VerticalScrollBarWidth;
+                this.Width += SystemInformation.VerticalScrollBarWidth;
+            }
         }
         private PanelItem PanelItemAt(int index) {
             return (PanelItem)_categoryItems.Controls[index];
@@ -262,7 +273,7 @@ namespace Poderosa.Forms {
             else if (panel is UserControl)
                 ((UserControl)panel).BorderStyle = BorderStyle.FixedSingle;
             panel.Location = new Point(_categoryItems.Right + 4, _categoryItems.Top);
-            panel.Size = new Size(this.Width - _categoryItems.Width - 16, _categoryItems.Height);
+            panel.Size = new Size(this.ClientSize.Width - _categoryItems.Right - 8, _categoryItems.Height);
 
             this.Controls.Add(panel);
             PanelItemAt(index).Selected = true;
