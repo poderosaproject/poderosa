@@ -17,11 +17,11 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\Debug\ExtendPaste\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\Debug\Poderosa.ExtendPaste.xml</DocumentationFile>
+    <DocumentationFile>..\..\bin\Debug\ExtendPaste\Poderosa.ExtendPaste.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -37,21 +37,27 @@
   <ItemGroup>
     <Reference Include="Poderosa.Core">
       <HintPath>..\..\bin\Release\Poderosa.Core.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Poderosa.Plugin">
       <HintPath>..\..\bin\Release\Poderosa.Plugin.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Poderosa.Protocols">
       <HintPath>..\..\bin\Release\Poderosa.Protocols.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Poderosa.TerminalEmulator">
       <HintPath>..\..\bin\Release\Poderosa.TerminalEmulator.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Poderosa.TerminalSession">
       <HintPath>..\..\bin\Release\Poderosa.TerminalSession.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Poderosa.Usability">
       <HintPath>..\..\bin\Release\Poderosa.Usability.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
