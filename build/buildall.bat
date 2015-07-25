@@ -22,37 +22,23 @@ if exist "%PODEROSA_LOG%"       del "%PODEROSA_LOG%"
 if exist "%PORTFORWARDING_LOG%" del "%PORTFORWARDING_LOG%"
 if exist "%CONTRIBPLUGINS_LOG%" del "%CONTRIBPLUGINS_LOG%"
 
-pause
-
 devenv.exe /Clean "%CONFIGNAME%" "%PODEROSA%"
 if ERRORLEVEL 1 goto builderr
-
-pause
 
 devenv.exe /Clean "%CONFIGNAME%" "%PORTFORWARDING%"
 if ERRORLEVEL 1 goto builderr
 
-pause
-
 devenv.exe /Clean "%CONFIGNAME%" "%CONTRIBPLUGINS%"
 if ERRORLEVEL 1 goto builderr
-
-pause
 
 devenv.exe /Rebuild "%CONFIGNAME%" "%PODEROSA%"       /Out "%PODEROSA_LOG%"
 if ERRORLEVEL 1 goto builderr
 
-pause
-
 devenv.exe /Build   "%CONFIGNAME%" "%PORTFORWARDING%" /Out "%PORTFORWARDING_LOG%"
 if ERRORLEVEL 1 goto builderr
 
-pause
-
 devenv.exe /Build   "%CONFIGNAME%" "%CONTRIBPLUGINS%" /Out "%CONTRIBPLUGINS_LOG%"
 if ERRORLEVEL 1 goto builderr
-
-pause
 
 echo Build Succeeded
 goto end
