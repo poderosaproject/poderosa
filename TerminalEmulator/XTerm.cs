@@ -283,9 +283,9 @@ namespace Poderosa.Terminal {
                             .Append("\x1b[")
                             .Append(statBits.ToString(NumberFormatInfo.InvariantInfo))
                             .Append(';')
-                            .Append(col.ToString(NumberFormatInfo.InvariantInfo))
+                            .Append((col+1).ToString(NumberFormatInfo.InvariantInfo))
                             .Append(';')
-                            .Append(row.ToString(NumberFormatInfo.InvariantInfo))
+                            .Append((row+1).ToString(NumberFormatInfo.InvariantInfo))
                             .Append("M")
                             .ToString());
                     dataLen = data.Length;
@@ -297,9 +297,9 @@ namespace Poderosa.Terminal {
                             .Append("\x1b[<")
                             .Append(statBits.ToString(NumberFormatInfo.InvariantInfo))
                             .Append(';')
-                            .Append(col.ToString(NumberFormatInfo.InvariantInfo))
+                            .Append((col+1).ToString(NumberFormatInfo.InvariantInfo))
                             .Append(';')
-                            .Append(row.ToString(NumberFormatInfo.InvariantInfo))
+                            .Append((row+1).ToString(NumberFormatInfo.InvariantInfo))
                             .Append(action == TerminalMouseAction.ButtonUp ? 'm' : 'M')
                             .ToString());
                     dataLen = data.Length;
