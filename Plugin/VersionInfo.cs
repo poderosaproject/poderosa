@@ -29,7 +29,7 @@ namespace Poderosa {
         /// Version number.
         /// </en>
         /// </summary>
-        public const string PODEROSA_VERSION = "4.3.16";
+        public const string PODEROSA_VERSION = "4.4.0-dev";
         /// <summary>
         /// <ja>
         /// プロジェクト名です。
