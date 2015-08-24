@@ -638,7 +638,11 @@ namespace Poderosa.Terminal {
                 caret.Enabled = false;
             else {
                 TerminalDocument d = GetDocument();
-                caret.X = d.CaretColumn;
+                // Note:
+                //  After a character was added to the last column of the row,
+                //  the value of CaretColumn will indicate outside of the terminal view.
+                //  In such case we draw the caret on the last column of the row.
+                caret.X = Math.Min(d.CaretColumn, d.TerminalWidth - 1);
                 caret.Y = d.CurrentLineNumber - d.TopLineNumber;
                 caret.Enabled = caret.Y >= 0 && caret.Y < d.TerminalHeight;
             }
