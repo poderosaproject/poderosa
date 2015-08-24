@@ -364,24 +364,15 @@ namespace Poderosa.Terminal {
                 if (pass_to_terminal) {
                     TerminalDocument document = _document;
                     lock (document) {
-                        //_invalidateParam.Reset();
-                        //ここから旧Input()
-                        _manipulator.Load(GetDocument().CurrentLine, 0);
-                        _manipulator.CaretColumn = GetDocument().CaretColumn;
+
+                        _manipulator.Load(document.CurrentLine, 0);
+                        _manipulator.CaretColumn = document.CaretColumn;
                         _manipulator.DefaultDecoration = _currentdecoration;
 
-                        //処理本体
                         _decoder.OnReception(data);
 
-                        GetDocument().ReplaceCurrentLine(_manipulator.Export());
-                        GetDocument().CaretColumn = _manipulator.CaretColumn;
-                        //ここまで
-
-                        //右端にキャレットが来たときは便宜的に次行の頭にもっていく
-                        if (document.CaretColumn == document.TerminalWidth) {
-                            document.CurrentLineNumber++; //これによって次行の存在を保証
-                            document.CaretColumn = 0;
-                        }
+                        document.ReplaceCurrentLine(_manipulator.Export());
+                        document.CaretColumn = _manipulator.CaretColumn;
 
                         CheckDiscardDocument();
                         AdjustTransientScrollBar();
