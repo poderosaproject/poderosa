@@ -725,7 +725,6 @@ namespace Poderosa.Terminal {
                 if (_mouseTrackingState == MouseTrackingState.Off) {
                     _prevMouseRow = -1;
                     _prevMouseCol = -1;
-                    _mouseButton = MouseButtons.None;
                     SetDocumentCursor(Cursors.Arrow);
                 }
             }
