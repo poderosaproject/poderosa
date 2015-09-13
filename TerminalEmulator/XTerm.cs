@@ -107,8 +107,18 @@ namespace Poderosa.Terminal {
 
         public override bool ProcessMouse(TerminalMouseAction action, MouseButtons button, Keys modKeys, int row, int col) {
             MouseTrackingState currentState = _mouseTrackingState;  // copy value because _mouseTrackingState may be changed in another thread.
-            if (currentState == MouseTrackingState.Off)
+
+            if (currentState == MouseTrackingState.Off) {
+                _prevMouseRow = -1;
+                _prevMouseCol = -1;
+                switch (action) {
+                    case TerminalMouseAction.ButtonUp:
+                    case TerminalMouseAction.ButtonDown:
+                        _mouseButton = MouseButtons.None;
+                        break;
+                }
                 return false;
+            }
 
             // Note: from here, return value must be true even if nothing has been processed actually.
 
@@ -723,9 +733,6 @@ namespace Poderosa.Terminal {
         private void ResetMouseTracking(MouseTrackingState newState) {
             if (newState != MouseTrackingState.Off) {
                 if (_mouseTrackingState == MouseTrackingState.Off) {
-                    _prevMouseRow = -1;
-                    _prevMouseCol = -1;
-                    _mouseButton = MouseButtons.None;
                     SetDocumentCursor(Cursors.Arrow);
                 }
             }
