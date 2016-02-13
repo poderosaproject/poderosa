@@ -166,10 +166,7 @@ namespace Granados {
     public enum KexAlgorithm {
         None,
         DH_G1_SHA1,
-        DH_G14_SHA1,
-        DH_G14_SHA256,
-        DH_G15_SHA256,
-        DH_G16_SHA256
+        DH_G14_SHA1
     }
 }
 

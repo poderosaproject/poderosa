@@ -146,7 +146,7 @@ namespace Granados {
         // maximum length of the BigInteger in uint (4 bytes)
         // change this to suit the required level of precision.
 
-        private const int maxLength = 260;
+        private const int maxLength = 130;
 
         // primes smaller than 2000 to test the generated prime number
         /// <summary>
