@@ -128,8 +128,10 @@ namespace Granados.IO {
         }
 
         public void Close() {
-            _event.Close();
-            ClearQueue();
+            lock (_socket) {
+                _event.Close();
+                ClearQueue();
+            }
         }
 
         public void OnData(DataFragment data) {
@@ -140,7 +142,6 @@ namespace Granados.IO {
         public void OnClosed() {
             lock (_socket) {
                 OnClosedInLock();
-                ClearQueue();
             }
         }
         public void OnError(Exception error) {
@@ -212,6 +213,7 @@ namespace Granados.IO {
                 else {
                     Exception e = t as Exception;
                     Debug.Assert(e != null);
+                    ClearQueue();
                     throw e;
                 }
             }
