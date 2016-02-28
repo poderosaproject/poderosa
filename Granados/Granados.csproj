@@ -134,6 +134,12 @@
     <Compile Include="LibraryClient.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Mono\BigInteger.cs" />
+    <Compile Include="Mono\ConfidenceFactor.cs" />
+    <Compile Include="Mono\NextPrimeFinder.cs" />
+    <Compile Include="Mono\PrimalityTests.cs" />
+    <Compile Include="Mono\PrimeGeneratorBase.cs" />
+    <Compile Include="Mono\SequentialSearchPrimeGeneratorBase.cs" />
     <Compile Include="PKIBase.cs">
       <SubType>Code</SubType>
     </Compile>
