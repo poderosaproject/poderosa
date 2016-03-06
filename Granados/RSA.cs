@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 
 using Granados.Util;
+using Granados.Mono.Math;
 
 namespace Granados.PKI {
     /// <summary>
@@ -66,7 +67,7 @@ namespace Granados.PKI {
 
             BigInteger result = SignCore(new BigInteger(data), pe, qe);
 
-            return result.getBytes();
+            return result.GetBytes();
         }
 
         public void Verify(byte[] data, byte[] expected) {
@@ -81,24 +82,30 @@ namespace Granados.PKI {
             Array.Copy(hash, 0, buf, PKIUtil.SHA1_ASN_ID.Length, hash.Length);
 
             BigInteger x = new BigInteger(buf);
-            //Debug.WriteLine(x.ToHexString());
-            int padLen = (_publickey._n.bitCount() + 7) / 8;
+            //Debug.WriteLine(x.ToString(16));
+            int padLen = (_publickey._n.BitCount() + 7) / 8;
 
             x = RSAUtil.PKCS1PadType1(x, padLen);
-            byte[] result = Sign(x.getBytes());
+            byte[] result = Sign(x.GetBytes());
             return result;
         }
 
         private BigInteger SignCore(BigInteger input, BigInteger pe, BigInteger qe) {
-            BigInteger p2 = (input % _p).modPow(pe, _p);
-            BigInteger q2 = (input % _q).modPow(qe, _q);
+            BigInteger p2 = (input % _p).ModPow(pe, _p);
+            BigInteger q2 = (input % _q).ModPow(qe, _q);
 
             if (p2 == q2)
                 return p2;
 
-            BigInteger k = (q2 - p2) % _q;
-            if (k.IsNegative)
-                k += _q; //in .NET, k is negative when _q is negative
+            BigInteger k;
+            if (q2 > p2) {
+                k = (q2 - p2) % _q;
+            }
+            else {
+                // add multiple of _q greater than _p
+                BigInteger d = _q + (_p / _q) * _q;
+                k = (d + q2 - p2) % _q;
+            }
             k = (k * _u) % _q;
 
             BigInteger result = k * _p + p2;
@@ -115,21 +122,20 @@ namespace Granados.PKI {
         private static BigInteger PrimeExponent(BigInteger privateExponent, BigInteger prime) {
             BigInteger pe = prime - new BigInteger(1);
             return privateExponent % pe;
-
         }
 
         public RSAParameters ToRSAParameters() {
             RSAParameters p = new RSAParameters();
-            p.D = _d.getBytes();
-            p.Exponent = _publickey.Exponent.getBytes();
-            p.Modulus = _publickey.Modulus.getBytes();
-            p.P = _p.getBytes();
-            p.Q = _q.getBytes();
+            p.D = _d.GetBytes();
+            p.Exponent = _publickey.Exponent.GetBytes();
+            p.Modulus = _publickey.Modulus.GetBytes();
+            p.P = _p.GetBytes();
+            p.Q = _q.GetBytes();
             BigInteger pe = PrimeExponent(_d, _p);
             BigInteger qe = PrimeExponent(_d, _q);
-            p.DP = pe.getBytes();
-            p.DQ = qe.getBytes();
-            p.InverseQ = _u.getBytes();
+            p.DP = pe.GetBytes();
+            p.DQ = qe.GetBytes();
+            p.InverseQ = _u.GetBytes();
             return p;
         }
 
@@ -151,8 +157,8 @@ namespace Granados.PKI {
             bool finished = false;
 
             while (!finished) {
-                p = BigInteger.genPseudoPrime(bits / 2, 64, rnd);
-                q = BigInteger.genPseudoPrime(bits - (bits / 2), 64, rnd);
+                p = BigInteger.GeneratePseudoPrime(bits / 2);
+                q = BigInteger.GeneratePseudoPrime(bits - (bits / 2));
 
                 if (p == 0) {
                     continue;
@@ -163,7 +169,7 @@ namespace Granados.PKI {
                     p = t;
                 }
 
-                t = p.gcd(q);
+                t = p.GCD(q);
                 if (t != one) {
                     continue;
                 }
@@ -171,20 +177,20 @@ namespace Granados.PKI {
                 p_1 = p - one;
                 q_1 = q - one;
                 phi = p_1 * q_1;
-                G = p_1.gcd(q_1);
+                G = p_1.GCD(q_1);
                 F = phi / G;
 
                 e = one << 5;
                 e = e - one;
                 do {
                     e = e + (one + one);
-                    t = e.gcd(phi);
+                    t = e.GCD(phi);
                 } while (t != one);
 
                 // !!! d = e.modInverse(F);
-                d = e.modInverse(phi);
+                d = e.ModInverse(phi);
                 n = p * q;
-                u = p.modInverse(q);
+                u = p.ModInverse(q);
 
                 finished = true;
             }
@@ -229,11 +235,11 @@ namespace Granados.PKI {
                 throw new VerifyException("Failed to verify");
         }
         private BigInteger VerifyBI(byte[] data) {
-            return new BigInteger(data).modPow(_e, _n);
+            return new BigInteger(data).ModPow(_e, _n);
         }
         public void VerifyWithSHA1(byte[] data, byte[] expected) {
             BigInteger result = VerifyBI(data);
-            byte[] finaldata = RSAUtil.StripPKCS1Pad(result, 1).getBytes();
+            byte[] finaldata = RSAUtil.StripPKCS1Pad(result, 1).GetBytes();
 
             if (finaldata.Length != PKIUtil.SHA1_ASN_ID.Length + expected.Length)
                 throw new VerifyException("result is too short");
@@ -258,67 +264,122 @@ namespace Granados.PKI {
     /// <exclude/>
     public class RSAUtil {
 
-        public static BigInteger PKCS1PadType2(BigInteger input, int pad_len, Rng rng) {
-            int input_byte_length = (input.bitCount() + 7) / 8;
-            //System.out.println(String.valueOf(pad_len) + ":" + input_byte_length);
-            byte[] pad = new byte[pad_len - input_byte_length - 3];
+        /// <summary>
+        /// Make encoded message (EM) as described in PKCS#1
+        /// </summary>
+        /// <param name="input">input bits</param>
+        /// <param name="len">total byte length of the result</param>
+        /// <param name="rng">random number generator</param>
+        /// <returns>new bits</returns>
+        public static BigInteger PKCS1PadType2(BigInteger input, int len, Rng rng) {
+            // |00|02|<----- PS ----->|00|<-------- input -------->|
+            // |<---------------------- len ---------------------->|
 
-            for (int i = 0; i < pad.Length; i++) {
-                byte[] b = new byte[1];
-                rng.GetBytes(b);
-                while (b[0] == 0)
-                    rng.GetBytes(b); //0ではだめだ
-                pad[i] = b[0];
+            int inputBytesLen = (input.BitCount() + 7) / 8;
+            byte[] inputBytes = input.GetBytes();
+
+            int padLen = len - inputBytesLen - 3;
+            if (padLen < 8) {
+                throw new ArgumentException("message too long");
             }
 
-            BigInteger pad_int = new BigInteger(pad);
-            pad_int = pad_int << ((input_byte_length + 1) * 8);
-            BigInteger result = new BigInteger(2);
-            result = result << ((pad_len - 2) * 8);
-            result = result | pad_int;
-            result = result | input;
-
-            return result;
-        }
-
-        public static BigInteger PKCS1PadType1(BigInteger input, int pad_len) {
-            int input_byte_length = (input.bitCount() + 7) / 8;
-            //System.out.println(String.valueOf(pad_len) + ":" + input_byte_length);
-            byte[] pad = new byte[pad_len - input_byte_length - 3];
-
+            byte[] pad = new byte[padLen];
+            rng.GetBytes(pad);
             for (int i = 0; i < pad.Length; i++) {
-                pad[i] = (byte)0xff;
+                if (pad[i] == 0) {
+                    pad[i] = (byte)(1 + rng.GetInt(255));
+                }
             }
 
-            BigInteger pad_int = new BigInteger(pad);
-            pad_int = pad_int << ((input_byte_length + 1) * 8);
-            BigInteger result = new BigInteger(1);
-            result = result << ((pad_len - 2) * 8);
-            result = result | pad_int;
-            result = result | input;
+            byte[] buf = new byte[len];
+            buf[1] = 2;
+            Buffer.BlockCopy(pad, 0, buf, 2, pad.Length);
+            Buffer.BlockCopy(inputBytes, inputBytes.Length - inputBytesLen, buf, padLen + 3, inputBytesLen);
 
-            return result;
+            return new BigInteger(buf);
         }
+
+        /// <summary>
+        /// Make encoded message (EM) as described in PKCS#1
+        /// </summary>
+        /// <param name="input">input bits</param>
+        /// <param name="len">total byte length of the result</param>
+        /// <returns>new bits</returns>
+        public static BigInteger PKCS1PadType1(BigInteger input, int len) {
+            // |00|01|<----- PS ----->|00|<-------- input -------->|
+            // |<---------------------- len ---------------------->|
+
+            int inputBytesLen = (input.BitCount() + 7) / 8;
+            byte[] inputBytes = input.GetBytes();
+
+            int padLen = len - inputBytesLen - 3;
+            if (padLen < 8) {
+                throw new ArgumentException("message too long");
+            }
+
+            byte[] buf = new byte[len];
+            buf[1] = 1;
+            for (int i = 0; i < padLen; i++) {
+                buf[i + 2] = 0xff;
+            }
+            Buffer.BlockCopy(inputBytes, inputBytes.Length - inputBytesLen, buf, padLen + 3, inputBytesLen);
+
+            return new BigInteger(buf);
+        }
+
+        /// <summary>
+        /// Extract an message from the encoded message (EM) described in PKCS#1
+        /// </summary>
+        /// <param name="input">encoded message bits</param>
+        /// <param name="type">type number (1 or 2)</param>
+        /// <returns>message bits</returns>
         public static BigInteger StripPKCS1Pad(BigInteger input, int type) {
-            byte[] strip = input.getBytes();
-            int i;
+            byte[] strip = input.GetBytes();
+            int stripLen = strip.Length;
 
-            if (strip[0] != type)
-                throw new Exception(String.Format("Invalid PKCS1 padding {0}", type));
-
-            for (i = 1; i < strip.Length; i++) {
-                if (strip[i] == 0)
+            int i = 0;
+            while (true) {
+                if (i >= stripLen) {
+                    throw new ArgumentException("Invalid EM format");
+                }
+                if (strip[i] != 0) {
                     break;
-
-                if (type == 0x01 && strip[i] != (byte)0xff)
-                    throw new Exception("Invalid PKCS1 padding, corrupt data");
+                }
+                i++;
             }
 
-            if (i == strip.Length)
-                throw new Exception("Invalid PKCS1 padding, corrupt data");
+            if (strip[i] != type) {
+                throw new ArgumentException(String.Format("Invalid PKCS1 padding {0}", type));
+            }
+            i++;
 
-            byte[] val = new byte[strip.Length - i];
-            Array.Copy(strip, i, val, 0, val.Length);
+            int padLen = 0;
+            while (true) {
+                if (i >= stripLen) {
+                    throw new ArgumentException("Invalid EM format");
+                }
+                byte b = strip[i];
+                if (b == 0) {
+                    break;
+                }
+                if (type == 1 && b != 0xff) {
+                    throw new ArgumentException("Invalid PKCS1 padding");
+                }
+                padLen++;
+                i++;
+            }
+
+            if (padLen < 8) {
+                throw new ArgumentException("Invalid PKCS1 padding");
+            }
+
+            i++;    // skip 0x00
+            if (i >= stripLen) {
+                throw new ArgumentException("Invalid PKCS1 padding, corrupt data");
+            }
+
+            byte[] val = new byte[stripLen - i];
+            Buffer.BlockCopy(strip, i, val, 0, val.Length);
             return new BigInteger(val);
         }
     }

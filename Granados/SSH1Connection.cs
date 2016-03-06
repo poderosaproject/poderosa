@@ -22,6 +22,7 @@ using Granados.Util;
 using Granados.Crypto;
 using Granados.IO;
 using Granados.IO.SSH1;
+using Granados.Mono.Math;
 
 namespace Granados.SSH1 {
     /// <summary>
@@ -208,8 +209,8 @@ namespace Granados.SSH1 {
                 }
 
                 Rng rng = RngManager.GetSecureRng();
-                BigInteger first_result = RSAUtil.PKCS1PadType2(new BigInteger(working_data), first_key_bytelen, rng).modPow(first_encryption.Exponent, first_encryption.Modulus);
-                BigInteger second_result = RSAUtil.PKCS1PadType2(first_result, second_key_bytelen, rng).modPow(second_encryption.Exponent, second_encryption.Modulus);
+                BigInteger first_result = RSAUtil.PKCS1PadType2(new BigInteger(working_data), first_key_bytelen, rng).ModPow(first_encryption.Exponent, first_encryption.Modulus);
+                BigInteger second_result = RSAUtil.PKCS1PadType2(first_result, second_key_bytelen, rng).ModPow(second_encryption.Exponent, second_encryption.Modulus);
 
                 //output
                 SSH1DataWriter writer = new SSH1DataWriter();
@@ -289,7 +290,7 @@ namespace Granados.SSH1 {
 
             //creating challenge
             BigInteger challenge = key.decryptChallenge(reader.ReadMPInt());
-            byte[] rawchallenge = RSAUtil.StripPKCS1Pad(challenge, 2).getBytes();
+            byte[] rawchallenge = RSAUtil.StripPKCS1Pad(challenge, 2).GetBytes();
 
             //building response
             MemoryStream bos = new MemoryStream();
@@ -433,8 +434,8 @@ namespace Granados.SSH1 {
         private byte[] CalcSessionID() {
             MemoryStream bos = new MemoryStream();
             SSHServerInfo si = _cInfo._serverinfo;
-            byte[] h = si.host_key_public_modulus.getBytes();
-            byte[] s = si.server_key_public_modulus.getBytes();
+            byte[] h = si.host_key_public_modulus.GetBytes();
+            byte[] s = si.server_key_public_modulus.GetBytes();
             //System.out.println("len h="+h.Length);
             //System.out.println("len s="+s.Length);
 

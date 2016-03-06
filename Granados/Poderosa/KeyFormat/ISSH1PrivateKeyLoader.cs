@@ -8,7 +8,7 @@
  */
 using System;
 
-using Granados;
+using Granados.Mono.Math;
 
 namespace Granados.Poderosa.KeyFormat {
 

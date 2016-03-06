@@ -15,6 +15,7 @@ using Granados.IO.SSH2;
 using Granados.PKI;
 using Granados.SSH2;
 using Granados.Util;
+using Granados.Mono.Math;
 
 namespace Granados.Poderosa.KeyFormat {
 

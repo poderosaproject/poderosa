@@ -61,8 +61,7 @@ namespace Granados.PKI {
             return primes;
         }
 
-        public int getNextPrime(int x) {
-            int p = ((x - 3) / 2) + 1;
+        public uint getNextPrime(uint x) {
             switch (x) {
                 /* Trivial cases. */
                 case 0:
@@ -73,11 +72,12 @@ namespace Granados.PKI {
                     return 3;
                 /* Cases above 2 are handled with the table. */
                 default:
+                    uint p = ((x - 3) / 2) + 1;
                     while (true) {
                         if ((p / 32) >= table.Length)
                             return 0;
 
-                        if ((table[p / 32] & (1 << (p & (32 - 1)))) == 0)
+                        if ((table[p / 32] & (1u << (int)(p & (32 - 1)))) == 0)
                             return p * 2 + 3;
                         p++;
                     }

@@ -28,8 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#define INSIDE_CORLIB
-
 using System;
 
 namespace Granados.Mono.Math.Prime {
@@ -39,7 +37,7 @@ namespace Granados.Mono.Math.Prime {
 #if INSIDE_CORLIB
 	internal
 #else
-	public
+    internal
 #endif
 	enum ConfidenceFactor {
 		/// <summary>

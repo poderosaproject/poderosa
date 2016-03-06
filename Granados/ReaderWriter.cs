@@ -12,6 +12,7 @@ using System.IO;
 
 using Granados.PKI;
 using Granados.Util;
+using Granados.Mono.Math;
 
 namespace Granados.IO {
     ////////////////////////////////////////////////////////////
@@ -232,9 +233,8 @@ namespace Granados.IO.SSH1 {
 
     internal class SSH1DataWriter : SSHDataWriter {
         public override void WriteBigInteger(BigInteger data) {
-            byte[] image = data.getBytes();
-            int off = (image[0] == 0 ? 1 : 0);
-            int len = (image.Length - off) * 8;
+            byte[] image = data.GetBytes();
+            int len = image.Length * 8;
 
             int a = len & 0x0000FF00;
             a >>= 8;
@@ -243,7 +243,7 @@ namespace Granados.IO.SSH1 {
             a = len & 0x000000FF;
             _strm.WriteByte((byte)a);
 
-            _strm.Write(image, off, image.Length - off);
+            _strm.Write(image, 0, image.Length);
         }
     }
 }
@@ -277,7 +277,7 @@ namespace Granados.IO.SSH2 {
     internal class SSH2DataWriter : SSHDataWriter {
         //writes mpint in SSH2 format
         public override void WriteBigInteger(BigInteger data) {
-            byte[] t = data.getBytes();
+            byte[] t = data.GetBytes();
             int len = t.Length;
             if (t[0] >= 0x80) {
                 WriteInt32(++len);
@@ -289,8 +289,8 @@ namespace Granados.IO.SSH2 {
         }
 
         public void WriteBigIntWithBits(BigInteger bi) {
-            WriteInt32(bi.bitCount());
-            Write(bi.getBytes());
+            WriteInt32(bi.BitCount());
+            Write(bi.GetBytes());
         }
 
         public void WritePacketType(PacketType pt) {

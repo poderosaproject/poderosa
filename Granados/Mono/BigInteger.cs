@@ -35,8 +35,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#define INSIDE_CORLIB
-
 using System;
 using System.Security.Cryptography;
 using Granados.Mono.Math.Prime.Generator;

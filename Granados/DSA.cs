@@ -12,6 +12,8 @@
 using System;
 using System.Diagnostics;
 
+using Granados.Mono.Math;
+
 namespace Granados.PKI {
     /// <summary>
     /// 
@@ -42,12 +44,12 @@ namespace Granados.PKI {
         }
 
         public byte[] Sign(byte[] data) {
-            BigInteger r = _publickey._g.modPow(_x, _publickey._p) % _publickey._q;
-            BigInteger s = (_x.modInverse(_publickey._q) * (new BigInteger(data) + _x * r)) % _publickey._q;
+            BigInteger r = _publickey._g.ModPow(_x, _publickey._p) % _publickey._q;
+            BigInteger s = (_x.ModInverse(_publickey._q) * (new BigInteger(data) + _x * r)) % _publickey._q;
 
             byte[] result = new byte[data.Length * 2];
-            byte[] br = r.getBytes();
-            byte[] bs = s.getBytes();
+            byte[] br = r.GetBytes();
+            byte[] bs = s.GetBytes();
             Array.Copy(br, 0, result, data.Length - br.Length, br.Length);
             Array.Copy(bs, 0, result, data.Length * 2 - bs.Length, bs.Length);
 
@@ -59,70 +61,66 @@ namespace Granados.PKI {
 
         public static DSAKeyPair GenerateNew(int bits, Rng random) {
             BigInteger one = new BigInteger(1);
-            BigInteger[] pq = findRandomStrongPrime((uint)bits, 160, random);
+            BigInteger[] pq = findRandomStrongPrime(bits, 160, random);
             BigInteger p = pq[0], q = pq[1];
             BigInteger g = findRandomGenerator(q, p, random);
 
             BigInteger x;
             do {
-                x = new BigInteger();
-                x.genRandomBits(q.bitCount(), random);
+                x = BigInteger.GenerateRandom(q.BitCount());
             } while ((x < one) || (x > q));
 
-            BigInteger y = g.modPow(x, p);
+            BigInteger y = g.ModPow(x, p);
 
             return new DSAKeyPair(p, g, q, y, x);
         }
 
-        private static BigInteger[] findRandomStrongPrime(uint primeBits, int orderBits, Rng random) {
+        private static BigInteger[] findRandomStrongPrime(int primeBits, int orderBits, Rng random) {
             BigInteger one = new BigInteger(1);
-            BigInteger u, aux, aux2;
-            long[] table_q, table_u, prime_table;
+            ulong[] table_q, table_u, prime_table;
             PrimeSieve sieve = new PrimeSieve(16000);
             uint table_count = sieve.AvailablePrimes() - 1;
             int i, j;
             bool flag;
             BigInteger prime = null, order = null;
 
-            order = BigInteger.genPseudoPrime(orderBits, 20, random);
+            order = BigInteger.GeneratePseudoPrime(orderBits);
 
-            prime_table = new long[table_count];
-            table_q = new long[table_count];
-            table_u = new long[table_count];
+            prime_table = new ulong[table_count];
+            table_q = new ulong[table_count];
+            table_u = new ulong[table_count];
 
             i = 0;
-            for (int pN = 2; pN != 0; pN = sieve.getNextPrime(pN), i++) {
-                prime_table[i] = (long)pN;
+            for (uint pN = 2; pN != 0; pN = sieve.getNextPrime(pN), i++) {
+                prime_table[i] = pN;
             }
 
             for (i = 0; i < table_count; i++) {
                 table_q[i] =
-                    (((order % new BigInteger(prime_table[i])).LongValue()) *
-                    (long)2) % prime_table[i];
+                    ((AsUInt64(order % new BigInteger(prime_table[i]))) *
+                    2UL) % prime_table[i];
             }
 
             while (true) {
-                u = new BigInteger();
-                u.genRandomBits((int)primeBits, random);
-                u.setBit(primeBits - 1);
-                aux = order << 1;
-                aux2 = u % aux;
+                BigInteger u = BigInteger.GenerateRandom(primeBits);
+                BigInteger aux = order << 1;
+                BigInteger aux2 = u % aux;
                 u = u - aux2;
                 u = u + one;
 
-                if (u.bitCount() <= (primeBits - 1))
+                if (u.BitCount() <= (primeBits - 1))
                     continue;
 
                 for (j = 0; j < table_count; j++) {
                     table_u[j] =
-                        (u % new BigInteger(prime_table[j])).LongValue();
+                        AsUInt64(u % new BigInteger(prime_table[j]));
                 }
 
                 aux2 = order << 1;
 
                 for (i = 0; i < (1 << 24); i++) {
-                    long cur_p;
-                    long value;
+                    ulong cur_p;
+                    ulong value;
 
                     flag = true;
                     for (j = 1; j < table_count; j++) {
@@ -140,10 +138,10 @@ namespace Granados.PKI {
                     aux = aux2 * new BigInteger(i);
                     prime = u + aux;
 
-                    if (prime.bitCount() > primeBits)
+                    if (prime.BitCount() > primeBits)
                         continue;
 
-                    if (prime.isProbablePrime(20))
+                    if (prime.IsProbablePrime())
                         break;
                 }
 
@@ -160,22 +158,21 @@ namespace Granados.PKI {
             BigInteger t = aux % order;
             BigInteger generator;
 
-            if (t.LongValue() != 0) {
+            if (AsUInt64(t) != 0) {
                 return null;
             }
 
             t = aux / order;
 
             while (true) {
-                generator = new BigInteger();
-                generator.genRandomBits(modulo.bitCount(), random);
+                generator = BigInteger.GenerateRandom(modulo.BitCount());
                 generator = generator % modulo;
-                generator = generator.modPow(t, modulo);
+                generator = generator.ModPow(t, modulo);
                 if (generator != one)
                     break;
             }
 
-            aux = generator.modPow(order, modulo);
+            aux = generator.ModPow(order, modulo);
 
             if (aux != one) {
                 return null;
@@ -184,6 +181,17 @@ namespace Granados.PKI {
             return generator;
         }
 
+        private static ulong AsUInt64(BigInteger num) {
+            int bits = num.BitCount();
+            if (bits >= 64)
+                throw new ArgumentException("too large BigInteger value");
+            byte[] data = num.GetBytes();
+            ulong val = 0;
+            foreach (byte b in data) {
+                val = (val << 8) | b;
+            }
+            return val;
+        }
     }
 
     /// <summary>
@@ -242,10 +250,10 @@ namespace Granados.PKI {
             BigInteger r = new BigInteger(first);
             BigInteger s = new BigInteger(second);
 
-            BigInteger w = s.modInverse(_q);
+            BigInteger w = s.ModInverse(_q);
             BigInteger u1 = (new BigInteger(expecteddata) * w) % _q;
             BigInteger u2 = (r * w) % _q;
-            BigInteger v = ((_g.modPow(u1, _p) * _y.modPow(u2, _p)) % _p) % _q;
+            BigInteger v = ((_g.ModPow(u1, _p) * _y.ModPow(u2, _p)) % _p) % _q;
             if (v != r)
                 throw new VerifyException("Failed to verify");
         }

@@ -28,8 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#define INSIDE_CORLIB
-
 using System;
 
 namespace Granados.Mono.Math.Prime.Generator {
@@ -37,7 +35,7 @@ namespace Granados.Mono.Math.Prime.Generator {
 #if INSIDE_CORLIB
 	internal
 #else
-	public
+    internal
 #endif
 	abstract class PrimeGeneratorBase {
 

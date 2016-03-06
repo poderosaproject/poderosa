@@ -6,6 +6,7 @@
 
 * $Id: AssemblyInfo.cs,v 1.6 2011/10/27 23:21:56 kzmi Exp $
 */
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -21,3 +22,5 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyVersion("2.0.0")]
 
 [assembly: AssemblyDelaySign(false)]
+
+[assembly: CLSCompliant(false)]

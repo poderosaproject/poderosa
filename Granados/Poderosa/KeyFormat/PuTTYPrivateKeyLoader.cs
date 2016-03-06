@@ -16,6 +16,7 @@ using Granados.Crypto;
 using Granados.PKI;
 using Granados.IO.SSH2;
 using Granados.Util;
+using Granados.Mono.Math;
 
 namespace Granados.Poderosa.KeyFormat {
 
@@ -142,7 +143,7 @@ namespace Granados.Poderosa.KeyFormat {
                 BigInteger q = reader.ReadMPInt();
                 BigInteger iqmp = reader.ReadMPInt();
 
-                BigInteger u = p.modInverse(q);
+                BigInteger u = p.ModInverse(q);
 
                 keyPair = new RSAKeyPair(e, d, n, u, p, q);
             }

@@ -9,6 +9,8 @@
 using System;
 using System.IO;
 
+using Granados.Mono.Math;
+
 #if UNITTEST
 using NUnit.Framework;
 #endif

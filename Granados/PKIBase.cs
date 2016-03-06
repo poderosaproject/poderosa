@@ -10,7 +10,8 @@
 using System;
 using System.IO;
 using System.Diagnostics;
-using System.Security.Cryptography;
+
+using Granados.Mono.Math;
 
 namespace Granados.PKI {
     /// <summary>

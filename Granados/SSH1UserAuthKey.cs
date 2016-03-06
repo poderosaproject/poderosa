@@ -15,6 +15,7 @@ using System.Diagnostics;
 using Granados.IO.SSH1;
 using Granados.Crypto;
 using Granados.Util;
+using Granados.Mono.Math;
 #if PODEROSA_KEYFORMAT
 using Granados.Poderosa.KeyFormat;
 #endif
@@ -107,17 +108,22 @@ namespace Granados.SSH1 {
             BigInteger result;
 
             p2 = encryptedchallenge % _primeP;
-            p2 = p2.modPow(primeExponentP, _primeP);
+            p2 = p2.ModPow(primeExponentP, _primeP);
 
             q2 = encryptedchallenge % _primeQ;
-            q2 = q2.modPow(primeExponentQ, _primeQ);
+            q2 = q2.ModPow(primeExponentQ, _primeQ);
 
             if (p2 == q2)
                 return p2;
 
-            k = (q2 - p2) % _primeQ;
-            if (k.IsNegative)
-                k += _primeQ;
+            if (q2 > p2) {
+                k = (q2 - p2) % _primeQ;
+            }
+            else {
+                // add multiple of _primeQ greater than _primeP
+                BigInteger d = _primeQ + (_primeP / _primeQ) * _primeQ;
+                k = (d + q2 - p2) % _primeQ;
+            }
             k = k * _crtCoefficient;
             k = k % _primeQ;
 
@@ -130,7 +136,6 @@ namespace Granados.SSH1 {
         private static BigInteger PrimeExponent(BigInteger privateExponent, BigInteger prime) {
             BigInteger pe = prime - new BigInteger(1);
             return privateExponent % pe;
-
         }
 
 #if !PODEROSA_KEYFORMAT

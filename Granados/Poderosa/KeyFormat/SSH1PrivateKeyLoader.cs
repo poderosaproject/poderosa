@@ -13,6 +13,7 @@ using System.Security.Cryptography;
 using Granados.Crypto;
 using Granados.IO.SSH1;
 using Granados.Util;
+using Granados.Mono.Math;
 
 namespace Granados.Poderosa.KeyFormat {
 

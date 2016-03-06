@@ -20,6 +20,7 @@ using Granados.Crypto;
 using Granados.Util;
 using Granados.IO;
 using Granados.IO.SSH2;
+using Granados.Mono.Math;
 
 namespace Granados.SSH2 {
 
@@ -1316,7 +1317,7 @@ namespace Granados.SSH2 {
             byte[] sx = new byte[32];
             RngManager.GetSecureRng().GetBytes(sx);
             _x = new BigInteger(sx);
-            _e = new BigInteger(2).modPow(_x, GetDiffieHellmanPrime(_cInfo._kexAlgorithm));
+            _e = new BigInteger(2).ModPow(_x, GetDiffieHellmanPrime(_cInfo._kexAlgorithm));
             SSH2DataWriter wr = new SSH2DataWriter();
             wr.WritePacketType(PacketType.SSH_MSG_KEXDH_INIT);
             wr.WriteBigInteger(_e);
@@ -1353,7 +1354,7 @@ namespace Granados.SSH2 {
 
             //Round3 calc hash H
             SSH2DataWriter wr = new SSH2DataWriter();
-            _k = f.modPow(_x, GetDiffieHellmanPrime(_cInfo._kexAlgorithm));
+            _k = f.ModPow(_x, GetDiffieHellmanPrime(_cInfo._kexAlgorithm));
             wr = new SSH2DataWriter();
             wr.WriteString(_cInfo._clientVersionString);
             wr.WriteString(_cInfo._serverVersionString);
@@ -1564,20 +1565,20 @@ namespace Granados.SSH2 {
             switch (algorithm) {
                 case KexAlgorithm.DH_G1_SHA1:
                     if (_dh_g1_prime == null) {
-                        _dh_g1_prime = new BigInteger(
+                        _dh_g1_prime = new BigInteger(ToBytes(
                             "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1" +
                             "29024E088A67CC74020BBEA63B139B22514A08798E3404DD" +
                             "EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245" +
                             "E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED" +
                             "EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381" +
-                            "FFFFFFFFFFFFFFFF",
-                            16);
+                            "FFFFFFFFFFFFFFFF"
+                            ));
                     }
                     return _dh_g1_prime;
 
                 case KexAlgorithm.DH_G14_SHA1:
                     if (_dh_g14_prime == null) {
-                        _dh_g14_prime = new BigInteger(
+                        _dh_g14_prime = new BigInteger(ToBytes(
                             "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1" +
                             "29024E088A67CC74020BBEA63B139B22514A08798E3404DD" +
                             "EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245" +
@@ -1588,8 +1589,8 @@ namespace Granados.SSH2 {
                             "670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B" +
                             "E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9" +
                             "DE2BCBF6955817183995497CEA956AE515D2261898FA0510" +
-                            "15728E5A8AACAA68FFFFFFFFFFFFFFFF",
-                            16);
+                            "15728E5A8AACAA68FFFFFFFFFFFFFFFF"
+                            ));
                     }
                     return _dh_g14_prime;
 
@@ -1598,6 +1599,45 @@ namespace Granados.SSH2 {
             }
         }
 
+        private static byte[] ToBytes(string hexnum) {
+            byte[] data = new byte[hexnum.Length / 2];
+            for (int i = 0, j = 0; i < hexnum.Length; i += 2, j++) {
+                data[j] = (byte)((GetHexValue(hexnum[i]) << 4) | GetHexValue(hexnum[i + 1]));
+            }
+            return data;
+        }
+
+        private static int GetHexValue(char c) {
+            switch (c) {
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    return c - '0';
+                case 'a':
+                case 'b':
+                case 'c':
+                case 'd':
+                case 'e':
+                case 'f':
+                    return c - 'a' + 10;
+                case 'A':
+                case 'B':
+                case 'C':
+                case 'D':
+                case 'E':
+                case 'F':
+                    return c - 'A' + 10;
+                default:
+                    throw new ArgumentException("invalid hex number");
+            }
+        }
     }
 
 }

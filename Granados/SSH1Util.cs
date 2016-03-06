@@ -8,6 +8,7 @@
 */
 using System;
 using Granados.IO;
+using Granados.Mono.Math;
 
 namespace Granados.SSH1 {
     /// <summary>

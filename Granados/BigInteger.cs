@@ -137,7 +137,7 @@
 
 using System;
 
-namespace Granados {
+namespace Granados.Legacy {
     /// <summary>
     /// 
     /// </summary>

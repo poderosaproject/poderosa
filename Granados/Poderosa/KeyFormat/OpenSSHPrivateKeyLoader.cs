@@ -15,6 +15,7 @@ using System.Security.Cryptography;
 using Granados.Crypto;
 using Granados.PKI;
 using Granados.Util;
+using Granados.Mono.Math;
 
 namespace Granados.Poderosa.KeyFormat {
 
@@ -165,7 +166,7 @@ namespace Granados.Poderosa.KeyFormat {
                         throw new SSHException(Strings.GetString("WrongPassphrase"));
                     }
 
-                    BigInteger u = p.modInverse(q);	// inverse of p mod q
+                    BigInteger u = p.ModInverse(q);	// inverse of p mod q
                     keyPair = new RSAKeyPair(e, d, n, u, p, q);
                 }
                 else if (keyType == KeyType.DSA) {
