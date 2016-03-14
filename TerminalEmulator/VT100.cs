@@ -148,32 +148,73 @@ namespace Poderosa.Terminal {
         }
 
         protected void ProcessSGR(string param) {
-            int state = 0;
+            int state = 0, target = 0, r = 0, g =0, b = 0;
             string[] ps = param.Split(';');
 
             foreach (string cmd in ps) {
 
                 TextDecoration dec = _currentdecoration;
                 int code = ParseSGRCode(cmd);
-                if (state == 1 || state == 2) {
-                    if (code == 5) {
-                        state += 2;
+                if (state != 0) {
+                    switch (state) {
+                        case 1:
+                            if (code == 5) {
+                                state = 2;
+                            }
+                            else if (code == 2) {
+                                state = 3;
+                            }
+                            else {
+                                state = 0;
+                                target = 0;
+                            }
+                            break;
+                        case 2:
+                            if (code < 256) {
+                                if (target == 3) {
+                                    dec = SelectForeColor(dec, code);
+                                }
+                                else if (target == 4) {
+                                    dec = SelectBackgroundColor(dec, code);
+                                }
+                            }
+                            state = 0;
+                            target = 0;
+                            break;
+                        case 3:
+                            if (code < 256) {
+                                r = code;
+                                state = 4;
+                            }
+                            else {
+                                state = 0;
+                                target = 0;
+                            }
+                            break;
+                        case 4:
+                            if (code < 256) {
+                                g = code;
+                                state = 5;
+                            }
+                            else {
+                                state = 0;
+                                target = 0;
+                            }
+                            break;
+                        case 5:
+                            if (code < 256) {
+                                b = code;
+                                if (target == 3) {
+                                    dec = SetForeColorByRGB(dec, r, g, b);
+                                }
+                                else if (target == 4) {
+                                    dec = SetBackColorByRGB(dec, r, g, b);
+                                }
+                            }
+                            state = 0;
+                            target = 0;
+                            break;
                     }
-                    else {
-                        state = 0;
-                    }
-                }
-                else if (state == 3) {
-                    if (code < 256) {
-                        dec = SelectForeColor(dec, code);
-                    }
-                    state = 0;
-                }
-                else if (state == 4) {
-                    if (code < 256) {
-                        dec = SelectBackgroundColor(dec, code);
-                    }
-                    state = 0;
                 }
                 else if (code >= 30 && code <= 37) {
                     //これだと色を変更したとき既に画面にあるものは連動しなくなるが、そこをちゃんとするのは困難である
@@ -218,12 +259,14 @@ namespace Poderosa.Terminal {
                             break;
                         case 38:
                             state = 1;
+                            target = 3;
                             break;
                         case 39:
                             dec = dec.GetCopyWithDefaultTextColor();
                             break;
                         case 48:
-                            state = 2;
+                            state = 1;
+                            target = 4;
                             break;
                         case 49:
                             dec = dec.GetCopyWithDefaultBackColor();
@@ -259,6 +302,14 @@ namespace Poderosa.Terminal {
                 color = c.Color;
 
             return dec.GetCopyWithBackColor(color);
+        }
+
+        private TextDecoration SetForeColorByRGB(TextDecoration dec, int r, int g, int b) {
+            return dec.GetCopyWithTextColor(Color.FromArgb(r, g, b));
+        }
+
+        private TextDecoration SetBackColorByRGB(TextDecoration dec, int r, int g, int b) {
+            return dec.GetCopyWithBackColor(Color.FromArgb(r, g, b));
         }
 
         private static int ParseSGRCode(string param) {
