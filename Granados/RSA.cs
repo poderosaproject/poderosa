@@ -85,8 +85,8 @@ namespace Granados.PKI {
             //Debug.WriteLine(x.ToString(16));
             int padLen = (_publickey._n.BitCount() + 7) / 8;
 
-            x = RSAUtil.PKCS1PadType1(x, padLen);
-            byte[] result = Sign(x.GetBytes());
+            BigInteger xx = RSAUtil.PKCS1PadType1(x.GetBytes(), padLen);
+            byte[] result = Sign(xx.GetBytes());
             return result;
         }
 
@@ -267,18 +267,15 @@ namespace Granados.PKI {
         /// <summary>
         /// Make encoded message (EM) as described in PKCS#1
         /// </summary>
-        /// <param name="input">input bits</param>
+        /// <param name="input">input bytes</param>
         /// <param name="len">total byte length of the result</param>
         /// <param name="rng">random number generator</param>
         /// <returns>new bits</returns>
-        public static BigInteger PKCS1PadType2(BigInteger input, int len, Rng rng) {
+        public static BigInteger PKCS1PadType2(byte[] input, int len, Rng rng) {
             // |00|02|<----- PS ----->|00|<-------- input -------->|
             // |<---------------------- len ---------------------->|
 
-            int inputBytesLen = (input.BitCount() + 7) / 8;
-            byte[] inputBytes = input.GetBytes();
-
-            int padLen = len - inputBytesLen - 3;
+            int padLen = len - input.Length - 3;
             if (padLen < 8) {
                 throw new ArgumentException("message too long");
             }
@@ -294,7 +291,7 @@ namespace Granados.PKI {
             byte[] buf = new byte[len];
             buf[1] = 2;
             Buffer.BlockCopy(pad, 0, buf, 2, pad.Length);
-            Buffer.BlockCopy(inputBytes, inputBytes.Length - inputBytesLen, buf, padLen + 3, inputBytesLen);
+            Buffer.BlockCopy(input, 0, buf, padLen + 3, input.Length);
 
             return new BigInteger(buf);
         }
@@ -302,17 +299,14 @@ namespace Granados.PKI {
         /// <summary>
         /// Make encoded message (EM) as described in PKCS#1
         /// </summary>
-        /// <param name="input">input bits</param>
+        /// <param name="input">input bytes</param>
         /// <param name="len">total byte length of the result</param>
         /// <returns>new bits</returns>
-        public static BigInteger PKCS1PadType1(BigInteger input, int len) {
+        public static BigInteger PKCS1PadType1(byte[] input, int len) {
             // |00|01|<----- PS ----->|00|<-------- input -------->|
             // |<---------------------- len ---------------------->|
 
-            int inputBytesLen = (input.BitCount() + 7) / 8;
-            byte[] inputBytes = input.GetBytes();
-
-            int padLen = len - inputBytesLen - 3;
+            int padLen = len - input.Length - 3;
             if (padLen < 8) {
                 throw new ArgumentException("message too long");
             }
@@ -322,7 +316,7 @@ namespace Granados.PKI {
             for (int i = 0; i < padLen; i++) {
                 buf[i + 2] = 0xff;
             }
-            Buffer.BlockCopy(inputBytes, inputBytes.Length - inputBytesLen, buf, padLen + 3, inputBytesLen);
+            Buffer.BlockCopy(input, 0, buf, padLen + 3, input.Length);
 
             return new BigInteger(buf);
         }

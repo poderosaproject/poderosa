@@ -209,8 +209,8 @@ namespace Granados.SSH1 {
                 }
 
                 Rng rng = RngManager.GetSecureRng();
-                BigInteger first_result = RSAUtil.PKCS1PadType2(new BigInteger(working_data), first_key_bytelen, rng).ModPow(first_encryption.Exponent, first_encryption.Modulus);
-                BigInteger second_result = RSAUtil.PKCS1PadType2(first_result, second_key_bytelen, rng).ModPow(second_encryption.Exponent, second_encryption.Modulus);
+                BigInteger first_result = RSAUtil.PKCS1PadType2(working_data, first_key_bytelen, rng).ModPow(first_encryption.Exponent, first_encryption.Modulus);
+                BigInteger second_result = RSAUtil.PKCS1PadType2(first_result.GetBytes(), second_key_bytelen, rng).ModPow(second_encryption.Exponent, second_encryption.Modulus);
 
                 //output
                 SSH1DataWriter writer = new SSH1DataWriter();
