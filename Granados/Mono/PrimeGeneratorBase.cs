@@ -34,8 +34,10 @@ namespace Granados.Mono.Math.Prime.Generator {
 
 #if INSIDE_CORLIB
 	internal
+#elif GRANADOS
+	internal
 #else
-    internal
+	public
 #endif
 	abstract class PrimeGeneratorBase {
 

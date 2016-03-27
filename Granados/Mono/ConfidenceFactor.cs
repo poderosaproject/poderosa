@@ -36,8 +36,10 @@ namespace Granados.Mono.Math.Prime {
 	/// </summary>
 #if INSIDE_CORLIB
 	internal
+#elif GRANADOS
+	internal
 #else
-    internal
+	public
 #endif
 	enum ConfidenceFactor {
 		/// <summary>

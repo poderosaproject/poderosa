@@ -38,7 +38,7 @@
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
-    <DefineConstants>TRACE;DEBUG;PODEROSA_KEYFORMAT,ENABLE_TUTORIAL</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;GRANADOS,PODEROSA_KEYFORMAT,ENABLE_TUTORIAL</DefineConstants>
     <DocumentationFile>..\bin\Debug\Granados.XML</DocumentationFile>
     <DebugSymbols>true</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
@@ -60,7 +60,7 @@
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
-    <DefineConstants>TRACE;PODEROSA_KEYFORMAT</DefineConstants>
+    <DefineConstants>TRACE;GRANADOS,PODEROSA_KEYFORMAT</DefineConstants>
     <DocumentationFile>..\bin\Release\Granados.XML</DocumentationFile>
     <DebugSymbols>true</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
@@ -77,7 +77,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UnitTest|AnyCPU' ">
     <OutputPath>..\bin\UnitTest\</OutputPath>
-    <DefineConstants>TRACE;PODEROSA_KEYFORMAT,UNITTEST</DefineConstants>
+    <DefineConstants>TRACE;GRANADOS,PODEROSA_KEYFORMAT,UNITTEST</DefineConstants>
     <DocumentationFile>..\bin\UnitTest\Granados.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
     <Prefer32Bit>false</Prefer32Bit>
@@ -97,9 +97,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Base64.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="BigInteger.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Blowfish.cs">

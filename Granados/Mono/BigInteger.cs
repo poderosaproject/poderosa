@@ -44,6 +44,8 @@ namespace Granados.Mono.Math {
 
 #if INSIDE_CORLIB
 	internal
+#elif GRANADOS
+	public
 #else
 	public
 #endif
@@ -972,6 +974,8 @@ namespace Granados.Mono.Math {
 		#endregion
 
 #if INSIDE_CORLIB
+		internal
+#elif GRANADOS
 		internal
 #else
 		public

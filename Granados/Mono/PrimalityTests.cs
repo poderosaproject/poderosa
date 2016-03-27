@@ -34,15 +34,19 @@ namespace Granados.Mono.Math.Prime {
 
 #if INSIDE_CORLIB
 	internal
+#elif GRANADOS
+	internal
 #else
-    internal
+	public
 #endif
 	delegate bool PrimalityTest (BigInteger bi, ConfidenceFactor confidence);
 
 #if INSIDE_CORLIB
 	internal
+#elif GRANADOS
+	internal
 #else
-    internal
+	public
 #endif
 	sealed class PrimalityTests {
 
