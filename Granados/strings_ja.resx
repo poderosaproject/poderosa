@@ -23,6 +23,12 @@
   <data name="NotSSHServer">
     <value>接続先はSSHのサーバではありません。</value>
   </data>
+  <data name="IncompatibleProtocolVersion">
+    <value>サーバのプロトコルバージョン [{0}] は {1} と互換性がありません。</value>
+  </data>
+  <data name="InvalidServerVersionFormat">
+    <value>サーババージョン形式が不正: [{0}]</value>
+  </data>
   <data name="ServerNotSupportedPassword">
     <value>サーバはパスワード認証をサポートしません。</value>
   </data>

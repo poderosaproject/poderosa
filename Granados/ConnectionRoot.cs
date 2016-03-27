@@ -207,21 +207,6 @@ namespace Granados {
          */
         public abstract void SendIgnorableData(string msg);
 
-
-        /**
-         * opens another SSH connection via port-forwarded connection
-         */
-        public SSHConnection OpenPortForwardedAnotherConnection(SSHConnectionParameter param, ISSHConnectionEventReceiver receiver, string host, int port) {
-            ChannelSocket s = new ChannelSocket(null);
-            SSHChannel ch = ForwardPort(s, host, port, "localhost", 0);
-            s.SSHChennal = ch;
-            VersionExchangeHandler pnh = new VersionExchangeHandler(param, s);
-            s.SetHandler(pnh);
-
-            return ConnectMain(param, receiver, pnh, s);
-        }
-
-
         /**
          * open a new SSH connection via the .NET socket
          */
@@ -232,33 +217,31 @@ namespace Granados {
                 throw new InvalidOperationException("Password property is not set");
 
             PlainSocket s = new PlainSocket(underlying_socket, null);
-            VersionExchangeHandler pnh = new VersionExchangeHandler(param, s);
-            s.SetHandler(pnh);
-            s.RepeatAsyncRead();
-            return ConnectMain(param, receiver, pnh, s);
-        }
+            try {
+                SSHProtocolVersionReceiver protoVerReceiver = new SSHProtocolVersionReceiver();
+                protoVerReceiver.Receive(s, 5000);
+                protoVerReceiver.Verify(param.Protocol);
 
-        private static SSHConnection ConnectMain(SSHConnectionParameter param, ISSHConnectionEventReceiver receiver, VersionExchangeHandler pnh, AbstractGranadosSocket s) {
-            DataFragment data = pnh.WaitResponse();
-            string sv = pnh.ServerVersion;
+                SSHConnection con;
+                if (param.Protocol == SSHProtocol.SSH1)
+                    con = new SSH1Connection(param, s, receiver, protoVerReceiver.ServerVersion, SSHUtil.ClientVersionString(param.Protocol));
+                else
+                    con = new SSH2Connection(param, s, receiver, protoVerReceiver.ServerVersion, SSHUtil.ClientVersionString(param.Protocol));
 
-            SSHConnection con = null;
-            if (param.Protocol == SSHProtocol.SSH1)
-                con = new SSH1Connection(param, s, receiver, sv, SSHUtil.ClientVersionString(param.Protocol));
-            else
-                con = new SSH2Connection(param, s, receiver, sv, SSHUtil.ClientVersionString(param.Protocol));
+                s.SetHandler(con.PacketBuilder);
+                s.RepeatAsyncRead();
+                con.SendMyVersion(param);
 
-            con.TraceReceptionEvent("server version-string", sv.Trim());
-            pnh.Close();
-            s.SetHandler(con.PacketBuilder);
-            con.SendMyVersion(param);
+                if (con.Connect() == AuthenticationResult.Failure) {
+                    s.Close();
+                    return null;
+                }
 
-            if (con.Connect() != AuthenticationResult.Failure) {
                 return con;
             }
-            else {
+            catch (Exception) {
                 s.Close();
-                return null;
+                throw;
             }
         }
 

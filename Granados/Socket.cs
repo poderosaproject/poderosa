@@ -15,6 +15,8 @@ using System.Collections;
 using System.Diagnostics;
 
 using Granados.Util;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace Granados.IO {
     /// <summary>
@@ -40,6 +42,21 @@ namespace Granados.IO {
         void OnError(Exception error);
     }
 
+    /// <summary>
+    /// IDataHandler implementation that do nothing
+    /// </summary>
+    internal class NullDataHandler : IDataHandler {
+
+        public void OnData(DataFragment data) {
+        }
+
+        public void OnClosed() {
+        }
+
+        public void OnError(Exception error) {
+        }
+    }
+
     //System.IO.SocketとIChannelEventReceiverを抽象化する
     /// <summary>
     /// 
@@ -50,7 +67,7 @@ namespace Granados.IO {
         protected SocketStatus _socketStatus;
 
         protected AbstractGranadosSocket(IDataHandler h) {
-            _handler = h;
+            _handler = (h != null) ? h : new NullDataHandler();
             _single = new byte[1];
             _socketStatus = SocketStatus.Unknown;
         }
@@ -231,79 +248,104 @@ namespace Granados.IO {
         }
     }
 
+    /// <summary>
+    /// A class reads SSH protocol version
+    /// </summary>
+    internal class SSHProtocolVersionReceiver {
 
+        private string _serverVersion = null;
+        private List<string> _lines = new List<string>();
 
-    // Connecting to SSH daemon
-    internal class VersionExchangeHandler : SynchronizedDataHandler {
-        private SSHConnectionParameter _param;
-        private string _serverVersion;
-
-        public VersionExchangeHandler(SSHConnectionParameter param, AbstractGranadosSocket socket)
-            : base(socket) {
-            _param = param;
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public SSHProtocolVersionReceiver() {
         }
 
+        /// <summary>
+        /// All lines recevied from the server including the version string.
+        /// </summary>
+        /// <remarks>Each string value doesn't contain the new-line characters.</remarks>
+        public string[] Lines {
+            get {
+                return _lines.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Version string recevied from the server.
+        /// </summary>
+        /// <remarks>The string value doesn't contain the new-line characters.</remarks>
         public string ServerVersion {
             get {
                 return _serverVersion;
             }
         }
 
-        protected override void OnDataInLock(DataFragment data) {
-            try {
-                //the specification claims the version string ends with CRLF, however some servers send LF only
-                if (data.Length <= 2 || data.Data[data.Offset + data.Length - 1] != 0x0A)
-                    throw new SSHException(Strings.GetString("NotSSHServer"));
-                //Debug.WriteLine(String.Format("receiveServerVersion len={0}",len));
-
-                //this Trim() is necessary for computing hash in the host key authentication stage
-                string sv = Encoding.ASCII.GetString(data.Data, data.Offset, data.Length).Trim();
-
-                //check compatibility
-                int a = sv.IndexOf('-');
-                if (a == -1)
-                    ThrowUnexpectedFormatException(sv);
-                int b = sv.IndexOf('-', a + 1);
-                if (b == -1)
-                    ThrowUnexpectedFormatException(sv);
-                int comma = sv.IndexOf('.', a, b - a);
-                if (comma == -1)
-                    ThrowUnexpectedFormatException(sv);
-
-                int major = Int32.Parse(sv.Substring(a + 1, comma - a - 1));
-                int minor = Int32.Parse(sv.Substring(comma + 1, b - comma - 1));
-
-                if (_param.Protocol == SSHProtocol.SSH1) {
-                    if (major != 1)
-                        ThrowVersionMismatchException(sv, SSHProtocol.SSH1);
+        /// <summary>
+        /// Receive version string.
+        /// </summary>
+        /// <param name="sock">socket object</param>
+        /// <param name="timeout">timeout in msec</param>
+        /// <returns>true if version string was received.</returns>
+        public bool Receive(PlainSocket sock, long timeout) {
+            DateTime tm = DateTime.UtcNow.AddMilliseconds(timeout);
+            using (MemoryStream mem = new MemoryStream()) {
+                while (DateTime.UtcNow < tm && sock.SocketStatus == SocketStatus.Ready) {
+                    byte? b = sock.ReadByte();
+                    if (b == null) {
+                        Thread.Sleep(10);
+                        continue;
+                    }
+                    mem.WriteByte(b.Value);
+                    if (b == 0xa) { // LF
+                        byte[] bytestr = mem.ToArray();
+                        mem.SetLength(0);
+                        string line = Encoding.UTF8.GetString(bytestr).TrimEnd('\xd', '\xa');
+                        _lines.Add(line);
+                        if (line.StartsWith("SSH-")) {
+                            _serverVersion = line;
+                            return true;
+                        }
+                    }
                 }
-                else {
-                    if (major >= 3 || major <= 0 || (major == 1 && minor != 99))
-                        ThrowVersionMismatchException(sv, SSHProtocol.SSH2);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Verify server version
+        /// </summary>
+        /// <param name="protocol">expected protocol version</param>
+        /// <exception cref="SSHException">server version doesn't match</exception>
+        public void Verify(SSHProtocol protocol) {
+            if (_serverVersion == null) {
+                throw new SSHException(Strings.GetString("NotSSHServer"));
+            }
+
+            string[] sv = _serverVersion.Split('-');
+            if (sv.Length >= 3 && sv[0] == "SSH") {
+                string protocolVersion = sv[1];
+                string[] pv = protocolVersion.Split('.');
+                if (pv.Length >= 2) {
+                    if (protocol == SSHProtocol.SSH1) {
+                        if (pv[0] == "1") {
+                            return; // OK
+                        }
+                    }
+                    else if (protocol == SSHProtocol.SSH2) {
+                        if (pv[0] == "2" || (pv[0] == "1" && pv[1] == "99")) {
+                            return; // OK
+                        }
+                    }
+                    throw new SSHException(
+                        String.Format(Strings.GetString("IncompatibleProtocolVersion"), _serverVersion, protocol.ToString()));
                 }
-
-                _serverVersion = sv;
-                this.SetSuccessfulResult(data);
             }
-            catch (Exception ex) {
-                this.SetFailureResult(ex);
-            }
-        }
-        private void ThrowSSHException(string msg) {
-            throw new SSHException(msg);
-        }
-        private void ThrowUnexpectedFormatException(string version) {
-            ThrowSSHException("Format of server version is invalid:[" + version + "]");
-        }
-        private void ThrowVersionMismatchException(string version, SSHProtocol client) {
-            StringBuilder bld = new StringBuilder();
-            bld.Append("The protocol version of the server [");
-            bld.Append(version);
-            bld.Append("] is not compatible with ");
-            bld.Append(client.ToString());
-            ThrowSSHException(bld.ToString());
-        }
 
+            throw new SSHException(
+                String.Format(Strings.GetString("InvalidServerVersionFormat"), _serverVersion));
+        }
     }
 
     //directly notification to synchronized
@@ -338,6 +380,17 @@ namespace Granados.IO {
 
             _data = new DataFragment(0x1000);
             _callback = new AsyncCallback(RepeatCallback);
+        }
+
+        internal byte? ReadByte() {
+            byte[] buf = new byte[1];
+            if (_socket.Available > 0) {
+                int n = _socket.Receive(buf);
+                if (n > 0) {
+                    return buf[0];
+                }
+            }
+            return null;
         }
 
         internal override void Write(byte[] data, int offset, int length) {

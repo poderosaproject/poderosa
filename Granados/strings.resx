@@ -23,6 +23,12 @@
   <data name="NotSSHServer">
     <value>The destination is not a correct SSH server.</value>
   </data>
+  <data name="IncompatibleProtocolVersion">
+    <value>The protocol version of the server [{0}] is not compatible with {1}.</value>
+  </data>
+  <data name="InvalidServerVersionFormat">
+    <value>Format of server version is invalid: [{0}]</value>
+  </data>
   <data name="ServerNotSupportedPassword">
     <value>Server does not support the plain password authentication.</value>
   </data>

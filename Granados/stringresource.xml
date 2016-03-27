@@ -19,6 +19,14 @@ $Id: stringresource.xml,v 1.4 2011/05/01 15:28:52 kzmi Exp $
     <en>The destination is not a correct SSH server.</en>
     <ja>接続先はSSHのサーバではありません。</ja>
   </record>
+  <record name="IncompatibleProtocolVersion">
+    <en>The protocol version of the server [{0}] is not compatible with {1}.</en>
+    <ja>サーバのプロトコルバージョン [{0}] は {1} と互換性がありません。</ja>
+  </record>
+  <record name="InvalidServerVersionFormat">
+    <en>Format of server version is invalid: [{0}]</en>
+    <ja>サーババージョン形式が不正: [{0}]</ja>
+  </record>
   <record name="ServerNotSupportedPassword">
     <en>Server does not support the plain password authentication.</en>
     <ja>サーバはパスワード認証をサポートしません。</ja>
