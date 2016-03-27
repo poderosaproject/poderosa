@@ -195,7 +195,7 @@ namespace Granados.SSH1 {
                 RSAPublicKey second_encryption;
                 SSHServerInfo si = _cInfo._serverinfo;
                 int first_key_bytelen, second_key_bytelen;
-                if (si.server_key_bits < si.host_key_bits) {
+                if (si.server_key_public_modulus < si.host_key_public_modulus) {
                     first_encryption = new RSAPublicKey(si.server_key_public_exponent, si.server_key_public_modulus);
                     second_encryption = new RSAPublicKey(si.host_key_public_exponent, si.host_key_public_modulus);
                     first_key_bytelen = (si.server_key_bits + 7) / 8;
