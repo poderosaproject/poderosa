@@ -1317,10 +1317,16 @@ namespace Granados.SSH2 {
 
         private DataFragment SendKEXDHINIT(Mode mode) {
             //Round1 computes and sends [e]
-            byte[] sx = new byte[32];
-            RngManager.GetSecureRng().GetBytes(sx);
-            _x = new BigInteger(sx);
-            _e = new BigInteger(2).ModPow(_x, GetDiffieHellmanPrime(_cInfo._kexAlgorithm));
+            BigInteger p = GetDiffieHellmanPrime(_cInfo._kexAlgorithm);
+            //Generate x : 1 < x < (p-1)/2
+            int xBytes = (p.BitCount() - 2) / 8;
+            Rng rng = RngManager.GetSecureRng();
+            do {
+                byte[] sx = new byte[xBytes];
+                rng.GetBytes(sx);
+                _x = new BigInteger(sx);
+            } while (_x <= 1);
+            _e = new BigInteger(2).ModPow(_x, p);
             SSH2DataWriter wr = new SSH2DataWriter();
             wr.WritePacketType(PacketType.SSH_MSG_KEXDH_INIT);
             wr.WriteBigInteger(_e);
