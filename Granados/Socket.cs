@@ -11,16 +11,15 @@ using System.Text;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
-using System.Collections;
 using System.Diagnostics;
 
 using Granados.Util;
 using System.Collections.Generic;
-using System.Globalization;
 
 namespace Granados.IO {
+
     /// <summary>
-    /// 
+    /// Status of <see cref="IGranadosSocket"/>
     /// </summary>
     /// <exclude/>
     public enum SocketStatus {
@@ -31,9 +30,37 @@ namespace Granados.IO {
         Unknown
     }
 
-    //interface to receive data through AbstractGranadosSocket asynchronously
     /// <summary>
-    /// 
+    /// Socket interface
+    /// </summary>
+    public interface IGranadosSocket {
+
+        /// <summary>
+        /// Get status of this object.
+        /// </summary>
+        SocketStatus SocketStatus { get; }
+
+        /// <summary>
+        /// Write data to the socket
+        /// </summary>
+        /// <param name="data">byte array that contains data to write</param>
+        /// <param name="offset">start index of data</param>
+        /// <param name="length">byte count to write</param>
+        void Write(byte[] data, int offset, int length);
+
+        /// <summary>
+        /// Get whether any received data are available on the socket
+        /// </summary>
+        bool DataAvailable { get; } // FIXME: is this required ?
+
+        /// <summary>
+        /// Close connection
+        /// </summary>
+        void Close();
+    }
+    
+    /// <summary>
+    /// Interface to handle received data in <see cref="PlainSocket"/>
     /// </summary>
     /// <exclude/>
     public interface IDataHandler {
@@ -43,7 +70,7 @@ namespace Granados.IO {
     }
 
     /// <summary>
-    /// IDataHandler implementation that do nothing
+    /// <see cref="IDataHandler"/> implementation that do nothing
     /// </summary>
     internal class NullDataHandler : IDataHandler {
 
@@ -57,195 +84,73 @@ namespace Granados.IO {
         }
     }
 
-    //System.IO.SocketとIChannelEventReceiverを抽象化する
     /// <summary>
-    /// 
+    /// <see cref="IDataHandler"/> implementation that works as a proxy of another handler
+    /// for intercepting OnData() call.
     /// </summary>
-    /// <exclude/>
-    public abstract class AbstractGranadosSocket {
-        protected IDataHandler _handler;
-        protected SocketStatus _socketStatus;
-
-        protected AbstractGranadosSocket(IDataHandler h) {
-            _handler = (h != null) ? h : new NullDataHandler();
-            _single = new byte[1];
-            _socketStatus = SocketStatus.Unknown;
-        }
-
-        public SocketStatus SocketStatus {
-            get {
-                return _socketStatus;
-            }
-        }
-        public IDataHandler DataHandler {
-            get {
-                return _handler;
-            }
-        }
-
-        public void SetHandler(IDataHandler h) {
-            _handler = h;
-        }
-
-        internal abstract void Write(byte[] data, int offset, int length);
-
-        private byte[] _single;
-        internal void WriteByte(byte data) {
-            _single[0] = data;
-            Write(_single, 0, 1);
-        }
-
-        internal abstract void Close();
-        internal abstract bool DataAvailable {
-            get;
-        }
-    }
-
-    // base class for processing data and passing another IDataHandler
     internal abstract class FilterDataHandler : IDataHandler {
-        protected IDataHandler _inner_handler;
 
-        public FilterDataHandler(IDataHandler inner_handler) {
-            _inner_handler = inner_handler;
-        }
-        public IDataHandler InnerHandler {
-            get {
-                return _inner_handler;
-            }
-            set {
-                _inner_handler = value;
-            }
-        }
+        /// <summary>
+        /// A core handler that handles callbacks.
+        /// </summary>
+        private IDataHandler _innerHandler;
 
-        public abstract void OnData(DataFragment data);
+        /// <summary>
+        /// Handle data instead of the core handler.
+        /// </summary>
+        /// <param name="data">data</param>
+        protected abstract void FilterData(DataFragment data);
 
-        public virtual void OnClosed() {
-            _inner_handler.OnClosed();
-        }
-        public virtual void OnError(Exception error) {
-            _inner_handler.OnError(error);
-        }
-    }
-
-    //Handler for receiving the response synchronously
-    internal abstract class SynchronizedDataHandler : IDataHandler {
-
-        private AbstractGranadosSocket _socket;
-        private ManualResetEvent _event;
-        private Queue _results;
-
-        internal interface IQueueEventListener {
-            void Dequeued();
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="innerHandler">a core handler</param>
+        public FilterDataHandler(IDataHandler innerHandler) {
+            _innerHandler = innerHandler;
         }
 
-        public SynchronizedDataHandler(AbstractGranadosSocket socket) {
-            _socket = socket;
-            _event = new ManualResetEvent(false);
-            _results = new Queue();
+        /// <summary>
+        /// Set a core handler.
+        /// </summary>
+        /// <param name="innerHandler">a core handler</param>
+        public void SetInnerHandler(IDataHandler innerHandler) {
+            _innerHandler = innerHandler;
         }
 
-        public void Close() {
-            lock (_socket) {
-                _event.Close();
-                ClearQueue();
-            }
+        /// <summary>
+        /// Call OnData() of a core handler
+        /// </summary>
+        /// <param name="data"></param>
+        protected void OnDataInternal(DataFragment data) {
+            _innerHandler.OnData(data);
         }
 
+        #region IDataHandler
+
+        /// <summary>
+        /// Implements <see cref="IDataHandler"/>
+        /// </summary>
+        /// <param name="data"></param>
         public void OnData(DataFragment data) {
-            lock (_socket) {
-                OnDataInLock(data);
-            }
+            FilterData(data);
         }
+
+        /// <summary>
+        /// Implements <see cref="IDataHandler"/>
+        /// </summary>
         public void OnClosed() {
-            lock (_socket) {
-                OnClosedInLock();
-            }
+            _innerHandler.OnClosed();
         }
+
+        /// <summary>
+        /// Implements <see cref="IDataHandler"/>
+        /// </summary>
+        /// <param name="error"></param>
         public void OnError(Exception error) {
-            lock (_socket) {
-                OnErrorInLock(error);
-            }
+            _innerHandler.OnError(error);
         }
 
-        protected abstract void OnDataInLock(DataFragment data);
-        protected virtual void OnClosedInLock() {
-            SetFailureResult(new SSHException("the connection is closed with unexpected condition."));
-        }
-        protected virtual void OnErrorInLock(Exception error) {
-            SetFailureResult(error);
-        }
-
-        //Set the response
-        protected void SetSuccessfulResult(DataFragment data) {
-            _results.Enqueue(data.Isolate());
-            _event.Set();
-        }
-        protected void SetFailureResult(Exception error) {
-            _results.Enqueue(error);
-            _event.Set();
-        }
-
-        //Send request and wait response
-        public DataFragment SendAndWaitResponse(DataFragment data) {
-            //this lock is important
-            lock (_socket) {
-                Debug.Assert(_results.Count == 0);
-                _event.Reset();
-                if (data.Length > 0)
-                    _socket.Write(data.Data, data.Offset, data.Length);
-            }
-
-            _event.WaitOne();
-            Debug.Assert(_results.Count > 0);
-            return Dequeue();
-        }
-
-        //asynchronously data exchange
-        public DataFragment WaitResponse() {
-            lock (_socket) {
-                if (_results.Count > 0)
-                    return Dequeue(); //we have data already 
-                else
-                    _event.Reset();
-            }
-
-            _event.WaitOne();
-            return Dequeue();
-        }
-
-        //Pop the data from the queue
-        private DataFragment Dequeue() {
-            lock (_socket) {
-                object t = _results.Dequeue();
-                Debug.Assert(t != null);
-
-                IQueueEventListener el = t as IQueueEventListener;
-                if (el != null) {
-                    el.Dequeued();
-                }
-
-                DataFragment d = t as DataFragment;
-                if (d != null)
-                    return d;
-                else {
-                    Exception e = t as Exception;
-                    Debug.Assert(e != null);
-                    ClearQueue();
-                    throw e;
-                }
-            }
-        }
-
-        private void ClearQueue() {
-            lock (_socket) {
-                while (_results.Count > 0) {
-                    IQueueEventListener el = _results.Dequeue() as IQueueEventListener;
-                    if (el != null) {
-                        el.Dequeued();
-                    }
-                }
-            }
-        }
+        #endregion
     }
 
     /// <summary>
@@ -254,7 +159,7 @@ namespace Granados.IO {
     internal class SSHProtocolVersionReceiver {
 
         private string _serverVersion = null;
-        private List<string> _lines = new List<string>();
+        private readonly List<string> _lines = new List<string>();
 
         /// <summary>
         /// Constructor
@@ -289,15 +194,17 @@ namespace Granados.IO {
         /// <param name="timeout">timeout in msec</param>
         /// <returns>true if version string was received.</returns>
         public bool Receive(PlainSocket sock, long timeout) {
+            byte[] buf = new byte[1];
             DateTime tm = DateTime.UtcNow.AddMilliseconds(timeout);
             using (MemoryStream mem = new MemoryStream()) {
                 while (DateTime.UtcNow < tm && sock.SocketStatus == SocketStatus.Ready) {
-                    byte? b = sock.ReadByte();
-                    if (b == null) {
+                    int n = sock.ReadIfAvailable(buf);
+                    if (n != 1) {
                         Thread.Sleep(10);
                         continue;
                     }
-                    mem.WriteByte(b.Value);
+                    byte b = buf[0];
+                    mem.WriteByte(b);
                     if (b == 0xa) { // LF
                         byte[] bytestr = mem.ToArray();
                         mem.SetLength(0);
@@ -348,89 +255,323 @@ namespace Granados.IO {
         }
     }
 
-    //directly notification to synchronized
-    internal class SynchronizedPacketReceiver : SynchronizedDataHandler {
+    /// <summary>
+    /// <see cref="IDataHandler"/> implementation that queues received packets.
+    /// </summary>
+    internal class SynchronizedPacketReceiver : IDataHandler {
 
-        private SSHConnection _connection;
-
-        public SynchronizedPacketReceiver(SSHConnection c)
-            : base(c.UnderlyingStream) {
-            _connection = c;
+        /// <summary>
+        /// An optional interface of the <see cref="DataFragment"/> to be sent
+        /// for detecting its dequeuing.
+        /// </summary>
+        public interface IQueueEventListener {
+            /// <summary>
+            /// Notifies the packet was dequeued
+            /// </summary>
+            /// <param name="canceled">true if the packet was discarded.</param>
+            void Dequeued(bool canceled);
         }
 
-        protected override void OnDataInLock(DataFragment data) {
-            this.SetSuccessfulResult(data);
+        /// <summary>
+        /// Object used for synchronization
+        /// </summary>
+        private readonly object _sync = new object();
+
+        /// <summary>
+        /// Socket for sending SSH packet
+        /// </summary>
+        private readonly IGranadosSocket _socket;
+
+        /// <summary>
+        /// Queue of <see cref="DataFragment"/> or <see cref="Exception"/>
+        /// </summary>
+        private readonly Queue<object> _queue = new Queue<object>();
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="connection">connection object</param>
+        public SynchronizedPacketReceiver(SSHConnection connection)
+            : this(connection.UnderlyingStream) {
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="socket">socket for sending SSH packet</param>
+        public SynchronizedPacketReceiver(IGranadosSocket socket) {
+            _socket = socket;
+        }
+
+        #region IDataHandler
+
+        /// <summary>
+        /// Implements <see cref="IDataHandler"/>
+        /// </summary>
+        /// <param name="data"></param>
+        public void OnData(DataFragment data) {
+            EnqueueDataFragment(data);
+        }
+
+        /// <summary>
+        /// Implements <see cref="IDataHandler"/>
+        /// </summary>
+        public void OnClosed() {
+            EnqueueError(new SSHException("the connection is closed with unexpected condition."));
+        }
+
+        /// <summary>
+        /// Implements <see cref="IDataHandler"/>
+        /// </summary>
+        /// <param name="error"></param>
+        public void OnError(Exception error) {
+            EnqueueError(error);
+        }
+
+        /// <summary>
+        /// Enqueue a copy of the specified <see cref="DataFragment"/>
+        /// </summary>
+        /// <param name="data"></param>
+        private void EnqueueDataFragment(DataFragment data) {
+            lock (_sync) {
+                _queue.Enqueue(data.Isolate());
+                Monitor.PulseAll(_sync);
+            }
+        }
+
+        /// <summary>
+        /// Enqueue the specified <see cref="Exception"/>
+        /// </summary>
+        /// <param name="error"></param>
+        private void EnqueueError(Exception error) {
+            lock (_sync) {
+                _queue.Enqueue(error);
+                Monitor.PulseAll(_sync);
+            }
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Send a packet then receive a response.
+        /// </summary>
+        /// <param name="data">a packet to be sent</param>
+        /// <returns>a packet received</returns>
+        /// <exception cref="SSHException">unprocessed incoming packet exists</exception>
+        public DataFragment SendAndWaitResponse(DataFragment data) {
+            lock (_sync) {
+                if (data.Length > 0) {
+                    // queue must have no items
+                    if (_queue.Count > 0) {
+                        throw new SSHException("Unexpected incoming packet");
+                    }
+                    _socket.Write(data.Data, data.Offset, data.Length);
+                }
+
+                return WaitResponse();
+            }
+        }
+
+        /// <summary>
+        /// Wait until the next response has been received.
+        /// </summary>
+        /// <returns>a packet received</returns>
+        public DataFragment WaitResponse() {
+            lock (_sync) {
+                while (true) {
+                    if (_queue.Count > 0) {
+                        object t = _queue.Dequeue();
+
+                        IQueueEventListener el = t as IQueueEventListener;
+                        if (el != null) {
+                            el.Dequeued(false);
+                        }
+
+                        DataFragment d = t as DataFragment;
+                        if (d != null) {
+                            return d;
+                        }
+
+                        Exception e = t as Exception;
+                        if (e != null) {
+                            ClearQueue();
+                            throw e;
+                        }
+                    }
+                    else {
+                        Monitor.Wait(_sync);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Clear queue
+        /// </summary>
+        private void ClearQueue() {
+            lock (_sync) {
+                while (_queue.Count > 0) {
+                    object t = _queue.Dequeue();
+                    IQueueEventListener el = t as IQueueEventListener;
+                    if (el != null) {
+                        el.Dequeued(true);
+                    }
+                }
+            }
         }
     }
 
-    // GranadosSocket on an underlying .NET socket
-    internal class PlainSocket : AbstractGranadosSocket {
-        private Socket _socket;
-        private DataFragment _data;
+    /// <summary>
+    /// Socket wrapper class that have receiving loop
+    /// </summary>
+    internal class PlainSocket : IGranadosSocket {
 
-        private AsyncCallback _callback;
+        /// <summary>
+        /// Object used for synchronization
+        /// </summary>
+        private readonly object _sync = new object();
 
-        private volatile bool onClosedFired = false;
+        /// <summary>
+        /// Underlying .NET socket
+        /// </summary>
+        private readonly Socket _socket;
 
-        internal PlainSocket(Socket s, IDataHandler h)
-            : base(h) {
-            _socket = s;
+        /// <summary>
+        /// Object that received data are stored
+        /// </summary>
+        private readonly DataFragment _data;
+
+        /// <summary>
+        /// Flag for avoiding multiple OnClosed() call
+        /// </summary>
+        private volatile bool _onClosedFired = false;
+
+        /// <summary>
+        /// Whether asynchronous receiving was started
+        /// </summary>
+        private volatile bool _asyncReadStarted = false;
+
+        /// <summary>
+        /// Callback handler
+        /// </summary>
+        /// <remarks>
+        /// This should not be null.
+        /// </remarks>
+        private IDataHandler _handler;
+
+        /// <summary>
+        /// Current status of this object.
+        /// </summary>
+        private SocketStatus _socketStatus;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="socket">socket object (must be already connected)</param>
+        /// <param name="handler">callback handler (can be null if no handler is specified)</param>
+        public PlainSocket(Socket socket, IDataHandler handler) {
+            _handler = handler ?? new NullDataHandler();
+            _socket = socket;
             Debug.Assert(_socket.Connected);
             _socketStatus = SocketStatus.Ready;
-
             _data = new DataFragment(0x1000);
-            _callback = new AsyncCallback(RepeatCallback);
         }
 
-        internal byte? ReadByte() {
-            byte[] buf = new byte[1];
-            if (_socket.Available > 0) {
-                int n = _socket.Receive(buf);
-                if (n > 0) {
-                    return buf[0];
-                }
+        /// <summary>
+        /// Get status of this object.
+        /// </summary>
+        public SocketStatus SocketStatus {
+            get {
+                return _socketStatus;
             }
-            return null;
         }
 
-        internal override void Write(byte[] data, int offset, int length) {
+        /// <summary>
+        /// Set callback handler.
+        /// </summary>
+        /// <param name="handler">handler</param>
+        public void SetHandler(IDataHandler handler) {
+            _handler = handler ?? new NullDataHandler();
+        }
+
+        /// <summary>
+        /// Read bytes if any data can be read.
+        /// </summary>
+        /// <remarks>
+        /// This method fails if asynchronous receiving is already started by RepeatAsyncRead(). 
+        /// </remarks>
+        /// <param name="buf">byte array to store data in.</param>
+        /// <returns>length of bytes stored</returns>
+        public int ReadIfAvailable(byte[] buf) {
+            if (_asyncReadStarted) {
+                throw new InvalidOperationException("asynchronous receiving is already started.");
+            }
+            if (_socket.Available > 0) {
+                return _socket.Receive(buf);
+            }
+            return 0;
+        }
+
+        /// <summary>
+        /// Write data to the socket
+        /// </summary>
+        /// <param name="data">byte array that contains data to write</param>
+        /// <param name="offset">start index of data</param>
+        /// <param name="length">byte count to write</param>
+        public void Write(byte[] data, int offset, int length) {
             _socket.Send(data, offset, length, SocketFlags.None);
         }
 
-        internal override void Close() {
-            if (_socketStatus != SocketStatus.Closed) {
+        /// <summary>
+        /// Close connection
+        /// </summary>
+        public void Close() {
+            lock (_sync) {
+                if (_socketStatus == SocketStatus.Closed) {
+                    return;
+                }
                 _socket.Shutdown(SocketShutdown.Both);
                 _socket.Close();
                 _socketStatus = SocketStatus.Closed;
-                FireOnClosed();
             }
+            FireOnClosed();
         }
 
-        internal void RepeatAsyncRead() {
-            _socket.BeginReceive(_data.Data, 0, _data.Capacity, SocketFlags.None, _callback, null);
-        }
-
-        internal override bool DataAvailable {
+        /// <summary>
+        /// Get whether any received data are available on the socket
+        /// </summary>
+        public bool DataAvailable {
             get {
                 return _socket.Available > 0;
             }
         }
 
-        private void RepeatCallback(IAsyncResult result) {
+        /// <summary>
+        /// Start asynchronous receiving cycle.
+        /// </summary>
+        public void RepeatAsyncRead() {
+            if (!_asyncReadStarted) {
+                _asyncReadStarted = true;
+                new Thread(ReceivingThread).Start();
+            }
+        }
+
+        /// <summary>
+        /// Receiving thread
+        /// </summary>
+        private void ReceivingThread() {
             try {
-                int n = _socket.EndReceive(result);
-                if (n > 0) {
-                    _data.SetLength(0, n);
-                    _handler.OnData(_data);
-                    if (_socketStatus != SocketStatus.Closed)
-                        RepeatAsyncRead();
-                }
-                else if (n < 0) {
-                    //in case of Win9x, EndReceive() returns 0 every 288 seconds even if no data is available
-                    RepeatAsyncRead();
-                }
-                else {
-                    FireOnClosed();
+                while (true) {
+                    int n = _socket.Receive(_data.Data, 0, _data.Capacity, SocketFlags.None);
+                    if (n > 0) {
+                        _data.SetLength(0, n);
+                        _handler.OnData(_data);
+                    }
+                    else if (n == 0) {
+                        // shut down detected
+                        FireOnClosed();
+                        break;
+                    }
                 }
             }
             catch (ObjectDisposedException) {
@@ -438,21 +579,21 @@ namespace Granados.IO {
                 FireOnClosed();
             }
             catch (Exception ex) {
-                if ((ex is SocketException) && ((SocketException)ex).ErrorCode == 995) {
-                    //in case of .NET1.1 on Win9x, EndReceive() changes the behavior. it throws SocketException with an error code 995. 
-                    RepeatAsyncRead();
-                }
-                else if (_socketStatus != SocketStatus.Closed)
+                if (_socketStatus != SocketStatus.Closed) {
                     _handler.OnError(ex);
+                }
             }
         }
 
+        /// <summary>
+        /// Call OnClosed() callback
+        /// </summary>
         private void FireOnClosed() {
-            lock (_handler) {
-                if (onClosedFired) {
+            lock (_sync) {
+                if (_onClosedFired) {
                     return;
                 }
-                onClosedFired = true;
+                _onClosedFired = true;
             }
             // PlainSocket.Close() may be called from another thread again in _handler.OnClosed().
             // For avoiding deadlock, _handler.OnClosed() have to be called out of the lock() block.
@@ -460,75 +601,4 @@ namespace Granados.IO {
         }
     }
 
-    // GranadosSocket on an underlying another SSH channel
-    internal class ChannelSocket : AbstractGranadosSocket, ISSHChannelEventReceiver {
-        private SSHChannel _channel;
-        private DataFragment _fragment;
-
-        internal ChannelSocket(IDataHandler h)
-            : base(h) {
-        }
-        internal SSHChannel SSHChennal {
-            get {
-                return _channel;
-            }
-            set {
-                _channel = value;
-                _socketStatus = SocketStatus.Negotiating;
-            }
-        }
-
-        internal override void Write(byte[] data, int offset, int length) {
-            if (_socketStatus != SocketStatus.Ready)
-                throw new SSHException("channel not ready");
-            _channel.Transmit(data, offset, length);
-        }
-        internal override bool DataAvailable {
-            get {
-                //Note: this may be not correct
-                return _channel.Connection.Available;
-            }
-        }
-
-        internal override void Close() {
-            if (_socketStatus != SocketStatus.Ready)
-                throw new SSHException("channel not ready");
-
-            _channel.Close();
-            if (_channel.Connection.ChannelCollection.Count <= 1) //close last channel
-                _channel.Connection.Close();
-        }
-
-        public void OnData(byte[] data, int offset, int length) {
-            if (_fragment == null)
-                _fragment = new DataFragment(data, offset, length);
-            else
-                _fragment.Init(data, offset, length);
-
-            _handler.OnData(_fragment);
-        }
-
-        public void OnChannelEOF() {
-            _handler.OnClosed();
-        }
-
-        public void OnChannelError(Exception error) {
-            _handler.OnError(error);
-        }
-
-        public void OnChannelClosed() {
-            _handler.OnClosed();
-        }
-
-        public void OnChannelReady() {
-            _socketStatus = SocketStatus.Ready;
-        }
-
-        public void OnExtendedData(int type, byte[] data) {
-            //!!handle data
-        }
-        public void OnMiscPacket(byte type, byte[] data, int offset, int length) {
-            //!!handle data
-        }
-    }
 }

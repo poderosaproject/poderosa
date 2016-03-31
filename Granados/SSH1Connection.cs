@@ -45,7 +45,7 @@ namespace Granados.SSH1 {
         // exec command for SCP
         //private bool _executingExecCmd = false;
 
-        public SSH1Connection(SSHConnectionParameter param, AbstractGranadosSocket s, ISSHConnectionEventReceiver er, string serverversion, string clientversion)
+        public SSH1Connection(SSHConnectionParameter param, IGranadosSocket s, ISSHConnectionEventReceiver er, string serverversion, string clientversion)
             : base(param, s, er) {
             _cInfo = new SSH1ConnectionInfo();
             _cInfo._serverVersionString = serverversion;
@@ -98,7 +98,7 @@ namespace Granados.SSH1 {
             }
 
             if (_authenticationResult != AuthenticationResult.Failure) {
-                _packetBuilder.InnerHandler = new CallbackSSH1PacketHandler(this);
+                _packetBuilder.SetInnerHandler(new CallbackSSH1PacketHandler(this));
             }
             return AuthenticationResult.Success;
         }

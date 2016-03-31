@@ -30,7 +30,7 @@ namespace Granados {
 
         protected SSHConnectionParameter _param;              //parameters supplied by the user
         protected ChannelCollection _channel_collection;      //channels
-        protected AbstractGranadosSocket _stream;             //underlying socket
+        protected IGranadosSocket _stream;                    //underlying socket
         protected ISSHConnectionEventReceiver _eventReceiver; //outgoing interface for this connection
         protected byte[] _sessionID;                          //session ID
         protected bool _autoDisconnect;                       //if this is true, this connection will be closed with the last channel
@@ -40,7 +40,7 @@ namespace Granados {
         protected string _execCmd;        // exec command string
         protected bool _execCmdWaitFlag;  // wait response flag for sending exec command to server
 
-        protected SSHConnection(SSHConnectionParameter param, AbstractGranadosSocket strm, ISSHConnectionEventReceiver receiver) {
+        protected SSHConnection(SSHConnectionParameter param, IGranadosSocket strm, ISSHConnectionEventReceiver receiver) {
             _param = (SSHConnectionParameter)param.Clone();
             _stream = strm;
             _eventReceiver = receiver;
@@ -97,7 +97,7 @@ namespace Granados {
                 return _param.EventTracer != null;
             }
         }
-        internal AbstractGranadosSocket UnderlyingStream {
+        internal IGranadosSocket UnderlyingStream {
             get {
                 return _stream;
             }

@@ -56,7 +56,7 @@ namespace Granados.SSH2 {
 
         private readonly object _transmitSync = new object();   // for keeping correct packet order
 
-        internal SSH2Connection(SSHConnectionParameter param, AbstractGranadosSocket strm, ISSHConnectionEventReceiver r, string serverversion, string clientversion)
+        internal SSH2Connection(SSHConnectionParameter param, IGranadosSocket strm, ISSHConnectionEventReceiver r, string serverversion, string clientversion)
             : base(param, strm, r) {
             _cInfo = new SSH2ConnectionInfo();
             _cInfo._serverVersionString = serverversion;
@@ -190,7 +190,7 @@ namespace Granados.SSH2 {
                 }
                 else if (h == PacketType.SSH_MSG_USERAUTH_SUCCESS) {
                     TraceReceptionEvent(h, "user authentication succeeded");
-                    _packetBuilder.InnerHandler = new CallbackSSH2PacketHandler(this);
+                    _packetBuilder.SetInnerHandler(new CallbackSSH2PacketHandler(this));
                     return AuthenticationResult.Success; //successfully exit
                 }
                 else if (h == PacketType.SSH_MSG_USERAUTH_INFO_REQUEST) {

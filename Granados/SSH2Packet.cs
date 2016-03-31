@@ -133,7 +133,7 @@ namespace Granados.SSH2 {
     }
 
     // Special DataFragment for SSH_MSG_NEWKEYS.
-    internal class SSH2MsgNewKeys : DataFragment, SynchronizedDataHandler.IQueueEventListener {
+    internal class SSH2MsgNewKeys : DataFragment, SynchronizedPacketReceiver.IQueueEventListener {
 
         public delegate void Handler();
 
@@ -155,7 +155,7 @@ namespace Granados.SSH2 {
 
         #region IQueueEventListener Members
 
-        public void Dequeued() {
+        public void Dequeued(bool canceled) {
             if (_onDequeued != null) {
                 _onDequeued();
             }
@@ -214,7 +214,7 @@ namespace Granados.SSH2 {
             }
         }
 
-        public override void OnData(DataFragment data) {
+        protected override void FilterData(DataFragment data) {
             lock (_cipherSync) {
                 try {
                     if (!_keyError) {
@@ -252,11 +252,11 @@ namespace Granados.SSH2 {
                     SSH2MsgNewKeys newKeysPacket =
                         new SSH2MsgNewKeys(_packet, new SSH2MsgNewKeys.Handler(OnMsgNewKeysDequeued));
 
-                    _inner_handler.OnData(newKeysPacket);
+                    OnDataInternal(newKeysPacket);
                     break;
                 }
 
-                _inner_handler.OnData(_packet);
+                OnDataInternal(_packet);
             }
         }
 
@@ -269,10 +269,6 @@ namespace Granados.SSH2 {
                 // start key error detection
                 _keyErrorDetectionTimeout = DateTime.UtcNow.AddMilliseconds(1000);
             }
-        }
-
-        public override void OnClosed() {
-            base.OnClosed();
         }
 
         //returns true if a new packet is obtained to _packet

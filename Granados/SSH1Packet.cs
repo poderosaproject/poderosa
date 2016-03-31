@@ -82,14 +82,14 @@ namespace Granados.SSH1 {
         /**
         * writes to plain stream
         */
-        public void WriteTo(AbstractGranadosSocket output) {
+        public void WriteTo(IGranadosSocket output) {
             byte[] image = BuildImage();
             output.Write(image, 0, image.Length);
         }
         /**
         * writes to encrypted stream
         */
-        public void WriteTo(AbstractGranadosSocket output, Cipher cipher) {
+        public void WriteTo(IGranadosSocket output, Cipher cipher) {
             byte[] image = BuildImage();
             //dumpBA(image);
             byte[] encrypted = new byte[image.Length - 4];
@@ -156,7 +156,7 @@ namespace Granados.SSH1 {
             _checkMAC = check_mac;
         }
 
-        public override void OnData(DataFragment data) {
+        protected override void FilterData(DataFragment data) {
             try {
                 while (_buffer.Length - _writeOffset < data.Length)
                     ExpandBuffer();
@@ -165,15 +165,16 @@ namespace Granados.SSH1 {
 
                 DataFragment p = ConstructPacket();
                 while (p != null) {
-                    _inner_handler.OnData(p);
+                    OnDataInternal(p);
                     p = ConstructPacket();
                 }
                 ReduceBuffer();
             }
             catch (Exception ex) {
-                _inner_handler.OnError(ex);
+                OnError(ex);
             }
         }
+
         //returns true if a new packet could be obtained
         private DataFragment ConstructPacket() {
 
