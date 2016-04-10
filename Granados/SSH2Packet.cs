@@ -179,7 +179,7 @@ namespace Granados.SSH2 {
         private int _macLength;
 
         private bool _pending = false;
-        private bool _keyError = false;
+        private bool _hasError = false;
 
         private DateTime _keyErrorDetectionTimeout = DateTime.MaxValue;
 
@@ -229,13 +229,13 @@ namespace Granados.SSH2 {
         protected override void FilterData(DataFragment data) {
             lock (_cipherSync) {
                 try {
-                    if (_keyError) {
+                    if (_hasError) {
                         return;
                     }
 
                     // key error detection
                     if (_pending && DateTime.UtcNow > _keyErrorDetectionTimeout) {
-                        _keyError = true;   // disable accepting data any more
+                        _hasError = true;   // disable accepting data any more
                         return;
                     }
 
@@ -255,7 +255,20 @@ namespace Granados.SSH2 {
         /// Extracts SSH packet from the internal buffer and passes it to the next handler.
         /// </summary>
         private void ProcessBuffer() {
-            while (ConstructPacket()) {
+            while (true) {
+                bool hasPacket;
+                try {
+                    hasPacket = ConstructPacket();
+                }
+                catch (Exception) {
+                    _hasError = true;
+                    throw;
+                }
+
+                if (!hasPacket) {
+                    return;
+                }
+
                 DataFragment packet = _packetImage.AsDataFragment();
 
                 if (IsMsgNewKeys(packet)) {
@@ -295,7 +308,10 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Extracts SSH packet from the internal buffer.
         /// </summary>
-        /// <returns>true if one SSH packet is extracted. in this case, _packetImage contains payload part of the SSH packet.</returns>
+        /// <returns>
+        /// true if one SSH packet has been extracted.
+        /// in this case, _packetImage contains payload part of the SSH packet.
+        /// </returns>
         private bool ConstructPacket() {
             const int SEQUENCE_NUMBER_FIELD_LEN = 4;
             const int PACKET_LENGTH_FIELD_LEN = 4;
@@ -323,11 +339,13 @@ namespace Granados.SSH2 {
                         _packetImage.RawBuffer, headOffset);
                 }
 
-                _packetLength = SSHUtil.ReadInt32(_packetImage.RawBuffer, headOffset);
+                uint packetLength = SSHUtil.ReadUInt32(_packetImage.RawBuffer, headOffset);
 
-                if (_packetLength < MIN_PACKET_LENGTH || _packetLength >= MAX_PACKET_LENGTH) {
-                    throw new SSHException(String.Format("invalid packet length : {0}", _packetLength));
+                if (packetLength < MIN_PACKET_LENGTH || packetLength >= MAX_PACKET_LENGTH) {
+                    throw new SSHException(String.Format("invalid packet length : {0}", packetLength));
                 }
+
+                _packetLength = (int)packetLength;
             }
 
             int packetHeadLen = _packetImage.Length;    // size already read in
