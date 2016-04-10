@@ -558,7 +558,7 @@ namespace Granados.SSH2 {
                 _sessionID = sessionID;
                 _tCipher = tc;
                 _tMAC = tm;
-                _packetBuilder.SetCipher(rc, rm, _param.CheckMACError);
+                _packetBuilder.SetCipher(rc, _param.CheckMACError ? rm : null);
                 _asyncKeyExchanger = null;
             }
         }

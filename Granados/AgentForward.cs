@@ -179,8 +179,9 @@ namespace Granados {
         private SSH2UserAuthKey FindKey(SSH2UserAuthKey[] keys, byte[] blob) {
             foreach (SSH2UserAuthKey key in keys) {
                 byte[] t = key.GetPublicKeyBlob();
-                if (t.Length == blob.Length && Util.SSHUtil.memcmp(t, blob) == 0)
+                if (Util.SSHUtil.ByteArrayEqual(t, blob)) {
                     return key;
+                }
             }
             return null;
         }

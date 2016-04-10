@@ -16,6 +16,7 @@ using HMACSHA1 = System.Security.Cryptography.HMACSHA1;
 
 using Granados.PKI;
 using Granados.Crypto;
+using System.Reflection;
 
 namespace Granados {
     /// <summary>
@@ -180,88 +181,117 @@ namespace Granados {
 
 namespace Granados.Util {
 
-    internal class SSHUtil {
+    internal static class SSHUtil {
 
+        /// <summary>
+        /// Get version string of the Granados.
+        /// </summary>
+        /// <param name="p">SSH protocol type</param>
+        /// <returns>a version string</returns>
         public static string ClientVersionString(SSHProtocol p) {
-            return p == SSHProtocol.SSH1 ? "SSH-1.5-Granados-2.0" : "SSH-2.0-Granados-2.0";
+            Assembly assy = Assembly.GetAssembly(typeof(SSHUtil));
+            Version ver = assy.GetName().Version;
+            string s = String.Format("{0}-{1}.{2}",
+                            (p == SSHProtocol.SSH1) ? "SSH-1.5-Granados" : "SSH-2.0-Granados",
+                            ver.Major, ver.Minor);
+            return s;
         }
 
-        public static int ReadInt32(Stream input) {
-            byte[] t = new byte[4];
-            ReadAll(input, t, 0, t.Length);
-            return ReadInt32(t, 0);
-        }
+        /// <summary>
+        /// Read Int32 value in network byte order.
+        /// </summary>
+        /// <param name="data">source byte array</param>
+        /// <param name="offset">index to start reading</param>
+        /// <returns>Int32 value</returns>
         public static int ReadInt32(byte[] data, int offset) {
-            int ret = 0;
-            ret |= (int)(data[offset]);
+            return (int)ReadUInt32(data, offset);
+        }
+
+        /// <summary>
+        /// Read UInt32 value in network byte order.
+        /// </summary>
+        /// <param name="data">source byte array</param>
+        /// <param name="offset">index to start reading</param>
+        /// <returns>UInt32 value</returns>
+        public static uint ReadUInt32(byte[] data, int offset) {
+            uint ret = 0;
+            ret |= data[offset];
             ret <<= 8;
-            ret |= (int)(data[offset + 1]);
+            ret |= data[offset + 1];
             ret <<= 8;
-            ret |= (int)(data[offset + 2]);
+            ret |= data[offset + 2];
             ret <<= 8;
-            ret |= (int)(data[offset + 3]);
+            ret |= data[offset + 3];
             return ret;
         }
-        /**
-        * Network-byte-orderで32ビット値を書き込む。
-        */
+
+        /// <summary>
+        /// Write Int32 value in network byte order.
+        /// </summary>
+        /// <param name="dst">byte array to be written</param>
+        /// <param name="pos">index to start writing</param>
+        /// <param name="data">Int32 value</param>
         public static void WriteIntToByteArray(byte[] dst, int pos, int data) {
-            uint udata = (uint)data;
-            uint a = udata & 0xFF000000;
-            a >>= 24;
-            dst[pos] = (byte)a;
-
-            a = udata & 0x00FF0000;
-            a >>= 16;
-            dst[pos + 1] = (byte)a;
-
-            a = udata & 0x0000FF00;
-            a >>= 8;
-            dst[pos + 2] = (byte)a;
-
-            a = udata & 0x000000FF;
-            dst[pos + 3] = (byte)a;
-
-        }
-        public static void WriteIntToStream(Stream input, int data) {
-            byte[] t = new byte[4];
-            WriteIntToByteArray(t, 0, data);
-            input.Write(t, 0, t.Length);
+            WriteUIntToByteArray(dst, pos, (uint)data);
         }
 
-        public static void ReadAll(Stream input, byte[] buf, int offset, int len) {
-            do {
-                int fetched = input.Read(buf, offset, len);
-                len -= fetched;
-                offset += fetched;
-            } while (len > 0);
+        /// <summary>
+        /// Write UInt32 value in network byte order.
+        /// </summary>
+        /// <param name="dst">byte array to be written</param>
+        /// <param name="pos">index to start writing</param>
+        /// <param name="data">UInt32 value</param>
+        public static void WriteUIntToByteArray(byte[] dst, int pos, uint data) {
+            dst[pos] = (byte)(data >> 24);
+            dst[pos + 1] = (byte)(data >> 16);
+            dst[pos + 2] = (byte)(data >> 8);
+            dst[pos + 3] = (byte)(data);
         }
 
+        /// <summary>
+        /// Check if a string array contains a particular string.
+        /// </summary>
+        /// <param name="s">a string array</param>
+        /// <param name="v">a string</param>
+        /// <returns>true if <paramref name="s"/> contains <paramref name="v"/>.</returns>
         public static bool ContainsString(string[] s, string v) {
-            foreach (string x in s)
-                if (x == v)
+            foreach (string x in s) {
+                if (x == v) {
                     return true;
-
+                }
+            }
             return false;
         }
 
-        public static int memcmp(byte[] d1, byte[] d2) {
-            for (int i = 0; i < d1.Length; i++) {
-                if (d1[i] != d2[i])
-                    return (int)(d2[i] - d1[i]);
+        /// <summary>
+        /// Check if the contents of two byte arrays are identical.
+        /// </summary>
+        /// <param name="d1">a byte array</param>
+        /// <param name="d2">a byte array</param>
+        /// <returns>true if the contents of two byte arrays are identical.</returns>
+        public static bool ByteArrayEqual(byte[] d1, byte[] d2) {
+            if (d1.Length != d2.Length) {
+                return false;
             }
-            return 0;
+            return ByteArrayEqual(d1, 0, d2, 0, d1.Length);
         }
-        public static int memcmp(byte[] d1, int o1, byte[] d2, int o2, int len) {
-            for (int i = 0; i < len; i++) {
-                if (d1[o1 + i] != d2[o2 + i])
-                    return (int)(d2[o2 + i] - d1[o1 + i]);
+
+        /// <summary>
+        /// Check if the partial contents of two byte arrays are identical.
+        /// </summary>
+        /// <param name="d1">a byte array</param>
+        /// <param name="o1">index of <paramref name="d1"/> to start comparison</param>
+        /// <param name="d2">a byte array</param>
+        /// <param name="o2">index of <paramref name="d2"/> to start comparison</param>
+        /// <param name="len">number of bytes to compare</param>
+        /// <returns>true if the partial contents of two byte arrays are identical.</returns>
+        public static bool ByteArrayEqual(byte[] d1, int o1, byte[] d2, int o2, int len) {
+            for (int i = 0; i < len; ++i) {
+                if (d1[o1++] != d2[o2++]) {
+                    return false;
+                }
             }
-            return 0;
-        }
-        public static void ZeroMemory(byte[] t, int offset, int length) {
-            for (int i = 0; i < length; i++)
-                t[offset + length] = 0;
+            return true;
         }
     }
 

@@ -247,8 +247,9 @@ namespace Granados.PKI {
                 byte[] r = new byte[finaldata.Length];
                 Array.Copy(PKIUtil.SHA1_ASN_ID, 0, r, 0, PKIUtil.SHA1_ASN_ID.Length);
                 Array.Copy(expected, 0, r, PKIUtil.SHA1_ASN_ID.Length, expected.Length);
-                if (SSHUtil.memcmp(r, finaldata) != 0)
+                if (!SSHUtil.ByteArrayEqual(r, finaldata)) {
                     throw new VerifyException("failed to verify");
+                }
             }
         }
 

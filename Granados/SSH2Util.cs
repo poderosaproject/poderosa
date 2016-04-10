@@ -91,7 +91,7 @@ namespace Granados.SSH2 {
         SSH_OPEN_RESOURCE_SHORTAGE = 4
     }
 
-    internal class SSH2Util : Granados.Util.SSHUtil {
+    internal static class SSH2Util {
         public static string PublicKeyAlgorithmName(PublicKeyAlgorithm algorithm) {
             switch (algorithm) {
                 case PublicKeyAlgorithm.DSA:
