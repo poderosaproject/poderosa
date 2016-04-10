@@ -135,105 +135,160 @@ namespace Granados.SSH1 {
 
     }
 
+    /// <summary>
+    /// <see cref="IDataHandler"/> that extracts SSH packet from the data stream
+    /// and passes it to another <see cref="IDataHandler"/>.
+    /// </summary>
     internal class SSH1PacketBuilder : FilterDataHandler {
-        private byte[] _buffer;
-        private int _readOffset;
-        private int _writeOffset;
-        private Cipher _cipher;
-        private bool _checkMAC;
+        private const int MIN_PACKET_LENGTH = 5;
+        private const int MAX_PACKET_LENGTH = 262144;
+        private const int MAX_PACKET_DATA_SIZE = MAX_PACKET_LENGTH + (8 - (MAX_PACKET_LENGTH % 8)) + 4;
 
+        private readonly ByteBuffer _inputBuffer = new ByteBuffer(MAX_PACKET_DATA_SIZE, MAX_PACKET_DATA_SIZE * 16);
+        private readonly ByteBuffer _packetImage = new ByteBuffer(36000, MAX_PACKET_DATA_SIZE * 2);
+        private Cipher _cipher;
+        private readonly object _cipherSync = new object();
+        private bool _checkMAC;
+        private int _packetLength;
+
+        private bool _hasError = false;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="handler">a handler that SSH packets are passed to</param>
         public SSH1PacketBuilder(IDataHandler handler)
             : base(handler) {
-            _buffer = new byte[0x1000];
-            _readOffset = 0;
-            _writeOffset = 0;
             _cipher = null;
             _checkMAC = false;
+            _packetLength = -1;
         }
 
-        public void SetCipher(Cipher c, bool check_mac) {
-            _cipher = c;
-            _checkMAC = check_mac;
+        /// <summary>
+        /// Set cipher settings.
+        /// </summary>
+        /// <param name="cipher">cipher algorithm, or null if not specified.</param>
+        /// <param name="checkMac">specifies whether CRC check is performed.</param>
+        public void SetCipher(Cipher c, bool checkMac) {
+            lock (_cipherSync) {
+                _cipher = c;
+                _checkMAC = checkMac;
+            }
         }
 
+        /// <summary>
+        /// Implements <see cref="FilterDataHandler"/>.
+        /// </summary>
+        /// <param name="data">fragment of the data stream</param>
         protected override void FilterData(DataFragment data) {
-            try {
-                while (_buffer.Length - _writeOffset < data.Length)
-                    ExpandBuffer();
-                Array.Copy(data.Data, data.Offset, _buffer, _writeOffset, data.Length);
-                _writeOffset += data.Length;
+            lock (_cipherSync) {
+                try {
+                    if (_hasError) {
+                        return;
+                    }
 
-                DataFragment p = ConstructPacket();
-                while (p != null) {
-                    OnDataInternal(p);
-                    p = ConstructPacket();
+                    _inputBuffer.Append(data.Data, data.Offset, data.Length);
+
+                    ProcessBuffer();
                 }
-                ReduceBuffer();
-            }
-            catch (Exception ex) {
-                OnError(ex);
-            }
-        }
-
-        //returns true if a new packet could be obtained
-        private DataFragment ConstructPacket() {
-
-            if (_writeOffset - _readOffset < 4)
-                return null;
-            int packet_length = SSHUtil.ReadInt32(_buffer, _readOffset);
-            int padding_length = 8 - (packet_length % 8); //padding length
-            int total = packet_length + padding_length;
-            if (_writeOffset - _readOffset < 4 + total)
-                return null;
-
-            byte[] decrypted = new byte[total];
-            if (_cipher != null)
-                _cipher.Decrypt(_buffer, _readOffset + 4, total, decrypted, 0);
-            else
-                Array.Copy(_buffer, _readOffset + 4, decrypted, 0, total);
-            _readOffset += 4 + total;
-
-            SSH1Packet p = new SSH1Packet();
-            return ConstructAndCheck(decrypted, packet_length, padding_length, _checkMAC);
-        }
-
-        /**
-        * reads type, data, and crc from byte array.
-        * an exception is thrown if crc check fails.
-        */
-        private DataFragment ConstructAndCheck(byte[] buf, int packet_length, int padding_length, bool check_crc) {
-            int body_len = packet_length - 4;
-            byte[] body = new byte[body_len];
-            Array.Copy(buf, padding_length, body, 0, body_len);
-
-            uint received_crc = (uint)SSHUtil.ReadInt32(buf, buf.Length - 4);
-            if (check_crc) {
-                uint crc = CRC.Calc(buf, 0, buf.Length - 4);
-                if (received_crc != crc)
-                    throw new SSHException("CRC Error", buf);
-            }
-
-            return new DataFragment(body, 0, body_len);
-        }
-
-        private void ExpandBuffer() {
-            byte[] t = new byte[_buffer.Length * 2];
-            Array.Copy(_buffer, 0, t, 0, _buffer.Length);
-            _buffer = t;
-        }
-        private void ReduceBuffer() {
-            if (_readOffset == _writeOffset) {
-                _readOffset = 0;
-                _writeOffset = 0;
-            }
-            else {
-                byte[] temp = new byte[_writeOffset - _readOffset];
-                Array.Copy(_buffer, _readOffset, temp, 0, temp.Length);
-                Array.Copy(temp, 0, _buffer, 0, temp.Length);
-                _readOffset = 0;
-                _writeOffset = temp.Length;
+                catch (Exception ex) {
+                    OnError(ex);
+                }
             }
         }
 
+        /// <summary>
+        /// Extracts SSH packet from the internal buffer and passes it to the next handler.
+        /// </summary>
+        private void ProcessBuffer() {
+            while (true) {
+                bool hasPacket;
+                try {
+                    hasPacket = ConstructPacket();
+                }
+                catch (Exception) {
+                    _hasError = true;
+                    throw;
+                }
+
+                if (!hasPacket) {
+                    return;
+                }
+
+                DataFragment packet = _packetImage.AsDataFragment();
+                OnDataInternal(packet);
+            }
+        }
+
+        /// <summary>
+        /// Extracts SSH packet from the internal buffer.
+        /// </summary>
+        /// <returns>
+        /// true if one SSH packet has been extracted.
+        /// in this case, _packetImage contains Packet Type field and Data field of the SSH packet.
+        /// </returns>
+        private bool ConstructPacket() {
+            const int PACKET_LENGTH_FIELD_LEN = 4;
+            const int CHECK_BYTES_FIELD_LEN = 4;
+
+            if (_packetLength < 0) {
+                if (_inputBuffer.Length < PACKET_LENGTH_FIELD_LEN) {
+                    return false;
+                }
+
+                uint packetLength = SSHUtil.ReadUInt32(_inputBuffer.RawBuffer, _inputBuffer.RawBufferOffset);
+                _inputBuffer.RemoveHead(PACKET_LENGTH_FIELD_LEN);
+
+                if (packetLength < MIN_PACKET_LENGTH || packetLength > MAX_PACKET_LENGTH) {
+                    throw new SSHException(String.Format("invalid packet length : {0}", packetLength));
+                }
+
+                _packetLength = (int)packetLength;
+            }
+
+            int paddingLength = 8 - (_packetLength % 8);
+            int requiredLength = paddingLength + _packetLength;
+
+            if (_inputBuffer.Length < requiredLength) {
+                return false;
+            }
+
+            _packetImage.Clear();
+            _packetImage.Append(_inputBuffer, 0, requiredLength);   // Padding, Packet Type, Data, and Check fields
+            _inputBuffer.RemoveHead(requiredLength);
+
+            if (_cipher != null) {
+                _cipher.Decrypt(
+                    _packetImage.RawBuffer, _packetImage.RawBufferOffset, requiredLength,
+                    _packetImage.RawBuffer, _packetImage.RawBufferOffset);
+            }
+
+            if (_checkMAC) {
+                uint crc = CRC.Calc(
+                            _packetImage.RawBuffer,
+                            _packetImage.RawBufferOffset,
+                            requiredLength - CHECK_BYTES_FIELD_LEN);
+                uint expected = SSHUtil.ReadUInt32(
+                            _packetImage.RawBuffer,
+                            _packetImage.RawBufferOffset + requiredLength - CHECK_BYTES_FIELD_LEN);
+                if (crc != expected) {
+                    throw new SSHException("CRC Error");
+                }
+            }
+
+            // retain only Packet Type and Data fields
+            _packetImage.RemoveHead(paddingLength);
+            _packetImage.RemoveTail(CHECK_BYTES_FIELD_LEN);
+
+            // sanity check
+            if (_packetImage.Length != _packetLength - CHECK_BYTES_FIELD_LEN) {
+                throw new InvalidOperationException();
+            }
+
+            // prepare for the next packet
+            _packetLength = -1;
+
+            return true;
+        }
     }
 }

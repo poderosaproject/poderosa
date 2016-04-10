@@ -78,8 +78,8 @@ namespace Granados.SSH1 {
             byte[] session_key = GenerateSessionKey();
 
             // Phase3 establishes the session key
-            SendSessionKey(session_key);
             InitCipher(session_key);
+            SendSessionKey(session_key);
             ReceiveKeyConfirmation();
 
             // Phase4 user authentication
