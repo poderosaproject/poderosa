@@ -38,7 +38,7 @@ namespace Granados.SSH1 {
         private int _shellID;
 
         private SynchronizedPacketReceiver _packetReceiver;
-        private SSH1PacketBuilder _packetBuilder;
+        private SSH1Packetizer _packetBuilder;
         private bool _executingShell;
         private Cipher _tCipher;                            //cipher for transmission
 
@@ -52,7 +52,7 @@ namespace Granados.SSH1 {
             _cInfo._clientVersionString = clientversion;
             _shellID = -1;
             _packetReceiver = new SynchronizedPacketReceiver(this);
-            _packetBuilder = new SSH1PacketBuilder(_packetReceiver);
+            _packetBuilder = new SSH1Packetizer(_packetReceiver);
         }
         public override SSHConnectionInfo ConnectionInfo {
             get {

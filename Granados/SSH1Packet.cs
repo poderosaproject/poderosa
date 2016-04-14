@@ -139,7 +139,7 @@ namespace Granados.SSH1 {
     /// <see cref="IDataHandler"/> that extracts SSH packet from the data stream
     /// and passes it to another <see cref="IDataHandler"/>.
     /// </summary>
-    internal class SSH1PacketBuilder : FilterDataHandler {
+    internal class SSH1Packetizer : FilterDataHandler {
         private const int MIN_PACKET_LENGTH = 5;
         private const int MAX_PACKET_LENGTH = 262144;
         private const int MAX_PACKET_DATA_SIZE = MAX_PACKET_LENGTH + (8 - (MAX_PACKET_LENGTH % 8)) + 4;
@@ -157,7 +157,7 @@ namespace Granados.SSH1 {
         /// Constructor
         /// </summary>
         /// <param name="handler">a handler that SSH packets are passed to</param>
-        public SSH1PacketBuilder(IDataHandler handler)
+        public SSH1Packetizer(IDataHandler handler)
             : base(handler) {
             _cipher = null;
             _checkMAC = false;
@@ -169,9 +169,9 @@ namespace Granados.SSH1 {
         /// </summary>
         /// <param name="cipher">cipher algorithm, or null if not specified.</param>
         /// <param name="checkMac">specifies whether CRC check is performed.</param>
-        public void SetCipher(Cipher c, bool checkMac) {
+        public void SetCipher(Cipher cipher, bool checkMac) {
             lock (_cipherSync) {
-                _cipher = c;
+                _cipher = cipher;
                 _checkMAC = checkMac;
             }
         }

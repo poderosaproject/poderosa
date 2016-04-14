@@ -163,7 +163,7 @@ namespace Granados.SSH2 {
     /// <see cref="IDataHandler"/> that extracts SSH packet from the data stream
     /// and passes it to another <see cref="IDataHandler"/>.
     /// </summary>
-    internal class SSH2PacketBuilder : FilterDataHandler {
+    internal class SSH2Packetizer : FilterDataHandler {
         // RFC4253: The minimum size of a packet is 16 (or the cipher block size, whichever is larger) bytes.
         private const int MIN_PACKET_LENGTH = 12;    // exclude packet_length field (4 bytes)
         private const int MAX_PACKET_LENGTH = 0x80000; //there was the case that 64KB is insufficient
@@ -187,7 +187,7 @@ namespace Granados.SSH2 {
         /// Constructor
         /// </summary>
         /// <param name="handler">a handler that SSH packets are passed to</param>
-        public SSH2PacketBuilder(IDataHandler handler)
+        public SSH2Packetizer(IDataHandler handler)
             : base(handler) {
             _sequence = 0;
             _cipher = null;

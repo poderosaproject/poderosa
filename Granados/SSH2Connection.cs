@@ -42,7 +42,7 @@ namespace Granados.SSH2 {
 
         //MAC for transmission and reception
         private MAC _tMAC;
-        private readonly SSH2PacketBuilder _packetBuilder;
+        private readonly SSH2Packetizer _packetBuilder;
         private readonly SynchronizedPacketReceiver _packetReceiver;
 
         //server info
@@ -63,7 +63,7 @@ namespace Granados.SSH2 {
             _cInfo._clientVersionString = clientversion;
 
             _packetReceiver = new SynchronizedPacketReceiver(this);
-            _packetBuilder = new SSH2PacketBuilder(_packetReceiver);
+            _packetBuilder = new SSH2Packetizer(_packetReceiver);
         }
         internal void SetAgentForwardConfirmed(bool value) {
             _agentForwardConfirmed = value;
