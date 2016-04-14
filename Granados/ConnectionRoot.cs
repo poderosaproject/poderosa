@@ -54,7 +54,7 @@ namespace Granados {
         ///abstract properties
 
         // stream->packet converter
-        internal abstract IDataHandler PacketBuilder {
+        internal abstract IDataHandler Packetizer {
             get;
         }
 
@@ -228,7 +228,7 @@ namespace Granados {
                 else
                     con = new SSH2Connection(param, s, receiver, protoVerReceiver.ServerVersion, SSHUtil.ClientVersionString(param.Protocol));
 
-                s.SetHandler(con.PacketBuilder);
+                s.SetHandler(con.Packetizer);
                 s.RepeatAsyncRead();
                 con.SendMyVersion(param);
 

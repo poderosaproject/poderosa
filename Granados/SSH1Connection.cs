@@ -34,13 +34,12 @@ namespace Granados.SSH1 {
         private const int AUTH_NOT_REQUIRED = 0;
         private const int AUTH_REQUIRED = 1;
 
-        private SSH1ConnectionInfo _cInfo;
-        private int _shellID;
-
-        private SynchronizedPacketReceiver _packetReceiver;
-        private SSH1Packetizer _packetBuilder;
+        private readonly SSH1ConnectionInfo _cInfo;
+        private readonly SynchronizedPacketReceiver _packetReceiver;
+        private readonly SSH1Packetizer _packetizer;
         private bool _executingShell;
-        private Cipher _tCipher;                            //cipher for transmission
+        private int _shellID;
+        private Cipher _cipher;
 
         // exec command for SCP
         //private bool _executingExecCmd = false;
@@ -52,16 +51,16 @@ namespace Granados.SSH1 {
             _cInfo._clientVersionString = clientversion;
             _shellID = -1;
             _packetReceiver = new SynchronizedPacketReceiver(this);
-            _packetBuilder = new SSH1Packetizer(_packetReceiver);
+            _packetizer = new SSH1Packetizer(_packetReceiver);
         }
         public override SSHConnectionInfo ConnectionInfo {
             get {
                 return _cInfo;
             }
         }
-        internal override IDataHandler PacketBuilder {
+        internal override IDataHandler Packetizer {
             get {
-                return _packetBuilder;
+                return _packetizer;
             }
         }
 
@@ -98,14 +97,14 @@ namespace Granados.SSH1 {
             }
 
             if (_authenticationResult != AuthenticationResult.Failure) {
-                _packetBuilder.SetInnerHandler(new CallbackSSH1PacketHandler(this));
+                _packetizer.SetInnerHandler(new CallbackSSH1PacketHandler(this));
             }
             return AuthenticationResult.Success;
         }
 
         internal void Transmit(SSH1Packet p) {
             lock (this) {
-                p.WriteTo(_stream, _tCipher);
+                p.WriteTo(_stream, _cipher);
             }
         }
 
@@ -115,7 +114,7 @@ namespace Granados.SSH1 {
             SSH1DataWriter w = new SSH1DataWriter();
             w.WriteString(msg);
             SSH1Packet p = SSH1Packet.FromPlainPayload(PacketType.SSH_MSG_DISCONNECT, w.ToByteArray());
-            p.WriteTo(_stream, _tCipher);
+            p.WriteTo(_stream, _cipher);
             base.Close();
         }
 
@@ -258,14 +257,14 @@ namespace Granados.SSH1 {
             SSH1DataWriter writer = new SSH1DataWriter();
             writer.WriteString(username);
             SSH1Packet SSH1Packet = SSH1Packet.FromPlainPayload(PacketType.SSH_CMSG_USER, writer.ToByteArray());
-            SSH1Packet.WriteTo(_stream, _tCipher);
+            SSH1Packet.WriteTo(_stream, _cipher);
             TraceTransmissionEvent(PacketType.SSH_CMSG_USER, "sent user name");
         }
         private void SendPlainPassword() {
             SSH1DataWriter writer = new SSH1DataWriter();
             writer.WriteString(_param.Password);
             SSH1Packet SSH1Packet = SSH1Packet.FromPlainPayload(PacketType.SSH_CMSG_AUTH_PASSWORD, writer.ToByteArray());
-            SSH1Packet.WriteTo(_stream, _tCipher);
+            SSH1Packet.WriteTo(_stream, _cipher);
             TraceTransmissionEvent(PacketType.SSH_CMSG_AUTH_PASSWORD, "sent password");
         }
 
@@ -276,7 +275,7 @@ namespace Granados.SSH1 {
             SSH1DataWriter w = new SSH1DataWriter();
             w.WriteBigInteger(key.PublicModulus);
             SSH1Packet p = SSH1Packet.FromPlainPayload(PacketType.SSH_CMSG_AUTH_RSA, w.ToByteArray());
-            p.WriteTo(_stream, _tCipher);
+            p.WriteTo(_stream, _cipher);
             TraceTransmissionEvent(PacketType.SSH_CMSG_AUTH_RSA, "RSA challenge-reponse");
 
             DataFragment response = ReceivePacket();
@@ -301,7 +300,7 @@ namespace Granados.SSH1 {
             w = new SSH1DataWriter();
             w.Write(reply);
             p = SSH1Packet.FromPlainPayload(PacketType.SSH_CMSG_AUTH_RSA_RESPONSE, w.ToByteArray());
-            p.WriteTo(_stream, _tCipher);
+            p.WriteTo(_stream, _cipher);
             TraceReceptionEvent(PacketType.SSH_CMSG_AUTH_RSA_RESPONSE, "received response");
         }
 
@@ -336,7 +335,7 @@ namespace Granados.SSH1 {
             SSH1DataWriter writer = new SSH1DataWriter();
             writer.WriteString(cmd);
             SSH1Packet SSH1Packet = SSH1Packet.FromPlainPayload(PacketType.SSH_CMSG_EXEC_CMD, writer.ToByteArray());
-            SSH1Packet.WriteTo(_stream, _tCipher);
+            SSH1Packet.WriteTo(_stream, _cipher);
             TraceTransmissionEvent(PacketType.SSH_CMSG_EXEC_CMD, "exec command: cmd={0}", cmd);
         }
 
@@ -358,14 +357,14 @@ namespace Granados.SSH1 {
             writer.WriteInt32(_param.TerminalPixelHeight);
             writer.Write(new byte[1]); //TTY_OP_END
             SSH1Packet SSH1Packet = SSH1Packet.FromPlainPayload(PacketType.SSH_CMSG_REQUEST_PTY, writer.ToByteArray());
-            SSH1Packet.WriteTo(_stream, _tCipher);
+            SSH1Packet.WriteTo(_stream, _cipher);
             TraceTransmissionEvent(PacketType.SSH_CMSG_REQUEST_PTY, "open shell: terminal={0} width={1} height={2}", _param.TerminalName, _param.TerminalWidth, _param.TerminalHeight);
         }
 
         private void ExecShell() {
             //System.out.println("EXEC SHELL");
             SSH1Packet SSH1Packet = SSH1Packet.FromPlainPayload(PacketType.SSH_CMSG_EXEC_SHELL);
-            SSH1Packet.WriteTo(_stream, _tCipher);
+            SSH1Packet.WriteTo(_stream, _cipher);
         }
 
         public override SSHChannel ForwardPort(ISSHChannelEventReceiver receiver, string remote_host, int remote_port, string originator_host, int originator_port) {
@@ -383,7 +382,7 @@ namespace Granados.SSH1 {
             //originator is specified only if SSH_PROTOFLAG_HOST_IN_FWD_OPEN is specified
             //writer.Write(originator_host);
             SSH1Packet SSH1Packet = SSH1Packet.FromPlainPayload(PacketType.SSH_MSG_PORT_OPEN, writer.ToByteArray());
-            SSH1Packet.WriteTo(_stream, _tCipher);
+            SSH1Packet.WriteTo(_stream, _cipher);
             TraceTransmissionEvent(PacketType.SSH_MSG_PORT_OPEN, "open forwarded port: host={0} port={1}", remote_host, remote_port);
 
             return new SSH1Channel(this, ChannelType.ForwardedLocalToRemote, local_id);
@@ -395,7 +394,7 @@ namespace Granados.SSH1 {
             writer.WriteString(allowed_host);
             writer.WriteInt32(0);
             SSH1Packet p = SSH1Packet.FromPlainPayload(PacketType.SSH_CMSG_PORT_FORWARD_REQUEST, writer.ToByteArray());
-            p.WriteTo(_stream, _tCipher);
+            p.WriteTo(_stream, _cipher);
             TraceTransmissionEvent(PacketType.SSH_CMSG_PORT_FORWARD_REQUEST, "start to listening to remote port: host={0} port={1}", allowed_host, bind_port);
 
             if (_shellID == -1) {
@@ -422,12 +421,12 @@ namespace Granados.SSH1 {
                 writer.WriteInt32(server_channel);
                 writer.WriteInt32(local_id);
                 SSH1Packet p = SSH1Packet.FromPlainPayload(PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION, writer.ToByteArray());
-                p.WriteTo(_stream, _tCipher);
+                p.WriteTo(_stream, _cipher);
             }
             else {
                 writer.WriteInt32(server_channel);
                 SSH1Packet p = SSH1Packet.FromPlainPayload(PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE, writer.ToByteArray());
-                p.WriteTo(_stream, _tCipher);
+                p.WriteTo(_stream, _cipher);
             }
         }
 
@@ -452,9 +451,9 @@ namespace Granados.SSH1 {
 
         //init ciphers
         private void InitCipher(byte[] session_key) {
-            _tCipher = CipherFactory.CreateCipher(SSHProtocol.SSH1, _cInfo._algorithmForTransmittion, session_key);
+            _cipher = CipherFactory.CreateCipher(SSHProtocol.SSH1, _cInfo._algorithmForTransmittion, session_key);
             Cipher rc = CipherFactory.CreateCipher(SSHProtocol.SSH1, _cInfo._algorithmForReception, session_key);
-            _packetBuilder.SetCipher(rc, _param.CheckMACError);
+            _packetizer.SetCipher(rc, _param.CheckMACError);
         }
 
         private DataFragment ReceivePacket() {

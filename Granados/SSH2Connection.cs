@@ -42,7 +42,7 @@ namespace Granados.SSH2 {
 
         //MAC for transmission and reception
         private MAC _tMAC;
-        private readonly SSH2Packetizer _packetBuilder;
+        private readonly SSH2Packetizer _packetizer;
         private readonly SynchronizedPacketReceiver _packetReceiver;
 
         //server info
@@ -63,14 +63,14 @@ namespace Granados.SSH2 {
             _cInfo._clientVersionString = clientversion;
 
             _packetReceiver = new SynchronizedPacketReceiver(this);
-            _packetBuilder = new SSH2Packetizer(_packetReceiver);
+            _packetizer = new SSH2Packetizer(_packetReceiver);
         }
         internal void SetAgentForwardConfirmed(bool value) {
             _agentForwardConfirmed = value;
         }
-        internal override IDataHandler PacketBuilder {
+        internal override IDataHandler Packetizer {
             get {
-                return _packetBuilder;
+                return _packetizer;
             }
         }
         public override SSHConnectionInfo ConnectionInfo {
@@ -190,7 +190,7 @@ namespace Granados.SSH2 {
                 }
                 else if (h == PacketType.SSH_MSG_USERAUTH_SUCCESS) {
                     TraceReceptionEvent(h, "user authentication succeeded");
-                    _packetBuilder.SetInnerHandler(new CallbackSSH2PacketHandler(this));
+                    _packetizer.SetInnerHandler(new CallbackSSH2PacketHandler(this));
                     return AuthenticationResult.Success; //successfully exit
                 }
                 else if (h == PacketType.SSH_MSG_USERAUTH_INFO_REQUEST) {
@@ -558,7 +558,7 @@ namespace Granados.SSH2 {
                 _sessionID = sessionID;
                 _tCipher = tc;
                 _tMAC = tm;
-                _packetBuilder.SetCipher(rc, _param.CheckMACError ? rm : null);
+                _packetizer.SetCipher(rc, _param.CheckMACError ? rm : null);
                 _asyncKeyExchanger = null;
             }
         }
