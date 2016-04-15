@@ -19,101 +19,156 @@
  */
 
 using System;
-using System.Collections;
-using System.Diagnostics;
 using System.Threading;
 using Granados.Crypto;
 using Granados.IO;
-using Granados.IO.SSH1;
 
 using Granados.Util;
+using Granados.Mono.Math;
 
 namespace Granados.SSH1 {
 
-    internal class SSH1Packet {
-        private byte _type;
-        private byte[] _data;
-        private uint _CRC;
+    /// <summary>
+    /// SSH1 Packet type (message number)
+    /// </summary>
+    internal enum SSH1PacketType {
+        SSH_MSG_DISCONNECT = 1,
+        SSH_SMSG_PUBLIC_KEY = 2,
+        SSH_CMSG_SESSION_KEY = 3,
+        SSH_CMSG_USER = 4,
+        SSH_CMSG_AUTH_RSA = 6,
+        SSH_SMSG_AUTH_RSA_CHALLENGE = 7,
+        SSH_CMSG_AUTH_RSA_RESPONSE = 8,
+        SSH_CMSG_AUTH_PASSWORD = 9,
+        SSH_CMSG_REQUEST_PTY = 10,
+        SSH_CMSG_WINDOW_SIZE = 11,
+        SSH_CMSG_EXEC_SHELL = 12,
+        SSH_CMSG_EXEC_CMD = 13,
+        SSH_SMSG_SUCCESS = 14,
+        SSH_SMSG_FAILURE = 15,
+        SSH_CMSG_STDIN_DATA = 16,
+        SSH_SMSG_STDOUT_DATA = 17,
+        SSH_SMSG_STDERR_DATA = 18,
+        SSH_CMSG_EOF = 19,
+        SSH_SMSG_EXITSTATUS = 20,
+        SSH_MSG_CHANNEL_OPEN_CONFIRMATION = 21,
+        SSH_MSG_CHANNEL_OPEN_FAILURE = 22,
+        SSH_MSG_CHANNEL_DATA = 23,
+        SSH_MSG_CHANNEL_CLOSE = 24,
+        SSH_MSG_CHANNEL_CLOSE_CONFIRMATION = 25,
+        SSH_CMSG_PORT_FORWARD_REQUEST = 28,
+        SSH_MSG_PORT_OPEN = 29,
+        SSH_MSG_IGNORE = 32,
+        SSH_CMSG_EXIT_CONFIRMATION = 33,
+        SSH_MSG_DEBUG = 36
+    }
 
-        /**
-        * constructs from the packet type and the body
-        */
-        public static SSH1Packet FromPlainPayload(PacketType type, byte[] data) {
-            SSH1Packet p = new SSH1Packet();
-            p._type = (byte)type;
-            p._data = data;
-            return p;
+    /// <summary>
+    /// SSH1 packet structure for generating binary image of the packet.
+    /// </summary>
+    /// <remarks>
+    /// The instances of this structure share single thread-local buffer.
+    /// You should be careful that only single instance is used while building a packet.
+    /// </remarks>
+    internal class SSH1Packet : IPacketBuilder {
+        private readonly byte _type;
+        private readonly ByteBuffer _payload;
+
+        private static readonly ThreadLocal<ByteBuffer> _payloadBuffer =
+            new ThreadLocal<ByteBuffer>(() => new ByteBuffer(0x1000, -1));
+
+        private static readonly ThreadLocal<ByteBuffer> _imageBuffer =
+            new ThreadLocal<ByteBuffer>(() => new ByteBuffer(0x1000, -1));
+
+        private static readonly ThreadLocal<bool> _lockFlag = new ThreadLocal<bool>();
+
+        private const int PACKET_LENGTH_FIELD_LEN = 4;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="type">packet type (message number)</param>
+        public SSH1Packet(SSH1PacketType type) {
+            if (_lockFlag.Value) {
+                throw new InvalidOperationException(
+                    "simultaneous editing packet detected: " + typeof(SSH1Packet).FullName);
+            }
+            _lockFlag.Value = true;
+            _type = (byte)type;
+            _payload = _payloadBuffer.Value;
+            _payload.Clear();
         }
-        public static SSH1Packet FromPlainPayload(PacketType type) {
-            SSH1Packet p = new SSH1Packet();
-            p._type = (byte)type;
-            p._data = new byte[0];
-            return p;
-        }
-        /**
-        * creates a packet as the input of shell
-        */
-        static SSH1Packet AsStdinString(byte[] input) {
-            SSH1DataWriter w = new SSH1DataWriter();
-            w.WriteAsString(input);
-            SSH1Packet p = SSH1Packet.FromPlainPayload(PacketType.SSH_CMSG_STDIN_DATA, w.ToByteArray());
-            return p;
+
+        /// <summary>
+        /// Implements <see cref="IPacketBuilder"/>
+        /// </summary>
+        public ByteBuffer Payload {
+            get {
+                return _payload;
+            }
         }
 
-        private byte[] BuildImage() {
-            int packet_length = (_data == null ? 0 : _data.Length) + 5; //type and CRC
-            int padding_length = 8 - (packet_length % 8);
+        /// <summary>
+        /// Gets the binary image of this packet.
+        /// </summary>
+        /// <param name="cipher">cipher algorithm, or null if no encryption.</param>
+        /// <returns>data</returns>
+        public DataFragment GetImage(Cipher cipher = null) {
+            ByteBuffer image = BuildImage();
+            if (cipher != null) {
+                cipher.Encrypt(
+                    image.RawBuffer, image.RawBufferOffset + PACKET_LENGTH_FIELD_LEN, image.Length - PACKET_LENGTH_FIELD_LEN,
+                    image.RawBuffer, image.RawBufferOffset + PACKET_LENGTH_FIELD_LEN);
+            }
+            _lockFlag.Value = false;
+            return image.AsDataFragment();
+        }
 
-            byte[] image = new byte[packet_length + padding_length + 4];
-            SSHUtil.WriteIntToByteArray(image, 0, packet_length);
-
-            for (int i = 0; i < padding_length; i++)
-                image[4 + i] = 0; //padding: filling by random values is better
-            image[4 + padding_length] = _type;
-            if (_data != null)
-                Array.Copy(_data, 0, image, 4 + padding_length + 1, _data.Length);
-
-            _CRC = CRC.Calc(image, 4, image.Length - 8);
-            SSHUtil.WriteIntToByteArray(image, image.Length - 4, (int)_CRC);
-
+        /// <summary>
+        /// Build packet binary data
+        /// </summary>
+        /// <returns>a byte buffer</returns>
+        private ByteBuffer BuildImage() {
+            ByteBuffer image = _imageBuffer.Value;
+            image.Clear();
+            int packetLength = _payload.Length + 5; //type and CRC
+            int paddingLength = 8 - (packetLength % 8);
+            image.WriteInt32(packetLength);
+            byte[] padding = new byte[paddingLength];
+            RngManager.GetSecureRng().GetBytes(padding);
+            image.Append(padding);
+            image.WriteByte(_type);
+            if (_payload.Length > 0) {
+                image.Append(_payload);
+            }
+            uint crc = CRC.Calc(
+                        image.RawBuffer,
+                        image.RawBufferOffset + PACKET_LENGTH_FIELD_LEN,
+                        image.Length - PACKET_LENGTH_FIELD_LEN);
+            image.WriteUInt32(crc);
             return image;
         }
+    }
 
-        /**
-        * writes to plain stream
-        */
-        public void WriteTo(IGranadosSocket output) {
-            byte[] image = BuildImage();
-            output.Write(image, 0, image.Length);
-        }
-        /**
-        * writes to encrypted stream
-        */
-        public void WriteTo(IGranadosSocket output, Cipher cipher) {
-            byte[] image = BuildImage();
-            //dumpBA(image);
-            byte[] encrypted = new byte[image.Length - 4];
-            cipher.Encrypt(image, 4, image.Length - 4, encrypted, 0); //length field must not be encrypted
+    /// <summary>
+    /// Extension methods for <see cref="SSH1Packet"/>.
+    /// </summary>
+    /// <seealso cref="PacketBuilderMixin"/>
+    internal static class SSH1PacketBuilderMixin {
 
-            Array.Copy(encrypted, 0, image, 4, encrypted.Length);
-            output.Write(image, 0, image.Length);
+        /// <summary>
+        /// Writes BigInteger according to the SSH 1.5 specification
+        /// </summary>
+        /// <param name="packet"></param>
+        /// <param name="data"></param>
+        public static SSH1Packet WriteBigInteger(this SSH1Packet packet, BigInteger data) {
+            byte[] image = data.GetBytes();
+            int bits = image.Length * 8;
+            packet.Payload.WriteUInt16((ushort)bits);
+            packet.Payload.Append(image);
+            return packet;
         }
 
-        public PacketType Type {
-            get {
-                return (PacketType)_type;
-            }
-        }
-        public byte[] Data {
-            get {
-                return _data;
-            }
-        }
-        public int DataLength {
-            get {
-                return _data == null ? 0 : _data.Length;
-            }
-        }
     }
 
 

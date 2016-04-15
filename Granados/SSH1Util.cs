@@ -36,39 +36,4 @@ namespace Granados.SSH1 {
         }
 
     }
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <exclude/>
-    public enum PacketType {
-        SSH_MSG_DISCONNECT = 1,
-        SSH_SMSG_PUBLIC_KEY = 2,
-        SSH_CMSG_SESSION_KEY = 3,
-        SSH_CMSG_USER = 4,
-        SSH_CMSG_AUTH_RSA = 6,
-        SSH_SMSG_AUTH_RSA_CHALLENGE = 7,
-        SSH_CMSG_AUTH_RSA_RESPONSE = 8,
-        SSH_CMSG_AUTH_PASSWORD = 9,
-        SSH_CMSG_REQUEST_PTY = 10,
-        SSH_CMSG_WINDOW_SIZE = 11,
-        SSH_CMSG_EXEC_SHELL = 12,
-        SSH_CMSG_EXEC_CMD = 13,
-        SSH_SMSG_SUCCESS = 14,
-        SSH_SMSG_FAILURE = 15,
-        SSH_CMSG_STDIN_DATA = 16,
-        SSH_SMSG_STDOUT_DATA = 17,
-        SSH_SMSG_STDERR_DATA = 18,
-        SSH_CMSG_EOF = 19,
-        SSH_SMSG_EXITSTATUS = 20,
-        SSH_MSG_CHANNEL_OPEN_CONFIRMATION = 21,
-        SSH_MSG_CHANNEL_OPEN_FAILURE = 22,
-        SSH_MSG_CHANNEL_DATA = 23,
-        SSH_MSG_CHANNEL_CLOSE = 24,
-        SSH_MSG_CHANNEL_CLOSE_CONFIRMATION = 25,
-        SSH_CMSG_PORT_FORWARD_REQUEST = 28,
-        SSH_MSG_PORT_OPEN = 29,
-        SSH_MSG_IGNORE = 32,
-        SSH_CMSG_EXIT_CONFIRMATION = 33,
-        SSH_MSG_DEBUG = 36
-    }
 }

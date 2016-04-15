@@ -15,6 +15,112 @@ using Granados.Util;
 using Granados.Mono.Math;
 
 namespace Granados.IO {
+
+    /// <summary>
+    /// An interface of the SSH packet which provides a payload buffer.
+    /// </summary>
+    internal interface IPacketBuilder {
+        /// <summary>
+        /// Payload buffer.
+        /// </summary>
+        ByteBuffer Payload {
+            get;
+        }
+    }
+
+    /// <summary>
+    /// Extension methods for writing content of the payload.
+    /// </summary>
+    internal static class PacketBuilderMixin {
+
+        /// <summary>
+        /// Writes binary data.
+        /// </summary>
+        public static T Write<T>(this T packet, byte[] data) where T : IPacketBuilder {
+            packet.Payload.Append(data);
+            return packet;
+        }
+
+        /// <summary>
+        /// Writes single byte.
+        /// </summary>
+        public static T WriteByte<T>(this T packet, byte val) where T : IPacketBuilder {
+            packet.Payload.WriteByte(val);
+            return packet;
+        }
+
+        /// <summary>
+        /// Writes boolean value as a byte.
+        /// </summary>
+        public static T WriteBool<T>(this T packet, bool val) where T : IPacketBuilder {
+            packet.Payload.WriteByte(val ? (byte)1 : (byte)0);
+            return packet;
+        }
+
+        /// <summary>
+        /// Writes Int32 value in the network byte order.
+        /// </summary>
+        public static T WriteInt32<T>(this T packet, int val) where T : IPacketBuilder {
+            packet.Payload.WriteInt32(val);
+            return packet;
+        }
+
+        /// <summary>
+        /// Writes UInt32 value in the network byte order.
+        /// </summary>
+        public static T WriteUInt32<T>(this T packet, uint val) where T : IPacketBuilder {
+            packet.Payload.WriteUInt32(val);
+            return packet;
+        }
+
+        /// <summary>
+        /// Writes UInt64 value in the network byte order.
+        /// </summary>
+        public static T WriteUInt64<T>(this T packet, ulong val) where T : IPacketBuilder {
+            packet.Payload.WriteUInt64(val);
+            return packet;
+        }
+
+        /// <summary>
+        /// Writes Int64 value in the network byte order.
+        /// </summary>
+        public static T WriteInt64<T>(this T packet, long val) where T : IPacketBuilder {
+            packet.Payload.WriteInt64(val);
+            return packet;
+        }
+
+        /// <summary>
+        /// Writes ASCII text according to the SSH 1.5/2.0 specification.
+        /// </summary>
+        public static T WriteString<T>(this T packet, string text) where T : IPacketBuilder {
+            byte[] bytes = Encoding.ASCII.GetBytes(text);
+            WriteAsString(packet, bytes);
+            return packet;
+        }
+
+        /// <summary>
+        /// Writes byte string according to the SSH 1.5/2.0 specification.
+        /// </summary>
+        public static T WriteAsString<T>(this T packet, byte[] data) where T : IPacketBuilder {
+            packet.Payload.WriteInt32(data.Length);
+            if (data.Length > 0) {
+                packet.Payload.Append(data);
+            }
+            return packet;
+        }
+
+        /// <summary>
+        /// Writes byte string according to the SSH 1.5/2.0 specification.
+        /// </summary>
+        public static T WriteAsString<T>(this T packet, byte[] data, int offset, int length) where T : IPacketBuilder {
+            packet.Payload.WriteInt32(length);
+            if (length > 0) {
+                packet.Payload.Append(data, offset, length);
+            }
+            return packet;
+        }
+    }
+
     ////////////////////////////////////////////////////////////
     /// read/write primitive types
     /// 
@@ -122,7 +228,6 @@ namespace Granados.IO {
         }
     }
 
-
     internal abstract class SSHDataWriter : IKeyWriter {
         protected SimpleMemoryStream _strm;
 
@@ -218,8 +323,8 @@ namespace Granados.IO.SSH1 {
             : base(data) {
         }
 
-        public PacketType ReadPacketType() {
-            return (PacketType)this.ReadByte();
+        public SSH1PacketType ReadPacketType() {
+            return (SSH1PacketType)this.ReadByte();
         }
 
         public override BigInteger ReadMPInt() {

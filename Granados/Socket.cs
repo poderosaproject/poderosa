@@ -58,7 +58,24 @@ namespace Granados.IO {
         /// </summary>
         void Close();
     }
-    
+
+    /// <summary>
+    /// Extension methods for <see cref="IGranadosSocket"/>.
+    /// </summary>
+    internal static class GranadosSocketMixin {
+
+        /// <summary>
+        /// Write data to the socket
+        /// </summary>
+        /// <param name="sock">socket object</param>
+        /// <param name="data">data to write</param>
+        public static void Write(this IGranadosSocket sock, DataFragment data) {
+            if (data.Length > 0) {
+                sock.Write(data.Data, data.Offset, data.Length);
+            }
+        }
+    }
+
     /// <summary>
     /// Interface to handle received data in <see cref="PlainSocket"/>
     /// </summary>
