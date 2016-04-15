@@ -100,7 +100,7 @@ namespace Granados.SSH1 {
             }
 
             if (_authenticationResult != AuthenticationResult.Failure) {
-                _packetizer.SetInnerHandler(new CallbackSSH1PacketHandler(this));
+                _packetizer.SetInnerHandler(new SSH1PacketizerPacketHandler(this));
             }
             return AuthenticationResult.Success;
         }

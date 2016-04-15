@@ -64,11 +64,11 @@ namespace Granados.SSH1 {
     }
 
     /// <summary>
-    /// SSH1 packet structure for generating binary image of the packet.
+    /// SSH1 packet builder.
     /// </summary>
     /// <remarks>
-    /// The instances of this structure share single thread-local buffer.
-    /// You should be careful that only single instance is used while building a packet.
+    /// The instances of this class share single thread-local buffer.
+    /// You should be careful that only single instance is used while constructing a packet.
     /// </remarks>
     internal class SSH1Packet : IPacketBuilder {
         private readonly byte _type;
@@ -171,19 +171,38 @@ namespace Granados.SSH1 {
 
     }
 
+    /// <summary>
+    /// A bridge handler that delegates <see cref="SSH1Packetizer"/>'s events to <see cref="SSH1Connection"/>.
+    /// </summary>
+    internal class SSH1PacketizerPacketHandler : IDataHandler {
 
-    internal class CallbackSSH1PacketHandler : IDataHandler {
-        internal SSH1Connection _connection;
+        private readonly SSH1Connection _connection;
 
-        internal CallbackSSH1PacketHandler(SSH1Connection con) {
-            _connection = con;
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="connection">SSH1 connection object</param>
+        public SSH1PacketizerPacketHandler(SSH1Connection connection) {
+            _connection = connection;
         }
+
+        /// <summary>
+        /// Implements <see cref="IDataHandler"/>
+        /// </summary>
         public void OnData(DataFragment data) {
             _connection.AsyncReceivePacket(data);
         }
+
+        /// <summary>
+        /// Implements <see cref="IDataHandler"/>
+        /// </summary>
         public void OnError(Exception error) {
             _connection.EventReceiver.OnError(error);
         }
+
+        /// <summary>
+        /// Implements <see cref="IDataHandler"/>
+        /// </summary>
         public void OnClosed() {
             _connection.EventReceiver.OnConnectionClosed();
         }
