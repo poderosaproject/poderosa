@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 
 namespace Granados {
 
@@ -104,4 +105,65 @@ namespace Granados {
     }
 }
 
+namespace Granados.Util {
 
+    /// <summary>
+    /// A class provides pre-buffered random bytes.
+    /// </summary>
+    internal class SecureRandomBuffer {
+
+        private readonly byte[] _buffer = new byte[256];
+        private int _remains = 0;
+
+        private static readonly RNGCryptoServiceProvider _rng = new RNGCryptoServiceProvider();
+        private static readonly ThreadLocal<SecureRandomBuffer> _threadLocalInstance
+            = new ThreadLocal<SecureRandomBuffer>(() => new SecureRandomBuffer());
+
+        /// <summary>
+        /// Get pre-buffered random bytes.
+        /// </summary>
+        /// <param name="buff">an array that random bytes are copied to.</param>
+        /// <param name="offset">start index of the array.</param>
+        /// <param name="length">number of bytes to be copied.</param>
+        public static void GetRandomBytes(byte[] buff, int offset, int length) {
+            _threadLocalInstance.Value.GetRandomBytesInternal(buff, offset, length);
+        }
+
+        /// <summary>
+        /// Get pre-buffered random bytes.
+        /// </summary>
+        /// <param name="buff">an array that random bytes are copied to.</param>
+        public static void GetRandomBytes(byte[] buff) {
+            _threadLocalInstance.Value.GetRandomBytesInternal(buff, 0, buff.Length);
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        private SecureRandomBuffer() {
+        }
+
+        /// <summary>
+        /// Get pre-buffered random bytes.
+        /// </summary>
+        /// <param name="buff">an array that random bytes are copied to.</param>
+        /// <param name="offset">start index of the array.</param>
+        /// <param name="length">number of bytes to be copied.</param>
+        private void GetRandomBytesInternal(byte[] buff, int offset, int length) {
+            int idx = offset;
+            int len = length;
+            while (len > 0) {
+                if (_remains <= 0) {
+                    _rng.GetBytes(_buffer);
+                    _remains = _buffer.Length;
+                }
+                int copyLen = Math.Min(_remains, len);
+                Buffer.BlockCopy(_buffer, _buffer.Length - _remains, buff, idx, copyLen);
+                idx += copyLen;
+                len -= copyLen;
+                _remains -= copyLen;
+            }
+        }
+    }
+
+}

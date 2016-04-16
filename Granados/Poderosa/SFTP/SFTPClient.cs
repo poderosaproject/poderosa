@@ -73,7 +73,6 @@ namespace Granados.Poderosa.SFTP {
 
         private readonly SSHChannel _channel;
         private readonly SFTPClientChannelEventReceiver _channelReceiver;
-        private readonly SFTPPacket _packet = new SFTPPacket(); // each method reuses this
 
         private int _protocolTimeout = 5000;
 
@@ -190,14 +189,14 @@ namespace Granados.Poderosa.SFTP {
             WaitReady();
             CheckStatus();
 
-            _packet.Open(SFTPPacketType.SSH_FXP_INIT, _channel.RemoteChannelID);
-            SSH2DataWriter writer = _packet.DataWriter;
-            writer.WriteInt32(SFTP_VERSION);
+            SFTPPacket packet =
+                new SFTPPacket(SFTPPacketType.SSH_FXP_INIT, (uint)_channel.RemoteChannelID)
+                    .WriteInt32(SFTP_VERSION);
 
             bool[] result = new bool[] { false };
 
             lock (_channelReceiver.ResponseNotifier) {
-                Transmit(_packet);
+                Transmit(packet);
                 _channelReceiver.WaitResponse(
                     delegate(SFTPPacketType packetType, SSHDataReader dataReader) {
                         if (packetType == SFTPPacketType.SSH_FXP_VERSION) {
@@ -274,17 +273,17 @@ namespace Granados.Poderosa.SFTP {
 
             uint requestId = ++_requestId;
 
-            _packet.Open(SFTPPacketType.SSH_FXP_REALPATH, _channel.RemoteChannelID);
-            SSH2DataWriter writer = _packet.DataWriter;
-            writer.WriteUInt32(requestId);
             byte[] pathData = _encoding.GetBytes(path);
-            writer.WriteAsString(pathData);
+            SFTPPacket packet =
+                new SFTPPacket(SFTPPacketType.SSH_FXP_REALPATH, (uint)_channel.RemoteChannelID)
+                        .WriteUInt32(requestId)
+                        .WriteAsString(pathData);
 
             bool[] result = new bool[] { false };
             string realPath = null;
 
             lock (_channelReceiver.ResponseNotifier) {
-                Transmit(_packet);
+                Transmit(packet);
                 _channelReceiver.WaitResponse(
                     delegate(SFTPPacketType packetType, SSHDataReader dataReader) {
                         if (packetType == SFTPPacketType.SSH_FXP_STATUS) {
@@ -375,14 +374,15 @@ namespace Granados.Poderosa.SFTP {
 
             uint requestId = ++_requestId;
 
-            _packet.Open(SFTPPacketType.SSH_FXP_MKDIR, _channel.RemoteChannelID);
-            SSH2DataWriter writer = _packet.DataWriter;
-            writer.WriteUInt32(requestId);
             byte[] pathData = _encoding.GetBytes(path);
-            writer.WriteAsString(pathData);
-            writer.WriteInt32(0);   // attributes flag
 
-            TransmitPacketAndWaitForStatusOK(requestId, _packet);
+            TransmitPacketAndWaitForStatusOK(
+                requestId,
+                new SFTPPacket(SFTPPacketType.SSH_FXP_MKDIR, (uint)_channel.RemoteChannelID)
+                    .WriteUInt32(requestId)
+                    .WriteAsString(pathData)
+                    .WriteInt32(0)   // attributes flag
+            );
         }
 
         /// <summary>
@@ -398,13 +398,14 @@ namespace Granados.Poderosa.SFTP {
 
             uint requestId = ++_requestId;
 
-            _packet.Open(SFTPPacketType.SSH_FXP_RMDIR, _channel.RemoteChannelID);
-            SSH2DataWriter writer = _packet.DataWriter;
-            writer.WriteUInt32(requestId);
             byte[] pathData = _encoding.GetBytes(path);
-            writer.WriteAsString(pathData);
 
-            TransmitPacketAndWaitForStatusOK(requestId, _packet);
+            TransmitPacketAndWaitForStatusOK(
+                requestId,
+                new SFTPPacket(SFTPPacketType.SSH_FXP_RMDIR, (uint)_channel.RemoteChannelID)
+                    .WriteUInt32(requestId)
+                    .WriteAsString(pathData)
+            );
         }
 
         #endregion
@@ -426,17 +427,17 @@ namespace Granados.Poderosa.SFTP {
 
             uint requestId = ++_requestId;
 
-            _packet.Open(lstat ? SFTPPacketType.SSH_FXP_LSTAT : SFTPPacketType.SSH_FXP_STAT, _channel.RemoteChannelID);
-            SSH2DataWriter writer = _packet.DataWriter;
-            writer.WriteUInt32(requestId);
             byte[] pathData = _encoding.GetBytes(path);
-            writer.WriteAsString(pathData);
+            SFTPPacket packet =
+                new SFTPPacket(lstat ? SFTPPacketType.SSH_FXP_LSTAT : SFTPPacketType.SSH_FXP_STAT, (uint)_channel.RemoteChannelID)
+                        .WriteUInt32(requestId)
+                        .WriteAsString(pathData);
 
             bool[] result = new bool[] { false };
             SFTPFileAttributes attributes = null;
 
             lock (_channelReceiver.ResponseNotifier) {
-                Transmit(_packet);
+                Transmit(packet);
                 _channelReceiver.WaitResponse(
                     delegate(SFTPPacketType packetType, SSHDataReader dataReader) {
                         if (packetType == SFTPPacketType.SSH_FXP_STATUS) {
@@ -479,13 +480,13 @@ namespace Granados.Poderosa.SFTP {
 
             uint requestId = ++_requestId;
 
-            _packet.Open(SFTPPacketType.SSH_FXP_REMOVE, _channel.RemoteChannelID);
-            SSH2DataWriter writer = _packet.DataWriter;
-            writer.WriteUInt32(requestId);
             byte[] pathData = _encoding.GetBytes(path);
-            writer.WriteAsString(pathData);
+            SFTPPacket packet =
+                new SFTPPacket(SFTPPacketType.SSH_FXP_REMOVE, (uint)_channel.RemoteChannelID)
+                    .WriteUInt32(requestId)
+                    .WriteAsString(pathData);
 
-            TransmitPacketAndWaitForStatusOK(requestId, _packet);
+            TransmitPacketAndWaitForStatusOK(requestId, packet);
         }
 
         /// <summary>
@@ -502,15 +503,15 @@ namespace Granados.Poderosa.SFTP {
 
             uint requestId = ++_requestId;
 
-            _packet.Open(SFTPPacketType.SSH_FXP_RENAME, _channel.RemoteChannelID);
-            SSH2DataWriter writer = _packet.DataWriter;
-            writer.WriteUInt32(requestId);
             byte[] oldPathData = _encoding.GetBytes(oldPath);
-            writer.WriteAsString(oldPathData);
             byte[] newPathData = _encoding.GetBytes(newPath);
-            writer.WriteAsString(newPathData);
+            SFTPPacket packet =
+                new SFTPPacket(SFTPPacketType.SSH_FXP_RENAME, (uint)_channel.RemoteChannelID)
+                    .WriteUInt32(requestId)
+                    .WriteAsString(oldPathData)
+                    .WriteAsString(newPathData);
 
-            TransmitPacketAndWaitForStatusOK(requestId, _packet);
+            TransmitPacketAndWaitForStatusOK(requestId, packet);
         }
 
         /// <summary>
@@ -527,15 +528,15 @@ namespace Granados.Poderosa.SFTP {
 
             uint requestId = ++_requestId;
 
-            _packet.Open(SFTPPacketType.SSH_FXP_SETSTAT, _channel.RemoteChannelID);
-            SSH2DataWriter writer = _packet.DataWriter;
-            writer.WriteUInt32(requestId);
             byte[] pathData = _encoding.GetBytes(path);
-            writer.WriteAsString(pathData);
-            writer.WriteUInt32(SSH_FILEXFER_ATTR_PERMISSIONS);
-            writer.WriteUInt32((uint)permissions & 0xfffu /* 07777 */);
+            SFTPPacket packet =
+                new SFTPPacket(SFTPPacketType.SSH_FXP_SETSTAT, (uint)_channel.RemoteChannelID)
+                    .WriteUInt32(requestId)
+                    .WriteAsString(pathData)
+                    .WriteUInt32(SSH_FILEXFER_ATTR_PERMISSIONS)
+                    .WriteUInt32((uint)permissions & 0xfffu /* 07777 */);
 
-            TransmitPacketAndWaitForStatusOK(requestId, _packet);
+            TransmitPacketAndWaitForStatusOK(requestId, packet);
         }
 
         #endregion
@@ -767,29 +768,29 @@ namespace Granados.Poderosa.SFTP {
         #region Private methods about file
 
         private byte[] OpenFile(uint requestId, string filePath, uint flags) {
-            _packet.Open(SFTPPacketType.SSH_FXP_OPEN, _channel.RemoteChannelID);
-            SSH2DataWriter writer = _packet.DataWriter;
-            writer.WriteUInt32(requestId);
-            writer.WriteAsString(_encoding.GetBytes(filePath));
-            writer.WriteUInt32(flags);
-            writer.WriteUInt32(0);  // attribute flag
+            SFTPPacket packet =
+                new SFTPPacket(SFTPPacketType.SSH_FXP_OPEN, (uint)_channel.RemoteChannelID)
+                    .WriteUInt32(requestId)
+                    .WriteAsString(_encoding.GetBytes(filePath))
+                    .WriteUInt32(flags)
+                    .WriteUInt32(0);  // attribute flag
 
-            return WaitHandle(_packet, requestId);
+            return WaitHandle(packet, requestId);
         }
 
         private byte[] ReadFile(uint requestId, byte[] handle, ulong offset, int length) {
-            _packet.Open(SFTPPacketType.SSH_FXP_READ, _channel.RemoteChannelID);
-            SSH2DataWriter writer = _packet.DataWriter;
-            writer.WriteUInt32(requestId);
-            writer.WriteAsString(handle);
-            writer.WriteUInt64(offset);
-            writer.WriteInt32(length);
+            SFTPPacket packet =
+                new SFTPPacket(SFTPPacketType.SSH_FXP_READ, (uint)_channel.RemoteChannelID)
+                    .WriteUInt32(requestId)
+                    .WriteAsString(handle)
+                    .WriteUInt64(offset)
+                    .WriteInt32(length);
 
             byte[] data = null;
             bool[] result = new bool[] { false };
 
             lock (_channelReceiver.ResponseNotifier) {
-                Transmit(_packet);
+                Transmit(packet);
                 _channelReceiver.WaitResponse(
                     delegate(SFTPPacketType packetType, SSHDataReader dataReader) {
                         if (packetType == SFTPPacketType.SSH_FXP_STATUS) {
@@ -827,14 +828,14 @@ namespace Granados.Poderosa.SFTP {
         }
 
         private void WriteFile(uint requestId, byte[] handle, ulong offset, byte[] buff, int length) {
-            _packet.Open(SFTPPacketType.SSH_FXP_WRITE, _channel.RemoteChannelID);
-            SSH2DataWriter writer = _packet.DataWriter;
-            writer.WriteUInt32(requestId);
-            writer.WriteAsString(handle);
-            writer.WriteUInt64(offset);
-            writer.WriteAsString(buff, 0, length);
+            SFTPPacket packet =
+                new SFTPPacket(SFTPPacketType.SSH_FXP_WRITE, (uint)_channel.RemoteChannelID)
+                    .WriteUInt32(requestId)
+                    .WriteAsString(handle)
+                    .WriteUInt64(offset)
+                    .WriteAsString(buff, 0, length);
 
-            TransmitPacketAndWaitForStatusOK(requestId, _packet);
+            TransmitPacketAndWaitForStatusOK(requestId, packet);
         }
 
         #endregion
@@ -842,25 +843,25 @@ namespace Granados.Poderosa.SFTP {
         #region Private methods about directory
 
         private byte[] OpenDir(uint requestId, string directoryPath) {
-            _packet.Open(SFTPPacketType.SSH_FXP_OPENDIR, _channel.RemoteChannelID);
-            SSH2DataWriter writer = _packet.DataWriter;
-            writer.WriteUInt32(requestId);
-            writer.WriteAsString(_encoding.GetBytes(directoryPath));
+            SFTPPacket packet =
+                new SFTPPacket(SFTPPacketType.SSH_FXP_OPENDIR, (uint)_channel.RemoteChannelID)
+                    .WriteUInt32(requestId)
+                    .WriteAsString(_encoding.GetBytes(directoryPath));
 
-            return WaitHandle(_packet, requestId);
+            return WaitHandle(packet, requestId);
         }
 
         private ICollection<SFTPFileInfo> ReadDir(uint requestId, byte[] handle) {
-            _packet.Open(SFTPPacketType.SSH_FXP_READDIR, _channel.RemoteChannelID);
-            SSH2DataWriter writer = _packet.DataWriter;
-            writer.WriteUInt32(requestId);
-            writer.WriteAsString(handle);
+            SFTPPacket packet =
+                new SFTPPacket(SFTPPacketType.SSH_FXP_READDIR, (uint)_channel.RemoteChannelID)
+                    .WriteUInt32(requestId)
+                    .WriteAsString(handle);
 
             List<SFTPFileInfo> fileList = new List<SFTPFileInfo>();
             bool[] result = new bool[] { false };
 
             lock (_channelReceiver.ResponseNotifier) {
-                Transmit(_packet);
+                Transmit(packet);
                 _channelReceiver.WaitResponse(
                     delegate(SFTPPacketType packetType, SSHDataReader dataReader) {
                         if (packetType == SFTPPacketType.SSH_FXP_STATUS) {
@@ -995,12 +996,12 @@ namespace Granados.Poderosa.SFTP {
         }
 
         private void CloseHandle(uint requestId, byte[] handle) {
-            _packet.Open(SFTPPacketType.SSH_FXP_CLOSE, _channel.RemoteChannelID);
-            SSH2DataWriter writer = _packet.DataWriter;
-            writer.WriteUInt32(requestId);
-            writer.WriteAsString(handle);
+            SFTPPacket packet =
+                new SFTPPacket(SFTPPacketType.SSH_FXP_CLOSE, (uint)_channel.RemoteChannelID)
+                    .WriteUInt32(requestId)
+                    .WriteAsString(handle);
 
-            TransmitPacketAndWaitForStatusOK(requestId, _packet);
+            TransmitPacketAndWaitForStatusOK(requestId, packet);
         }
 
         #endregion
@@ -1008,7 +1009,7 @@ namespace Granados.Poderosa.SFTP {
         #region Other private methods
 
         private void Transmit(SFTPPacket packet) {
-            ((SSH2Connection)_channel.Connection).TransmitPacket(packet);
+            ((SSH2Connection)_channel.Connection).Transmit(packet);
         }
 
         private void CheckStatus() {

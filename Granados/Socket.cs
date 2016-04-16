@@ -380,9 +380,14 @@ namespace Granados.IO {
                 if (data.Length > 0) {
                     // queue must have no items
                     if (_queue.Count > 0) {
+                        Exception err = _queue.Peek() as Exception;
+                        if (err != null) {
+                            ClearQueue();
+                            throw err;
+                        }
                         throw new SSHException("Unexpected incoming packet");
                     }
-                    _socket.Write(data.Data, data.Offset, data.Length);
+                    _socket.Write(data);
                 }
 
                 return WaitResponse();

@@ -31,7 +31,7 @@ namespace Granados.SSH1 {
     /// <summary>
     /// SSH1 Packet type (message number)
     /// </summary>
-    internal enum SSH1PacketType {
+    public enum SSH1PacketType {
         SSH_MSG_DISCONNECT = 1,
         SSH_SMSG_PUBLIC_KEY = 2,
         SSH_CMSG_SESSION_KEY = 3,
@@ -134,9 +134,7 @@ namespace Granados.SSH1 {
             int packetLength = _payload.Length + 5; //type and CRC
             int paddingLength = 8 - (packetLength % 8);
             image.WriteInt32(packetLength);
-            byte[] padding = new byte[paddingLength];
-            RngManager.GetSecureRng().GetBytes(padding);
-            image.Append(padding);
+            image.WriteSecureRandomBytes(paddingLength);
             image.WriteByte(_type);
             if (_payload.Length > 0) {
                 image.Append(_payload);

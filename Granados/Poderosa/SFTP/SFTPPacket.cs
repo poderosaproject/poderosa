@@ -17,54 +17,43 @@ using Granados.Crypto;
 namespace Granados.Poderosa.SFTP {
 
     /// <summary>
-    /// SSH2TransmissionPacket for constructing SFTP packet
+    /// Specialized <see cref="SSH2Packet"/> for constructing SFTP packet.
     /// </summary>
-    internal class SFTPPacket : SSH2TransmissionPacket {
+    /// <remarks>
+    /// The instances of this class share single thread-local buffer.
+    /// You should be careful that only single instance is used while constructing a packet.
+    /// </remarks>
+    internal class SFTPPacket : SSH2Packet {
 
-        private const int OFFSET_CHANNEL_DATA_LENGTH = SSH2TransmissionPacket.INITIAL_OFFSET + 5;
-        private const int OFFSET_SFTP_DATA_LENGTH = OFFSET_CHANNEL_DATA_LENGTH + 4;
-        private const int OFFSET_SFTP_PACKET_TYPE = OFFSET_SFTP_DATA_LENGTH + 4;
+        private readonly int _sftpDataOffset;
+
+        private const int CHANNEL_DATA_LENGTH_FIELD_LEN = 4;
+        private const int SFTP_MESSAGE_LENGTH_FIELD_LEN = 4;
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public SFTPPacket() {
-        }
-
-        /// <summary>
-        /// Overrides Open()
-        /// </summary>
-        public override void Open() {
-            throw new NotSupportedException("use Open(SFTPPacketType, int)");
-        }
-
-        /// <summary>
-        /// Open packet with specifying a packet type.
-        /// </summary>
         /// <param name="packetType">SFTP packet type.</param>
         /// <param name="remoteChannel">remote channel number</param>
-        public void Open(SFTPPacketType packetType, int remoteChannel) {
-            base.Open();
-            SSH2DataWriter writer = DataWriter;
-            writer.WritePacketType(Granados.SSH2.PacketType.SSH_MSG_CHANNEL_DATA);
-            writer.WriteInt32(remoteChannel);
-            writer.SetOffset(OFFSET_SFTP_PACKET_TYPE);
-            writer.WriteByte((byte)packetType);
+        public SFTPPacket(SFTPPacketType packetType, uint remoteChannel)
+            : base(SSH2PacketType.SSH_MSG_CHANNEL_DATA) {
+            Payload.WriteUInt32(remoteChannel);
+            Payload.WriteUInt32(0);  // channel data length
+            Payload.WriteUInt32(0);  // SFTP message length
+            _sftpDataOffset = Payload.Length;
+            Payload.WriteByte((byte)packetType);
         }
 
         /// <summary>
-        /// Overrides Close()
+        /// Prepare SFTP message before making a packet image.
         /// </summary>
-        /// <param name="cipher"></param>
-        /// <param name="mac"></param>
-        /// <param name="sequence"></param>
-        /// <returns></returns>
-        public override DataFragment Close(Cipher cipher, MAC mac, int sequence) {
-            byte[] buf = DataWriter.UnderlyingBuffer;
-            int sftpDataLength = DataWriter.Length - OFFSET_SFTP_PACKET_TYPE;
-            SSHUtil.WriteIntToByteArray(buf, OFFSET_CHANNEL_DATA_LENGTH, sftpDataLength + 4);
-            SSHUtil.WriteIntToByteArray(buf, OFFSET_SFTP_DATA_LENGTH, sftpDataLength);
-            return base.Close(cipher, mac, sequence);
+        protected override void BeforeBuildImage() {
+            int sftpDataLength = Payload.Length - _sftpDataOffset;
+            int offset = _sftpDataOffset - SFTP_MESSAGE_LENGTH_FIELD_LEN;
+            Payload.OverwriteUInt32(offset, (uint)sftpDataLength);
+            offset -= CHANNEL_DATA_LENGTH_FIELD_LEN;
+            Payload.OverwriteUInt32(offset, (uint)(sftpDataLength + SFTP_MESSAGE_LENGTH_FIELD_LEN));
         }
+
     }
 }

@@ -99,6 +99,15 @@ namespace Granados.IO {
         }
 
         /// <summary>
+        /// Writes UTF-8 text according to the SSH 1.5/2.0 specification.
+        /// </summary>
+        public static T WriteUTF8String<T>(this T packet, string text) where T : IPacketBuilder {
+            byte[] bytes = Encoding.UTF8.GetBytes(text);
+            WriteAsString(packet, bytes);
+            return packet;
+        }
+
+        /// <summary>
         /// Writes byte string according to the SSH 1.5/2.0 specification.
         /// </summary>
         public static T WriteAsString<T>(this T packet, byte[] data) where T : IPacketBuilder {
@@ -117,6 +126,14 @@ namespace Granados.IO {
             if (length > 0) {
                 packet.Payload.Append(data, offset, length);
             }
+            return packet;
+        }
+
+        /// <summary>
+        /// Writes random bytes.
+        /// </summary>
+        public static T WriteSecureRandomBytes<T>(this T packet, int length) where T : IPacketBuilder {
+            packet.Payload.WriteSecureRandomBytes(length);
             return packet;
         }
     }
@@ -374,8 +391,8 @@ namespace Granados.IO.SSH2 {
         public override BigInteger ReadMPInt() {
             return new BigInteger(ReadString());
         }
-        public PacketType ReadPacketType() {
-            return (PacketType)ReadByte();
+        public SSH2PacketType ReadPacketType() {
+            return (SSH2PacketType)ReadByte();
         }
     }
 
@@ -398,7 +415,7 @@ namespace Granados.IO.SSH2 {
             Write(bi.GetBytes());
         }
 
-        public void WritePacketType(PacketType pt) {
+        public void WritePacketType(SSH2PacketType pt) {
             WriteByte((byte)pt);
         }
     }

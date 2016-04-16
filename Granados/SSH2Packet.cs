@@ -10,106 +10,299 @@
 
  $Id: SSH2Packet.cs,v 1.8 2011/11/14 13:35:59 kzmi Exp $
 */
-
+/* SSH2 Packet Structure
+ * 
+ * uint32    packet_length
+ * byte      padding_length
+ * byte[n1]  payload; n1 = packet_length - padding_length - 1
+ * byte[n2]  random padding; n2 = padding_length (max 255)
+ * byte[m]   mac (message authentication code); m = mac_length
+ * 
+ * 4+1+n1+n2 must be a multiple of the cipher block size
+ */
 using System;
 
 using Granados.Crypto;
 using Granados.IO;
 using Granados.IO.SSH2;
 using Granados.Util;
+using System.Threading;
+using Granados.Mono.Math;
 
 namespace Granados.SSH2 {
-    /* SSH2 Packet Structure
-     * 
-     * uint32    packet_length
-     * byte      padding_length
-     * byte[n1]  payload; n1 = packet_length - padding_length - 1
-     * byte[n2]  random padding; n2 = padding_length (max 255)
-     * byte[m]   mac (message authentication code); m = mac_length
-     * 
-     * 4+1+n1+n2 must be a multiple of the cipher block size
-     */
 
-    //SSH2 Packet for Transmission
-    internal class SSH2TransmissionPacket {
-        private readonly SSH2DataWriter _writer;
-        private readonly DataFragment _dataFragment;
+    /// <summary>
+    /// SSH2 Packet type (message number)
+    /// </summary>
+    public enum SSH2PacketType {
+        SSH_MSG_DISCONNECT = 1,
+        SSH_MSG_IGNORE = 2,
+        SSH_MSG_UNIMPLEMENTED = 3,
+        SSH_MSG_DEBUG = 4,
+        SSH_MSG_SERVICE_REQUEST = 5,
+        SSH_MSG_SERVICE_ACCEPT = 6,
 
-        private bool _isOpen;
+        SSH_MSG_KEXINIT = 20,
+        SSH_MSG_NEWKEYS = 21,
 
-        private const int SEQUENCE_MARGIN = 4;
-        private const int LENGTH_MARGIN = 4;
-        private const int PADDING_MARGIN = 1;
+        SSH_MSG_KEXDH_INIT = 30,
+        SSH_MSG_KEXDH_REPLY = 31,
 
-        public const int INITIAL_OFFSET = SEQUENCE_MARGIN + LENGTH_MARGIN + PADDING_MARGIN;
+        SSH_MSG_USERAUTH_REQUEST = 50,
+        SSH_MSG_USERAUTH_FAILURE = 51,
+        SSH_MSG_USERAUTH_SUCCESS = 52,
+        SSH_MSG_USERAUTH_BANNER = 53,
 
-        public SSH2TransmissionPacket() {
-            _writer = new SSH2DataWriter();
-            _dataFragment = new DataFragment(null, 0, 0);
-            _isOpen = false;
+        SSH_MSG_USERAUTH_INFO_REQUEST = 60,
+        SSH_MSG_USERAUTH_INFO_RESPONSE = 61,
+
+        SSH_MSG_GLOBAL_REQUEST = 80,
+        SSH_MSG_REQUEST_SUCCESS = 81,
+        SSH_MSG_REQUEST_FAILURE = 82,
+
+        SSH_MSG_CHANNEL_OPEN = 90,
+        SSH_MSG_CHANNEL_OPEN_CONFIRMATION = 91,
+        SSH_MSG_CHANNEL_OPEN_FAILURE = 92,
+        SSH_MSG_CHANNEL_WINDOW_ADJUST = 93,
+        SSH_MSG_CHANNEL_DATA = 94,
+        SSH_MSG_CHANNEL_EXTENDED_DATA = 95,
+        SSH_MSG_CHANNEL_EOF = 96,
+        SSH_MSG_CHANNEL_CLOSE = 97,
+        SSH_MSG_CHANNEL_REQUEST = 98,
+        SSH_MSG_CHANNEL_SUCCESS = 99,
+        SSH_MSG_CHANNEL_FAILURE = 100
+    }
+
+    /// <summary>
+    /// SSH2 packet builder.
+    /// </summary>
+    /// <remarks>
+    /// The instances of this class share single thread-local buffer.
+    /// You should be careful that only single instance is used while constructing a packet.
+    /// </remarks>
+    internal class SSH2Packet : IPacketBuilder {
+        private readonly ByteBuffer _payload;
+
+        private static readonly ThreadLocal<ByteBuffer> _payloadBuffer =
+            new ThreadLocal<ByteBuffer>(() => new ByteBuffer(0x1000, -1));
+
+        private static readonly ThreadLocal<bool> _lockFlag = new ThreadLocal<bool>();
+
+        protected const int SEQUENCE_NUMBER_FIELD_LEN = 4;
+        protected const int PACKET_LENGTH_FIELD_LEN = 4;
+        protected const int PADDING_LENGTH_FIELD_LEN = 1;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="type">packet type (message number)</param>
+        public SSH2Packet(SSH2PacketType type) {
+            if (_lockFlag.Value) {
+                throw new InvalidOperationException(
+                    "simultaneous editing packet detected: " + typeof(SSH2Packet).FullName);
+            }
+            _lockFlag.Value = true;
+            _payload = _payloadBuffer.Value;
+            _payload.Clear();
+            _payload.WriteUInt32(0);    // sequence_number field for computing MAC
+            _payload.WriteUInt32(0);    // packet_length field
+            _payload.WriteByte(0);      // padding_length field
+            _payload.WriteByte((byte)type);
         }
 
-        // Derived class can override this method for additional setup.
-        public virtual void Open() {
-            if (_isOpen)
-                throw new SSHException("internal state error");
-            _writer.Reset();
-            _writer.SetOffset(INITIAL_OFFSET);
-            _isOpen = true;
-        }
-
-        public SSH2DataWriter DataWriter {
+        /// <summary>
+        /// Implements <see cref="IPacketBuilder"/>
+        /// </summary>
+        /// <remarks>
+        /// This buffer also contains additional fields preceding the payload field due to the performance reason.
+        /// Please use <see cref="GetPayloadBytes()"/> to get the bytes of the playload field.
+        /// </remarks>
+        public ByteBuffer Payload {
             get {
-                return _writer;
+                return _payload;
             }
         }
 
-        // Derived class can override this method to modify the buffer.
-        public virtual DataFragment Close(Cipher cipher, MAC mac, int sequence) {
-            if (!_isOpen)
-                throw new SSHException("internal state error");
+        /// <summary>
+        /// Get actual bytes of the payload field.
+        /// </summary>
+        /// <returns>bytes of the payload field</returns>
+        public byte[] GetPayloadBytes() {
+            const int IGNORE_LEN = SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN + PADDING_LENGTH_FIELD_LEN;
+            int payloadLen = _payload.Length - IGNORE_LEN;
+            byte[] payloadBytes = new byte[payloadLen];
+            Buffer.BlockCopy(
+                _payload.RawBuffer,
+                _payload.RawBufferOffset + IGNORE_LEN,
+                payloadBytes,
+                0,
+                payloadLen);
+            return payloadBytes;
+        }
 
-            int blocksize = cipher == null ? 8 : cipher.BlockSize;
-            int payloadLength = _writer.Length - (SEQUENCE_MARGIN + LENGTH_MARGIN + PADDING_MARGIN);
-            int paddingLength = 11 - payloadLength % blocksize;
-            while (paddingLength < 4)
-                paddingLength += blocksize;
-            int packetLength = PADDING_MARGIN + payloadLength + paddingLength;
-            int imageLength = packetLength + LENGTH_MARGIN;
+        /// <summary>
+        /// Get actual size of the payload field.
+        /// </summary>
+        /// <returns>number of bytes of the payload field</returns>
+        public int GetPayloadSize() {
+            const int IGNORE_LEN = SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN + PADDING_LENGTH_FIELD_LEN;
+            int payloadLen = _payload.Length - IGNORE_LEN;
+            return payloadLen;
+        }
 
-            //fill padding
-	        byte[] tmp = new byte[4];
-            Rng rng = RngManager.GetSecureRng();
-            for (int i = 0; i < paddingLength; i += 4) {
-                rng.GetBytes(tmp);
-                _writer.Write(tmp);
+        /// <summary>
+        /// Get packet type (message number).
+        /// </summary>
+        /// <returns>a packet type (message number)</returns>
+        public SSH2PacketType GetPacketType() {
+            const int MESSAGE_NUMBER_OFFSET = SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN + PADDING_LENGTH_FIELD_LEN;
+            return (SSH2PacketType)_payload.RawBuffer[_payload.RawBufferOffset + MESSAGE_NUMBER_OFFSET];
+        }
+
+        /// <summary>
+        /// Gets the binary image of this packet.
+        /// </summary>
+        /// <param name="cipher">cipher algorithm, or null if no encryption.</param>
+        /// <param name="mac">MAC algorithm, or null if no MAC.</param>
+        /// <param name="sequenceNumber">sequence number</param>
+        /// <returns>data</returns>
+        public DataFragment GetImage(Cipher cipher, MAC mac, uint sequenceNumber) {
+            BeforeBuildImage();
+            ByteBuffer image = BuildImage(cipher, mac, sequenceNumber);
+            _lockFlag.Value = false;
+            return image.AsDataFragment();
+        }
+
+        /// <summary>
+        /// Modifies payload before making a packet image.
+        /// Derived class can override this method for preparing sub-protocol packet.
+        /// </summary>
+        protected virtual void BeforeBuildImage() {
+        }
+
+        /// <summary>
+        /// Build packet binary data
+        /// </summary>
+        /// <param name="cipher">cipher algorithm, or null if no encryption.</param>
+        /// <param name="mac">MAC algorithm, or null if no MAC.</param>
+        /// <param name="sequenceNumber">sequence number</param>
+        /// <returns>a byte buffer</returns>
+        private ByteBuffer BuildImage(Cipher cipher, MAC mac, uint sequenceNumber) {
+            int blockSize = (cipher != null) ? cipher.BlockSize : 8;
+            int payloadLength = _payload.Length - (SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN + PADDING_LENGTH_FIELD_LEN);
+            int paddingLength = blockSize - (PACKET_LENGTH_FIELD_LEN + PADDING_LENGTH_FIELD_LEN + payloadLength) % blockSize;
+            if (paddingLength < 4) {
+                paddingLength += blockSize;
             }
+            int packetLength = PADDING_LENGTH_FIELD_LEN + payloadLength + paddingLength;
 
-            //manipulate stream
-            byte[] rawbuf = _writer.UnderlyingBuffer;
-            SSHUtil.WriteIntToByteArray(rawbuf, 0, sequence);
-            SSHUtil.WriteIntToByteArray(rawbuf, SEQUENCE_MARGIN, packetLength);
-            rawbuf[SEQUENCE_MARGIN + LENGTH_MARGIN] = (byte)paddingLength;
+            int offset = 0;
+            _payload.OverwriteUInt32(offset, sequenceNumber);
+            offset += SEQUENCE_NUMBER_FIELD_LEN;
+            _payload.OverwriteUInt32(offset, (uint)packetLength);
+            offset += PACKET_LENGTH_FIELD_LEN;
+            _payload.OverwriteByte(offset, (byte)paddingLength);
 
-            //mac
+            // padding
+            _payload.WriteSecureRandomBytes(paddingLength);
+
+            // compute MAC
+            byte[] macCode;
             if (mac != null) {
-                byte[] macCode = mac.ComputeHash(rawbuf, 0, packetLength + LENGTH_MARGIN + SEQUENCE_MARGIN);
-                Array.Copy(macCode, 0, rawbuf, packetLength + LENGTH_MARGIN + SEQUENCE_MARGIN, macCode.Length);
-                imageLength += macCode.Length;
+                macCode = mac.ComputeHash(_payload.RawBuffer, _payload.RawBufferOffset, _payload.Length);
+            }
+            else {
+                macCode = null;
             }
 
-            //encrypt
-            if (cipher != null)
-                cipher.Encrypt(rawbuf, SEQUENCE_MARGIN, packetLength + LENGTH_MARGIN, rawbuf, SEQUENCE_MARGIN);
+            // remove sequence_number field
+            _payload.RemoveHead(SEQUENCE_NUMBER_FIELD_LEN);
 
-            _dataFragment.Init(rawbuf, SEQUENCE_MARGIN, imageLength);
-            _isOpen = false;
-            return _dataFragment;
+            // encrypt
+            if (cipher != null) {
+                cipher.Encrypt(
+                    _payload.RawBuffer, _payload.RawBufferOffset, _payload.Length,
+                    _payload.RawBuffer, _payload.RawBufferOffset);
+            }
+
+            // append MAC
+            if (macCode != null) {
+                _payload.Append(macCode);
+            }
+
+            return _payload;
         }
     }
 
+    /// <summary>
+    /// SSH2 packet payload builder.
+    /// </summary>
+    /// <remarks>
+    /// This class is used for preparing SSH_MSG_USERAUTH_REQUEST message.
+    /// </remarks>
+    internal class SSH2PayloadImageBuilder : IPacketBuilder {
 
+        private readonly ByteBuffer _payload = new ByteBuffer(0x1000, -1);
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public SSH2PayloadImageBuilder() {
+        }
+
+        /// <summary>
+        /// Implements <see cref="IPacketBuilder"/>
+        /// </summary>
+        public ByteBuffer Payload {
+            get {
+                return _payload;
+            }
+        }
+
+        /// <summary>
+        /// Clear the <see cref="Payload"/>.
+        /// </summary>
+        public void Clear() {
+            _payload.Clear();
+        }
+
+        /// <summary>
+        /// Get content of the <see cref="Payload"/>.
+        /// </summary>
+        /// <returns>byte array</returns>
+        public byte[] GetBytes() {
+            return _payload.GetBytes();
+        }
+    }
+
+    /// <summary>
+    /// Extension methods for <see cref="SSH2Packet"/>.
+    /// </summary>
+    /// <seealso cref="PacketBuilderMixin"/>
+    internal static class SSH2PacketBuilderMixin {
+
+        /// <summary>
+        /// Writes BigInteger according to the SSH 2.0 specification
+        /// </summary>
+        /// <param name="packet"></param>
+        /// <param name="data"></param>
+        public static SSH2Packet WriteBigInteger(this SSH2Packet packet, BigInteger data) {
+            byte[] bi = data.GetBytes();
+            int biLen = bi.Length;
+            if ((bi[0] & 0x80) != 0) {
+                packet.Payload.WriteInt32(biLen + 1);
+                packet.Payload.WriteByte(0);
+                packet.Payload.Append(bi);
+            }
+            else {
+                packet.Payload.WriteInt32(biLen);
+                packet.Payload.Append(bi);
+            }
+            return packet;
+        }
+
+    }
+    
     internal class CallbackSSH2PacketHandler : IDataHandler {
         internal SSH2Connection _connection;
 
@@ -302,7 +495,7 @@ namespace Granados.SSH2 {
         /// <param name="packet">a SSH packet</param>
         /// <returns>true if a SSH packet is SSH_MSG_NEWKEYS.</returns>
         private bool IsMsgNewKeys(DataFragment packet) {
-            return packet.Length >= 1 && packet.ByteAt(0) == (byte)PacketType.SSH_MSG_NEWKEYS;
+            return packet.Length >= 1 && packet.ByteAt(0) == (byte)SSH2PacketType.SSH_MSG_NEWKEYS;
         }
 
         /// <summary>

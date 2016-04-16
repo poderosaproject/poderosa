@@ -470,7 +470,7 @@ namespace Granados.IO {
         /// <param name="offset">offset index of the buffer</param>
         /// <param name="val">the value to be written</param>
         public static void OverwriteByte(this ByteBuffer byteBuffer, int offset, byte val) {
-            byteBuffer.Overwrite(1, offset, (buff, index) => {
+            byteBuffer.Overwrite(offset, 1, (buff, index) => {
                 buff[index] = val;
             });
         }
@@ -517,7 +517,7 @@ namespace Granados.IO {
         /// <param name="offset">offset index of the buffer</param>
         /// <param name="val">the value to be written</param>
         public static void OverwriteUInt32(this ByteBuffer byteBuffer, int offset, uint val) {
-            byteBuffer.Overwrite(4, offset, (buff, index) => {
+            byteBuffer.Overwrite(offset, 4, (buff, index) => {
                 buff[index] = (byte)(val >> 24);
                 buff[index + 1] = (byte)(val >> 16);
                 buff[index + 2] = (byte)(val >> 8);
@@ -559,6 +559,17 @@ namespace Granados.IO {
         /// <param name="val">the value to be written</param>
         public static void WriteInt64(this ByteBuffer byteBuffer, long val) {
             WriteUInt64(byteBuffer, (ulong)val);
+        }
+
+        /// <summary>
+        /// Write random bytes.
+        /// </summary>
+        /// <param name="byteBuffer">buffer</param>
+        /// <param name="length">number of bytes</param>
+        public static void WriteSecureRandomBytes(this ByteBuffer byteBuffer, int length) {
+            byteBuffer.Append(length, (buff, index) => {
+                SecureRandomBuffer.GetRandomBytes(buff, index, length);
+            });
         }
     }
 }

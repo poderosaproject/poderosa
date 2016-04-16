@@ -254,7 +254,7 @@ namespace Poderosa.Protocols {
         public void OnMiscPacket(byte type, byte[] data, int offset, int length) {
             if (_waitingSendBreakReply) {
                 _waitingSendBreakReply = false;
-                if (type == (byte)Granados.SSH2.PacketType.SSH_MSG_CHANNEL_FAILURE)
+                if (type == (byte)Granados.SSH2.SSH2PacketType.SSH_MSG_CHANNEL_FAILURE)
                     PEnv.ActiveForm.Warning(PEnv.Strings.GetString("Message.SSHTerminalconnection.BreakError"));
             }
         }
