@@ -285,15 +285,15 @@ namespace Granados {
     /// <exclude/>
     public abstract class SSHChannel {
         protected ChannelType _type;
-        protected int _localID;
-        protected int _remoteID;
+        protected int _localID; // FIXME: should be uint
+        protected int _remoteID; // FIXME: should be uint
         private SSHConnection _connection;
 
-        protected SSHChannel(SSHConnection con, ChannelType type, int local_id) {
-            con.ChannelCollection.RegisterChannel(local_id, this);
+        protected SSHChannel(SSHConnection con, ChannelType type, int localID) {
+            con.ChannelCollection.RegisterChannel(localID, this);
             _connection = con;
             _type = type;
-            _localID = local_id;
+            _localID = localID;
         }
 
         public int LocalChannelID {
