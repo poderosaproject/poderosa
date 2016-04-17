@@ -7,11 +7,8 @@
  $Id: SSH2Connection.cs,v 1.11 2012/02/25 03:49:46 kzmi Exp $
 */
 using System;
-using System.Collections;
-using System.IO;
 using System.Threading;
 using System.Diagnostics;
-using System.Net.Sockets;
 using System.Text;
 using System.Security.Cryptography;
 
