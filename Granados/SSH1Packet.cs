@@ -64,13 +64,19 @@ namespace Granados.SSH1 {
     }
 
     /// <summary>
+    /// <see cref="IPacketBuilder"/> specialized for SSH1.
+    /// </summary>
+    internal interface ISSH1PacketBuilder : IPacketBuilder {
+    }
+
+    /// <summary>
     /// SSH1 packet builder.
     /// </summary>
     /// <remarks>
     /// The instances of this class share single thread-local buffer.
     /// You should be careful that only single instance is used while constructing a packet.
     /// </remarks>
-    internal class SSH1Packet : IPacketBuilder {
+    internal class SSH1Packet : ISSH1PacketBuilder {
         private readonly byte _type;
         private readonly ByteBuffer _payload;
 
@@ -149,7 +155,57 @@ namespace Granados.SSH1 {
     }
 
     /// <summary>
-    /// Extension methods for <see cref="SSH1Packet"/>.
+    /// SSH1 packet payload builder.
+    /// </summary>
+    /// <remarks>
+    /// This class is used for constructing temporary byte image according to the SSH1 format.
+    /// </remarks>
+    internal class SSH1PayloadImageBuilder : ISSH1PacketBuilder {
+
+        private readonly ByteBuffer _payload;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public SSH1PayloadImageBuilder()
+            : this(0x1000) {
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="initialCapacity">initial capacity of the payload buffer.</param>
+        public SSH1PayloadImageBuilder(int initialCapacity) {
+            _payload = new ByteBuffer(0x1000, -1);
+        }
+
+        /// <summary>
+        /// Implements <see cref="IPacketBuilder"/>
+        /// </summary>
+        public ByteBuffer Payload {
+            get {
+                return _payload;
+            }
+        }
+
+        /// <summary>
+        /// Clear the <see cref="Payload"/>.
+        /// </summary>
+        public void Clear() {
+            _payload.Clear();
+        }
+
+        /// <summary>
+        /// Get content of the <see cref="Payload"/>.
+        /// </summary>
+        /// <returns>byte array</returns>
+        public byte[] GetBytes() {
+            return _payload.GetBytes();
+        }
+    }
+
+    /// <summary>
+    /// Extension methods for <see cref="ISSH1PacketBuilder"/>.
     /// </summary>
     /// <seealso cref="PacketBuilderMixin"/>
     internal static class SSH1PacketBuilderMixin {
@@ -159,7 +215,7 @@ namespace Granados.SSH1 {
         /// </summary>
         /// <param name="packet"></param>
         /// <param name="data"></param>
-        public static SSH1Packet WriteBigInteger(this SSH1Packet packet, BigInteger data) {
+        public static T WriteBigInteger<T>(this T packet, BigInteger data) where T : ISSH1PacketBuilder {
             byte[] image = data.GetBytes();
             int bits = image.Length * 8;
             packet.Payload.WriteUInt16((ushort)bits);

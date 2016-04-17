@@ -74,13 +74,19 @@ namespace Granados.SSH2 {
     }
 
     /// <summary>
+    /// <see cref="IPacketBuilder"/> specialized for SSH2.
+    /// </summary>
+    internal interface ISSH2PacketBuilder : IPacketBuilder {
+    }
+
+    /// <summary>
     /// SSH2 packet builder.
     /// </summary>
     /// <remarks>
     /// The instances of this class share single thread-local buffer.
     /// You should be careful that only single instance is used while constructing a packet.
     /// </remarks>
-    internal class SSH2Packet : IPacketBuilder {
+    internal class SSH2Packet : ISSH2PacketBuilder {
         private readonly ByteBuffer _payload;
 
         private static readonly ThreadLocal<ByteBuffer> _payloadBuffer =
@@ -238,16 +244,25 @@ namespace Granados.SSH2 {
     /// SSH2 packet payload builder.
     /// </summary>
     /// <remarks>
-    /// This class is used for preparing SSH_MSG_USERAUTH_REQUEST message.
+    /// This class is used for constructing temporary byte image according to the SSH2 format.
     /// </remarks>
-    internal class SSH2PayloadImageBuilder : IPacketBuilder {
+    internal class SSH2PayloadImageBuilder : ISSH2PacketBuilder {
 
-        private readonly ByteBuffer _payload = new ByteBuffer(0x1000, -1);
+        private readonly ByteBuffer _payload;
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public SSH2PayloadImageBuilder() {
+        public SSH2PayloadImageBuilder()
+            : this(0x1000) {
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="initialCapacity">initial capacity of the payload buffer.</param>
+        public SSH2PayloadImageBuilder(int initialCapacity) {
+            _payload = new ByteBuffer(0x1000, -1);
         }
 
         /// <summary>
@@ -276,7 +291,7 @@ namespace Granados.SSH2 {
     }
 
     /// <summary>
-    /// Extension methods for <see cref="SSH2Packet"/>.
+    /// Extension methods for <see cref="ISSH2PacketBuilder"/>.
     /// </summary>
     /// <seealso cref="PacketBuilderMixin"/>
     internal static class SSH2PacketBuilderMixin {
@@ -286,7 +301,7 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <param name="packet"></param>
         /// <param name="data"></param>
-        public static SSH2Packet WriteBigInteger(this SSH2Packet packet, BigInteger data) {
+        public static T WriteBigInteger<T>(this T packet, BigInteger data) where T : ISSH2PacketBuilder {
             byte[] bi = data.GetBytes();
             int biLen = bi.Length;
             if ((bi[0] & 0x80) != 0) {
