@@ -268,13 +268,6 @@ namespace Poderosa.Protocols {
             OnAbnormalTerminationCore(ex.Message);
         }
 
-
-        public SSHConnectionInfo ConnectionInfo {
-            get {
-                return _connection.ConnectionInfo;
-            }
-        }
-
         public bool Available {
             get {
                 return _connection.Available;

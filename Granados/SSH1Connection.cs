@@ -47,19 +47,12 @@ namespace Granados.SSH1 {
         // exec command for SCP
         //private bool _executingExecCmd = false;
 
-        public SSH1Connection(SSHConnectionParameter param, IGranadosSocket s, ISSHConnectionEventReceiver er, string serverversion, string clientversion)
+        public SSH1Connection(SSHConnectionParameter param, IGranadosSocket s, ISSHConnectionEventReceiver er, string serverVersion, string clientVersion)
             : base(param, s, er) {
-            _cInfo = new SSH1ConnectionInfo();
-            _cInfo._serverVersionString = serverversion;
-            _cInfo._clientVersionString = clientversion;
+            _cInfo = new SSH1ConnectionInfo(param.HostName, param.PortNumber, serverVersion, clientVersion);
             _shellID = -1;
             _packetReceiver = new SynchronizedPacketReceiver(this);
             _packetizer = new SSH1Packetizer(_packetReceiver);
-        }
-        public override SSHConnectionInfo ConnectionInfo {
-            get {
-                return _cInfo;
-            }
         }
         internal override IDataHandler Packetizer {
             get {
@@ -71,9 +64,11 @@ namespace Granados.SSH1 {
 
             // Phase1 receives server keys
             ReceiveServerKeys();
-            if (_param.KeyCheck != null && !_param.KeyCheck(_cInfo)) {
-                _stream.Close();
-                return AuthenticationResult.Failure;
+            if (_param.VerifySSHHostKey != null) {
+                if (!_param.VerifySSHHostKey(_cInfo.GetSSHHostKeyInformationProvider())) {
+                    _stream.Close();
+                    return AuthenticationResult.Failure;
+                }
             }
 
             // Phase2 generates session key
@@ -142,13 +137,20 @@ namespace Granados.SSH1 {
             if (pt != SSH1PacketType.SSH_SMSG_PUBLIC_KEY)
                 throw new SSHException("unexpected SSH SSH1Packet type " + pt, reader.ReadAll());
 
-            _cInfo._serverinfo = new SSHServerInfo(reader);
-            _cInfo._hostkey = new RSAPublicKey(_cInfo._serverinfo.host_key_public_exponent, _cInfo._serverinfo.host_key_public_modulus);
+            _cInfo.AntiSpoofingCookie = reader.Read(8);
+            _cInfo.ServerKeyBits = reader.ReadInt32();
+            BigInteger serverKeyExponent = reader.ReadMPInt();
+            BigInteger serverKeyModulus = reader.ReadMPInt();
+            _cInfo.ServerKey = new RSAPublicKey(serverKeyExponent, serverKeyModulus);
+            _cInfo.HostKeyBits = reader.ReadInt32();
+            BigInteger hostKeyExponent = reader.ReadMPInt();
+            BigInteger hostKeyModulus = reader.ReadMPInt();
+            _cInfo.HostKey = new RSAPublicKey(hostKeyExponent, hostKeyModulus);
 
             //read protocol support parameters
             int protocol_flags = reader.ReadInt32();
             int supported_ciphers_mask = reader.ReadInt32();
-            _cInfo.SetSupportedCipherAlgorithms(supported_ciphers_mask);
+            _cInfo.SupportedEncryptionAlgorithmsMask = supported_ciphers_mask;
             int supported_authentications_mask = reader.ReadInt32();
             //Debug.WriteLine(String.Format("ServerOptions {0} {1} {2}", protocol_flags, supported_ciphers_mask, supported_authentications_mask));
 
@@ -164,7 +166,7 @@ namespace Granados.SSH1 {
                 else if (a == CipherAlgorithm.TripleDES && (supported_ciphers_mask & (1 << (int)CipherAlgorithm.TripleDES)) == 0)
                     continue;
 
-                _cInfo._algorithmForReception = _cInfo._algorithmForTransmittion = a;
+                _cInfo.IncomingPacketCipher = _cInfo.OutgoingPacketCipher = a;
                 found = true;
                 break;
             }
@@ -200,19 +202,20 @@ namespace Granados.SSH1 {
                 //step2 decrypts with RSA
                 RSAPublicKey first_encryption;
                 RSAPublicKey second_encryption;
-                SSHServerInfo si = _cInfo._serverinfo;
+                RSAPublicKey serverKey = _cInfo.ServerKey;
+                RSAPublicKey hostKey = _cInfo.HostKey;
                 int first_key_bytelen, second_key_bytelen;
-                if (si.server_key_public_modulus < si.host_key_public_modulus) {
-                    first_encryption = new RSAPublicKey(si.server_key_public_exponent, si.server_key_public_modulus);
-                    second_encryption = new RSAPublicKey(si.host_key_public_exponent, si.host_key_public_modulus);
-                    first_key_bytelen = (si.server_key_bits + 7) / 8;
-                    second_key_bytelen = (si.host_key_bits + 7) / 8;
+                if (serverKey.Modulus < hostKey.Modulus) {
+                    first_encryption = serverKey;
+                    second_encryption = hostKey;
+                    first_key_bytelen = (_cInfo.ServerKeyBits + 7) / 8;
+                    second_key_bytelen = (_cInfo.HostKeyBits + 7) / 8;
                 }
                 else {
-                    first_encryption = new RSAPublicKey(si.host_key_public_exponent, si.host_key_public_modulus);
-                    second_encryption = new RSAPublicKey(si.server_key_public_exponent, si.server_key_public_modulus);
-                    first_key_bytelen = (si.host_key_bits + 7) / 8;
-                    second_key_bytelen = (si.server_key_bits + 7) / 8;
+                    first_encryption = hostKey;
+                    second_encryption = serverKey;
+                    first_key_bytelen = (_cInfo.HostKeyBits + 7) / 8;
+                    second_key_bytelen = (_cInfo.ServerKeyBits + 7) / 8;
                 }
 
                 Rng rng = RngManager.GetSecureRng();
@@ -222,8 +225,8 @@ namespace Granados.SSH1 {
                 //send
                 TransmitWithoutEncryption(
                     new SSH1Packet(SSH1PacketType.SSH_CMSG_SESSION_KEY)
-                        .WriteByte((byte)_cInfo._algorithmForTransmittion)
-                        .Write(si.anti_spoofing_cookie)
+                        .WriteByte((byte)_cInfo.OutgoingPacketCipher.Value)
+                        .Write(_cInfo.AntiSpoofingCookie)
                         .WriteBigInteger(second_result)
                         .WriteInt32(0) //protocol flags
                 );
@@ -440,9 +443,8 @@ namespace Granados.SSH1 {
 
         private byte[] CalcSessionID() {
             MemoryStream bos = new MemoryStream();
-            SSHServerInfo si = _cInfo._serverinfo;
-            byte[] h = si.host_key_public_modulus.GetBytes();
-            byte[] s = si.server_key_public_modulus.GetBytes();
+            byte[] h = _cInfo.HostKey.Modulus.GetBytes();
+            byte[] s = _cInfo.ServerKey.Modulus.GetBytes();
             //System.out.println("len h="+h.Length);
             //System.out.println("len s="+s.Length);
 
@@ -450,7 +452,7 @@ namespace Granados.SSH1 {
             int off_s = (s[0] == 0 ? 1 : 0);
             bos.Write(h, off_h, h.Length - off_h);
             bos.Write(s, off_s, s.Length - off_s);
-            bos.Write(si.anti_spoofing_cookie, 0, si.anti_spoofing_cookie.Length);
+            bos.Write(_cInfo.AntiSpoofingCookie, 0, _cInfo.AntiSpoofingCookie.Length);
 
             byte[] session_id = new MD5CryptoServiceProvider().ComputeHash(bos.ToArray());
             //System.out.println("sess-id-len=" + session_id.Length);
@@ -460,8 +462,8 @@ namespace Granados.SSH1 {
         //init ciphers
         private void InitCipher(byte[] session_key) {
             lock (_transmitSync) {
-                _cipher = CipherFactory.CreateCipher(SSHProtocol.SSH1, _cInfo._algorithmForTransmittion, session_key);
-                Cipher rc = CipherFactory.CreateCipher(SSHProtocol.SSH1, _cInfo._algorithmForReception, session_key);
+                _cipher = CipherFactory.CreateCipher(SSHProtocol.SSH1, _cInfo.OutgoingPacketCipher.Value, session_key);
+                Cipher rc = CipherFactory.CreateCipher(SSHProtocol.SSH1, _cInfo.IncomingPacketCipher.Value, session_key);
                 _packetizer.SetCipher(rc, _param.CheckMACError);
             }
         }

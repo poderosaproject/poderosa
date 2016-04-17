@@ -49,7 +49,7 @@ namespace Poderosa.Protocols {
             RegisterTerminalParameterSerializers(pm.FindExtensionPoint("org.poderosa.core.serializeElement"));
 
             _connectionResultEventHandler = pm.CreateExtensionPoint(ProtocolsPluginConstants.RESULTEVENTHANDLER_EXTENSION, typeof(IConnectionResultEventHandler), this);
-            pm.CreateExtensionPoint(ProtocolsPluginConstants.HOSTKEYCHECKER_EXTENSION, typeof(ISSHHostKeyVerifier), ProtocolsPlugin.Instance);
+            pm.CreateExtensionPoint(ProtocolsPluginConstants.HOSTKEYCHECKER_EXTENSION, typeof(ISSHHostKeyVerifier2), ProtocolsPlugin.Instance);
             PEnv.Init((ICoreServices)poderosa.GetAdapter(typeof(ICoreServices)));
         }
 

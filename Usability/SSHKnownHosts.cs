@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using System.Text;
 
 using Granados;
+using Granados.KnownHosts;
 using Poderosa.Plugins;
 using Poderosa.Protocols;
 using Poderosa.Preferences;
@@ -21,7 +22,7 @@ using Poderosa.Forms;
 using Poderosa.Util.Collections;
 
 namespace Poderosa.Usability {
-    internal class SSHKnownHosts : IPreferenceSupplier, ISSHHostKeyVerifier {
+    internal class SSHKnownHosts : IPreferenceSupplier, ISSHHostKeyVerifier2 {
         private TypedHashtable<string, string> _dataForSSH1; //hostからエントリへのマップ
         private TypedHashtable<string, string> _dataForSSH2;
         private bool _modified;
@@ -56,8 +57,8 @@ namespace Poderosa.Usability {
             w.WriteLine(key_expr);
         }
 
-        #region ISSHHostKeyVerifier
-        public bool Verify(ISSHLoginParameter param, SSHConnectionInfo info) {
+        #region ISSHHostKeyVerifier2
+        public bool Verify(ISSHHostKeyInformationProvider info) {
             if (!_loaded) {
                 try {
                     Load();
@@ -68,27 +69,27 @@ namespace Poderosa.Usability {
                 }
             }
 
-            string keystr = info.DumpHostKeyInKnownHostsStyle();
-            string local = param.Method == SSHProtocol.SSH1 ? _dataForSSH1[ToKeyString(param)] : _dataForSSH2[ToKeyString(param)];
+            string keystr = info.KnownHostsString;
+            string local = (info.Protocol == SSHProtocol.SSH1) ? _dataForSSH1[ToKeyString(info)] : _dataForSSH2[ToKeyString(info)];
 
             if (local == null) {
-                return AskUserReliability(param, info, keystr, "Message.HostKeyChecker.AskHostKeyRegister");
+                return AskUserReliability(info, keystr, "Message.HostKeyChecker.AskHostKeyRegister");
             }
             else if (keystr != local) {
-                return AskUserReliability(param, info, keystr, "Message.HostKeyChecker.AskHostKeyRenew");
+                return AskUserReliability(info, keystr, "Message.HostKeyChecker.AskHostKeyRenew");
             }
             else
                 return true;
         }
 
-        private bool AskUserReliability(ISSHLoginParameter param, SSHConnectionInfo info, string keystr, string message_text_id) {
+        private bool AskUserReliability(ISSHHostKeyInformationProvider info, string keystr, string message_text_id) {
             //比較結果に基づく処理
             IPoderosaForm form = UsabilityPlugin.Instance.WindowManager.ActiveWindow;
             Debug.Assert(form.AsForm().InvokeRequired); //別スレッドで実行しているはず
 
             //fingerprint
             StringBuilder bld = new StringBuilder();
-            byte[] fingerprint = info.HostKeyMD5FingerPrint();
+            byte[] fingerprint = info.HostKeyFingerPrint;
             for (int i = 0; i < fingerprint.Length; i++) {
                 if (bld.Length > 0)
                     bld.Append(':');
@@ -98,7 +99,7 @@ namespace Poderosa.Usability {
             string message = String.Format("ssh hostkey fingerprint {0}\n\n{1}", bld.ToString(), UsabilityPlugin.Strings.GetString(message_text_id));
 
             if (form.AskUserYesNo(message) == DialogResult.Yes) {
-                Update(param, keystr, true);
+                Update(info, keystr, true);
                 return true;
             }
             else
@@ -140,11 +141,11 @@ namespace Poderosa.Usability {
             }
         }
 
-        private void Update(ISSHLoginParameter param, string key, bool flush) {
-            if (param.Method == SSHProtocol.SSH1)
-                _dataForSSH1[ToKeyString(param)] = key;
+        private void Update(ISSHHostKeyInformationProvider info, string key, bool flush) {
+            if (info.Protocol == SSHProtocol.SSH1)
+                _dataForSSH1[ToKeyString(info)] = key;
             else
-                _dataForSSH2[ToKeyString(param)] = key;
+                _dataForSSH2[ToKeyString(info)] = key;
 
             _modified = true;
             if (flush)
@@ -173,11 +174,10 @@ namespace Poderosa.Usability {
             }
         }
 
-        private static string ToKeyString(ISSHLoginParameter param) {
-            ITCPParameter tcp = (ITCPParameter)param.GetAdapter(typeof(ITCPParameter));
-            string h = tcp.Destination;
-            if (tcp.Port != 22)
-                h += ":" + tcp.Port;
+        private static string ToKeyString(ISSHHostKeyInformationProvider info) {
+            string h = info.HostName;
+            if (info.PortNumber != 22)
+                h += ":" + info.PortNumber;
             return h;
         }
 

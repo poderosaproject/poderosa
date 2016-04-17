@@ -165,7 +165,6 @@ namespace Granados {
     /// </summary>
     /// <exclude/>
     public enum KexAlgorithm {
-        None,
         /// <summary>diffie-hellman-group1-sha1 described in RFC4253</summary>
         DH_G1_SHA1,
         /// <summary>diffie-hellman-group14-sha1 described in RFC4253</summary>

@@ -22,21 +22,19 @@ using Granados.Mono.Math;
 namespace Granados.SSH2 {
 
     /// <summary>
-    /// 
+    /// SSH2
     /// </summary>
-    /// <exclude/>
-    public sealed class SSH2Connection : SSHConnection {
+    public class SSH2Connection : SSHConnection {
 
-        //packet count for transmission and reception
+        // packet sequence number
         private uint _sequence;
-
-        private Cipher _cipher;
+        private readonly object _transmitSync = new object();   // for keeping correct packet order
 
         //reception util
         private SSH2DataReader _readerForProcessPacket;
 
-        //MAC for transmission and reception
         private MAC _mac;
+        private Cipher _cipher;
         private readonly SSH2Packetizer _packetizer;
         private readonly SynchronizedPacketReceiver _packetReceiver;
 
@@ -49,17 +47,22 @@ namespace Granados.SSH2 {
         private KeyExchanger _asyncKeyExchanger;
         private int _requiredResponseCount; //for keyboard-interactive authentication
 
-        private readonly object _transmitSync = new object();   // for keeping correct packet order
 
-        internal SSH2Connection(SSHConnectionParameter param, IGranadosSocket strm, ISSHConnectionEventReceiver r, string serverversion, string clientversion)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="strm"></param>
+        /// <param name="r"></param>
+        /// <param name="serverVersion"></param>
+        /// <param name="clientVersion"></param>
+        public SSH2Connection(SSHConnectionParameter param, IGranadosSocket strm, ISSHConnectionEventReceiver r, string serverVersion, string clientVersion)
             : base(param, strm, r) {
-            _cInfo = new SSH2ConnectionInfo();
-            _cInfo._serverVersionString = serverversion;
-            _cInfo._clientVersionString = clientversion;
-
+            _cInfo = new SSH2ConnectionInfo(param.HostName, param.PortNumber, serverVersion, clientVersion);
             _packetReceiver = new SynchronizedPacketReceiver(this);
             _packetizer = new SSH2Packetizer(_packetReceiver);
         }
+
         internal void SetAgentForwardConfirmed(bool value) {
             _agentForwardConfirmed = value;
         }
@@ -68,7 +71,7 @@ namespace Granados.SSH2 {
                 return _packetizer;
             }
         }
-        public override SSHConnectionInfo ConnectionInfo {
+        internal SSH2ConnectionInfo ConnectionInfo {
             get {
                 return _cInfo;
             }
@@ -1225,19 +1228,20 @@ namespace Granados.SSH2 {
             Encoding enc = Encoding.ASCII;
 
             string kex = enc.GetString(re.ReadString());
-            _cInfo._supportedKEXAlgorithms = kex;
-            _cInfo._kexAlgorithm = DecideKexAlgorithm(kex);
+            _cInfo.SupportedKEXAlgorithms = kex;
+            _cInfo.KEXAlgorithm = DecideKexAlgorithm(kex);
 
             string host_key = enc.GetString(re.ReadString());
-            _cInfo._supportedHostKeyAlgorithms = host_key;
-            _cInfo._algorithmForHostKeyVerification = DecideHostKeyAlgorithm(host_key);
+            _cInfo.SupportedHostKeyAlgorithms = host_key;
+            _cInfo.HostKeyAlgorithm = DecideHostKeyAlgorithm(host_key);
 
             string enc_cs = enc.GetString(re.ReadString());
-            _cInfo._supportedCipherAlgorithms = enc_cs;
-            _cInfo._algorithmForTransmittion = DecideCipherAlgorithm(enc_cs);
+            _cInfo.SupportedEncryptionAlgorithmsClientToServer = enc_cs;
+            _cInfo.OutgoingPacketCipher = DecideCipherAlgorithm(enc_cs);
 
             string enc_sc = enc.GetString(re.ReadString());
-            _cInfo._algorithmForReception = DecideCipherAlgorithm(enc_sc);
+            _cInfo.SupportedEncryptionAlgorithmsServerToClient = enc_sc;
+            _cInfo.IncomingPacketCipher = DecideCipherAlgorithm(enc_sc);
 
             string mac_cs = enc.GetString(re.ReadString());
             CheckAlgorithmSupport("mac", mac_cs, "hmac-sha1");
@@ -1284,7 +1288,7 @@ namespace Granados.SSH2 {
 
         private DataFragment SendKEXDHINIT(Mode mode) {
             //Round1 computes and sends [e]
-            BigInteger p = GetDiffieHellmanPrime(_cInfo._kexAlgorithm);
+            BigInteger p = GetDiffieHellmanPrime(_cInfo.KEXAlgorithm.Value);
             //Generate x : 1 < x < (p-1)/2
             int xBytes = (p.BitCount() - 2) / 8;
             Rng rng = RngManager.GetSecureRng();
@@ -1312,7 +1316,7 @@ namespace Granados.SSH2 {
         }
 
         private byte[] KexComputeHash(byte[] b) {
-            switch (_cInfo._kexAlgorithm) {
+            switch (_cInfo.KEXAlgorithm) {
                 case KexAlgorithm.DH_G1_SHA1:
                 case KexAlgorithm.DH_G14_SHA1:
                     return new SHA1CryptoServiceProvider().ComputeHash(b);
@@ -1352,10 +1356,10 @@ namespace Granados.SSH2 {
 
             //Round3 calc hash H
             SSH2DataWriter wr = new SSH2DataWriter();
-            _k = f.ModPow(_x, GetDiffieHellmanPrime(_cInfo._kexAlgorithm));
+            _k = f.ModPow(_x, GetDiffieHellmanPrime(_cInfo.KEXAlgorithm.Value));
             wr = new SSH2DataWriter();
-            wr.WriteString(_cInfo._clientVersionString);
-            wr.WriteString(_cInfo._serverVersionString);
+            wr.WriteString(_cInfo.ClientVersionString);
+            wr.WriteString(_cInfo.ServerVersionString);
             wr.WriteAsString(_clientKEXINITPayload);
             wr.WriteAsString(_serverKEXINITPayload);
             wr.WriteAsString(key_and_cert);
@@ -1382,10 +1386,10 @@ namespace Granados.SSH2 {
             );
 
             //establish Ciphers
-            _tc = CipherFactory.CreateCipher(SSHProtocol.SSH2, _cInfo._algorithmForTransmittion,
-                DeriveKey(_k, _hash, 'C', CipherFactory.GetKeySize(_cInfo._algorithmForTransmittion)), DeriveKey(_k, _hash, 'A', CipherFactory.GetBlockSize(_cInfo._algorithmForTransmittion)));
-            _rc = CipherFactory.CreateCipher(SSHProtocol.SSH2, _cInfo._algorithmForReception,
-                DeriveKey(_k, _hash, 'D', CipherFactory.GetKeySize(_cInfo._algorithmForReception)), DeriveKey(_k, _hash, 'B', CipherFactory.GetBlockSize(_cInfo._algorithmForReception)));
+            _tc = CipherFactory.CreateCipher(SSHProtocol.SSH2, _cInfo.OutgoingPacketCipher.Value,
+                DeriveKey(_k, _hash, 'C', CipherFactory.GetKeySize(_cInfo.OutgoingPacketCipher.Value)), DeriveKey(_k, _hash, 'A', CipherFactory.GetBlockSize(_cInfo.OutgoingPacketCipher.Value)));
+            _rc = CipherFactory.CreateCipher(SSHProtocol.SSH2, _cInfo.IncomingPacketCipher.Value,
+                DeriveKey(_k, _hash, 'D', CipherFactory.GetKeySize(_cInfo.IncomingPacketCipher.Value)), DeriveKey(_k, _hash, 'B', CipherFactory.GetBlockSize(_cInfo.IncomingPacketCipher.Value)));
 
             //establish MACs
             MACAlgorithm ma = MACAlgorithm.HMACSHA1;
@@ -1414,41 +1418,49 @@ namespace Granados.SSH2 {
         private bool VerifyHostKey(byte[] K_S, byte[] signature, byte[] hash) {
             SSH2DataReader re1 = new SSH2DataReader(K_S);
             string algorithm = Encoding.ASCII.GetString(re1.ReadString());
-            if (algorithm != SSH2Util.PublicKeyAlgorithmName(_cInfo._algorithmForHostKeyVerification))
+            if (algorithm != SSH2Util.PublicKeyAlgorithmName(_cInfo.HostKeyAlgorithm.Value))
                 throw new SSHException("Protocol Error: Host Key Algorithm Mismatch");
 
             SSH2DataReader re2 = new SSH2DataReader(signature);
             algorithm = Encoding.ASCII.GetString(re2.ReadString());
-            if (algorithm != SSH2Util.PublicKeyAlgorithmName(_cInfo._algorithmForHostKeyVerification))
+            if (algorithm != SSH2Util.PublicKeyAlgorithmName(_cInfo.HostKeyAlgorithm.Value))
                 throw new SSHException("Protocol Error: Host Key Algorithm Mismatch");
             byte[] sigbody = re2.ReadString();
             Debug.Assert(re2.Rest == 0);
 
-            if (_cInfo._algorithmForHostKeyVerification == PublicKeyAlgorithm.RSA)
-                VerifyHostKeyByRSA(re1, sigbody, hash);
-            else if (_cInfo._algorithmForHostKeyVerification == PublicKeyAlgorithm.DSA)
-                VerifyHostKeyByDSS(re1, sigbody, hash);
+            if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.RSA) {
+                RSAPublicKey pk = ReadRSAPublicKey(re1, sigbody, hash);
+                pk.VerifyWithSHA1(sigbody, new SHA1CryptoServiceProvider().ComputeHash(hash));
+                _cInfo.HostKey = pk;
+            }
+            else if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.DSA) {
+                DSAPublicKey pk = ReadDSAPublicKey(re1, sigbody, hash);
+                pk.Verify(sigbody, new SHA1CryptoServiceProvider().ComputeHash(hash));
+                _cInfo.HostKey = pk;
+            }
             else
-                throw new SSHException("Bad host key algorithm " + _cInfo._algorithmForHostKeyVerification);
+                throw new SSHException("Bad host key algorithm " + _cInfo.HostKeyAlgorithm);
 
             //ask the client whether he accepts the host key
-            if (!_startedByHost && _param.KeyCheck != null && !_param.KeyCheck(_cInfo))
-                return false;
-            else
-                return true;
+            if (!_startedByHost && _param.VerifySSHHostKey != null) {
+                if (!_param.VerifySSHHostKey(_cInfo.GetSSHHostKeyInformationProvider())) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
-        private void VerifyHostKeyByRSA(SSH2DataReader pubkey, byte[] sigbody, byte[] hash) {
+        private RSAPublicKey ReadRSAPublicKey(SSH2DataReader pubkey, byte[] sigbody, byte[] hash) {
             BigInteger exp = pubkey.ReadMPInt();
             BigInteger mod = pubkey.ReadMPInt();
             Debug.Assert(pubkey.Rest == 0);
 
             RSAPublicKey pk = new RSAPublicKey(exp, mod);
-            pk.VerifyWithSHA1(sigbody, new SHA1CryptoServiceProvider().ComputeHash(hash));
-            _cInfo._hostkey = pk;
+            return pk;
         }
 
-        private void VerifyHostKeyByDSS(SSH2DataReader pubkey, byte[] sigbody, byte[] hash) {
+        private DSAPublicKey ReadDSAPublicKey(SSH2DataReader pubkey, byte[] sigbody, byte[] hash) {
             BigInteger p = pubkey.ReadMPInt();
             BigInteger q = pubkey.ReadMPInt();
             BigInteger g = pubkey.ReadMPInt();
@@ -1456,8 +1468,7 @@ namespace Granados.SSH2 {
             Debug.Assert(pubkey.Rest == 0);
 
             DSAPublicKey pk = new DSAPublicKey(p, g, q, y);
-            pk.Verify(sigbody, new SHA1CryptoServiceProvider().ComputeHash(hash));
-            _cInfo._hostkey = pk;
+            return pk;
         }
 
         private byte[] DeriveKey(BigInteger key, byte[] hash, char ch, int length) {

@@ -48,7 +48,14 @@ namespace Poderosa.Protocols {
             ITerminalParameter term = (ITerminalParameter)_destination.GetAdapter(typeof(ITerminalParameter));
             ITCPParameter tcp = (ITCPParameter)_destination.GetAdapter(typeof(ITCPParameter));
 
-            SSHConnectionParameter con = new SSHConnectionParameter();
+            SSHConnectionParameter con =
+                new SSHConnectionParameter(
+                    tcp.Destination,
+                    tcp.Port,
+                    _destination.Method,
+                    _destination.AuthenticationType,
+                    _destination.Account,
+                    _destination.PasswordOrPassphrase);
 #if DEBUG
             // con.EventTracer = new SSHDebugTracer();
 #endif
@@ -67,9 +74,11 @@ namespace Poderosa.Protocols {
             con.AgentForward = _destination.AgentForward;
             if (ProtocolsPlugin.Instance.ProtocolOptions.LogSSHEvents)
                 con.EventTracer = new SSHEventTracer(tcp.Destination);
-            if (_keycheck != null)
-                con.KeyCheck += new HostKeyCheckCallback(this.CheckKey);
-
+            if (_keycheck != null) {
+                con.VerifySSHHostKey = (info) => {
+                    return _keycheck.Vefiry(info);
+                };
+            }
 
             SSHTerminalConnection r = new SSHTerminalConnection(_destination);
             SSHConnection ssh = SSHConnection.Connect(con, r.ConnectionEventReceiver, _socket);
@@ -89,10 +98,6 @@ namespace Poderosa.Protocols {
             get {
                 return _result;
             }
-        }
-
-        private bool CheckKey(SSHConnectionInfo ci) {
-            return _keycheck.Vefiry(_destination, ci);
         }
     }
 

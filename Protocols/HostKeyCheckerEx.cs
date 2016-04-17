@@ -11,36 +11,37 @@ using System.Collections.Generic;
 using System.Text;
 
 using Granados;
+using Granados.KnownHosts;
 
 namespace Poderosa.Protocols {
     /// <summary>
     /// 
     /// </summary>
     /// <exclude/>
-    public interface ISSHHostKeyVerifier {
-        bool Verify(ISSHLoginParameter param, SSHConnectionInfo info);
+    public interface ISSHHostKeyVerifier2 {
+        bool Verify(ISSHHostKeyInformationProvider info);
     }
 
     //Extension Point
     internal class HostKeyVerifierBridge {
-        private ISSHHostKeyVerifier _verifier;
+        private ISSHHostKeyVerifier2 _verifier;
 
-        public bool Vefiry(ISSHLoginParameter param, SSHConnectionInfo info) {
+        public bool Vefiry(ISSHHostKeyInformationProvider info) {
             if (_verifier == null)
                 _verifier = FindHostKeyVerifier();
             if (_verifier == null)
                 return true; //普通KnownHostsくらいはあるだろう。エラーにすべきかもしれないが
             else
-                return _verifier.Verify(param, info);
+                return _verifier.Verify(info);
         }
 
-        private ISSHHostKeyVerifier FindHostKeyVerifier() {
-            ISSHHostKeyVerifier[] vs = (ISSHHostKeyVerifier[])ProtocolsPlugin.Instance.PoderosaWorld.PluginManager.FindExtensionPoint(ProtocolsPluginConstants.HOSTKEYCHECKER_EXTENSION).GetExtensions();
+        private ISSHHostKeyVerifier2 FindHostKeyVerifier() {
+            ISSHHostKeyVerifier2[] vs = (ISSHHostKeyVerifier2[])ProtocolsPlugin.Instance.PoderosaWorld.PluginManager.FindExtensionPoint(ProtocolsPluginConstants.HOSTKEYCHECKER_EXTENSION).GetExtensions();
             string name = PEnv.Options.HostKeyCheckerVerifierTypeName; //一応隠しpreference
 
             //何か入っていたら登録
             if (name.Length > 0) {
-                foreach (ISSHHostKeyVerifier v in vs) {
+                foreach (ISSHHostKeyVerifier2 v in vs) {
                     if (v.GetType().FullName == name)
                         return v;
                 }

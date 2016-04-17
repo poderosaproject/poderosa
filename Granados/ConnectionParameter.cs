@@ -11,244 +11,227 @@ using System;
 using System.Security.Cryptography;
 
 using Granados.PKI;
+using Granados.KnownHosts;
 
 namespace Granados {
 
     /// <summary>
-    /// Fill the properties of ConnectionParameter object before you start the connection.
+    /// SSH connection parameter.
     /// </summary>
-    /// <exclude/>
+    /// <remarks>
+    /// Fill the properties of ConnectionParameter object before you start the connection.
+    /// </remarks>
     public class SSHConnectionParameter : ICloneable {
 
-        //protocol
-        private SSHProtocol _protocol;
+        /// <summary>
+        /// Host name.
+        /// </summary>
+        public string HostName {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Port number.
+        /// </summary>
+        public int PortNumber {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// SSH Protocol version.
+        /// </summary>
         public SSHProtocol Protocol {
-            get {
-                return _protocol;
-            }
-            set {
-                _versionEOL = value == SSHProtocol.SSH1 ? "\n" : "\r\n";
-                _protocol = value;
-            }
+            get;
+            set;
         }
 
-        //algorithm
-
-        private CipherAlgorithm[] _cipherAlgorithms;
+        /// <summary>
+        /// Preferable cipher algorithms.
+        /// </summary>
         public CipherAlgorithm[] PreferableCipherAlgorithms {
-            get {
-                return _cipherAlgorithms;
-            }
-            set {
-                _cipherAlgorithms = value;
-            }
+            get;
+            set;
         }
-        private PublicKeyAlgorithm[] _hostkeyAlgorithms;
+
+        /// <summary>
+        /// Preferable host key algorithms.
+        /// </summary>
         public PublicKeyAlgorithm[] PreferableHostKeyAlgorithms {
-            get {
-                return _hostkeyAlgorithms;
-            }
-            set {
-                _hostkeyAlgorithms = value;
-            }
+            get;
+            set;
         }
 
-        //account
-
-        private AuthenticationType _authtype;
+        /// <summary>
+        /// Authentication type.
+        /// </summary>
         public AuthenticationType AuthenticationType {
-            get {
-                return _authtype;
-            }
-            set {
-                _authtype = value;
-            }
+            get;
+            set;
         }
-        private string _username;
+
+        /// <summary>
+        /// User name for login.
+        /// </summary>
         public string UserName {
-            get {
-                return _username;
-            }
-            set {
-                _username = value;
-            }
+            get;
+            set;
         }
-        private string _password;
+
+        /// <summary>
+        /// Password for login.
+        /// </summary>
         public string Password {
-            get {
-                return _password;
-            }
-            set {
-                _password = value;
-            }
+            get;
+            set;
         }
-        private string _identityFile;
+
+        /// <summary>
+        /// Identity file path.
+        /// </summary>
         public string IdentityFile {
-            get {
-                return _identityFile;
-            }
-            set {
-                _identityFile = value;
-            }
+            get;
+            set;
         }
 
-        //host
-        private HostKeyCheckCallback _keycheck;
-        public HostKeyCheckCallback KeyCheck {
-            get {
-                return _keycheck;
-            }
-            set {
-                _keycheck = value;
-            }
+        /// <summary>
+        /// Callback to verify a host key.
+        /// </summary>
+        public VerifySSHHostKeyDelegate VerifySSHHostKey {
+            get;
+            set;
         }
 
-        //terminal
-
-        private string _terminalname;
+        /// <summary>
+        /// Terminal name. (vt100, xterm, etc.)
+        /// </summary>
         public string TerminalName {
-            get {
-                return _terminalname;
-            }
-            set {
-                _terminalname = value;
-            }
+            get;
+            set;
         }
-        private int _width;
+
+        /// <summary>
+        /// Terminal columns.
+        /// </summary>
         public int TerminalWidth {
-            get {
-                return _width;
-            }
-            set {
-                _width = value;
-            }
+            get;
+            set;
         }
-        private int _height;
+
+        /// <summary>
+        /// Terminal raws.
+        /// </summary>
         public int TerminalHeight {
-            get {
-                return _height;
-            }
-            set {
-                _height = value;
-            }
+            get;
+            set;
         }
-        private int _pixelWidth;
+
+        /// <summary>
+        /// Terminal width in pixels.
+        /// </summary>
         public int TerminalPixelWidth {
-            get {
-                return _pixelWidth;
-            }
-            set {
-                _pixelWidth = value;
-            }
+            get;
+            set;
         }
-        private int _pixelHeight;
+
+        /// <summary>
+        /// Terminal height in pixels.
+        /// </summary>
         public int TerminalPixelHeight {
-            get {
-                return _pixelHeight;
-            }
-            set {
-                _pixelHeight = value;
-            }
+            get;
+            set;
         }
 
-        private bool _checkMACError;
+        /// <summary>
+        /// Whether integrity of the incoming packet is checked using MAC.
+        /// </summary>
         public bool CheckMACError {
-            get {
-                return _checkMACError;
-            }
-            set {
-                _checkMACError = value;
-            }
+            get;
+            set;
         }
 
-        //SSH2 only property
-        private int _windowsize;
+        /// <summary>
+        /// Window size of the SSH2 channel.
+        /// </summary>
+        /// <remarks>This property is used only in SSH2.</remarks>
         public int WindowSize {
-            get {
-                return _windowsize;
-            }
-            set {
-                _windowsize = value;
-            }
-        }
-        //SSH2 only property
-        private int _maxpacketsize;
-        public int MaxPacketSize {
-            get {
-                return _maxpacketsize;
-            }
-            set {
-                _maxpacketsize = value;
-            }
+            get;
+            set;
         }
 
-        //some server may expect irregular end-of-line character(s).
-        //initial value is '\n' for SSH1 and '/r/n' for SSH2
-        private string _versionEOL;
+        /// <summary>
+        /// Maximum packet size of the SSH2 connection.
+        /// </summary>
+        /// <remarks>This property is used only in SSH2.</remarks>
+        public int MaxPacketSize {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// End of line characters for terminating a version string.
+        /// </summary>
+        /// <remarks>
+        /// Some server may expect irregular end-of-line character(s).
+        /// Initial value is '\n' for SSH1 and '/r/n' for SSH2.
+        /// </remarks>
         public string VersionEOL {
             get {
-                return _versionEOL;
+                return _versionEOL ?? ((Protocol == SSHProtocol.SSH1) ? "\n" : "\r\n");
             }
             set {
                 _versionEOL = value;
             }
         }
+        private string _versionEOL;
 
-        //protocol negotiation tracer (optional)
-        private ISSHEventTracer _tracer;
+        /// <summary>
+        /// Protocol event tracer. (optional)
+        /// </summary>
         public ISSHEventTracer EventTracer {
-            get {
-                return _tracer;
-            }
-            set {
-                _tracer = value;
-            }
+            get;
+            set;
         }
 
-        //Agent forward (optional)
-        private IAgentForward _agentForward;
+        /// <summary>
+        /// Agent forward (optional)
+        /// </summary>
         public IAgentForward AgentForward {
-            get {
-                return _agentForward;
-            }
-            set {
-                _agentForward = value;
-            }
+            get;
+            set;
         }
 
-        public SSHConnectionParameter() {
-            _authtype = AuthenticationType.Password;
-            _terminalname = "vt100";
-            _width = 80;
-            _height = 25;
-            _protocol = SSHProtocol.SSH2;
-            _cipherAlgorithms = new CipherAlgorithm[] { CipherAlgorithm.AES256CTR, CipherAlgorithm.AES256, CipherAlgorithm.AES192CTR, CipherAlgorithm.AES192, CipherAlgorithm.AES128CTR, CipherAlgorithm.AES128, CipherAlgorithm.Blowfish, CipherAlgorithm.TripleDES };
-            _hostkeyAlgorithms = new PublicKeyAlgorithm[] { PublicKeyAlgorithm.DSA, PublicKeyAlgorithm.RSA };
-            _windowsize = 0x1000;
-            _maxpacketsize = 0x10000;
-            _checkMACError = true;
-            _tracer = null;
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="hostName">Host name</param>
+        /// <param name="portNumber">port number</param>
+        /// <param name="protocol">SSH protocol version</param>
+        /// <param name="authType">authentication type</param>
+        /// <param name="userName">user name for login</param>
+        /// <param name="password">password for login. pass empty string for the keyboard interactive mode.</param>
+        public SSHConnectionParameter(string hostName, int portNumber, SSHProtocol protocol, AuthenticationType authType, string userName, string password) {
+            HostName = hostName;
+            PortNumber = portNumber;
+            Protocol = protocol;
+            PreferableCipherAlgorithms = new CipherAlgorithm[] { CipherAlgorithm.AES256CTR, CipherAlgorithm.AES256, CipherAlgorithm.AES192CTR, CipherAlgorithm.AES192, CipherAlgorithm.AES128CTR, CipherAlgorithm.AES128, CipherAlgorithm.Blowfish, CipherAlgorithm.TripleDES };
+            PreferableHostKeyAlgorithms = new PublicKeyAlgorithm[] { PublicKeyAlgorithm.DSA, PublicKeyAlgorithm.RSA };
+            AuthenticationType = authType;
+            UserName = userName;
+            Password = password;
+            TerminalName = "vt100";
+            WindowSize = 0x1000;
+            MaxPacketSize = 0x10000;
+            CheckMACError = true;
         }
 
+        /// <summary>
+        /// Clone this object.
+        /// </summary>
+        /// <returns>a new object.</returns>
         public object Clone() {
-            SSHConnectionParameter n = new SSHConnectionParameter();
-            n._authtype = _authtype;
-            n._cipherAlgorithms = _cipherAlgorithms;
-            n._height = _height;
-            n._hostkeyAlgorithms = _hostkeyAlgorithms;
-            n._identityFile = _identityFile;
-            n._keycheck = _keycheck;
-            n._maxpacketsize = _maxpacketsize;
-            n._password = _password;
-            n._protocol = _protocol;
-            n._terminalname = _terminalname;
-            n._username = _username;
-            n._width = _width;
-            n._windowsize = _windowsize;
-            n._checkMACError = _checkMACError;
-            n._tracer = _tracer;
-            n._agentForward = _agentForward;
-            return n;
+            return MemberwiseClone();
         }
     }
 

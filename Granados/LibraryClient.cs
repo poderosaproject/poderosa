@@ -10,14 +10,6 @@
 using System;
 
 namespace Granados {
-    //param connectionInfo is identical to the ConnectionInfo property of the connection 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="connectionInfo"></param>
-    /// <returns></returns>
-    /// <exclude/>
-    public delegate bool HostKeyCheckCallback(SSHConnectionInfo connectionInfo);
 
     //port forwarding check result
     /// <summary>

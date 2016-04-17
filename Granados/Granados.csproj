@@ -108,9 +108,8 @@
     <Compile Include="CipherUtil.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ConnectionInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="SSH2ConnectionInfo.cs" />
+    <Compile Include="SSH1ConnectionInfo.cs" />
     <Compile Include="ConnectionParameter.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -129,6 +128,7 @@
     <Compile Include="DSA.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="KnownHosts.cs" />
     <Compile Include="LibraryClient.cs">
       <SubType>Code</SubType>
     </Compile>

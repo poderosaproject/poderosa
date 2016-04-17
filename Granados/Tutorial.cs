@@ -91,40 +91,31 @@ namespace Granados.Tutorial {
 
         //Tutorial: Connecting to a host and opening a shell
         private static void ConnectAndOpenShell() {
-            SSHConnectionParameter f = new SSHConnectionParameter();
+            SSHConnectionParameter f = new SSHConnectionParameter("172.22.1.15", 22, SSHProtocol.SSH2, AuthenticationType.PublicKey, "okajima", "aaa");
             f.EventTracer = new Tracer(); //to receive detailed events, set ISSHEventTracer
-            Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            f.Protocol = SSHProtocol.SSH2; //this sample works on both SSH1 and SSH2
-            string host_ip = "172.22.1.15"; //<--!!! [TO USERS OF Granados]
-            f.UserName = "okajima";               //<--!!! if you try this sample, edit these values for your environment!
-            string password = "aaa";
-            s.Connect(new IPEndPoint(IPAddress.Parse(host_ip), 22)); //22 is the default SSH port
-
             //former algorithm is given priority in the algorithm negotiation
             f.PreferableHostKeyAlgorithms = new PublicKeyAlgorithm[] { PublicKeyAlgorithm.RSA, PublicKeyAlgorithm.DSA };
             f.PreferableCipherAlgorithms = new CipherAlgorithm[] { CipherAlgorithm.Blowfish, CipherAlgorithm.TripleDES };
             f.WindowSize = 0x1000; //this option is ignored with SSH1
             Reader reader = new Reader(); //simple event receiver
 
-            AuthenticationType at = AuthenticationType.PublicKey;
-            f.AuthenticationType = at;
+            Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            s.Connect(new IPEndPoint(IPAddress.Parse(f.HostName), f.PortNumber)); //22 is the default SSH port
 
-            if (at == AuthenticationType.KeyboardInteractive) {
+            if (f.AuthenticationType == AuthenticationType.KeyboardInteractive) {
                 //Creating a new SSH connection over the underlying socket
                 _conn = SSHConnection.Connect(f, reader, s);
                 reader._conn = _conn;
                 Debug.Assert(_conn.AuthenticationResult == AuthenticationResult.Prompt);
-                AuthenticationResult r = ((SSH2Connection)_conn).DoKeyboardInteractiveAuth(new string[] { password });
+                AuthenticationResult r = ((SSH2Connection)_conn).DoKeyboardInteractiveAuth(new string[] { f.Password });
                 Debug.Assert(r == AuthenticationResult.Success);
             }
             else {
                 //NOTE: if you use public-key authentication, follow this sample instead of the line above:
                 //f.AuthenticationType = AuthenticationType.PublicKey;
                 f.IdentityFile = "C:\\P4\\tools\\keys\\aaa";
-                f.Password = password;
-                f.KeyCheck = delegate(SSHConnectionInfo info) {
-                    byte[] h = info.HostKeyMD5FingerPrint();
+                f.VerifySSHHostKey = (info) => {
+                    byte[] h = info.HostKeyFingerPrint;
                     foreach (byte b in h)
                         Debug.Write(String.Format("{0:x2} ", b));
                     return true;
@@ -140,7 +131,7 @@ namespace Granados.Tutorial {
             reader._pf = ch;
 
             //you can get the detailed connection information in this way:
-            SSHConnectionInfo ci = _conn.ConnectionInfo;
+            //SSHConnectionInfo ci = _conn.ConnectionInfo;
 
             //Go to sample shell
             SampleShell(reader);
@@ -148,19 +139,11 @@ namespace Granados.Tutorial {
 
         //Tutorial: port forwarding
         private static void ConnectSSH2AndPortforwarding() {
-            SSHConnectionParameter f = new SSHConnectionParameter();
+            SSHConnectionParameter f = new SSHConnectionParameter("10.10.9.8", 22, SSHProtocol.SSH2, AuthenticationType.Password, "root", "");
             f.EventTracer = new Tracer(); //to receive detailed events, set ISSHEventTracer
             Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            s.Connect(new IPEndPoint(IPAddress.Parse(f.HostName), f.PortNumber)); //22 is the default SSH port
 
-            f.Protocol = SSHProtocol.SSH1; //this sample works on both SSH1 and SSH2
-            string host_ip = "10.10.9.8"; //<--!!! [TO USERS OF Granados]
-            f.UserName = "root";          //<--!!! if you try this sample, edit these values for your environment!
-            f.Password = "";              //<--!!! 
-            s.Connect(new IPEndPoint(IPAddress.Parse(host_ip), 22)); //22 is the default SSH port
-
-            f.Protocol = SSHProtocol.SSH2;
-
-            f.AuthenticationType = AuthenticationType.Password;
             //NOTE: if you use public-key authentication, follow this sample instead of the line above:
             //  f.AuthenticationType = AuthenticationType.PublicKey;
             //  f.IdentityFile = "privatekey.bin";
@@ -219,15 +202,10 @@ namespace Granados.Tutorial {
             //string host_ip;
             //string username, password;
 
-            SSHConnectionParameter f = new SSHConnectionParameter();
+            SSHConnectionParameter f = new SSHConnectionParameter("172.22.1.2", 22, SSHProtocol.SSH2, AuthenticationType.Password, "root", "intb0bo");
             f.EventTracer = new Tracer(); //to receive detailed events, set ISSHEventTracer
             Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            f.Protocol = SSHProtocol.SSH2;
-            f.UserName = "root";          //<--!!! if you try this sample, edit these values for your environment!
-            f.Password = "intb0bo";              //<--!!! 
-            f.AuthenticationType = AuthenticationType.Password;
-            s.Connect(new IPEndPoint(IPAddress.Parse("172.22.1.2"), 22)); //22 is the default SSH port
+            s.Connect(new IPEndPoint(IPAddress.Parse(f.HostName), f.PortNumber)); //22 is the default SSH port
 
             SSHConnection conn = SSHConnection.Connect(f, new Reader(), s);
             conn.AutoDisconnect = false; //auto close is disabled for multiple scp operations
@@ -415,15 +393,10 @@ namespace Granados.Tutorial {
         }
 
         private static void AgentForward() {
-            SSHConnectionParameter f = new SSHConnectionParameter();
+            SSHConnectionParameter f = new SSHConnectionParameter("172.22.1.15", 22, SSHProtocol.SSH2, AuthenticationType.Password, "root", "");
             f.EventTracer = new Tracer(); //to receive detailed events, set ISSHEventTracer
             Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            f.Protocol = SSHProtocol.SSH2; //this sample works on both SSH1 and SSH2
-            string host_ip = "172.22.1.15"; //<--!!! [TO USERS OF Granados]
-            f.UserName = "root";               //<--!!! if you try this sample, edit these values for your environment!
-            string password = "";
-            s.Connect(new IPEndPoint(IPAddress.Parse(host_ip), 22)); //22 is the default SSH port
+            s.Connect(new IPEndPoint(IPAddress.Parse(f.HostName), f.PortNumber)); //22 is the default SSH port
 
             //former algorithm is given priority in the algorithm negotiation
             f.PreferableHostKeyAlgorithms = new PublicKeyAlgorithm[] { PublicKeyAlgorithm.RSA, PublicKeyAlgorithm.DSA };
@@ -431,10 +404,6 @@ namespace Granados.Tutorial {
             f.WindowSize = 0x1000; //this option is ignored with SSH1
             f.AgentForward = new AgentForwardClient();
             Reader reader = new Reader(); //simple event receiver
-
-            AuthenticationType at = AuthenticationType.Password;
-            f.AuthenticationType = at;
-            f.Password = password;
 
             //Creating a new SSH connection over the underlying socket
             _conn = SSHConnection.Connect(f, reader, s);

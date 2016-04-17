@@ -58,11 +58,6 @@ namespace Granados {
             get;
         }
 
-        // connection information such as algorithm names
-        public abstract SSHConnectionInfo ConnectionInfo {
-            get;
-        }
-
         ///  paramters
         public SSHConnectionParameter Param {
             get {
