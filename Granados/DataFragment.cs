@@ -415,7 +415,7 @@ namespace Granados.IO {
         }
 
         /// <summary>
-        /// Check range specified
+        /// Checks if the specified range was valid on this buffer.
         /// </summary>
         /// <param name="index">index of the data</param>
         /// <param name="length">number of bytes</param>
@@ -445,131 +445,142 @@ namespace Granados.IO {
         public DataFragment AsDataFragment() {
             return new DataFragment(_buff, _offset, _length);
         }
-    }
 
-    /// <summary>
-    /// Extension methods to write primitive data into the <see cref="ByteBuffer"/>.
-    /// </summary>
-    internal static class ByteBufferMixin {
+        #region Writer methods
 
         /// <summary>
         /// Write Byte value.
         /// </summary>
-        /// <param name="byteBuffer">buffer</param>
         /// <param name="val">the value to be written</param>
-        public static void WriteByte(this ByteBuffer byteBuffer, byte val) {
-            byteBuffer.Append(1, (buff, index) => {
-                buff[index] = val;
-            });
+        public void WriteByte(byte val) {
+            const int LENGTH = 1;
+            MakeRoom(LENGTH);
+            int index = _offset + _length;
+
+            _buff[index] = val;
+
+            _length += LENGTH;
         }
 
         /// <summary>
         /// Overwrite Byte value.
         /// </summary>
-        /// <param name="byteBuffer">buffer</param>
         /// <param name="offset">offset index of the buffer</param>
         /// <param name="val">the value to be written</param>
-        public static void OverwriteByte(this ByteBuffer byteBuffer, int offset, byte val) {
-            byteBuffer.Overwrite(offset, 1, (buff, index) => {
-                buff[index] = val;
-            });
+        public void OverwriteByte(int offset, byte val) {
+            const int LENGTH = 1;
+            CheckRange(offset, LENGTH);
+            int index = _offset + offset;
+
+            _buff[index] = val;
         }
 
         /// <summary>
         /// Write UInt16 value in network byte order.
         /// </summary>
-        /// <param name="byteBuffer">buffer</param>
         /// <param name="val">the value to be written</param>
-        public static void WriteUInt16(this ByteBuffer byteBuffer, ushort val) {
-            byteBuffer.Append(2, (buff, index) => {
-                buff[index] = (byte)(val >> 8);
-                buff[index + 1] = (byte)(val);
-            });
+        public void WriteUInt16(ushort val) {
+            const int LENGTH = 2;
+            MakeRoom(LENGTH);
+            int index = _offset + _length;
+
+            _buff[index + 0] = (byte)(val >> 8);
+            _buff[index + 1] = (byte)(val);
+
+            _length += LENGTH;
         }
 
         /// <summary>
         /// Write Int16 value in network byte order.
         /// </summary>
-        /// <param name="byteBuffer">buffer</param>
         /// <param name="val">the value to be written</param>
-        public static void WriteInt16(this ByteBuffer byteBuffer, short val) {
-            WriteUInt16(byteBuffer, (ushort)val);
+        public void WriteInt16(short val) {
+            WriteUInt16((ushort)val);
         }
 
         /// <summary>
         /// Write UInt32 value in network byte order.
         /// </summary>
-        /// <param name="byteBuffer">buffer</param>
         /// <param name="val">the value to be written</param>
-        public static void WriteUInt32(this ByteBuffer byteBuffer, uint val) {
-            byteBuffer.Append(4, (buff, index) => {
-                buff[index] = (byte)(val >> 24);
-                buff[index + 1] = (byte)(val >> 16);
-                buff[index + 2] = (byte)(val >> 8);
-                buff[index + 3] = (byte)(val);
-            });
+        public void WriteUInt32(uint val) {
+            const int LENGTH = 4;
+            MakeRoom(LENGTH);
+            int index = _offset + _length;
+
+            _buff[index + 0] = (byte)(val >> 24);
+            _buff[index + 1] = (byte)(val >> 16);
+            _buff[index + 2] = (byte)(val >> 8);
+            _buff[index + 3] = (byte)(val);
+
+            _length += LENGTH;
         }
 
         /// <summary>
         /// Overwrite UInt32 value in network byte order.
         /// </summary>
-        /// <param name="byteBuffer">buffer</param>
         /// <param name="offset">offset index of the buffer</param>
         /// <param name="val">the value to be written</param>
-        public static void OverwriteUInt32(this ByteBuffer byteBuffer, int offset, uint val) {
-            byteBuffer.Overwrite(offset, 4, (buff, index) => {
-                buff[index] = (byte)(val >> 24);
-                buff[index + 1] = (byte)(val >> 16);
-                buff[index + 2] = (byte)(val >> 8);
-                buff[index + 3] = (byte)(val);
-            });
+        public void OverwriteUInt32(int offset, uint val) {
+            const int LENGTH = 4;
+            CheckRange(offset, LENGTH);
+            int index = _offset + offset;
+
+            _buff[index + 0] = (byte)(val >> 24);
+            _buff[index + 1] = (byte)(val >> 16);
+            _buff[index + 2] = (byte)(val >> 8);
+            _buff[index + 3] = (byte)(val);
         }
 
         /// <summary>
         /// Write Int32 value in network byte order.
         /// </summary>
-        /// <param name="byteBuffer">buffer</param>
         /// <param name="val">the value to be written</param>
-        public static void WriteInt32(this ByteBuffer byteBuffer, int val) {
-            WriteUInt32(byteBuffer, (uint)val);
+        public void WriteInt32(int val) {
+            WriteUInt32((uint)val);
         }
 
         /// <summary>
         /// Write UInt64 value in network byte order.
         /// </summary>
-        /// <param name="byteBuffer">buffer</param>
         /// <param name="val">the value to be written</param>
-        public static void WriteUInt64(this ByteBuffer byteBuffer, ulong val) {
-            byteBuffer.Append(8, (buff, index) => {
-                buff[index] = (byte)(val >> 56);
-                buff[index + 1] = (byte)(val >> 48);
-                buff[index + 2] = (byte)(val >> 40);
-                buff[index + 3] = (byte)(val >> 32);
-                buff[index + 4] = (byte)(val >> 24);
-                buff[index + 5] = (byte)(val >> 16);
-                buff[index + 6] = (byte)(val >> 8);
-                buff[index + 7] = (byte)(val);
-            });
+        public void WriteUInt64(ulong val) {
+            const int LENGTH = 8;
+            MakeRoom(LENGTH);
+            int index = _offset + _length;
+
+            _buff[index + 0] = (byte)(val >> 56);
+            _buff[index + 1] = (byte)(val >> 48);
+            _buff[index + 2] = (byte)(val >> 40);
+            _buff[index + 3] = (byte)(val >> 32);
+            _buff[index + 4] = (byte)(val >> 24);
+            _buff[index + 5] = (byte)(val >> 16);
+            _buff[index + 6] = (byte)(val >> 8);
+            _buff[index + 7] = (byte)(val);
+
+            _length += LENGTH;
         }
 
         /// <summary>
         /// Write Int64 value in network byte order.
         /// </summary>
-        /// <param name="byteBuffer">buffer</param>
         /// <param name="val">the value to be written</param>
-        public static void WriteInt64(this ByteBuffer byteBuffer, long val) {
-            WriteUInt64(byteBuffer, (ulong)val);
+        public void WriteInt64(long val) {
+            WriteUInt64((ulong)val);
         }
 
         /// <summary>
         /// Write random bytes.
         /// </summary>
-        /// <param name="byteBuffer">buffer</param>
         /// <param name="length">number of bytes</param>
-        public static void WriteSecureRandomBytes(this ByteBuffer byteBuffer, int length) {
-            byteBuffer.Append(length, (buff, index) => {
-                SecureRandomBuffer.GetRandomBytes(buff, index, length);
-            });
+        public void WriteSecureRandomBytes(int length) {
+            MakeRoom(length);
+            int index = _offset + _length;
+
+            SecureRandomBuffer.GetRandomBytes(_buff, index, length);
+
+            _length += length;
         }
+
+        #endregion
     }
 }
