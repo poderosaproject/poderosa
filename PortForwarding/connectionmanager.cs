@@ -13,6 +13,7 @@ using System.Windows.Forms;
 
 using Granados;
 using Poderosa.Toolkit;
+using Granados.KnownHosts;
 
 namespace Poderosa.PortForwarding {
     //ホスト名/IPアドレスからSSHのコネクションへのマップを管理する
@@ -59,7 +60,7 @@ namespace Poderosa.PortForwarding {
             }
         }
 
-        public static SocketWithTimeout StartNewConnection(ISocketWithTimeoutClient client, ChannelProfile prof, string password, HostKeyCheckCallback keycheck) {
+        public static SocketWithTimeout StartNewConnection(ISocketWithTimeoutClient client, ChannelProfile prof, string password, VerifySSHHostKeyDelegate keycheck) {
             SocketWithTimeout swt;
             swt = new SSHConnector(prof, password, keycheck);
             /*
@@ -139,10 +140,10 @@ namespace Poderosa.PortForwarding {
 
         private ChannelProfile _profile;
         private string _password;
-        private HostKeyCheckCallback _keycheck;
+        private VerifySSHHostKeyDelegate _keycheck;
         private ChannelFactory _result;
 
-        public SSHConnector(ChannelProfile prof, string password, HostKeyCheckCallback keycheck) {
+        public SSHConnector(ChannelProfile prof, string password, VerifySSHHostKeyDelegate keycheck) {
             _profile = prof;
             _password = password;
             _keycheck = keycheck;
@@ -152,18 +153,14 @@ namespace Poderosa.PortForwarding {
         }
 
         protected override void Negotiate() {
-            SSHConnectionParameter con = new SSHConnectionParameter();
-            con.Protocol = SSHProtocol.SSH2;
-            con.UserName = _profile.SSHAccount;
-            con.Password = _password;
-            con.AuthenticationType = _profile.AuthType;
+            SSHConnectionParameter con = new SSHConnectionParameter(_host, _port, SSHProtocol.SSH2, _profile.AuthType, _profile.SSHAccount, _password);
             con.IdentityFile = _profile.PrivateKeyFile;
             con.PreferableCipherAlgorithms = SSHUtil.ParseCipherAlgorithm(Env.Options.CipherAlgorithmOrder);
             con.PreferableHostKeyAlgorithms = SSHUtil.ParsePublicKeyAlgorithm(Env.Options.HostKeyAlgorithmOrder);
             con.WindowSize = Env.Options.SSHWindowSize;
             con.CheckMACError = Env.Options.SSHCheckMAC;
             if (_keycheck != null)
-                con.KeyCheck += new HostKeyCheckCallback(this.CheckKey);
+                con.VerifySSHHostKey = this.CheckKey;
 
             _result = ChannelFactory.Create(_profile);
             SSHConnection c = SSHConnection.Connect(con, _result, _socket);
@@ -188,9 +185,9 @@ namespace Poderosa.PortForwarding {
             }
         }
 
-        private bool CheckKey(SSHConnectionInfo ci) {
+        private bool CheckKey(ISSHHostKeyInformationProvider info) {
             SetIgnoreTimeout(); //これが呼ばれるということは途中までSSHのネゴシエートができているのでタイムアウトはしないようにする
-            return _keycheck(ci);
+            return _keycheck(info);
         }
 
     }
