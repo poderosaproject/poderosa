@@ -21,6 +21,8 @@ using Granados.IO.SSH2;
 using Granados.Crypto;
 #if PODEROSA_KEYFORMAT
 using Granados.Poderosa.KeyFormat;
+using Granados.IO;
+using Granados.Mono.Math;
 #endif
 
 namespace Granados.SSH2 {
@@ -69,10 +71,27 @@ namespace Granados.SSH2 {
                 return ((DSAKeyPair)_keypair).Sign(new SHA1CryptoServiceProvider().ComputeHash(data));
         }
         public byte[] GetPublicKeyBlob() {
-            SSH2DataWriter w = new SSH2DataWriter();
-            w.WriteString(SSH2Util.PublicKeyAlgorithmName(_keypair.Algorithm));
-            _keypair.PublicKey.WriteTo(w);
-            return w.ToByteArray();
+            SSH2PayloadImageBuilder imageBuilder =
+                new SSH2PayloadImageBuilder()
+                .WriteString(SSH2Util.PublicKeyAlgorithmName(_keypair.Algorithm));
+            _keypair.PublicKey.WriteTo(new SSH2KeyWriter(imageBuilder));
+            return imageBuilder.GetBytes();
+        }
+
+        /// <summary>
+        /// Adapter class that adds <see cref="IKeyWriter"/> functionality to the <see cref="ISSH2PacketBuilder"/>.
+        /// </summary>
+        private class SSH2KeyWriter : IKeyWriter {
+
+            private readonly ISSH2PacketBuilder _builder;
+
+            public SSH2KeyWriter(ISSH2PacketBuilder builder) {
+                _builder = builder;
+            }
+
+            public void WriteBigInteger(BigInteger bi) {
+                _builder.WriteBigInteger(bi);
+            }
         }
 
 
@@ -281,11 +300,7 @@ namespace Granados.SSH2 {
             sw.Close();
         }
         private string FormatBase64EncodedPublicKeyBody() {
-            SSH2DataWriter wr = new SSH2DataWriter();
-            wr.WriteString(SSH2Util.PublicKeyAlgorithmName(_keypair.Algorithm));
-            _keypair.PublicKey.WriteTo(wr);
-
-            return Encoding.ASCII.GetString(Base64.Encode(wr.ToByteArray()));
+            return Encoding.ASCII.GetString(Base64.Encode(GetPublicKeyBlob()));
         }
 
         private static void WriteKeyFileBlock(StreamWriter sw, string data, bool escape_needed) {

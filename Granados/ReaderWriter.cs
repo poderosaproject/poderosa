@@ -138,114 +138,245 @@ namespace Granados.IO {
         }
     }
 
-    ////////////////////////////////////////////////////////////
-    /// read/write primitive types
-    /// 
+    /// <summary>
+    /// Utility class for reading fields in the SSH packet.
+    /// </summary>
     internal abstract class SSHDataReader {
 
-        protected byte[] _data;
-        protected int _offset;
-        protected int _limit;
+        protected readonly byte[] _data;
+        protected readonly int _initialIndex;
+        protected readonly int _limit;
+        protected int _currentIndex;
 
-        public SSHDataReader(byte[] image) {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="image">a byte array to be read.</param>
+        protected SSHDataReader(byte[] image) {
             _data = image;
-            _offset = 0;
+            _initialIndex = _currentIndex = 0;
             _limit = image.Length;
         }
-        public SSHDataReader(DataFragment data) {
-            Init(data);
-        }
-        public void Recycle(DataFragment data) {
-            Init(data);
-        }
-        private void Init(DataFragment data) {
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="data">a data fragment to be read.</param>
+        protected SSHDataReader(DataFragment data) {
             _data = data.Data;
-            _offset = data.Offset;
-            _limit = _offset + data.Length;
+            _initialIndex = _currentIndex = data.Offset;
+            _limit = _currentIndex + data.Length;
         }
 
-        public byte[] Image {
-            get {
-                return _data;
-            }
-        }
+        /// <summary>
+        /// Current reading position.
+        /// </summary>
         public int Offset {
             get {
-                return _offset;
+                return _currentIndex - _initialIndex;
             }
         }
 
+        /// <summary>
+        /// Number of bytes of the remaining data.
+        /// </summary>
+        public int RemainingDataLength {
+            get {
+                return _limit - _currentIndex;
+            }
+        }
+
+        /// <summary>
+        /// Boundary check.
+        /// </summary>
+        /// <param name="n">number of bytes to be read.</param>
+        private void CheckEnd(int n) {
+            if (_currentIndex + n > _limit) {
+                throw new IOException(Strings.GetString("UnexpectedEOF"));
+            }
+        }
+
+        /// <summary>
+        /// Makes a new <see cref="DataFragment"/> that represents the view of the remaining data.
+        /// </summary>
+        /// <returns>a new <see cref="DataFragment"/>.</returns>
+        public DataFragment GetRemainingDataView() {
+            return new DataFragment(_data, _currentIndex, _limit - _currentIndex);
+        }
+
+        /// <summary>
+        /// Makes a new <see cref="DataFragment"/> that represents the view of the remaining data.
+        /// </summary>
+        /// <param name="length">data length of the new view.</param>
+        /// <returns>a new <see cref="DataFragment"/>.</returns>
+        public DataFragment GetRemainingDataView(int length) {
+            if (length < 0 || length > _limit - _currentIndex) {
+                throw new ArgumentOutOfRangeException();
+            }
+            return new DataFragment(_data, _currentIndex, length);
+        }
+
+        /// <summary>
+        /// Reads a byte value.
+        /// </summary>
+        /// <returns>byte value.</returns>
+        public byte ReadByte() {
+            const int LENGTH = 1;
+            CheckEnd(LENGTH);
+            byte ret = _data[_currentIndex];
+            _currentIndex++;
+            return ret;
+        }
+
+        /// <summary>
+        /// Reads a bool value according to the SSH specification.
+        /// </summary>
+        /// <returns>a bool value.</returns>
+        public bool ReadBool() {
+            return ReadByte() != 0;
+        }
+
+        /// <summary>
+        /// Reads a Int16 value in the network byte order.
+        /// </summary>
+        /// <returns>a Int16 value.</returns>
+        public short ReadInt16() {
+            return (short)ReadUInt16();
+        }
+
+        /// <summary>
+        /// Reads a UInt16 value in the network byte order.
+        /// </summary>
+        /// <returns>a UInt16 value.</returns>
+        public ushort ReadUInt16() {
+            const int LENGTH = 2;
+            CheckEnd(LENGTH);
+            uint ret =
+                  ((uint)_data[_currentIndex] << 8)
+                | ((uint)_data[_currentIndex + 1]);
+            _currentIndex += LENGTH;
+            return (ushort)ret;
+        }
+
+        /// <summary>
+        /// Reads a Int32 value in the network byte order.
+        /// </summary>
+        /// <returns>a Int32 value.</returns>
         public int ReadInt32() {
             return (int)ReadUInt32();
         }
 
+        /// <summary>
+        /// Reads a UInt32 value in the network byte order.
+        /// </summary>
+        /// <returns>a UInt32 value.</returns>
         public uint ReadUInt32() {
-            if (_offset + 3 >= _limit)
-                throw new IOException(Strings.GetString("UnexpectedEOF"));
-
-            uint ret = (((uint)_data[_offset]) << 24) | (((uint)_data[_offset + 1]) << 16) | (((uint)_data[_offset + 2]) << 8) | (uint)_data[_offset + 3];
-
-            _offset += 4;
+            const int LENGTH = 4;
+            CheckEnd(LENGTH);
+            uint ret =
+                  ((uint)_data[_currentIndex] << 24)
+                | ((uint)_data[_currentIndex + 1] << 16)
+                | ((uint)_data[_currentIndex + 2] << 8)
+                | ((uint)_data[_currentIndex + 3]);
+            _currentIndex += LENGTH;
             return ret;
         }
 
+        /// <summary>
+        /// Reads a Int64 value in the network byte order.
+        /// </summary>
+        /// <returns>a Int64 value.</returns>
         public long ReadInt64() {
             return (long)ReadUInt64();
         }
 
+        /// <summary>
+        /// Reads a UInt64 value in the network byte order.
+        /// </summary>
+        /// <returns>a UInt64 value.</returns>
         public ulong ReadUInt64() {
-            if (_offset + 7 >= _limit)
-                throw new IOException(Strings.GetString("UnexpectedEOF"));
-
-            uint i1 = (((uint)_data[_offset]) << 24) | (((uint)_data[_offset + 1]) << 16) | (((uint)_data[_offset + 2]) << 8) | (uint)_data[_offset + 3];
-            uint i2 = (((uint)_data[_offset + 4]) << 24) | (((uint)_data[_offset + 5]) << 16) | (((uint)_data[_offset + 6]) << 8) | (uint)_data[_offset + 7];
-
-            _offset += 8;
-            return ((ulong)i1 << 32) | (ulong)i2;
+            const int LENGTH = 8;
+            CheckEnd(LENGTH);
+            uint i1 =
+                  ((uint)_data[_currentIndex] << 24)
+                | ((uint)_data[_currentIndex + 1] << 16)
+                | ((uint)_data[_currentIndex + 2] << 8)
+                | ((uint)_data[_currentIndex + 3]);
+            uint i2 =
+                  ((uint)_data[_currentIndex + 4] << 24)
+                | ((uint)_data[_currentIndex + 5] << 16)
+                | ((uint)_data[_currentIndex + 6] << 8)
+                | ((uint)_data[_currentIndex + 7]);
+            _currentIndex += LENGTH;
+            ulong ret = ((ulong)i1 << 32) | i2;
+            return ret;
         }
 
-        public byte ReadByte() {
-            if (_offset >= _limit)
-                throw new IOException(Strings.GetString("UnexpectedEOF"));
-            return _data[_offset++];
-        }
-        public bool ReadBool() {
-            return ReadByte() != 0 ? true : false;
-        }
-        /**
-        * multi-precise integer
-        */
-        public abstract BigInteger ReadMPInt();
-
-        public byte[] ReadString() {
-            int length = ReadInt32();
-            return Read(length);
-        }
-
+        /// <summary>
+        /// Reads bytes of the specified length.
+        /// </summary>
+        /// <param name="length">number of bytes.</param>
+        /// <returns>byte array.</returns>
         public byte[] Read(int length) {
+            CheckEnd(length);
             byte[] image = new byte[length];
-            if (_offset + length > _limit)
-                throw new IOException(Strings.GetString("UnexpectedEOF"));
-            Array.Copy(_data, _offset, image, 0, length);
-            _offset += length;
+            Buffer.BlockCopy(_data, _currentIndex, image, 0, length);
+            _currentIndex += length;
             return image;
         }
 
-        public byte[] ReadAll() {
-            byte[] t = new byte[_limit - _offset];
-            Array.Copy(_data, _offset, t, 0, t.Length);
-            _offset = _limit;
-            return t;
+        /// <summary>
+        /// Reads binary string according to the SSH specification.
+        /// </summary>
+        /// <returns>byte array.</returns>
+        public byte[] ReadByteString() {
+            int length = ReadInt32();
+            if (length < 0) {
+                throw new IOException("Invalid byte string length.");
+            }
+            return Read(length);
         }
 
-        public int Rest {
-            get {
-                return _limit - _offset;
-            }
+        /// <summary>
+        /// Reads ASCII string according to the SSH specification.
+        /// </summary>
+        /// <returns>string value.</returns>
+        public string ReadString() {
+            return ReadString(Encoding.ASCII);
         }
+
+        /// <summary>
+        /// Reads UTF-8 string according to the SSH specification.
+        /// </summary>
+        /// <returns>string value.</returns>
+        public string ReadUTF8String() {
+            return ReadString(Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Reads text string according to the SSH specification.
+        /// </summary>
+        /// <param name="encoding">text encoding to use for decoding.</param>
+        /// <returns>string value.</returns>
+        private string ReadString(Encoding encoding) {
+            int length = ReadInt32();
+            if (length < 0) {
+                throw new IOException("Invalid string length.");
+            }
+            CheckEnd(length);
+            string s = encoding.GetString(_data, _currentIndex, length);
+            _currentIndex += length;
+            return s;
+        }
+
+        /// <summary>
+        /// Reads a multiple precision integer according to the SSH specification.
+        /// </summary>
+        /// <returns>a multiple precision integer</returns>
+        public abstract BigInteger ReadMPInt();
     }
 
-    internal abstract class SSHDataWriter : IKeyWriter {
+    internal abstract class SSHDataWriter {
         protected SimpleMemoryStream _strm;
 
         public SSHDataWriter() {
@@ -329,71 +460,73 @@ namespace Granados.IO {
 }
 
 namespace Granados.IO.SSH1 {
-    using Granados.SSH1;
 
+    /// <summary>
+    /// Utility class for reading fields in the SSH1 packet.
+    /// </summary>
     internal class SSH1DataReader : SSHDataReader {
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="image">a byte array to be read.</param>
         public SSH1DataReader(byte[] image)
             : base(image) {
         }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="data">a data fragment to be read.</param>
         public SSH1DataReader(DataFragment data)
             : base(data) {
         }
 
-        public SSH1PacketType ReadPacketType() {
-            return (SSH1PacketType)this.ReadByte();
-        }
-
+        /// <summary>
+        /// Reads a multiple precision integer according to the SSH1 specification.
+        /// </summary>
+        /// <returns>a multiple precision integer</returns>
         public override BigInteger ReadMPInt() {
-            //first 2 bytes describes the bit count
-            int bits = (((int)_data[_offset]) << 8) + _data[_offset + 1];
-            _offset += 2;
-
-            return new BigInteger(Read((bits + 7) / 8));
+            int bits = ReadInt16();
+            int bytes = (bits + 7) / 8;
+            byte[] biData = Read(bytes);
+            return new BigInteger(biData);
         }
     }
 
-    internal class SSH1DataWriter : SSHDataWriter {
-        public override void WriteBigInteger(BigInteger data) {
-            byte[] image = data.GetBytes();
-            int len = image.Length * 8;
-
-            int a = len & 0x0000FF00;
-            a >>= 8;
-            _strm.WriteByte((byte)a);
-
-            a = len & 0x000000FF;
-            _strm.WriteByte((byte)a);
-
-            _strm.Write(image, 0, image.Length);
-        }
-    }
 }
 
 namespace Granados.IO.SSH2 {
-    using Granados.SSH2;
 
+    /// <summary>
+    /// Utility class for reading fields in the SSH2 packet.
+    /// </summary>
     internal class SSH2DataReader : SSHDataReader {
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="image">a byte array to be read.</param>
         public SSH2DataReader(byte[] image)
             : base(image) {
         }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="data">a data fragment to be read.</param>
         public SSH2DataReader(DataFragment data)
             : base(data) {
         }
 
-        //SSH2 Key File Only
-        public BigInteger ReadBigIntWithBits() {
-            int bits = ReadInt32();
-            int bytes = (bits + 7) / 8;
-            return new BigInteger(Read(bytes));
-        }
+        /// <summary>
+        /// Reads a multiple precision integer according to the SSH2 specification.
+        /// </summary>
+        /// <returns>a multiple precision integer</returns>
         public override BigInteger ReadMPInt() {
-            return new BigInteger(ReadString());
+            return new BigInteger(ReadByteString());
         }
-        public SSH2PacketType ReadPacketType() {
-            return (SSH2PacketType)ReadByte();
-        }
+
     }
 
     internal class SSH2DataWriter : SSHDataWriter {
@@ -415,8 +548,5 @@ namespace Granados.IO.SSH2 {
             Write(bi.GetBytes());
         }
 
-        public void WritePacketType(SSH2PacketType pt) {
-            WriteByte((byte)pt);
-        }
     }
 }

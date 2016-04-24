@@ -103,10 +103,8 @@ namespace Granados.Poderosa.SFTP {
         internal static SFTPClientErrorException Create(SSHDataReader dataReader) {
             uint id = (uint)dataReader.ReadInt32();
             uint code = (uint)dataReader.ReadInt32();
-            byte[] messageData = dataReader.ReadString();
-            string message = Encoding.UTF8.GetString(messageData);
-            byte[] languageTagData = dataReader.ReadString();
-            string languageTag = Encoding.ASCII.GetString(languageTagData);
+            string message = dataReader.ReadUTF8String();
+            string languageTag = dataReader.ReadString();
 
             return new SFTPClientErrorException(id, code, message, languageTag);
         }

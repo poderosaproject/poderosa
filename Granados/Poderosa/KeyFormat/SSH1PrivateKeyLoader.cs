@@ -69,15 +69,13 @@ namespace Granados.Poderosa.KeyFormat {
 
             modulus = reader.ReadMPInt();
             publicExponent = reader.ReadMPInt();
-            byte[] comment = reader.ReadString();
-            byte[] prvt = reader.ReadAll();
+            byte[] comment = reader.ReadByteString();
+            byte[] prvt = reader.GetRemainingDataView().GetBytes();
             //必要なら復号
             CipherAlgorithm algo = (CipherAlgorithm)cipher[1];
             if (algo != 0) {
                 Cipher c = CipherFactory.CreateCipher(SSHProtocol.SSH1, algo, SSH1PassphraseToKey(passphrase));
-                byte[] buf = new byte[prvt.Length];
-                c.Decrypt(prvt, 0, prvt.Length, buf, 0);
-                prvt = buf;
+                c.Decrypt(prvt, 0, prvt.Length, prvt, 0);
             }
 
             SSH1DataReader prvtreader = new SSH1DataReader(prvt);

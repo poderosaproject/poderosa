@@ -30,9 +30,6 @@ namespace Granados.SSH2 {
         private uint _sequence;
         private readonly object _transmitSync = new object();   // for keeping correct packet order
 
-        //reception util
-        private SSH2DataReader _readerForProcessPacket;
-
         private MAC _mac;
         private Cipher _cipher;
         private readonly SSH2Packetizer _packetizer;
@@ -101,13 +98,13 @@ namespace Granados.SSH2 {
 
             DataFragment response = ReceivePacket();
             SSH2DataReader re = new SSH2DataReader(response);
-            SSH2PacketType t = re.ReadPacketType();
+            SSH2PacketType t = (SSH2PacketType) re.ReadByte();
             if (t != SSH2PacketType.SSH_MSG_SERVICE_ACCEPT) {
                 TraceReceptionEvent(t.ToString(), "service request failed");
                 throw new SSHException("service establishment failed " + t);
             }
 
-            string s = Encoding.ASCII.GetString(re.ReadString());
+            string s = re.ReadString();
             if (servicename != s)
                 throw new SSHException("protocol error");
         }
@@ -190,9 +187,9 @@ namespace Granados.SSH2 {
         private AuthenticationResult ProcessAuthenticationResponse() {
             do {
                 SSH2DataReader response = new SSH2DataReader(ReceivePacket());
-                SSH2PacketType h = response.ReadPacketType();
+                SSH2PacketType h = (SSH2PacketType) response.ReadByte();
                 if (h == SSH2PacketType.SSH_MSG_USERAUTH_FAILURE) {
-                    string msg = Encoding.ASCII.GetString(response.ReadString());
+                    string msg = response.ReadString();
                     TraceReceptionEvent(h, "user authentication failed:" + msg);
                     return AuthenticationResult.Failure;
                 }
@@ -205,13 +202,13 @@ namespace Granados.SSH2 {
                     return AuthenticationResult.Success; //successfully exit
                 }
                 else if (h == SSH2PacketType.SSH_MSG_USERAUTH_INFO_REQUEST) {
-                    string name = Encoding.ASCII.GetString(response.ReadString());
-                    string inst = Encoding.ASCII.GetString(response.ReadString());
-                    string lang = Encoding.ASCII.GetString(response.ReadString());
+                    string name = response.ReadUTF8String();
+                    string inst = response.ReadUTF8String();
+                    string lang = response.ReadString();
                     int num = response.ReadInt32();
                     string[] prompts = new string[num];
                     for (int i = 0; i < num; i++) {
-                        prompts[i] = Encoding.ASCII.GetString(response.ReadString());
+                        prompts[i] = response.ReadUTF8String();
                         bool echo = response.ReadBool();
                     }
                     _eventReceiver.OnAuthenticationPrompt(prompts);
@@ -326,9 +323,9 @@ namespace Granados.SSH2 {
             int remote_channel = reader.ReadInt32();
             int window_size = reader.ReadInt32(); //skip initial window size
             int servermaxpacketsize = reader.ReadInt32();
-            string host = Encoding.ASCII.GetString(reader.ReadString());
+            string host = reader.ReadString();
             int port = reader.ReadInt32();
-            string originator_ip = Encoding.ASCII.GetString(reader.ReadString());
+            string originator_ip = reader.ReadString();
             int originator_port = reader.ReadInt32();
 
             TraceReceptionEvent("port forwarding request", String.Format("host={0} port={1} originator-ip={2} originator-port={3}", host, port, originator_ip, originator_port));
@@ -410,22 +407,22 @@ namespace Granados.SSH2 {
             while (true) {
                 DataFragment data = _packetReceiver.WaitResponse();
 
-                SSH2PacketType pt = (SSH2PacketType)data.ByteAt(0); //sneak
+                SSH2PacketType pt = (SSH2PacketType)data[0]; //sneak
 
                 //filter unnecessary packet
                 if (pt == SSH2PacketType.SSH_MSG_IGNORE) {
                     SSH2DataReader r = new SSH2DataReader(data);
-                    r.ReadPacketType(); //skip
-                    byte[] msg = r.ReadString();
+                    r.ReadByte(); //skip
+                    byte[] msg = r.ReadByteString();
                     if (_eventReceiver != null)
                         _eventReceiver.OnIgnoreMessage(msg);
                     TraceReceptionEvent(pt, msg);
                 }
                 else if (pt == SSH2PacketType.SSH_MSG_DEBUG) {
                     SSH2DataReader r = new SSH2DataReader(data);
-                    r.ReadPacketType(); //skip
+                    r.ReadByte(); //skip
                     bool f = r.ReadBool();
-                    byte[] msg = r.ReadString();
+                    byte[] msg = r.ReadByteString();
                     if (_eventReceiver != null)
                         _eventReceiver.OnDebugMessage(f, msg);
                     TraceReceptionEvent(pt, msg);
@@ -445,13 +442,8 @@ namespace Granados.SSH2 {
         }
 
         private bool ProcessPacket(DataFragment packet) {
-            if (_readerForProcessPacket == null)
-                _readerForProcessPacket = new SSH2DataReader(packet);
-            else
-                _readerForProcessPacket.Recycle(packet); //avoid 'new'
-
-            SSH2DataReader r = _readerForProcessPacket; //rename for frequently use
-            SSH2PacketType pt = r.ReadPacketType();
+            SSH2DataReader r = new SSH2DataReader(packet);
+            SSH2PacketType pt = (SSH2PacketType) r.ReadByte();
 
             if (pt == SSH2PacketType.SSH_MSG_DISCONNECT) {
                 int errorcode = r.ReadInt32();
@@ -460,19 +452,19 @@ namespace Granados.SSH2 {
             }
             else if (_waitingForPortForwardingResponse) {
                 if (pt != SSH2PacketType.SSH_MSG_REQUEST_SUCCESS)
-                    _eventReceiver.OnUnknownMessage((byte)pt, r.Image);
+                    _eventReceiver.OnUnknownMessage((byte)pt, packet.GetBytes());
                 _waitingForPortForwardingResponse = false;
                 return true;
             }
             else if (pt == SSH2PacketType.SSH_MSG_CHANNEL_OPEN) {
-                string method = Encoding.ASCII.GetString(r.ReadString());
+                string method = r.ReadString();
                 if (method == "forwarded-tcpip")
                     ProcessPortforwardingRequest(_eventReceiver, r);
                 else if (method.StartsWith("auth-agent")) //in most cases, method is "auth-agent@openssh.com"
                     ProcessAgentForwardRequest(_eventReceiver, r);
                 else {
                     SSH2DataWriter wr = new SSH2DataWriter();
-                    wr.WritePacketType(SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE);
+                    wr.WriteByte((byte)SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE);
                     wr.WriteInt32(r.ReadInt32());
                     wr.WriteInt32(0);
                     wr.WriteString("unknown method");
@@ -485,13 +477,13 @@ namespace Granados.SSH2 {
                 int local_channel = r.ReadInt32();
                 ChannelCollection.Entry e = this.ChannelCollection.FindChannelEntry(local_channel);
                 if (e != null)
-                    ((SSH2Channel)e.Channel).ProcessPacket(e.Receiver, pt, 5 + r.Rest, r);
+                    ((SSH2Channel)e.Channel).ProcessPacket(e.Receiver, pt, r);
                 else
                     Debug.WriteLine("unexpected channel pt=" + pt + " local_channel=" + local_channel.ToString());
                 return true;
             }
             else if (pt == SSH2PacketType.SSH_MSG_IGNORE) {
-                _eventReceiver.OnIgnoreMessage(r.ReadString());
+                _eventReceiver.OnIgnoreMessage(r.ReadByteString());
                 return true;
             }
             else if (_asyncKeyExchanger != null) {
@@ -505,7 +497,7 @@ namespace Granados.SSH2 {
                 return true;
             }
             else {
-                _eventReceiver.OnUnknownMessage((byte)pt, r.Image);
+                _eventReceiver.OnUnknownMessage((byte)pt, packet.GetBytes());
                 return false;
             }
         }
@@ -692,11 +684,11 @@ namespace Granados.SSH2 {
             _connection.TraceTransmissionEvent("break", "time={0}", time);
         }
 
-        internal void ProcessPacket(ISSHChannelEventReceiver receiver, SSH2PacketType pt, int data_length, SSH2DataReader re) {
+        internal void ProcessPacket(ISSHChannelEventReceiver receiver, SSH2PacketType pt, SSH2DataReader re) {
             //NOTE: the offset of 're' is next to 'receipiant channel' field
 
             if (pt == SSH2PacketType.SSH_MSG_CHANNEL_DATA || pt == SSH2PacketType.SSH_MSG_CHANNEL_EXTENDED_DATA) {
-                AdjustWindowSize(pt, data_length);
+                AdjustWindowSize(pt, re.RemainingDataLength);
             }
 
             //SSH_MSG_CHANNEL_WINDOW_ADJUST comes before the complete of channel establishment
@@ -760,17 +752,18 @@ namespace Granados.SSH2 {
             switch (pt) {
                 case SSH2PacketType.SSH_MSG_CHANNEL_DATA: {
                         int len = re.ReadInt32();
-                        receiver.OnData(re.Image, re.Offset, len);
+                        DataFragment frag = re.GetRemainingDataView(len);
+                        receiver.OnData(frag.Data, frag.Offset, frag.Length);
                     }
                     break;
                 case SSH2PacketType.SSH_MSG_CHANNEL_EXTENDED_DATA: {
                         int t = re.ReadInt32();
-                        byte[] data = re.ReadString();
+                        byte[] data = re.ReadByteString();
                         receiver.OnExtendedData(t, data);
                     }
                     break;
                 case SSH2PacketType.SSH_MSG_CHANNEL_REQUEST: {
-                        string request = Encoding.ASCII.GetString(re.ReadString());
+                        string request = re.ReadString();
                         bool reply = re.ReadBool();
                         if (request == "exit-status") {
                             int status = re.ReadInt32();
@@ -791,11 +784,15 @@ namespace Granados.SSH2 {
                     _connection.ChannelCollection.UnregisterChannelEventReceiver(_localID);
                     receiver.OnChannelClosed();
                     break;
-                case SSH2PacketType.SSH_MSG_CHANNEL_FAILURE:
-                    receiver.OnMiscPacket((byte)pt, re.Image, re.Offset, re.Rest);
+                case SSH2PacketType.SSH_MSG_CHANNEL_FAILURE: {
+                        DataFragment frag = re.GetRemainingDataView();
+                        receiver.OnMiscPacket((byte)pt, frag.Data, frag.Offset, frag.Length);
+                    }
                     break;
-                default:
-                    receiver.OnMiscPacket((byte)pt, re.Image, re.Offset, re.Rest);
+                default: {
+                        DataFragment frag = re.GetRemainingDataView();
+                        receiver.OnMiscPacket((byte)pt, frag.Data, frag.Offset, frag.Length);
+                    }
                     Debug.WriteLine("Unknown Packet " + pt);
                     break;
             }
@@ -819,7 +816,7 @@ namespace Granados.SSH2 {
                         receiver.OnChannelError(new SSHException("opening channel failed; packet type=" + pt));
                     else {
                         int errcode = reader.ReadInt32();
-                        string msg = Encoding.ASCII.GetString(reader.ReadString());
+                        string msg = reader.ReadUTF8String();
                         receiver.OnChannelError(new SSHException(msg));
                     }
                     // Close() shouldn't be called because remote channel number is not given yet.
@@ -943,7 +940,7 @@ namespace Granados.SSH2 {
                         receiver.OnChannelError(new SSHException("opening channel failed; packet type=" + pt));
                     else {
                         int errcode = reader.ReadInt32();
-                        string msg = Encoding.ASCII.GetString(reader.ReadString());
+                        string msg = reader.ReadUTF8String();
                         receiver.OnChannelError(new SSHException(msg));
                     }
                     Close();
@@ -993,7 +990,7 @@ namespace Granados.SSH2 {
                         receiver.OnChannelError(new SSHException("opening channel failed; packet type=" + pt));
                     else {
                         int errcode = reader.ReadInt32();
-                        string msg = Encoding.ASCII.GetString(reader.ReadString());
+                        string msg = reader.ReadUTF8String();
                         receiver.OnChannelError(new SSHException(msg));
                     }
                     Close();
@@ -1016,7 +1013,7 @@ namespace Granados.SSH2 {
                     else {
                         int remote_id = reader.ReadInt32();
                         int errcode = reader.ReadInt32();
-                        string msg = Encoding.ASCII.GetString(reader.ReadString());
+                        string msg = reader.ReadUTF8String();
                         receiver.OnChannelError(new SSHException(msg));
                     }
                     Close();
@@ -1209,7 +1206,7 @@ namespace Granados.SSH2 {
         private void ProcessKEXINIT(DataFragment packet) {
             SSH2DataReader re = null;
             do {
-                _serverKEXINITPayload = packet.ToNewArray();
+                _serverKEXINITPayload = packet.GetBytes();
                 re = new SSH2DataReader(_serverKEXINITPayload);
                 byte[] head = re.Read(17); //Type and cookie
                 SSH2PacketType pt = (SSH2PacketType)head[0];
@@ -1225,40 +1222,38 @@ namespace Granados.SSH2 {
                 }
             } while (true);
 
-            Encoding enc = Encoding.ASCII;
-
-            string kex = enc.GetString(re.ReadString());
+            string kex = re.ReadString();
             _cInfo.SupportedKEXAlgorithms = kex;
             _cInfo.KEXAlgorithm = DecideKexAlgorithm(kex);
 
-            string host_key = enc.GetString(re.ReadString());
+            string host_key = re.ReadString();
             _cInfo.SupportedHostKeyAlgorithms = host_key;
             _cInfo.HostKeyAlgorithm = DecideHostKeyAlgorithm(host_key);
 
-            string enc_cs = enc.GetString(re.ReadString());
+            string enc_cs = re.ReadString();
             _cInfo.SupportedEncryptionAlgorithmsClientToServer = enc_cs;
             _cInfo.OutgoingPacketCipher = DecideCipherAlgorithm(enc_cs);
 
-            string enc_sc = enc.GetString(re.ReadString());
+            string enc_sc = re.ReadString();
             _cInfo.SupportedEncryptionAlgorithmsServerToClient = enc_sc;
             _cInfo.IncomingPacketCipher = DecideCipherAlgorithm(enc_sc);
 
-            string mac_cs = enc.GetString(re.ReadString());
+            string mac_cs = re.ReadString();
             CheckAlgorithmSupport("mac", mac_cs, "hmac-sha1");
 
-            string mac_sc = enc.GetString(re.ReadString());
+            string mac_sc = re.ReadString();
             CheckAlgorithmSupport("mac", mac_sc, "hmac-sha1");
 
-            string comp_cs = enc.GetString(re.ReadString());
+            string comp_cs = re.ReadString();
             CheckAlgorithmSupport("compression", comp_cs, "none");
-            string comp_sc = enc.GetString(re.ReadString());
+            string comp_sc = re.ReadString();
             CheckAlgorithmSupport("compression", comp_sc, "none");
 
-            string lang_cs = enc.GetString(re.ReadString());
-            string lang_sc = enc.GetString(re.ReadString());
+            string lang_cs = re.ReadString();
+            string lang_sc = re.ReadString();
             bool flag = re.ReadBool();
             int reserved = re.ReadInt32();
-            Debug.Assert(re.Rest == 0);
+            Debug.Assert(re.RemainingDataLength == 0);
 
             if (_connection.IsEventTracerAvailable) {
                 StringBuilder bld = new StringBuilder();
@@ -1339,7 +1334,7 @@ namespace Granados.SSH2 {
             SSH2PacketType h;
             do {
                 re = new SSH2DataReader(packet);
-                h = re.ReadPacketType();
+                h = (SSH2PacketType) re.ReadByte();
                 if (h == SSH2PacketType.SSH_MSG_KEXDH_REPLY)
                     break; //successfully exit
                 else if (h == SSH2PacketType.SSH_MSG_IGNORE || h == SSH2PacketType.SSH_MSG_DEBUG) { //continue
@@ -1349,10 +1344,10 @@ namespace Granados.SSH2 {
                     throw new SSHException(String.Format("KeyExchange response is not KEXDH_REPLY but {0}", h));
             } while (true);
 
-            byte[] key_and_cert = re.ReadString();
+            byte[] key_and_cert = re.ReadByteString();
             BigInteger f = re.ReadMPInt();
-            byte[] signature = re.ReadString();
-            Debug.Assert(re.Rest == 0);
+            byte[] signature = re.ReadByteString();
+            Debug.Assert(re.RemainingDataLength == 0);
 
             //Round3 calc hash H
             SSH2DataWriter wr = new SSH2DataWriter();
@@ -1404,7 +1399,7 @@ namespace Granados.SSH2 {
 
         private void ProcessNEWKEYS(DataFragment packet) {
             //confirms new key
-            if (packet.Length != 1 || packet.ByteAt(0) != (byte)SSH2PacketType.SSH_MSG_NEWKEYS) {
+            if (packet.Length != 1 || packet[0] != (byte)SSH2PacketType.SSH_MSG_NEWKEYS) {
                 Monitor.Exit(_connection);
                 throw new SSHException("SSH_MSG_NEWKEYS failed");
             }
@@ -1417,16 +1412,16 @@ namespace Granados.SSH2 {
 
         private bool VerifyHostKey(byte[] K_S, byte[] signature, byte[] hash) {
             SSH2DataReader re1 = new SSH2DataReader(K_S);
-            string algorithm = Encoding.ASCII.GetString(re1.ReadString());
+            string algorithm = re1.ReadString();
             if (algorithm != SSH2Util.PublicKeyAlgorithmName(_cInfo.HostKeyAlgorithm.Value))
                 throw new SSHException("Protocol Error: Host Key Algorithm Mismatch");
 
             SSH2DataReader re2 = new SSH2DataReader(signature);
-            algorithm = Encoding.ASCII.GetString(re2.ReadString());
+            algorithm = re2.ReadString();
             if (algorithm != SSH2Util.PublicKeyAlgorithmName(_cInfo.HostKeyAlgorithm.Value))
                 throw new SSHException("Protocol Error: Host Key Algorithm Mismatch");
-            byte[] sigbody = re2.ReadString();
-            Debug.Assert(re2.Rest == 0);
+            byte[] sigbody = re2.ReadByteString();
+            Debug.Assert(re2.RemainingDataLength == 0);
 
             if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.RSA) {
                 RSAPublicKey pk = ReadRSAPublicKey(re1, sigbody, hash);
@@ -1454,7 +1449,7 @@ namespace Granados.SSH2 {
         private RSAPublicKey ReadRSAPublicKey(SSH2DataReader pubkey, byte[] sigbody, byte[] hash) {
             BigInteger exp = pubkey.ReadMPInt();
             BigInteger mod = pubkey.ReadMPInt();
-            Debug.Assert(pubkey.Rest == 0);
+            Debug.Assert(pubkey.RemainingDataLength == 0);
 
             RSAPublicKey pk = new RSAPublicKey(exp, mod);
             return pk;
@@ -1465,7 +1460,7 @@ namespace Granados.SSH2 {
             BigInteger q = pubkey.ReadMPInt();
             BigInteger g = pubkey.ReadMPInt();
             BigInteger y = pubkey.ReadMPInt();
-            Debug.Assert(pubkey.Rest == 0);
+            Debug.Assert(pubkey.RemainingDataLength == 0);
 
             DSAPublicKey pk = new DSAPublicKey(p, g, q, y);
             return pk;

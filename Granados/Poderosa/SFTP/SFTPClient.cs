@@ -205,9 +205,8 @@ namespace Granados.Poderosa.SFTP {
 
                             result[0] = true;   // OK, received SSH_FXP_VERSION
 
-                            while (dataReader.Rest > 4) {
-                                byte[] extensionData = dataReader.ReadString();
-                                string extensionText = Encoding.ASCII.GetString(extensionData);
+                            while (dataReader.RemainingDataLength > 4) {
+                                string extensionText = dataReader.ReadUTF8String();
                                 Debug.WriteLine("SFTP: SSH_FXP_VERSION => " + extensionText);
                             }
 
@@ -809,7 +808,7 @@ namespace Granados.Poderosa.SFTP {
                         else if (packetType == SFTPPacketType.SSH_FXP_DATA) {
                             uint id = dataReader.ReadUInt32();
                             if (id == requestId) {
-                                data = dataReader.ReadString();
+                                data = dataReader.ReadByteString();
                                 result[0] = true;   // OK, received SSH_FXP_DATA
                                 return true;    // processed
                             }
@@ -911,9 +910,9 @@ namespace Granados.Poderosa.SFTP {
         }
 
         private SFTPFileInfo ReadFileInfo(SSHDataReader dataReader, Encoding encoding) {
-            byte[] fileNameData = dataReader.ReadString();
+            byte[] fileNameData = dataReader.ReadByteString();
             string fileName = encoding.GetString(fileNameData);
-            byte[] longNameData = dataReader.ReadString();
+            byte[] longNameData = dataReader.ReadByteString();
             string longName = encoding.GetString(longNameData);
 
             SFTPFileAttributes attributes = ReadFileAttributes(dataReader);
@@ -978,7 +977,7 @@ namespace Granados.Poderosa.SFTP {
                         else if (packetType == SFTPPacketType.SSH_FXP_HANDLE) {
                             uint id = dataReader.ReadUInt32();
                             if (id == requestId) {
-                                handle = dataReader.ReadString();
+                                handle = dataReader.ReadByteString();
                                 return true;    // processed
                             }
                         }

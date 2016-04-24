@@ -84,42 +84,42 @@ namespace Granados.Poderosa.KeyFormat {
             if (magic != MAGIC)
                 throw new SSHException(Strings.GetString("NotValidPrivateKeyFile") + " (magic code unmatched)");
             int privateKeyLen = reader.ReadInt32();
-            string type = Encoding.ASCII.GetString(reader.ReadString());
+            string type = reader.ReadString();
 
-            string ciphername = Encoding.ASCII.GetString(reader.ReadString());
+            string ciphername = reader.ReadString();
             int bufLen = reader.ReadInt32();
             if (ciphername != "none") {
                 CipherAlgorithm algo = CipherFactory.SSH2NameToAlgorithm(ciphername);
                 byte[] key = SSH2UserAuthKey.PassphraseToKey(passphrase, CipherFactory.GetKeySize(algo));
                 Cipher c = CipherFactory.CreateCipher(SSHProtocol.SSH2, algo, key);
-                byte[] tmp = new Byte[reader.Image.Length - reader.Offset];
-                c.Decrypt(reader.Image, reader.Offset, reader.Image.Length - reader.Offset, tmp, 0);
+                byte[] tmp = new Byte[keydata.Length - reader.Offset];
+                c.Decrypt(keydata, reader.Offset, keydata.Length - reader.Offset, tmp, 0);
                 reader = new SSH2DataReader(tmp);
             }
 
             int parmLen = reader.ReadInt32();
-            if (parmLen < 0 || parmLen > reader.Rest)
+            if (parmLen < 0 || parmLen > reader.RemainingDataLength)
                 throw new SSHException(Strings.GetString("WrongPassphrase"));
 
             if (type.IndexOf("if-modn") != -1) {
                 //mindterm mistaken this order of BigIntegers
-                BigInteger e = reader.ReadBigIntWithBits();
-                BigInteger d = reader.ReadBigIntWithBits();
-                BigInteger n = reader.ReadBigIntWithBits();
-                BigInteger u = reader.ReadBigIntWithBits();
-                BigInteger p = reader.ReadBigIntWithBits();
-                BigInteger q = reader.ReadBigIntWithBits();
+                BigInteger e = ReadBigIntWithBits(reader);
+                BigInteger d = ReadBigIntWithBits(reader);
+                BigInteger n = ReadBigIntWithBits(reader);
+                BigInteger u = ReadBigIntWithBits(reader);
+                BigInteger p = ReadBigIntWithBits(reader);
+                BigInteger q = ReadBigIntWithBits(reader);
                 keyPair = new RSAKeyPair(e, d, n, u, p, q);
             }
             else if (type.IndexOf("dl-modp") != -1) {
                 if (reader.ReadInt32() != 0)
                     throw new SSHException(Strings.GetString("UnsupportedPrivateKeyFormat")
                             + " (" + Strings.GetString("Reason_UnsupportedDSAKeyFormat") + ")");
-                BigInteger p = reader.ReadBigIntWithBits();
-                BigInteger g = reader.ReadBigIntWithBits();
-                BigInteger q = reader.ReadBigIntWithBits();
-                BigInteger y = reader.ReadBigIntWithBits();
-                BigInteger x = reader.ReadBigIntWithBits();
+                BigInteger p = ReadBigIntWithBits(reader);
+                BigInteger g = ReadBigIntWithBits(reader);
+                BigInteger q = ReadBigIntWithBits(reader);
+                BigInteger y = ReadBigIntWithBits(reader);
+                BigInteger x = ReadBigIntWithBits(reader);
                 keyPair = new DSAKeyPair(p, g, q, y, x);
             }
             else
@@ -131,6 +131,16 @@ namespace Granados.Poderosa.KeyFormat {
             return new StreamReader(mem, Encoding.ASCII);
         }
 
+        /// <summary>
+        /// Reads a multiple precision integer.
+        /// </summary>
+        /// <returns>a multiple precision integer</returns>
+        private BigInteger ReadBigIntWithBits(SSH2DataReader reader) {
+            int bits = reader.ReadInt32();
+            int bytes = (bits + 7) / 8;
+            byte[] biData = reader.Read(bytes);
+            return new BigInteger(biData);
+        }
     }
 
 }

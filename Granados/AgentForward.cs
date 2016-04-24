@@ -141,8 +141,8 @@ namespace Granados {
             TransmitWriter(wr);
         }
         private void SendSign(SSH2DataReader r) {
-            byte[] blob = r.ReadString();
-            byte[] data = r.ReadString();
+            byte[] blob = r.ReadByteString();
+            byte[] data = r.ReadByteString();
             //Debug.WriteLine(String.Format("SignRequest blobsize={0} datasize={1}", blob.Length, data.Length));
 
             SSH2UserAuthKey[] keys = _client.GetAvailableSSH2UserAuthKeys();

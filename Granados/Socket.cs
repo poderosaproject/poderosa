@@ -584,7 +584,7 @@ namespace Granados.IO {
         private void ReceivingThread() {
             try {
                 while (true) {
-                    int n = _socket.Receive(_data.Data, 0, _data.Capacity, SocketFlags.None);
+                    int n = _socket.Receive(_data.Data, 0, _data.Data.Length, SocketFlags.None);
                     if (n > 0) {
                         _data.SetLength(0, n);
                         _handler.OnData(_data);

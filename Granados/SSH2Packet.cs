@@ -347,10 +347,10 @@ namespace Granados.SSH2 {
             _onDequeued = onDequeued;
         }
 
-        public override DataFragment Isolate() {
+        public override DataFragment Duplicate() {
             // The new instance returned from this method will be queued into the packet queue.
             // Need to pass delegate object to the new instance to process "dequeued" event.
-            DataFragment newData = base.Isolate();
+            DataFragment newData = base.Duplicate();
             SSH2MsgNewKeys newMsgNewKeys = new SSH2MsgNewKeys(newData, _onDequeued);
             _onDequeued = null;
             return newMsgNewKeys;
@@ -510,7 +510,7 @@ namespace Granados.SSH2 {
         /// <param name="packet">a SSH packet</param>
         /// <returns>true if a SSH packet is SSH_MSG_NEWKEYS.</returns>
         private bool IsMsgNewKeys(DataFragment packet) {
-            return packet.Length >= 1 && packet.ByteAt(0) == (byte)SSH2PacketType.SSH_MSG_NEWKEYS;
+            return packet.Length >= 1 && packet[0] == (byte)SSH2PacketType.SSH_MSG_NEWKEYS;
         }
 
         /// <summary>

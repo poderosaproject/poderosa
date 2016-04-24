@@ -22,118 +22,124 @@ namespace Granados.IO {
     /// </summary>
     /// <exclude/>
     public class DataFragment {
-        private byte[] _data;
+
+        private readonly byte[] _data;
         private int _offset;
         private int _length;
 
-        public DataFragment(byte[] data, int offset, int length) {
-            Init(data, offset, length);
-        }
-        public DataFragment(int capacity) {
-            _data = new byte[capacity];
-            _offset = 0;
-            _length = 0;
+        /// <summary>
+        /// Constructor for assembly-internal use.
+        /// </summary>
+        /// <param name="capacity"></param>
+        internal DataFragment(int capacity)
+            : this(new byte[capacity], 0, 0) {
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="data">a byte array that contains the data that this object represents.</param>
+        /// <param name="offset">start index of the data that this object represents.</param>
+        /// <param name="length">number of bytes of the data that this object represents.</param>
+        public DataFragment(byte[] data, int offset, int length) {
+            _data = data;
+            _offset = offset;
+            _length = length;
+        }
+
+        /// <summary>
+        /// Number of bytes.
+        /// </summary>
         public int Length {
             get {
                 return _length;
             }
         }
-        public int Capacity {
-            get {
-                return _data.Length;
-            }
-        }
+
+        /// <summary>
+        /// Start index in <see cref="Data"/>.
+        /// </summary>
         public int Offset {
             get {
                 return _offset;
             }
         }
+
+        /// <summary>
+        /// A byte array that contains the data that this object represents.
+        /// Actual data are the bytes in the range of Data[Offset] .. Data[Offset + Length - 1].
+        /// </summary>
         public byte[] Data {
             get {
                 return _data;
             }
         }
 
-        public byte ByteAt(int offset) {
-            return _data[_offset + offset];
-        }
-
-        public void Append(byte[] data, int offset, int length) {
-            if (_length == 0) {
-                _offset = 0;
+        /// <summary>
+        /// Indexer
+        /// </summary>
+        /// <param name="index">index.</param>
+        /// <returns>a byte value at the index.</returns>
+        /// <exception cref="IndexOutOfRangeException">invalid index.</exception>
+        public byte this[int index] {
+            get {
+                if (index < 0 || index >= _length) {
+                    throw new IndexOutOfRangeException();
+                }
+                return _data[_offset + index];
             }
-
-            int dataSize = _offset + _length;
-            AssureCapacity(dataSize + length);
-            Buffer.BlockCopy(data, offset, _data, dataSize, length);
-            _length += length;
         }
 
-        public void Append(DataFragment data) {
-            Append(data.Data, data.Offset, data.Length);
+        /// <summary>
+        /// An alias of <see cref="Duplicate"/>.
+        /// </summary>
+        /// <returns>a new instance that has the duplicated bytes.</returns>
+        public DataFragment Isolate() {
+            return Duplicate();
         }
 
-        //reuse this instance
-        public void Init(byte[] data, int offset, int length) {
-            _data = data;
+        /// <summary>
+        /// Duplicate data.
+        /// </summary>
+        /// <returns>a new instance that has the duplicated bytes.</returns>
+        public virtual DataFragment Duplicate() {
+            byte[] data = GetBytes();
+            return new DataFragment(data, 0, data.Length);
+        }
+
+        /// <summary>
+        /// Set offset and length. (assembly-internal use only)
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <param name="length"></param>
+        internal void SetLength(int offset, int length) {
+            if (offset + length > _data.Length) {
+                throw new ArgumentOutOfRangeException();
+            }
             _offset = offset;
             _length = length;
         }
 
-        //clear
-        public void Clear() {
-            _offset = 0;
-            _length = 0;
+        /// <summary>
+        /// Get a copy of the data.
+        /// </summary>
+        /// <returns>a new byte array.</returns>
+        public byte[] GetBytes() {
+            byte[] data = new byte[_length];
+            Buffer.BlockCopy(_data, _offset, data, 0, _length);
+            return data;
         }
 
-        public virtual DataFragment Isolate() {
-            int newcapacity = RoundUp(_length);
-            byte[] t = new byte[newcapacity];
-            Buffer.BlockCopy(_data, _offset, t, 0, _length);
-            DataFragment f = new DataFragment(t, 0, _length);
-            return f;
-        }
-
-        //be careful!
-        public void Consume(int length) {
-            _offset += length;
-            _length -= length;
-            Debug.Assert(_length >= 0);
-        }
-        //be careful!
-        public void SetLength(int offset, int length) {
-            _offset = offset;
-            _length = length;
-            Debug.Assert(_offset + _length <= this.Capacity);
-        }
-
-        public void AssureCapacity(int size) {
-            size = RoundUp(size);
-            if (_data.Length < size) {
-                byte[] t = new byte[size];
-                Buffer.BlockCopy(_data, 0, t, 0, _data.Length);
-                _data = t;
+        /// <summary>
+        /// Make another view of this instance.
+        /// </summary>
+        /// <param name="startIndex">start index for the new view.</param>
+        public DataFragment MakeView(int startIndex) {
+            if (startIndex < 0 || startIndex > _length) {
+                throw new ArgumentOutOfRangeException();
             }
-        }
-
-        public byte[] ToNewArray() {
-            byte[] t = new byte[_length];
-            Buffer.BlockCopy(_data, _offset, t, 0, _length);
-            return t;
-        }
-
-        private static int RoundUp(int size) {
-            if (size <= 16)
-                return 16;
-            size--;
-            size |= size >> 1;
-            size |= size >> 2;
-            size |= size >> 4;
-            size |= size >> 8;
-            size |= size >> 16;
-            return size + 1;
+            DataFragment newInstance = new DataFragment(_data, _offset + startIndex, _length - startIndex);
+            return newInstance;
         }
     }
 

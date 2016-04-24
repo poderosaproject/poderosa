@@ -130,8 +130,8 @@ namespace Granados.Poderosa.KeyFormat {
 
             if (keyType == KeyType.RSA) {
                 SSH2DataReader reader = new SSH2DataReader(publicBlob);
-                byte[] magic = reader.ReadString();
-                if (!ByteArrayUtil.AreEqual(magic, Encoding.ASCII.GetBytes("ssh-rsa")))
+                string magic = reader.ReadString();
+                if (magic != "ssh-rsa")
                     throw new SSHException(Strings.GetString("NotValidPrivateKeyFile") + " (missing magic)");
 
                 BigInteger e = reader.ReadMPInt();
@@ -149,8 +149,8 @@ namespace Granados.Poderosa.KeyFormat {
             }
             else if (keyType == KeyType.DSA) {
                 SSH2DataReader reader = new SSH2DataReader(publicBlob);
-                byte[] magic = reader.ReadString();
-                if (!ByteArrayUtil.AreEqual(magic, Encoding.ASCII.GetBytes("ssh-dss")))
+                string magic = reader.ReadString();
+                if (magic != "ssh-dss")
                     throw new SSHException(Strings.GetString("NotValidPrivateKeyFile") + " (missing magic)");
 
                 BigInteger p = reader.ReadMPInt();
