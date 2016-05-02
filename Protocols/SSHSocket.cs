@@ -19,6 +19,7 @@ using Poderosa.Util;
 
 using Granados;
 using Granados.SSH2;
+using Granados.IO;
 
 namespace Poderosa.Protocols {
     //SSHの入出力系
@@ -236,22 +237,22 @@ namespace Poderosa.Protocols {
         public void OnChannelEOF() {
             OnNormalTerminationCore();
         }
-        public void OnData(byte[] data, int offset, int length) {
+        public void OnData(DataFragment data) {
             if (_callback == null) { //RepeatAsyncReadが呼ばれる前のデータを集めておく
                 lock (this) {
                     if (_buffer == null)
                         _buffer = new MemoryStream(0x100);
-                    _buffer.Write(data, offset, length);
+                    _buffer.Write(data.Data, data.Offset, data.Length);
                 }
             }
             else {
-                _data.Set(data, offset, length);
+                _data.Set(data.Data, data.Offset, data.Length);
                 _callback.OnReception(_data);
             }
         }
-        public void OnExtendedData(int type, byte[] data) {
+        public void OnExtendedData(uint type, DataFragment data) {
         }
-        public void OnMiscPacket(byte type, byte[] data, int offset, int length) {
+        public void OnMiscPacket(byte type, DataFragment data) {
             if (_waitingSendBreakReply) {
                 _waitingSendBreakReply = false;
                 if (type == (byte)Granados.SSH2.SSH2PacketType.SSH_MSG_CHANNEL_FAILURE)

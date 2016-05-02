@@ -8,6 +8,7 @@
  $Id: LibraryClient.cs,v 1.4 2011/10/27 23:21:56 kzmi Exp $
 */
 using System;
+using Granados.IO;
 
 namespace Granados {
 
@@ -74,7 +75,7 @@ namespace Granados {
         /// <summary>
         /// Notifies that an exception has occurred. 
         /// </summary>
-        /// <param name="error">exception obuject</param>
+        /// <param name="error">exception object</param>
         void OnError(Exception error);
 
         /// <summary>
@@ -116,15 +117,47 @@ namespace Granados {
     /// <summary>
     /// Channel specific receiver 
     /// </summary>
-    /// <exclude/>
     public interface ISSHChannelEventReceiver {
-        void OnData(byte[] data, int offset, int length);
-        void OnExtendedData(int type, byte[] data);
+        /// <summary>
+        /// Notifies received channel data. (SSH_MSG_CHANNEL_DATA)
+        /// </summary>
+        /// <param name="data">data fragment</param>
+        void OnData(DataFragment data);
+
+        /// <summary>
+        /// Notifies received extended channel data. (SSH_MSG_CHANNEL_EXTENDED_DATA)
+        /// </summary>
+        /// <param name="type">data type code. (e.g. SSH_EXTENDED_DATA_STDERR)</param>
+        /// <param name="data">data fragment</param>
+        void OnExtendedData(uint type, DataFragment data);
+
+        /// <summary>
+        /// Notifies that the channel has been closed by the peer. (SSH_MSG_CHANNEL_CLOSE)
+        /// </summary>
         void OnChannelClosed();
+
+        /// <summary>
+        /// Notifies SSH_MSG_CHANNEL_EOF.
+        /// </summary>
         void OnChannelEOF();
+
+        /// <summary>
+        /// Notifies that an exception has occurred.
+        /// </summary>
+        /// <param name="error">exception object</param>
         void OnChannelError(Exception error);
+
+        /// <summary>
+        /// Notifies that the channel has been established.
+        /// </summary>
         void OnChannelReady();
-        void OnMiscPacket(byte packet_type, byte[] data, int offset, int length);
+
+        /// <summary>
+        /// Notifies unhandled packet.
+        /// </summary>
+        /// <param name="packetType">a message number</param>
+        /// <param name="data">packet image excluding message number field and channel number field.</param>
+        void OnMiscPacket(byte packetType, DataFragment data);
     }
 
 }

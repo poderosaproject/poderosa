@@ -1125,14 +1125,14 @@ namespace Granados.Poderosa.SFTP {
 
         #region ISSHChannelEventReceiver
 
-        public void OnData(byte[] data, int offset, int length) {
+        public void OnData(DataFragment data) {
 #if DUMP_PACKET
             Dump("SFTP: OnData", data, offset, length);
 #endif
             DataFragment dataFragment;
             if (_isDataIncomplete) {
                 // append to buffer
-                _dataBuffer.Write(data, offset, length);
+                _dataBuffer.Write(data);
 
                 if (_dataTotal == 0) {  // not determined yet
                     if (_dataBuffer.Length < 4)
@@ -1148,23 +1148,23 @@ namespace Granados.Poderosa.SFTP {
                 dataFragment = new DataFragment(_dataBuffer.UnderlyingBuffer, 0, (int)_dataBuffer.Length);
             }
             else {
-                if (length < 4) {
+                if (data.Length < 4) {
                     _dataBuffer.Reset();
-                    _dataBuffer.Write(data, offset, length);
+                    _dataBuffer.Write(data);
                     _isDataIncomplete = true;
                     _dataTotal = 0; // determine later...
                     return;
                 }
 
-                int total = SSHUtil.ReadInt32(data, offset);
-                if (length - 4 < total) {
+                int total = SSHUtil.ReadInt32(data.Data, data.Offset);
+                if (data.Length - 4 < total) {
                     _dataBuffer.Reset();
-                    _dataBuffer.Write(data, offset, length);
+                    _dataBuffer.Write(data);
                     _isDataIncomplete = true;
                     _dataTotal = total;
                     return;
                 }
-                dataFragment = new DataFragment(data, offset, length);
+                dataFragment = data;
             }
 
             SSH2DataReader reader = new SSH2DataReader(dataFragment);
@@ -1195,7 +1195,7 @@ namespace Granados.Poderosa.SFTP {
             // FIXME: invalid packet should be alerted
         }
 
-        public void OnExtendedData(int type, byte[] data) {
+        public void OnExtendedData(uint type, DataFragment data) {
 #if DUMP_PACKET
             Dump("SFTP: OnExtendedData: " + type, data, 0, data.Length);
 #endif
@@ -1234,7 +1234,7 @@ namespace Granados.Poderosa.SFTP {
             }
         }
 
-        public void OnMiscPacket(byte packet_type, byte[] data, int offset, int length) {
+        public void OnMiscPacket(byte packetType, DataFragment data) {
 #if DUMP_PACKET
             Dump("SFTP: OnMiscPacket: " + packet_type, data, offset, length);
 #endif
@@ -1250,6 +1250,11 @@ namespace Granados.Poderosa.SFTP {
         }
 
 #if DUMP_PACKET
+        // for debug
+        private void Dump(string caption, DataFragment data) {
+            Dump(caption, data.Data, data.Offset, data.Length);
+        }
+
         // for debug
         private void Dump(string caption, byte[] data, int offset, int length) {
             StringBuilder s = new StringBuilder();

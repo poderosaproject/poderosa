@@ -498,18 +498,20 @@ namespace Granados.SSH1 {
                     case SSH1PacketType.SSH_SMSG_STDOUT_DATA: {
                             int len = re.ReadInt32();
                             DataFragment frag = re.GetRemainingDataView(len);
-                            _channel_collection.FindChannelEntry(_shellID).Receiver.OnData(frag.Data, frag.Offset, frag.Length);
+                            _channel_collection.FindChannelEntry(_shellID).Receiver.OnData(frag);
                         }
                         break;
                     case SSH1PacketType.SSH_SMSG_STDERR_DATA: {
-                            _channel_collection.FindChannelEntry(_shellID).Receiver.OnExtendedData((int)SSH1PacketType.SSH_SMSG_STDERR_DATA, re.ReadByteString());
+                            int len = re.ReadInt32();
+                            DataFragment frag = re.GetRemainingDataView(len);
+                            _channel_collection.FindChannelEntry(_shellID).Receiver.OnExtendedData((uint)pt, frag);
                         }
                         break;
                     case SSH1PacketType.SSH_MSG_CHANNEL_DATA: {
                             int channel = re.ReadInt32();
                             int len = re.ReadInt32();
                             DataFragment frag = re.GetRemainingDataView(len);
-                            _channel_collection.FindChannelEntry(channel).Receiver.OnData(frag.Data, frag.Offset, frag.Length);
+                            _channel_collection.FindChannelEntry(channel).Receiver.OnData(frag);
                         }
                         break;
                     case SSH1PacketType.SSH_MSG_PORT_OPEN:
@@ -679,9 +681,9 @@ namespace Granados.SSH1 {
 
     //if port forwardings are performed without a shell, we use SSH1DummyChannel to receive shell data
     internal class SSH1DummyReceiver : ISSHChannelEventReceiver {
-        public void OnData(byte[] data, int offset, int length) {
+        public void OnData(DataFragment data) {
         }
-        public void OnExtendedData(int type, byte[] data) {
+        public void OnExtendedData(uint type, DataFragment data) {
         }
         public void OnChannelClosed() {
         }
@@ -691,7 +693,7 @@ namespace Granados.SSH1 {
         }
         public void OnChannelError(Exception error) {
         }
-        public void OnMiscPacket(byte packet_type, byte[] data, int offset, int length) {
+        public void OnMiscPacket(byte packetType, DataFragment data) {
         }
     }
 }

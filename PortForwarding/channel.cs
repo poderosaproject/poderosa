@@ -12,6 +12,7 @@ using System.Threading;
 using System.Text;
 
 using Granados;
+using Granados.IO;
 
 namespace Poderosa.PortForwarding {
     internal class SynchronizedSSHChannel {
@@ -387,10 +388,10 @@ namespace Poderosa.PortForwarding {
             _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(this.OnSocketData), null);
         }
 
-        public void OnData(byte[] data, int offset, int length) {
+        public void OnData(DataFragment data) {
             //Debug.WriteLine(String.Format("OnSSHData ch={0} len={1}", _channel.LocalChannelID, length));
             if (!_socket.ShuttedDownSend)
-                _socket.Send(data, offset, length, SocketFlags.None);
+                _socket.Send(data.Data, data.Offset, data.Length, SocketFlags.None);
         }
 
         public void OnChannelError(Exception error) {
@@ -439,10 +440,10 @@ namespace Poderosa.PortForwarding {
             _channelReady.Set();
         }
 
-        public void OnExtendedData(int type, byte[] data) {
+        public void OnExtendedData(uint type, DataFragment data) {
 
         }
-        public void OnMiscPacket(byte type, byte[] data, int offset, int length) {
+        public void OnMiscPacket(byte type, DataFragment data) {
         }
 
         private void WriteChannelCloseLog() {

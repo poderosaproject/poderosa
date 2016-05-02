@@ -433,8 +433,8 @@ namespace Granados.Tutorial {
         public SSHConnection _conn;
         public bool _ready;
 
-        public void OnData(byte[] data, int offset, int length) {
-            System.Console.Write(Encoding.ASCII.GetString(data, offset, length));
+        public void OnData(DataFragment data) {
+            System.Console.Write(Encoding.ASCII.GetString(data.Data, data.Offset, data.Length));
         }
         public void OnDebugMessage(bool alwaysDisplay, string message) {
             Debug.WriteLine("DEBUG: " + message);
@@ -458,7 +458,7 @@ namespace Granados.Tutorial {
             _pf.Close();
             Debug.WriteLine("Channel EOF");
         }
-        public void OnExtendedData(int type, byte[] data) {
+        public void OnExtendedData(uint type, DataFragment data) {
             Debug.WriteLine("EXTENDED DATA");
         }
         public void OnConnectionClosed() {
@@ -473,7 +473,7 @@ namespace Granados.Tutorial {
         public void OnChannelError(Exception error) {
             Debug.WriteLine("Channel ERROR: " + error.Message);
         }
-        public void OnMiscPacket(byte type, byte[] data, int offset, int length) {
+        public void OnMiscPacket(byte type, DataFragment data) {
         }
         public PortForwardingCheckResult CheckPortForwardingRequest(string host, int port, string originator_host, int originator_port) {
             PortForwardingCheckResult r = new PortForwardingCheckResult();

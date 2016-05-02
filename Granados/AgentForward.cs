@@ -76,8 +76,8 @@ namespace Granados {
             _channel = channel;
         }
 
-        public void OnData(byte[] data, int offset, int length) {
-            _buffer.Write(data, offset, length);
+        public void OnData(DataFragment data) {
+            _buffer.Write(data);
             int expectedLength = SSHUtil.ReadInt32(_buffer.UnderlyingBuffer, 0);
             if (expectedLength + 4 <= _buffer.Length) {
                 SSH2DataReader r = new SSH2DataReader(new DataFragment(_buffer.UnderlyingBuffer, 4, _buffer.Length - 4));
@@ -100,7 +100,7 @@ namespace Granados {
             }
         }
 
-        public void OnExtendedData(int type, byte[] data) {
+        public void OnExtendedData(uint type, DataFragment data) {
         }
 
         public void OnChannelClosed() {
@@ -124,7 +124,7 @@ namespace Granados {
         public void OnChannelReady() {
         }
 
-        public void OnMiscPacket(byte packet_type, byte[] data, int offset, int length) {
+        public void OnMiscPacket(byte packetType, DataFragment data) {
         }
 
         private void SendKeyList() {

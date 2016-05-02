@@ -3,6 +3,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Threading;
 using System.Text;
+using Granados.IO;
 
 namespace Granados {
 
@@ -232,7 +233,7 @@ namespace Granados {
         public abstract void Run(SSHChannel channel); //start scp operation
 
         //main data handler
-        public abstract void OnData(byte[] data, int offset, int length);
+        public abstract void OnData(DataFragment data);
 
         public void OnChannelClosed() {
             Debug.WriteLine("Channel closed");
@@ -242,9 +243,7 @@ namespace Granados {
             _channel.Close();
             Debug.WriteLine("Channel EOF");
         }
-        public void OnExtendedData(int type, byte[] data) {
-            string s = Encoding.ASCII.GetString(data);
-
+        public void OnExtendedData(uint type, DataFragment data) {
             Debug.WriteLine("EXTENDED DATA");
 
             // TODO: 
@@ -258,7 +257,7 @@ namespace Granados {
         public void OnChannelError(Exception error) {
             Debug.WriteLine("Channel ERROR: " + error.Message);
         }
-        public void OnMiscPacket(byte type, byte[] data, int offset, int length) {
+        public void OnMiscPacket(byte type, DataFragment data) {
         }
 
     }
@@ -285,16 +284,16 @@ namespace Granados {
             SendResponse(); //これでやりとりがはじまる
         }
 
-        public override void OnData(byte[] data, int offset, int length) {
+        public override void OnData(DataFragment data) {
             // ローカルのファイルおよびメモリへ書き込む
             try {
                 if (_state == State.WaitingFileInfo) {
-                    ParseFileInfo(Encoding.ASCII.GetString(data, offset, length));
+                    ParseFileInfo(Encoding.ASCII.GetString(data.Data, data.Offset, data.Length));
                     if (_state == State.ReceivingContent)
                         SendResponse();
                 }
                 else if (_state == State.ReceivingContent) {
-                    ProcessData(data, offset, length);
+                    ProcessData(data);
                     if (_state == State.Completed) {
                         SendResponse();
                         SuccessfullyExit();
@@ -333,17 +332,18 @@ namespace Granados {
             }
         }
 
-        private void ProcessData(byte[] data, int offset, int length) {
-            int next_processed = _processedLength + length;
-            if (next_processed > _totalLength) { //at the end of the file content, '\0' is attched
-                if (next_processed != _totalLength + 1)
+        private void ProcessData(DataFragment data) {
+            int length = data.Length;
+            int nextProcessed = _processedLength + length;
+            if (nextProcessed > _totalLength) { //at the end of the file content, '\0' is attched
+                if (nextProcessed != _totalLength + 1)
                     throw new SSHException("protocol error: too long stream");
                 _state = State.Completed;
                 length--;
             }
 
-            _processedLength = next_processed;
-            _param.LocalSource.Stream.Write(data, offset, length);
+            _processedLength = nextProcessed;
+            _param.LocalSource.Stream.Write(data.Data, data.Offset, length);
             if (_param.ProgressionDelegate != null)
                 _param.ProgressionDelegate(_processedLength, _totalLength);
         }
@@ -413,8 +413,8 @@ namespace Granados {
         }
 
         // for Local to Remote
-        private void ReadResponse(byte[] data, int offset, int length) {
-            byte c = data[offset];
+        private void ReadResponse(DataFragment data) {
+            byte c = data[0];
             if (c == 0) { // All is well.
                 _error = null;
             }
@@ -469,8 +469,8 @@ namespace Granados {
             _responseEvent.Set();
         }
 
-        public override void OnData(byte[] data, int offset, int length) {
-            ReadResponse(data, offset, length);
+        public override void OnData(DataFragment data) {
+            ReadResponse(data);
         }
 
         public override void Dipose() {

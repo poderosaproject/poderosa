@@ -753,13 +753,14 @@ namespace Granados.SSH2 {
                 case SSH2PacketType.SSH_MSG_CHANNEL_DATA: {
                         int len = re.ReadInt32();
                         DataFragment frag = re.GetRemainingDataView(len);
-                        receiver.OnData(frag.Data, frag.Offset, frag.Length);
+                        receiver.OnData(frag);
                     }
                     break;
                 case SSH2PacketType.SSH_MSG_CHANNEL_EXTENDED_DATA: {
-                        int t = re.ReadInt32();
-                        byte[] data = re.ReadByteString();
-                        receiver.OnExtendedData(t, data);
+                        uint type = re.ReadUInt32();
+                        int len = re.ReadInt32();
+                        DataFragment frag = re.GetRemainingDataView(len);
+                        receiver.OnExtendedData(type, frag);
                     }
                     break;
                 case SSH2PacketType.SSH_MSG_CHANNEL_REQUEST: {
@@ -786,12 +787,12 @@ namespace Granados.SSH2 {
                     break;
                 case SSH2PacketType.SSH_MSG_CHANNEL_FAILURE: {
                         DataFragment frag = re.GetRemainingDataView();
-                        receiver.OnMiscPacket((byte)pt, frag.Data, frag.Offset, frag.Length);
+                        receiver.OnMiscPacket((byte)pt, frag);
                     }
                     break;
                 default: {
                         DataFragment frag = re.GetRemainingDataView();
-                        receiver.OnMiscPacket((byte)pt, frag.Data, frag.Offset, frag.Length);
+                        receiver.OnMiscPacket((byte)pt, frag);
                     }
                     Debug.WriteLine("Unknown Packet " + pt);
                     break;

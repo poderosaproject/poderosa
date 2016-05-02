@@ -354,14 +354,14 @@ namespace Granados.Poderosa.SCP {
 
         #region SCPClientChannelEventReceiver Handlers
 
-        private void OnDataReceived(byte[] data, int offset, int length) {
+        private void OnDataReceived(DataFragment data) {
             lock (_bufferSync) {
                 int remain = _buffer.Length - _bufferOffset - _bufferLength;
-                if (remain < length) {
-                    int requiredSize = _bufferLength + length;
+                if (remain < data.Length) {
+                    int requiredSize = _bufferLength + data.Length;
                     if (_buffer.Length >= requiredSize) {
                         Buffer.BlockCopy(_buffer, _bufferOffset, _buffer, 0, _bufferLength);
-                        Buffer.BlockCopy(data, offset, _buffer, _bufferLength, length);
+                        Buffer.BlockCopy(data.Data, data.Offset, _buffer, _bufferLength, data.Length);
                         _bufferOffset = 0;
                         _bufferLength = requiredSize;
                     }
@@ -373,15 +373,15 @@ namespace Granados.Poderosa.SCP {
 
                         byte[] newBuffer = new byte[newBufferSize];
                         Buffer.BlockCopy(_buffer, _bufferOffset, newBuffer, 0, _bufferLength);
-                        Buffer.BlockCopy(data, offset, newBuffer, _bufferLength, length);
+                        Buffer.BlockCopy(data.Data, data.Offset, newBuffer, _bufferLength, data.Length);
                         _buffer = newBuffer;
                         _bufferOffset = 0;
                         _bufferLength = requiredSize;
                     }
                 }
                 else {
-                    Buffer.BlockCopy(data, offset, _buffer, _bufferOffset + _bufferLength, length);
-                    _bufferLength += length;
+                    Buffer.BlockCopy(data.Data, data.Offset, _buffer, _bufferOffset + _bufferLength, data.Length);
+                    _bufferLength += data.Length;
                 }
 
                 Monitor.PulseAll(_bufferSync);
@@ -435,9 +435,7 @@ namespace Granados.Poderosa.SCP {
     /// Delegate that handles channel data.
     /// </summary>
     /// <param name="data">Data buffer</param>
-    /// <param name="offset">Offset</param>
-    /// <param name="length">Length</param>
-    internal delegate void DataReceivedDelegate(byte[] data, int offset, int length);
+    internal delegate void DataReceivedDelegate(DataFragment data);
 
     /// <summary>
     /// Delegate that handles transition of the channel status.
@@ -500,18 +498,18 @@ namespace Granados.Poderosa.SCP {
 
         #region ISSHChannelEventReceiver
 
-        public void OnData(byte[] data, int offset, int length) {
+        public void OnData(DataFragment data) {
 #if DUMP_PACKET
-            Dump("SCP: OnData", data, offset, length);
+            Dump("SCP: OnData", data);
 #endif
             if (_dataHandler != null) {
-                _dataHandler(data, offset, length);
+                _dataHandler(data);
             }
         }
 
-        public void OnExtendedData(int type, byte[] data) {
+        public void OnExtendedData(uint type, DataFragment data) {
 #if DUMP_PACKET
-            Dump("SCP: OnExtendedData: " + type, data, 0, data.Length);
+            Dump("SCP: OnExtendedData: " + type, data);
 #endif
         }
 
@@ -548,9 +546,9 @@ namespace Granados.Poderosa.SCP {
             }
         }
 
-        public void OnMiscPacket(byte packet_type, byte[] data, int offset, int length) {
+        public void OnMiscPacket(byte packetType, DataFragment data) {
 #if DUMP_PACKET
-            Dump("SCP: OnMiscPacket: " + packet_type, data, offset, length);
+            Dump("SCP: OnMiscPacket: " + packetType, data);
 #endif
         }
 
@@ -566,6 +564,11 @@ namespace Granados.Poderosa.SCP {
         }
 
 #if DUMP_PACKET
+        // for debug
+        private void Dump(string caption, DataFragment data) {
+            Dump(caption, data.Data, data.Offset, data.Length);
+        }
+
         // for debug
         private void Dump(string caption, byte[] data, int offset, int length) {
             StringBuilder s = new StringBuilder();
