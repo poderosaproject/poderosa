@@ -483,7 +483,7 @@ namespace Granados.SSH1 {
                     SSH1DataReader r = new SSH1DataReader(data);
                     r.ReadByte();
                     if (_eventReceiver != null)
-                        _eventReceiver.OnDebugMessage(false, r.ReadByteString());
+                        _eventReceiver.OnDebugMessage(false, r.ReadString());
                 }
                 else
                     return data;
@@ -533,7 +533,7 @@ namespace Granados.SSH1 {
                         _channel_collection.FindChannelEntry(_shellID).Receiver.OnChannelClosed();
                         break;
                     case SSH1PacketType.SSH_MSG_DEBUG:
-                        _eventReceiver.OnDebugMessage(false, re.ReadByteString());
+                        _eventReceiver.OnDebugMessage(false, re.ReadString());
                         break;
                     case SSH1PacketType.SSH_MSG_IGNORE:
                         _eventReceiver.OnIgnoreMessage(re.ReadByteString());

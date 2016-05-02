@@ -436,8 +436,8 @@ namespace Granados.Tutorial {
         public void OnData(byte[] data, int offset, int length) {
             System.Console.Write(Encoding.ASCII.GetString(data, offset, length));
         }
-        public void OnDebugMessage(bool always_display, byte[] data) {
-            Debug.WriteLine("DEBUG: " + Encoding.ASCII.GetString(data));
+        public void OnDebugMessage(bool alwaysDisplay, string message) {
+            Debug.WriteLine("DEBUG: " + message);
         }
         public void OnIgnoreMessage(byte[] data) {
             Debug.WriteLine("Ignore: " + Encoding.ASCII.GetString(data));
@@ -475,7 +475,6 @@ namespace Granados.Tutorial {
         }
         public void OnMiscPacket(byte type, byte[] data, int offset, int length) {
         }
-
         public PortForwardingCheckResult CheckPortForwardingRequest(string host, int port, string originator_host, int originator_port) {
             PortForwardingCheckResult r = new PortForwardingCheckResult();
             r.allowed = true;

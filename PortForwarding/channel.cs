@@ -181,7 +181,7 @@ namespace Poderosa.PortForwarding {
         public abstract void WaitRequest();
 
 
-        public void OnDebugMessage(bool always_display, byte[] msg) {
+        public void OnDebugMessage(bool alwaysDisplay, string message) {
             Debug.WriteLine("DebugMessage");
         }
 

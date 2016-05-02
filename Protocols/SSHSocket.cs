@@ -61,8 +61,8 @@ namespace Poderosa.Protocols {
         }
 
         //TODO 滅多にないことではあるがこれを拾う先をEXTPで
-        public virtual void OnDebugMessage(bool always_display, byte[] data) {
-            Debug.WriteLine(String.Format("SSH debug {0}[{1}]", data.Length, data[0]));
+        public virtual void OnDebugMessage(bool alwaysDisplay, string message) {
+            Debug.WriteLine(String.Format("SSH debug {0}", message));
         }
 
         public virtual void OnIgnoreMessage(byte[] data) {

@@ -422,7 +422,7 @@ namespace Granados.SSH2 {
                     SSH2DataReader r = new SSH2DataReader(data);
                     r.ReadByte(); //skip
                     bool f = r.ReadBool();
-                    byte[] msg = r.ReadByteString();
+                    string msg = r.ReadUTF8String();
                     if (_eventReceiver != null)
                         _eventReceiver.OnDebugMessage(f, msg);
                     TraceReceptionEvent(pt, msg);
