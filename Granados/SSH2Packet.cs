@@ -388,10 +388,12 @@ namespace Granados.SSH2 {
     /// <see cref="IDataHandler"/> that extracts SSH packet from the data stream
     /// and passes it to another <see cref="IDataHandler"/>.
     /// </summary>
-    internal class SSH2Packetizer : FilterDataHandler {
+    internal class SSH2Packetizer : IDataHandler {
         // RFC4253: The minimum size of a packet is 16 (or the cipher block size, whichever is larger) bytes.
         private const int MIN_PACKET_LENGTH = 12;    // exclude packet_length field (4 bytes)
         private const int MAX_PACKET_LENGTH = 0x80000; //there was the case that 64KB is insufficient
+
+        private readonly IDataHandler _nextHandler;
 
         private readonly ByteBuffer _inputBuffer = new ByteBuffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH * 16);
         private readonly ByteBuffer _packetImage = new ByteBuffer(36000, MAX_PACKET_LENGTH * 2);
@@ -402,17 +404,14 @@ namespace Granados.SSH2 {
         private MAC _mac;
         private int _macLength;
 
-        private bool _pending = false;
         private bool _hasError = false;
-
-        private DateTime _keyErrorDetectionTimeout = DateTime.MaxValue;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="handler">a handler that SSH packets are passed to</param>
-        public SSH2Packetizer(IDataHandler handler)
-            : base(handler) {
+        public SSH2Packetizer(IDataHandler handler) {
+            _nextHandler = handler;
             _sequence = 0;
             _cipher = null;
             _mac = null;
@@ -427,52 +426,43 @@ namespace Granados.SSH2 {
         /// <param name="mac">MAC algorithm, or null if not specified.</param>
         public void SetCipher(Cipher cipher, MAC mac) {
             lock (_cipherSync) {
-                try {
-                    _cipher = cipher;
-                    _mac = mac;
-                    _macLength = (_mac != null) ? _mac.Size : 0;
-
-                    bool resumePending = _pending;
-                    _pending = false;
-                    _keyErrorDetectionTimeout = DateTime.MaxValue;
-
-                    if (resumePending) {
-                        ProcessBuffer();
-                    }
-                }
-                catch (Exception ex) {
-                    OnError(ex);
-                }
+                _cipher = cipher;
+                _mac = mac;
+                _macLength = (_mac != null) ? _mac.Size : 0;
             }
         }
 
         /// <summary>
-        /// Implements <see cref="FilterDataHandler"/>.
+        /// Implements <see cref="IDataHandler"/>.
         /// </summary>
         /// <param name="data">fragment of the data stream</param>
-        protected override void FilterData(DataFragment data) {
-            lock (_cipherSync) {
-                try {
-                    if (_hasError) {
-                        return;
-                    }
-
-                    // key error detection
-                    if (_pending && DateTime.UtcNow > _keyErrorDetectionTimeout) {
-                        _hasError = true;   // disable accepting data any more
-                        return;
-                    }
-
-                    _inputBuffer.Append(data.Data, data.Offset, data.Length);
-
-                    if (!_pending) {
-                        ProcessBuffer();
-                    }
+        public void OnData(DataFragment data) {
+            try {
+                if (_hasError) {
+                    return;
                 }
-                catch (Exception ex) {
-                    OnError(ex);
-                }
+
+                _inputBuffer.Append(data.Data, data.Offset, data.Length);
+
+                ProcessBuffer();
             }
+            catch (Exception ex) {
+                OnError(ex);
+            }
+        }
+
+        /// <summary>
+        /// Implemens <see cref="IDataHandler"/>.
+        /// </summary>
+        public void OnClosed() {
+            _nextHandler.OnClosed();
+        }
+
+        /// <summary>
+        /// Implemens <see cref="IDataHandler"/>.
+        /// </summary>
+        public void OnError(Exception error) {
+            _nextHandler.OnError(error);
         }
 
         /// <summary>
@@ -493,40 +483,9 @@ namespace Granados.SSH2 {
                     return;
                 }
 
-                DataFragment packet = _packetImage.AsDataFragment();
-
-                if (IsMsgNewKeys(packet)) {
-                    // next packet must be decrypted with the new key
-                    _cipher = null;
-                    _mac = null;
-                    _macLength = 0;
-
-                    _pending = true;    // retain trailing packets in the buffer
-                    _keyErrorDetectionTimeout = DateTime.MaxValue;
-
-                    SSH2MsgNewKeys newKeysPacket =
-                        new SSH2MsgNewKeys(packet, () => {
-                            lock (_cipherSync) {
-                                // start key error detection
-                                _keyErrorDetectionTimeout = DateTime.UtcNow.AddMilliseconds(1000);
-                            }
-                        });
-
-                    OnDataInternal(newKeysPacket);
-                    break;
-                }
-
-                OnDataInternal(packet);
+                DataFragment packet = _packetImage.ToDataFragment();    // duplicate bytes
+                _nextHandler.OnData(packet);
             }
-        }
-
-        /// <summary>
-        /// Check if a SSH packet is SSH_MSG_NEWKEYS.
-        /// </summary>
-        /// <param name="packet">a SSH packet</param>
-        /// <returns>true if a SSH packet is SSH_MSG_NEWKEYS.</returns>
-        private bool IsMsgNewKeys(DataFragment packet) {
-            return packet.Length >= 1 && packet[0] == (byte)SSH2PacketType.SSH_MSG_NEWKEYS;
         }
 
         /// <summary>
@@ -541,85 +500,87 @@ namespace Granados.SSH2 {
             const int PACKET_LENGTH_FIELD_LEN = 4;
             const int PADDING_LENGTH_FIELD_LEN = 1;
 
-            if (_packetLength < 0) {
-                int headLen = (_cipher != null) ? _cipher.BlockSize : 4;
+            lock (_cipherSync) {
+                if (_packetLength < 0) {
+                    int headLen = (_cipher != null) ? _cipher.BlockSize : 4;
 
-                if (_inputBuffer.Length < headLen) {
+                    if (_inputBuffer.Length < headLen) {
+                        return false;
+                    }
+
+                    _packetImage.Clear();
+                    _packetImage.WriteUInt32(_sequence);
+                    _packetImage.Append(_inputBuffer, 0, headLen);
+                    _inputBuffer.RemoveHead(headLen);
+
+                    int headOffset = _packetImage.RawBufferOffset + SEQUENCE_NUMBER_FIELD_LEN;
+
+                    if (_cipher != null) {
+                        // decrypt first block
+                        _cipher.Decrypt(
+                            _packetImage.RawBuffer, headOffset, headLen,
+                            _packetImage.RawBuffer, headOffset);
+                    }
+
+                    uint packetLength = SSHUtil.ReadUInt32(_packetImage.RawBuffer, headOffset);
+
+                    if (packetLength < MIN_PACKET_LENGTH || packetLength >= MAX_PACKET_LENGTH) {
+                        throw new SSHException(String.Format("invalid packet length : {0}", packetLength));
+                    }
+
+                    _packetLength = (int)packetLength;
+                }
+
+                int packetHeadLen = _packetImage.Length;    // size already read in
+                int requiredLength = SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN + _packetLength + _macLength - packetHeadLen;
+
+                if (_inputBuffer.Length < requiredLength) {
                     return false;
                 }
 
-                _packetImage.Clear();
-                _packetImage.WriteUInt32(_sequence);
-                _packetImage.Append(_inputBuffer, 0, headLen);
-                _inputBuffer.RemoveHead(headLen);
-
-                int headOffset = _packetImage.RawBufferOffset + SEQUENCE_NUMBER_FIELD_LEN;
+                _packetImage.Append(_inputBuffer, 0, requiredLength);
+                _inputBuffer.RemoveHead(requiredLength);
 
                 if (_cipher != null) {
-                    // decrypt first block
+                    // decrypt excluding MAC
+                    int headOffset = _packetImage.RawBufferOffset + packetHeadLen;
                     _cipher.Decrypt(
-                        _packetImage.RawBuffer, headOffset, headLen,
+                        _packetImage.RawBuffer, headOffset, requiredLength - _macLength,
                         _packetImage.RawBuffer, headOffset);
                 }
 
-                uint packetLength = SSHUtil.ReadUInt32(_packetImage.RawBuffer, headOffset);
-
-                if (packetLength < MIN_PACKET_LENGTH || packetLength >= MAX_PACKET_LENGTH) {
-                    throw new SSHException(String.Format("invalid packet length : {0}", packetLength));
+                int paddingLength = _packetImage[SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN];
+                if (paddingLength < 4) {
+                    throw new SSHException(String.Format("invalid padding length : {0}", paddingLength));
                 }
 
-                _packetLength = (int)packetLength;
-            }
+                int payloadLength = _packetLength - PADDING_LENGTH_FIELD_LEN - paddingLength;
 
-            int packetHeadLen = _packetImage.Length;    // size already read in
-            int requiredLength = SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN + _packetLength + _macLength - packetHeadLen;
+                if (_mac != null) {
+                    int contentLen = SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN + _packetLength;
+                    byte[] result = _mac.ComputeHash(_packetImage.RawBuffer, _packetImage.RawBufferOffset, contentLen);
 
-            if (_inputBuffer.Length < requiredLength) {
-                return false;
-            }
-
-            _packetImage.Append(_inputBuffer, 0, requiredLength);
-            _inputBuffer.RemoveHead(requiredLength);
-
-            if (_cipher != null) {
-                // decrypt excluding MAC
-                int headOffset = _packetImage.RawBufferOffset + packetHeadLen;
-                _cipher.Decrypt(
-                    _packetImage.RawBuffer, headOffset, requiredLength - _macLength,
-                    _packetImage.RawBuffer, headOffset);
-            }
-
-            int paddingLength = _packetImage[SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN];
-            if (paddingLength < 4) {
-                throw new SSHException(String.Format("invalid padding length : {0}", paddingLength));
-            }
-
-            int payloadLength = _packetLength - PADDING_LENGTH_FIELD_LEN - paddingLength;
-
-            if (_mac != null) {
-                int contentLen = SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN + _packetLength;
-                byte[] result = _mac.ComputeHash(_packetImage.RawBuffer, _packetImage.RawBufferOffset, contentLen);
-
-                if (result.Length != _macLength ||
-                    !SSHUtil.ByteArrayEqual(result, 0, _packetImage.RawBuffer, _packetImage.RawBufferOffset + contentLen, _macLength)) {
-                    throw new SSHException("MAC mismatch");
+                    if (result.Length != _macLength ||
+                        !SSHUtil.ByteArrayEqual(result, 0, _packetImage.RawBuffer, _packetImage.RawBufferOffset + contentLen, _macLength)) {
+                        throw new SSHException("MAC mismatch");
+                    }
                 }
+
+                // retain only payload
+                _packetImage.RemoveHead(SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN + PADDING_LENGTH_FIELD_LEN);
+                _packetImage.RemoveTail(_macLength + paddingLength);
+
+                // sanity check
+                if (_packetImage.Length != payloadLength) {
+                    throw new InvalidOperationException();
+                }
+
+                // prepare for the next packet
+                ++_sequence;
+                _packetLength = -1;
+
+                return true;
             }
-
-            // retain only payload
-            _packetImage.RemoveHead(SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN + PADDING_LENGTH_FIELD_LEN);
-            _packetImage.RemoveTail(_macLength + paddingLength);
-
-            // sanity check
-            if (_packetImage.Length != payloadLength) {
-                throw new InvalidOperationException();
-            }
-
-            // prepare for the next packet
-            ++_sequence;
-            _packetLength = -1;
-
-            return true;
         }
     }
 }

@@ -460,6 +460,15 @@ namespace Granados.IO {
             return new DataFragment(_buff, _offset, _length);
         }
 
+        /// <summary>
+        /// Create a new <see cref="DataFragment"/>.
+        /// </summary>
+        /// <returns>new <see cref="DataFragment"/> instance that have data copied from this buffer.</returns>
+        public DataFragment ToDataFragment() {
+            byte[] data = GetBytes();
+            return new DataFragment(data, 0, data.Length);
+        }
+
         #region Writer methods
 
         /// <summary>

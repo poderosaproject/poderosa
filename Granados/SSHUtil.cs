@@ -331,4 +331,84 @@ namespace Granados.Util {
             return t.GetHashCode().ToString();
         }
     }
+
+    /// <summary>
+    /// Utility class for pass an object to the single recipient.
+    /// </summary>
+    /// <typeparam name="T">type of the object</typeparam>
+    internal class AtomicBox<T> {
+        private readonly object _syncSet = new object();
+        private readonly object _syncGet = new object();
+        private readonly object _syncObject = new object();
+        private volatile bool _hasObject;
+        private T _object;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public AtomicBox() {
+            _hasObject = false;
+            _object = default(T);
+        }
+
+        /// <summary>
+        /// Clear the state of this box.
+        /// </summary>
+        public void Clear() {
+            lock (_syncObject) {
+                _object = default(T);
+                _hasObject = false;
+                Monitor.PulseAll(_syncObject);
+            }
+        }
+
+        /// <summary>
+        /// <para>Sets an object in the box.</para>
+        /// <para>If another object exists in the box, the thread will be blocked until the object has been received by the recipient thread.</para>
+        /// </summary>
+        /// <param name="obj">an object to set</param>
+        /// <param name="msecTimeout">timeout in milliseconds</param>
+        /// <returns>true if an object has been set into the box.</returns>
+        public bool TrySet(T obj, int msecTimeout) {
+            lock (_syncSet) {
+                lock (_syncObject) {
+                    while (_hasObject) {
+                        bool signaled = Monitor.Wait(_syncObject, msecTimeout);
+                        if (_hasObject && !signaled) {
+                            return false;
+                        }
+                    }
+                    _object = obj;
+                    _hasObject = true;
+                    Monitor.PulseAll(_syncObject);
+                    return true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// <para>Gets an object from the box.</para>
+        /// <para>If no object exists in the box, the thread will be blocked until the object has been set by the sender thread.</para>
+        /// </summary>
+        /// <param name="obj">an object if succeeded</param>
+        /// <param name="msecTimeout">timeout in milliseconds</param>
+        /// <returns>true if an object has been obtained.</returns>
+        public bool TryGet(ref T obj, int msecTimeout) {
+            lock (_syncGet) {
+                lock (_syncObject) {
+                    while (!_hasObject) {
+                        bool signaled = Monitor.Wait(_syncObject, msecTimeout);
+                        if (!_hasObject && !signaled) {
+                            return false;
+                        }
+                    }
+                    obj = _object;
+                    _object = default(T);
+                    _hasObject = false;
+                    Monitor.PulseAll(_syncObject);
+                    return true;
+                }
+            }
+        }
+    }
 }

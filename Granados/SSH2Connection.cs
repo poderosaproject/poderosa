@@ -7,6 +7,7 @@
  $Id: SSH2Connection.cs,v 1.11 2012/02/25 03:49:46 kzmi Exp $
 */
 using System;
+using System.Linq;
 using System.Threading;
 using System.Diagnostics;
 using System.Text;
@@ -18,6 +19,7 @@ using Granados.Util;
 using Granados.IO;
 using Granados.IO.SSH2;
 using Granados.Mono.Math;
+using System.Threading.Tasks;
 
 namespace Granados.SSH2 {
 
@@ -29,6 +31,7 @@ namespace Granados.SSH2 {
 
         private readonly SSH2Packetizer _packetizer;
         private readonly SSH2SynchronousPacketHandler _syncHandler;
+        private readonly KeyExchanger _keyExchanger;
 
         //server info
         private readonly SSH2ConnectionInfo _cInfo;
@@ -36,7 +39,6 @@ namespace Granados.SSH2 {
         private bool _waitingForPortForwardingResponse;
         private bool _agentForwardConfirmed;
 
-        private KeyExchanger _asyncKeyExchanger;
         private int _requiredResponseCount; //for keyboard-interactive authentication
 
 
@@ -64,6 +66,7 @@ namespace Granados.SSH2 {
                         );
             _syncHandler = new SSH2SynchronousPacketHandler(strm, adapter);
             _packetizer = new SSH2Packetizer(_syncHandler);
+            _keyExchanger = new KeyExchanger(this, _syncHandler, param, _cInfo, UpdateKey);
         }
 
         internal void SetAgentForwardConfirmed(bool value) {
@@ -84,8 +87,11 @@ namespace Granados.SSH2 {
 
         internal override AuthenticationResult Connect() {
             //key exchange
-            KeyExchanger kex = new KeyExchanger(this, null);
-            if (!kex.SynchronizedKexExchange()) {
+            Task kexTask = _keyExchanger.StartKeyExchange();
+            try {
+                kexTask.Wait();
+            }
+            catch (Exception e) {
                 Close();
                 return AuthenticationResult.Failure;
             }
@@ -206,7 +212,6 @@ namespace Granados.SSH2 {
                 }
                 else if (h == SSH2PacketType.SSH_MSG_USERAUTH_SUCCESS) {
                     TraceReceptionEvent(h, "user authentication succeeded");
-                    _packetizer.SetInnerHandler(new CallbackSSH2PacketHandler(this));
                     return AuthenticationResult.Success; //successfully exit
                 }
                 else if (h == SSH2PacketType.SSH_MSG_USERAUTH_INFO_REQUEST) {
@@ -448,22 +453,28 @@ namespace Granados.SSH2 {
             }
         }
 
-        private bool ProcessPacket(DataFragment packet) {
+        private void ProcessPacket(DataFragment packet) {
+            if (_keyExchanger.FeedReceivedPacket(packet)) {
+                return;
+            }
+
             SSH2DataReader r = new SSH2DataReader(packet);
             SSH2PacketType pt = (SSH2PacketType) r.ReadByte();
 
             if (pt == SSH2PacketType.SSH_MSG_DISCONNECT) {
                 int errorcode = r.ReadInt32();
                 _eventReceiver.OnConnectionClosed();
-                return false;
+                return;
             }
-            else if (_waitingForPortForwardingResponse) {
+
+            if (_waitingForPortForwardingResponse) {
                 if (pt != SSH2PacketType.SSH_MSG_REQUEST_SUCCESS)
                     _eventReceiver.OnUnknownMessage((byte)pt, packet.GetBytes());
                 _waitingForPortForwardingResponse = false;
-                return true;
+                return;
             }
-            else if (pt == SSH2PacketType.SSH_MSG_CHANNEL_OPEN) {
+
+            if (pt == SSH2PacketType.SSH_MSG_CHANNEL_OPEN) {
                 string method = r.ReadString();
                 if (method == "forwarded-tcpip")
                     ProcessPortforwardingRequest(_eventReceiver, r);
@@ -479,35 +490,25 @@ namespace Granados.SSH2 {
                     );
                     TraceReceptionEvent("SSH_MSG_CHANNEL_OPEN rejected", "method={0}", method);
                 }
-                return true;
+                return;
             }
-            else if (pt >= SSH2PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION && pt <= SSH2PacketType.SSH_MSG_CHANNEL_FAILURE) {
+
+            if (pt >= SSH2PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION && pt <= SSH2PacketType.SSH_MSG_CHANNEL_FAILURE) {
                 int local_channel = r.ReadInt32();
                 ChannelCollection.Entry e = this.ChannelCollection.FindChannelEntry(local_channel);
                 if (e != null)
                     ((SSH2Channel)e.Channel).ProcessPacket(e.Receiver, pt, r);
                 else
                     Debug.WriteLine("unexpected channel pt=" + pt + " local_channel=" + local_channel.ToString());
-                return true;
+                return;
             }
-            else if (pt == SSH2PacketType.SSH_MSG_IGNORE) {
+
+            if (pt == SSH2PacketType.SSH_MSG_IGNORE) {
                 _eventReceiver.OnIgnoreMessage(r.ReadByteString());
-                return true;
+                return;
             }
-            else if (_asyncKeyExchanger != null) {
-                _asyncKeyExchanger.AsyncProcessPacket(packet);
-                return true;
-            }
-            else if (pt == SSH2PacketType.SSH_MSG_KEXINIT) {
-                //Debug.WriteLine("Host sent KEXINIT");
-                _asyncKeyExchanger = new KeyExchanger(this, _sessionID);
-                _asyncKeyExchanger.AsyncProcessPacket(packet);
-                return true;
-            }
-            else {
-                _eventReceiver.OnUnknownMessage((byte)pt, packet.GetBytes());
-                return false;
-            }
+
+            _eventReceiver.OnUnknownMessage((byte)pt, packet.GetBytes());
         }
 
         public override void Disconnect(string msg) {
@@ -529,19 +530,10 @@ namespace Granados.SSH2 {
             );
         }
 
-        //Start key refresh
-        public void ReexchangeKeys() {
-            _asyncKeyExchanger = new KeyExchanger(this, _sessionID);
-            _asyncKeyExchanger.AsyncStartReexchange();
-        }
-
-        internal void RefreshKeys(byte[] sessionID, Cipher tc, Cipher rc, MAC tm, MAC rm) {
-            lock (this) { //these must change synchronously
-                _sessionID = sessionID;
-                _syncHandler.SetCipher(tc, tm);
-                _packetizer.SetCipher(rc, _param.CheckMACError ? rm : null);
-                _asyncKeyExchanger = null;
-            }
+        private void UpdateKey(byte[] sessionID, Cipher cipherServer, Cipher cipherClient, MAC macServer, MAC macClient) {
+            _sessionID = sessionID;
+            _syncHandler.SetCipher(cipherServer, macServer);
+            _packetizer.SetCipher(cipherClient, _param.CheckMACError ? macClient : null);
         }
 
         //alternative version
@@ -1104,47 +1096,53 @@ namespace Granados.SSH2 {
         }
     }
 
-    /**
-     * Key Exchange
-     */
+    /// <summary>
+    /// Class for supporting key exchange sequence.
+    /// </summary>
     internal class KeyExchanger {
-        private readonly SSH2Connection _connection;
-        private readonly SSHConnectionParameter _param;
-        private readonly SSH2ConnectionInfo _cInfo;
-        //payload of KEXINIT message
-        private byte[] _serverKEXINITPayload;
-        private byte[] _clientKEXINITPayload;
+        private const int PASSING_TIMEOUT = 1000;
+        private const int RESPONSE_TIMEOUT = 5000;
 
-        //true if the host sent KEXINIT first
-        private bool _startedByHost;
-
-        //asynchronously?
-        private enum Mode {
-            Synchronized,
-            Asynchronized
+        private enum SequenceStatus {
+            /// <summary>next key exchange can be started</summary>
+            Idle,
+            /// <summary>key exchange has been failed</summary>
+            Failed,
+            /// <summary>the connection has been closed</summary>
+            ConnectionClosed,
+            /// <summary>SSH_MSG_KEXINIT has been received. key exchange has been initiated by server.</summary>
+            InitiatedByServer,
+            /// <summary>key exchange has been initiated by client. SSH_MSG_KEXINIT from server will be accepted.</summary>
+            InitiatedByClient,
+            /// <summary>SSH_MSG_KEXINIT has been received.</summary>
+            KexInitReceived,
+            /// <summary>waiting for SSH_MSG_KEXDH_REPLY</summary>
+            WaitKexDHReplay,
+            /// <summary>waiting for SSH_MSG_NEWKEYS</summary>
+            WaitNewKeys,
+            /// <summary>waiting for updating cipher settings</summary>
+            WaitUpdateCipher,
         }
 
-        //status
-        private enum Status {
-            INITIAL,
-            WAIT_KEXINIT,
-            WAIT_KEXDH_REPLY,
-            WAIT_NEWKEYS,
-            FINISHED
+        private class KexState {
+            // payload of KEX_INIT message
+            public byte[] serverKEXINITPayload;
+            public byte[] clientKEXINITPayload;
+
+            // values for Diffie-Hellman
+            public BigInteger p;   // prime number
+            public BigInteger x;   // random number
+            public BigInteger e;   // g^x mod p
+            public BigInteger k;   // f^x mod p
+            public byte[] hash;
         }
-        private Status _status;
 
-        private BigInteger _x;
-        private BigInteger _e;
-        private BigInteger _k;
-        private byte[] _hash;
-        private byte[] _sessionID;
-
-        //results
-        private Cipher _rc;
-        private Cipher _tc;
-        private MAC _rm;
-        private MAC _tm;
+        private class CipherSettings {
+            public Cipher cipherServer;
+            public Cipher cipherClient;
+            public MAC macServer;
+            public MAC macClient;
+        }
 
         private struct SupportedKexAlgorithm {
             public readonly string name;
@@ -1164,80 +1162,316 @@ namespace Granados.SSH2 {
             new SupportedKexAlgorithm("diffie-hellman-group1-sha1", KexAlgorithm.DH_G1_SHA1),
         };
 
-        public KeyExchanger(SSH2Connection con, byte[] sessionID) {
-            _connection = con;
-            _param = con.Param;
-            _cInfo = (SSH2ConnectionInfo)con.ConnectionInfo;
-            _sessionID = sessionID;
-            _status = Status.INITIAL;
+        public delegate void UpdateKeyDelegate(byte[] sessionID, Cipher cipherServer, Cipher cipherClient, MAC macServer, MAC macClient);
+
+        private readonly UpdateKeyDelegate _updateKey;
+
+        private readonly SSH2Connection _connection;
+        private readonly SSH2SynchronousPacketHandler _syncHandler;
+        private readonly SSHConnectionParameter _param;
+        private readonly SSH2ConnectionInfo _cInfo;
+
+        private byte[] _sessionID;
+
+        private readonly object _sequenceLock = new object();
+        private volatile SequenceStatus _sequenceStatus = SequenceStatus.Idle;
+
+        private readonly AtomicBox<DataFragment> _receivedPacket = new AtomicBox<DataFragment>();
+
+        private Task _kexTask;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="syncHandler"></param>
+        /// <param name="info"></param>
+        /// <param name="updateKey"></param>
+        public KeyExchanger(
+                    SSH2Connection connection,
+                    SSH2SynchronousPacketHandler syncHandler,
+                    SSHConnectionParameter param,
+                    SSH2ConnectionInfo info,
+                    UpdateKeyDelegate updateKey) {
+            _connection = connection;
+            _syncHandler = syncHandler;
+            _param = param;
+            _cInfo = info;
+            _updateKey = updateKey;
         }
 
-        private void Transmit(SSH2Packet packet) {
-            _connection.Transmit(packet);
-        }
-
-        private DataFragment TransmitAndWaitResponse(SSH2Packet packet) {
-            return _connection.TransmitAndWaitResponse(packet);
-        }
-
-        private void TraceTransmissionNegotiation(SSH2PacketType pt, string msg) {
-            _connection.TraceTransmissionEvent(pt.ToString(), msg);
-        }
-
-        private void TraceReceptionNegotiation(SSH2PacketType pt, string msg) {
-            _connection.TraceReceptionEvent(pt.ToString(), msg);
-        }
-
-        public bool SynchronizedKexExchange() {
-            Mode m = Mode.Synchronized;
-            DataFragment response;
-            //note that the KEXINIT is sent asynchronously in most cases
-            SendKEXINIT(m);
-            response = _connection.ReceivePacket();
-
-            ProcessKEXINIT(response);
-            response = SendKEXDHINIT(m);
-            if (!ProcessKEXDHREPLY(response))
+        /// <summary>
+        /// <para>Feeds a received packet.</para>
+        /// </summary>
+        /// <param name="packet">a packet image</param>
+        /// <returns>returns true if the packet was consumed for the key exchange. otherwise returns false.</returns>
+        public bool FeedReceivedPacket(DataFragment packet) {
+            SSH2PacketType packetType = (SSH2PacketType)packet[0];
+            lock (_sequenceLock) {
+                switch (_sequenceStatus) {
+                    case SequenceStatus.Idle:
+                        if (packetType == SSH2PacketType.SSH_MSG_KEXINIT) {
+                            _sequenceStatus = SequenceStatus.InitiatedByServer;
+                            _kexTask = StartKeyExchangeAsync(packet);
+                            return true;
+                        }
+                        break;
+                    case SequenceStatus.InitiatedByServer:
+                        return false;
+                    case SequenceStatus.InitiatedByClient:
+                        if (packetType == SSH2PacketType.SSH_MSG_KEXINIT) {
+                            _sequenceStatus = SequenceStatus.KexInitReceived;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return true;
+                        }
+                        break;
+                    case SequenceStatus.KexInitReceived:
+                        return false;
+                    case SequenceStatus.WaitKexDHReplay:
+                        if (packetType == SSH2PacketType.SSH_MSG_KEXDH_REPLY) {
+                            _sequenceStatus = SequenceStatus.WaitNewKeys;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return true;
+                        }
+                        break;
+                    case SequenceStatus.WaitNewKeys:
+                        if (packetType == SSH2PacketType.SSH_MSG_NEWKEYS) {
+                            _sequenceStatus = SequenceStatus.WaitUpdateCipher;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            // block this thread until the cipher settings were updated.
+                            do {
+                                Monitor.Wait(_sequenceLock);
+                            } while (_sequenceStatus == SequenceStatus.WaitUpdateCipher);
+                            return true;
+                        }
+                        break;
+                    default:
+                        break;
+                }
                 return false;
-            response = SendNEWKEYS(m);
-            ProcessNEWKEYS(response);
-            return true;
-        }
-        public void AsyncStartReexchange() {
-            _startedByHost = false;
-            _status = Status.WAIT_KEXINIT;
-            TraceTransmissionNegotiation(SSH2PacketType.SSH_MSG_KEXINIT, "starting asynchronously key exchange");
-            SendKEXINIT(Mode.Asynchronized);
-
-        }
-        public void AsyncProcessPacket(DataFragment packet) {
-            Mode m = Mode.Asynchronized;
-            switch (_status) {
-                case Status.INITIAL:
-                    _startedByHost = true;
-                    ProcessKEXINIT(packet);
-                    SendKEXINIT(m);
-                    SendKEXDHINIT(m);
-                    break;
-                case Status.WAIT_KEXINIT:
-                    ProcessKEXINIT(packet);
-                    SendKEXDHINIT(m);
-                    break;
-                case Status.WAIT_KEXDH_REPLY:
-                    ProcessKEXDHREPLY(packet);
-                    SendNEWKEYS(m);
-                    break;
-                case Status.WAIT_NEWKEYS:
-                    ProcessNEWKEYS(packet);
-                    Debug.Assert(_status == Status.FINISHED);
-                    break;
             }
         }
 
-        private void SendKEXINIT(Mode mode) {
-            const string mac_algorithm = "hmac-sha1";
+        /// <summary>
+        /// Handles connection close.
+        /// </summary>
+        public void OnClosed() {
+            lock (_sequenceLock) {
+                this._sequenceStatus = SequenceStatus.ConnectionClosed;
+                DataFragment dummyPacket = new DataFragment(new byte[1] { 0xff }, 0, 1);
+                _receivedPacket.TrySet(dummyPacket, PASSING_TIMEOUT);
+            }
+        }
 
-            _status = Status.WAIT_KEXINIT;
+        /// <summary>
+        /// Start key exchange asynchronously.
+        /// </summary>
+        /// <returns>a new task if the key exchange has been started, or existing task if another key exchange is running.</returns>
+        public Task StartKeyExchange() {
+            lock (_sequenceLock) {
+                if (_sequenceStatus != SequenceStatus.Idle) {
+                    return _kexTask;
+                }
+                _sequenceStatus = SequenceStatus.InitiatedByClient;
+                _kexTask = StartKeyExchangeAsync(null);
+                return _kexTask;
+            }
+        }
+
+        /// <summary>
+        /// Key exchange sequence.
+        /// </summary>
+        /// <param name="kexinitFromServer">
+        /// a received SSH_MSG_KEXINIT packet image if the server initiates the key exchange,
+        /// or null if the client initiates the key exchange.
+        /// </param>
+        private Task StartKeyExchangeAsync(DataFragment kexinitFromServer) {
+            return Task.Run(() => DoKeyExchange(kexinitFromServer));
+        }
+
+        /// <summary>
+        /// Key exchange sequence.
+        /// </summary>
+        /// <param name="kexinitFromServer">
+        /// a received SSH_MSG_KEXINIT packet image if the server initiates the key exchange,
+        /// or null if the client initiates the key exchange.
+        /// </param>
+        /// <exception cref="SSHException">no response</exception>
+        private void DoKeyExchange(DataFragment kexinitFromServer) {
+            try {
+                KexState state = new KexState();
+
+                KexInit(state, kexinitFromServer);
+
+                KexDiffieHellman(state);
+
+                CipherSettings cipherSettings = GetCipherSettings(state);
+
+                KexNewKeys(state);
+
+                _updateKey(
+                    _sessionID,
+                    cipherSettings.cipherServer,
+                    cipherSettings.cipherClient,
+                    cipherSettings.macServer,
+                    cipherSettings.macClient);
+
+                lock (_sequenceLock) {
+                    _sequenceStatus = SequenceStatus.Idle;
+                    Monitor.PulseAll(_sequenceLock);
+                }
+
+                return; // success
+            }
+            catch (Exception e) {
+                lock (_sequenceLock) {
+                    _sequenceStatus = SequenceStatus.Failed;
+                    Monitor.PulseAll(_sequenceLock);
+                }
+                throw;
+            }
+            finally {
+                _receivedPacket.Clear();
+            }
+        }
+
+        /// <summary>
+        /// SSH_MSG_KEXINIT sequence.
+        /// </summary>
+        /// <param name="state">informations about current key exchange</param>
+        /// <param name="kexinitFromServer">
+        /// a received SSH_MSG_KEXINIT packet image if the server initiates the key exchange,
+        /// or null if the client initiates the key exchange.
+        /// </param>
+        /// <exception cref="SSHException">no response</exception>
+        private void KexInit(KexState state, DataFragment kexinitFromServer) {
+            lock (_sequenceLock) {
+                Debug.Assert(_sequenceStatus == SequenceStatus.InitiatedByClient
+                    || _sequenceStatus == SequenceStatus.InitiatedByServer
+                    || _sequenceStatus == SequenceStatus.KexInitReceived);
+            }
+
+            if (kexinitFromServer != null) {
+                ProcessKEXINIT(kexinitFromServer, state);
+            }
+
+            string traceMsg;
+            SSH2Packet packetToSend = BuildKEXINITPacket(out traceMsg);
+
+            state.clientKEXINITPayload = packetToSend.GetPayloadBytes();
+
+            if (_connection.IsEventTracerAvailable) {
+                _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_KEXINIT, traceMsg);
+            }
+
+            if (kexinitFromServer != null) {
+                // if the key exchange was initiated by the server,
+                // no need to wait for the SSH_MSG_KEXINIT response.
+                _syncHandler.Send(packetToSend);
+                return;
+            }
+
+            // send KEXINIT
+            _syncHandler.Send(packetToSend);
+
+            DataFragment response = null;
+            if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+                throw new SSHException("Sever doesn't respond.");
+            }
+
+            lock (_sequenceLock) {
+                if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
+                    throw new SSHException("Connection closed");
+                }
+                Debug.Assert(_sequenceStatus == SequenceStatus.KexInitReceived);    // already set in FeedReceivedPacket
+            }
+
+            ProcessKEXINIT(response, state);
+        }
+
+        /// <summary>
+        /// Diffie-Hellman key exchange sequence.
+        /// </summary>
+        /// <param name="state">informations about current key exchange</param>
+        /// <exception cref="SSHException">no response</exception>
+        private void KexDiffieHellman(KexState state) {
+            lock (_sequenceLock) {
+                Debug.Assert(_sequenceStatus == SequenceStatus.KexInitReceived || _sequenceStatus == SequenceStatus.InitiatedByServer);
+            }
+
+            SSH2Packet packetToSend = BuildKEXDHINITPacket(state);
+
+            lock (_sequenceLock) {
+                _sequenceStatus = SequenceStatus.WaitKexDHReplay;
+            }
+
+            // send KEXDH_INIT
+            _syncHandler.Send(packetToSend);
+
+            DataFragment response = null;
+            if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+                throw new SSHException("Sever doesn't respond.");
+            }
+
+            lock (_sequenceLock) {
+                if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
+                    throw new SSHException("Connection closed");
+                }
+                Debug.Assert(_sequenceStatus == SequenceStatus.WaitNewKeys || _sequenceStatus == SequenceStatus.WaitUpdateCipher);    // already set in FeedReceivedPacket
+            }
+
+            bool isAccepted = ProcessKEXDHREPLY(response, state);
+
+            if (_connection.IsEventTracerAvailable) {
+                _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_KEXDH_REPLY,
+                    isAccepted ? "host key has been accepted" : "host key has been denied");
+            }
+
+            if (!isAccepted) {
+                throw new SSHException("host key has been denied");
+            }
+        }
+
+        /// <summary>
+        /// SSH_MSG_NEWKEYS sequence.
+        /// </summary>
+        /// <param name="state">informations about current key exchange</param>
+        /// <returns>true if the sequence was succeeded</returns>
+        /// <exception cref="SSHException">no response</exception>
+        private void KexNewKeys(KexState state) {
+            lock (_sequenceLock) {
+                Debug.Assert(_sequenceStatus == SequenceStatus.WaitNewKeys || _sequenceStatus == SequenceStatus.WaitUpdateCipher);
+            }
+
+            // make NEWKEYS packet
+            SSH2Packet packetToSend = BuildNEWKEYSPacket();
+
+            // send KEXDH_INIT
+            _syncHandler.Send(packetToSend);
+
+            DataFragment response = null;
+            if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+                throw new SSHException("Sever doesn't respond.");
+            }
+
+            lock (_sequenceLock) {
+                if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
+                    throw new SSHException("Connection closed");
+                }
+            }
+
+            if (_connection.IsEventTracerAvailable) {
+                _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_NEWKEYS, "the keys are updated");
+            }
+        }
+
+        /// <summary>
+        /// Build a SSH_MSG_KEXINIT packet.
+        /// </summary>
+        /// <param name="traceMessage">trace message will be set</param>
+        /// <returns>a packet object</returns>
+        private SSH2Packet BuildKEXINITPacket(out string traceMessage) {
+            const string MAC_ALGORITHM = "hmac-sha1";
 
             SSH2Packet packet =
                 new SSH2Packet(SSH2PacketType.SSH_MSG_KEXINIT)
@@ -1246,8 +1480,8 @@ namespace Granados.SSH2 {
                     .WriteString(FormatHostKeyAlgorithmDescription()) // server_host_key_algorithms
                     .WriteString(FormatCipherAlgorithmDescription()) // encryption_algorithms_client_to_server
                     .WriteString(FormatCipherAlgorithmDescription()) // encryption_algorithms_server_to_client
-                    .WriteString(mac_algorithm) // mac_algorithms_client_to_server
-                    .WriteString(mac_algorithm) // mac_algorithms_server_to_client
+                    .WriteString(MAC_ALGORITHM) // mac_algorithms_client_to_server
+                    .WriteString(MAC_ALGORITHM) // mac_algorithms_server_to_client
                     .WriteString("none") // compression_algorithms_client_to_server
                     .WriteString("none") // compression_algorithms_server_to_client
                     .WriteString("") // languages_client_to_server
@@ -1255,135 +1489,315 @@ namespace Granados.SSH2 {
                     .WriteBool(false) // indicates whether a guessed key exchange packet follows
                     .WriteInt32(0); // reserved for future extension
 
-            _clientKEXINITPayload = packet.GetPayloadBytes();
+            traceMessage = new StringBuilder()
+                .Append("kex_algorithm=")
+                .Append(GetSupportedKexAlgorithms())
+                .Append("; server_host_key_algorithms=")
+                .Append(FormatHostKeyAlgorithmDescription())
+                .Append("; encryption_algorithms_client_to_server=")
+                .Append(FormatCipherAlgorithmDescription())
+                .Append("; encryption_algorithms_server_to_client=")
+                .Append(FormatCipherAlgorithmDescription())
+                .Append("; mac_algorithms_client_to_server=")
+                .Append(MAC_ALGORITHM)
+                .Append("; mac_algorithms_server_to_client=")
+                .Append(MAC_ALGORITHM)
+                .ToString();
 
-            Transmit(packet);
-
-            if (_connection.IsEventTracerAvailable) {
-                StringBuilder bld = new StringBuilder();
-                bld.Append("kex_algorithm=");
-                bld.Append(GetSupportedKexAlgorithms());
-                bld.Append("; server_host_key_algorithms=");
-                bld.Append(FormatHostKeyAlgorithmDescription());
-                bld.Append("; encryption_algorithms_client_to_server=");
-                bld.Append(FormatCipherAlgorithmDescription());
-                bld.Append("; encryption_algorithms_server_to_client=");
-                bld.Append(FormatCipherAlgorithmDescription());
-                bld.Append("; mac_algorithms_client_to_server=");
-                bld.Append(mac_algorithm);
-                bld.Append("; mac_algorithms_server_to_client=");
-                bld.Append(mac_algorithm);
-                TraceTransmissionNegotiation(SSH2PacketType.SSH_MSG_KEXINIT, bld.ToString());
-            }
+            return packet;
         }
 
-        private void ProcessKEXINIT(DataFragment packet) {
-            SSH2DataReader re = null;
-            do {
-                _serverKEXINITPayload = packet.GetBytes();
-                re = new SSH2DataReader(_serverKEXINITPayload);
-                byte[] head = re.Read(17); //Type and cookie
-                SSH2PacketType pt = (SSH2PacketType)head[0];
+        /// <summary>
+        /// Reads a received SSH_MSG_KEXINIT packet.
+        /// </summary>
+        /// <param name="packet">a received packet image</param>
+        /// <param name="state">informations about current key exchange</param>
+        private void ProcessKEXINIT(DataFragment packet, KexState state) {
 
-                if (pt == SSH2PacketType.SSH_MSG_KEXINIT)
-                    break; //successfully exit
-                
-                if (pt == SSH2PacketType.SSH_MSG_IGNORE || pt == SSH2PacketType.SSH_MSG_DEBUG) { //continue
-                    packet = _connection.ReceivePacket();
-                }
-                else {
-                    throw new SSHException(String.Format("Server response is not SSH_MSG_KEXINIT but {0}", head[0]));
-                }
-            } while (true);
+            state.serverKEXINITPayload = packet.GetBytes();
 
-            string kex = re.ReadString();
+            SSH2DataReader reader = new SSH2DataReader(packet);
+            reader.Read(17);    // skip message number and cookie
+
+            string kex = reader.ReadString();
             _cInfo.SupportedKEXAlgorithms = kex;
             _cInfo.KEXAlgorithm = DecideKexAlgorithm(kex);
 
-            string host_key = re.ReadString();
+            string host_key = reader.ReadString();
             _cInfo.SupportedHostKeyAlgorithms = host_key;
             _cInfo.HostKeyAlgorithm = DecideHostKeyAlgorithm(host_key);
 
-            string enc_cs = re.ReadString();
+            string enc_cs = reader.ReadString();
             _cInfo.SupportedEncryptionAlgorithmsClientToServer = enc_cs;
             _cInfo.OutgoingPacketCipher = DecideCipherAlgorithm(enc_cs);
 
-            string enc_sc = re.ReadString();
+            string enc_sc = reader.ReadString();
             _cInfo.SupportedEncryptionAlgorithmsServerToClient = enc_sc;
             _cInfo.IncomingPacketCipher = DecideCipherAlgorithm(enc_sc);
 
-            string mac_cs = re.ReadString();
+            string mac_cs = reader.ReadString();
             CheckAlgorithmSupport("mac", mac_cs, "hmac-sha1");
 
-            string mac_sc = re.ReadString();
+            string mac_sc = reader.ReadString();
             CheckAlgorithmSupport("mac", mac_sc, "hmac-sha1");
 
-            string comp_cs = re.ReadString();
+            string comp_cs = reader.ReadString();
             CheckAlgorithmSupport("compression", comp_cs, "none");
-            string comp_sc = re.ReadString();
+            string comp_sc = reader.ReadString();
             CheckAlgorithmSupport("compression", comp_sc, "none");
 
-            string lang_cs = re.ReadString();
-            string lang_sc = re.ReadString();
-            bool flag = re.ReadBool();
-            int reserved = re.ReadInt32();
-            Debug.Assert(re.RemainingDataLength == 0);
+            string lang_cs = reader.ReadString();
+            string lang_sc = reader.ReadString();
+            bool firstKexPacketFollows = reader.ReadBool();
+            int reserved = reader.ReadInt32();
 
-            if (_connection.IsEventTracerAvailable) {
-                StringBuilder bld = new StringBuilder();
-                bld.Append("kex_algorithm=");
-                bld.Append(kex);
-                bld.Append("; server_host_key_algorithms=");
-                bld.Append(host_key);
-                bld.Append("; encryption_algorithms_client_to_server=");
-                bld.Append(enc_cs);
-                bld.Append("; encryption_algorithms_server_to_client=");
-                bld.Append(enc_sc);
-                bld.Append("; mac_algorithms_client_to_server=");
-                bld.Append(mac_cs);
-                bld.Append("; mac_algorithms_server_to_client=");
-                bld.Append(mac_sc);
-                bld.Append("; comression_algorithms_client_to_server=");
-                bld.Append(comp_cs);
-                bld.Append("; comression_algorithms_server_to_client=");
-                bld.Append(comp_sc);
-                TraceReceptionNegotiation(SSH2PacketType.SSH_MSG_KEXINIT, bld.ToString());
+            if (firstKexPacketFollows) {
+                throw new SSHException("Algorithm negotiation failed");
             }
 
-            if (flag)
-                throw new SSHException("Algorithm negotiation failed");
+            string traceMessage = new StringBuilder()
+                .Append("kex_algorithm=")
+                .Append(kex)
+                .Append("; server_host_key_algorithms=")
+                .Append(host_key)
+                .Append("; encryption_algorithms_client_to_server=")
+                .Append(enc_cs)
+                .Append("; encryption_algorithms_server_to_client=")
+                .Append(enc_sc)
+                .Append("; mac_algorithms_client_to_server=")
+                .Append(mac_cs)
+                .Append("; mac_algorithms_server_to_client=")
+                .Append(mac_sc)
+                .Append("; comression_algorithms_client_to_server=")
+                .Append(comp_cs)
+                .Append("; comression_algorithms_server_to_client=")
+                .Append(comp_sc)
+                .ToString();
+
+            if (_connection.IsEventTracerAvailable) {
+                _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_KEXINIT, traceMessage);
+            }
         }
 
-
-        private DataFragment SendKEXDHINIT(Mode mode) {
+        /// <summary>
+        /// Builds a SSH_MSG_KEXDH_INIT packet.
+        /// </summary>
+        /// <param name="state">informations about current key exchange</param>
+        /// <returns>a packet object</returns>
+        private SSH2Packet BuildKEXDHINITPacket(KexState state) {
             //Round1 computes and sends [e]
-            BigInteger p = GetDiffieHellmanPrime(_cInfo.KEXAlgorithm.Value);
+            state.p = GetDiffieHellmanPrime(_cInfo.KEXAlgorithm.Value);
             //Generate x : 1 < x < (p-1)/2
-            int xBytes = (p.BitCount() - 2) / 8;
+            int xBytes = (state.p.BitCount() - 2) / 8;
+            BigInteger x;
             Rng rng = RngManager.GetSecureRng();
             do {
                 byte[] sx = new byte[xBytes];
                 rng.GetBytes(sx);
-                _x = new BigInteger(sx);
-            } while (_x <= 1);
-            _e = new BigInteger(2).ModPow(_x, p);
+                x = new BigInteger(sx);
+            } while (x <= 1);
+            state.x = x;
+            state.e = new BigInteger(2).ModPow(x, state.p);
 
             SSH2Packet packet =
                 new SSH2Packet(SSH2PacketType.SSH_MSG_KEXDH_INIT)
-                    .WriteBigInteger(_e);
+                    .WriteBigInteger(state.e);
 
-            _status = Status.WAIT_KEXDH_REPLY;
-            TraceTransmissionNegotiation(SSH2PacketType.SSH_MSG_KEXDH_INIT, "");
+            return packet;
+        }
 
-            if (mode == Mode.Synchronized) {
-                return TransmitAndWaitResponse(packet);
+        /// <summary>
+        /// Reads and verifies SSH_MSG_KEXDH_REPLY packet.
+        /// </summary>
+        /// <param name="packet">a received packet image</param>
+        /// <param name="state">informations about current key exchange</param>
+        /// <returns>true if verification was succeeded</returns>
+        private bool ProcessKEXDHREPLY(DataFragment packet, KexState state) {
+            //Round2 receives response
+            SSH2DataReader reader = new SSH2DataReader(packet);
+            SSH2PacketType packetType = (SSH2PacketType)reader.ReadByte();
+
+            byte[] key_and_cert = reader.ReadByteString();
+            BigInteger f = reader.ReadMPInt();
+            byte[] signature = reader.ReadByteString();
+            Debug.Assert(reader.RemainingDataLength == 0);
+
+            //Round3 calc hash H
+            SSH2DataWriter wr = new SSH2DataWriter();
+            state.k = f.ModPow(state.x, state.p);
+            wr = new SSH2DataWriter();
+            wr.WriteString(_cInfo.ClientVersionString);
+            wr.WriteString(_cInfo.ServerVersionString);
+            wr.WriteAsString(state.clientKEXINITPayload);
+            wr.WriteAsString(state.serverKEXINITPayload);
+            wr.WriteAsString(key_and_cert);
+            wr.WriteBigInteger(state.e);
+            wr.WriteBigInteger(f);
+            wr.WriteBigInteger(state.k);
+            state.hash = KexComputeHash(wr.ToByteArray());
+
+            if (_connection.IsEventTracerAvailable) {
+                _connection.TraceReceptionEvent(packetType, "verifying host key");
+            }
+
+            bool verifyExternally = (_sessionID == null) ? true : false;
+            bool accepted = VerifyHostKey(key_and_cert, signature, state.hash, verifyExternally);
+
+            if (accepted && _sessionID == null) {
+                //Debug.WriteLine("hash="+DebugUtil.DumpByteArray(hash));
+                _sessionID = state.hash;
+            }
+            return accepted;
+        }
+
+        /// <summary>
+        /// Builds a SSH_MSG_NEWKEYS packet.
+        /// </summary>
+        /// <returns>a packet object</returns>
+        private SSH2Packet BuildNEWKEYSPacket() {
+            return new SSH2Packet(SSH2PacketType.SSH_MSG_NEWKEYS);
+        }
+
+        /// <summary>
+        /// Gets cipher settings
+        /// </summary>
+        /// <param name="state">informations about current key exchange</param>
+        /// <returns>cipher settings</returns>
+        private CipherSettings GetCipherSettings(KexState state) {
+            CipherSettings settings = new CipherSettings();
+
+            settings.cipherServer =
+                CipherFactory.CreateCipher(
+                    SSHProtocol.SSH2,
+                    _cInfo.OutgoingPacketCipher.Value,
+                    DeriveKey(state.k, state.hash, 'C', CipherFactory.GetKeySize(_cInfo.OutgoingPacketCipher.Value)),
+                    DeriveKey(state.k, state.hash, 'A', CipherFactory.GetBlockSize(_cInfo.OutgoingPacketCipher.Value))
+                );
+            settings.cipherClient =
+                CipherFactory.CreateCipher(
+                    SSHProtocol.SSH2,
+                    _cInfo.IncomingPacketCipher.Value,
+                    DeriveKey(state.k, state.hash, 'D', CipherFactory.GetKeySize(_cInfo.IncomingPacketCipher.Value)),
+                    DeriveKey(state.k, state.hash, 'B', CipherFactory.GetBlockSize(_cInfo.IncomingPacketCipher.Value))
+                );
+
+            MACAlgorithm ma = MACAlgorithm.HMACSHA1;
+            settings.macServer = MACFactory.CreateMAC(MACAlgorithm.HMACSHA1, DeriveKey(state.k, state.hash, 'E', MACFactory.GetSize(ma)));
+            settings.macClient = MACFactory.CreateMAC(MACAlgorithm.HMACSHA1, DeriveKey(state.k, state.hash, 'F', MACFactory.GetSize(ma)));
+
+            return settings;
+        }
+
+        /// <summary>
+        /// Verifies server host key and certificates.
+        /// </summary>
+        /// <param name="ks">server public host key and certificates (K_S)</param>
+        /// <param name="signature">signature of exchange hash</param>
+        /// <param name="hash">computed exchange hash</param>
+        /// <param name="verifyExternally">specify true if the additional verification by delegate VerifySSHHostKey is required.</param>
+        /// <returns>true if server host key and certificates were verified and accepted.</returns>
+        private bool VerifyHostKey(byte[] ks, byte[] signature, byte[] hash, bool verifyExternally) {
+            SSH2DataReader ksReader = new SSH2DataReader(ks);
+            string algorithm = ksReader.ReadString();
+            if (algorithm != SSH2Util.PublicKeyAlgorithmName(_cInfo.HostKeyAlgorithm.Value)) {
+                throw new SSHException("Protocol Error: Host Key Algorithm Mismatch");
+            }
+
+            SSH2DataReader sigReader = new SSH2DataReader(signature);
+            string sigAlgorithm = sigReader.ReadString();
+            if (sigAlgorithm != algorithm) {
+                throw new SSHException("Protocol Error: Host Key Algorithm Mismatch");
+            }
+            byte[] signatureBlob = sigReader.ReadByteString();
+
+            if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.RSA) {
+                RSAPublicKey pk = ReadRSAPublicKey(ksReader);
+                pk.VerifyWithSHA1(signatureBlob, new SHA1CryptoServiceProvider().ComputeHash(hash));
+                _cInfo.HostKey = pk;
+            }
+            else if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.DSA) {
+                DSAPublicKey pk = ReadDSAPublicKey(ksReader);
+                pk.Verify(signatureBlob, new SHA1CryptoServiceProvider().ComputeHash(hash));
+                _cInfo.HostKey = pk;
             }
             else {
-                Transmit(packet);
-                return null;
+                throw new SSHException("Bad host key algorithm " + _cInfo.HostKeyAlgorithm);
+            }
+
+            //ask the client whether he accepts the host key
+            if (verifyExternally && _param.VerifySSHHostKey != null) {
+                return _param.VerifySSHHostKey(_cInfo.GetSSHHostKeyInformationProvider());
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Reads RSA public key informations.
+        /// </summary>
+        /// <param name="reader">packet reader</param>
+        /// <returns>public key object</returns>
+        private RSAPublicKey ReadRSAPublicKey(SSH2DataReader reader) {
+            BigInteger exp = reader.ReadMPInt();
+            BigInteger mod = reader.ReadMPInt();
+            return new RSAPublicKey(exp, mod);
+        }
+
+        /// <summary>
+        /// Reads DSA public key informations.
+        /// </summary>
+        /// <param name="reader">packet reader</param>
+        /// <returns>public key object</returns>
+        private DSAPublicKey ReadDSAPublicKey(SSH2DataReader reader) {
+            BigInteger p = reader.ReadMPInt();
+            BigInteger q = reader.ReadMPInt();
+            BigInteger g = reader.ReadMPInt();
+            BigInteger y = reader.ReadMPInt();
+            return new DSAPublicKey(p, g, q, y);
+        }
+
+        /// <summary>
+        /// Creates a key from K and H.
+        /// </summary>
+        /// <param name="k">a shared secret K</param>
+        /// <param name="h">an exchange hash H</param>
+        /// <param name="letter">letter ('A', 'B',...)</param>
+        /// <param name="length">key length</param>
+        /// <returns></returns>
+        private byte[] DeriveKey(BigInteger k, byte[] h, char letter, int length) {
+            SSH2PayloadImageBuilder image = new SSH2PayloadImageBuilder();
+            ByteBuffer hashBuff = new ByteBuffer(length * 2, -1);
+
+            while (true) {
+                image.Clear();
+                image.WriteBigInteger(k);
+                image.Write(h);
+                if (hashBuff.Length == 0) {
+                    image.WriteByte((byte)letter);
+                    image.Write(_sessionID);
+                }
+                else {
+                    image.Payload.Append(hashBuff);
+                }
+                byte[] hash = KexComputeHash(image.GetBytes());
+
+                hashBuff.Append(hash);
+
+                if (hashBuff.Length > length) {
+                    int trimLen = hashBuff.Length - length;
+                    if (trimLen > 0) {
+                        hashBuff.RemoveTail(trimLen);
+                    }
+                    return hashBuff.GetBytes();
+                }
             }
         }
 
+        /// <summary>
+        /// Computes hash according to the current key exchange algorithm.
+        /// </summary>
+        /// <param name="b">source bytes</param>
+        /// <returns>hash value</returns>
         private byte[] KexComputeHash(byte[] b) {
             switch (_cInfo.KEXAlgorithm) {
                 case KexAlgorithm.DH_G1_SHA1:
@@ -1402,249 +1816,119 @@ namespace Granados.SSH2 {
             }
         }
 
-        private bool ProcessKEXDHREPLY(DataFragment packet) {
-            //Round2 receives response
-            SSH2DataReader re = null;
-            SSH2PacketType h;
-            do {
-                re = new SSH2DataReader(packet);
-                h = (SSH2PacketType) re.ReadByte();
-                if (h == SSH2PacketType.SSH_MSG_KEXDH_REPLY)
-                    break; //successfully exit
-                else if (h == SSH2PacketType.SSH_MSG_IGNORE || h == SSH2PacketType.SSH_MSG_DEBUG) { //continue
-                    packet = _connection.ReceivePacket();
-                }
-                else
-                    throw new SSHException(String.Format("KeyExchange response is not KEXDH_REPLY but {0}", h));
-            } while (true);
-
-            byte[] key_and_cert = re.ReadByteString();
-            BigInteger f = re.ReadMPInt();
-            byte[] signature = re.ReadByteString();
-            Debug.Assert(re.RemainingDataLength == 0);
-
-            //Round3 calc hash H
-            SSH2DataWriter wr = new SSH2DataWriter();
-            _k = f.ModPow(_x, GetDiffieHellmanPrime(_cInfo.KEXAlgorithm.Value));
-            wr = new SSH2DataWriter();
-            wr.WriteString(_cInfo.ClientVersionString);
-            wr.WriteString(_cInfo.ServerVersionString);
-            wr.WriteAsString(_clientKEXINITPayload);
-            wr.WriteAsString(_serverKEXINITPayload);
-            wr.WriteAsString(key_and_cert);
-            wr.WriteBigInteger(_e);
-            wr.WriteBigInteger(f);
-            wr.WriteBigInteger(_k);
-            _hash = KexComputeHash(wr.ToByteArray());
-
-            _connection.TraceReceptionEvent(h, "verifying host key");
-            if (!VerifyHostKey(key_and_cert, signature, _hash))
-                return false;
-
-            //Debug.WriteLine("hash="+DebugUtil.DumpByteArray(hash));
-            if (_sessionID == null)
-                _sessionID = _hash;
-            return true;
-        }
-
-        private DataFragment SendNEWKEYS(Mode mode) {
-            _status = Status.WAIT_NEWKEYS;
-            Monitor.Enter(_connection); //lock the connection during we exchange sSH_MSG_NEWKEYS
-            Transmit(
-                new SSH2Packet(SSH2PacketType.SSH_MSG_NEWKEYS)
-            );
-
-            //establish Ciphers
-            _tc = CipherFactory.CreateCipher(SSHProtocol.SSH2, _cInfo.OutgoingPacketCipher.Value,
-                DeriveKey(_k, _hash, 'C', CipherFactory.GetKeySize(_cInfo.OutgoingPacketCipher.Value)), DeriveKey(_k, _hash, 'A', CipherFactory.GetBlockSize(_cInfo.OutgoingPacketCipher.Value)));
-            _rc = CipherFactory.CreateCipher(SSHProtocol.SSH2, _cInfo.IncomingPacketCipher.Value,
-                DeriveKey(_k, _hash, 'D', CipherFactory.GetKeySize(_cInfo.IncomingPacketCipher.Value)), DeriveKey(_k, _hash, 'B', CipherFactory.GetBlockSize(_cInfo.IncomingPacketCipher.Value)));
-
-            //establish MACs
-            MACAlgorithm ma = MACAlgorithm.HMACSHA1;
-            _tm = MACFactory.CreateMAC(MACAlgorithm.HMACSHA1, DeriveKey(_k, _hash, 'E', MACFactory.GetSize(ma)));
-            _rm = MACFactory.CreateMAC(MACAlgorithm.HMACSHA1, DeriveKey(_k, _hash, 'F', MACFactory.GetSize(ma)));
-
-            if (mode == Mode.Synchronized)
-                return _connection.ReceivePacket();
-            else
-                return null;
-        }
-
-        private void ProcessNEWKEYS(DataFragment packet) {
-            //confirms new key
-            if (packet.Length != 1 || packet[0] != (byte)SSH2PacketType.SSH_MSG_NEWKEYS) {
-                Monitor.Exit(_connection);
-                throw new SSHException("SSH_MSG_NEWKEYS failed");
+        /// <summary>
+        /// Checks if the name list contains the specified algorithm.
+        /// </summary>
+        /// <param name="title">title</param>
+        /// <param name="nameList">name-list string</param>
+        /// <param name="algorithmName">algorithm name</param>
+        /// <exception cref="SSHException">the name list doesn't contain the specified algorithm</exception>
+        private static void CheckAlgorithmSupport(string title, string nameList, string algorithmName) {
+            string[] names = nameList.Split(',');
+            if (names.Contains(algorithmName)) {
+                return; // found
             }
-
-            _connection.RefreshKeys(_sessionID, _tc, _rc, _tm, _rm);
-            Monitor.Exit(_connection);
-            TraceReceptionNegotiation(SSH2PacketType.SSH_MSG_NEWKEYS, "the keys are refreshed");
-            _status = Status.FINISHED;
+            throw new SSHException("Server does not support " + algorithmName + " for " + title);
         }
 
-        private bool VerifyHostKey(byte[] K_S, byte[] signature, byte[] hash) {
-            SSH2DataReader re1 = new SSH2DataReader(K_S);
-            string algorithm = re1.ReadString();
-            if (algorithm != SSH2Util.PublicKeyAlgorithmName(_cInfo.HostKeyAlgorithm.Value))
-                throw new SSHException("Protocol Error: Host Key Algorithm Mismatch");
-
-            SSH2DataReader re2 = new SSH2DataReader(signature);
-            algorithm = re2.ReadString();
-            if (algorithm != SSH2Util.PublicKeyAlgorithmName(_cInfo.HostKeyAlgorithm.Value))
-                throw new SSHException("Protocol Error: Host Key Algorithm Mismatch");
-            byte[] sigbody = re2.ReadByteString();
-            Debug.Assert(re2.RemainingDataLength == 0);
-
-            if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.RSA) {
-                RSAPublicKey pk = ReadRSAPublicKey(re1, sigbody, hash);
-                pk.VerifyWithSHA1(sigbody, new SHA1CryptoServiceProvider().ComputeHash(hash));
-                _cInfo.HostKey = pk;
-            }
-            else if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.DSA) {
-                DSAPublicKey pk = ReadDSAPublicKey(re1, sigbody, hash);
-                pk.Verify(sigbody, new SHA1CryptoServiceProvider().ComputeHash(hash));
-                _cInfo.HostKey = pk;
-            }
-            else
-                throw new SSHException("Bad host key algorithm " + _cInfo.HostKeyAlgorithm);
-
-            //ask the client whether he accepts the host key
-            if (!_startedByHost && _param.VerifySSHHostKey != null) {
-                if (!_param.VerifySSHHostKey(_cInfo.GetSSHHostKeyInformationProvider())) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private RSAPublicKey ReadRSAPublicKey(SSH2DataReader pubkey, byte[] sigbody, byte[] hash) {
-            BigInteger exp = pubkey.ReadMPInt();
-            BigInteger mod = pubkey.ReadMPInt();
-            Debug.Assert(pubkey.RemainingDataLength == 0);
-
-            RSAPublicKey pk = new RSAPublicKey(exp, mod);
-            return pk;
-        }
-
-        private DSAPublicKey ReadDSAPublicKey(SSH2DataReader pubkey, byte[] sigbody, byte[] hash) {
-            BigInteger p = pubkey.ReadMPInt();
-            BigInteger q = pubkey.ReadMPInt();
-            BigInteger g = pubkey.ReadMPInt();
-            BigInteger y = pubkey.ReadMPInt();
-            Debug.Assert(pubkey.RemainingDataLength == 0);
-
-            DSAPublicKey pk = new DSAPublicKey(p, g, q, y);
-            return pk;
-        }
-
-        private byte[] DeriveKey(BigInteger key, byte[] hash, char ch, int length) {
-            byte[] result = new byte[length];
-
-            SSH2DataWriter wr = new SSH2DataWriter();
-            wr.WriteBigInteger(key);
-            wr.Write(hash);
-            wr.WriteByte((byte)ch);
-            wr.Write(_sessionID);
-            byte[] h1 = KexComputeHash(wr.ToByteArray());
-            if (h1.Length >= length) {
-                Array.Copy(h1, 0, result, 0, length);
-                return result;
-            }
-            else {
-                wr = new SSH2DataWriter();
-                wr.WriteBigInteger(key);
-                wr.Write(_sessionID);
-                wr.Write(h1);
-                byte[] h2 = KexComputeHash(wr.ToByteArray());
-                if (h1.Length + h2.Length >= length) {
-                    Array.Copy(h1, 0, result, 0, h1.Length);
-                    Array.Copy(h2, 0, result, h1.Length, length - h1.Length);
-                    return result;
-                }
-                else
-                    throw new SSHException("necessary key length is too big"); //long key is not supported
-            }
-        }
-
-        private static void CheckAlgorithmSupport(string title, string data, string algorithm_name) {
-            string[] t = data.Split(',');
-            foreach (string s in t) {
-                if (s == algorithm_name)
-                    return; //found!
-            }
-            throw new SSHException("Server does not support " + algorithm_name + " for " + title);
-        }
-        private KexAlgorithm DecideKexAlgorithm(string data) {
-            string[] k = data.Split(',');
-            foreach (string s in k) {
+        /// <summary>
+        /// Decides Key exchange algorithm to use.
+        /// </summary>
+        /// <param name="candidates">candidate algorithms</param>
+        /// <returns>key exchange algorithm to use</returns>
+        /// <exception cref="SSHException">no suitable algorithm was found</exception>
+        private KexAlgorithm DecideKexAlgorithm(string candidates) {
+            string[] candidateNames = candidates.Split(',');
+            foreach (string candidateName in candidateNames) {
                 foreach (SupportedKexAlgorithm algorithm in supportedKexAlgorithms) {
-                    if (algorithm.name == s) {
+                    if (algorithm.name == candidateName) {
                         return algorithm.value;
                     }
                 }
             }
             throw new SSHException("The negotiation of kex algorithm is failed");
         }
-        private string GetSupportedKexAlgorithms() {
-            StringBuilder s = new StringBuilder();
-            string sep = "";
-            for (int i = 0; i < supportedKexAlgorithms.Length; ++i) {
-                s.Append(sep).Append(supportedKexAlgorithms[i].name);
-                sep = ",";
-            }
-            return s.ToString();
-        }
-        private PublicKeyAlgorithm DecideHostKeyAlgorithm(string data) {
-            string[] t = data.Split(',');
-            foreach (PublicKeyAlgorithm a in _param.PreferableHostKeyAlgorithms) {
-                if (SSHUtil.ContainsString(t, SSH2Util.PublicKeyAlgorithmName(a))) {
-                    return a;
+
+        /// <summary>
+        /// Decides host key algorithm to use.
+        /// </summary>
+        /// <param name="candidates">candidate algorithms</param>
+        /// <returns>host key algorithm to use</returns>
+        /// <exception cref="SSHException">no suitable algorithm was found</exception>
+        private PublicKeyAlgorithm DecideHostKeyAlgorithm(string candidates) {
+            string[] candidateNames = candidates.Split(',');
+            foreach (PublicKeyAlgorithm pref in _param.PreferableHostKeyAlgorithms) {
+                string prefName = SSH2Util.PublicKeyAlgorithmName(pref);
+                if (candidateNames.Contains(prefName)) {
+                    return pref;
                 }
             }
             throw new SSHException("The negotiation of host key verification algorithm is failed");
         }
-        private CipherAlgorithm DecideCipherAlgorithm(string data) {
-            string[] t = data.Split(',');
-            foreach (CipherAlgorithm a in _param.PreferableCipherAlgorithms) {
-                if (SSHUtil.ContainsString(t, CipherFactory.AlgorithmToSSH2Name(a))) {
-                    return a;
+
+        /// <summary>
+        /// Decides cipher algorithm to use.
+        /// </summary>
+        /// <param name="candidates">candidate algorithms</param>
+        /// <returns>cipher algorithm to use</returns>
+        /// <exception cref="SSHException">no suitable algorithm was found</exception>
+        private CipherAlgorithm DecideCipherAlgorithm(string candidates) {
+            string[] candidateNames = candidates.Split(',');
+            foreach (CipherAlgorithm pref in _param.PreferableCipherAlgorithms) {
+                string prefName = CipherFactory.AlgorithmToSSH2Name(pref);
+                if (candidateNames.Contains(prefName)) {
+                    return pref;
                 }
             }
             throw new SSHException("The negotiation of encryption algorithm is failed");
         }
-        private string FormatHostKeyAlgorithmDescription() {
-            StringBuilder b = new StringBuilder();
-            if (_param.PreferableHostKeyAlgorithms.Length == 0)
-                throw new SSHException("HostKeyAlgorithm is not set");
-            b.Append(SSH2Util.PublicKeyAlgorithmName(_param.PreferableHostKeyAlgorithms[0]));
-            for (int i = 1; i < _param.PreferableHostKeyAlgorithms.Length; i++) {
-                b.Append(',');
-                b.Append(SSH2Util.PublicKeyAlgorithmName(_param.PreferableHostKeyAlgorithms[i]));
-            }
-            return b.ToString();
-        }
-        private string FormatCipherAlgorithmDescription() {
-            StringBuilder b = new StringBuilder();
-            if (_param.PreferableCipherAlgorithms.Length == 0)
-                throw new SSHException("CipherAlgorithm is not set");
-            b.Append(CipherFactory.AlgorithmToSSH2Name(_param.PreferableCipherAlgorithms[0]));
-            for (int i = 1; i < _param.PreferableCipherAlgorithms.Length; i++) {
-                b.Append(',');
-                b.Append(CipherFactory.AlgorithmToSSH2Name(_param.PreferableCipherAlgorithms[i]));
-            }
-            return b.ToString();
+
+        /// <summary>
+        /// Makes kex_algorithms field for the SSH_MSG_KEXINIT
+        /// </summary>
+        /// <returns>name list</returns>
+        private string GetSupportedKexAlgorithms() {
+            return string.Join(",",
+                    supportedKexAlgorithms
+                        .Select(algorithm => algorithm.name));
         }
 
-        /*
-         * the seed of diffie-hellman KX defined in the spec of SSH2
-         */
+        /// <summary>
+        /// Makes server_host_key_algorithms field for the SSH_MSG_KEXINIT
+        /// </summary>
+        /// <returns>name list</returns>
+        private string FormatHostKeyAlgorithmDescription() {
+            if (_param.PreferableHostKeyAlgorithms.Length == 0) {
+                throw new SSHException("HostKeyAlgorithm is not set");
+            }
+            return string.Join(",",
+                    _param.PreferableHostKeyAlgorithms
+                        .Select(algorithm => SSH2Util.PublicKeyAlgorithmName(algorithm)));
+        }
+
+        /// <summary>
+        /// Makes encryption_algorithms_client_to_server field for the SSH_MSG_KEXINIT
+        /// </summary>
+        /// <returns>name list</returns>
+        private string FormatCipherAlgorithmDescription() {
+            if (_param.PreferableCipherAlgorithms.Length == 0) {
+                throw new SSHException("CipherAlgorithm is not set");
+            }
+            return string.Join(",",
+                    _param.PreferableCipherAlgorithms
+                        .Select(algorithm => CipherFactory.AlgorithmToSSH2Name(algorithm)));
+        }
+
         private static BigInteger _dh_g1_prime = null;
         private static BigInteger _dh_g14_prime = null;
         private static BigInteger _dh_g16_prime = null;
         private static BigInteger _dh_g18_prime = null;
+
+        /// <summary>
+        /// Gets a prime number for the Diffie-Hellman key exchange.
+        /// </summary>
+        /// <param name="algorithm">key exchange algorithm</param>
+        /// <returns>a prime number</returns>
         private BigInteger GetDiffieHellmanPrime(KexAlgorithm algorithm) {
             switch (algorithm) {
                 case KexAlgorithm.DH_G1_SHA1:
