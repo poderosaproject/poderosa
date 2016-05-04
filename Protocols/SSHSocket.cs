@@ -43,8 +43,9 @@ namespace Poderosa.Protocols {
             }
         }
         public virtual void CleanupErrorStatus() {
-            if (_connection != null && _connection.IsOpen)
+            if (_connection != null && _connection.IsOpen) {
                 _connection.Close();
+            }
         }
 
         public abstract void Close();
@@ -54,7 +55,9 @@ namespace Poderosa.Protocols {
 
         public virtual void OnConnectionClosed() {
             OnNormalTerminationCore();
-            _connection.Close();
+            if (_connection != null && _connection.IsOpen) {
+                _connection.Close();
+            }
         }
 
         public virtual void OnError(Exception error) {
@@ -90,7 +93,6 @@ namespace Poderosa.Protocols {
              *  組み合わせの詳細はサーバの実装依存でもあるので、ここでは１回だけ必ず呼ぶということにする。
              */
             _normalTerminationCalled = true;
-            EnsureCallbackHandler();
             _parent.CloseBySocket();
 
             try {
@@ -102,7 +104,6 @@ namespace Poderosa.Protocols {
             }
         }
         protected void OnAbnormalTerminationCore(string msg) {
-            EnsureCallbackHandler();
             _parent.CloseBySocket();
 
             try {
@@ -112,12 +113,6 @@ namespace Poderosa.Protocols {
             catch (Exception ex) {
                 CloseError(ex);
             }
-        }
-        protected void EnsureCallbackHandler() {
-            int n = 0;
-            //TODO きれいでないが、接続～StartRepeatまでの間にエラーがサーバから通知されたときに。
-            while (_callback == null && n++ < 100) //わずかな時間差でハンドラがセットされないこともある
-                Thread.Sleep(100);
         }
         //Termination処理の失敗時の処理
         private void CloseError(Exception ex) {
@@ -291,7 +286,6 @@ namespace Poderosa.Protocols {
             if (_callback == null) //1. 最初の認証中
                 _prompts = prompts;
             else { //2. パスワード入力まちがいなどでもう一回という場合
-                EnsureCallbackHandler();
                 ShowPrompt(prompts);
             }
         }

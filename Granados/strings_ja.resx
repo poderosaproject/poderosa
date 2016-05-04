@@ -11,6 +11,36 @@
   <resheader name="Writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ConnectionClosed">
+    <value>接続が切断しました。</value>
+  </data>
+  <data name="ServerDoesntRespond">
+    <value>サーバから応答がありません。</value>
+  </data>
+  <data name="HostKeyDenied">
+    <value>ホスト鍵を拒否しました。</value>
+  </data>
+  <data name="AlgorithmNegotiationFailed">
+    <value>アルゴリズムネゴシエーションに失敗しました。</value>
+  </data>
+  <data name="HostKeyAlgorithmMismatch">
+    <value>ホスト鍵のアルゴリズムが一致ません。</value>
+  </data>
+  <data name="UnsupportedHostKeyAlgorithm">
+    <value>サポートしていないホスト鍵のアルゴリズムです。</value>
+  </data>
+  <data name="AlgorithmNotSupportedByServer">
+    <value>サーバは"{1}"のアルゴリズム"{0}"をサポートしていません。</value>
+  </data>
+  <data name="KeyExchangeAlgorithmNegotiationFailed">
+    <value>鍵交換アルゴリズムのネゴシエーションに失敗しました。</value>
+  </data>
+  <data name="HostKeyAlgorithmNegotiationFailed">
+    <value>ホスト鍵アルゴリズムのネゴシエーションに失敗しました。</value>
+  </data>
+  <data name="EncryptionAlgorithmNegotiationFailed">
+    <value>暗号化アルゴリズムのネゴシエーションに失敗しました。</value>
+  </data>
   <data name="AuthenticationFailed">
     <value>ユーザ認証に失敗しました。</value>
   </data>

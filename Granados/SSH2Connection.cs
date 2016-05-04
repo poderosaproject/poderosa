@@ -86,22 +86,25 @@ namespace Granados.SSH2 {
         }
 
         internal override AuthenticationResult Connect() {
-            //key exchange
-            Task kexTask = _keyExchanger.StartKeyExchange();
             try {
+                //key exchange
+                Task kexTask = _keyExchanger.StartKeyExchange();
                 kexTask.Wait();
+
+                //user authentication
+                ServiceRequest("ssh-userauth");
+                _authenticationResult = UserAuth();
+                return _authenticationResult;
             }
-            catch (Exception e) {
+            catch (Exception ex) {
                 Close();
-                return AuthenticationResult.Failure;
+                if (ex is AggregateException) {
+                    Exception actualException = ((AggregateException)ex).InnerException;
+                    throw new SSHException(actualException.Message, actualException);
+                }
+                throw;
             }
-
-            //user authentication
-            ServiceRequest("ssh-userauth");
-            _authenticationResult = UserAuth();
-            return _authenticationResult;
         }
-
 
         private void ServiceRequest(string servicename) {
             Transmit(
@@ -1237,11 +1240,12 @@ namespace Granados.SSH2 {
                     case SequenceStatus.WaitNewKeys:
                         if (packetType == SSH2PacketType.SSH_MSG_NEWKEYS) {
                             _sequenceStatus = SequenceStatus.WaitUpdateCipher;
-                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
-                            // block this thread until the cipher settings were updated.
-                            do {
-                                Monitor.Wait(_sequenceLock);
-                            } while (_sequenceStatus == SequenceStatus.WaitUpdateCipher);
+                            if (_receivedPacket.TrySet(packet, PASSING_TIMEOUT)) {
+                                // block this thread until the cipher settings are updated.
+                                do {
+                                    Monitor.Wait(_sequenceLock);
+                                } while (_sequenceStatus == SequenceStatus.WaitUpdateCipher);
+                            }
                             return true;
                         }
                         break;
@@ -1323,7 +1327,7 @@ namespace Granados.SSH2 {
 
                 return; // success
             }
-            catch (Exception e) {
+            catch (Exception) {
                 lock (_sequenceLock) {
                     _sequenceStatus = SequenceStatus.Failed;
                     Monitor.PulseAll(_sequenceLock);
@@ -1376,12 +1380,12 @@ namespace Granados.SSH2 {
 
             DataFragment response = null;
             if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
-                throw new SSHException("Sever doesn't respond.");
+                throw new SSHException(Strings.GetString("ServerDoesntRespond"));
             }
 
             lock (_sequenceLock) {
                 if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
-                    throw new SSHException("Connection closed");
+                    throw new SSHException(Strings.GetString("ConnectionClosed"));
                 }
                 Debug.Assert(_sequenceStatus == SequenceStatus.KexInitReceived);    // already set in FeedReceivedPacket
             }
@@ -1410,12 +1414,12 @@ namespace Granados.SSH2 {
 
             DataFragment response = null;
             if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
-                throw new SSHException("Sever doesn't respond.");
+                throw new SSHException(Strings.GetString("ServerDoesntRespond"));
             }
 
             lock (_sequenceLock) {
                 if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
-                    throw new SSHException("Connection closed");
+                    throw new SSHException(Strings.GetString("ConnectionClosed"));
                 }
                 Debug.Assert(_sequenceStatus == SequenceStatus.WaitNewKeys || _sequenceStatus == SequenceStatus.WaitUpdateCipher);    // already set in FeedReceivedPacket
             }
@@ -1428,7 +1432,7 @@ namespace Granados.SSH2 {
             }
 
             if (!isAccepted) {
-                throw new SSHException("host key has been denied");
+                throw new SSHException(Strings.GetString("HostKeyDenied"));
             }
         }
 
@@ -1451,12 +1455,12 @@ namespace Granados.SSH2 {
 
             DataFragment response = null;
             if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
-                throw new SSHException("Sever doesn't respond.");
+                throw new SSHException(Strings.GetString("ServerDoesntRespond"));
             }
 
             lock (_sequenceLock) {
                 if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
-                    throw new SSHException("Connection closed");
+                    throw new SSHException(Strings.GetString("ConnectionClosed"));
                 }
             }
 
@@ -1552,7 +1556,7 @@ namespace Granados.SSH2 {
             int reserved = reader.ReadInt32();
 
             if (firstKexPacketFollows) {
-                throw new SSHException("Algorithm negotiation failed");
+                throw new SSHException(Strings.GetString("AlgorithmNegotiationFailed"));
             }
 
             string traceMessage = new StringBuilder()
@@ -1700,13 +1704,13 @@ namespace Granados.SSH2 {
             SSH2DataReader ksReader = new SSH2DataReader(ks);
             string algorithm = ksReader.ReadString();
             if (algorithm != SSH2Util.PublicKeyAlgorithmName(_cInfo.HostKeyAlgorithm.Value)) {
-                throw new SSHException("Protocol Error: Host Key Algorithm Mismatch");
+                throw new SSHException(Strings.GetString("HostKeyAlgorithmMismatch"));
             }
 
             SSH2DataReader sigReader = new SSH2DataReader(signature);
             string sigAlgorithm = sigReader.ReadString();
             if (sigAlgorithm != algorithm) {
-                throw new SSHException("Protocol Error: Host Key Algorithm Mismatch");
+                throw new SSHException(Strings.GetString("HostKeyAlgorithmMismatch"));
             }
             byte[] signatureBlob = sigReader.ReadByteString();
 
@@ -1721,7 +1725,7 @@ namespace Granados.SSH2 {
                 _cInfo.HostKey = pk;
             }
             else {
-                throw new SSHException("Bad host key algorithm " + _cInfo.HostKeyAlgorithm);
+                throw new SSHException(Strings.GetString("UnsupportedHostKeyAlgorithm"));
             }
 
             //ask the client whether he accepts the host key
@@ -1828,7 +1832,8 @@ namespace Granados.SSH2 {
             if (names.Contains(algorithmName)) {
                 return; // found
             }
-            throw new SSHException("Server does not support " + algorithmName + " for " + title);
+            throw new SSHException(
+                String.Format(Strings.GetString("AlgorithmNotSupportedByServer"), algorithmName, title));
         }
 
         /// <summary>
@@ -1846,7 +1851,7 @@ namespace Granados.SSH2 {
                     }
                 }
             }
-            throw new SSHException("The negotiation of kex algorithm is failed");
+            throw new SSHException(Strings.GetString("KeyExchangeAlgorithmNegotiationFailed"));
         }
 
         /// <summary>
@@ -1863,7 +1868,7 @@ namespace Granados.SSH2 {
                     return pref;
                 }
             }
-            throw new SSHException("The negotiation of host key verification algorithm is failed");
+            throw new SSHException(Strings.GetString("HostKeyAlgorithmNegotiationFailed"));
         }
 
         /// <summary>
@@ -1880,7 +1885,7 @@ namespace Granados.SSH2 {
                     return pref;
                 }
             }
-            throw new SSHException("The negotiation of encryption algorithm is failed");
+            throw new SSHException(Strings.GetString("EncryptionAlgorithmNegotiationFailed"));
         }
 
         /// <summary>

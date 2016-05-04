@@ -920,7 +920,12 @@ namespace Poderosa.Sessions {
         }
 
         protected override void ShowError(string msg) {
-            GUtil.Warning(this, msg, TEnv.Strings.GetString("Caption.LoginDialog.ConnectionError"));
+            if (this.InvokeRequired) {
+                this.BeginInvoke((Action)(() => ShowError(msg)));
+            }
+            else {
+                GUtil.Warning(this, msg, TEnv.Strings.GetString("Caption.LoginDialog.ConnectionError"));
+            }
         }
 
 
