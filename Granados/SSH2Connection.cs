@@ -463,12 +463,13 @@ namespace Granados.SSH2 {
                 else if (method.StartsWith("auth-agent")) //in most cases, method is "auth-agent@openssh.com"
                     ProcessAgentForwardRequest(_eventReceiver, r);
                 else {
-                    SSH2DataWriter wr = new SSH2DataWriter();
-                    wr.WriteByte((byte)SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE);
-                    wr.WriteInt32(r.ReadInt32());
-                    wr.WriteInt32(0);
-                    wr.WriteString("unknown method");
-                    wr.WriteString(""); //lang tag
+                    Transmit(
+                        new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE)
+                            .WriteInt32(r.ReadInt32())
+                            .WriteInt32(3)  // SSH_OPEN_UNKNOWN_CHANNEL_TYPE
+                            .WriteUTF8String("unknown channel type")
+                            .WriteString("") //lang tag
+                    );
                     TraceReceptionEvent("SSH_MSG_CHANNEL_OPEN rejected", "method={0}", method);
                 }
                 return true;
