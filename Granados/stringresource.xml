@@ -43,6 +43,10 @@ $Id: stringresource.xml,v 1.4 2011/05/01 15:28:52 kzmi Exp $
     <en>Negotiating encryption algorithm failed.</en>
     <ja>暗号化アルゴリズムのネゴシエーションに失敗しました。</ja>
   </record>
+  <record name="InvalidAuthenticationType">
+    <en>Invalid authentication type.</en>
+    <ja>認証方法が正しくありません。</ja>
+  </record>
   <record name="AuthenticationFailed">
     <en>User authentication failed.</en>
     <ja>ユーザ認証に失敗しました。</ja>

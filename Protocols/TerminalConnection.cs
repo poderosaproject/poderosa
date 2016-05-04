@@ -18,6 +18,7 @@ using Poderosa.Util;
 
 using Granados;
 using Granados.SSH2;
+using Granados.KeyboardInteractive;
 
 namespace Poderosa.Protocols {
     internal class PlainPoderosaSocket : IPoderosaSocket {
@@ -285,30 +286,16 @@ namespace Poderosa.Protocols {
 
     internal class SSHTerminalConnection : TCPTerminalConnection {
 
-        private SSHConnectionEventReceiverBase _sshSocket; //Keyboard-interactiveのときの認証中のみ_sshSocketはKeyboardInteractiveAuthHanlder
-        private ISSHLoginParameter _sshLoginParameter;
+        private readonly SSHSocket _sshSocket;
+        private readonly ISSHLoginParameter _sshLoginParameter;
 
         public SSHTerminalConnection(ISSHLoginParameter ssh)
             : base((ITCPParameter)ssh.GetAdapter(typeof(ITCPParameter))) {
             _sshLoginParameter = ssh;
-            if (ssh.AuthenticationType != AuthenticationType.KeyboardInteractive) {
-                SSHSocket s = new SSHSocket(this);
-                _sshSocket = s;
-                _socket = s;
-                _terminalOutput = s;
-            }
-            else {
-                KeyboardInteractiveAuthHanlder s = new KeyboardInteractiveAuthHanlder(this);
-                _sshSocket = s;
-                _socket = s;
-                _terminalOutput = null; //まだ利用可能でない
-            }
-        }
-        //Keyboard-interactiveの場合、認証成功後にこれを実行
-        internal void ReplaceSSHSocket(SSHSocket sshsocket) {
-            _sshSocket = sshsocket;
-            _socket = sshsocket;
-            _terminalOutput = sshsocket;
+            SSHSocket s = new SSHSocket(this);
+            _sshSocket = s;
+            _socket = s;
+            _terminalOutput = s;
         }
         public ISSHConnectionEventReceiver ConnectionEventReceiver {
             get {
@@ -320,7 +307,9 @@ namespace Poderosa.Protocols {
                 return _sshLoginParameter;
             }
         }
-
+        public IKeyboardInteractiveAuthenticationHandler GetKeyboardInteractiveAuthenticationHandler() {
+            return _sshSocket;
+        }
 
         public void AttachTransmissionSide(SSHConnection con) {
             _sshSocket.SetSSHConnection(con);

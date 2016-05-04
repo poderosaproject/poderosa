@@ -84,13 +84,6 @@ namespace Granados {
         void OnConnectionClosed();
 
         /// <summary>
-        /// In the keyboard-interactive authentication, this method will be called
-        /// to display some prompt texts.
-        /// </summary>
-        /// <param name="prompts">prompt texts</param>
-        void OnAuthenticationPrompt(string[] prompts);
-
-        /// <summary>
         /// Check new channel in the server-to-client port forwarding.
         /// </summary>
         /// <remarks>

@@ -12,6 +12,7 @@ using System.Security.Cryptography;
 
 using Granados.PKI;
 using Granados.KnownHosts;
+using Granados.KeyboardInteractive;
 
 namespace Granados {
 
@@ -99,6 +100,11 @@ namespace Granados {
         /// Callback to verify a host key.
         /// </summary>
         public VerifySSHHostKeyDelegate VerifySSHHostKey {
+            get;
+            set;
+        }
+
+        public IKeyboardInteractiveAuthenticationHandler KeyboardInteractiveAuthenticationHandler {
             get;
             set;
         }
@@ -224,6 +230,8 @@ namespace Granados {
             WindowSize = 0x1000;
             MaxPacketSize = 0x10000;
             CheckMACError = true;
+            VerifySSHHostKey = p => true;
+            KeyboardInteractiveAuthenticationHandler = new NullKeyboardInteractiveAuthenticationHandler();
         }
 
         /// <summary>

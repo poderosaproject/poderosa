@@ -109,6 +109,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DataHandler.cs" />
+    <Compile Include="KeyboardInteractive.cs" />
     <Compile Include="SSH2ConnectionInfo.cs" />
     <Compile Include="SSH1ConnectionInfo.cs" />
     <Compile Include="ConnectionParameter.cs">

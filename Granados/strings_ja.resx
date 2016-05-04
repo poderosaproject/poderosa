@@ -41,6 +41,9 @@
   <data name="EncryptionAlgorithmNegotiationFailed">
     <value>暗号化アルゴリズムのネゴシエーションに失敗しました。</value>
   </data>
+  <data name="InvalidAuthenticationType">
+    <value>認証方法が正しくありません。</value>
+  </data>
   <data name="AuthenticationFailed">
     <value>ユーザ認証に失敗しました。</value>
   </data>

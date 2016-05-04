@@ -41,6 +41,9 @@
   <data name="EncryptionAlgorithmNegotiationFailed">
     <value>Negotiating encryption algorithm failed.</value>
   </data>
+  <data name="InvalidAuthenticationType">
+    <value>Invalid authentication type.</value>
+  </data>
   <data name="AuthenticationFailed">
     <value>User authentication failed.</value>
   </data>

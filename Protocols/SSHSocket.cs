@@ -7,19 +7,17 @@
  * $Id: SSHSocket.cs,v 1.6 2011/11/19 04:58:43 kzmi Exp $
  */
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Net.Sockets;
-using System.Net;
 using System.IO;
+using System.Linq;
 using System.Diagnostics;
 using System.Threading;
-
-using Poderosa.Util;
 
 using Granados;
 using Granados.SSH2;
 using Granados.IO;
+using Granados.KeyboardInteractive;
 
 namespace Poderosa.Protocols {
     //SSHの入出力系
@@ -49,9 +47,6 @@ namespace Poderosa.Protocols {
         }
 
         public abstract void Close();
-
-        public virtual void OnAuthenticationPrompt(string[] prompts) {
-        }
 
         public virtual void OnConnectionClosed() {
             OnNormalTerminationCore();
@@ -126,12 +121,17 @@ namespace Poderosa.Protocols {
         }
     }
 
-    internal class SSHSocket : SSHConnectionEventReceiverBase, IPoderosaSocket, ITerminalOutput, ISSHChannelEventReceiver {
+    internal class SSHSocket
+        : SSHConnectionEventReceiverBase,
+          IPoderosaSocket, ITerminalOutput, ISSHChannelEventReceiver, IKeyboardInteractiveAuthenticationHandler {
+
         private SSHChannel _channel;
         private ByteDataFragment _data;
         private bool _waitingSendBreakReply;
         //非同期に受信する。
         private MemoryStream _buffer; //RepeatAsyncReadが呼ばれる前に受信してしまったデータを一時保管するバッファ
+
+        private KeyboardInteractiveAuthHanlder _keyboardInteractiveAuthHanlder;
 
         public SSHSocket(SSHTerminalConnection parent)
             : base(parent) {
@@ -187,10 +187,15 @@ namespace Poderosa.Protocols {
         }
 
         public void Transmit(ByteDataFragment data) {
-            _channel.Transmit(data.Buffer, data.Offset, data.Length);
+            Transmit(data.Buffer, data.Offset, data.Length);
         }
 
         public void Transmit(byte[] buf, int offset, int length) {
+            if (_keyboardInteractiveAuthHanlder != null) {
+                // intercept input
+                _keyboardInteractiveAuthHanlder.OnData(buf, offset, length);
+                return;
+            }
             _channel.Transmit(buf, offset, length);
         }
 
@@ -269,121 +274,120 @@ namespace Poderosa.Protocols {
                 return _connection.Available;
             }
         }
+
+        #region IKeyboardInteractiveAuthenticationHandler
+
+        public string[] KeyboardInteractiveAuthenticationPrompt(string[] prompts, bool[] echoes) {
+            if (_keyboardInteractiveAuthHanlder != null) {
+                return _keyboardInteractiveAuthHanlder.KeyboardInteractiveAuthenticationPrompt(prompts, echoes);
+            } else {
+                return prompts.Select(s => "").ToArray();
+            }
+        }
+
+        public void OnKeyboardInteractiveAuthenticationStarted() {
+            _keyboardInteractiveAuthHanlder =
+                new KeyboardInteractiveAuthHanlder(
+                    (data) => {
+                        this.OnData(new DataFragment(data, 0, data.Length));
+                    });
+        }
+
+        public void OnKeyboardInteractiveAuthenticationCompleted(bool success, Exception error) {
+            _keyboardInteractiveAuthHanlder = null;
+            if (success) {
+                OpenShell();
+            }
+        }
+
+        #endregion
     }
 
-    //Keyboard Interactive認証中
-    internal class KeyboardInteractiveAuthHanlder : SSHConnectionEventReceiverBase, IPoderosaSocket {
-        private MemoryStream _passwordBuffer;
-        private string[] _prompts;
+    /// <summary>
+    /// Keyboard-interactive authentication support for <see cref="SSHSocket"/>.
+    /// </summary>
+    internal class KeyboardInteractiveAuthHanlder {
+        private bool _echoing = true;
+        private readonly MemoryStream _inputBuffer = new MemoryStream();
+        private readonly object _inputSync = new object();
+        private readonly Action<byte[]> _output;
 
-        public KeyboardInteractiveAuthHanlder(SSHTerminalConnection parent)
-            : base(parent) {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="output">a method to output data to the terminal</param>
+        public KeyboardInteractiveAuthHanlder(Action<byte[]> output) {
+            _output = output;
         }
 
-        public override void OnAuthenticationPrompt(string[] prompts) {
-            //ここに来るケースは２つ。
-
-            if (_callback == null) //1. 最初の認証中
-                _prompts = prompts;
-            else { //2. パスワード入力まちがいなどでもう一回という場合
-                ShowPrompt(prompts);
-            }
-        }
-
-        public void RepeatAsyncRead(IByteAsyncInputStream receiver) {
-            _callback = receiver;
-            if (_prompts != null)
-                ShowPrompt(_prompts);
-        }
-        private void ShowPrompt(string[] prompts) {
-            Debug.Assert(_callback != null);
-            bool hasPassword = _parent.SSHLoginParameter.PasswordOrPassphrase != null
-                            && !_parent.SSHLoginParameter.LetUserInputPassword;
-            bool sendPassword = false;
-            for (int i = 0; i < prompts.Length; i++) {
-                if (hasPassword && prompts[i].Contains("assword")) {
-                    sendPassword = true;
-                    break;
+        /// <summary>
+        /// Show prompt lines and input texts.
+        /// </summary>
+        /// <param name="prompts"></param>
+        /// <param name="echoes"></param>
+        /// <returns></returns>
+        public string[] KeyboardInteractiveAuthenticationPrompt(string[] prompts, bool[] echoes) {
+            Encoding encoding = (Encoding)Encoding.UTF8.Clone();    // TODO:
+            encoding.EncoderFallback = EncoderFallback.ReplacementFallback;
+            string[] inputs = new string[prompts.Length];
+            for (int i = 0; i < prompts.Length; ++i) {
+                bool echo = (i < echoes.Length) ? echoes[i] : true;
+                byte[] promptBytes = encoding.GetBytes(prompts[i]);
+                // echo prompt text
+                byte[] lineBytes;
+                lock (_inputSync) {
+                    _output(promptBytes);
+                    _echoing = echo;
+                    _inputBuffer.SetLength(0);
+                    Monitor.Wait(_inputSync);
+                    _echoing = true;
+                    lineBytes = _inputBuffer.ToArray();
                 }
-                if (i != 0)
-                    prompts[i] += "\r\n";
-                byte[] buf = Encoding.Default.GetBytes(prompts[i]);
-                _callback.OnReception(new ByteDataFragment(buf, 0, buf.Length));
+                string line = encoding.GetString(lineBytes);
+                inputs[i] = line;
             }
-
-            if (sendPassword) {
-                SendPassword(_parent.SSHLoginParameter.PasswordOrPassphrase);
-            }
+            return inputs;
         }
 
-        public bool Available {
-            get {
-                return _connection.Available;
-            }
-        }
-
-        public void Transmit(ByteDataFragment data) {
-            Transmit(data.Buffer, data.Offset, data.Length);
-        }
-
-        public void Transmit(byte[] data, int offset, int length) {
-            if (_passwordBuffer == null)
-                _passwordBuffer = new MemoryStream();
-
-            for (int i = offset; i < offset + length; i++) {
-                byte b = data[i];
-                if (b == 13 || b == 10) { //CR/LF
-                    SendPassword(null);
-                }
-                else
-                    _passwordBuffer.WriteByte(b);
-            }
-        }
-        private void SendPassword(string password) {
-            string[] response;
-            if (password != null) {
-                response = new string[] { password };
-            }
-            else {
-                byte[] pwd = _passwordBuffer.ToArray();
-                if (pwd.Length > 0) {
-                    _passwordBuffer.Close();
-                    _passwordBuffer.Dispose();
-                    _passwordBuffer = null;
-                    response = new string[] { Encoding.ASCII.GetString(pwd) };
-                }
-                else {
-                    response = null;
+        /// <summary>
+        /// Process user input.
+        /// </summary>
+        public void OnData(byte[] data, int offset, int length) {
+            int endIndex = offset + length;
+            int currentIndex = offset;
+            while (currentIndex < endIndex) {
+                lock (_inputSync) {
+                    int startIndex = currentIndex;
+                    bool newLine = false;
+                    for (; currentIndex < endIndex; ++currentIndex) {
+                        byte b = data[currentIndex];
+                        if (b == 13 || b == 10) { //CR/LF
+                            newLine = true;
+                            break;
+                        }
+                        _inputBuffer.WriteByte(b);
+                    }
+                    // flush
+                    if (_echoing && currentIndex > startIndex) {
+                        _output(GetBytes(data, startIndex, currentIndex - startIndex));
+                    }
+                    if (newLine) {
+                        currentIndex++;
+                        _output(new byte[] { 13, 10 });   // CRLF
+                        // notify
+                        Monitor.PulseAll(_inputSync);
+                    }
                 }
             }
+        }
 
-            if (response != null) {
-                _callback.OnReception(new ByteDataFragment(new byte[] { 13, 10 }, 0, 2)); //表示上CR+LFで改行しないと格好悪い
-                if (((Granados.SSH2.SSH2Connection)_connection).DoKeyboardInteractiveAuth(response) == AuthenticationResult.Success) {
-                    _parent.SSHLoginParameter.PasswordOrPassphrase = response[0];
-                    SuccessfullyExit();
-                    return;
-                }
+        private byte[] GetBytes(byte[] data, int offset, int length) {
+            byte[] buf = new byte[length];
+            if (length > 0) {
+                Buffer.BlockCopy(data, offset, buf, 0, length);
             }
-            _connection.Disconnect("");
-            throw new IOException(PEnv.Strings.GetString("Message.SSHConnector.Cancelled"));
+            return buf;
         }
-        //シェルを開き、イベントレシーバを書き換える
-        private void SuccessfullyExit() {
-            SSHSocket sshsocket = new SSHSocket(_parent);
-            sshsocket.SetSSHConnection(_connection);
-            sshsocket.RepeatAsyncRead(_callback); //_callbackから先の処理は同じ
-            _connection.EventReceiver = sshsocket;
-            _parent.ReplaceSSHSocket(sshsocket);
-            sshsocket.OpenShell();
-        }
-
-        public override void Close() {
-            _connection.Close();
-        }
-        public void ForceDisposed() {
-            _connection.Close();
-        }
-
     }
+
 }

@@ -48,6 +48,8 @@ namespace Poderosa.Protocols {
             ITerminalParameter term = (ITerminalParameter)_destination.GetAdapter(typeof(ITerminalParameter));
             ITCPParameter tcp = (ITCPParameter)_destination.GetAdapter(typeof(ITCPParameter));
 
+            SSHTerminalConnection terminalConnection = new SSHTerminalConnection(_destination);
+
             SSHConnectionParameter con =
                 new SSHConnectionParameter(
                     tcp.Destination,
@@ -79,16 +81,17 @@ namespace Poderosa.Protocols {
                     return _keycheck.Vefiry(info);
                 };
             }
+            con.KeyboardInteractiveAuthenticationHandler = terminalConnection.GetKeyboardInteractiveAuthenticationHandler();
 
-            SSHTerminalConnection r = new SSHTerminalConnection(_destination);
-            SSHConnection ssh = SSHConnection.Connect(con, r.ConnectionEventReceiver, _socket);
+            SSHConnection ssh = SSHConnection.Connect(con, terminalConnection.ConnectionEventReceiver, _socket);
             if (ssh != null) {
-                if (PEnv.Options.RetainsPassphrase && _destination.AuthenticationType != AuthenticationType.KeyboardInteractive)
+                if (PEnv.Options.RetainsPassphrase && _destination.AuthenticationType != AuthenticationType.KeyboardInteractive) {
                     ProtocolsPlugin.Instance.PassphraseCache.Add(tcp.Destination, _destination.Account, _destination.PasswordOrPassphrase); //接続成功時のみセット
+                }
                 //_destination.PasswordOrPassphrase = ""; 接続の複製のためにここで消さずに残しておく
-                r.AttachTransmissionSide(ssh);
-                r.UsingSocks = _socks != null;
-                _result = r;
+                terminalConnection.AttachTransmissionSide(ssh);
+                terminalConnection.UsingSocks = _socks != null;
+                _result = terminalConnection;
             }
             else {
                 throw new IOException(PEnv.Strings.GetString("Message.SSHConnector.Cancelled"));

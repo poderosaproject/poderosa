@@ -11,6 +11,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Globalization;
@@ -21,6 +22,7 @@ using Granados.SSH1;
 using Granados.SSH2;
 using Granados.Util;
 using Granados.PKI;
+using Granados.KeyboardInteractive;
 
 namespace Granados.Tutorial {
 #if ENABLE_TUTORIAL
@@ -89,14 +91,44 @@ namespace Granados.Tutorial {
             SSH2UserAuthKey newpk = SSH2UserAuthKey.FromSECSHStyleFile("newrsakey.bin", "passphrase");
         }
 
+        private class SampleKeyboardInteractiveAuthenticationHandler : IKeyboardInteractiveAuthenticationHandler {
+
+            private readonly string _password;
+
+            private readonly AtomicBox<bool> _box = new AtomicBox<bool>();
+
+            public SampleKeyboardInteractiveAuthenticationHandler(string password) {
+                _password = password;
+            }
+
+            public bool GetResult() {
+                bool result = false;
+                _box.TryGet(ref result, 10000);
+                return result;
+            }
+
+            public string[] KeyboardInteractiveAuthenticationPrompt(string[] prompts, bool[] echoes) {
+                return prompts.Select(s => s.Contains("assword") ? _password : "").ToArray();
+            }
+
+            public void OnKeyboardInteractiveAuthenticationStarted() {
+            }
+
+            public void OnKeyboardInteractiveAuthenticationCompleted(bool success, Exception error) {
+                _box.TrySet(success, 10000);
+            }
+        }
+
         //Tutorial: Connecting to a host and opening a shell
         private static void ConnectAndOpenShell() {
+            SampleKeyboardInteractiveAuthenticationHandler authHandler = new SampleKeyboardInteractiveAuthenticationHandler("aaa");
             SSHConnectionParameter f = new SSHConnectionParameter("172.22.1.15", 22, SSHProtocol.SSH2, AuthenticationType.PublicKey, "okajima", "aaa");
             f.EventTracer = new Tracer(); //to receive detailed events, set ISSHEventTracer
             //former algorithm is given priority in the algorithm negotiation
             f.PreferableHostKeyAlgorithms = new PublicKeyAlgorithm[] { PublicKeyAlgorithm.RSA, PublicKeyAlgorithm.DSA };
             f.PreferableCipherAlgorithms = new CipherAlgorithm[] { CipherAlgorithm.Blowfish, CipherAlgorithm.TripleDES };
             f.WindowSize = 0x1000; //this option is ignored with SSH1
+            f.KeyboardInteractiveAuthenticationHandler = authHandler;
             Reader reader = new Reader(); //simple event receiver
 
             Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -107,8 +139,8 @@ namespace Granados.Tutorial {
                 _conn = SSHConnection.Connect(f, reader, s);
                 reader._conn = _conn;
                 Debug.Assert(_conn.AuthenticationResult == AuthenticationResult.Prompt);
-                AuthenticationResult r = ((SSH2Connection)_conn).DoKeyboardInteractiveAuth(new string[] { f.Password });
-                Debug.Assert(r == AuthenticationResult.Success);
+                bool result = authHandler.GetResult();
+                Debug.Assert(result == true);
             }
             else {
                 //NOTE: if you use public-key authentication, follow this sample instead of the line above:
@@ -441,9 +473,6 @@ namespace Granados.Tutorial {
         }
         public void OnIgnoreMessage(byte[] data) {
             Debug.WriteLine("Ignore: " + Encoding.ASCII.GetString(data));
-        }
-        public void OnAuthenticationPrompt(string[] msg) {
-            Debug.WriteLine("Auth Prompt " + (msg.Length > 0 ? msg[0] : "(empty)"));
         }
 
         public void OnError(Exception error) {

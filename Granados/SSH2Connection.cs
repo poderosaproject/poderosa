@@ -20,6 +20,7 @@ using Granados.IO;
 using Granados.IO.SSH2;
 using Granados.Mono.Math;
 using System.Threading.Tasks;
+using Granados.KeyboardInteractive;
 
 namespace Granados.SSH2 {
 
@@ -35,6 +36,8 @@ namespace Granados.SSH2 {
 
         //server info
         private readonly SSH2ConnectionInfo _cInfo;
+
+        private UserAuthentication _userAuthentication;
 
         private bool _waitingForPortForwardingResponse;
         private bool _agentForwardConfirmed;
@@ -92,11 +95,17 @@ namespace Granados.SSH2 {
                 kexTask.Wait();
 
                 //user authentication
-                ServiceRequest("ssh-userauth");
-                _authenticationResult = UserAuth();
-                return _authenticationResult;
+                _userAuthentication = new UserAuthentication(this, _param, _syncHandler, _sessionID);
+                Task authTask = _userAuthentication.StartAuthentication();
+                authTask.Wait();
+
+                if (_param.AuthenticationType == AuthenticationType.KeyboardInteractive) {
+                    return AuthenticationResult.Prompt;
+                }
+                return AuthenticationResult.Success;
             }
             catch (Exception ex) {
+                _userAuthentication = null;
                 Close();
                 if (ex is AggregateException) {
                     Exception actualException = ((AggregateException)ex).InnerException;
@@ -104,162 +113,6 @@ namespace Granados.SSH2 {
                 }
                 throw;
             }
-        }
-
-        private void ServiceRequest(string servicename) {
-            Transmit(
-                new SSH2Packet(SSH2PacketType.SSH_MSG_SERVICE_REQUEST)
-                    .WriteString(servicename)
-            );
-            TraceTransmissionEvent("SSH_MSG_SERVICE_REQUEST", servicename);
-
-            DataFragment response = ReceivePacket();
-            SSH2DataReader re = new SSH2DataReader(response);
-            SSH2PacketType t = (SSH2PacketType) re.ReadByte();
-            if (t != SSH2PacketType.SSH_MSG_SERVICE_ACCEPT) {
-                TraceReceptionEvent(t.ToString(), "service request failed");
-                throw new SSHException("service establishment failed " + t);
-            }
-
-            string s = re.ReadString();
-            if (servicename != s)
-                throw new SSHException("protocol error");
-        }
-
-        private AuthenticationResult UserAuth() {
-            const string sn = "ssh-connection";
-            if (_param.AuthenticationType == AuthenticationType.KeyboardInteractive) {
-                Transmit(
-                    new SSH2Packet(SSH2PacketType.SSH_MSG_USERAUTH_REQUEST)
-                        .WriteUTF8String(_param.UserName)
-                        .WriteString(sn)
-                        .WriteString("keyboard-interactive")
-                        .WriteString("") //lang
-                        .WriteString("") //submethod
-                );
-                TraceTransmissionEvent(SSH2PacketType.SSH_MSG_USERAUTH_REQUEST, "starting keyboard-interactive authentication");
-                _authenticationResult = ProcessAuthenticationResponse();
-            }
-            else {
-                if (_param.AuthenticationType == AuthenticationType.Password) {
-                    //Password authentication
-                    Transmit(
-                        new SSH2Packet(SSH2PacketType.SSH_MSG_USERAUTH_REQUEST)
-                            .WriteUTF8String(_param.UserName)
-                            .WriteString(sn)
-                            .WriteString("password")
-                            .WriteBool(false)
-                            .WriteUTF8String(_param.Password)
-                    );
-                    TraceTransmissionEvent(SSH2PacketType.SSH_MSG_USERAUTH_REQUEST, "starting password authentication");
-                }
-                else {
-                    //public key authentication
-                    SSH2UserAuthKey kp = SSH2UserAuthKey.FromSECSHStyleFile(_param.IdentityFile, _param.Password);
-                    string algorithmName = SSH2Util.PublicKeyAlgorithmName(kp.Algorithm);
-
-                    // construct a packet except signature
-                    SSH2Packet packet =
-                        new SSH2Packet(SSH2PacketType.SSH_MSG_USERAUTH_REQUEST)
-                            .WriteUTF8String(_param.UserName)
-                            .WriteString(sn)
-                            .WriteString("publickey")
-                            .WriteBool(true)
-                            .WriteString(algorithmName)
-                            .WriteAsString(kp.GetPublicKeyBlob());
-
-                    // take payload image for the signature
-                    byte[] payloadImage = packet.GetPayloadBytes();
-
-                    // construct the signature source
-                    SSH2PayloadImageBuilder workPayload =
-                        new SSH2PayloadImageBuilder()
-                            .WriteAsString(_sessionID)
-                            .Write(payloadImage);
-
-                    // take a signature blob
-                    byte[] signatureBlob = kp.Sign(workPayload.GetBytes());
-
-                    // encode signature (RFC4253)
-                    workPayload.Clear();
-                    byte[] signature =
-                        workPayload
-                            .WriteString(algorithmName)
-                            .WriteAsString(signatureBlob)
-                            .GetBytes();
-
-                    // append signature to the packet
-                    packet.WriteAsString(signature);
-
-                    Transmit(packet);
-                    TraceTransmissionEvent(SSH2PacketType.SSH_MSG_USERAUTH_REQUEST, "starting public key authentication");
-                }
-
-                _authenticationResult = ProcessAuthenticationResponse();
-                if (_authenticationResult == AuthenticationResult.Failure)
-                    throw new SSHException(Strings.GetString("AuthenticationFailed"));
-            }
-            return _authenticationResult;
-        }
-        private AuthenticationResult ProcessAuthenticationResponse() {
-            do {
-                SSH2DataReader response = new SSH2DataReader(ReceivePacket());
-                SSH2PacketType h = (SSH2PacketType) response.ReadByte();
-                if (h == SSH2PacketType.SSH_MSG_USERAUTH_FAILURE) {
-                    string msg = response.ReadString();
-                    TraceReceptionEvent(h, "user authentication failed:" + msg);
-                    return AuthenticationResult.Failure;
-                }
-                else if (h == SSH2PacketType.SSH_MSG_USERAUTH_BANNER) {
-                    TraceReceptionEvent(h, "");
-                }
-                else if (h == SSH2PacketType.SSH_MSG_USERAUTH_SUCCESS) {
-                    TraceReceptionEvent(h, "user authentication succeeded");
-                    return AuthenticationResult.Success; //successfully exit
-                }
-                else if (h == SSH2PacketType.SSH_MSG_USERAUTH_INFO_REQUEST) {
-                    string name = response.ReadUTF8String();
-                    string inst = response.ReadUTF8String();
-                    string lang = response.ReadString();
-                    int num = response.ReadInt32();
-                    string[] prompts = new string[num];
-                    for (int i = 0; i < num; i++) {
-                        prompts[i] = response.ReadUTF8String();
-                        bool echo = response.ReadBool();
-                    }
-                    _eventReceiver.OnAuthenticationPrompt(prompts);
-                    _requiredResponseCount = num;
-                    return AuthenticationResult.Prompt;
-                }
-                else
-                    throw new SSHException("protocol error: unexpected packet type " + h);
-            } while (true);
-        }
-        public AuthenticationResult DoKeyboardInteractiveAuth(string[] input) {
-            if (_param.AuthenticationType != AuthenticationType.KeyboardInteractive)
-                throw new SSHException("DoKeyboardInteractiveAuth() must be called with keyboard-interactive authentication");
-
-            bool sent = false;
-            do {
-                SSH2Packet packet = new SSH2Packet(SSH2PacketType.SSH_MSG_USERAUTH_INFO_RESPONSE);
-                if (sent) {
-                    packet.WriteInt32(0);
-                }
-                else {
-                    packet.WriteInt32(input.Length);
-                    foreach (string t in input) {
-                        packet.WriteString(t);
-                    }
-                    sent = true;
-                }
-                Transmit(packet);
-
-                _authenticationResult = ProcessAuthenticationResponse();
-
-                //recent OpenSSH sends SSH_MSG_USERAUTH_INFO_REQUEST with 0-length prompt array after the first negotiation
-            } while (_authenticationResult == AuthenticationResult.Prompt && _requiredResponseCount == 0);
-
-            return _authenticationResult;
         }
 
         public override SSHChannel OpenShell(ISSHChannelEventReceiver receiver) {
@@ -458,6 +311,11 @@ namespace Granados.SSH2 {
 
         private void ProcessPacket(DataFragment packet) {
             if (_keyExchanger.FeedReceivedPacket(packet)) {
+                return;
+            }
+
+            UserAuthentication userAuth = _userAuthentication;
+            if (userAuth != null && userAuth.FeedReceivedPacket(packet)) {
                 return;
             }
 
@@ -2097,4 +1955,622 @@ namespace Granados.SSH2 {
         }
     }
 
+    /// <summary>
+    /// Class for supporting user authentication
+    /// </summary>
+    internal class UserAuthentication {
+        private const int PASSING_TIMEOUT = 1000;
+        private const int RESPONSE_TIMEOUT = 5000;
+
+        private readonly IKeyboardInteractiveAuthenticationHandler _kiHandler;
+
+        private readonly SSHConnectionParameter _param;
+        private readonly SSH2Connection _connection;
+        private readonly SSH2SynchronousPacketHandler _syncHandler;
+        private readonly byte[] _sessionID;
+
+        private readonly object _sequenceLock = new object();
+        private volatile SequenceStatus _sequenceStatus = SequenceStatus.Idle;
+
+        private readonly AtomicBox<DataFragment> _receivedPacket = new AtomicBox<DataFragment>();
+
+        private Task _authTask;
+
+        private enum SequenceStatus {
+            /// <summary>authentication can be started</summary>
+            Idle,
+            /// <summary>authentication has been finished.</summary>
+            Done,
+            /// <summary>the connection has been closed</summary>
+            ConnectionClosed,
+            /// <summary>authentication has been started</summary>
+            StartAuthentication,
+            /// <summary>waiting for SSH_MSG_SERVICE_ACCEPT</summary>
+            WaitServiceAccept,
+            /// <summary>SSH_MSG_SERVICE_ACCEPT has been received</summary>
+            ServiceAcceptReceived,
+
+            //--- keyboard-interactive authentication
+
+            /// <summary>waiting for SSH_MSG_USERAUTH_INFO_REQUEST|SSH_MSG_USERAUTH_SUCCESS|SSH_MSG_USERAUTH_FAILURE|SSH_MSG_USERAUTH_BANNER</summary>
+            KI_WaitUserAuthInfoRequest,
+            /// <summary>SSH_MSG_USERAUTH_INFO_REQUEST has been received</summary>
+            KI_UserAuthInfoRequestReceived,
+            /// <summary>SSH_MSG_USERAUTH_SUCCESS has been received</summary>
+            KI_SuccessReceived,
+            /// <summary>SSH_MSG_USERAUTH_FAILURE has been received</summary>
+            KI_FailureReceived,
+            /// <summary>
+            /// SSH_MSG_USERAUTH_BANNER has been received.
+            /// still waiting for SSH_MSG_USERAUTH_INFO_REQUEST|SSH_MSG_USERAUTH_SUCCESS|SSH_MSG_USERAUTH_FAILURE|SSH_MSG_USERAUTH_BANNER.
+            /// </summary>
+            KI_BannerReceived,
+
+            //--- password authentication or publickey authentication
+
+            /// <summary>waiting for SSH_MSG_USERAUTH_SUCCESS|SSH_MSG_USERAUTH_FAILURE|SSH_MSG_USERAUTH_BANNER</summary>
+            PA_WaitUserAuthResponse,
+            /// <summary>SSH_MSG_USERAUTH_SUCCESS has been received</summary>
+            PA_SuccessReceived,
+            /// <summary>SSH_MSG_USERAUTH_FAILURE has been received</summary>
+            PA_FailureReceived,
+            /// <summary>
+            /// SSH_MSG_USERAUTH_BANNER has been received.
+            /// still waiting for SSH_MSG_USERAUTH_SUCCESS|SSH_MSG_USERAUTH_FAILURE|SSH_MSG_USERAUTH_BANNER.
+            /// </summary>
+            PA_BannerReceived,
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="param"></param>
+        /// <param name="syncHandler"></param>
+        /// <param name="sessionID"></param>
+        public UserAuthentication(
+                    SSH2Connection connection,
+                    SSHConnectionParameter param,
+                    SSH2SynchronousPacketHandler syncHandler,
+                    byte[] sessionID) {
+            _connection = connection;
+            _param = param;
+            _syncHandler = syncHandler;
+            _sessionID = sessionID;
+            _kiHandler = param.KeyboardInteractiveAuthenticationHandler;
+        }
+
+        /// <summary>
+        /// <para>Feeds a received packet.</para>
+        /// </summary>
+        /// <param name="packet">a packet image</param>
+        /// <returns>returns true if the packet was consumed for the key exchange. otherwise returns false.</returns>
+        public bool FeedReceivedPacket(DataFragment packet) {
+            if (_sequenceStatus == SequenceStatus.Done) {   // fast check
+                return false;
+            }
+
+            SSH2PacketType packetType = (SSH2PacketType)packet[0];
+            lock (_sequenceLock) {
+                switch (_sequenceStatus) {
+                    case SequenceStatus.Idle:
+                    case SequenceStatus.Done:
+                    case SequenceStatus.StartAuthentication:
+                        return false;
+                    case SequenceStatus.WaitServiceAccept:
+                        if (packetType == SSH2PacketType.SSH_MSG_SERVICE_ACCEPT) {
+                            _sequenceStatus = SequenceStatus.ServiceAcceptReceived;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return true;
+                        }
+                        break;
+                    case SequenceStatus.ServiceAcceptReceived:
+                        return false;
+
+                    // Keyboard Interactive
+
+                    case SequenceStatus.KI_WaitUserAuthInfoRequest:
+                    case SequenceStatus.KI_BannerReceived:
+                        if (packetType == SSH2PacketType.SSH_MSG_USERAUTH_INFO_REQUEST) {
+                            _sequenceStatus = SequenceStatus.KI_UserAuthInfoRequestReceived;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return true;
+                        }
+                        if (packetType == SSH2PacketType.SSH_MSG_USERAUTH_SUCCESS) {
+                            _sequenceStatus = SequenceStatus.KI_SuccessReceived;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return true;
+                        }
+                        if (packetType == SSH2PacketType.SSH_MSG_USERAUTH_FAILURE) {
+                            _sequenceStatus = SequenceStatus.KI_FailureReceived;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return true;
+                        }
+                        if (packetType == SSH2PacketType.SSH_MSG_USERAUTH_BANNER) {
+                            _sequenceStatus = SequenceStatus.KI_BannerReceived;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return true;
+                        }
+                        break;
+                    case SequenceStatus.KI_UserAuthInfoRequestReceived:
+                    case SequenceStatus.KI_SuccessReceived:
+                    case SequenceStatus.KI_FailureReceived:
+                        break;
+
+                    // Password authentication or Publickey authentication
+
+                    case SequenceStatus.PA_WaitUserAuthResponse:
+                    case SequenceStatus.PA_BannerReceived:
+                        if (packetType == SSH2PacketType.SSH_MSG_USERAUTH_SUCCESS) {
+                            _sequenceStatus = SequenceStatus.PA_SuccessReceived;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return true;
+                        }
+                        if (packetType == SSH2PacketType.SSH_MSG_USERAUTH_FAILURE) {
+                            _sequenceStatus = SequenceStatus.PA_FailureReceived;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return true;
+                        }
+                        if (packetType == SSH2PacketType.SSH_MSG_USERAUTH_BANNER) {
+                            _sequenceStatus = SequenceStatus.PA_BannerReceived;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return true;
+                        }
+                        break;
+                    case SequenceStatus.PA_SuccessReceived:
+                    case SequenceStatus.PA_FailureReceived:
+                        break;
+
+                    default:
+                        break;
+                }
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Handles connection close.
+        /// </summary>
+        public void OnClosed() {
+            lock (_sequenceLock) {
+                this._sequenceStatus = SequenceStatus.ConnectionClosed;
+                DataFragment dummyPacket = new DataFragment(new byte[1] { 0xff }, 0, 1);
+                _receivedPacket.TrySet(dummyPacket, PASSING_TIMEOUT);
+            }
+        }
+
+        /// <summary>
+        /// Start authentication asynchronously.
+        /// </summary>
+        /// <returns>a new task if the authentication has been started, or existing task if another authentication is running.</returns>
+        public Task StartAuthentication() {
+            lock (_sequenceLock) {
+                if (_sequenceStatus != SequenceStatus.Idle) {
+                    return _authTask;
+                }
+                _sequenceStatus = SequenceStatus.StartAuthentication;
+                _authTask = Task.Run(() => DoAuthentication());
+                return _authTask;
+            }
+        }
+
+        /// <summary>
+        /// Authentication sequence.
+        /// </summary>
+        /// <returns>true if the sequence was succeeded</returns>
+        /// <exception cref="SSHException">no response</exception>
+        private void DoAuthentication() {
+            bool keepSequenceStatusOnExit = false;
+            try {
+                ServiceRequest("ssh-userauth");
+
+                switch (_param.AuthenticationType) {
+                    case AuthenticationType.KeyboardInteractive:
+                        KeyboardInteractiveUserAuth("ssh-connection");
+                        keepSequenceStatusOnExit = true;
+                        break;
+                    case AuthenticationType.Password:
+                        PasswordAuthentication("ssh-connection");
+                        break;
+                    case AuthenticationType.PublicKey:
+                        PublickeyAuthentication("ssh-connection");
+                        break;
+                    default:
+                        throw new SSHException(Strings.GetString("InvalidAuthenticationType"));
+                }
+            }
+            finally {
+                _receivedPacket.Clear();
+
+                if (!keepSequenceStatusOnExit) {
+                    lock (_sequenceLock) {
+                        _sequenceStatus = SequenceStatus.Done;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Build SSH_MSG_SERVICE_REQUEST packet.
+        /// </summary>
+        /// <param name="serviceName">service name</param>
+        /// <returns>a packet object</returns>
+        private SSH2Packet BuildServiceRequestPacket(string serviceName) {
+            return new SSH2Packet(SSH2PacketType.SSH_MSG_SERVICE_REQUEST)
+                        .WriteString(serviceName);
+        }
+
+        /// <summary>
+        /// SSH_MSG_SERVICE_REQUEST sequence.
+        /// </summary>
+        /// <param name="serviceName">service name</param>
+        private void ServiceRequest(string serviceName) {
+            lock (_sequenceLock) {
+                Debug.Assert(_sequenceStatus == SequenceStatus.StartAuthentication);
+            }
+
+            var packet = BuildServiceRequestPacket(serviceName);
+
+            lock (_sequenceLock) {
+                _sequenceStatus = SequenceStatus.WaitServiceAccept;
+            }
+
+            _syncHandler.Send(packet);
+
+            if (_connection.IsEventTracerAvailable) {
+                _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_SERVICE_REQUEST, serviceName);
+            }
+
+            DataFragment response = null;
+            if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+                throw new SSHException(Strings.GetString("ServerDoesntRespond"));
+            }
+
+            lock (_sequenceLock) {
+                if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
+                    throw new SSHException(Strings.GetString("ConnectionClosed"));
+                }
+                Debug.Assert(_sequenceStatus == SequenceStatus.ServiceAcceptReceived);
+            }
+
+            SSH2DataReader reader = new SSH2DataReader(response);
+            SSH2PacketType packetType = (SSH2PacketType)reader.ReadByte();
+            Debug.Assert(packetType == SSH2PacketType.SSH_MSG_SERVICE_ACCEPT);
+
+            string responseServiceName = reader.ReadString();
+
+            if (_connection.IsEventTracerAvailable) {
+                _connection.TraceReceptionEvent(SSH2PacketType.SSH_MSG_SERVICE_ACCEPT, responseServiceName);
+            }
+
+            if (responseServiceName != serviceName) {
+                throw new SSHException("Invalid service name : " + responseServiceName);
+            }
+        }
+
+        /// <summary>
+        /// Build SSH_MSG_USERAUTH_REQUEST packet for the keyboard interactive authentication.
+        /// </summary>
+        /// <param name="serviceName"></param>
+        /// <returns></returns>
+        private SSH2Packet BuildKeyboardInteractiveUserAuthRequestPacket(string serviceName) {
+            return new SSH2Packet(SSH2PacketType.SSH_MSG_USERAUTH_REQUEST)
+                        .WriteUTF8String(_param.UserName)
+                        .WriteString(serviceName)
+                        .WriteString("keyboard-interactive")
+                        .WriteString("") //lang
+                        .WriteString(""); //submethod
+        }
+
+        /// <summary>
+        /// Build SSH_MSG_USERAUTH_INFO_RESPONSE packet for the keyboard interactive authentication.
+        /// </summary>
+        /// <param name="serviceName">service name</param>
+        /// <param name="inputs">user input</param>
+        /// <returns>a packet object</returns>
+        private SSH2Packet BuildKeyboardInteractiveUserAuthInfoResponsePacket(string serviceName, string[] inputs) {
+            var packet = new SSH2Packet(SSH2PacketType.SSH_MSG_USERAUTH_INFO_RESPONSE);
+            packet.WriteInt32(inputs.Length);
+            foreach (string line in inputs) {
+                packet.WriteUTF8String(line);
+            }
+            return packet;
+        }
+
+        /// <summary>
+        /// Keyboard interactive authentication sequence.
+        /// </summary>
+        /// <param name="serviceName">service name</param>
+        private void KeyboardInteractiveUserAuth(string serviceName) {
+            lock (_sequenceLock) {
+                Debug.Assert(_sequenceStatus == SequenceStatus.ServiceAcceptReceived);
+            }
+
+            // check handler
+            if (_kiHandler == null) {
+                throw new SSHException("KeyboardInteractiveAuthenticationHandler is not set.");
+            }
+
+            var packet = BuildKeyboardInteractiveUserAuthRequestPacket(serviceName);
+
+            lock (_sequenceLock) {
+                _sequenceStatus = SequenceStatus.KI_WaitUserAuthInfoRequest;
+            }
+
+            _syncHandler.Send(packet);
+
+            if (_connection.IsEventTracerAvailable) {
+                _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_USERAUTH_REQUEST, "starting keyboard-interactive authentication");
+            }
+
+            // start asynchronous prompt-input-verify loop
+            Task.Run(() => KeyboardInteractiveUserAuthInput(serviceName));
+        }
+
+        /// <summary>
+        /// Keyboard interactive authentication sequence. (runs asynchronously)
+        /// </summary>
+        /// <param name="serviceName">service name</param>
+        private void KeyboardInteractiveUserAuthInput(string serviceName) {
+            // notify
+            _kiHandler.OnKeyboardInteractiveAuthenticationStarted();
+
+            bool userAuthResult;
+            Exception error;
+            try {
+                DoKeyboardInteractiveUserAuthInput(serviceName);
+                userAuthResult = true;
+                error = null;
+            }
+            catch (Exception e) {
+                userAuthResult = false;
+                error = e;
+            }
+
+            if (userAuthResult == false) {
+                _connection.Close();
+            }
+
+            // notify
+            _kiHandler.OnKeyboardInteractiveAuthenticationCompleted(userAuthResult, error);
+        }
+
+        /// <summary>
+        /// Prompt lines, user input loop.
+        /// </summary>
+        /// <param name="serviceName">service name</param>
+        private void DoKeyboardInteractiveUserAuthInput(string serviceName) {
+            while (true) {
+                DataFragment response = null;
+                if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+                    throw new SSHException(Strings.GetString("ServerDoesntRespond"));
+                }
+
+                SSH2DataReader reader = new SSH2DataReader(response);
+                SSH2PacketType packetType = (SSH2PacketType)reader.ReadByte();
+
+                lock (_sequenceLock) {
+                    if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
+                        throw new SSHException(Strings.GetString("ConnectionClosed"));
+                    }
+
+                    Debug.Assert(_sequenceStatus == SequenceStatus.KI_UserAuthInfoRequestReceived
+                        || _sequenceStatus == SequenceStatus.KI_FailureReceived
+                        || _sequenceStatus == SequenceStatus.KI_SuccessReceived
+                        || _sequenceStatus == SequenceStatus.KI_BannerReceived);
+
+                    if (_sequenceStatus == SequenceStatus.KI_SuccessReceived) {
+                        if (_connection.IsEventTracerAvailable) {
+                            _connection.TraceReceptionEvent(packetType, "user authentication succeeded");
+                        }
+                        return;
+                    }
+
+                    if (_sequenceStatus == SequenceStatus.KI_FailureReceived) {
+                        string msg = reader.ReadString();
+                        if (_connection.IsEventTracerAvailable) {
+                            _connection.TraceReceptionEvent(packetType, "user authentication failed: " + msg);
+                        }
+                        throw new SSHException(Strings.GetString("AuthenticationFailed"));
+                    }
+
+                    if (_sequenceStatus == SequenceStatus.KI_BannerReceived) {
+                        string msg = reader.ReadUTF8String();
+                        string langtag = reader.ReadString();
+                        if (_connection.IsEventTracerAvailable) {
+                            _connection.TraceReceptionEvent(packetType, "banner: " + msg);
+                        }
+                        _sequenceStatus = SequenceStatus.KI_WaitUserAuthInfoRequest;
+                        continue;   // wait for the next response packet
+                    }
+
+                    Debug.Assert(_sequenceStatus == SequenceStatus.KI_UserAuthInfoRequestReceived);
+                }
+
+                // parse SSH_MSG_USERAUTH_INFO_REQUEST
+
+                string name = reader.ReadUTF8String();
+                string instruction = reader.ReadUTF8String();
+                string lang = reader.ReadString();
+                int numPrompts = reader.ReadInt32();
+
+                string[] inputs;
+                if (numPrompts > 0) {
+                    string[] prompts = new string[numPrompts];
+                    bool[] echoes = new bool[numPrompts];
+                    for (int i = 0; i < numPrompts; i++) {
+                        prompts[i] = reader.ReadUTF8String();
+                        echoes[i] = reader.ReadBool();
+                    }
+
+                    // display prompt lines, and input lines
+                    inputs = _kiHandler.KeyboardInteractiveAuthenticationPrompt(prompts, echoes);
+                }
+                else {
+                    inputs = new string[0];
+                }
+
+                var infoResponsePacket = BuildKeyboardInteractiveUserAuthInfoResponsePacket(serviceName, inputs);
+
+                lock (_sequenceLock) {
+                    _sequenceStatus = SequenceStatus.KI_WaitUserAuthInfoRequest;
+                }
+
+                _syncHandler.Send(infoResponsePacket);
+            }
+        }
+
+        /// <summary>
+        /// Build SSH_MSG_USERAUTH_REQUEST packet for the password authentication.
+        /// </summary>
+        /// <param name="serviceName">service name</param>
+        /// <returns>a packet object</returns>
+        private SSH2Packet BuildPasswordAuthRequestPacket(string serviceName) {
+            return new SSH2Packet(SSH2PacketType.SSH_MSG_USERAUTH_REQUEST)
+                    .WriteUTF8String(_param.UserName)
+                    .WriteString(serviceName)
+                    .WriteString("password")
+                    .WriteBool(false)
+                    .WriteUTF8String(_param.Password);
+        }
+
+        /// <summary>
+        /// Build SSH_MSG_USERAUTH_REQUEST packet for the public key authentication.
+        /// </summary>
+        /// <param name="serviceName">service name</param>
+        /// <returns>a packet object</returns>
+        private SSH2Packet BuildPublickeyAuthRequestPacket(string serviceName) {
+            //public key authentication
+            SSH2UserAuthKey kp = SSH2UserAuthKey.FromSECSHStyleFile(_param.IdentityFile, _param.Password);
+            string algorithmName = SSH2Util.PublicKeyAlgorithmName(kp.Algorithm);
+
+            // construct a packet except signature
+            SSH2Packet packet =
+                new SSH2Packet(SSH2PacketType.SSH_MSG_USERAUTH_REQUEST)
+                    .WriteUTF8String(_param.UserName)
+                    .WriteString(serviceName)
+                    .WriteString("publickey")
+                    .WriteBool(true)    // has signature
+                    .WriteString(algorithmName)
+                    .WriteAsString(kp.GetPublicKeyBlob());
+
+            // take payload image for the signature
+            byte[] payloadImage = packet.GetPayloadBytes();
+
+            // construct the signature source
+            SSH2PayloadImageBuilder workPayload =
+                new SSH2PayloadImageBuilder()
+                    .WriteAsString(_sessionID)
+                    .Write(payloadImage);
+
+            // take a signature blob
+            byte[] signatureBlob = kp.Sign(workPayload.GetBytes());
+
+            // encode signature (RFC4253)
+            workPayload.Clear();
+            byte[] signature =
+                workPayload
+                    .WriteString(algorithmName)
+                    .WriteAsString(signatureBlob)
+                    .GetBytes();
+
+            // append signature to the packet
+            packet.WriteAsString(signature);
+
+            return packet;
+        }
+
+        /// <summary>
+        /// Password authentication sequence.
+        /// </summary>
+        /// <param name="serviceName">service name</param>
+        private void PasswordAuthentication(string serviceName) {
+            lock (_sequenceLock) {
+                Debug.Assert(_sequenceStatus == SequenceStatus.ServiceAcceptReceived);
+            }
+            var packet = BuildPasswordAuthRequestPacket(serviceName);
+            string traceMessage = "starting password authentication";
+            AuthenticationCore(serviceName, packet, traceMessage);
+        }
+
+        /// <summary>
+        /// Public key authentication sequence.
+        /// </summary>
+        /// <param name="serviceName">service name</param>
+        private void PublickeyAuthentication(string serviceName) {
+            lock (_sequenceLock) {
+                Debug.Assert(_sequenceStatus == SequenceStatus.ServiceAcceptReceived);
+            }
+            var packet = BuildPublickeyAuthRequestPacket(serviceName);
+            string traceMessage = "starting public key authentication";
+            AuthenticationCore(serviceName, packet, traceMessage);
+        }
+
+        /// <summary>
+        /// Password/Public key authentication common sequence.
+        /// </summary>
+        /// <param name="serviceName">service name</param>
+        /// <param name="packet">a request packet to send</param>
+        /// <param name="traceMessage">trace message</param>
+        private void AuthenticationCore(string serviceName, SSH2Packet packet, string traceMessage) {
+            lock (_sequenceLock) {
+                Debug.Assert(_sequenceStatus == SequenceStatus.ServiceAcceptReceived);
+            }
+
+            lock (_sequenceLock) {
+                _sequenceStatus = SequenceStatus.PA_WaitUserAuthResponse;
+            }
+
+            _syncHandler.Send(packet);
+
+            if (_connection.IsEventTracerAvailable) {
+                _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_USERAUTH_REQUEST, traceMessage);
+            }
+
+            while (true) {
+                DataFragment response = null;
+                if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+                    throw new SSHException(Strings.GetString("ServerDoesntRespond"));
+                }
+
+                lock (_sequenceLock) {
+                    if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
+                        throw new SSHException(Strings.GetString("ConnectionClosed"));
+                    }
+
+                    SSH2DataReader reader = new SSH2DataReader(response);
+                    SSH2PacketType packetType = (SSH2PacketType)reader.ReadByte();
+
+                    Debug.Assert(_sequenceStatus == SequenceStatus.PA_FailureReceived
+                        || _sequenceStatus == SequenceStatus.PA_SuccessReceived
+                        || _sequenceStatus == SequenceStatus.PA_BannerReceived);
+
+                    if (_sequenceStatus == SequenceStatus.PA_SuccessReceived) {
+                        if (_connection.IsEventTracerAvailable) {
+                            _connection.TraceReceptionEvent(packetType, "user authentication succeeded");
+                        }
+                        return;
+                    }
+
+                    if (_sequenceStatus == SequenceStatus.PA_FailureReceived) {
+                        string msg = reader.ReadString();
+                        if (_connection.IsEventTracerAvailable) {
+                            _connection.TraceReceptionEvent(packetType, "user authentication failed: " + msg);
+                        }
+                        throw new SSHException(Strings.GetString("AuthenticationFailed"));
+                    }
+
+                    if (_sequenceStatus == SequenceStatus.PA_BannerReceived) {
+                        string msg = reader.ReadUTF8String();
+                        string langtag = reader.ReadString();
+                        if (_connection.IsEventTracerAvailable) {
+                            _connection.TraceReceptionEvent(packetType, "banner: " + msg);
+                        }
+                        _sequenceStatus = SequenceStatus.PA_WaitUserAuthResponse;
+                        continue;   // wait for the next response packet
+                    }
+                }
+            }
+        }
+    }
 }
