@@ -25,15 +25,10 @@ namespace Granados.SSH2 {
     /// SSH2
     /// </summary>
     public class SSH2Connection : SSHConnection {
+        private const int RESPONSE_TIMEOUT = 10000;
 
-        // packet sequence number
-        private uint _sequence;
-        private readonly object _transmitSync = new object();   // for keeping correct packet order
-
-        private MAC _mac;
-        private Cipher _cipher;
         private readonly SSH2Packetizer _packetizer;
-        private readonly SynchronizedPacketReceiver _packetReceiver;
+        private readonly SSH2SynchronousPacketHandler _syncHandler;
 
         //server info
         private readonly SSH2ConnectionInfo _cInfo;
@@ -56,18 +51,31 @@ namespace Granados.SSH2 {
         public SSH2Connection(SSHConnectionParameter param, IGranadosSocket strm, ISSHConnectionEventReceiver r, string serverVersion, string clientVersion)
             : base(param, strm, r) {
             _cInfo = new SSH2ConnectionInfo(param.HostName, param.PortNumber, serverVersion, clientVersion);
-            _packetReceiver = new SynchronizedPacketReceiver(this);
-            _packetizer = new SSH2Packetizer(_packetReceiver);
+            IDataHandler adapter = new DataHandlerAdapter(
+                            (data) => {
+                                AsyncReceivePacket(data);
+                            },
+                            () => {
+                                EventReceiver.OnConnectionClosed();
+                            },
+                            (error) => {
+                                EventReceiver.OnError(error);
+                            }
+                        );
+            _syncHandler = new SSH2SynchronousPacketHandler(strm, adapter);
+            _packetizer = new SSH2Packetizer(_syncHandler);
         }
 
         internal void SetAgentForwardConfirmed(bool value) {
             _agentForwardConfirmed = value;
         }
+
         internal override IDataHandler Packetizer {
             get {
                 return _packetizer;
             }
         }
+
         internal SSH2ConnectionInfo ConnectionInfo {
             get {
                 return _cInfo;
@@ -390,22 +398,20 @@ namespace Granados.SSH2 {
         }
 
         internal void Transmit(SSH2Packet packet) {
-            lock (_transmitSync) {
-                _stream.Write(packet.GetImage(_cipher, _mac, _sequence++));
-            }
+            _syncHandler.Send(packet);
         }
 
         internal DataFragment TransmitAndWaitResponse(SSH2Packet packet) {
-            lock (_transmitSync) {
-                var data = packet.GetImage(_cipher, _mac, _sequence++);
-                return _packetReceiver.SendAndWaitResponse(data);
-            }
+            return _syncHandler.SendAndWaitResponse(packet, RESPONSE_TIMEOUT);
         }
 
         //synchronous reception
         internal DataFragment ReceivePacket() {
             while (true) {
-                DataFragment data = _packetReceiver.WaitResponse();
+                DataFragment data = _syncHandler.WaitResponse(RESPONSE_TIMEOUT);
+                if (data == null) {
+                    continue;
+                }
 
                 SSH2PacketType pt = (SSH2PacketType)data[0]; //sneak
 
@@ -432,6 +438,7 @@ namespace Granados.SSH2 {
                 }
             }
         }
+
         internal void AsyncReceivePacket(DataFragment packet) {
             try {
                 ProcessPacket(packet);
@@ -531,8 +538,7 @@ namespace Granados.SSH2 {
         internal void RefreshKeys(byte[] sessionID, Cipher tc, Cipher rc, MAC tm, MAC rm) {
             lock (this) { //these must change synchronously
                 _sessionID = sessionID;
-                _cipher = tc;
-                _mac = tm;
+                _syncHandler.SetCipher(tc, tm);
                 _packetizer.SetCipher(rc, _param.CheckMACError ? rm : null);
                 _asyncKeyExchanger = null;
             }
@@ -1029,6 +1035,72 @@ namespace Granados.SSH2 {
             }
             else
                 throw new SSHException("internal state error");
+        }
+    }
+
+    /// <summary>
+    /// Synchronization of sending/receiving packets.
+    /// </summary>
+    internal class SSH2SynchronousPacketHandler : AbstractSynchronousPacketHandler<SSH2Packet> {
+
+        private readonly object _cipherSync = new object();
+        private uint _sequenceNumber = 0;
+        private Cipher _cipher = null;
+        private MAC _mac = null;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="socket">socket object for sending packets.</param>
+        /// <param name="handler">the next handler received packets are redirected to.</param>
+        public SSH2SynchronousPacketHandler(IGranadosSocket socket, IDataHandler handler)
+            : base(socket, handler) {
+        }
+
+        /// <summary>
+        /// Set cipher settings.
+        /// </summary>
+        /// <param name="cipher">cipher to encrypt a packet to be sent.</param>
+        /// <param name="mac">MAC for a packet to be sent.</param>
+        public void SetCipher(Cipher cipher, MAC mac) {
+            lock (_cipherSync) {
+                _cipher = cipher;
+                _mac = mac;
+            }
+        }
+
+        /// <summary>
+        /// Gets the binary image of the packet to be sent.
+        /// </summary>
+        /// <param name="packet">a packet object</param>
+        /// <returns>binary image of the packet</returns>
+        protected override DataFragment GetPacketImage(SSH2Packet packet) {
+            lock (_cipherSync) {
+                return packet.GetImage(_cipher, _mac, _sequenceNumber++);
+            }
+        }
+
+        /// <summary>
+        /// Gets the packet type name of the packet to be sent. (for debugging)
+        /// </summary>
+        /// <param name="packet">a packet object</param>
+        /// <returns>packet name.</returns>
+        protected override string GetMessageName(SSH2Packet packet) {
+            return packet.GetPacketType().ToString();
+        }
+
+        /// <summary>
+        /// Gets the packet type name of the received packet. (for debugging)
+        /// </summary>
+        /// <param name="packet">a packet image</param>
+        /// <returns>packet name.</returns>
+        protected override string GetMessageName(DataFragment packet) {
+            if (packet.Length > 0) {
+                return ((SSH2PacketType) packet.Data[packet.Offset]).ToString();
+            }
+            else {
+                return "?";
+            }
         }
     }
 
