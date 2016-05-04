@@ -135,7 +135,7 @@ namespace Granados.SSH1 {
             SSH1PacketType pt = (SSH1PacketType) reader.ReadByte();
 
             if (pt != SSH1PacketType.SSH_SMSG_PUBLIC_KEY)
-                throw new SSHException("unexpected SSH SSH1Packet type " + pt, packet.GetBytes());
+                throw new SSHException("unexpected SSH SSH1Packet type " + pt);
 
             _cInfo.AntiSpoofingCookie = reader.Read(8);
             _cInfo.ServerKeyBits = reader.ReadInt32();
@@ -155,7 +155,7 @@ namespace Granados.SSH1 {
             //Debug.WriteLine(String.Format("ServerOptions {0} {1} {2}", protocol_flags, supported_ciphers_mask, supported_authentications_mask));
 
             if (reader.RemainingDataLength > 0)
-                throw new SSHException("data length mismatch", packet.GetBytes());
+                throw new SSHException("data length mismatch");
 
             bool found = false;
             foreach (CipherAlgorithm a in _param.PreferableCipherAlgorithms) {
@@ -175,9 +175,9 @@ namespace Granados.SSH1 {
                 throw new SSHException(String.Format(Strings.GetString("ServerNotSupportedX"), "Blowfish/TripleDES"));
 
             if (_param.AuthenticationType == AuthenticationType.Password && (supported_authentications_mask & (1 << (int)AuthenticationType.Password)) == 0)
-                throw new SSHException(String.Format(Strings.GetString("ServerNotSupportedPassword")), packet.GetBytes());
+                throw new SSHException(String.Format(Strings.GetString("ServerNotSupportedPassword")));
             if (_param.AuthenticationType == AuthenticationType.PublicKey && (supported_authentications_mask & (1 << (int)AuthenticationType.PublicKey)) == 0)
-                throw new SSHException(String.Format(Strings.GetString("ServerNotSupportedRSA")), packet.GetBytes());
+                throw new SSHException(String.Format(Strings.GetString("ServerNotSupportedRSA")));
 
             TraceReceptionEvent(pt, "received server key");
         }

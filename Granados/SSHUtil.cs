@@ -19,21 +19,20 @@ using Granados.Crypto;
 using System.Reflection;
 
 namespace Granados {
+
     /// <summary>
-    /// 
+    /// Exception about SSH operation.
     /// </summary>
-    /// <exclude/>
     public class SSHException : Exception {
-        private byte[] _data;
 
-        public SSHException(string msg, byte[] data)
-            : base(msg) {
-            _data = data;
+        public SSHException(string message)
+            : base(message) {
         }
 
-        public SSHException(string msg)
-            : base(msg) {
+        public SSHException(string message, Exception cause)
+            : base(message, cause) {
         }
+
     }
 
     /// <summary>
