@@ -90,7 +90,6 @@ namespace Poderosa.Protocols {
                 }
                 //_destination.PasswordOrPassphrase = ""; 接続の複製のためにここで消さずに残しておく
                 terminalConnection.AttachTransmissionSide(ssh);
-                terminalConnection.UsingSocks = _socks != null;
                 _result = terminalConnection;
             }
             else {

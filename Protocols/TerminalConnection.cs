@@ -265,21 +265,8 @@ namespace Poderosa.Protocols {
 
     internal abstract class TCPTerminalConnection : TerminalConnection {
 
-        protected bool _usingSocks;
-
         protected TCPTerminalConnection(ITCPParameter p)
             : base((ITerminalParameter)p.GetAdapter(typeof(ITerminalParameter))) {
-            _usingSocks = false;
-        }
-
-        //設定は最初だけ行う
-        public bool UsingSocks {
-            get {
-                return _usingSocks;
-            }
-            set {
-                _usingSocks = value;
-            }
         }
     }
 
