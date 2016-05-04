@@ -46,12 +46,12 @@ namespace Granados.SSH2 {
         /// Constructor
         /// </summary>
         /// <param name="param"></param>
-        /// <param name="strm"></param>
+        /// <param name="socket"></param>
         /// <param name="r"></param>
         /// <param name="serverVersion"></param>
         /// <param name="clientVersion"></param>
-        public SSH2Connection(SSHConnectionParameter param, IGranadosSocket strm, ISSHConnectionEventReceiver r, string serverVersion, string clientVersion)
-            : base(param, strm, r) {
+        public SSH2Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventReceiver r, string serverVersion, string clientVersion)
+            : base(param, socket, r) {
             _cInfo = new SSH2ConnectionInfo(param.HostName, param.PortNumber, serverVersion, clientVersion);
             IDataHandler adapter = new DataHandlerAdapter(
                             (data) => {
@@ -64,8 +64,9 @@ namespace Granados.SSH2 {
                                 EventReceiver.OnError(error);
                             }
                         );
-            _syncHandler = new SSH2SynchronousPacketHandler(strm, adapter);
+            _syncHandler = new SSH2SynchronousPacketHandler(socket, adapter);
             _packetizer = new SSH2Packetizer(_syncHandler);
+
             _packetInterceptors = new SSH2PacketInterceptorCollection();
             _keyExchanger = new KeyExchanger(this, _syncHandler, param, _cInfo, UpdateKey);
             _packetInterceptors.Add(_keyExchanger);
@@ -986,7 +987,7 @@ namespace Granados.SSH2 {
         /// <param name="interceptor">a packet interceptor</param>
         public void Add(ISSH2PacketInterceptor interceptor) {
             lock (_interceptors) {
-                if (!_interceptors.Contains(interceptor)) {
+                if (_interceptors.All(i => i.GetType() != interceptor.GetType())) {
                     _interceptors.AddLast(interceptor);
                     Debug.WriteLine("PacketInterceptor: Add {0}", interceptor.GetType());
                 }
