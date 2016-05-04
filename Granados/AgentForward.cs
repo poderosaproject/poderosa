@@ -63,39 +63,41 @@ namespace Granados {
 
     //currently OpenSSH's SSH2 connections are only supported
     internal class AgentForwardingChannel : ISSHChannelEventReceiver {
+        private readonly IAgentForward _client;
+        private readonly ByteBuffer _buffer;
         private SSHChannel _channel;
-        private IAgentForward _client;
-        private SimpleMemoryStream _buffer;
         private bool _closed;
 
         public AgentForwardingChannel(IAgentForward client) {
             _client = client;
-            _buffer = new SimpleMemoryStream();
+            _buffer = new ByteBuffer(0x1000, 0x40000);
         }
+
         internal void SetChannel(SSHChannel channel) {
             _channel = channel;
         }
 
         public void OnData(DataFragment data) {
-            _buffer.Write(data);
-            int expectedLength = SSHUtil.ReadInt32(_buffer.UnderlyingBuffer, 0);
-            if (expectedLength + 4 <= _buffer.Length) {
-                SSH2DataReader r = new SSH2DataReader(new DataFragment(_buffer.UnderlyingBuffer, 4, _buffer.Length - 4));
-                AgentForwadPacketType pt = (AgentForwadPacketType)r.ReadByte();
-                //remaining len-1
-                _buffer.SetOffset(0);
-
-                switch (pt) {
-                    case AgentForwadPacketType.SSH2_AGENTC_REQUEST_IDENTITIES:
-                        SendKeyList();
-                        break;
-                    case AgentForwadPacketType.SSH2_AGENTC_SIGN_REQUEST:
-                        SendSign(r);
-                        break;
-                    default:
-                        //Debug.WriteLine("Unknown agent packet " + pt.ToString());
-                        TransmitWriter(OpenWriter(AgentForwadPacketType.SSH_AGENT_FAILURE));
-                        break;
+            _buffer.Append(data);
+            if (_buffer.Length >= 4) {
+                SSH2DataReader reader = new SSH2DataReader(_buffer.AsDataFragment());
+                int expectedLength = reader.ReadInt32();
+                if (expectedLength <= reader.RemainingDataLength) {
+                    AgentForwadPacketType pt = (AgentForwadPacketType)reader.ReadByte();
+                    switch (pt) {
+                        case AgentForwadPacketType.SSH2_AGENTC_REQUEST_IDENTITIES:
+                            SendKeyList();
+                            break;
+                        case AgentForwadPacketType.SSH2_AGENTC_SIGN_REQUEST:
+                            byte[] reqKeyBlob = reader.ReadByteString();
+                            byte[] reqData = reader.ReadByteString();
+                            uint reqFlags = reader.ReadUInt32();
+                            SendSign(reqKeyBlob, reqData, reqFlags);
+                            break;
+                        default:
+                            SendFailure();
+                            break;
+                    }
                 }
             }
         }
@@ -128,52 +130,55 @@ namespace Granados {
         }
 
         private void SendKeyList() {
-            SSH2DataWriter wr = OpenWriter(AgentForwadPacketType.SSH2_AGENT_IDENTITIES_ANSWER);
+            SSH2PayloadImageBuilder image = new SSH2PayloadImageBuilder();
+            image.WriteUInt32(0);    // length field
+            image.WriteByte((byte)AgentForwadPacketType.SSH2_AGENT_IDENTITIES_ANSWER);
             // keycount, ((blob-len, pubkey-blob, comment-len, comment) * keycount)
             SSH2UserAuthKey[] keys = _client.GetAvailableSSH2UserAuthKeys();
-            wr.WriteInt32(keys.Length);
+            image.WriteInt32(keys.Length);
             foreach (SSH2UserAuthKey key in keys) {
                 byte[] blob = key.GetPublicKeyBlob();
-                wr.WriteAsString(blob);
+                image.WriteAsString(blob);
                 Debug.WriteLine("Userkey comment=" + key.Comment);
-                wr.WriteAsString(Encoding.UTF8.GetBytes(key.Comment));
+                image.WriteUTF8String(key.Comment);
             }
-            TransmitWriter(wr);
+            int length = image.Length;
+            image.OverwriteUInt32(0, (uint)(length - 4));
+            TransmitWriter(image.AsDataFragment());
         }
-        private void SendSign(SSH2DataReader r) {
-            byte[] blob = r.ReadByteString();
-            byte[] data = r.ReadByteString();
-            //Debug.WriteLine(String.Format("SignRequest blobsize={0} datasize={1}", blob.Length, data.Length));
 
+        private void SendSign(byte[] blob, byte[] data, uint flags) {
             SSH2UserAuthKey[] keys = _client.GetAvailableSSH2UserAuthKeys();
             SSH2UserAuthKey key = FindKey(keys, blob);
             if (key == null) {
-                TransmitWriter(OpenWriter(AgentForwadPacketType.SSH_AGENT_FAILURE));
+                SendFailure();
                 _client.NotifyPublicKeyDidNotMatch();
+                return;
             }
-            else {
-                SSH2DataWriter signpack = new SSH2DataWriter();
-                signpack.WriteString(SSH2Util.PublicKeyAlgorithmName(key.Algorithm));
-                signpack.WriteAsString(key.Sign(data));
 
-                SSH2DataWriter wr = OpenWriter(AgentForwadPacketType.SSH2_AGENT_SIGN_RESPONSE);
-                wr.WriteAsString(signpack.ToByteArray());
-                TransmitWriter(wr);
-            }
+            SSH2PayloadImageBuilder image = new SSH2PayloadImageBuilder();
+            image.WriteString(SSH2Util.PublicKeyAlgorithmName(key.Algorithm));
+            image.WriteAsString(key.Sign(data));
+            byte[] signpackImage = image.GetBytes();
+
+            image.Clear();
+            image.WriteUInt32(0);    // length field
+            image.WriteByte((byte)AgentForwadPacketType.SSH2_AGENT_SIGN_RESPONSE);
+            image.WriteAsString(signpackImage);
+            int length = image.Length;
+            image.OverwriteUInt32(0, (uint)(length - 4));
+            TransmitWriter(image.AsDataFragment());
         }
 
-        //writer util
-        private SSH2DataWriter OpenWriter(AgentForwadPacketType pt) {
-            SSH2DataWriter wr = new SSH2DataWriter();
-            wr.WriteInt32(0); //length field
-            wr.WriteByte((byte)pt);
-            return wr;
+        private void SendFailure() {
+            SSH2PayloadImageBuilder image = new SSH2PayloadImageBuilder();
+            image.WriteUInt32(1);    // length field
+            image.WriteByte((byte)AgentForwadPacketType.SSH_AGENT_FAILURE);
+            TransmitWriter(image.AsDataFragment());
         }
-        private void TransmitWriter(SSH2DataWriter wr) {
-            int o = wr.Length;
-            wr.SetOffset(0);
-            wr.WriteInt32(o - 4); //length of int32
-            _channel.Transmit(wr.UnderlyingBuffer, 0, o);
+
+        private void TransmitWriter(DataFragment data) {
+            _channel.Transmit(data.Data , data.Offset, data.Length);
         }
 
         private SSH2UserAuthKey FindKey(SSH2UserAuthKey[] keys, byte[] blob) {

@@ -275,6 +275,15 @@ namespace Granados.SSH2 {
         }
 
         /// <summary>
+        /// Current length of the payload.
+        /// </summary>
+        public int Length {
+            get {
+                return _payload.Length;
+            }
+        }
+
+        /// <summary>
         /// Clear the <see cref="Payload"/>.
         /// </summary>
         public void Clear() {
@@ -287,6 +296,14 @@ namespace Granados.SSH2 {
         /// <returns>byte array</returns>
         public byte[] GetBytes() {
             return _payload.GetBytes();
+        }
+
+        /// <summary>
+        /// Wrap this buffer.
+        /// </summary>
+        /// <returns>new <see cref="DataFragment"/> instance that wraps payload buffer.</returns>
+        public DataFragment AsDataFragment() {
+            return _payload.AsDataFragment();
         }
     }
 
@@ -378,7 +395,6 @@ namespace Granados.SSH2 {
 
         private readonly ByteBuffer _inputBuffer = new ByteBuffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH * 16);
         private readonly ByteBuffer _packetImage = new ByteBuffer(36000, MAX_PACKET_LENGTH * 2);
-        private readonly byte[] _dword = new byte[4];
         private int _packetLength;
         private uint _sequence;
         private Cipher _cipher;
@@ -533,8 +549,7 @@ namespace Granados.SSH2 {
                 }
 
                 _packetImage.Clear();
-                SSHUtil.WriteUIntToByteArray(_dword, 0, _sequence);
-                _packetImage.Append(_dword); // sequence_number field for computing MAC
+                _packetImage.WriteUInt32(_sequence);
                 _packetImage.Append(_inputBuffer, 0, headLen);
                 _inputBuffer.RemoveHead(headLen);
 

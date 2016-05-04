@@ -136,6 +136,22 @@ namespace Granados.IO {
             packet.Payload.WriteSecureRandomBytes(length);
             return packet;
         }
+
+        /// <summary>
+        /// Overwrites Byte value.
+        /// </summary>
+        public static T OverwriteByte<T>(this T packet, int offset, byte val) where T : IPacketBuilder {
+            packet.Payload.OverwriteByte(offset, val);
+            return packet;
+        }
+
+        /// <summary>
+        /// Overwrites UInt32 value in network byte order.
+        /// </summary>
+        public static T OverwriteUInt32<T>(this T packet, int offset, uint val) where T : IPacketBuilder {
+            packet.Payload.OverwriteUInt32(offset, val);
+            return packet;
+        }
     }
 
     /// <summary>

@@ -147,7 +147,7 @@ namespace Granados.IO {
     /// 
     /// </summary>
     /// <exclude/>
-    public class SimpleMemoryStream {
+    internal class SimpleMemoryStream {
         private byte[] _buffer;
         private int _offset;
 
@@ -309,6 +309,14 @@ namespace Granados.IO {
         /// <param name="buffer">another buffer</param>
         public void Append(ByteBuffer buffer) {
             Append(buffer._buff, buffer._offset, buffer._length);
+        }
+
+        /// <summary>
+        /// Append <see cref="DataFragment"/>.
+        /// </summary>
+        /// <param name="data">data</param>
+        public void Append(DataFragment data) {
+            Append(data.Data, data.Offset, data.Length);
         }
 
         /// <summary>

@@ -1053,7 +1053,7 @@ namespace Granados.Poderosa.SFTP {
         private Exception _responseHandlerException = null;
 
         private bool _isDataIncomplete = false;
-        private readonly SimpleMemoryStream _dataBuffer = new SimpleMemoryStream();
+        private readonly ByteBuffer _dataBuffer = new ByteBuffer(0x10000, -1);
         private int _dataTotal = 0;
 
         #endregion
@@ -1131,13 +1131,12 @@ namespace Granados.Poderosa.SFTP {
 #endif
             DataFragment dataFragment;
             if (_isDataIncomplete) {
-                // append to buffer
-                _dataBuffer.Write(data);
+                _dataBuffer.Append(data);
 
                 if (_dataTotal == 0) {  // not determined yet
                     if (_dataBuffer.Length < 4)
                         return;
-                    _dataTotal = SSHUtil.ReadInt32(_dataBuffer.UnderlyingBuffer, 0);
+                    _dataTotal = SSHUtil.ReadInt32(_dataBuffer.RawBuffer, _dataBuffer.RawBufferOffset);
                 }
 
                 if (_dataBuffer.Length < _dataTotal)
@@ -1145,12 +1144,12 @@ namespace Granados.Poderosa.SFTP {
 
                 _isDataIncomplete = false;
                 _dataTotal = 0;
-                dataFragment = new DataFragment(_dataBuffer.UnderlyingBuffer, 0, (int)_dataBuffer.Length);
+                dataFragment = _dataBuffer.AsDataFragment();
             }
             else {
                 if (data.Length < 4) {
-                    _dataBuffer.Reset();
-                    _dataBuffer.Write(data);
+                    _dataBuffer.Clear();
+                    _dataBuffer.Append(data);
                     _isDataIncomplete = true;
                     _dataTotal = 0; // determine later...
                     return;
@@ -1158,8 +1157,8 @@ namespace Granados.Poderosa.SFTP {
 
                 int total = SSHUtil.ReadInt32(data.Data, data.Offset);
                 if (data.Length - 4 < total) {
-                    _dataBuffer.Reset();
-                    _dataBuffer.Write(data);
+                    _dataBuffer.Clear();
+                    _dataBuffer.Append(data);
                     _isDataIncomplete = true;
                     _dataTotal = total;
                     return;
