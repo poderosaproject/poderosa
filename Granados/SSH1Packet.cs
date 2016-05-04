@@ -77,7 +77,7 @@ namespace Granados.SSH1 {
     /// You should be careful that only single instance is used while constructing a packet.
     /// </remarks>
     internal class SSH1Packet : ISSH1PacketBuilder {
-        private readonly byte _type;
+        private readonly SSH1PacketType _type;
         private readonly ByteBuffer _payload;
 
         private static readonly ThreadLocal<ByteBuffer> _payloadBuffer =
@@ -100,7 +100,7 @@ namespace Granados.SSH1 {
                     "simultaneous editing packet detected: " + typeof(SSH1Packet).FullName);
             }
             _lockFlag.Value = true;
-            _type = (byte)type;
+            _type = type;
             _payload = _payloadBuffer.Value;
             _payload.Clear();
         }
@@ -112,6 +112,14 @@ namespace Granados.SSH1 {
             get {
                 return _payload;
             }
+        }
+
+        /// <summary>
+        /// Get packet type (message number).
+        /// </summary>
+        /// <returns>a packet type (message number)</returns>
+        public SSH1PacketType GetPacketType() {
+            return _type;
         }
 
         /// <summary>
@@ -141,7 +149,7 @@ namespace Granados.SSH1 {
             int paddingLength = 8 - (packetLength % 8);
             image.WriteInt32(packetLength);
             image.WriteSecureRandomBytes(paddingLength);
-            image.WriteByte(_type);
+            image.WriteByte((byte)_type);
             if (_payload.Length > 0) {
                 image.Append(_payload);
             }
