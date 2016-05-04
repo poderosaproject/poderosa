@@ -262,10 +262,6 @@ namespace Granados.SSH2 {
             _syncHandler.Send(packet);
         }
 
-        internal DataFragment TransmitAndWaitResponse(SSH2Packet packet) {
-            return _syncHandler.SendAndWaitResponse(packet, RESPONSE_TIMEOUT);
-        }
-
         //synchronous reception
         internal DataFragment ReceivePacket() {
             while (true) {
