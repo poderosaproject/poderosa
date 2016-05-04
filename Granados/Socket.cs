@@ -80,7 +80,7 @@ namespace Granados.IO {
     /// Interface to handle received data in <see cref="PlainSocket"/>
     /// </summary>
     /// <exclude/>
-    public interface IDataHandler {
+    internal interface IDataHandler {
         void OnData(DataFragment data);
         void OnClosed();
         void OnError(Exception error);
