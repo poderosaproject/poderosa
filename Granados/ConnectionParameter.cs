@@ -104,6 +104,9 @@ namespace Granados {
             set;
         }
 
+        /// <summary>
+        /// Handler for the keyboard-interactive authentication.
+        /// </summary>
         public IKeyboardInteractiveAuthenticationHandler KeyboardInteractiveAuthenticationHandler {
             get;
             set;
