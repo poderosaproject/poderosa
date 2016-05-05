@@ -34,7 +34,7 @@ namespace Granados.SSH2 {
         private readonly SSH2Packetizer _packetizer;
         private readonly SSH2SynchronousPacketHandler _syncHandler;
         private readonly SSH2PacketInterceptorCollection _packetInterceptors;
-        private readonly KeyExchanger _keyExchanger;
+        private readonly SSH2KeyExchanger _keyExchanger;
 
         //server info
         private readonly SSH2ConnectionInfo _cInfo;
@@ -68,7 +68,7 @@ namespace Granados.SSH2 {
             _packetizer = new SSH2Packetizer(_syncHandler);
 
             _packetInterceptors = new SSH2PacketInterceptorCollection();
-            _keyExchanger = new KeyExchanger(this, _syncHandler, param, _cInfo, UpdateKey);
+            _keyExchanger = new SSH2KeyExchanger(this, _syncHandler, param, _cInfo, UpdateKey);
             _packetInterceptors.Add(_keyExchanger);
         }
 
@@ -95,7 +95,7 @@ namespace Granados.SSH2 {
                 kexTask.Wait();
 
                 //user authentication
-                UserAuthentication userAuthentication = new UserAuthentication(this, _param, _syncHandler, _sessionID);
+                SSH2UserAuthentication userAuthentication = new SSH2UserAuthentication(this, _param, _syncHandler, _sessionID);
                 _packetInterceptors.Add(userAuthentication);
                 Task authTask = userAuthentication.StartAuthentication();
                 authTask.Wait();
@@ -1025,7 +1025,9 @@ namespace Granados.SSH2 {
     /// <summary>
     /// Class for supporting key exchange sequence.
     /// </summary>
-    internal class KeyExchanger : ISSH2PacketInterceptor {
+    internal class SSH2KeyExchanger : ISSH2PacketInterceptor {
+        #region SSH2KeyExchanger
+
         private const int PASSING_TIMEOUT = 1000;
         private const int RESPONSE_TIMEOUT = 5000;
 
@@ -1113,7 +1115,7 @@ namespace Granados.SSH2 {
         /// <param name="syncHandler"></param>
         /// <param name="info"></param>
         /// <param name="updateKey"></param>
-        public KeyExchanger(
+        public SSH2KeyExchanger(
                     SSH2Connection connection,
                     SSH2SynchronousPacketHandler syncHandler,
                     SSHConnectionParameter param,
@@ -2018,12 +2020,16 @@ namespace Granados.SSH2 {
                     throw new ArgumentException("invalid hex number");
             }
         }
+
+        #endregion  // SSH2KeyExchanger
     }
 
     /// <summary>
     /// Class for supporting user authentication
     /// </summary>
-    internal class UserAuthentication : ISSH2PacketInterceptor {
+    internal class SSH2UserAuthentication : ISSH2PacketInterceptor {
+        #region SSH2UserAuthentication
+
         private const int PASSING_TIMEOUT = 1000;
         private const int RESPONSE_TIMEOUT = 5000;
 
@@ -2093,7 +2099,7 @@ namespace Granados.SSH2 {
         /// <param name="param"></param>
         /// <param name="syncHandler"></param>
         /// <param name="sessionID"></param>
-        public UserAuthentication(
+        public SSH2UserAuthentication(
                     SSH2Connection connection,
                     SSHConnectionParameter param,
                     SSH2SynchronousPacketHandler syncHandler,
@@ -2641,5 +2647,8 @@ namespace Granados.SSH2 {
                 }
             }
         }
+
+        #endregion  // SSH2UserAuthentication
     }
+
 }
