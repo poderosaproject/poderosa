@@ -58,6 +58,7 @@ namespace Granados.SSH2 {
                                 AsyncReceivePacket(data);
                             },
                             () => {
+                                OnConnectionClosed();
                                 EventReceiver.OnConnectionClosed();
                             },
                             (error) => {
@@ -365,6 +366,10 @@ namespace Granados.SSH2 {
             }
 
             _eventReceiver.OnUnknownMessage((byte)pt, packet.GetBytes());
+        }
+
+        private void OnConnectionClosed() {
+            _packetInterceptors.OnConnectionClosed();
         }
 
         public override void Disconnect(string msg) {
@@ -969,6 +974,7 @@ namespace Granados.SSH2 {
     /// </summary>
     internal interface ISSH2PacketInterceptor {
         SSH2PacketInterceptorResult InterceptPacket(DataFragment packet);
+        void OnConnectionClosed();
     }
 
     /// <summary>
@@ -1019,6 +1025,17 @@ namespace Granados.SSH2 {
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// Notifies connection-close to the packet interceptors.
+        /// </summary>
+        public void OnConnectionClosed() {
+            lock (_interceptors) {
+                foreach (var interceptor in _interceptors) {
+                    interceptor.OnConnectionClosed();
+                }
+            }            
         }
     }
 
@@ -1184,11 +1201,13 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Handles connection close.
         /// </summary>
-        public void OnClosed() {
+        public void OnConnectionClosed() {
             lock (_sequenceLock) {
-                this._sequenceStatus = SequenceStatus.ConnectionClosed;
-                DataFragment dummyPacket = new DataFragment(new byte[1] { 0xff }, 0, 1);
-                _receivedPacket.TrySet(dummyPacket, PASSING_TIMEOUT);
+                if (_sequenceStatus != SequenceStatus.ConnectionClosed) {
+                    _sequenceStatus = SequenceStatus.ConnectionClosed;
+                    DataFragment dummyPacket = new DataFragment(new byte[1] { 0xff }, 0, 1);
+                    _receivedPacket.TrySet(dummyPacket, PASSING_TIMEOUT);
+                }
             }
         }
 
@@ -2202,11 +2221,13 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Handles connection close.
         /// </summary>
-        public void OnClosed() {
+        public void OnConnectionClosed() {
             lock (_sequenceLock) {
-                this._sequenceStatus = SequenceStatus.ConnectionClosed;
-                DataFragment dummyPacket = new DataFragment(new byte[1] { 0xff }, 0, 1);
-                _receivedPacket.TrySet(dummyPacket, PASSING_TIMEOUT);
+                if (_sequenceStatus != SequenceStatus.ConnectionClosed) {
+                    _sequenceStatus = SequenceStatus.ConnectionClosed;
+                    DataFragment dummyPacket = new DataFragment(new byte[1] { 0xff }, 0, 1);
+                    _receivedPacket.TrySet(dummyPacket, PASSING_TIMEOUT);
+                }
             }
         }
 
