@@ -1,27 +1,26 @@
 ﻿/*
- Copyright (c) 2005 Poderosa Project, All Rights Reserved.
+ Copyright (c) 2016 Poderosa Project, All Rights Reserved.
  This file is a part of the Granados SSH Client Library that is subject to
  the license included in the distributed package.
  You may not use this file except in compliance with the license.
 
  $Id: SSH2Connection.cs,v 1.11 2012/02/25 03:49:46 kzmi Exp $
 */
-using System;
-using System.Linq;
-using System.Threading;
-using System.Diagnostics;
-using System.Text;
-using System.Security.Cryptography;
-
-using Granados.PKI;
 using Granados.Crypto;
-using Granados.Util;
 using Granados.IO;
 using Granados.IO.SSH2;
-using Granados.Mono.Math;
-using System.Threading.Tasks;
 using Granados.KeyboardInteractive;
-using System.Collections.Generic;
+using Granados.Mono.Math;
+using Granados.PKI;
+using Granados.SSH;
+using Granados.Util;
+using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Granados.SSH2 {
 
@@ -33,7 +32,7 @@ namespace Granados.SSH2 {
 
         private readonly SSH2Packetizer _packetizer;
         private readonly SSH2SynchronousPacketHandler _syncHandler;
-        private readonly SSH2PacketInterceptorCollection _packetInterceptors;
+        private readonly SSHPacketInterceptorCollection _packetInterceptors;
         private readonly SSH2KeyExchanger _keyExchanger;
 
         //server info
@@ -68,7 +67,7 @@ namespace Granados.SSH2 {
             _syncHandler = new SSH2SynchronousPacketHandler(socket, adapter);
             _packetizer = new SSH2Packetizer(_syncHandler);
 
-            _packetInterceptors = new SSH2PacketInterceptorCollection();
+            _packetInterceptors = new SSHPacketInterceptorCollection();
             _keyExchanger = new SSH2KeyExchanger(this, _syncHandler, param, _cInfo, UpdateKey);
             _packetInterceptors.Add(_keyExchanger);
         }
@@ -958,91 +957,9 @@ namespace Granados.SSH2 {
     }
 
     /// <summary>
-    /// Return value of the <see cref="ISSH2PacketInterceptor.InterceptPacket(DataFragment)"/>.
-    /// </summary>
-    internal enum SSH2PacketInterceptorResult {
-        /// <summary>the packet was not consumed</summary>
-        PassThrough,
-        /// <summary>the packet was consumed</summary>
-        Consumed,
-        /// <summary>the packet was not consumed. the interceptor has already finished.</summary>
-        Finished,
-    }
-
-    /// <summary>
-    /// An interface of a class that can intercept a received packet.
-    /// </summary>
-    internal interface ISSH2PacketInterceptor {
-        SSH2PacketInterceptorResult InterceptPacket(DataFragment packet);
-        void OnConnectionClosed();
-    }
-
-    /// <summary>
-    /// Collection of the <see cref="ISSH2PacketInterceptor"/>.
-    /// </summary>
-    internal class SSH2PacketInterceptorCollection {
-
-        private readonly LinkedList<ISSH2PacketInterceptor> _interceptors = new LinkedList<ISSH2PacketInterceptor>();
-
-        /// <summary>
-        /// Add packet interceptor to the collection.
-        /// </summary>
-        /// <remarks>
-        /// Do nothing if the packet interceptor already exists in the collection.
-        /// </remarks>
-        /// <param name="interceptor">a packet interceptor</param>
-        public void Add(ISSH2PacketInterceptor interceptor) {
-            lock (_interceptors) {
-                if (_interceptors.All(i => i.GetType() != interceptor.GetType())) {
-                    _interceptors.AddLast(interceptor);
-                    Debug.WriteLine("PacketInterceptor: Add {0}", interceptor.GetType());
-                }
-            }
-        }
-
-        /// <summary>
-        /// Feed packet to the packet interceptors.
-        /// </summary>
-        /// <param name="packet">a packet object</param>
-        /// <returns>true if the packet was consumed.</returns>
-        public bool InterceptPacket(DataFragment packet) {
-            lock (_interceptors) {
-                var node = _interceptors.First;
-                while (node != null) {
-                    var result = node.Value.InterceptPacket(packet);
-                    if (result == SSH2PacketInterceptorResult.Consumed) {
-                        return true;
-                    }
-                    if (result == SSH2PacketInterceptorResult.Finished) {
-                        var nodeToRemove = node;
-                        node = node.Next;
-                        _interceptors.Remove(nodeToRemove);
-                        Debug.WriteLine("PacketInterceptor: Del {0}", nodeToRemove.Value.GetType());
-                    }
-                    else {
-                        node = node.Next;
-                    }
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Notifies connection-close to the packet interceptors.
-        /// </summary>
-        public void OnConnectionClosed() {
-            lock (_interceptors) {
-                foreach (var interceptor in _interceptors) {
-                    interceptor.OnConnectionClosed();
-                }
-            }            
-        }
-    }
-
-    /// <summary>
     /// Class for supporting key exchange sequence.
     /// </summary>
-    internal class SSH2KeyExchanger : ISSH2PacketInterceptor {
+    internal class SSH2KeyExchanger : ISSHPacketInterceptor {
         #region SSH2KeyExchanger
 
         private const int PASSING_TIMEOUT = 1000;
@@ -1150,7 +1067,7 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <param name="packet">a packet image</param>
         /// <returns>result</returns>
-        public SSH2PacketInterceptorResult InterceptPacket(DataFragment packet) {
+        public SSHPacketInterceptorResult InterceptPacket(DataFragment packet) {
             SSH2PacketType packetType = (SSH2PacketType)packet[0];
             lock (_sequenceLock) {
                 switch (_sequenceStatus) {
@@ -1158,7 +1075,7 @@ namespace Granados.SSH2 {
                         if (packetType == SSH2PacketType.SSH_MSG_KEXINIT) {
                             _sequenceStatus = SequenceStatus.InitiatedByServer;
                             _kexTask = StartKeyExchangeAsync(packet);
-                            return SSH2PacketInterceptorResult.Consumed;
+                            return SSHPacketInterceptorResult.Consumed;
                         }
                         break;
                     case SequenceStatus.InitiatedByServer:
@@ -1167,7 +1084,7 @@ namespace Granados.SSH2 {
                         if (packetType == SSH2PacketType.SSH_MSG_KEXINIT) {
                             _sequenceStatus = SequenceStatus.KexInitReceived;
                             _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
-                            return SSH2PacketInterceptorResult.Consumed;
+                            return SSHPacketInterceptorResult.Consumed;
                         }
                         break;
                     case SequenceStatus.KexInitReceived:
@@ -1176,7 +1093,7 @@ namespace Granados.SSH2 {
                         if (packetType == SSH2PacketType.SSH_MSG_KEXDH_REPLY) {
                             _sequenceStatus = SequenceStatus.WaitNewKeys;
                             _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
-                            return SSH2PacketInterceptorResult.Consumed;
+                            return SSHPacketInterceptorResult.Consumed;
                         }
                         break;
                     case SequenceStatus.WaitNewKeys:
@@ -1188,13 +1105,13 @@ namespace Granados.SSH2 {
                                     Monitor.Wait(_sequenceLock);
                                 } while (_sequenceStatus == SequenceStatus.WaitUpdateCipher);
                             }
-                            return SSH2PacketInterceptorResult.Consumed;
+                            return SSHPacketInterceptorResult.Consumed;
                         }
                         break;
                     default:
                         break;
                 }
-                return SSH2PacketInterceptorResult.PassThrough;
+                return SSHPacketInterceptorResult.PassThrough;
             }
         }
 
@@ -2046,7 +1963,7 @@ namespace Granados.SSH2 {
     /// <summary>
     /// Class for supporting user authentication
     /// </summary>
-    internal class SSH2UserAuthentication : ISSH2PacketInterceptor {
+    internal class SSH2UserAuthentication : ISSHPacketInterceptor {
         #region SSH2UserAuthentication
 
         private const int PASSING_TIMEOUT = 1000;
@@ -2135,9 +2052,9 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <param name="packet">a packet image</param>
         /// <returns>result</returns>
-        public SSH2PacketInterceptorResult InterceptPacket(DataFragment packet) {
+        public SSHPacketInterceptorResult InterceptPacket(DataFragment packet) {
             if (_sequenceStatus == SequenceStatus.Done) {   // fast check
-                return SSH2PacketInterceptorResult.Finished;
+                return SSHPacketInterceptorResult.Finished;
             }
 
             SSH2PacketType packetType = (SSH2PacketType)packet[0];
@@ -2151,7 +2068,7 @@ namespace Granados.SSH2 {
                         if (packetType == SSH2PacketType.SSH_MSG_SERVICE_ACCEPT) {
                             _sequenceStatus = SequenceStatus.ServiceAcceptReceived;
                             _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
-                            return SSH2PacketInterceptorResult.Consumed;
+                            return SSHPacketInterceptorResult.Consumed;
                         }
                         break;
                     case SequenceStatus.ServiceAcceptReceived:
@@ -2164,22 +2081,22 @@ namespace Granados.SSH2 {
                         if (packetType == SSH2PacketType.SSH_MSG_USERAUTH_INFO_REQUEST) {
                             _sequenceStatus = SequenceStatus.KI_UserAuthInfoRequestReceived;
                             _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
-                            return SSH2PacketInterceptorResult.Consumed;
+                            return SSHPacketInterceptorResult.Consumed;
                         }
                         if (packetType == SSH2PacketType.SSH_MSG_USERAUTH_SUCCESS) {
                             _sequenceStatus = SequenceStatus.KI_SuccessReceived;
                             _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
-                            return SSH2PacketInterceptorResult.Consumed;
+                            return SSHPacketInterceptorResult.Consumed;
                         }
                         if (packetType == SSH2PacketType.SSH_MSG_USERAUTH_FAILURE) {
                             _sequenceStatus = SequenceStatus.KI_FailureReceived;
                             _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
-                            return SSH2PacketInterceptorResult.Consumed;
+                            return SSHPacketInterceptorResult.Consumed;
                         }
                         if (packetType == SSH2PacketType.SSH_MSG_USERAUTH_BANNER) {
                             _sequenceStatus = SequenceStatus.KI_BannerReceived;
                             _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
-                            return SSH2PacketInterceptorResult.Consumed;
+                            return SSHPacketInterceptorResult.Consumed;
                         }
                         break;
                     case SequenceStatus.KI_UserAuthInfoRequestReceived:
@@ -2194,17 +2111,17 @@ namespace Granados.SSH2 {
                         if (packetType == SSH2PacketType.SSH_MSG_USERAUTH_SUCCESS) {
                             _sequenceStatus = SequenceStatus.PA_SuccessReceived;
                             _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
-                            return SSH2PacketInterceptorResult.Consumed;
+                            return SSHPacketInterceptorResult.Consumed;
                         }
                         if (packetType == SSH2PacketType.SSH_MSG_USERAUTH_FAILURE) {
                             _sequenceStatus = SequenceStatus.PA_FailureReceived;
                             _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
-                            return SSH2PacketInterceptorResult.Consumed;
+                            return SSHPacketInterceptorResult.Consumed;
                         }
                         if (packetType == SSH2PacketType.SSH_MSG_USERAUTH_BANNER) {
                             _sequenceStatus = SequenceStatus.PA_BannerReceived;
                             _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
-                            return SSH2PacketInterceptorResult.Consumed;
+                            return SSHPacketInterceptorResult.Consumed;
                         }
                         break;
                     case SequenceStatus.PA_SuccessReceived:
@@ -2214,7 +2131,7 @@ namespace Granados.SSH2 {
                     default:
                         break;
                 }
-                return SSH2PacketInterceptorResult.PassThrough;
+                return SSHPacketInterceptorResult.PassThrough;
             }
         }
 

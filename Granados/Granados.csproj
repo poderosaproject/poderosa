@@ -211,6 +211,8 @@
     <Compile Include="SSH2Util.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="SSHChannel.cs" />
+    <Compile Include="SSHPacketInterceptor.cs" />
     <Compile Include="SSHUtil.cs">
       <SubType>Code</SubType>
     </Compile>
