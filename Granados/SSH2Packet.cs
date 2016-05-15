@@ -352,38 +352,6 @@ namespace Granados.SSH2 {
         }
     }
 
-    // Special DataFragment for SSH_MSG_NEWKEYS.
-    internal class SSH2MsgNewKeys : DataFragment, SynchronizedPacketReceiver.IQueueEventListener {
-
-        public delegate void Handler();
-
-        private Handler _onDequeued;
-
-        public SSH2MsgNewKeys(DataFragment data, Handler onDequeued)
-            : base(data.Data, data.Offset, data.Length) {
-            _onDequeued = onDequeued;
-        }
-
-        public override DataFragment Duplicate() {
-            // The new instance returned from this method will be queued into the packet queue.
-            // Need to pass delegate object to the new instance to process "dequeued" event.
-            DataFragment newData = base.Duplicate();
-            SSH2MsgNewKeys newMsgNewKeys = new SSH2MsgNewKeys(newData, _onDequeued);
-            _onDequeued = null;
-            return newMsgNewKeys;
-        }
-
-        #region IQueueEventListener Members
-
-        public void Dequeued(bool canceled) {
-            if (_onDequeued != null) {
-                _onDequeued();
-            }
-        }
-
-        #endregion
-    }
-
     /// <summary>
     /// <see cref="IDataHandler"/> that extracts SSH packet from the data stream
     /// and passes it to another <see cref="IDataHandler"/>.
