@@ -1211,6 +1211,7 @@ namespace Granados.SSH2 {
         /// <exception cref="SSHException">no response</exception>
         private void KexInit(KexState state, DataFragment kexinitFromServer) {
             lock (_sequenceLock) {
+                CheckConnectionClosed();
                 Debug.Assert(_sequenceStatus == SequenceStatus.InitiatedByClient
                     || _sequenceStatus == SequenceStatus.InitiatedByServer
                     || _sequenceStatus == SequenceStatus.KexInitReceived);
@@ -1245,9 +1246,7 @@ namespace Granados.SSH2 {
             }
 
             lock (_sequenceLock) {
-                if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
-                    throw new SSHException(Strings.GetString("ConnectionClosed"));
-                }
+                CheckConnectionClosed();
                 Debug.Assert(_sequenceStatus == SequenceStatus.KexInitReceived);    // already set in FeedReceivedPacket
             }
 
@@ -1261,16 +1260,13 @@ namespace Granados.SSH2 {
         /// <exception cref="SSHException">no response</exception>
         private void KexDiffieHellman(KexState state) {
             lock (_sequenceLock) {
+                CheckConnectionClosed();
                 Debug.Assert(_sequenceStatus == SequenceStatus.KexInitReceived || _sequenceStatus == SequenceStatus.InitiatedByServer);
-            }
-
-            SSH2Packet packetToSend = BuildKEXDHINITPacket(state);
-
-            lock (_sequenceLock) {
                 _sequenceStatus = SequenceStatus.WaitKexDHReplay;
             }
 
             // send KEXDH_INIT
+            var packetToSend = BuildKEXDHINITPacket(state);
             _syncHandler.Send(packetToSend);
 
             DataFragment response = null;
@@ -1279,9 +1275,7 @@ namespace Granados.SSH2 {
             }
 
             lock (_sequenceLock) {
-                if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
-                    throw new SSHException(Strings.GetString("ConnectionClosed"));
-                }
+                CheckConnectionClosed();
                 Debug.Assert(_sequenceStatus == SequenceStatus.WaitNewKeys || _sequenceStatus == SequenceStatus.WaitUpdateCipher);    // already set in FeedReceivedPacket
             }
 
@@ -1305,13 +1299,11 @@ namespace Granados.SSH2 {
         /// <exception cref="SSHException">no response</exception>
         private void KexNewKeys(KexState state) {
             lock (_sequenceLock) {
+                CheckConnectionClosed();
                 Debug.Assert(_sequenceStatus == SequenceStatus.WaitNewKeys || _sequenceStatus == SequenceStatus.WaitUpdateCipher);
             }
 
-            // make NEWKEYS packet
-            SSH2Packet packetToSend = BuildNEWKEYSPacket();
-
-            // send KEXDH_INIT
+            var packetToSend = BuildNEWKEYSPacket();
             _syncHandler.Send(packetToSend);
 
             DataFragment response = null;
@@ -1320,9 +1312,7 @@ namespace Granados.SSH2 {
             }
 
             lock (_sequenceLock) {
-                if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
-                    throw new SSHException(Strings.GetString("ConnectionClosed"));
-                }
+                CheckConnectionClosed();
             }
 
             if (_connection.IsEventTracerAvailable) {
@@ -1785,6 +1775,17 @@ namespace Granados.SSH2 {
                         .Select(algorithm => CipherFactory.AlgorithmToSSH2Name(algorithm)));
         }
 
+        /// <summary>
+        /// Check ConnectionClosed.
+        /// </summary>
+        private void CheckConnectionClosed() {
+            lock (_sequenceLock) {
+                if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
+                    throw new SSHException(Strings.GetString("ConnectionClosed"));
+                }
+            }
+        }
+
         private static BigInteger _dh_g1_prime = null;
         private static BigInteger _dh_g14_prime = null;
         private static BigInteger _dh_g16_prime = null;
@@ -2216,14 +2217,10 @@ namespace Granados.SSH2 {
         private void ServiceRequest(string serviceName) {
             lock (_sequenceLock) {
                 Debug.Assert(_sequenceStatus == SequenceStatus.StartAuthentication);
-            }
-
-            var packet = BuildServiceRequestPacket(serviceName);
-
-            lock (_sequenceLock) {
                 _sequenceStatus = SequenceStatus.WaitServiceAccept;
             }
 
+            var packet = BuildServiceRequestPacket(serviceName);
             _syncHandler.Send(packet);
 
             if (_connection.IsEventTracerAvailable) {
@@ -2236,9 +2233,7 @@ namespace Granados.SSH2 {
             }
 
             lock (_sequenceLock) {
-                if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
-                    throw new SSHException(Strings.GetString("ConnectionClosed"));
-                }
+                CheckConnectionClosed();
                 Debug.Assert(_sequenceStatus == SequenceStatus.ServiceAcceptReceived);
             }
 
@@ -2292,6 +2287,7 @@ namespace Granados.SSH2 {
         /// <param name="serviceName">service name</param>
         private void KeyboardInteractiveUserAuth(string serviceName) {
             lock (_sequenceLock) {
+                CheckConnectionClosed();
                 Debug.Assert(_sequenceStatus == SequenceStatus.ServiceAcceptReceived);
             }
 
@@ -2300,12 +2296,12 @@ namespace Granados.SSH2 {
                 throw new SSHException("KeyboardInteractiveAuthenticationHandler is not set.");
             }
 
-            var packet = BuildKeyboardInteractiveUserAuthRequestPacket(serviceName);
-
             lock (_sequenceLock) {
+                CheckConnectionClosed();
                 _sequenceStatus = SequenceStatus.KI_WaitUserAuthInfoRequest;
             }
 
+            var packet = BuildKeyboardInteractiveUserAuthRequestPacket(serviceName);
             _syncHandler.Send(packet);
 
             if (_connection.IsEventTracerAvailable) {
@@ -2363,9 +2359,7 @@ namespace Granados.SSH2 {
                 SSH2PacketType packetType = (SSH2PacketType)reader.ReadByte();
 
                 lock (_sequenceLock) {
-                    if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
-                        throw new SSHException(Strings.GetString("ConnectionClosed"));
-                    }
+                    CheckConnectionClosed();
 
                     Debug.Assert(_sequenceStatus == SequenceStatus.KI_UserAuthInfoRequestReceived
                         || _sequenceStatus == SequenceStatus.KI_FailureReceived
@@ -2423,12 +2417,12 @@ namespace Granados.SSH2 {
                     inputs = new string[0];
                 }
 
-                var infoResponsePacket = BuildKeyboardInteractiveUserAuthInfoResponsePacket(serviceName, inputs);
-
                 lock (_sequenceLock) {
+                    CheckConnectionClosed();
                     _sequenceStatus = SequenceStatus.KI_WaitUserAuthInfoRequest;
                 }
 
+                var infoResponsePacket = BuildKeyboardInteractiveUserAuthInfoResponsePacket(serviceName, inputs);
                 _syncHandler.Send(infoResponsePacket);
             }
         }
@@ -2499,6 +2493,7 @@ namespace Granados.SSH2 {
         /// <param name="serviceName">service name</param>
         private void PasswordAuthentication(string serviceName) {
             lock (_sequenceLock) {
+                CheckConnectionClosed();
                 Debug.Assert(_sequenceStatus == SequenceStatus.ServiceAcceptReceived);
             }
             var packet = BuildPasswordAuthRequestPacket(serviceName);
@@ -2512,6 +2507,7 @@ namespace Granados.SSH2 {
         /// <param name="serviceName">service name</param>
         private void PublickeyAuthentication(string serviceName) {
             lock (_sequenceLock) {
+                CheckConnectionClosed();
                 Debug.Assert(_sequenceStatus == SequenceStatus.ServiceAcceptReceived);
             }
             var packet = BuildPublickeyAuthRequestPacket(serviceName);
@@ -2527,10 +2523,8 @@ namespace Granados.SSH2 {
         /// <param name="traceMessage">trace message</param>
         private void AuthenticationCore(string serviceName, SSH2Packet packet, string traceMessage) {
             lock (_sequenceLock) {
+                CheckConnectionClosed();
                 Debug.Assert(_sequenceStatus == SequenceStatus.ServiceAcceptReceived);
-            }
-
-            lock (_sequenceLock) {
                 _sequenceStatus = SequenceStatus.PA_WaitUserAuthResponse;
             }
 
@@ -2547,9 +2541,7 @@ namespace Granados.SSH2 {
                 }
 
                 lock (_sequenceLock) {
-                    if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
-                        throw new SSHException(Strings.GetString("ConnectionClosed"));
-                    }
+                    CheckConnectionClosed();
 
                     SSH2DataReader reader = new SSH2DataReader(response);
                     SSH2PacketType packetType = (SSH2PacketType)reader.ReadByte();
@@ -2582,6 +2574,17 @@ namespace Granados.SSH2 {
                         _sequenceStatus = SequenceStatus.PA_WaitUserAuthResponse;
                         continue;   // wait for the next response packet
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Check ConnectionClosed.
+        /// </summary>
+        private void CheckConnectionClosed() {
+            lock (_sequenceLock) {
+                if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
+                    throw new SSHException(Strings.GetString("ConnectionClosed"));
                 }
             }
         }
