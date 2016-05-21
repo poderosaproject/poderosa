@@ -12,11 +12,10 @@
 */
 using System;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Net.Sockets;
-using System.Text;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using System.Threading;
 
 using Granados.PKI;
 using Granados.Util;
@@ -24,10 +23,7 @@ using Granados.Crypto;
 using Granados.IO;
 using Granados.IO.SSH1;
 using Granados.Mono.Math;
-using System.Collections.Generic;
 using Granados.SSH;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace Granados.SSH1 {
 
