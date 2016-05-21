@@ -22,7 +22,7 @@ namespace Granados {
     /// <remarks>
     /// Fill the properties of ConnectionParameter object before you start the connection.
     /// </remarks>
-    public class SSHConnectionParameter : ICloneable {
+    public class SSHConnectionParameter {
 
         /// <summary>
         /// Host name.
@@ -241,8 +241,11 @@ namespace Granados {
         /// Clone this object.
         /// </summary>
         /// <returns>a new object.</returns>
-        public object Clone() {
-            return MemberwiseClone();
+        public SSHConnectionParameter Clone() {
+            SSHConnectionParameter p = (SSHConnectionParameter)MemberwiseClone();
+            p.PreferableCipherAlgorithms = (CipherAlgorithm[])p.PreferableCipherAlgorithms.Clone();
+            p.PreferableHostKeyAlgorithms = (PublicKeyAlgorithm[])p.PreferableHostKeyAlgorithms.Clone();
+            return p;
         }
     }
 
