@@ -201,47 +201,48 @@ namespace Granados.SSH {
     }
 
     /// <summary>
-    /// A channel event handler class that do nothing.
+    /// A simple channel event handler class that do nothing.
     /// </summary>
-    internal class NullSSHChannelHandler : ISSHChannelEventHandler {
+    public class SimpleSSHChannelEventHandler : ISSHChannelEventHandler {
 
-        public void OnEstablished(DataFragment data) {
+        public virtual void OnEstablished(DataFragment data) {
         }
 
-        public void OnReady() {
+        public virtual void OnReady() {
         }
 
-        public void OnData(DataFragment data) {
+        public virtual void OnData(DataFragment data) {
         }
 
-        public void OnExtendedData(uint type, DataFragment data) {
+        public virtual void OnExtendedData(uint type, DataFragment data) {
         }
 
-        public void OnClosing(bool byServer) {
+        public virtual void OnClosing(bool byServer) {
         }
 
-        public void OnClosed(bool byServer) {
+        public virtual void OnClosed(bool byServer) {
         }
 
-        public void OnEOF() {
+        public virtual void OnEOF() {
         }
 
-        public void OnRequestFailed() {
+        public virtual void OnRequestFailed() {
         }
 
-        public void OnError(Exception error) {
+        public virtual void OnError(Exception error) {
         }
 
-        public void OnUnhandledPacket(byte packetType, DataFragment data) {
+        public virtual void OnUnhandledPacket(byte packetType, DataFragment data) {
         }
 
-        public void Dispose() {
+        public virtual void Dispose() {
         }
     }
 
     /// <summary>
     /// A function type that creates a new channel handler object.
     /// </summary>
+    /// <param name="channel">channel object</param>
     public delegate THandler SSHChannelEventHandlerCreator<THandler>(ISSHChannel channel)
                 where THandler : ISSHChannelEventHandler;
 
@@ -252,7 +253,7 @@ namespace Granados.SSH {
         public SSHChannelInvalidOperationException(string message) : base(message) {
         }
     }
-    
+
     /// <summary>
     /// An internal class to manage the pair of the <see cref="ISSHChannel"/> and <see cref="ISSHChannelEventHandler"/>.
     /// </summary>
@@ -289,26 +290,26 @@ namespace Granados.SSH {
         /// <summary>
         /// Add new channel.
         /// </summary>
-        /// <param name="channelOperator">channel operator</param>
-        /// <param name="channelHandler">channel handler</param>
-        public void Add(ISSHChannel channelOperator, ISSHChannelEventHandler channelHandler) {
-            uint channelNumber = channelOperator.LocalChannel;
-            var entry = new ChannelEntry(channelOperator, channelHandler);
+        /// <param name="channel">channel</param>
+        /// <param name="eventHandler">channel handler</param>
+        public void Add(ISSHChannel channel, ISSHChannelEventHandler eventHandler) {
+            uint channelNumber = channel.LocalChannel;
+            var entry = new ChannelEntry(channel, eventHandler);
             _dic.TryAdd(channelNumber, entry);
         }
 
         /// <summary>
         /// Remove channel.
         /// </summary>
-        /// <param name="channelOperator">channel operator</param>
-        public void Remove(ISSHChannel channelOperator) {
-            uint channelNumber = channelOperator.LocalChannel;
+        /// <param name="channel">channel</param>
+        public void Remove(ISSHChannel channel) {
+            uint channelNumber = channel.LocalChannel;
             ChannelEntry entry;
             _dic.TryRemove(channelNumber, out entry);
         }
 
         /// <summary>
-        /// Find channel operator by a local channel number.
+        /// Find channel by a local channel number.
         /// </summary>
         /// <param name="channelNumber">a local channel number</param>
         /// <returns>channel operator object, or null if no channel number didn't match.</returns>
@@ -321,7 +322,7 @@ namespace Granados.SSH {
         }
 
         /// <summary>
-        /// Find channel handler by a local channel number.
+        /// Find channel event handler by a local channel number.
         /// </summary>
         /// <param name="channelNumber">a local channel number</param>
         /// <returns>channel handler object, or null if no channel number didn't match.</returns>
