@@ -164,33 +164,6 @@ namespace Poderosa.Protocols {
         }
     }
 
-    internal class SSHSubsystemParameterSerializer : SSHParameterSerializer {
-        public SSHSubsystemParameterSerializer()
-            : base(typeof(SSHSubsystemParameter)) {
-        }
-
-        public void Serialize(SSHSubsystemParameter tp, StructuredText node) {
-            base.Serialize(tp, node);
-            node.Set("subsystemName", tp.SubsystemName);
-        }
-        public void Deserialize(SSHSubsystemParameter tp, StructuredText node) {
-            base.Deserialize(tp, node);
-            tp.SubsystemName = node.Get("subsystemName", "");
-        }
-
-        public override StructuredText Serialize(object obj) {
-            StructuredText t = new StructuredText(this.ConcreteType.FullName);
-            Serialize((SSHSubsystemParameter)obj, t);
-            return t;
-        }
-
-        public override object Deserialize(StructuredText node) {
-            SSHSubsystemParameter t = new SSHSubsystemParameter();
-            Deserialize(t, node);
-            return t;
-        }
-    }
-
     internal class LocalShellParameterSerializer : TerminalParameterSerializer {
         public LocalShellParameterSerializer()
             : base(typeof(LocalShellParameter)) {

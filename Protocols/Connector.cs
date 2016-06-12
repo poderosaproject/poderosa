@@ -20,18 +20,6 @@ using Poderosa.Util;
 using Poderosa.Forms;
 
 namespace Poderosa.Protocols {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <exclude/>
-    class SSHDebugTracer : ISSHEventTracer {
-        public void OnTranmission(string type, string detail) {
-            Debug.WriteLine("T:" + type + ":" + detail);
-        }
-        public void OnReception(string type, string detail) {
-            Debug.WriteLine("R:" + type + ":" + detail);
-        }
-    }
 
     internal class SSHConnector : InterruptableConnector {
 

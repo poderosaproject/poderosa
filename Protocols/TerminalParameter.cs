@@ -266,34 +266,6 @@ namespace Poderosa.Protocols {
         #endregion
     }
 
-    internal class SSHSubsystemParameter : SSHLoginParameter, ISSHSubsystemParameter {
-        private string _subsystemName;
-
-        public SSHSubsystemParameter() {
-            _subsystemName = "";
-        }
-        public SSHSubsystemParameter(SSHSubsystemParameter src)
-            : base(src) {
-            _subsystemName = src._subsystemName;
-        }
-
-        [MacroConnectionParameter]
-        public string SubsystemName {
-            get {
-                return _subsystemName;
-            }
-            set {
-                _subsystemName = value;
-            }
-        }
-
-        #region ICloneable
-        public override object Clone() {
-            return new SSHSubsystemParameter(this);
-        }
-        #endregion
-    }
-
     internal class LocalShellParameter : TerminalParameter, ICygwinParameter {
         private string _home;
         private string _shellName;

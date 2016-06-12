@@ -12,39 +12,6 @@ using Granados.IO;
 
 namespace Granados {
 
-    //port forwarding check result
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <exclude/>
-    public struct PortForwardingCheckResult {
-        /**
-         * if you allow this request, set 'allowed' to true.
-         */
-        public bool allowed;
-
-        /**
-         * if you allow this request, you must set 'channel' for this request. otherwise, 'channel' is ignored
-         */
-        public ISSHChannelEventReceiver channel;
-
-        /**
-         * if you disallow this request, you can set 'reason_code'.
-            The following reason codes are defined:
-
-            #define SSH_OPEN_ADMINISTRATIVELY_PROHIBITED    1
-            #define SSH_OPEN_CONNECT_FAILED                 2
-            #define SSH_OPEN_UNKNOWN_CHANNEL_TYPE           3
-            #define SSH_OPEN_RESOURCE_SHORTAGE              4
-         */
-        public int reason_code;
-
-        /**
-         * if you disallow this request, you can set 'reason_message'. this message can contain only ASCII characters.
-         */
-        public string reason_message;
-    }
-
     /// <summary>
     /// Connection specific receiver
     /// </summary>
@@ -82,29 +49,6 @@ namespace Granados {
         /// Notifies that the connection has been closed.
         /// </summary>
         void OnConnectionClosed();
-
-        /// <summary>
-        /// Check new channel in the server-to-client port forwarding.
-        /// </summary>
-        /// <remarks>
-        /// The arguments are field value of the SSH_MSG_CHANNEL_OPEN "forwarded-tcpip" message from the server.
-        /// </remarks>
-        /// <param name="remoteHost">address that was connected</param>
-        /// <param name="remotePort">port that was connected</param>
-        /// <param name="originatorIp">originator IP address</param>
-        /// <param name="originatorPort">originator port</param>
-        /// <returns>informations about acceptance or denial of this port-forwarding.</returns>
-        PortForwardingCheckResult CheckPortForwardingRequest(string remoteHost, int remotePort, string originatorIp, int originatorPort);
-
-        /// <summary>
-        /// Notifies new channel in the server-to-client port forwarding.
-        /// </summary>
-        /// <remarks>
-        /// This method will be called after <see cref="CheckPortForwardingRequest(string,int,string,int)"/> accepted the new channel.
-        /// </remarks>
-        /// <param name="receiver"><see cref="PortForwardingCheckResult.channel"/> which was returned by <see cref="CheckPortForwardingRequest(string,int,string,int)"/>.</param>
-        /// <param name="channel">new channel object</param>
-        void EstablishPortforwarding(ISSHChannelEventReceiver receiver, SSHChannel channel);
     }
 
     /// <summary>

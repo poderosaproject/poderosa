@@ -302,11 +302,7 @@ namespace Poderosa.Protocols {
             _sshSocket.SetSSHConnection(con);
             if (con.AuthenticationResult == AuthenticationResult.Success) {
                 SSHSocket ss = (SSHSocket)_sshSocket; //Keyboard-Interactiveがらみでちょっと不自然になってるな
-                ISSHSubsystemParameter subsystem = (ISSHSubsystemParameter)_sshLoginParameter.GetAdapter(typeof(ISSHSubsystemParameter));
-                if (subsystem != null)
-                    ss.OpenSubsystem(subsystem.SubsystemName);
-                else //ふつうのシェル
-                    ss.OpenShell();
+                ss.OpenShell();
             }
         }
 

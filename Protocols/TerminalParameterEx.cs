@@ -321,16 +321,6 @@ namespace Poderosa.Protocols {
     }
 
     /// <summary>
-    /// </summary>
-    /// <exclude/>
-    public interface ISSHSubsystemParameter : IAdaptable, ICloneable {
-        string SubsystemName {
-            get;
-            set;
-        }
-    }
-
-    /// <summary>
     /// <ja>
     /// Cygwin接続するときに使われるパラメータを示すインターフェイスです。
     /// </ja>

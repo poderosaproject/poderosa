@@ -24,6 +24,7 @@ using Granados.IO;
 using Granados.IO.SSH1;
 using Granados.Mono.Math;
 using Granados.SSH;
+using Granados.PortForwarding;
 
 namespace Granados.SSH1 {
 
@@ -128,12 +129,13 @@ namespace Granados.SSH1 {
             );
         }
 
-        // sending exec command for SCP
-        // TODO: まだ実装中です
-        public override SSHChannel DoExecCommand(ISSHChannelEventReceiver receiver, string command) {
-            //_executingExecCmd = true;
-            SendExecCommand();
-            return null;
+        public override THandler ExecCommand<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, string command) {
+            // TODO:
+            return default(THandler);
+        }
+
+        public override THandler OpenSubsystem<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, string subsystemName) {
+            throw new NotSupportedException("OpenSubsystem is not supported on the SSH1 connection.");
         }
 
         private void SendExecCommand() {
@@ -146,13 +148,16 @@ namespace Granados.SSH1 {
             TraceTransmissionEvent(SSH1PacketType.SSH_CMSG_EXEC_CMD, "exec command: cmd={0}", cmd);
         }
 
-        public override SSHChannel OpenShell(ISSHChannelEventReceiver receiver) {
+        public override THandler OpenShell<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator) {
+            /*
             if (_shellID != -1)
                 throw new SSHException("A shell is opened already");
             _shellID = _channel_collection.RegisterChannelEventReceiver(null, receiver).LocalID;
             SendRequestPTY();
             _executingShell = true;
             return new SSH1Channel(this, ChannelType.Shell, _shellID);
+             */
+            return default(THandler);
         }
 
         private void SendRequestPTY() {
@@ -175,7 +180,9 @@ namespace Granados.SSH1 {
             );
         }
 
-        public override SSHChannel ForwardPort(ISSHChannelEventReceiver receiver, string remote_host, int remote_port, string originator_host, int originator_port) {
+        public override THandler ForwardPort<THandler>(
+                SSHChannelEventHandlerCreator<THandler> handlerCreator, string remoteHost, uint remotePort, string originatorIp, uint originatorPort) {
+            /*
             if (_shellID == -1) {
                 ExecShell();
                 _shellID = _channel_collection.RegisterChannelEventReceiver(null, new SSH1DummyReceiver()).LocalID;
@@ -194,9 +201,12 @@ namespace Granados.SSH1 {
             TraceTransmissionEvent(SSH1PacketType.SSH_MSG_PORT_OPEN, "open forwarded port: host={0} port={1}", remote_host, remote_port);
 
             return new SSH1Channel(this, ChannelType.ForwardedLocalToRemote, local_id);
+             * */
+            return default(THandler);
         }
 
-        public override void ListenForwardedPort(string allowed_host, int bind_port) {
+        public override bool ListenForwardedPort(IRemotePortForwardingHandler requestHandler, string addressToBind, uint portNumberToBind) {
+            /*
             Transmit(
                 new SSH1Packet(SSH1PacketType.SSH_CMSG_PORT_FORWARD_REQUEST)
                     .WriteInt32(bind_port)
@@ -209,13 +219,17 @@ namespace Granados.SSH1 {
                 ExecShell();
                 _shellID = _channel_collection.RegisterChannelEventReceiver(null, new SSH1DummyReceiver()).LocalID;
             }
-
+            */
+            return false;
         }
-        public override void CancelForwardedPort(string host, int port) {
-            throw new NotSupportedException("not implemented");
+
+        public override bool CancelForwardedPort(string addressToBind, uint portNumberToBind) {
+            /*throw new NotSupportedException("not implemented");*/
+            return false;
         }
 
         private void ProcessPortforwardingRequest(ISSHConnectionEventReceiver receiver, SSH1DataReader reader) {
+            /*
             int server_channel = reader.ReadInt32();
             string host = reader.ReadString();
             int port = reader.ReadInt32();
@@ -237,6 +251,7 @@ namespace Granados.SSH1 {
                         .WriteInt32(server_channel)
                 );
             }
+             */
         }
 
         private byte[] CalcSessionID() {

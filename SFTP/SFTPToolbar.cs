@@ -203,12 +203,10 @@ namespace Poderosa.SFTP {
             // We need to use reflection to get an instance of SSHChannel.
             if (connection != null && connection.Socket != null) {
                 Type socketType = connection.Socket.GetType();
-                PropertyInfo prop = socketType.GetProperty("Channel", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty);
+                PropertyInfo prop = socketType.GetProperty("Connection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty);
                 if (prop != null && prop.CanRead) {
-                    SSHChannel channel = prop.GetValue(connection.Socket, null) as SSHChannel;
-                    if (channel != null) {
-                        return channel.Connection;
-                    }
+                    SSHConnection sshConnection = prop.GetValue(connection.Socket, null) as SSHConnection;
+                    return sshConnection;
                 }
             }
 

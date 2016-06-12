@@ -18,6 +18,7 @@ using Granados;
 using Granados.SSH2;
 using Granados.IO;
 using Granados.KeyboardInteractive;
+using Granados.SSH;
 
 namespace Poderosa.Protocols {
     //SSHの入出力系
@@ -72,13 +73,6 @@ namespace Poderosa.Protocols {
             Debug.WriteLine(String.Format("Unexpected SSH packet type {0}", type));
         }
 
-        //以下は呼ばれることはない。空実装
-        public virtual PortForwardingCheckResult CheckPortForwardingRequest(string remote_host, int remote_port, string originator_ip, int originator_port) {
-            return new Granados.PortForwardingCheckResult();
-        }
-        public virtual void EstablishPortforwarding(ISSHChannelEventReceiver receiver, SSHChannel channel) {
-        }
-
         protected void OnNormalTerminationCore() {
             if (_normalTerminationCalled)
                 return;
@@ -123,13 +117,11 @@ namespace Poderosa.Protocols {
 
     internal class SSHSocket
         : SSHConnectionEventReceiverBase,
-          IPoderosaSocket, ITerminalOutput, ISSHChannelEventReceiver, IKeyboardInteractiveAuthenticationHandler {
+          IPoderosaSocket, ITerminalOutput, IKeyboardInteractiveAuthenticationHandler {
 
-        private SSHChannel _channel;
+        private SSHChannelHandler _channelHandler;
         private ByteDataFragment _data;
-        private bool _waitingSendBreakReply;
-        //非同期に受信する。
-        private MemoryStream _buffer; //RepeatAsyncReadが呼ばれる前に受信してしまったデータを一時保管するバッファ
+        private MemoryStream _buffer = new MemoryStream();
 
         private KeyboardInteractiveAuthHanlder _keyboardInteractiveAuthHanlder;
 
@@ -138,49 +130,39 @@ namespace Poderosa.Protocols {
             _data = new ByteDataFragment();
         }
 
-        public SSHChannel Channel {
-            get {
-                return _channel;
-            }
-        }
-
         public void RepeatAsyncRead(IByteAsyncInputStream cb) {
             _callback = cb;
-            //バッファに何がしか溜まっている場合：
-            //NOTE これは、IPoderosaSocket#StartAsyncReadを呼ぶシーケンスをなくし、接続を開始する瞬間(IProtocolServiceのメソッド系)から
-            //データ本体を受信する口を提供させるようにすれば除去できる。しかしプログラマの側としては、接続成功を確認してからデータ受信口を用意したいので、
-            //（Poderosaでいえば、ログインボタンのOKを押す時点でAbstractTerminalまで準備せねばならないということ）、それよりはデータを保留しているほうがいいだろう
-            if (_buffer != null) {
-                lock (this) {
-                    _buffer.Close();
-                    byte[] t = _buffer.ToArray();
-                    _data.Set(t, 0, t.Length);
-                    if (t.Length > 0)
-                        _callback.OnReception(_data);
-                    _buffer = null;
-                }
+            if (_channelHandler != null) {
+                _channelHandler.SetReceptionHandler(cb);
             }
         }
 
         public override void CleanupErrorStatus() {
-            if (_channel != null)
-                _channel.Close();
+            if (_channelHandler != null)
+                _channelHandler.Operator.Close();
             base.CleanupErrorStatus();
         }
 
         public void OpenShell() {
-            _channel = _connection.OpenShell(this);
+            _channelHandler =
+                _connection.OpenShell(
+                    channelOperator =>
+                        new SSHChannelHandler(channelOperator, OnNormalTerminationCore, OnAbnormalTerminationCore)
+                );
         }
+
         public void OpenSubsystem(string subsystem) {
             SSH2Connection ssh2 = _connection as SSH2Connection;
             if (ssh2 == null)
                 throw new SSHException("OpenSubsystem() can be applied to only SSH2 connection");
-            _channel = ssh2.OpenSubsystem(this, subsystem);
+
+            // TODO:
+            //_channel = ssh2.OpenSubsystem(this, subsystem);
         }
 
         public override void Close() {
-            if (_channel != null)
-                _channel.Close();
+            if (_channelHandler != null)
+                _channelHandler.Operator.Close();
         }
         public void ForceDisposed() {
             _connection.Close(); //マルチチャネルだとアウトかも
@@ -196,20 +178,21 @@ namespace Poderosa.Protocols {
                 _keyboardInteractiveAuthHanlder.OnData(buf, offset, length);
                 return;
             }
-            _channel.Transmit(buf, offset, length);
+            if (_channelHandler != null) {
+                _channelHandler.Operator.Send(new DataFragment(buf, offset, length));
+            }
         }
 
         //以下、ITerminalOutput
         public void Resize(int width, int height) {
-            if (!_parent.IsClosed)
-                _channel.ResizeTerminal(width, height, 0, 0);
+            if (!_parent.IsClosed && _channelHandler != null)
+                _channelHandler.Operator.ResizeTerminal((uint)width, (uint)height, 0, 0);
         }
         public void SendBreak() {
             if (_parent.SSHLoginParameter.Method == SSHProtocol.SSH1)
                 throw new NotSupportedException();
-            else {
-                _waitingSendBreakReply = true;
-                ((Granados.SSH2.SSH2Channel)_channel).SendBreak(500);
+            else if (_channelHandler != null) {
+                _channelHandler.Operator.SendBreak(500);
             }
         }
         public void SendKeepAliveData() {
@@ -229,44 +212,6 @@ namespace Poderosa.Protocols {
         }
         public void AreYouThere() {
             throw new NotSupportedException();
-        }
-
-        public void OnChannelClosed() {
-            OnNormalTerminationCore();
-        }
-        public void OnChannelEOF() {
-            OnNormalTerminationCore();
-        }
-        public void OnData(DataFragment data) {
-            if (_callback == null) { //RepeatAsyncReadが呼ばれる前のデータを集めておく
-                lock (this) {
-                    if (_buffer == null)
-                        _buffer = new MemoryStream(0x100);
-                    _buffer.Write(data.Data, data.Offset, data.Length);
-                }
-            }
-            else {
-                _data.Set(data.Data, data.Offset, data.Length);
-                _callback.OnReception(_data);
-            }
-        }
-        public void OnExtendedData(uint type, DataFragment data) {
-        }
-        public void OnMiscPacket(byte type, DataFragment data) {
-            if (_waitingSendBreakReply) {
-                _waitingSendBreakReply = false;
-                if (type == (byte)Granados.SSH2.SSH2PacketType.SSH_MSG_CHANNEL_FAILURE)
-                    PEnv.ActiveForm.Warning(PEnv.Strings.GetString("Message.SSHTerminalconnection.BreakError"));
-            }
-        }
-
-        public void OnChannelReady() { //!!Transmitを許可する通知が必要？
-        }
-
-        public void OnChannelError(Exception ex) {
-            // FIXME: In this case, something message should be displayed for the user.
-            //        OnAbnormalTerminationCore() doesn't show the message.
-            OnAbnormalTerminationCore(ex.Message);
         }
 
         public bool Available {
@@ -289,7 +234,9 @@ namespace Poderosa.Protocols {
             _keyboardInteractiveAuthHanlder =
                 new KeyboardInteractiveAuthHanlder(
                     (data) => {
-                        this.OnData(new DataFragment(data, 0, data.Length));
+                        if (_channelHandler != null) {
+                            _channelHandler.Operator.Send(new DataFragment(data, 0, data.Length));
+                        }
                     });
         }
 
@@ -301,6 +248,102 @@ namespace Poderosa.Protocols {
         }
 
         #endregion
+    }
+
+    internal class SSHChannelHandler : ISSHChannelEventHandler {
+
+        private readonly ISSHChannel _channelOperator;
+        private readonly Action _onNormalTermination;
+        private readonly Action<string> _onAbnormalTermination;
+        private MemoryStream _buffer = new MemoryStream();
+        private readonly ByteDataFragment _dataFragment = new ByteDataFragment();
+        private IByteAsyncInputStream _output;
+        private readonly object _outputSync = new object();
+
+        public SSHChannelHandler(ISSHChannel channelOperator, Action onNormalTermination, Action<string> onAbnormalTermination) {
+            _channelOperator = channelOperator;
+            _onNormalTermination = onNormalTermination;
+            _onAbnormalTermination = onAbnormalTermination;
+        }
+
+        public ISSHChannel Operator {
+            get {
+                return _channelOperator;
+            }
+        }
+
+        public void SetReceptionHandler(IByteAsyncInputStream output) {
+            lock (_outputSync) {
+                if (_output != null) {
+                    return;
+                }
+                _output = output;
+                if (_buffer != null && _buffer.Length > 0) {
+                    byte[] bytes = _buffer.ToArray();
+                    _buffer.Dispose();
+                    _buffer = null;
+                    _dataFragment.Set(bytes, 0, bytes.Length);
+                    _output.OnReception(_dataFragment);
+                }
+            }
+        }
+
+        public void Transmit(byte[] buf, int offset, int length) {
+            _channelOperator.Send(new DataFragment(buf, offset, length));
+        }
+
+        public void OnEstablished(DataFragment data) {
+        }
+
+        public void OnReady() {
+        }
+
+        public void OnData(DataFragment data) {
+            lock (_outputSync) {
+                if (_output == null) {
+                    if (_buffer != null) {
+                        _buffer.Write(data.Data, data.Offset, data.Length);
+                    }
+                    return;
+                }
+
+                _dataFragment.Set(data.Data, data.Offset, data.Length);
+                _output.OnReception(_dataFragment);
+            }
+        }
+
+        public void OnExtendedData(uint type, DataFragment data) {
+        }
+
+        public void OnClosing(bool byServer) {
+        }
+
+        public void OnClosed(bool byServer) {
+            _onNormalTermination();
+        }
+
+        public void OnEOF() {
+            _onNormalTermination();
+        }
+
+        public void OnRequestFailed() {
+        }
+
+        public void OnError(Exception error) {
+            // FIXME: In this case, something message should be displayed for the user.
+            //        OnAbnormalTerminationCore() doesn't show the message.
+            _onAbnormalTermination(error.Message);
+        }
+
+        public void OnUnhandledPacket(byte packetType, DataFragment data) {
+        }
+
+        public void Dispose() {
+            if (_buffer != null) {
+                _buffer.Dispose();
+                _buffer = null;
+            }
+        }
     }
 
     /// <summary>

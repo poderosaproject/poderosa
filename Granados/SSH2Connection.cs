@@ -12,9 +12,12 @@ using Granados.IO.SSH2;
 using Granados.KeyboardInteractive;
 using Granados.Mono.Math;
 using Granados.PKI;
+using Granados.PortForwarding;
 using Granados.SSH;
 using Granados.Util;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
@@ -30,15 +33,17 @@ namespace Granados.SSH2 {
     public class SSH2Connection : SSHConnection {
         private const int RESPONSE_TIMEOUT = 10000;
 
+        private readonly SSHChannelCollection _channelCollection;
         private readonly SSH2Packetizer _packetizer;
         private readonly SSH2SynchronousPacketHandler _syncHandler;
         private readonly SSHPacketInterceptorCollection _packetInterceptors;
         private readonly SSH2KeyExchanger _keyExchanger;
 
+        private readonly Lazy<SSH2RemotePortForwarding> _remotePortForwarding;
+
         //server info
         private readonly SSH2ConnectionInfo _cInfo;
 
-        private bool _waitingForPortForwardingResponse;
         private bool _agentForwardConfirmed;
 
         /// <summary>
@@ -51,6 +56,7 @@ namespace Granados.SSH2 {
         /// <param name="clientVersion"></param>
         public SSH2Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventReceiver r, string serverVersion, string clientVersion)
             : base(param, socket, r) {
+            _channelCollection = new SSHChannelCollection();
             _cInfo = new SSH2ConnectionInfo(param.HostName, param.PortNumber, serverVersion, clientVersion);
             IDataHandler adapter = new DataHandlerAdapter(
                             (data) => {
@@ -70,6 +76,8 @@ namespace Granados.SSH2 {
             _packetInterceptors = new SSHPacketInterceptorCollection();
             _keyExchanger = new SSH2KeyExchanger(this, _syncHandler, param, _cInfo, UpdateKey);
             _packetInterceptors.Add(_keyExchanger);
+
+            _remotePortForwarding = new Lazy<SSH2RemotePortForwarding>(CreateRemotePortForwarding);
         }
 
         internal void SetAgentForwardConfirmed(bool value) {
@@ -79,12 +87,6 @@ namespace Granados.SSH2 {
         internal override IDataHandler Packetizer {
             get {
                 return _packetizer;
-            }
-        }
-
-        internal SSH2ConnectionInfo ConnectionInfo {
-            get {
-                return _cInfo;
             }
         }
 
@@ -115,114 +117,120 @@ namespace Granados.SSH2 {
             }
         }
 
-        public override SSHChannel OpenShell(ISSHChannelEventReceiver receiver) {
-            return DoExecCommandInternal(receiver, ChannelType.Shell, null, "opening shell");
+        public override THandler OpenShell<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator) {
+            return CreateChannelByClient(
+                        handlerCreator,
+                        localChannel => new SSH2ShellChannel(DetachChannel, this, _param, localChannel)
+                    );
         }
 
-        // open new channel for SCP
-        public override SSHChannel DoExecCommand(ISSHChannelEventReceiver receiver, string command) {
-            return DoExecCommandInternal(receiver, ChannelType.ExecCommand, command, "executing " + command);
+        public override THandler ExecCommand<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, string command) {
+            return CreateChannelByClient(
+                        handlerCreator,
+                        localChannel => new SSH2ExecChannel(DetachChannel, this, _param, localChannel, command)
+                    );
         }
 
-        // open subsystem such as NETCONF
-        public SSHChannel OpenSubsystem(ISSHChannelEventReceiver receiver, string subsystem) {
-            return DoExecCommandInternal(receiver, ChannelType.Subsystem, subsystem, "subsystem " + subsystem);
+        public override THandler OpenSubsystem<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, string subsystemName) {
+            return CreateChannelByClient(
+                        handlerCreator,
+                        localChannel => new SSH2SubsystemChannel(DetachChannel, this, _param, localChannel, subsystemName)
+                    );
         }
 
-        //open channel
-        private SSHChannel DoExecCommandInternal(ISSHChannelEventReceiver receiver, ChannelType channel_type, string command, string message) {
-            int local_channel = this.ChannelCollection.RegisterChannelEventReceiver(null, receiver).LocalID;
-            int windowsize = _param.WindowSize;
-            SSH2Channel channel = new SSH2Channel(this, channel_type, local_channel, command);
-            Transmit(
-                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_OPEN)
-                    .WriteString("session")
-                    .WriteInt32(local_channel)
-                    .WriteInt32(_param.WindowSize) //initial window size
-                    .WriteInt32(_param.MaxPacketSize) //max packet size
-            );
-            TraceTransmissionEvent(SSH2PacketType.SSH_MSG_CHANNEL_OPEN, message);
-            return channel;
+        public override THandler ForwardPort<THandler>(
+                SSHChannelEventHandlerCreator<THandler> handlerCreator, string remoteHost, uint remotePort, string originatorIp, uint originatorPort) {
+
+            return CreateChannelByClient(
+                        handlerCreator,
+                        localChannel =>
+                            new SSH2LocalPortForwardingChannel(
+                                DetachChannel, this, _param, localChannel, remoteHost, remotePort, originatorIp, originatorPort)
+                    );
         }
 
-        public override SSHChannel ForwardPort(ISSHChannelEventReceiver receiver, string remote_host, int remote_port, string originator_host, int originator_port) {
-            int local_id = this.ChannelCollection.RegisterChannelEventReceiver(null, receiver).LocalID;
-            int windowsize = _param.WindowSize;
-            SSH2Channel channel = new SSH2Channel(this, ChannelType.ForwardedLocalToRemote, local_id, null);
-            Transmit(
-                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_OPEN)
-                    .WriteString("direct-tcpip")
-                    .WriteInt32(local_id)
-                    .WriteInt32(_param.WindowSize) //initial window size
-                    .WriteInt32(_param.MaxPacketSize) //max packet size
-                    .WriteString(remote_host)
-                    .WriteInt32(remote_port)
-                    .WriteString(originator_host)
-                    .WriteInt32(originator_port)
-            );
-            TraceTransmissionEvent(SSH2PacketType.SSH_MSG_CHANNEL_OPEN, "opening a forwarded port : host={0} port={1}", remote_host, remote_port);
-            return channel;
-        }
+        /// <summary>
+        /// Create a new channel (initialted by the client)
+        /// </summary>
+        /// <typeparam name="TChannel">type of the channel object</typeparam>
+        /// <typeparam name="THandler">type of the event handler</typeparam>
+        /// <param name="handlerCreator">function to create an event handler</param>
+        /// <param name="channelCreator">function to create a channel object</param>
+        /// <returns></returns>
+        private THandler CreateChannelByClient<TChannel, THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, Func<uint, TChannel> channelCreator)
+                where TChannel : SSH2ChannelBase
+                where THandler : ISSHChannelEventHandler {
 
-        public override void ListenForwardedPort(string allowed_host, int bind_port) {
-            _waitingForPortForwardingResponse = true;
-            Transmit(
-                new SSH2Packet(SSH2PacketType.SSH_MSG_GLOBAL_REQUEST)
-                    .WriteString("tcpip-forward")
-                    .WriteBool(true)
-                    .WriteString(allowed_host)
-                    .WriteInt32(bind_port)
-            );
-            TraceTransmissionEvent(SSH2PacketType.SSH_MSG_GLOBAL_REQUEST, "starting to listen to a forwarded port : host={0} port={1}", allowed_host, bind_port);
-        }
+            uint localChannel = _channelCollection.GetNewChannelNumber();
+            var channel = channelCreator(localChannel);
+            var eventHandler = handlerCreator(channel);
+            channel.SetHandler(eventHandler);
 
-        public override void CancelForwardedPort(string host, int port) {
-            Transmit(
-                new SSH2Packet(SSH2PacketType.SSH_MSG_GLOBAL_REQUEST)
-                    .WriteString("cancel-tcpip-forward")
-                    .WriteBool(true)
-                    .WriteString(host)
-                    .WriteInt32(port)
-            );
-            TraceTransmissionEvent(SSH2PacketType.SSH_MSG_GLOBAL_REQUEST, "terminating to listen to a forwarded port : host={0} port={1}", host, port);
-        }
+            _channelCollection.Add(channel, eventHandler);
 
-        private void ProcessPortforwardingRequest(ISSHConnectionEventReceiver receiver, SSH2DataReader reader) {
-
-            int remote_channel = reader.ReadInt32();
-            int window_size = reader.ReadInt32(); //skip initial window size
-            int servermaxpacketsize = reader.ReadInt32();
-            string host = reader.ReadString();
-            int port = reader.ReadInt32();
-            string originator_ip = reader.ReadString();
-            int originator_port = reader.ReadInt32();
-
-            TraceReceptionEvent("port forwarding request", String.Format("host={0} port={1} originator-ip={2} originator-port={3}", host, port, originator_ip, originator_port));
-            PortForwardingCheckResult r = receiver.CheckPortForwardingRequest(host, port, originator_ip, originator_port);
-
-            if (r.allowed) {
-                //send OPEN_CONFIRMATION
-                SSH2Channel channel = new SSH2Channel(this, ChannelType.ForwardedRemoteToLocal, this.ChannelCollection.RegisterChannelEventReceiver(null, r.channel).LocalID, remote_channel, servermaxpacketsize);
-                receiver.EstablishPortforwarding(r.channel, channel);
-                Transmit(
-                    new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION)
-                        .WriteInt32(remote_channel)
-                        .WriteInt32(channel.LocalChannelID)
-                        .WriteInt32(_param.WindowSize) //initial window size
-                        .WriteInt32(_param.MaxPacketSize) //max packet size
-                );
-                TraceTransmissionEvent("port-forwarding request is confirmed", "host={0} port={1} originator-ip={2} originator-port={3}", host, port, originator_ip, originator_port);
+            try {
+                channel.SendOpen();
             }
-            else {
-                Transmit(
-                    new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE)
-                        .WriteInt32(remote_channel)
-                        .WriteInt32(r.reason_code)
-                        .WriteUTF8String(r.reason_message)
-                        .WriteString("") //lang tag
-                );
-                TraceTransmissionEvent("port-forwarding request is rejected", "host={0} port={1} originator-ip={2} originator-port={3}", host, port, originator_ip, originator_port);
+            catch (Exception) {
+                DetachChannel(channel);
+                throw;
             }
+
+            return eventHandler;
+        }
+
+        /// <summary>
+        /// Detach channel object.
+        /// </summary>
+        /// <param name="channelOperator">a channel operator</param>
+        private void DetachChannel(ISSHChannel channelOperator) {
+            var handler = _channelCollection.FindHandler(channelOperator.LocalChannel);
+            _channelCollection.Remove(channelOperator);
+            if (handler != null) {
+                handler.Dispose();
+            }
+        }
+
+        public override bool ListenForwardedPort(
+                IRemotePortForwardingHandler requestHandler,
+                string addressToBind,
+                uint portNumberToBind) {
+
+            SSH2RemotePortForwarding.CreateChannelFunc createChannel =
+                (requestInfo, remoteChannel, serverWindowSize, serverMaxPacketSize) => {
+                    uint localChannel = _channelCollection.GetNewChannelNumber();
+                    return new SSH2RemotePortForwardingChannel(
+                                    DetachChannel,
+                                    this,
+                                    _param,
+                                    localChannel,
+                                    remoteChannel,
+                                    serverWindowSize,
+                                    serverMaxPacketSize
+                                );
+                };
+
+            SSH2RemotePortForwarding.RegisterChannelFunc registerChannel =
+                (channel, eventHandler) => {
+                    channel.SetHandler(eventHandler);
+                    _channelCollection.Add(channel, eventHandler);
+                };
+
+            Task<bool> task =
+                _remotePortForwarding.Value.ListenForwardedPortAsync(
+                    requestHandler, createChannel, registerChannel, addressToBind, portNumberToBind);
+            return task.Result;
+        }
+
+        public override bool CancelForwardedPort(string addressToBind, uint portNumberToBind) {
+            Task<bool> task = _remotePortForwarding.Value.CancelForwardedPortAsync(addressToBind, portNumberToBind);
+            return task.Result;
+        }
+
+        private SSH2RemotePortForwarding CreateRemotePortForwarding() {
+            var instance = new SSH2RemotePortForwarding(_syncHandler);
+            _packetInterceptors.Add(instance);
+            return instance;
         }
 
         private void ProcessAgentForwardRequest(ISSHConnectionEventReceiver receiver, SSH2DataReader reader) {
@@ -323,18 +331,12 @@ namespace Granados.SSH2 {
                 return;
             }
 
-            if (_waitingForPortForwardingResponse) {
-                if (pt != SSH2PacketType.SSH_MSG_REQUEST_SUCCESS)
-                    _eventReceiver.OnUnknownMessage((byte)pt, packet.GetBytes());
-                _waitingForPortForwardingResponse = false;
-                return;
-            }
-
             if (pt == SSH2PacketType.SSH_MSG_CHANNEL_OPEN) {
                 string method = r.ReadString();
-                if (method == "forwarded-tcpip")
-                    ProcessPortforwardingRequest(_eventReceiver, r);
-                else if (method.StartsWith("auth-agent")) //in most cases, method is "auth-agent@openssh.com"
+                //if (method == "forwarded-tcpip")
+                //    ProcessPortforwardingRequest(_eventReceiver, r);
+                //else
+                if (method.StartsWith("auth-agent")) //in most cases, method is "auth-agent@openssh.com"
                     ProcessAgentForwardRequest(_eventReceiver, r);
                 else {
                     Transmit(
@@ -350,12 +352,18 @@ namespace Granados.SSH2 {
             }
 
             if (pt >= SSH2PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION && pt <= SSH2PacketType.SSH_MSG_CHANNEL_FAILURE) {
-                int local_channel = r.ReadInt32();
-                ChannelCollection.Entry e = this.ChannelCollection.FindChannelEntry(local_channel);
+                uint localChannel = r.ReadUInt32();
+                var channelOperator = _channelCollection.FindOperator(localChannel) as SSH2ChannelBase;
+                if (channelOperator != null) {
+                    channelOperator.ProcessPacket(pt, r.GetRemainingDataView());
+                    return;
+                }
+
+                ChannelCollection.Entry e = this.ChannelCollection.FindChannelEntry((int)localChannel);
                 if (e != null)
                     ((SSH2Channel)e.Channel).ProcessPacket(e.Receiver, pt, r);
                 else
-                    Debug.WriteLine("unexpected channel pt=" + pt + " local_channel=" + local_channel.ToString());
+                    Debug.WriteLine("unexpected channel pt=" + pt + " local_channel=" + localChannel.ToString());
                 return;
             }
 
@@ -890,6 +898,7 @@ namespace Granados.SSH2 {
         }
     }
 
+
     /// <summary>
     /// Synchronization of sending/receiving packets.
     /// </summary>
@@ -1047,6 +1056,7 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <param name="connection"></param>
         /// <param name="syncHandler"></param>
+        /// <param name="param"></param>
         /// <param name="info"></param>
         /// <param name="updateKey"></param>
         public SSH2KeyExchanger(
@@ -2592,4 +2602,415 @@ namespace Granados.SSH2 {
         #endregion  // SSH2UserAuthentication
     }
 
+    /// <summary>
+    /// Class for supporting remote port-forwarding
+    /// </summary>
+    internal class SSH2RemotePortForwarding : ISSHPacketInterceptor {
+        #region
+
+        private const int PASSING_TIMEOUT = 1000;
+        private const int RESPONSE_TIMEOUT = 5000;
+
+        private const uint SSH_OPEN_ADMINISTRATIVELY_PROHIBITED = 1;
+
+        public delegate SSH2RemotePortForwardingChannel CreateChannelFunc(RemotePortForwardingRequest requestInfo, uint remoteChannel, uint serverWindowSize, uint serverMaxPacketSize);
+        public delegate void RegisterChannelFunc(SSH2RemotePortForwardingChannel channel, ISSHChannelEventHandler eventHandler);
+
+        private readonly SSH2SynchronousPacketHandler _syncHandler;
+
+        // key: listening port number, value: listening port number
+        private class PortInfo {
+            public readonly IRemotePortForwardingHandler RequestHandler;
+            public readonly CreateChannelFunc CreateChannel;
+            public readonly RegisterChannelFunc RegisterChannel;
+
+            public PortInfo(IRemotePortForwardingHandler requestHandler, CreateChannelFunc createChannel, RegisterChannelFunc registerChannel) {
+                this.RequestHandler = requestHandler;
+                this.CreateChannel = createChannel;
+                this.RegisterChannel = registerChannel;
+            }
+        }
+        private readonly ConcurrentDictionary<uint, PortInfo> _portNumbers = new ConcurrentDictionary<uint, PortInfo>();
+
+        private readonly object _sequenceLock = new object();
+        private volatile SequenceStatus _sequenceStatus = SequenceStatus.Idle;
+
+        private readonly AtomicBox<DataFragment> _receivedPacket = new AtomicBox<DataFragment>();
+
+        private enum SequenceStatus {
+            /// <summary>Idle</summary>
+            Idle,
+            /// <summary>the connection has been closed</summary>
+            ConnectionClosed,
+            /// <summary>SSH_MSG_GLOBAL_REQUEST "tcpip-forward" has been sent. waiting for SSH_MSG_REQUEST_SUCCESS | SSH_MSG_REQUEST_FAILURE.</summary>
+            WaitTcpIpForwardResponse,
+            /// <summary>SSH_MSG_REQUEST_SUCCESS has been received.</summary>
+            TcpIpForwardSuccess,
+            /// <summary>SSH_MSG_REQUEST_FAILURE has been received.</summary>
+            TcpIpForwardFailure,
+            /// <summary>SSH_MSG_GLOBAL_REQUEST "cancel-tcpip-forward" has been sent. waiting for SSH_MSG_REQUEST_SUCCESS | SSH_MSG_REQUEST_FAILURE.</summary>
+            WaitCancelTcpIpForwardResponse,
+            /// <summary>SSH_MSG_REQUEST_SUCCESS has been received.</summary>
+            CancelTcpIpForwardSuccess,
+            /// <summary>SSH_MSG_REQUEST_FAILURE has been received.</summary>
+            CancelTcpIpForwardFailure,
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public SSH2RemotePortForwarding(SSH2SynchronousPacketHandler syncHandler) {
+            _syncHandler = syncHandler;
+        }
+
+        /// <summary>
+        /// Intercept a received packet.
+        /// </summary>
+        /// <param name="packet">a packet image</param>
+        /// <returns>result</returns>
+        public SSHPacketInterceptorResult InterceptPacket(DataFragment packet) {
+            SSH2PacketType packetType = (SSH2PacketType)packet[0];
+            SSHPacketInterceptorResult result = CheckForwardedTcpIpPacket(packetType, packet);
+            if (result != SSHPacketInterceptorResult.PassThrough) {
+                return result;
+            }
+
+            lock (_sequenceLock) {
+                switch (_sequenceStatus) {
+                    case SequenceStatus.WaitTcpIpForwardResponse:
+                        if (packetType == SSH2PacketType.SSH_MSG_REQUEST_SUCCESS) {
+                            _sequenceStatus = SequenceStatus.TcpIpForwardSuccess;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return SSHPacketInterceptorResult.Consumed;
+                        }
+                        if (packetType == SSH2PacketType.SSH_MSG_REQUEST_FAILURE) {
+                            _sequenceStatus = SequenceStatus.TcpIpForwardFailure;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return SSHPacketInterceptorResult.Consumed;
+                        }
+                        break;
+
+                    case SequenceStatus.WaitCancelTcpIpForwardResponse:
+                        if (packetType == SSH2PacketType.SSH_MSG_REQUEST_SUCCESS) {
+                            _sequenceStatus = SequenceStatus.CancelTcpIpForwardSuccess;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return SSHPacketInterceptorResult.Consumed;
+                        }
+                        if (packetType == SSH2PacketType.SSH_MSG_REQUEST_FAILURE) {
+                            _sequenceStatus = SequenceStatus.CancelTcpIpForwardFailure;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return SSHPacketInterceptorResult.Consumed;
+                        }
+                        break;
+                }
+
+                return SSHPacketInterceptorResult.PassThrough;
+            }
+        }
+
+        /// <summary>
+        /// Handles new "forwarded-tcpip" request.
+        /// </summary>
+        /// <param name="packetType">packet type</param>
+        /// <param name="packet">packet data</param>
+        /// <returns>result</returns>
+        private SSHPacketInterceptorResult CheckForwardedTcpIpPacket(SSH2PacketType packetType, DataFragment packet) {
+            if (packetType != SSH2PacketType.SSH_MSG_CHANNEL_OPEN) {
+                return SSHPacketInterceptorResult.PassThrough;
+            }
+
+            SSH2DataReader reader = new SSH2DataReader(packet);
+            reader.ReadByte();  // skip packet type (message number)
+            string channelType = reader.ReadString();
+            if (channelType != "forwarded-tcpip") {
+                return SSHPacketInterceptorResult.PassThrough;
+            }
+
+            uint remoteChannel = reader.ReadUInt32();
+            uint initialWindowSize = reader.ReadUInt32();
+            uint maxPacketSize = reader.ReadUInt32();
+            string addressConnected = reader.ReadString();
+            uint portConnected = reader.ReadUInt32();
+            string originatorIp = reader.ReadString();
+            uint originatorPort = reader.ReadUInt32();
+
+            // reject the request if we don't know the port number.
+            PortInfo portInfo;
+            if (!_portNumbers.TryGetValue(portConnected, out portInfo)) {
+                RejectForwardedTcpIp(remoteChannel, "Cannot accept the request");
+                return SSHPacketInterceptorResult.Consumed;
+            }
+
+            RemotePortForwardingRequest requestInfo =
+                new RemotePortForwardingRequest(addressConnected, portConnected, originatorIp, originatorPort);
+
+            // create a temporary channel
+            var channel = portInfo.CreateChannel(requestInfo, remoteChannel, initialWindowSize, maxPacketSize);
+
+            // check the request by the request handler
+            RemotePortForwardingReply reply;
+            try {
+                reply = portInfo.RequestHandler.OnRemotePortForwardingRequest(requestInfo, channel);
+            }
+            catch (Exception) {
+                RejectForwardedTcpIp(remoteChannel, "Cannot accept the request");
+                return SSHPacketInterceptorResult.Consumed;
+            }
+
+            if (!reply.Accepted) {
+                RejectForwardedTcpIp(remoteChannel, reply.ReasonMessage, (uint)reply.ReasonCode);
+                return SSHPacketInterceptorResult.Consumed;
+            }
+
+            // register a channel to the connection object
+            portInfo.RegisterChannel(channel, reply.EventHandler);
+
+            // send SSH_MSG_CHANNEL_OPEN_CONFIRMATION
+            channel.SendOpenConfirmation();
+
+            return SSHPacketInterceptorResult.Consumed;
+        }
+
+        /// <summary>
+        /// Handles connection close.
+        /// </summary>
+        public void OnConnectionClosed() {
+            lock (_sequenceLock) {
+                if (_sequenceStatus != SequenceStatus.ConnectionClosed) {
+                    _sequenceStatus = SequenceStatus.ConnectionClosed;
+                    DataFragment dummyPacket = new DataFragment(new byte[1] { 0xff }, 0, 1);
+                    _receivedPacket.TrySet(dummyPacket, PASSING_TIMEOUT);
+                    Monitor.PulseAll(_sequenceLock);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Builds a SSH_MSG_CHANNEL_OPEN_FAILURE packet.
+        /// </summary>
+        /// <param name="remoteChannel">remote channel number</param>
+        /// <param name="reasonCode">reason code</param>
+        /// <param name="description">description</param>
+        /// <returns>a packet object</returns>
+        private SSH2Packet BuildChannelOpenFailurePacket(uint remoteChannel, uint reasonCode, string description) {
+            return new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE)
+                    .WriteUInt32(remoteChannel)
+                    .WriteUInt32(reasonCode)
+                    .WriteUTF8String(description)
+                    .WriteString("");   // lang tag
+        }
+
+        /// <summary>
+        /// Sends SSH_MSG_CHANNEL_OPEN_FAILURE for rejecting the request.
+        /// </summary>
+        /// <param name="remoteChannel">remote channel number</param>
+        /// <param name="description">description</param>
+        /// <param name="reasonCode">reason code</param>
+        private void RejectForwardedTcpIp(uint remoteChannel, string description, uint reasonCode = SSH_OPEN_ADMINISTRATIVELY_PROHIBITED) {
+            var packet = BuildChannelOpenFailurePacket(remoteChannel, reasonCode, description);
+            _syncHandler.Send(packet);
+        }
+
+        /// <summary>
+        /// Builds SSH_MSG_GLOBAL_REQUEST "tcpip-forward" packet.
+        /// </summary>
+        /// <param name="addressToBind">IP address to bind</param>
+        /// <param name="portNumberToBind">port number to bind</param>
+        /// <returns></returns>
+        private SSH2Packet BuildTcpIpForwardPacket(string addressToBind, uint portNumberToBind) {
+            return new SSH2Packet(SSH2PacketType.SSH_MSG_GLOBAL_REQUEST)
+                    .WriteString("tcpip-forward")
+                    .WriteBool(true)    // want reply
+                    .WriteString(addressToBind)
+                    .WriteUInt32(portNumberToBind);
+        }
+
+        /// <summary>
+        /// Builds SSH_MSG_GLOBAL_REQUEST "cancel-tcpip-forward" packet.
+        /// </summary>
+        /// <param name="addressToBind">IP address to bind</param>
+        /// <param name="portNumberToBind">port number to bind</param>
+        /// <returns></returns>
+        private SSH2Packet BuildCancelTcpIpForwardPacket(string addressToBind, uint portNumberToBind) {
+            return new SSH2Packet(SSH2PacketType.SSH_MSG_GLOBAL_REQUEST)
+                    .WriteString("cancel-tcpip-forward")
+                    .WriteBool(true)    // want reply
+                    .WriteString(addressToBind)
+                    .WriteUInt32(portNumberToBind);
+        }
+
+        /// <summary>
+        /// Starts remote port forwarding asynchronously.
+        /// </summary>
+        /// <param name="requestHandler">request handler</param>
+        /// <param name="createChannel">a function for creating a new channel object</param>
+        /// <param name="registerChannel">a function for registering a new channel object</param>
+        /// <param name="addressToBind">IP address to bind on the server</param>
+        /// <param name="portNumberToBind">port number to bind on the server. "0" means that the next available port is used.</param>
+        /// <returns>a new task that returns true if the remote port forwarding has been started.</returns>
+        public Task<bool> ListenForwardedPortAsync(
+                IRemotePortForwardingHandler requestHandler,
+                CreateChannelFunc createChannel,
+                RegisterChannelFunc registerChannel,
+                string addressToBind,
+                uint portNumberToBind) {
+
+            return Task<bool>.Run(
+                () => ListenForwardedPort(requestHandler, createChannel, registerChannel, addressToBind, portNumberToBind)
+            );
+        }
+
+        /// <summary>
+        /// Starts cancellation of the remote port forwarding asynchronously.
+        /// </summary>
+        /// <param name="addressToBind">IP address to bind on the server</param>
+        /// <param name="portNumberToBind">port number to bind on the server</param>
+        /// <returns>a new task that returns true if the remote port forwarding has been cancelled.</returns>
+        public Task<bool> CancelForwardedPortAsync(string addressToBind, uint portNumberToBind) {
+            return Task<bool>.Run(() => CancelForwardedPort(addressToBind, portNumberToBind));
+        }
+
+        /// <summary>
+        /// Starts remote port forwarding.
+        /// </summary>
+        /// <param name="requestHandler">request handler</param>
+        /// <param name="createChannel">a function for creating a new channel object</param>
+        /// <param name="registerChannel">a function for registering a new channel object</param>
+        /// <param name="addressToBind">IP address to bind on the server</param>
+        /// <param name="portNumberToBind">port number to bind on the server. "0" means that the next available port is used.</param>
+        /// <returns>true if the remote port forwarding has been started.</returns>
+        private bool ListenForwardedPort(
+                IRemotePortForwardingHandler requestHandler,
+                CreateChannelFunc createChannel,
+                RegisterChannelFunc registerChannel,
+                string addressToBind,
+                uint portNumberToBind) {
+
+            uint portNumberBound;
+            bool success = ListenForwardedPortCore(
+                                requestHandler,
+                                createChannel,
+                                registerChannel,
+                                addressToBind,
+                                portNumberToBind,
+                                out portNumberBound);
+            try {
+                if (success) {
+                    requestHandler.OnRemotePortForwardingStarted(portNumberBound);
+                }
+                else {
+                    requestHandler.OnRemotePortForwardingFailed();
+                }
+            }
+            catch (Exception) {
+            }
+
+            return success;
+        }
+        
+        private bool ListenForwardedPortCore(
+                IRemotePortForwardingHandler requestHandler,
+                CreateChannelFunc createChannel,
+                RegisterChannelFunc registerChannel,
+                string addressToBind,
+                uint portNumberToBind,
+                out uint portNumberBound) {
+
+            portNumberBound = 0;
+
+            lock (_sequenceLock) {
+                while (_sequenceStatus != SequenceStatus.Idle) {
+                    if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
+                        return false;
+                    }
+                    Monitor.Wait(_sequenceLock);
+                }
+
+                _receivedPacket.Clear();
+                _sequenceStatus = SequenceStatus.WaitTcpIpForwardResponse;
+            }
+
+            var packet = BuildTcpIpForwardPacket(addressToBind, portNumberToBind);
+            _syncHandler.Send(packet);
+
+            DataFragment response = null;
+            bool accepted = false;
+            if (_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+                lock (_sequenceLock) {
+                    if (_sequenceStatus == SequenceStatus.TcpIpForwardSuccess) {
+                        accepted = true;
+                        if (portNumberToBind != 0) {
+                            portNumberBound = portNumberToBind;
+                        }
+                        else {
+                            SSH2DataReader reader = new SSH2DataReader(response);
+                            reader.ReadByte();  // message number
+                            portNumberBound = reader.ReadUInt32();
+                        }
+                        _portNumbers.TryAdd(
+                            portNumberBound,
+                            new PortInfo(requestHandler, createChannel, registerChannel));
+                    }
+                }
+            }
+
+            lock (_sequenceLock) {
+                // reset status
+                _sequenceStatus = SequenceStatus.Idle;
+                Monitor.PulseAll(_sequenceLock);
+            }
+
+            return accepted;
+        }
+
+        /// <summary>
+        /// Cancels the remote port forwarding.
+        /// </summary>
+        /// <param name="addressToBind">IP address to bind on the server</param>
+        /// <param name="portNumberToBind">port number to bind on the server</param>
+        /// <returns>true if the remote port forwarding has been cancelled.</returns>
+        private bool CancelForwardedPort(string addressToBind, uint portNumberToBind) {
+            lock (_sequenceLock) {
+                while (_sequenceStatus != SequenceStatus.Idle) {
+                    if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
+                        return false;
+                    }
+                    Monitor.Wait(_sequenceLock);
+                }
+
+                _receivedPacket.Clear();
+                _sequenceStatus = SequenceStatus.WaitCancelTcpIpForwardResponse;
+            }
+
+            var packet = BuildCancelTcpIpForwardPacket(addressToBind, portNumberToBind);
+            _syncHandler.Send(packet);
+
+            DataFragment response = null;
+            bool accepted = false;
+            if (_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+                lock (_sequenceLock) {
+                    if (_sequenceStatus == SequenceStatus.CancelTcpIpForwardSuccess) {
+                        accepted = true;
+                        if (portNumberToBind == 0) {
+                            _portNumbers.Clear();
+                        }
+                        else {
+                            PortInfo oldVal;
+                            _portNumbers.TryRemove(portNumberToBind, out oldVal);
+                        }
+                    }
+                }
+            }
+
+            lock (_sequenceLock) {
+                // reset status
+                _sequenceStatus = SequenceStatus.Idle;
+                Monitor.PulseAll(_sequenceLock);
+            }
+
+            return accepted;
+        }
+
+        #endregion
+    }
 }

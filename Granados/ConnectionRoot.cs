@@ -20,6 +20,8 @@ using Granados.IO;
 using Granados.Util;
 using System.Diagnostics;
 using System.Threading;
+using Granados.SSH;
+using Granados.PortForwarding;
 
 namespace Granados {
     /// <summary>
@@ -125,9 +127,10 @@ namespace Granados {
         }
 
 
-        /**
-         * internal procedure for opening connection
-         */
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         internal abstract AuthenticationResult Connect();
 
         /**
@@ -138,54 +141,47 @@ namespace Granados {
         /**
         * opens a pseudo terminal
         */
-        public abstract SSHChannel OpenShell(ISSHChannelEventReceiver receiver);
+        public abstract THandler OpenShell<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator)
+                where THandler : ISSHChannelEventHandler;
 
         /** 
          * forwards the remote end to another host
          */
-        public abstract SSHChannel ForwardPort(ISSHChannelEventReceiver receiver, string remote_host, int remote_port, string originator_host, int originator_port);
+        public abstract THandler ForwardPort<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, string remoteHost, uint remotePort, string originatorIp, uint originatorPort)
+                where THandler : ISSHChannelEventHandler;
 
         /**
          * listens a connection on the remote end
          */
-        public abstract void ListenForwardedPort(string allowed_host, int bind_port);
+        public abstract bool ListenForwardedPort(IRemotePortForwardingHandler requestHandler, string addressToBind, uint portNumberToBind);
 
         /**
          * cancels binded port
          */
-        public abstract void CancelForwardedPort(string host, int port);
+        public abstract bool CancelForwardedPort(string addressToBind, uint portNumberToBind);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="THandler"></typeparam>
+        /// <param name="handlerCreator"></param>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public abstract THandler ExecCommand<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, string command)
+                where THandler : ISSHChannelEventHandler;
 
-        public void ExecuteSCP(ScpParameter scp_param) {
-            // making command string for scp
-            string cmd = String.Format("scp {0} {1}", scp_param.Direction == SCPCopyDirection.LocalToRemote ? "-t" : "-f", scp_param.RemoteFilename);
-            ScpChannelReceiverBase receiver_base;
-
-            if (scp_param.Direction == SCPCopyDirection.LocalToRemote) {
-                ScpLocalToRemoteReceiver receiver = new ScpLocalToRemoteReceiver(scp_param);
-                receiver_base = receiver;
-                // exec command
-                receiver.Run(DoExecCommand(receiver, cmd));
-            }
-            else {
-                ScpRemoteToLocalReceiver receiver = new ScpRemoteToLocalReceiver(scp_param);
-                receiver_base = receiver;
-                // exec command
-                receiver.Run(DoExecCommand(receiver, cmd));
-                //Note: asynchronously operation should be supported
-                receiver.CompleteEvent.WaitOne();
-            }
-
-            Debug.Assert(scp_param.LocalSource.IsClosed); //the local source must be closed regardless of the transmission
-
-            receiver_base.Dipose();
-
-            if (!receiver_base.Succeeded)
-                throw receiver_base.Error;
-        }
-
-
-        public abstract SSHChannel DoExecCommand(ISSHChannelEventReceiver receiver, string command);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// Supported on SSH2 only.
+        /// </remarks>
+        /// <typeparam name="THandler"></typeparam>
+        /// <param name="handlerCreator"></param>
+        /// <param name="subsystemName"></param>
+        /// <returns></returns>
+        public abstract THandler OpenSubsystem<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, string subsystemName)
+                where THandler : ISSHChannelEventHandler;
 
         /**
         * closes socket directly.
@@ -271,7 +267,8 @@ namespace Granados {
         ForwardedRemoteToLocal,
         ExecCommand,  // for scp
         Subsystem,
-        AgentForward
+        AgentForward,
+        Other,
     }
 
     /**
