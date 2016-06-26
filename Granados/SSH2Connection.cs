@@ -17,7 +17,6 @@ using Granados.SSH;
 using Granados.Util;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
@@ -93,26 +92,20 @@ namespace Granados.SSH2 {
         internal override AuthenticationResult Connect() {
             try {
                 //key exchange
-                Task kexTask = _keyExchanger.StartKeyExchange();
-                kexTask.Wait();
+                _keyExchanger.ExecKeyExchange();
 
                 //user authentication
                 SSH2UserAuthentication userAuthentication = new SSH2UserAuthentication(this, _param, _syncHandler, _sessionID);
                 _packetInterceptors.Add(userAuthentication);
-                Task authTask = userAuthentication.StartAuthentication();
-                authTask.Wait();
+                userAuthentication.ExecAuthentication();
 
                 if (_param.AuthenticationType == AuthenticationType.KeyboardInteractive) {
                     return AuthenticationResult.Prompt;
                 }
                 return AuthenticationResult.Success;
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 Close();
-                if (ex is AggregateException) {
-                    Exception actualException = ((AggregateException)ex).InnerException;
-                    throw new SSHException(actualException.Message, actualException);
-                }
                 throw;
             }
         }
@@ -216,15 +209,12 @@ namespace Granados.SSH2 {
                     _channelCollection.Add(channel, eventHandler);
                 };
 
-            Task<bool> task =
-                _remotePortForwarding.Value.ListenForwardedPortAsync(
+            return _remotePortForwarding.Value.ListenForwardedPort(
                     requestHandler, createChannel, registerChannel, addressToBind, portNumberToBind);
-            return task.Result;
         }
 
         public override bool CancelForwardedPort(string addressToBind, uint portNumberToBind) {
-            Task<bool> task = _remotePortForwarding.Value.CancelForwardedPortAsync(addressToBind, portNumberToBind);
-            return task.Result;
+            return _remotePortForwarding.Value.CancelForwardedPort(addressToBind, portNumberToBind);
         }
 
         private SSH2RemotePortForwarding CreateRemotePortForwarding() {
@@ -1049,8 +1039,6 @@ namespace Granados.SSH2 {
 
         private readonly AtomicBox<DataFragment> _receivedPacket = new AtomicBox<DataFragment>();
 
-        private Task _kexTask;
-
         /// <summary>
         /// Constructor
         /// </summary>
@@ -1084,7 +1072,7 @@ namespace Granados.SSH2 {
                     case SequenceStatus.Idle:
                         if (packetType == SSH2PacketType.SSH_MSG_KEXINIT) {
                             _sequenceStatus = SequenceStatus.InitiatedByServer;
-                            _kexTask = StartKeyExchangeAsync(packet);
+                            StartKeyExchangeAsync(packet);
                             return SSHPacketInterceptorResult.Consumed;
                         }
                         break;
@@ -1141,16 +1129,17 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Start key exchange asynchronously.
         /// </summary>
-        /// <returns>a new task if the key exchange has been started, or existing task if another key exchange is running.</returns>
-        public Task StartKeyExchange() {
+        /// <remarks>
+        /// if an error has been occurred during the key-exchange, an exception will be thrown.
+        /// </remarks>
+        public void ExecKeyExchange() {
             lock (_sequenceLock) {
                 if (_sequenceStatus != SequenceStatus.Idle) {
-                    return _kexTask;
+                    throw new InvalidOperationException(Strings.GetString("RequestedTaskIsAlreadyRunning"));
                 }
                 _sequenceStatus = SequenceStatus.InitiatedByClient;
-                _kexTask = StartKeyExchangeAsync(null);
-                return _kexTask;
             }
+            DoKeyExchange(null);
         }
 
         /// <summary>
@@ -1992,8 +1981,6 @@ namespace Granados.SSH2 {
 
         private readonly AtomicBox<DataFragment> _receivedPacket = new AtomicBox<DataFragment>();
 
-        private Task _authTask;
-
         private enum SequenceStatus {
             /// <summary>authentication can be started</summary>
             Idle,
@@ -2160,18 +2147,19 @@ namespace Granados.SSH2 {
         }
 
         /// <summary>
-        /// Start authentication asynchronously.
+        /// Authentication.
         /// </summary>
-        /// <returns>a new task if the authentication has been started, or existing task if another authentication is running.</returns>
-        public Task StartAuthentication() {
+        /// <remarks>
+        /// if an error has been occurred during the authentication, an exception will be thrown.
+        /// </remarks>
+        public void ExecAuthentication() {
             lock (_sequenceLock) {
                 if (_sequenceStatus != SequenceStatus.Idle) {
-                    return _authTask;
+                    throw new InvalidOperationException(Strings.GetString("RequestedTaskIsAlreadyRunning"));
                 }
                 _sequenceStatus = SequenceStatus.StartAuthentication;
-                _authTask = Task.Run(() => DoAuthentication());
-                return _authTask;
             }
+            DoAuthentication();
         }
 
         /// <summary>
@@ -2840,37 +2828,6 @@ namespace Granados.SSH2 {
         }
 
         /// <summary>
-        /// Starts remote port forwarding asynchronously.
-        /// </summary>
-        /// <param name="requestHandler">request handler</param>
-        /// <param name="createChannel">a function for creating a new channel object</param>
-        /// <param name="registerChannel">a function for registering a new channel object</param>
-        /// <param name="addressToBind">IP address to bind on the server</param>
-        /// <param name="portNumberToBind">port number to bind on the server. "0" means that the next available port is used.</param>
-        /// <returns>a new task that returns true if the remote port forwarding has been started.</returns>
-        public Task<bool> ListenForwardedPortAsync(
-                IRemotePortForwardingHandler requestHandler,
-                CreateChannelFunc createChannel,
-                RegisterChannelFunc registerChannel,
-                string addressToBind,
-                uint portNumberToBind) {
-
-            return Task<bool>.Run(
-                () => ListenForwardedPort(requestHandler, createChannel, registerChannel, addressToBind, portNumberToBind)
-            );
-        }
-
-        /// <summary>
-        /// Starts cancellation of the remote port forwarding asynchronously.
-        /// </summary>
-        /// <param name="addressToBind">IP address to bind on the server</param>
-        /// <param name="portNumberToBind">port number to bind on the server</param>
-        /// <returns>a new task that returns true if the remote port forwarding has been cancelled.</returns>
-        public Task<bool> CancelForwardedPortAsync(string addressToBind, uint portNumberToBind) {
-            return Task<bool>.Run(() => CancelForwardedPort(addressToBind, portNumberToBind));
-        }
-
-        /// <summary>
         /// Starts remote port forwarding.
         /// </summary>
         /// <param name="requestHandler">request handler</param>
@@ -2879,7 +2836,7 @@ namespace Granados.SSH2 {
         /// <param name="addressToBind">IP address to bind on the server</param>
         /// <param name="portNumberToBind">port number to bind on the server. "0" means that the next available port is used.</param>
         /// <returns>true if the remote port forwarding has been started.</returns>
-        private bool ListenForwardedPort(
+        public bool ListenForwardedPort(
                 IRemotePortForwardingHandler requestHandler,
                 CreateChannelFunc createChannel,
                 RegisterChannelFunc registerChannel,
@@ -2969,7 +2926,7 @@ namespace Granados.SSH2 {
         /// <param name="addressToBind">IP address to bind on the server</param>
         /// <param name="portNumberToBind">port number to bind on the server</param>
         /// <returns>true if the remote port forwarding has been cancelled.</returns>
-        private bool CancelForwardedPort(string addressToBind, uint portNumberToBind) {
+        public bool CancelForwardedPort(string addressToBind, uint portNumberToBind) {
             lock (_sequenceLock) {
                 while (_sequenceStatus != SequenceStatus.Idle) {
                     if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
