@@ -17,6 +17,9 @@
   <data name="ServerDoesntRespond">
     <value>サーバから応答がありません。</value>
   </data>
+  <data name="RequestedTaskIsAlreadyRunning">
+    <value>要求されたタスクは実行中です。</value>
+  </data>
   <data name="HostKeyDenied">
     <value>ホスト鍵を拒否しました。</value>
   </data>

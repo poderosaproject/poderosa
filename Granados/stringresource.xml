@@ -11,6 +11,10 @@ $Id: stringresource.xml,v 1.4 2011/05/01 15:28:52 kzmi Exp $
     <en>Server doesn't respond.</en>
     <ja>サーバから応答がありません。</ja>
   </record>
+  <record name="RequestedTaskIsAlreadyRunning">
+    <en>The requested task is already running.</en>
+    <ja>要求されたタスクは実行中です。</ja>
+  </record>
   <record name="HostKeyDenied">
     <en>Host key has been denied.</en>
     <ja>ホスト鍵を拒否しました。</ja>
