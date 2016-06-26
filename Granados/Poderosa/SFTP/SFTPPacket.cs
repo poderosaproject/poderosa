@@ -47,7 +47,6 @@ namespace Granados.Poderosa.SFTP {
         /// Constructor
         /// </summary>
         /// <param name="packetType">SFTP packet type.</param>
-        /// <param name="remoteChannel">remote channel number</param>
         public SFTPPacket(SFTPPacketType packetType) {
             _payload = _payloadBuffer.Value;
             _payload.Clear();

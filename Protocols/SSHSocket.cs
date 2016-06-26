@@ -146,9 +146,21 @@ namespace Poderosa.Protocols {
         public void OpenShell() {
             _channelHandler =
                 _connection.OpenShell(
-                    channelOperator =>
-                        new SSHChannelHandler(channelOperator, OnNormalTerminationCore, OnAbnormalTerminationCore)
+                    channelOperator => {
+                        var handler = new SSHChannelHandler(channelOperator, OnNormalTerminationCore, OnAbnormalTerminationCore);
+                        if (_callback != null) {
+                            handler.SetReceptionHandler(_callback);
+                        }
+                        return handler;
+                    }
                 );
+        }
+
+        public void OpenKeyboardInteractiveShell() {
+            _channelHandler = new SSHChannelHandler(new NullSSHChannel(), OnNormalTerminationCore, OnAbnormalTerminationCore);
+            if (_callback != null) {
+                _channelHandler.SetReceptionHandler(_callback);
+            }
         }
 
         public void OpenSubsystem(string subsystem) {
@@ -235,7 +247,7 @@ namespace Poderosa.Protocols {
                 new KeyboardInteractiveAuthHanlder(
                     (data) => {
                         if (_channelHandler != null) {
-                            _channelHandler.Operator.Send(new DataFragment(data, 0, data.Length));
+                            _channelHandler.OnData(new DataFragment(data, 0, data.Length));
                         }
                     });
         }
@@ -343,6 +355,64 @@ namespace Poderosa.Protocols {
                 _buffer.Dispose();
                 _buffer = null;
             }
+        }
+    }
+
+    /// <summary>
+    /// Dummy channel object during keyboard-interactive authentication.
+    /// </summary>
+    internal class NullSSHChannel : ISSHChannel {
+
+        public uint LocalChannel {
+            get {
+                throw new NotImplementedException();
+            }
+        }
+
+        public uint RemoteChannel {
+            get {
+                throw new NotImplementedException();
+            }
+        }
+
+        public ChannelType ChannelType {
+            get {
+                throw new NotImplementedException();
+            }
+        }
+
+        public string ChannelTypeString {
+            get {
+                throw new NotImplementedException();
+            }
+        }
+
+        public bool IsOpen {
+            get {
+                return true;
+            }
+        }
+
+        public bool IsReady {
+            get {
+                return true;
+            }
+        }
+
+        public void ResizeTerminal(uint width, uint height, uint pixelWidth, uint pixelHeight) {
+        }
+
+        public void Send(DataFragment data) {
+        }
+
+        public void SendEOF() {
+        }
+
+        public bool SendBreak(int breakLength) {
+            return true;
+        }
+
+        public void Close() {
         }
     }
 

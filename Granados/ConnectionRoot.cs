@@ -66,11 +66,6 @@ namespace Granados {
                 return _param;
             }
         }
-        public AuthenticationResult AuthenticationResult {
-            get {
-                return _authenticationResult;
-            }
-        }
         public ISSHConnectionEventReceiver EventReceiver {
             get {
                 return _eventReceiver;
@@ -201,7 +196,7 @@ namespace Granados {
         /**
          * open a new SSH connection via the .NET socket
          */
-        public static SSHConnection Connect(SSHConnectionParameter param, ISSHConnectionEventReceiver receiver, Socket underlying_socket) {
+        public static SSHConnection Connect(SSHConnectionParameter param, ISSHConnectionEventReceiver receiver, Socket underlying_socket, out AuthenticationResult authResult) {
             if (param.UserName == null)
                 throw new InvalidOperationException("UserName property is not set");
             if (param.AuthenticationType != AuthenticationType.KeyboardInteractive && param.Password == null)
@@ -223,7 +218,8 @@ namespace Granados {
                 s.RepeatAsyncRead();
                 con.SendMyVersion(param);
 
-                if (con.Connect() == AuthenticationResult.Failure) {
+                authResult = con.Connect();
+                if (authResult == AuthenticationResult.Failure) {
                     s.Close();
                     return null;
                 }

@@ -71,13 +71,14 @@ namespace Poderosa.Protocols {
             }
             con.KeyboardInteractiveAuthenticationHandler = terminalConnection.GetKeyboardInteractiveAuthenticationHandler();
 
-            SSHConnection ssh = SSHConnection.Connect(con, terminalConnection.ConnectionEventReceiver, _socket);
+            AuthenticationResult authResult;
+            SSHConnection ssh = SSHConnection.Connect(con, terminalConnection.ConnectionEventReceiver, _socket, out authResult);
             if (ssh != null) {
                 if (PEnv.Options.RetainsPassphrase && _destination.AuthenticationType != AuthenticationType.KeyboardInteractive) {
                     ProtocolsPlugin.Instance.PassphraseCache.Add(tcp.Destination, _destination.Account, _destination.PasswordOrPassphrase); //接続成功時のみセット
                 }
                 //_destination.PasswordOrPassphrase = ""; 接続の複製のためにここで消さずに残しておく
-                terminalConnection.AttachTransmissionSide(ssh);
+                terminalConnection.AttachTransmissionSide(ssh, authResult);
                 _result = terminalConnection;
             }
             else {

@@ -163,7 +163,8 @@ namespace Poderosa.PortForwarding {
                 con.VerifySSHHostKey = this.CheckKey;
 
             _result = ChannelFactory.Create(_profile);
-            SSHConnection c = SSHConnection.Connect(con, _result, _socket);
+            AuthenticationResult authResult;
+            SSHConnection c = SSHConnection.Connect(con, _result, _socket, out authResult);
             c.AutoDisconnect = false;
             if (c != null) {
                 /*

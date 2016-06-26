@@ -320,9 +320,11 @@ namespace Poderosa.PortForwarding {
         }
 
         public void OnRemotePortForwardingStarted(uint port) {
+            Debug.WriteLine("port forwarding started: port = {0}", port);
         }
 
         public void OnRemotePortForwardingFailed() {
+            Debug.WriteLine("port forwarding failed");
         }
 
         public RemotePortForwardingReply OnRemotePortForwardingRequest(RemotePortForwardingRequest request, ISSHChannel channel) {

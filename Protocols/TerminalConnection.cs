@@ -298,11 +298,15 @@ namespace Poderosa.Protocols {
             return _sshSocket;
         }
 
-        public void AttachTransmissionSide(SSHConnection con) {
+        public void AttachTransmissionSide(SSHConnection con, AuthenticationResult authResult) {
             _sshSocket.SetSSHConnection(con);
-            if (con.AuthenticationResult == AuthenticationResult.Success) {
-                SSHSocket ss = (SSHSocket)_sshSocket; //Keyboard-Interactiveがらみでちょっと不自然になってるな
+            if (authResult == AuthenticationResult.Success) {
+                SSHSocket ss = (SSHSocket)_sshSocket;
                 ss.OpenShell();
+            }
+            else if (authResult == AuthenticationResult.Prompt) {
+                SSHSocket ss = (SSHSocket)_sshSocket;
+                ss.OpenKeyboardInteractiveShell();
             }
         }
 
