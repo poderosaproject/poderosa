@@ -288,7 +288,7 @@ namespace Granados.SSH2 {
         /// Close this channel.
         /// </summary>
         /// <remarks>
-        /// After calling this method, all mothods of the <see cref="ISSHChannel"/> will be throw <see cref="SSHChannelInvalidOperationException"/>.
+        /// After calling this method, all mothods of the <see cref="ISSHChannel"/> will throw <see cref="SSHChannelInvalidOperationException"/>.
         /// </remarks>
         /// <remarks>
         /// If this method was called under the inappropriate channel state, the method call will be ignored silently.
