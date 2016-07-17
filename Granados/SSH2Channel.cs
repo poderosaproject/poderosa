@@ -868,7 +868,7 @@ namespace Granados.SSH2 {
     /// SSH2 channel operator for the subsystem.
     /// </summary>
     internal class SSH2SubsystemChannel : SSH2SessionChannel {
-        #region SSH2SubsystemChannel
+        #region
 
         private enum MinorState {
             /// <summary>initial state</summary>
