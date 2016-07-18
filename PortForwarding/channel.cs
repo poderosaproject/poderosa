@@ -406,6 +406,7 @@ namespace Poderosa.PortForwarding {
             //_socket.ShutdownSend();
             //_socket.ShutdownReceive();
             try {
+                _socket.ShutdownReceive();
                 _socket.Close();
                 _channel.Close();
             }
@@ -431,8 +432,9 @@ namespace Poderosa.PortForwarding {
         public override void OnClosed(bool byServer) {
             try {
                 Debug.WriteLine(String.Format("OnChannelClosed ch={0}", _channel.LocalChannelID));
-                _channel.Close();
+                _socket.ShutdownReceive();
                 _socket.Close();
+                _channel.Close();
             }
             catch (Exception ex) {
                 Debug.WriteLine(ex.Message);
