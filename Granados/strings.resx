@@ -101,4 +101,7 @@
   <data name="Reason_UnsupportedEncryptionType">
     <value>unsupported encryption type</value>
   </data>
+  <data name="OnlySingleInteractiveSessionCanBeStarted">
+    <value>Only single interactive session can be started</value>
+  </data>
 </root>

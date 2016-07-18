@@ -101,4 +101,7 @@
   <data name="Reason_UnsupportedEncryptionType">
     <value>サポートされない暗号化方式</value>
   </data>
+  <data name="OnlySingleInteractiveSessionCanBeStarted">
+    <value>開始できるインタラクティブセッションは一つだけです</value>
+  </data>
 </root>

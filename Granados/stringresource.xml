@@ -123,4 +123,8 @@ $Id: stringresource.xml,v 1.4 2011/05/01 15:28:52 kzmi Exp $
     <en>unsupported encryption type</en>
     <ja>サポートされない暗号化方式</ja>
   </record>
+  <record name="OnlySingleInteractiveSessionCanBeStarted">
+    <en>Only single interactive session can be started</en>
+    <ja>開始できるインタラクティブセッションは一つだけです</ja>
+  </record>
 </string-resource>

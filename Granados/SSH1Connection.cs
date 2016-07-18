@@ -25,34 +25,39 @@ using Granados.IO.SSH1;
 using Granados.Mono.Math;
 using Granados.SSH;
 using Granados.PortForwarding;
+using System.Collections.Concurrent;
+using System.Globalization;
 
 namespace Granados.SSH1 {
 
     /// <summary>
-    /// 
+    /// SSH1
     /// </summary>
-    /// <exclude/>
     public sealed class SSH1Connection : SSHConnection {
 
         private const int AUTH_NOT_REQUIRED = 0;
         private const int AUTH_REQUIRED = 1;
+
+        private readonly SSHChannelCollection _channelCollection;
+        private SSH1InteractiveSession _interactiveSession;
 
         private readonly SSH1Packetizer _packetizer;
         private readonly SSH1SynchronousPacketHandler _syncHandler;
         private readonly SSHPacketInterceptorCollection _packetInterceptors;
         private readonly SSH1KeyExchanger _keyExchanger;
 
-        private readonly SSH1ConnectionInfo _cInfo;
-        private bool _executingShell;
-        private int _shellID;
+        private readonly Lazy<SSH1RemotePortForwarding> _remotePortForwarding;
 
-        // exec command for SCP
-        //private bool _executingExecCmd = false;
+        private readonly SSH1ConnectionInfo _cInfo;
+
+        private int _remotePortForwardCount = 0;
 
         public SSH1Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventReceiver er, string serverVersion, string clientVersion)
             : base(param, socket, er) {
+            _channelCollection = new SSHChannelCollection();
+            _interactiveSession = null;
+
             _cInfo = new SSH1ConnectionInfo(param.HostName, param.PortNumber, serverVersion, clientVersion);
-            _shellID = -1;
 
             IDataHandler adapter = new DataHandlerAdapter(
                             (data) => {
@@ -72,6 +77,8 @@ namespace Granados.SSH1 {
             _packetInterceptors = new SSHPacketInterceptorCollection();
             _keyExchanger = new SSH1KeyExchanger(this, _syncHandler, _param, _cInfo, UpdateClientKey, UpdateServerKey);
             _packetInterceptors.Add(_keyExchanger);
+
+            _remotePortForwarding = new Lazy<SSH1RemotePortForwarding>(CreateRemotePortForwarding);
         }
 
         internal override IDataHandler Packetizer {
@@ -129,11 +136,6 @@ namespace Granados.SSH1 {
             );
         }
 
-        public override THandler ExecCommand<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, string command) {
-            // TODO:
-            return default(THandler);
-        }
-
         public override THandler OpenSubsystem<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, string subsystemName) {
             throw new NotSupportedException("OpenSubsystem is not supported on the SSH1 connection.");
         }
@@ -148,16 +150,79 @@ namespace Granados.SSH1 {
             TraceTransmissionEvent(SSH1PacketType.SSH_CMSG_EXEC_CMD, "exec command: cmd={0}", cmd);
         }
 
+        /// <summary>
+        /// Create a new channel (initialted by the client)
+        /// </summary>
+        /// <typeparam name="TChannel">type of the channel object</typeparam>
+        /// <typeparam name="THandler">type of the event handler</typeparam>
+        /// <param name="handlerCreator">function to create an event handler</param>
+        /// <param name="channelCreator">function to create a channel object</param>
+        /// <returns></returns>
+        private THandler CreateChannelByClient<TChannel, THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, Func<uint, TChannel> channelCreator, Action<TChannel> initiate)
+            where TChannel : SSH1ChannelBase
+            where THandler : ISSHChannelEventHandler {
+
+            uint localChannel = _channelCollection.GetNewChannelNumber();
+            var channel = channelCreator(localChannel);
+            var eventHandler = handlerCreator(channel);
+            channel.SetHandler(eventHandler);
+
+            _channelCollection.Add(channel, eventHandler);
+
+            try {
+                initiate(channel);
+            }
+            catch (Exception) {
+                DetachChannel(channel);
+                throw;
+            }
+
+            return eventHandler;
+        }
+
+        /// <summary>
+        /// Detach channel object.
+        /// </summary>
+        /// <param name="channelOperator">a channel operator</param>
+        private void DetachChannel(ISSHChannel channelOperator) {
+            if (Object.ReferenceEquals(channelOperator, _interactiveSession)) {
+                _interactiveSession = null;
+            }
+            var handler = _channelCollection.FindHandler(channelOperator.LocalChannel);
+            _channelCollection.Remove(channelOperator);
+            if (handler != null) {
+                handler.Dispose();
+            }
+        }
+
         public override THandler OpenShell<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator) {
-            /*
-            if (_shellID != -1)
-                throw new SSHException("A shell is opened already");
-            _shellID = _channel_collection.RegisterChannelEventReceiver(null, receiver).LocalID;
-            SendRequestPTY();
-            _executingShell = true;
-            return new SSH1Channel(this, ChannelType.Shell, _shellID);
-             */
-            return default(THandler);
+            if (_interactiveSession != null) {
+                throw new SSHException(Strings.GetString("OnlySingleInteractiveSessionCanBeStarted"));
+            }
+
+            return CreateChannelByClient(
+                        handlerCreator,
+                        localChannel => new SSH1InteractiveSession(DetachChannel, this, localChannel, ChannelType.Shell, "Shell"),
+                        channel => {
+                            _interactiveSession = channel;
+                            channel.ExecShell(_param);
+                        }
+                    );
+        }
+
+        public override THandler ExecCommand<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, string command) {
+            if (_interactiveSession != null) {
+                throw new SSHException(Strings.GetString("OnlySingleInteractiveSessionCanBeStarted"));
+            }
+
+            return CreateChannelByClient(
+                        handlerCreator,
+                        localChannel => new SSH1InteractiveSession(DetachChannel, this, localChannel, ChannelType.ExecCommand, "ExecCommand"),
+                        channel => {
+                            _interactiveSession = channel;
+                            channel.ExecCommand(_param, command);
+                        }
+                    );
         }
 
         private void SendRequestPTY() {
@@ -182,50 +247,69 @@ namespace Granados.SSH1 {
 
         public override THandler ForwardPort<THandler>(
                 SSHChannelEventHandlerCreator<THandler> handlerCreator, string remoteHost, uint remotePort, string originatorIp, uint originatorPort) {
-            /*
-            if (_shellID == -1) {
-                ExecShell();
-                _shellID = _channel_collection.RegisterChannelEventReceiver(null, new SSH1DummyReceiver()).LocalID;
-            }
 
-            int local_id = _channel_collection.RegisterChannelEventReceiver(null, receiver).LocalID;
+            StartIdleInteractiveSession();
 
-            Transmit(
-                new SSH1Packet(SSH1PacketType.SSH_MSG_PORT_OPEN)
-                    .WriteInt32(local_id) //channel id is fixed to 0
-                    .WriteString(remote_host)
-                    .WriteInt32(remote_port)
-                //originator is specified only if SSH_PROTOFLAG_HOST_IN_FWD_OPEN is specified
-                //writer.Write(originator_host);
-            );
-            TraceTransmissionEvent(SSH1PacketType.SSH_MSG_PORT_OPEN, "open forwarded port: host={0} port={1}", remote_host, remote_port);
-
-            return new SSH1Channel(this, ChannelType.ForwardedLocalToRemote, local_id);
-             * */
-            return default(THandler);
+            return CreateChannelByClient(
+                        handlerCreator,
+                        localChannel => new SSH1LocalPortForwardingChannel(
+                                            DetachChannel, this, localChannel,
+                                            remoteHost, remotePort, originatorIp, originatorPort),
+                        channel => {
+                            channel.SendOpen();
+                        }
+                    );
         }
 
         public override bool ListenForwardedPort(IRemotePortForwardingHandler requestHandler, string addressToBind, uint portNumberToBind) {
-            /*
-            Transmit(
-                new SSH1Packet(SSH1PacketType.SSH_CMSG_PORT_FORWARD_REQUEST)
-                    .WriteInt32(bind_port)
-                    .WriteString(allowed_host)
-                    .WriteInt32(0)
-            );
-            TraceTransmissionEvent(SSH1PacketType.SSH_CMSG_PORT_FORWARD_REQUEST, "start to listening to remote port: host={0} port={1}", allowed_host, bind_port);
 
-            if (_shellID == -1) {
-                ExecShell();
-                _shellID = _channel_collection.RegisterChannelEventReceiver(null, new SSH1DummyReceiver()).LocalID;
-            }
-            */
-            return false;
+            SSH1RemotePortForwarding.CreateChannelFunc createChannel =
+                (requestInfo, remoteChannel) => {
+                    uint localChannel = _channelCollection.GetNewChannelNumber();
+                    return new SSH1RemotePortForwardingChannel(
+                                    DetachChannel,
+                                    this,
+                                    localChannel,
+                                    remoteChannel
+                                );
+                };
+
+            SSH1RemotePortForwarding.RegisterChannelFunc registerChannel =
+                (channel, eventHandler) => {
+                    channel.SetHandler(eventHandler);
+                    _channelCollection.Add(channel, eventHandler);
+                };
+
+            // Note:
+            //  According to the SSH 1.5 protocol specification, the client has to specify host and port
+            //  the connection should be forwarded to.
+            //  For keeping the interface compatible with SSH2, we use generated host-port pair that indicates
+            //  which port on the server is listening.
+            string hostToConnect = "granados" + Interlocked.Increment(ref _remotePortForwardCount).ToString(NumberFormatInfo.InvariantInfo);
+            uint portToConnect = portNumberToBind;
+
+            return _remotePortForwarding.Value.ListenForwardedPort(
+                    requestHandler, createChannel, registerChannel, portNumberToBind, hostToConnect, portToConnect);
         }
 
         public override bool CancelForwardedPort(string addressToBind, uint portNumberToBind) {
-            /*throw new NotSupportedException("not implemented");*/
-            return false;
+            throw new NotSupportedException("cancellation of the port forwarding is not supported");
+        }
+
+        private SSH1RemotePortForwarding CreateRemotePortForwarding() {
+            var instance = new SSH1RemotePortForwarding(_syncHandler, StartIdleInteractiveSession);
+            _packetInterceptors.Add(instance);
+            return instance;
+        }
+
+        /// <summary>
+        /// Start idle interactive session with opening shell.
+        /// </summary>
+        private void StartIdleInteractiveSession() {
+            if (_interactiveSession != null) {
+                return;
+            }
+            OpenShell(channel => new SimpleSSHChannelEventHandler());
         }
 
         private void ProcessPortforwardingRequest(ISSHConnectionEventReceiver receiver, SSH1DataReader reader) {
@@ -328,65 +412,34 @@ namespace Granados.SSH1 {
                 return;
             }
 
-            SSH1DataReader re = new SSH1DataReader(packet);
-            SSH1PacketType pt = (SSH1PacketType)re.ReadByte();
+            if (packet.Length < 1) {
+                return; // invalid packet
+            }
+
+            SSH1DataReader reader = new SSH1DataReader(packet);
+            SSH1PacketType pt = (SSH1PacketType)reader.ReadByte();
             switch (pt) {
-                case SSH1PacketType.SSH_SMSG_STDOUT_DATA: {
-                        int len = re.ReadInt32();
-                        DataFragment frag = re.GetRemainingDataView(len);
-                        _channel_collection.FindChannelEntry(_shellID).Receiver.OnData(frag);
-                    }
-                    break;
-                case SSH1PacketType.SSH_SMSG_STDERR_DATA: {
-                        int len = re.ReadInt32();
-                        DataFragment frag = re.GetRemainingDataView(len);
-                        _channel_collection.FindChannelEntry(_shellID).Receiver.OnExtendedData((uint)pt, frag);
-                    }
-                    break;
-                case SSH1PacketType.SSH_MSG_CHANNEL_DATA: {
-                        int channel = re.ReadInt32();
-                        int len = re.ReadInt32();
-                        DataFragment frag = re.GetRemainingDataView(len);
-                        _channel_collection.FindChannelEntry(channel).Receiver.OnData(frag);
-                    }
-                    break;
-                case SSH1PacketType.SSH_MSG_PORT_OPEN:
-                    ProcessPortforwardingRequest(_eventReceiver, re);
-                    break;
-                case SSH1PacketType.SSH_MSG_CHANNEL_CLOSE: {
-                        int channel = re.ReadInt32();
-                        ISSHChannelEventReceiver r = _channel_collection.FindChannelEntry(channel).Receiver;
-                        _channel_collection.UnregisterChannelEventReceiver(channel);
-                        r.OnChannelClosed();
-                    }
-                    break;
-                case SSH1PacketType.SSH_MSG_CHANNEL_CLOSE_CONFIRMATION: {
-                        int channel = re.ReadInt32();
-                    }
-                    break;
-                case SSH1PacketType.SSH_MSG_DISCONNECT:
-                    _eventReceiver.OnConnectionClosed();
-                    break;
-                case SSH1PacketType.SSH_SMSG_EXITSTATUS:
-                    _channel_collection.FindChannelEntry(_shellID).Receiver.OnChannelClosed();
-                    break;
-                case SSH1PacketType.SSH_MSG_DEBUG:
-                    _eventReceiver.OnDebugMessage(false, re.ReadString());
-                    break;
-                case SSH1PacketType.SSH_MSG_IGNORE:
-                    _eventReceiver.OnIgnoreMessage(re.ReadByteString());
-                    break;
-                case SSH1PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION: {
-                        int local = re.ReadInt32();
-                        int remote = re.ReadInt32();
-                        _channel_collection.FindChannelEntry(local).Receiver.OnChannelReady();
-                    }
-                    break;
+                case SSH1PacketType.SSH_SMSG_STDOUT_DATA:
+                case SSH1PacketType.SSH_SMSG_STDERR_DATA:
                 case SSH1PacketType.SSH_SMSG_SUCCESS:
-                    if (_executingShell) {
-                        ExecShell();
-                        _channel_collection.FindChannelEntry(_shellID).Receiver.OnChannelReady();
-                        _executingShell = false;
+                case SSH1PacketType.SSH_SMSG_FAILURE:
+                case SSH1PacketType.SSH_SMSG_EXITSTATUS: {
+                        SSH1InteractiveSession interactiveSession = _interactiveSession;
+                        if (interactiveSession != null) {
+                            interactiveSession.ProcessPacket(pt, reader.GetRemainingDataView());
+                        }
+                    }
+                    break;
+                case SSH1PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION:
+                case SSH1PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE:
+                case SSH1PacketType.SSH_MSG_CHANNEL_DATA:
+                case SSH1PacketType.SSH_MSG_CHANNEL_CLOSE:
+                case SSH1PacketType.SSH_MSG_CHANNEL_CLOSE_CONFIRMATION: {
+                        uint localChannel = reader.ReadUInt32();
+                        var channelOperator = _channelCollection.FindOperator(localChannel) as SSH1ChannelBase;
+                        if (channelOperator != null) {
+                            channelOperator.ProcessPacket(pt, reader.GetRemainingDataView());
+                        }
                     }
                     break;
                 default:
@@ -511,24 +564,6 @@ namespace Granados.SSH1 {
 
     }
 
-    //if port forwardings are performed without a shell, we use SSH1DummyChannel to receive shell data
-    internal class SSH1DummyReceiver : ISSHChannelEventReceiver {
-        public void OnData(DataFragment data) {
-        }
-        public void OnExtendedData(uint type, DataFragment data) {
-        }
-        public void OnChannelClosed() {
-        }
-        public void OnChannelEOF() {
-        }
-        public void OnChannelReady() {
-        }
-        public void OnChannelError(Exception error) {
-        }
-        public void OnMiscPacket(byte packetType, DataFragment data) {
-        }
-    }
-
     /// <summary>
     /// Synchronization of sending/receiving packets.
     /// </summary>
@@ -598,7 +633,7 @@ namespace Granados.SSH1 {
     /// Class for supporting key exchange sequence.
     /// </summary>
     internal class SSH1KeyExchanger : ISSHPacketInterceptor {
-        #region SSH1KeyExchanger
+        #region
 
         private const int PASSING_TIMEOUT = 1000;
         private const int RESPONSE_TIMEOUT = 5000;
@@ -944,7 +979,7 @@ namespace Granados.SSH1 {
     /// Class for supporting user authentication
     /// </summary>
     internal class SSH1UserAuthentication : ISSHPacketInterceptor {
-        #region SSH1UserAuthentication
+        #region
 
         private const int PASSING_TIMEOUT = 1000;
         private const int RESPONSE_TIMEOUT = 5000;
@@ -1325,4 +1360,296 @@ namespace Granados.SSH1 {
         #endregion
     }
 
+    /// <summary>
+    /// Class for supporting remote port-forwarding
+    /// </summary>
+    internal class SSH1RemotePortForwarding : ISSHPacketInterceptor {
+        #region
+
+        private const int PASSING_TIMEOUT = 1000;
+        private const int RESPONSE_TIMEOUT = 5000;
+
+        public delegate SSH1RemotePortForwardingChannel CreateChannelFunc(RemotePortForwardingRequest requestInfo, uint remoteChannel);
+        public delegate void RegisterChannelFunc(SSH1RemotePortForwardingChannel channel, ISSHChannelEventHandler eventHandler);
+
+        private readonly SSH1SynchronousPacketHandler _syncHandler;
+
+        private readonly Action _startInteractiveSession;
+
+        private class PortDictKey {
+            private readonly string _host;
+            private readonly uint _port;
+
+            public PortDictKey(string host, uint port) {
+                _host = host;
+                _port = port;
+            }
+
+            public override bool Equals(object obj) {
+                var other = obj as PortDictKey;
+                if (other == null) {
+                    return false;
+                }
+                return this._host == other._host && this._port == other._port;
+            }
+
+            public override int GetHashCode() {
+                return _host.GetHashCode() + _port.GetHashCode();
+            }
+        }
+
+        private class PortInfo {
+            public readonly IRemotePortForwardingHandler RequestHandler;
+            public readonly CreateChannelFunc CreateChannel;
+            public readonly RegisterChannelFunc RegisterChannel;
+
+            public PortInfo(IRemotePortForwardingHandler requestHandler, CreateChannelFunc createChannel, RegisterChannelFunc registerChannel) {
+                this.RequestHandler = requestHandler;
+                this.CreateChannel = createChannel;
+                this.RegisterChannel = registerChannel;
+            }
+        }
+        private readonly ConcurrentDictionary<PortDictKey, PortInfo> _portDict = new ConcurrentDictionary<PortDictKey, PortInfo>();
+
+        private readonly object _sequenceLock = new object();
+        private volatile SequenceStatus _sequenceStatus = SequenceStatus.Idle;
+
+        private readonly AtomicBox<DataFragment> _receivedPacket = new AtomicBox<DataFragment>();
+
+        private enum SequenceStatus {
+            /// <summary>Idle</summary>
+            Idle,
+            /// <summary>the connection has been closed</summary>
+            ConnectionClosed,
+            /// <summary>SSH_CMSG_PORT_FORWARD_REQUEST has been sent. waiting for SSH_SMSG_SUCCESS | SSH_SMSG_FAILURE.</summary>
+            WaitPortForwardResponse,
+            /// <summary>SSH_SMSG_SUCCESS has been received.</summary>
+            PortForwardSuccess,
+            /// <summary>SSH_SMSG_FAILURE has been received.</summary>
+            PortForwardFailure,
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public SSH1RemotePortForwarding(SSH1SynchronousPacketHandler syncHandler, Action startInteractiveSession) {
+            _syncHandler = syncHandler;
+            _startInteractiveSession = startInteractiveSession;
+        }
+
+        /// <summary>
+        /// Intercept a received packet.
+        /// </summary>
+        /// <param name="packet">a packet image</param>
+        /// <returns>result</returns>
+        public SSHPacketInterceptorResult InterceptPacket(DataFragment packet) {
+            SSH1PacketType packetType = (SSH1PacketType)packet[0];
+            SSHPacketInterceptorResult result = CheckPortOpenRequestPacket(packetType, packet);
+            if (result != SSHPacketInterceptorResult.PassThrough) {
+                return result;
+            }
+
+            lock (_sequenceLock) {
+                switch (_sequenceStatus) {
+                    case SequenceStatus.WaitPortForwardResponse:
+                        if (packetType == SSH1PacketType.SSH_SMSG_SUCCESS) {
+                            _sequenceStatus = SequenceStatus.PortForwardSuccess;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return SSHPacketInterceptorResult.Consumed;
+                        }
+                        if (packetType == SSH1PacketType.SSH_SMSG_FAILURE) {
+                            _sequenceStatus = SequenceStatus.PortForwardFailure;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return SSHPacketInterceptorResult.Consumed;
+                        }
+                        break;
+                }
+
+                return SSHPacketInterceptorResult.PassThrough;
+            }
+        }
+
+        /// <summary>
+        /// Handles new request.
+        /// </summary>
+        /// <param name="packetType">packet type</param>
+        /// <param name="packet">packet data</param>
+        /// <returns>result</returns>
+        private SSHPacketInterceptorResult CheckPortOpenRequestPacket(SSH1PacketType packetType, DataFragment packet) {
+            if (packetType != SSH1PacketType.SSH_MSG_PORT_OPEN) {
+                return SSHPacketInterceptorResult.PassThrough;
+            }
+
+            SSH1DataReader reader = new SSH1DataReader(packet);
+            reader.ReadByte();    // skip message number
+            uint remoteChannel = reader.ReadUInt32();
+            string host = reader.ReadString();
+            uint port = reader.ReadUInt32();
+
+            // reject the request if we don't know the host / port pair.
+            PortDictKey key = new PortDictKey(host, port);
+            PortInfo portInfo;
+            if (!_portDict.TryGetValue(key, out portInfo)) {
+                RejectPortForward(remoteChannel);
+                return SSHPacketInterceptorResult.Consumed;
+            }
+
+            RemotePortForwardingRequest requestInfo = new RemotePortForwardingRequest("", 0, "", 0);
+
+            // create a temporary channel
+            var channel = portInfo.CreateChannel(requestInfo, remoteChannel);
+
+            // check the request by the request handler
+            RemotePortForwardingReply reply;
+            try {
+                reply = portInfo.RequestHandler.OnRemotePortForwardingRequest(requestInfo, channel);
+            }
+            catch (Exception) {
+                RejectPortForward(remoteChannel);
+                return SSHPacketInterceptorResult.Consumed;
+            }
+
+            if (!reply.Accepted) {
+                RejectPortForward(remoteChannel);
+                return SSHPacketInterceptorResult.Consumed;
+            }
+
+            // register a channel to the connection object
+            portInfo.RegisterChannel(channel, reply.EventHandler);
+
+            // send SSH_MSG_CHANNEL_OPEN_CONFIRMATION
+            channel.SendOpenConfirmation();
+
+            return SSHPacketInterceptorResult.Consumed;
+        }
+
+        /// <summary>
+        /// Handles connection close.
+        /// </summary>
+        public void OnConnectionClosed() {
+            lock (_sequenceLock) {
+                if (_sequenceStatus != SequenceStatus.ConnectionClosed) {
+                    _sequenceStatus = SequenceStatus.ConnectionClosed;
+                    DataFragment dummyPacket = new DataFragment(new byte[1] { 0xff }, 0, 1);
+                    _receivedPacket.TrySet(dummyPacket, PASSING_TIMEOUT);
+                    Monitor.PulseAll(_sequenceLock);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sends SSH_MSG_CHANNEL_OPEN_FAILURE for rejecting the request.
+        /// </summary>
+        /// <param name="remoteChannel">remote channel number</param>
+        private void RejectPortForward(uint remoteChannel) {
+            var packet = new SSH1Packet(SSH1PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE);
+            _syncHandler.Send(packet);
+        }
+
+        /// <summary>
+        /// Builds SSH_MSG_GLOBAL_REQUEST "tcpip-forward" packet.
+        /// </summary>
+        /// <param name="portNumberToBind">port number to bind on the server</param>
+        /// <param name="hostToConnect">host the connection should be be forwarded to</param>
+        /// <param name="portNumberToConnect">port the connection should be be forwarded to</param>
+        /// <returns></returns>
+        private SSH1Packet BuildPortForwardPacket(uint portNumberToBind, string hostToConnect, uint portNumberToConnect) {
+            return new SSH1Packet(SSH1PacketType.SSH_CMSG_PORT_FORWARD_REQUEST)
+                    .WriteUInt32(portNumberToBind)
+                    .WriteString(hostToConnect)
+                    .WriteUInt32(portNumberToConnect);
+        }
+
+        /// <summary>
+        /// Starts remote port forwarding.
+        /// </summary>
+        /// <param name="requestHandler">request handler</param>
+        /// <param name="createChannel">a function for creating a new channel object</param>
+        /// <param name="registerChannel">a function for registering a new channel object</param>
+        /// <param name="portNumberToBind">port number to bind on the server</param>
+        /// <param name="hostToConnect">host the connection should be be forwarded to</param>
+        /// <param name="portNumberToConnect">port the connection should be be forwarded to</param>
+        /// <returns>true if the remote port forwarding has been started.</returns>
+        public bool ListenForwardedPort(
+                IRemotePortForwardingHandler requestHandler,
+                CreateChannelFunc createChannel,
+                RegisterChannelFunc registerChannel,
+                uint portNumberToBind,
+                string hostToConnect,
+                uint portNumberToConnect) {
+
+            bool success = ListenForwardedPortCore(
+                                requestHandler,
+                                createChannel,
+                                registerChannel,
+                                portNumberToBind,
+                                hostToConnect,
+                                portNumberToConnect);
+
+            if (success) {
+                _startInteractiveSession();
+            }
+
+            try {
+                if (success) {
+                    requestHandler.OnRemotePortForwardingStarted(portNumberToBind);
+                }
+                else {
+                    requestHandler.OnRemotePortForwardingFailed();
+                }
+            }
+            catch (Exception) {
+            }
+
+            return success;
+        }
+
+        private bool ListenForwardedPortCore(
+                IRemotePortForwardingHandler requestHandler,
+                CreateChannelFunc createChannel,
+                RegisterChannelFunc registerChannel,
+                uint portNumberToBind,
+                string hostToConnect,
+                uint portNumberToConnect) {
+
+            lock (_sequenceLock) {
+                while (_sequenceStatus != SequenceStatus.Idle) {
+                    if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
+                        return false;
+                    }
+                    Monitor.Wait(_sequenceLock);
+                }
+
+                _receivedPacket.Clear();
+                _sequenceStatus = SequenceStatus.WaitPortForwardResponse;
+            }
+
+            var packet = BuildPortForwardPacket(portNumberToBind, hostToConnect, portNumberToConnect);
+            _syncHandler.Send(packet);
+
+            DataFragment response = null;
+            bool accepted = false;
+            if (_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+                lock (_sequenceLock) {
+                    if (_sequenceStatus == SequenceStatus.PortForwardSuccess) {
+                        accepted = true;
+                        PortDictKey key = new PortDictKey(hostToConnect, portNumberToConnect);
+                        _portDict.TryAdd(
+                            key,
+                            new PortInfo(requestHandler, createChannel, registerChannel));
+                    }
+                }
+            }
+
+            lock (_sequenceLock) {
+                // reset status
+                _sequenceStatus = SequenceStatus.Idle;
+                Monitor.PulseAll(_sequenceLock);
+            }
+
+            return accepted;
+        }
+
+        #endregion
+    }
 }
