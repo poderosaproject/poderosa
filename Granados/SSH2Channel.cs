@@ -294,20 +294,26 @@ namespace Granados.SSH2 {
         /// If this method was called under the inappropriate channel state, the method call will be ignored silently.
         /// </remarks>
         public void Close() {
+            // quick check for avoiding deadlock
+            if (_state != State.Established && _state != State.Ready) {
+                return;
+            }
+
             lock (_stateSync) {
                 if (_state != State.Established && _state != State.Ready) {
                     return;
                 }
 
                 _state = State.Closing;
-                _handler.OnClosing(false);
-
-                Transmit(
-                    0,
-                    new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_CLOSE)
-                        .WriteUInt32(RemoteChannel)
-                );
             }
+
+            _handler.OnClosing(false);
+
+            Transmit(
+                0,
+                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_CLOSE)
+                    .WriteUInt32(RemoteChannel)
+            );
 
             if (_connection.IsEventTracerAvailable) {
                 _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_CHANNEL_CLOSE, "");
