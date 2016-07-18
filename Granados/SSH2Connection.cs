@@ -2606,7 +2606,6 @@ namespace Granados.SSH2 {
 
         private readonly SSH2SynchronousPacketHandler _syncHandler;
 
-        // key: listening port number, value: listening port number
         private class PortInfo {
             public readonly IRemotePortForwardingHandler RequestHandler;
             public readonly CreateChannelFunc CreateChannel;
@@ -2618,7 +2617,7 @@ namespace Granados.SSH2 {
                 this.RegisterChannel = registerChannel;
             }
         }
-        private readonly ConcurrentDictionary<uint, PortInfo> _portNumbers = new ConcurrentDictionary<uint, PortInfo>();
+        private readonly ConcurrentDictionary<uint, PortInfo> _portDict = new ConcurrentDictionary<uint, PortInfo>();
 
         private readonly object _sequenceLock = new object();
         private volatile SequenceStatus _sequenceStatus = SequenceStatus.Idle;
@@ -2724,7 +2723,7 @@ namespace Granados.SSH2 {
 
             // reject the request if we don't know the port number.
             PortInfo portInfo;
-            if (!_portNumbers.TryGetValue(portConnected, out portInfo)) {
+            if (!_portDict.TryGetValue(portConnected, out portInfo)) {
                 RejectForwardedTcpIp(remoteChannel, "Cannot accept the request");
                 return SSHPacketInterceptorResult.Consumed;
             }
@@ -2904,7 +2903,7 @@ namespace Granados.SSH2 {
                             reader.ReadByte();  // message number
                             portNumberBound = reader.ReadUInt32();
                         }
-                        _portNumbers.TryAdd(
+                        _portDict.TryAdd(
                             portNumberBound,
                             new PortInfo(requestHandler, createChannel, registerChannel));
                     }
@@ -2949,11 +2948,11 @@ namespace Granados.SSH2 {
                     if (_sequenceStatus == SequenceStatus.CancelTcpIpForwardSuccess) {
                         accepted = true;
                         if (portNumberToBind == 0) {
-                            _portNumbers.Clear();
+                            _portDict.Clear();
                         }
                         else {
                             PortInfo oldVal;
-                            _portNumbers.TryRemove(portNumberToBind, out oldVal);
+                            _portDict.TryRemove(portNumberToBind, out oldVal);
                         }
                     }
                 }
