@@ -1578,8 +1578,11 @@ namespace Granados.SSH1 {
                 string hostToConnect,
                 uint portNumberToConnect) {
 
+            IRemotePortForwardingHandler requestHandlerWrapper =
+                new RemotePortForwardingHandlerIgnoreErrorWrapper(requestHandler);
+
             bool success = ListenForwardedPortCore(
-                                requestHandler,
+                                requestHandlerWrapper,
                                 createChannel,
                                 registerChannel,
                                 portNumberToBind,
@@ -1588,17 +1591,10 @@ namespace Granados.SSH1 {
 
             if (success) {
                 _startInteractiveSession();
+                requestHandlerWrapper.OnRemotePortForwardingStarted(portNumberToBind);
             }
-
-            try {
-                if (success) {
-                    requestHandler.OnRemotePortForwardingStarted(portNumberToBind);
-                }
-                else {
-                    requestHandler.OnRemotePortForwardingFailed();
-                }
-            }
-            catch (Exception) {
+            else {
+                requestHandlerWrapper.OnRemotePortForwardingFailed();
             }
 
             return success;

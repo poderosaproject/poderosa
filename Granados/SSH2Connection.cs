@@ -151,8 +151,8 @@ namespace Granados.SSH2 {
         /// <param name="channelCreator">function to create a channel object</param>
         /// <returns></returns>
         private THandler CreateChannelByClient<TChannel, THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, Func<uint, TChannel> channelCreator)
-                where TChannel : SSH2ChannelBase
-                where THandler : ISSHChannelEventHandler {
+            where TChannel : SSH2ChannelBase
+            where THandler : ISSHChannelEventHandler {
 
             uint localChannel = _channelCollection.GetNewChannelNumber();
             var channel = channelCreator(localChannel);
@@ -313,7 +313,7 @@ namespace Granados.SSH2 {
             }
 
             SSH2DataReader r = new SSH2DataReader(packet);
-            SSH2PacketType pt = (SSH2PacketType) r.ReadByte();
+            SSH2PacketType pt = (SSH2PacketType)r.ReadByte();
 
             if (pt == SSH2PacketType.SSH_MSG_DISCONNECT) {
                 int errorcode = r.ReadInt32();
@@ -947,7 +947,7 @@ namespace Granados.SSH2 {
         /// <returns>packet name.</returns>
         protected override string GetMessageName(DataFragment packet) {
             if (packet.Length > 0) {
-                return ((SSH2PacketType) packet.Data[packet.Offset]).ToString();
+                return ((SSH2PacketType)packet.Data[packet.Offset]).ToString();
             }
             else {
                 return "?";
@@ -2842,28 +2842,27 @@ namespace Granados.SSH2 {
                 string addressToBind,
                 uint portNumberToBind) {
 
+            IRemotePortForwardingHandler requestHandlerWrapper =
+                new RemotePortForwardingHandlerIgnoreErrorWrapper(requestHandler);
+
             uint portNumberBound;
             bool success = ListenForwardedPortCore(
-                                requestHandler,
+                                requestHandlerWrapper,
                                 createChannel,
                                 registerChannel,
                                 addressToBind,
                                 portNumberToBind,
                                 out portNumberBound);
-            try {
-                if (success) {
-                    requestHandler.OnRemotePortForwardingStarted(portNumberBound);
-                }
-                else {
-                    requestHandler.OnRemotePortForwardingFailed();
-                }
+            if (success) {
+                requestHandlerWrapper.OnRemotePortForwardingStarted(portNumberBound);
             }
-            catch (Exception) {
+            else {
+                requestHandlerWrapper.OnRemotePortForwardingFailed();
             }
 
             return success;
         }
-        
+
         private bool ListenForwardedPortCore(
                 IRemotePortForwardingHandler requestHandler,
                 CreateChannelFunc createChannel,

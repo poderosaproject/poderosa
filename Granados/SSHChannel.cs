@@ -122,7 +122,8 @@ namespace Granados.SSH {
     /// An interface of the channel object that can handle events about the specific channel.
     /// </summary>
     /// <remarks>
-    /// The user of Granados needs to implement the concrete class of this interface.
+    /// The user of Granados needs to implement the concrete class of this interface.<br/>
+    /// <see cref="SimpleSSHChannelEventHandler"/> is a good start.
     /// </remarks>
     public interface ISSHChannelEventHandler : IDisposable {
 
@@ -240,6 +241,101 @@ namespace Granados.SSH {
     }
 
     /// <summary>
+    /// A wrapper class of <see cref="ISSHChannelEventHandler"/> for internal use.
+    /// </summary>
+    internal class SSHChannelEventHandlerIgnoreErrorWrapper : ISSHChannelEventHandler {
+
+        private readonly ISSHChannelEventHandler _coreHandler;
+
+        public SSHChannelEventHandlerIgnoreErrorWrapper(ISSHChannelEventHandler coreHandler) {
+            _coreHandler = coreHandler;
+        }
+
+        public void OnEstablished(DataFragment data) {
+            try {
+                _coreHandler.OnEstablished(data);
+            }
+            catch (Exception) {
+            }
+        }
+
+        public void OnReady() {
+            try {
+                _coreHandler.OnReady();
+            }
+            catch (Exception) {
+            }
+        }
+
+        public void OnData(DataFragment data) {
+            try {
+                _coreHandler.OnData(data);
+            }
+            catch (Exception) {
+            }
+        }
+
+        public void OnExtendedData(uint type, DataFragment data) {
+            try {
+                _coreHandler.OnExtendedData(type, data);
+            }
+            catch (Exception) {
+            }
+        }
+
+        public void OnClosing(bool byServer) {
+            try {
+                _coreHandler.OnClosing(byServer);
+            }
+            catch (Exception) {
+            }
+        }
+
+        public void OnClosed(bool byServer) {
+            try {
+                _coreHandler.OnClosed(byServer);
+            }
+            catch (Exception) {
+            }
+        }
+
+        public void OnEOF() {
+            try {
+                _coreHandler.OnEOF();
+            }
+            catch (Exception) {
+            }
+        }
+
+        public void OnRequestFailed() {
+            try {
+                _coreHandler.OnRequestFailed();
+            }
+            catch (Exception) {
+            }
+        }
+
+        public void OnError(Exception error) {
+            try {
+                _coreHandler.OnError(error);
+            }
+            catch (Exception) {
+            }
+        }
+
+        public void OnUnhandledPacket(byte packetType, DataFragment data) {
+            try {
+                _coreHandler.OnUnhandledPacket(packetType, data);
+            }
+            catch (Exception) {
+            }
+        }
+
+        public void Dispose() {
+        }
+    }
+
+    /// <summary>
     /// A function type that creates a new channel handler object.
     /// </summary>
     /// <param name="channel">channel object</param>
@@ -250,7 +346,8 @@ namespace Granados.SSH {
     /// An exception that indicates the operation is not allowed under the current state of the channel.
     /// </summary>
     public class SSHChannelInvalidOperationException : SSHException {
-        public SSHChannelInvalidOperationException(string message) : base(message) {
+        public SSHChannelInvalidOperationException(string message)
+            : base(message) {
         }
     }
 

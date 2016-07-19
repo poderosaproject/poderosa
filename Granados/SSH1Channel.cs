@@ -151,7 +151,7 @@ namespace Granados.SSH1 {
         /// </summary>
         /// <param name="handler"></param>
         public void SetHandler(ISSHChannelEventHandler handler) {
-            _handler = handler;
+            _handler = new SSHChannelEventHandlerIgnoreErrorWrapper(handler);
         }
 
         /// <summary>
@@ -363,9 +363,9 @@ namespace Granados.SSH1 {
                 if (!_eof) {
                     SendEOF();
                 }
-
-                SetStateClosed(false);
             }
+
+            SetStateClosed(false);
         }
 
         #endregion
@@ -387,12 +387,16 @@ namespace Granados.SSH1 {
                 Trace(SSH1PacketType.SSH_CMSG_EXEC_SHELL, "");
 
                 _state = State.Established;
-                DataFragment empty = new DataFragment(0);
-                Handler.OnEstablished(empty);
-
-                _state = State.Ready;
-                Handler.OnReady();
             }
+
+            DataFragment empty = new DataFragment(0);
+            Handler.OnEstablished(empty);
+
+            lock (_stateSync) {
+                _state = State.Ready;
+            }
+
+            Handler.OnReady();
 
             return true;
         }
@@ -415,7 +419,7 @@ namespace Granados.SSH1 {
             if (!OpenPTY(param)) {
                 return;
             }
-            
+
             lock (_stateSync) {
                 Transmit(
                     new SSH1Packet(SSH1PacketType.SSH_CMSG_EXEC_CMD)
@@ -424,12 +428,16 @@ namespace Granados.SSH1 {
                 Trace(SSH1PacketType.SSH_CMSG_EXEC_CMD, "exec command: command={0}", command);
 
                 _state = State.Established;
-                DataFragment empty = new DataFragment(0);
-                Handler.OnEstablished(empty);
-
-                _state = State.Ready;
-                Handler.OnReady();
             }
+
+            DataFragment empty = new DataFragment(0);
+            Handler.OnEstablished(empty);
+
+            lock (_stateSync) {
+                _state = State.Ready;
+            }
+
+            Handler.OnReady();
         }
 
         /// <summary>
@@ -466,13 +474,13 @@ namespace Granados.SSH1 {
             }
 
             lock (_stateSync) {
-                if (_state != State.StartPTYSuccess) {
-                    RequestFailed();
-                    return false;
+                if (_state == State.StartPTYSuccess) {
+                    return true;
                 }
             }
 
-            return true;
+            RequestFailed();
+            return false;
         }
 
         /// <summary>
@@ -489,20 +497,29 @@ namespace Granados.SSH1 {
         /// <param name="byServer"></param>
         private void SetStateClosed(bool byServer) {
             lock (_stateSync) {
-                if (_state != State.Closed) {
-                    if (_state != State.Closing) {
-                        _state = State.Closing;
-                        Handler.OnClosing(byServer);
-                    }
-
-                    if (_state == State.Closing) {
-                        _state = State.Closed;
-                        Handler.OnClosed(byServer);
-                    }
-
-                    Detach();
+                if (_state == State.Closed) {
+                    return;
                 }
+                if (_state == State.Closing) {
+                    _state = State.Closed;
+                    goto OnClosed;
+                }
+                _state = State.Closing;
             }
+
+            Handler.OnClosing(byServer);
+
+            lock (_stateSync) {
+                if (_state == State.Closed) {   // state transition has occurred in OnClosing()
+                    return;
+                }
+                _state = State.Closed;
+            }
+
+        OnClosed:
+            Handler.OnClosed(byServer);
+
+            Detach();
         }
 
         /// <summary>
@@ -514,6 +531,8 @@ namespace Granados.SSH1 {
             if (_state == State.Closed) {
                 return; // ignore
             }
+
+            DataFragment dataFragmentArg;
 
             lock (_stateSync) {
                 switch (_state) {
@@ -536,32 +555,38 @@ namespace Granados.SSH1 {
                             case SSH1PacketType.SSH_SMSG_STDOUT_DATA: {
                                     SSH1DataReader reader = new SSH1DataReader(packetFragment);
                                     int len = reader.ReadInt32();
-                                    DataFragment frag = reader.GetRemainingDataView(len);
-                                    Handler.OnData(frag);
+                                    dataFragmentArg = reader.GetRemainingDataView(len);
                                 }
-                                break;
+                                goto OnData;    // do it out of the lock block
                             case SSH1PacketType.SSH_SMSG_STDERR_DATA: {
                                     SSH1DataReader reader = new SSH1DataReader(packetFragment);
                                     int len = reader.ReadInt32();
-                                    DataFragment frag = reader.GetRemainingDataView(len);
-                                    Handler.OnData(frag);
+                                    dataFragmentArg = reader.GetRemainingDataView(len);
                                 }
-                                break;
-                            case SSH1PacketType.SSH_SMSG_EXITSTATUS: {
-                                    Transmit(
-                                        new SSH1Packet(SSH1PacketType.SSH_CMSG_EXIT_CONFIRMATION)
-                                    );
-                                    SetStateClosed(true);
-                                }
-                                break;
-                            default: {
-                                    Handler.OnUnhandledPacket((byte)packetType, packetFragment);
-                                }
-                                break;
+                                goto OnData;    // do it out of the lock block
+                            case SSH1PacketType.SSH_SMSG_EXITSTATUS:
+                                Transmit(
+                                    new SSH1Packet(SSH1PacketType.SSH_CMSG_EXIT_CONFIRMATION)
+                                );
+                                goto SetStateClosedByServer;    // do it out of the lock block
                         }
-                        break;  // case State.Ready
+                        goto OnUnhandledPacket; // do it out of the lock block
                 }
             }
+
+            return;
+
+        OnData:
+            Handler.OnData(dataFragmentArg);
+            return;
+
+        SetStateClosedByServer:
+            SetStateClosed(true);
+            return;
+
+        OnUnhandledPacket:
+            Handler.OnUnhandledPacket((byte)packetType, packetFragment);
+            return;
         }
 
         #endregion
@@ -665,9 +690,10 @@ namespace Granados.SSH1 {
                 );
 
                 _state = State.Established;
-                Handler.OnEstablished(new DataFragment(0));
-                OnChannelEstablished();
             }
+
+            Handler.OnEstablished(new DataFragment(0));
+            OnChannelEstablished();
         }
 
         #region ISSHChannel properties
@@ -781,11 +807,13 @@ namespace Granados.SSH1 {
         /// </summary>
         protected void SetStateReady() {
             lock (_stateSync) {
-                if (_state == State.Established) {
-                    _state = State.Ready;
-                    Handler.OnReady();
+                if (_state != State.Established) {
+                    return;
                 }
+
+                _state = State.Ready;
             }
+            Handler.OnReady();
         }
 
         /// <summary>
@@ -794,14 +822,24 @@ namespace Granados.SSH1 {
         protected void RequestFailed() {
             lock (_stateSync) {
                 if (_state == State.Established) {
-                    Handler.OnRequestFailed();
-                    Close();
+                    goto Close;
                 }
                 else if (_state == State.InitiatedByClient) {
-                    Handler.OnRequestFailed();
-                    SetStateClosed(false);
+                    goto SetStateClosedByClient;
                 }
             }
+
+            return;
+
+        Close:
+            Handler.OnRequestFailed();
+            Close();
+            return;
+
+        SetStateClosedByClient:
+            Handler.OnRequestFailed();
+            SetStateClosed(false);
+            return;
         }
 
         /// <summary>
@@ -810,20 +848,29 @@ namespace Granados.SSH1 {
         /// <param name="byServer"></param>
         private void SetStateClosed(bool byServer) {
             lock (_stateSync) {
-                if (_state != State.Closed) {
-                    if (_state != State.Closing) {
-                        _state = State.Closing;
-                        Handler.OnClosing(byServer);
-                    }
-
-                    if (_state == State.Closing) {
-                        _state = State.Closed;
-                        Handler.OnClosed(byServer);
-                    }
-
-                    Detach();
+                if (_state == State.Closed) {
+                    return;
                 }
+                if (_state == State.Closing) {
+                    _state = State.Closed;
+                    goto OnClosed;
+                }
+                _state = State.Closing;
             }
+
+            Handler.OnClosing(byServer);
+
+            lock (_stateSync) {
+                if (_state == State.Closed) {   // state transition has occurred in OnClosing()
+                    return;
+                }
+                _state = State.Closed;
+            }
+
+        OnClosed:
+            Handler.OnClosed(byServer);
+
+            Detach();
         }
 
         /// <summary>
@@ -850,6 +897,8 @@ namespace Granados.SSH1 {
                 return; // ignore
             }
 
+            DataFragment dataFragmentArg;
+
             lock (_stateSync) {
                 switch (_state) {
                     case State.InitiatedByServer:
@@ -859,19 +908,16 @@ namespace Granados.SSH1 {
                             SSH1DataReader reader = new SSH1DataReader(packetFragment);
                             SetRemoteChannel(reader.ReadUInt32());
                             _state = State.Established;
-                            Handler.OnEstablished(reader.GetRemainingDataView());
-                            OnChannelEstablished();
-                            return;
+                            dataFragmentArg = new DataFragment(0);
+                            goto OnEstablished; // do it out of the lock block
                         }
                         if (packetType == SSH1PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE) {
-                            RequestFailed();
-                            return;
+                            goto RequestFailed; // do it out of the lock block
                         }
                         break;
                     case State.Closing:
                         if (packetType == SSH1PacketType.SSH_MSG_CHANNEL_CLOSE_CONFIRMATION) {
-                            SetStateClosed(false);
-                            return;
+                            goto SetStateClosedByClient;    // do it out of the lock block
                         }
                         break;
                     case State.Established:
@@ -883,29 +929,46 @@ namespace Granados.SSH1 {
                             case SSH1PacketType.SSH_MSG_CHANNEL_DATA: {
                                     SSH1DataReader reader = new SSH1DataReader(packetFragment);
                                     int len = reader.ReadInt32();
-                                    DataFragment frag = reader.GetRemainingDataView(len);
-                                    Handler.OnData(frag);
+                                    dataFragmentArg = reader.GetRemainingDataView(len);
                                 }
-                                break;
-                            case SSH1PacketType.SSH_MSG_CHANNEL_CLOSE: {
-                                    Transmit(
-                                        new SSH1Packet(SSH1PacketType.SSH_MSG_CHANNEL_CLOSE_CONFIRMATION)
-                                            .WriteUInt32(RemoteChannel)
-                                    );
-                                    SetStateClosed(true);
-                                }
-                                break;
-                            default: {
-                                    Handler.OnUnhandledPacket((byte)packetType, packetFragment);
-                                }
-                                break;
+                                goto OnData;    // do it out of the lock block
+                            case SSH1PacketType.SSH_MSG_CHANNEL_CLOSE:
+                                Transmit(
+                                    new SSH1Packet(SSH1PacketType.SSH_MSG_CHANNEL_CLOSE_CONFIRMATION)
+                                        .WriteUInt32(RemoteChannel)
+                                );
+                                goto SetStateClosedByServer;    // do it out of the lock block
                         }
-                        break;  // case State.Ready
+                        goto OnUnhandledPacket; // do it out of the lock block
                 }
             }
+
             return;
 
-        
+        OnEstablished:
+            Handler.OnEstablished(dataFragmentArg);
+            OnChannelEstablished();
+            return;
+
+        RequestFailed:
+            RequestFailed();
+            return;
+
+        SetStateClosedByClient:
+            SetStateClosed(false);
+            return;
+
+        SetStateClosedByServer:
+            SetStateClosed(true);
+            return;
+
+        OnData:
+            Handler.OnData(dataFragmentArg);
+            return;
+
+        OnUnhandledPacket:
+            Handler.OnUnhandledPacket((byte)packetType, packetFragment);
+            return;
         }
 
         #endregion

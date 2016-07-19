@@ -327,7 +327,7 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <param name="handler"></param>
         public void SetHandler(ISSHChannelEventHandler handler) {
-            _handler = handler;
+            _handler = new SSHChannelEventHandlerIgnoreErrorWrapper(handler);
         }
 
         /// <summary>
@@ -368,9 +368,10 @@ namespace Granados.SSH2 {
                 );
 
                 _state = State.Established;
-                _handler.OnEstablished(new DataFragment(0));
-                OnChannelEstablished();
             }
+
+            _handler.OnEstablished(new DataFragment(0));
+            OnChannelEstablished();
         }
 
         /// <summary>
@@ -389,9 +390,9 @@ namespace Granados.SSH2 {
             lock (_stateSync) {
                 if (_state == State.Established) {
                     _state = State.Ready;
-                    _handler.OnReady();
                 }
             }
+            _handler.OnReady();
         }
 
         /// <summary>
@@ -400,14 +401,24 @@ namespace Granados.SSH2 {
         protected void RequestFailed() {
             lock (_stateSync) {
                 if (_state == State.Established) {
-                    _handler.OnRequestFailed();
-                    Close();
+                    goto Close;
                 }
                 else if (_state == State.InitiatedByClient) {
-                    _handler.OnRequestFailed();
-                    SetStateClosed(false);
+                    goto SetStateClosedByClient;
                 }
             }
+
+            return;
+
+        Close:
+            _handler.OnRequestFailed();
+            Close();
+            return;
+
+        SetStateClosedByClient:
+            _handler.OnRequestFailed();
+            SetStateClosed(false);
+            return;
         }
 
         /// <summary>
@@ -416,20 +427,29 @@ namespace Granados.SSH2 {
         /// <param name="byServer"></param>
         private void SetStateClosed(bool byServer) {
             lock (_stateSync) {
-                if (_state != State.Closed) {
-                    if (_state != State.Closing) {
-                        _state = State.Closing;
-                        _handler.OnClosing(byServer);
-                    }
-
-                    if (_state == State.Closing) {
-                        _state = State.Closed;
-                        _handler.OnClosed(byServer);
-                    }
-
-                    _detachAction(this);
+                if (_state == State.Closed) {
+                    return;
                 }
+                if (_state == State.Closing) {
+                    _state = State.Closed;
+                    goto OnClosed;
+                }
+                _state = State.Closing;
             }
+
+            _handler.OnClosing(byServer);
+
+            lock (_stateSync) {
+                if (_state == State.Closed) {   // state transition has occurred in OnClosing()
+                    return;
+                }
+                _state = State.Closed;
+            }
+
+        OnClosed:
+            _handler.OnClosed(byServer);
+
+            _detachAction(this);
         }
 
         /// <summary>
@@ -456,6 +476,9 @@ namespace Granados.SSH2 {
                 return; // ignore
             }
 
+            DataFragment dataFragmentArg;
+            uint dataTypeCodeArg;
+
             lock (_stateSync) {
                 switch (_state) {
                     case State.InitiatedByServer:
@@ -468,23 +491,20 @@ namespace Granados.SSH2 {
                             _serverMaxPacketSize = reader.ReadUInt32();
 
                             _state = State.Established;
-                            _handler.OnEstablished(reader.GetRemainingDataView());
-                            OnChannelEstablished();
-                            return;
+                            dataFragmentArg = reader.GetRemainingDataView();
+                            goto OnEstablished; // do it out of the lock block
                         }
                         if (packetType == SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE) {
                             SSH2DataReader reader = new SSH2DataReader(packetFragment);
                             uint reasonCode = reader.ReadUInt32();
                             string description = reader.ReadUTF8String();
                             string lang = reader.ReadString();
-                            RequestFailed();
-                            return;
+                            goto RequestFailed; // do it out of the lock block
                         }
                         break;
                     case State.Closing:
                         if (packetType == SSH2PacketType.SSH_MSG_CHANNEL_CLOSE) {
-                            SetStateClosed(false);
-                            return;
+                            goto SetStateClosedByClient;    // do it out of the lock block
                         }
                         break;
                     case State.Established:
@@ -496,20 +516,18 @@ namespace Granados.SSH2 {
                             case SSH2PacketType.SSH_MSG_CHANNEL_DATA: {
                                     SSH2DataReader reader = new SSH2DataReader(packetFragment);
                                     int len = reader.ReadInt32();
-                                    DataFragment frag = reader.GetRemainingDataView(len);
+                                    dataFragmentArg = reader.GetRemainingDataView(len);
                                     AdjustWindowSize(len);
-                                    _handler.OnData(frag);
                                 }
-                                break;
+                                goto OnData;    // do it out of the lock block
                             case SSH2PacketType.SSH_MSG_CHANNEL_EXTENDED_DATA: {
                                     SSH2DataReader reader = new SSH2DataReader(packetFragment);
-                                    uint dataTypeCode = reader.ReadUInt32();
+                                    dataTypeCodeArg = reader.ReadUInt32();
                                     int len = reader.ReadInt32();
-                                    DataFragment frag = reader.GetRemainingDataView(len);
+                                    dataFragmentArg = reader.GetRemainingDataView(len);
                                     AdjustWindowSize(len);
-                                    _handler.OnExtendedData(dataTypeCode, frag);
                                 }
-                                break;
+                                goto OnExtendedData;    // do it out of the lock block
                             case SSH2PacketType.SSH_MSG_CHANNEL_REQUEST: {
                                     SSH2DataReader reader = new SSH2DataReader(packetFragment);
                                     string request = reader.ReadString();
@@ -523,19 +541,15 @@ namespace Granados.SSH2 {
                                     }
                                 }
                                 break;
-                            case SSH2PacketType.SSH_MSG_CHANNEL_EOF: {
-                                    _handler.OnEOF();
-                                }
-                                break;
-                            case SSH2PacketType.SSH_MSG_CHANNEL_CLOSE: {
-                                    Transmit(
-                                        0,
-                                        new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_CLOSE)
-                                            .WriteUInt32(RemoteChannel)
-                                    );
-                                    SetStateClosed(true);
-                                }
-                                break;
+                            case SSH2PacketType.SSH_MSG_CHANNEL_EOF:
+                                goto OnEOF; // do it out of the lock block
+                            case SSH2PacketType.SSH_MSG_CHANNEL_CLOSE:
+                                Transmit(
+                                    0,
+                                    new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_CLOSE)
+                                        .WriteUInt32(RemoteChannel)
+                                );
+                                goto SetStateClosedByServer;    // do it out of the lock block
                             case SSH2PacketType.SSH_MSG_CHANNEL_WINDOW_ADJUST: {
                                     SSH2DataReader reader = new SSH2DataReader(packetFragment);
                                     uint bytesToAdd = reader.ReadUInt32();
@@ -561,14 +575,48 @@ namespace Granados.SSH2 {
                                     }
                                 }
                                 break;
-                            default: {
-                                    _handler.OnUnhandledPacket((byte)packetType, packetFragment);
-                                }
-                                break;
+                            default:
+                                goto OnUnhandledPacket;
                         }
                         break;  // case State.Ready
                 }
             }
+
+            return;
+
+        OnEstablished:
+            _handler.OnEstablished(dataFragmentArg);
+            OnChannelEstablished();
+            return;
+
+        RequestFailed:
+            RequestFailed();
+            return;
+
+        SetStateClosedByClient:
+            SetStateClosed(false);
+            return;
+
+        SetStateClosedByServer:
+            SetStateClosed(true);
+            return;
+
+        OnData:
+            _handler.OnData(dataFragmentArg);
+            return;
+
+        OnExtendedData:
+            _handler.OnExtendedData(dataTypeCodeArg, dataFragmentArg);
+            return;
+
+        OnEOF:
+            _handler.OnEOF();
+            return;
+
+        OnUnhandledPacket:
+            _handler.OnUnhandledPacket((byte)packetType, packetFragment);
+            return;
+
         }
 
         /// <summary>
@@ -741,14 +789,24 @@ namespace Granados.SSH2 {
                     lock (_stateSync) {
                         if (_state == MinorState.WaitPtyReqConfirmation) {
                             if (success) {
-                                SendShellRequest();
+                                goto SendShellRequest;
                             }
                             else {
                                 _state = MinorState.NotReady;
-                                RequestFailed();
+                                goto RequestFailed;
                             }
                         }
                     }
+
+                    return;
+
+                SendShellRequest:
+                    SendShellRequest();
+                    return;
+
+                RequestFailed:
+                    RequestFailed();
+                    return;
                 }
             );
         }
@@ -772,14 +830,24 @@ namespace Granados.SSH2 {
                         if (_state == MinorState.WaitShellConfirmation) {
                             if (success) {
                                 _state = MinorState.Ready;
-                                SetStateReady();
+                                goto SetStateReady;
                             }
                             else {
                                 _state = MinorState.NotReady;
-                                RequestFailed();
+                                goto RequestFailed;
                             }
                         }
                     }
+
+                    return;
+
+                SetStateReady:
+                    SetStateReady();
+                    return;
+
+                RequestFailed:
+                    RequestFailed();
+                    return;
                 }
             );
         }
@@ -855,14 +923,24 @@ namespace Granados.SSH2 {
                         if (_state == MinorState.WaitExecConfirmation) {
                             if (success) {
                                 _state = MinorState.Ready;
-                                SetStateReady();
+                                goto SetStateReady;
                             }
                             else {
                                 _state = MinorState.NotReady;
-                                RequestFailed();
+                                goto RequestFailed;
                             }
                         }
                     }
+
+                    return;
+
+                SetStateReady:
+                    SetStateReady();
+                    return;
+
+                RequestFailed:
+                    RequestFailed();
+                    return;
                 }
             );
         }
@@ -938,14 +1016,24 @@ namespace Granados.SSH2 {
                         if (_state == MinorState.WaitSubsystemConfirmation) {
                             if (success) {
                                 _state = MinorState.Ready;
-                                SetStateReady();
+                                goto SetStateReady;
                             }
                             else {
                                 _state = MinorState.NotReady;
-                                RequestFailed();
+                                goto RequestFailed;
                             }
                         }
                     }
+
+                    return;
+
+                SetStateReady:
+                    SetStateReady();
+                    return;
+
+                RequestFailed:
+                    RequestFailed();
+                    return;
                 }
             );
         }

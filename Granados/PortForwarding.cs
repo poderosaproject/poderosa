@@ -155,4 +155,38 @@ namespace Granados.PortForwarding {
         RemotePortForwardingReply OnRemotePortForwardingRequest(RemotePortForwardingRequest request, ISSHChannel channel);
 
     }
+
+    /// <summary>
+    /// A wrapper class of <see cref="IRemotePortForwardingHandler"/> for internal use.
+    /// </summary>
+    internal class RemotePortForwardingHandlerIgnoreErrorWrapper : IRemotePortForwardingHandler {
+
+        private readonly IRemotePortForwardingHandler _coreHandler;
+
+        public RemotePortForwardingHandlerIgnoreErrorWrapper(IRemotePortForwardingHandler coreHandler) {
+            _coreHandler = coreHandler;
+        }
+
+        public void OnRemotePortForwardingStarted(uint port) {
+            try {
+                _coreHandler.OnRemotePortForwardingStarted(port);
+            }
+            catch (Exception) {
+            }
+        }
+
+        public void OnRemotePortForwardingFailed() {
+            try {
+                _coreHandler.OnRemotePortForwardingFailed();
+            }
+            catch (Exception) {
+            }
+        }
+
+        public RemotePortForwardingReply OnRemotePortForwardingRequest(RemotePortForwardingRequest request, ISSHChannel channel) {
+            // exception is not handled here.
+            // caller should handle exception appropriately.
+            return _coreHandler.OnRemotePortForwardingRequest(request, channel);
+        }
+    }
 }
