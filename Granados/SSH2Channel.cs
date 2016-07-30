@@ -43,6 +43,7 @@ namespace Granados.SSH2 {
 
         private readonly Action<ISSHChannel> _detachAction;
         private readonly SSH2Connection _connection;
+        private readonly SSHProtocolEventManager _protocolEventManager;
         private readonly int _localMaxPacketSize;
         private readonly int _localWindowSize;
         private int _localWindowSizeLeft;
@@ -65,6 +66,7 @@ namespace Granados.SSH2 {
                 Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
+                SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 uint remoteChannel,
                 ChannelType channelType,
@@ -74,6 +76,7 @@ namespace Granados.SSH2 {
 
             _detachAction = detachAction;
             _connection = connection;
+            _protocolEventManager = protocolEventManager;
             LocalChannel = localChannel;
             RemoteChannel = remoteChannel;
             ChannelType = channelType;
@@ -94,12 +97,14 @@ namespace Granados.SSH2 {
                 Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
+                SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 ChannelType channelType,
                 string channelTypeString) {
 
             _detachAction = detachAction;
             _connection = connection;
+            _protocolEventManager = protocolEventManager;
             LocalChannel = localChannel;
             RemoteChannel = 0;
             ChannelType = channelType;
@@ -226,9 +231,9 @@ namespace Granados.SSH2 {
                 );
             }
 
-            if (_connection.IsEventTracerAvailable) {
-                _connection.TraceTransmissionEvent("window-change", "width={0} height={1}", width, height);
-            }
+            _protocolEventManager.Trace(
+                "CH[{0}] window-change : width={1} height={2} pixelWidth={3} pixelHeight={4}",
+                LocalChannel, width, height, pixelWidth, pixelHeight);
         }
 
         /// <summary>
@@ -268,9 +273,7 @@ namespace Granados.SSH2 {
                 );
             }
 
-            if (_connection.IsEventTracerAvailable) {
-                _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_CHANNEL_EOF, "");
-            }
+            _protocolEventManager.Trace("CH[{0}] send EOF", LocalChannel);
         }
 
         /// <summary>
@@ -315,9 +318,7 @@ namespace Granados.SSH2 {
                     .WriteUInt32(RemoteChannel)
             );
 
-            if (_connection.IsEventTracerAvailable) {
-                _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_CHANNEL_CLOSE, "");
-            }
+            _protocolEventManager.Trace("CH[{0}] SSH_MSG_CHANNEL_CLOSE", LocalChannel);
         }
 
         #endregion
@@ -335,6 +336,9 @@ namespace Granados.SSH2 {
         /// </summary>
         public void SendOpen() {
             _connection.Transmit(BuildOpenPacket());
+            _protocolEventManager.Trace(
+                "CH[{0}] SSH_MSG_CHANNEL_OPEN channelType={1} windowSize={2} maxPacketSize={3}",
+                LocalChannel, ChannelTypeString, _localWindowSize, _localMaxPacketSize);
         }
 
         /// <summary>
@@ -369,6 +373,10 @@ namespace Granados.SSH2 {
 
                 _state = State.Established;
             }
+
+            _protocolEventManager.Trace(
+                "CH[{0}] SSH_MSG_CHANNEL_OPEN_CONFIRMATION windowSize={1} maxPacketSize={2}",
+                LocalChannel, _localWindowSize, _localMaxPacketSize);
 
             _handler.OnEstablished(new DataFragment(0));
             OnChannelEstablished();
@@ -556,12 +564,8 @@ namespace Granados.SSH2 {
                                     // some servers may not send SSH_MSG_CHANNEL_WINDOW_ADJUST.
                                     // it is dangerous to wait this message in send procedure
                                     _serverWindowSizeLeft += bytesToAdd;
-                                    if (_connection.IsEventTracerAvailable) {
-                                        _connection.TraceReceptionEvent(SSH2PacketType.SSH_MSG_CHANNEL_WINDOW_ADJUST,
-                                            "adjusted to {0} by increasing {1}", _serverWindowSizeLeft, bytesToAdd);
-                                    }
                                 }
-                                break;
+                                goto OnWindowAdjust;
                             case SSH2PacketType.SSH_MSG_CHANNEL_SUCCESS:
                             case SSH2PacketType.SSH_MSG_CHANNEL_FAILURE: {
                                     Action<bool> callback;
@@ -585,19 +589,25 @@ namespace Granados.SSH2 {
             return;
 
         OnEstablished:
+            _protocolEventManager.Trace(
+                "CH[{0}] remoteCH={1} remoteWindowSize={2} remoteMaxPacketSize={3}",
+                LocalChannel, RemoteChannel, _serverWindowSizeLeft, _serverMaxPacketSize);
             _handler.OnEstablished(dataFragmentArg);
             OnChannelEstablished();
             return;
 
         RequestFailed:
+            _protocolEventManager.Trace("CH[{0}] request failed", LocalChannel);
             RequestFailed();
             return;
 
         SetStateClosedByClient:
+            _protocolEventManager.Trace("CH[{0}] closed completely", LocalChannel);
             SetStateClosed(false);
             return;
 
         SetStateClosedByServer:
+            _protocolEventManager.Trace("CH[{0}] closed by server", LocalChannel);
             SetStateClosed(true);
             return;
 
@@ -610,7 +620,14 @@ namespace Granados.SSH2 {
             return;
 
         OnEOF:
+            _protocolEventManager.Trace("CH[{0}] caught EOF", LocalChannel);
             _handler.OnEOF();
+            return;
+
+        OnWindowAdjust:
+            _protocolEventManager.Trace(
+                "CH[{0}] : adjusted remote window size to {1}",
+                LocalChannel, _serverWindowSizeLeft);
             return;
 
         OnUnhandledPacket:
@@ -637,6 +654,15 @@ namespace Granados.SSH2 {
         }
 
         /// <summary>
+        /// Outputs Trace message.
+        /// </summary>
+        /// <param name="format">format string</param>
+        /// <param name="args">format arguments</param>
+        protected void Trace(string format, params object[] args) {
+            _protocolEventManager.Trace(format, args);
+        }
+
+        /// <summary>
         /// Adjust window size.
         /// </summary>
         /// <param name="dataLength">consumed length.</param>
@@ -650,10 +676,11 @@ namespace Granados.SSH2 {
                         .WriteUInt32(RemoteChannel)
                         .WriteInt32(_localWindowSize - _localWindowSizeLeft)
                 );
-                if (_connection.IsEventTracerAvailable) {
-                    _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_CHANNEL_WINDOW_ADJUST,
-                        "adjusted window size : {0} --> {1}", _localWindowSizeLeft, _localWindowSize);
-                }
+
+                _protocolEventManager.Trace(
+                    "CH[{0}] adjusted local window size : {1} --> {2}",
+                    LocalChannel, _localWindowSizeLeft, _localWindowSize);
+
                 _localWindowSizeLeft = _localWindowSize;
             }
         }
@@ -677,8 +704,9 @@ namespace Granados.SSH2 {
                 Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
+                SSHProtocolEventManager protocolEventManager,
                 uint localChannel)
-            : base(detachAction, connection, param, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(detachAction, connection, param, protocolEventManager, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
         }
 
         /// <summary>
@@ -706,6 +734,8 @@ namespace Granados.SSH2 {
                     resultBox.TrySet(success, 1000);
                 }
             );
+
+            Trace("CH[{0}] break : breakLength={1}", LocalChannel, breakLength);
 
             bool resultValue = false;
             if (!resultBox.TryGet(ref resultValue, RESPONCE_TIMEOUT)) {
@@ -746,8 +776,9 @@ namespace Granados.SSH2 {
                 Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
+                SSHProtocolEventManager protocolEventManager,
                 uint localChannel)
-            : base(detachAction, connection, param, localChannel) {
+            : base(detachAction, connection, param, protocolEventManager, localChannel) {
             _param = param;
         }
 
@@ -809,6 +840,11 @@ namespace Granados.SSH2 {
                     return;
                 }
             );
+
+            Trace("CH[{0}] pty-req : term={1} width={2} height={3} pixelWidth={4} pixelHeight={5}",
+                LocalChannel, _param.TerminalName,
+                _param.TerminalWidth, _param.TerminalHeight,
+                _param.TerminalPixelWidth, _param.TerminalPixelHeight);
         }
 
         /// <summary>
@@ -850,6 +886,8 @@ namespace Granados.SSH2 {
                     return;
                 }
             );
+
+            Trace("CH[{0}] shell", LocalChannel);
         }
 
         #endregion
@@ -882,9 +920,10 @@ namespace Granados.SSH2 {
                 Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
+                SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 string command)
-            : base(detachAction, connection, param, localChannel) {
+            : base(detachAction, connection, param, protocolEventManager, localChannel) {
 
             _command = command;
         }
@@ -943,6 +982,8 @@ namespace Granados.SSH2 {
                     return;
                 }
             );
+
+            Trace("CH[{0}] exec : command={1}", LocalChannel, _command);
         }
 
         #endregion
@@ -975,9 +1016,10 @@ namespace Granados.SSH2 {
                 Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
+                SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 string subsystemName)
-            : base(detachAction, connection, param, localChannel) {
+            : base(detachAction, connection, param, protocolEventManager, localChannel) {
 
             _subsystemName = subsystemName;
         }
@@ -1036,6 +1078,8 @@ namespace Granados.SSH2 {
                     return;
                 }
             );
+
+            Trace("CH[{0}] subsystem : subsystem={1}", LocalChannel, _subsystemName);
         }
 
         #endregion
@@ -1064,12 +1108,13 @@ namespace Granados.SSH2 {
                 Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
+                SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 string remoteHost,
                 uint remotePort,
                 string originatorIp,
                 uint originatorPort)
-            : base(detachAction, connection, param, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(detachAction, connection, param, protocolEventManager, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
 
             _localWindowSize = param.WindowSize;
             _localMaxPacketSize = param.WindowSize;
@@ -1113,11 +1158,12 @@ namespace Granados.SSH2 {
                 Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
+                SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 uint remoteChannel,
                 uint serverWindowSize,
                 uint serverMaxPacketSize)
-            : base(detachAction, connection, param, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING, serverWindowSize, serverMaxPacketSize) {
+            : base(detachAction, connection, param, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING, serverWindowSize, serverMaxPacketSize) {
         }
 
         #endregion

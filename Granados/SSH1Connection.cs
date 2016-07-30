@@ -27,6 +27,7 @@ using Granados.SSH;
 using Granados.PortForwarding;
 using System.Collections.Concurrent;
 using System.Globalization;
+using System.Text;
 
 namespace Granados.SSH1 {
 
@@ -37,6 +38,9 @@ namespace Granados.SSH1 {
 
         private const int AUTH_NOT_REQUIRED = 0;
         private const int AUTH_REQUIRED = 1;
+
+        private readonly SSHConnectionParameter _param;
+        private readonly SSHProtocolEventManager _protocolEventManager;
 
         private readonly SSHChannelCollection _channelCollection;
         private SSH1InteractiveSession _interactiveSession;
@@ -52,8 +56,10 @@ namespace Granados.SSH1 {
 
         private int _remotePortForwardCount = 0;
 
-        public SSH1Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventReceiver er, string serverVersion, string clientVersion)
+        public SSH1Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventReceiver er, ISSHProtocolEventListener protocolEventListener, string serverVersion, string clientVersion)
             : base(param, socket, er) {
+            _param = param.Clone();
+            _protocolEventManager = new SSHProtocolEventManager(protocolEventListener);
             _channelCollection = new SSHChannelCollection();
             _interactiveSession = null;
 
@@ -71,7 +77,7 @@ namespace Granados.SSH1 {
                                 EventReceiver.OnError(error);
                             }
                         );
-            _syncHandler = new SSH1SynchronousPacketHandler(socket, adapter);
+            _syncHandler = new SSH1SynchronousPacketHandler(socket, adapter, _protocolEventManager);
             _packetizer = new SSH1Packetizer(_syncHandler);
 
             _packetInterceptors = new SSHPacketInterceptorCollection();
@@ -79,6 +85,12 @@ namespace Granados.SSH1 {
             _packetInterceptors.Add(_keyExchanger);
 
             _remotePortForwarding = new Lazy<SSH1RemotePortForwarding>(CreateRemotePortForwarding);
+        }
+
+        public SSHConnectionParameter Param {
+            get {
+                return _param;
+            }
         }
 
         internal override IDataHandler Packetizer {
@@ -108,6 +120,14 @@ namespace Granados.SSH1 {
                 }
                 throw;
             }
+        }
+
+        protected override void SendMyVersion() {
+            string cv = SSHUtil.ClientVersionString(SSHProtocol.SSH1);
+            string cv2 = cv + _param.VersionEOL;
+            byte[] data = Encoding.ASCII.GetBytes(cv2);
+            _stream.Write(data, 0, data.Length);
+            _protocolEventManager.Trace("client version-string : {0}", cv);
         }
 
         private void OnConnectionClosed() {
@@ -140,23 +160,9 @@ namespace Granados.SSH1 {
             throw new NotSupportedException("OpenSubsystem is not supported on the SSH1 connection.");
         }
 
-        private void SendExecCommand() {
-            Debug.WriteLine("EXEC COMMAND");
-            string cmd = _execCmd;
-            Transmit(
-                new SSH1Packet(SSH1PacketType.SSH_CMSG_EXEC_CMD)
-                    .WriteString(cmd)
-            );
-            TraceTransmissionEvent(SSH1PacketType.SSH_CMSG_EXEC_CMD, "exec command: cmd={0}", cmd);
-        }
-
         /// <summary>
         /// Create a new channel (initialted by the client)
         /// </summary>
-        /// <typeparam name="TChannel">type of the channel object</typeparam>
-        /// <typeparam name="THandler">type of the event handler</typeparam>
-        /// <param name="handlerCreator">function to create an event handler</param>
-        /// <param name="channelCreator">function to create a channel object</param>
         /// <returns></returns>
         private THandler CreateChannelByClient<TChannel, THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, Func<uint, TChannel> channelCreator, Action<TChannel> initiate)
             where TChannel : SSH1ChannelBase
@@ -202,7 +208,9 @@ namespace Granados.SSH1 {
 
             return CreateChannelByClient(
                         handlerCreator,
-                        localChannel => new SSH1InteractiveSession(DetachChannel, this, localChannel, ChannelType.Shell, "Shell"),
+                        localChannel =>
+                            new SSH1InteractiveSession(
+                                DetachChannel, this, _protocolEventManager, localChannel, ChannelType.Shell, "Shell"),
                         channel => {
                             _interactiveSession = channel;
                             channel.ExecShell(_param);
@@ -217,32 +225,14 @@ namespace Granados.SSH1 {
 
             return CreateChannelByClient(
                         handlerCreator,
-                        localChannel => new SSH1InteractiveSession(DetachChannel, this, localChannel, ChannelType.ExecCommand, "ExecCommand"),
+                        localChannel =>
+                            new SSH1InteractiveSession(
+                                DetachChannel, this, _protocolEventManager, localChannel, ChannelType.ExecCommand, "ExecCommand"),
                         channel => {
                             _interactiveSession = channel;
                             channel.ExecCommand(_param, command);
                         }
                     );
-        }
-
-        private void SendRequestPTY() {
-            Transmit(
-                new SSH1Packet(SSH1PacketType.SSH_CMSG_REQUEST_PTY)
-                    .WriteString(_param.TerminalName)
-                    .WriteInt32(_param.TerminalHeight)
-                    .WriteInt32(_param.TerminalWidth)
-                    .WriteInt32(_param.TerminalPixelWidth)
-                    .WriteInt32(_param.TerminalPixelHeight)
-                    .Write(new byte[1]) //TTY_OP_END
-            );
-            TraceTransmissionEvent(SSH1PacketType.SSH_CMSG_REQUEST_PTY, "open shell: terminal={0} width={1} height={2}", _param.TerminalName, _param.TerminalWidth, _param.TerminalHeight);
-        }
-
-        private void ExecShell() {
-            //System.out.println("EXEC SHELL");
-            Transmit(
-                new SSH1Packet(SSH1PacketType.SSH_CMSG_EXEC_SHELL)
-            );
         }
 
         public override THandler ForwardPort<THandler>(
@@ -253,7 +243,7 @@ namespace Granados.SSH1 {
             return CreateChannelByClient(
                         handlerCreator,
                         localChannel => new SSH1LocalPortForwardingChannel(
-                                            DetachChannel, this, localChannel,
+                                            DetachChannel, this, _protocolEventManager, localChannel,
                                             remoteHost, remotePort, originatorIp, originatorPort),
                         channel => {
                             channel.SendOpen();
@@ -269,6 +259,7 @@ namespace Granados.SSH1 {
                     return new SSH1RemotePortForwardingChannel(
                                     DetachChannel,
                                     this,
+                                    _protocolEventManager,
                                     localChannel,
                                     remoteChannel
                                 );
@@ -451,19 +442,6 @@ namespace Granados.SSH1 {
         private SSH1PacketType SneakPacketType(DataFragment data) {
             return (SSH1PacketType)data[0];
         }
-
-        //alternative version
-        internal void TraceTransmissionEvent(SSH1PacketType pt, string message, params object[] args) {
-            ISSHEventTracer t = _param.EventTracer;
-            if (t != null)
-                t.OnTranmission(pt.ToString(), String.Format(message, args));
-        }
-        internal void TraceReceptionEvent(SSH1PacketType pt, string message, params object[] args) {
-            ISSHEventTracer t = _param.EventTracer;
-            if (t != null)
-                t.OnReception(pt.ToString(), String.Format(message, args));
-        }
-
     }
 
     /// <summary>
@@ -573,13 +551,18 @@ namespace Granados.SSH1 {
         private readonly object _cipherSync = new object();
         private Cipher _cipher = null;
 
+        private readonly SSHProtocolEventManager _protocolEventManager;
+
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="socket">socket object for sending packets.</param>
         /// <param name="handler">the next handler received packets are redirected to.</param>
-        public SSH1SynchronousPacketHandler(IGranadosSocket socket, IDataHandler handler)
+        /// <param name="protocolEventManager">protocol event manager</param>
+        public SSH1SynchronousPacketHandler(IGranadosSocket socket, IDataHandler handler, SSHProtocolEventManager protocolEventManager)
             : base(socket, handler) {
+
+            _protocolEventManager = protocolEventManager;
         }
 
         /// <summary>
@@ -590,6 +573,48 @@ namespace Granados.SSH1 {
             lock (_cipherSync) {
                 _cipher = cipher;
             }
+        }
+
+        /// <summary>
+        /// Do additional work for a packet to be sent.
+        /// </summary>
+        /// <param name="packet">a packet object</param>
+        protected override void BeforeSend(SSH1Packet packet) {
+            SSH1PacketType packetType = packet.GetPacketType();
+            switch (packetType) {
+                case SSH1PacketType.SSH_CMSG_STDIN_DATA:
+                case SSH1PacketType.SSH_SMSG_STDOUT_DATA:
+                case SSH1PacketType.SSH_SMSG_STDERR_DATA:
+                case SSH1PacketType.SSH_MSG_CHANNEL_DATA:
+                case SSH1PacketType.SSH_MSG_IGNORE:
+                case SSH1PacketType.SSH_MSG_DEBUG:
+                    return;
+            }
+
+            _protocolEventManager.NotifySend(packetType, String.Empty);
+        }
+
+        /// <summary>
+        /// Do additional work for a received packet.
+        /// </summary>
+        /// <param name="packet">a packet image</param>
+        protected override void AfterReceived(DataFragment packet) {
+            if (packet.Length == 0) {
+                return;
+            }
+
+            SSH1PacketType packetType = (SSH1PacketType)packet.Data[packet.Offset];
+            switch (packetType) {
+                case SSH1PacketType.SSH_CMSG_STDIN_DATA:
+                case SSH1PacketType.SSH_SMSG_STDOUT_DATA:
+                case SSH1PacketType.SSH_SMSG_STDERR_DATA:
+                case SSH1PacketType.SSH_MSG_CHANNEL_DATA:
+                case SSH1PacketType.SSH_MSG_IGNORE:
+                case SSH1PacketType.SSH_MSG_DEBUG:
+                    return;
+            }
+
+            _protocolEventManager.NotifyReceive(packetType, String.Empty);
         }
 
         /// <summary>

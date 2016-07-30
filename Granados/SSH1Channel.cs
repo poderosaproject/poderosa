@@ -9,11 +9,6 @@ using Granados.IO.SSH1;
 using Granados.SSH;
 using Granados.Util;
 using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Granados.SSH1 {
@@ -26,6 +21,7 @@ namespace Granados.SSH1 {
 
         private readonly Action<ISSHChannel> _detachAction;
         private readonly SSH1Connection _connection;
+        private readonly SSHProtocolEventManager _protocolEventManager;
 
         private ISSHChannelEventHandler _handler = new SimpleSSHChannelEventHandler();
 
@@ -35,6 +31,7 @@ namespace Granados.SSH1 {
         public SSH1ChannelBase(
                 Action<ISSHChannel> detachAction,
                 SSH1Connection connection,
+                SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 uint remoteChannel,
                 ChannelType channelType,
@@ -42,6 +39,7 @@ namespace Granados.SSH1 {
 
             _detachAction = detachAction;
             _connection = connection;
+            _protocolEventManager = protocolEventManager;
             LocalChannel = localChannel;
             RemoteChannel = remoteChannel;
             ChannelType = channelType;
@@ -194,12 +192,12 @@ namespace Granados.SSH1 {
         }
 
         /// <summary>
-        /// Outputs trace message
+        /// Outputs Trace message.
         /// </summary>
-        protected void Trace(SSH1PacketType packetType, string message, params object[] args) {
-            if (_connection.IsEventTracerAvailable) {
-                _connection.TraceTransmissionEvent(packetType, message, args);
-            }
+        /// <param name="format">format string</param>
+        /// <param name="args">format arguments</param>
+        protected void Trace(string format, params object[] args) {
+            _protocolEventManager.Trace(format, args);
         }
 
         #endregion
@@ -246,10 +244,11 @@ namespace Granados.SSH1 {
         public SSH1InteractiveSession(
                 Action<ISSHChannel> detachAction,
                 SSH1Connection connection,
+                SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 ChannelType channelType,
                 string channelTypeString)
-            : base(detachAction, connection, localChannel, 0, channelType, channelTypeString) {
+            : base(detachAction, connection, protocolEventManager, localChannel, 0, channelType, channelTypeString) {
 
             _state = State.Initial;
         }
@@ -301,7 +300,8 @@ namespace Granados.SSH1 {
                 );
             }
 
-            Trace(SSH1PacketType.SSH_CMSG_WINDOW_SIZE, "width={0} height={1}", width, height);
+            Trace("CH[{0}] resize window : width={1} height={2} pixelWidth={3} pixelHeight={4}",
+                LocalChannel, width, height, pixelWidth, pixelHeight);
         }
 
         /// <summary>
@@ -338,6 +338,8 @@ namespace Granados.SSH1 {
 
                 _eof = true;
             }
+
+            Trace("CH[{0}] send EOF", LocalChannel);
         }
 
         /// <summary>
@@ -354,6 +356,8 @@ namespace Granados.SSH1 {
             if (_state != State.Established && _state != State.Ready) {
                 return;
             }
+
+            Trace("CH[{0}] close by client", LocalChannel);
 
             lock (_stateSync) {
                 if (_state != State.Established && _state != State.Ready) {
@@ -384,10 +388,10 @@ namespace Granados.SSH1 {
                 Transmit(
                     new SSH1Packet(SSH1PacketType.SSH_CMSG_EXEC_SHELL)
                 );
-                Trace(SSH1PacketType.SSH_CMSG_EXEC_SHELL, "");
-
                 _state = State.Established;
             }
+
+            Trace("CH[{0}] execute shell", LocalChannel);
 
             DataFragment empty = new DataFragment(0);
             Handler.OnEstablished(empty);
@@ -425,10 +429,10 @@ namespace Granados.SSH1 {
                     new SSH1Packet(SSH1PacketType.SSH_CMSG_EXEC_CMD)
                         .WriteString(command)
                 );
-                Trace(SSH1PacketType.SSH_CMSG_EXEC_CMD, "exec command: command={0}", command);
-
                 _state = State.Established;
             }
+
+            Trace("CH[{0}] execute command : command={1}", LocalChannel, command);
 
             DataFragment empty = new DataFragment(0);
             Handler.OnEstablished(empty);
@@ -463,9 +467,11 @@ namespace Granados.SSH1 {
                     .WriteInt32(param.TerminalPixelHeight)
                     .Write(new byte[1]) //TTY_OP_END
             );
-            Trace(SSH1PacketType.SSH_CMSG_REQUEST_PTY,
-                "open shell: terminal={0} width={1} height={2}",
-                param.TerminalName, param.TerminalWidth, param.TerminalHeight);
+
+            Trace("CH[{0}] request PTY : term={1} width={2} height={3} pixelWidth={4} pixelHeight={5}",
+                LocalChannel, param.TerminalName,
+                param.TerminalWidth, param.TerminalHeight,
+                param.TerminalPixelWidth, param.TerminalPixelHeight);
 
             DataFragment packet = null;
             if (!_receivedPacket.TryGet(ref packet, RESPONSE_TIMEOUT)) {
@@ -581,6 +587,7 @@ namespace Granados.SSH1 {
             return;
 
         SetStateClosedByServer:
+            Trace("CH[{0}] closed by server", LocalChannel);
             SetStateClosed(true);
             return;
 
@@ -629,11 +636,12 @@ namespace Granados.SSH1 {
         public SSH1SubChannelBase(
                 Action<ISSHChannel> detachAction,
                 SSH1Connection connection,
+                SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 uint remoteChannel,
                 ChannelType channelType,
                 string channelTypeString)
-            : base(detachAction, connection, localChannel, remoteChannel, channelType, channelTypeString) {
+            : base(detachAction, connection, protocolEventManager, localChannel, remoteChannel, channelType, channelTypeString) {
 
             _state = State.InitiatedByServer; // SendOpenConfirmation() will change state to "Opened"
         }
@@ -644,10 +652,11 @@ namespace Granados.SSH1 {
         public SSH1SubChannelBase(
                 Action<ISSHChannel> detachAction,
                 SSH1Connection connection,
+                SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 ChannelType channelType,
                 string channelTypeString)
-            : base(detachAction, connection, localChannel, 0, channelType, channelTypeString) {
+            : base(detachAction, connection, protocolEventManager, localChannel, 0, channelType, channelTypeString) {
 
             _state = State.InitiatedByClient; // receiving SSH_MSG_CHANNEL_OPEN_CONFIRMATION will change state to "Opened"
         }
@@ -665,13 +674,16 @@ namespace Granados.SSH1 {
         /// Sends SSH_MSG_CHANNEL_OPEN
         /// </summary>
         public void SendOpen() {
-            Transmit(BuildOpenPacket());
+            var packet = BuildOpenPacket();
+            Transmit(packet.Item1);
+            Trace(packet.Item2, packet.Item3);
         }
 
         /// <summary>
         /// Builds SSH_MSG_CHANNEL_OPEN packet
         /// </summary>
-        protected abstract SSH1Packet BuildOpenPacket();
+        /// <returns>Tuple{ packet, traceTextFormat, traceTextArgs }</returns>
+        protected abstract Tuple<SSH1Packet, string, object[]> BuildOpenPacket();
 
         /// <summary>
         /// Sends SSH_MSG_CHANNEL_OPEN_CONFIRMATION
@@ -691,6 +703,8 @@ namespace Granados.SSH1 {
 
                 _state = State.Established;
             }
+
+            Trace("CH[{0}] opened", LocalChannel);
 
             Handler.OnEstablished(new DataFragment(0));
             OnChannelEstablished();
@@ -788,7 +802,7 @@ namespace Granados.SSH1 {
                 new SSH1Packet(SSH1PacketType.SSH_MSG_CHANNEL_CLOSE)
                     .WriteUInt32(RemoteChannel)
             );
-            Trace(SSH1PacketType.SSH_MSG_CHANNEL_CLOSE, "");
+            Trace("CH[{0}] close", LocalChannel);
         }
 
         #endregion
@@ -946,19 +960,23 @@ namespace Granados.SSH1 {
             return;
 
         OnEstablished:
+            Trace("CH[{0}] channel opend : remoteChannel={1}", LocalChannel, RemoteChannel);
             Handler.OnEstablished(dataFragmentArg);
             OnChannelEstablished();
             return;
 
         RequestFailed:
+            Trace("CH[{0}] request failed", LocalChannel);
             RequestFailed();
             return;
 
         SetStateClosedByClient:
+            Trace("CH[{0}] closed by client", LocalChannel);
             SetStateClosed(false);
             return;
 
         SetStateClosedByServer:
+            Trace("CH[{0}] closed by server", LocalChannel);
             SetStateClosed(true);
             return;
 
@@ -993,12 +1011,13 @@ namespace Granados.SSH1 {
         public SSH1LocalPortForwardingChannel(
                 Action<ISSHChannel> detachAction,
                 SSH1Connection connection,
+                SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 string remoteHost,
                 uint remotePort,
                 string originatorIp,
                 uint originatorPort)
-            : base(detachAction, connection, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(detachAction, connection, protocolEventManager, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
 
             _remoteHost = remoteHost;
             _remotePort = remotePort;
@@ -1009,8 +1028,9 @@ namespace Granados.SSH1 {
         /// <summary>
         /// Builds SSH_MSG_PORT_OPEN packet
         /// </summary>
-        protected override SSH1Packet BuildOpenPacket() {
-            return new SSH1Packet(SSH1PacketType.SSH_MSG_PORT_OPEN)
+        protected override Tuple<SSH1Packet, string, object[]> BuildOpenPacket() {
+            var packet =
+                new SSH1Packet(SSH1PacketType.SSH_MSG_PORT_OPEN)
                     .WriteUInt32(LocalChannel)
                     .WriteString(_remoteHost)
                     .WriteUInt32(_remotePort);
@@ -1020,6 +1040,13 @@ namespace Granados.SSH1 {
             //  currently 0 is used as the protocol flags.
             //  
             //  .WriteString(_originatorIp + ":" + _originatorPort.ToString(NumberFormatInfo.InvariantInfo))
+
+            return Tuple.Create(
+                packet,
+                "CH[0] port open : remoteHost={1} remotePort={2}",
+                new object[] { LocalChannel, _remoteHost, _remotePort }
+            );
+
         }
     }
 
@@ -1038,15 +1065,16 @@ namespace Granados.SSH1 {
         public SSH1RemotePortForwardingChannel(
                 Action<ISSHChannel> detachAction,
                 SSH1Connection connection,
+                SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 uint remoteChannel)
-            : base(detachAction, connection, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(detachAction, connection, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
         }
 
         /// <summary>
         /// Builds an open-channel packet.
         /// </summary>
-        protected override SSH1Packet BuildOpenPacket() {
+        protected override Tuple<SSH1Packet, string, object[]> BuildOpenPacket() {
             // this method should not be called.
             throw new InvalidOperationException();
         }

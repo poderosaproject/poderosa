@@ -8,18 +8,11 @@
 */
 
 using System;
-using System.Collections;
-using System.IO;
 using System.Net.Sockets;
-using System.Text;
-using Granados.Crypto;
-using Granados.PKI;
 using Granados.SSH1;
 using Granados.SSH2;
 using Granados.IO;
 using Granados.Util;
-using System.Diagnostics;
-using System.Threading;
 using Granados.SSH;
 using Granados.PortForwarding;
 
@@ -30,7 +23,6 @@ namespace Granados {
     /// <exclude/>
     public abstract class SSHConnection {
 
-        protected SSHConnectionParameter _param;              //parameters supplied by the user
         protected ChannelCollection _channel_collection;      //channels
         protected IGranadosSocket _stream;                    //underlying socket
         protected ISSHConnectionEventReceiver _eventReceiver; //outgoing interface for this connection
@@ -43,7 +35,6 @@ namespace Granados {
         protected bool _execCmdWaitFlag;  // wait response flag for sending exec command to server
 
         protected SSHConnection(SSHConnectionParameter param, IGranadosSocket strm, ISSHConnectionEventReceiver receiver) {
-            _param = (SSHConnectionParameter)param.Clone();
             _stream = strm;
             _eventReceiver = receiver;
             _channel_collection = new ChannelCollection();
@@ -61,11 +52,6 @@ namespace Granados {
         }
 
         ///  paramters
-        public SSHConnectionParameter Param {
-            get {
-                return _param;
-            }
-        }
         public ISSHConnectionEventReceiver EventReceiver {
             get {
                 return _eventReceiver;
@@ -82,11 +68,6 @@ namespace Granados {
         public bool IsOpen {
             get {
                 return _stream.SocketStatus == SocketStatus.Ready && _authenticationResult == AuthenticationResult.Success;
-            }
-        }
-        public bool IsEventTracerAvailable {
-            get {
-                return _param.EventTracer != null;
             }
         }
         internal IGranadosSocket UnderlyingStream {
@@ -196,7 +177,13 @@ namespace Granados {
         /**
          * open a new SSH connection via the .NET socket
          */
-        public static SSHConnection Connect(SSHConnectionParameter param, ISSHConnectionEventReceiver receiver, Socket underlying_socket, out AuthenticationResult authResult) {
+        public static SSHConnection Connect(
+                    SSHConnectionParameter param,
+                    ISSHConnectionEventReceiver receiver,
+                    ISSHProtocolEventListener protocolEventListener,
+                    Socket underlying_socket,
+                    out AuthenticationResult authResult) {
+
             if (param.UserName == null)
                 throw new InvalidOperationException("UserName property is not set");
             if (param.AuthenticationType != AuthenticationType.KeyboardInteractive && param.Password == null)
@@ -210,13 +197,17 @@ namespace Granados {
 
                 SSHConnection con;
                 if (param.Protocol == SSHProtocol.SSH1)
-                    con = new SSH1Connection(param, s, receiver, protoVerReceiver.ServerVersion, SSHUtil.ClientVersionString(param.Protocol));
+                    con = new SSH1Connection(
+                            param, s, receiver, protocolEventListener,
+                            protoVerReceiver.ServerVersion, SSHUtil.ClientVersionString(param.Protocol));
                 else
-                    con = new SSH2Connection(param, s, receiver, protoVerReceiver.ServerVersion, SSHUtil.ClientVersionString(param.Protocol));
+                    con = new SSH2Connection(
+                            param, s, receiver, protocolEventListener,
+                            protoVerReceiver.ServerVersion, SSHUtil.ClientVersionString(param.Protocol));
 
                 s.SetHandler(con.Packetizer);
                 s.RepeatAsyncRead();
-                con.SendMyVersion(param);
+                con.SendMyVersion();
 
                 authResult = con.Connect();
                 if (authResult == AuthenticationResult.Failure) {
@@ -232,24 +223,7 @@ namespace Granados {
             }
         }
 
-        private void SendMyVersion(SSHConnectionParameter param) {
-            string cv = SSHUtil.ClientVersionString(param.Protocol);
-            string cv2 = cv + param.VersionEOL;
-            byte[] data = Encoding.ASCII.GetBytes(cv2);
-            _stream.Write(data, 0, data.Length);
-            TraceTransmissionEvent("client version-string", cv);
-        }
-
-        internal void TraceTransmissionEvent(string name, string message, params object[] args) {
-            ISSHEventTracer t = _param.EventTracer;
-            if (t != null)
-                t.OnTranmission(name, String.Format(message, args));
-        }
-        internal void TraceReceptionEvent(string name, string message, params object[] args) {
-            ISSHEventTracer t = _param.EventTracer;
-            if (t != null)
-                t.OnReception(name, String.Format(message, args));
-        }
+        protected abstract void SendMyVersion();
     }
 
     /// <summary>

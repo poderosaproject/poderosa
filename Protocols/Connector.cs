@@ -18,6 +18,7 @@ using Granados;
 using Poderosa.Plugins;
 using Poderosa.Util;
 using Poderosa.Forms;
+using Granados.SSH;
 
 namespace Poderosa.Protocols {
 
@@ -62,8 +63,6 @@ namespace Poderosa.Protocols {
             con.PreferableCipherAlgorithms = LocalSSHUtil.ParseCipherAlgorithm(PEnv.Options.CipherAlgorithmOrder);
             con.PreferableHostKeyAlgorithms = LocalSSHUtil.ParsePublicKeyAlgorithm(PEnv.Options.HostKeyAlgorithmOrder);
             con.AgentForward = _destination.AgentForward;
-            if (ProtocolsPlugin.Instance.ProtocolOptions.LogSSHEvents)
-                con.EventTracer = new SSHEventTracer(tcp.Destination);
             if (_keycheck != null) {
                 con.VerifySSHHostKey = (info) => {
                     return _keycheck.Vefiry(info);
@@ -71,8 +70,16 @@ namespace Poderosa.Protocols {
             }
             con.KeyboardInteractiveAuthenticationHandler = terminalConnection.GetKeyboardInteractiveAuthenticationHandler();
 
+            ISSHProtocolEventListener protocolEventListener;
+            if (ProtocolsPlugin.Instance.ProtocolOptions.LogSSHEvents) {
+                protocolEventListener = new SSHEventTracer(tcp.Destination);
+            }
+            else {
+                protocolEventListener = null;
+            }
+
             AuthenticationResult authResult;
-            SSHConnection ssh = SSHConnection.Connect(con, terminalConnection.ConnectionEventReceiver, _socket, out authResult);
+            SSHConnection ssh = SSHConnection.Connect(con, terminalConnection.ConnectionEventReceiver, protocolEventListener, _socket, out authResult);
             if (ssh != null) {
                 if (PEnv.Options.RetainsPassphrase && _destination.AuthenticationType != AuthenticationType.KeyboardInteractive) {
                     ProtocolsPlugin.Instance.PassphraseCache.Add(tcp.Destination, _destination.Account, _destination.PasswordOrPassphrase); //接続成功時のみセット
@@ -169,7 +176,7 @@ namespace Poderosa.Protocols {
         }
     }
 
-    internal class SSHEventTracer : ISSHEventTracer {
+    internal class SSHEventTracer : ISSHProtocolEventListener {
         private IPoderosaLog _log;
         private PoderosaLogCategoryImpl _category;
 
@@ -178,12 +185,16 @@ namespace Poderosa.Protocols {
             _category = new PoderosaLogCategoryImpl(String.Format("SSH:{0}", destination));
         }
 
-        public void OnReception(string type, string detail) {
-            _log.AddItem(_category, String.Format("Received: {0}", detail));
+        public void OnSend(string messageType, string details) {
+            _log.AddItem(_category, String.Format("Send    : {0} {1}", messageType, details));
         }
 
-        public void OnTranmission(string type, string detail) {
-            _log.AddItem(_category, String.Format("Transmitted: {0}", detail));
+        public void OnReceived(string messageType, string details) {
+            _log.AddItem(_category, String.Format("Receive : {0} {1}", messageType, details));
+        }
+
+        public void OnTrace(string details) {
+            _log.AddItem(_category, String.Format("Trace   : {0}", details));
         }
     }
 }

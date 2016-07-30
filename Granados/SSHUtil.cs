@@ -6,17 +6,11 @@
 
  $Id: SSHUtil.cs,v 1.5 2011/10/27 23:21:56 kzmi Exp $
 */
+using Granados.SSH;
 using System;
-using System.IO;
-using System.Threading;
-using System.Diagnostics;
-using System.Text;
-//using SHA1CryptoServiceProvider = System.Security.Cryptography.SHA1CryptoServiceProvider;
-using HMACSHA1 = System.Security.Cryptography.HMACSHA1;
-
-using Granados.PKI;
-using Granados.Crypto;
 using System.Reflection;
+using System.Text;
+using System.Threading;
 
 namespace Granados {
 
@@ -410,4 +404,85 @@ namespace Granados.Util {
             }
         }
     }
+
+    /// <summary>
+    /// An internal class to pass the protocol events to <see cref="ISSHProtocolEventListener"/>.
+    /// </summary>
+    internal class SSHProtocolEventManager {
+
+        private readonly ISSHProtocolEventListener _coreListener;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="coreListener">listener object or null</param>
+        public SSHProtocolEventManager(ISSHProtocolEventListener coreListener) {
+            _coreListener = coreListener;
+        }
+
+        /// <summary>
+        /// Notifies OnSend event.
+        /// </summary>
+        /// <typeparam name="MessageTypeEnum">SSH message type enum</typeparam>
+        /// <param name="messageType">message type</param>
+        /// <param name="format">format string for the "details" text</param>
+        /// <param name="args">format arguments for the "details" text</param>
+        public void NotifySend<MessageTypeEnum>(MessageTypeEnum messageType, string format, params object[] args) {
+            if (_coreListener == null) {
+                return;
+            }
+
+            try {
+                string details = (args.Length == 0) ? format : String.Format(format, args);
+                _coreListener.OnSend(messageType.ToString(), details);
+            }
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
+
+        /// <summary>
+        /// Notifies OnReceived event.
+        /// </summary>
+        /// <typeparam name="MessageTypeEnum">SSH message type enum</typeparam>
+        /// <param name="messageType">message type</param>
+        /// <param name="format">format string for the "details" text</param>
+        /// <param name="args">format arguments for the "details" text</param>
+        public void NotifyReceive<MessageTypeEnum>(MessageTypeEnum messageType, string format, params object[] args) {
+            if (_coreListener == null) {
+                return;
+            }
+
+            try {
+                string details = (args.Length == 0) ? format : String.Format(format, args);
+                _coreListener.OnReceived(messageType.ToString(), details);
+            }
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
+
+        /// <summary>
+        /// Notifies OnTrace event.
+        /// </summary>
+        /// <param name="format">format string for the "details" text</param>
+        /// <param name="args">format arguments for the "details" text</param>
+        public void Trace(string format, params object[] args) {
+            if (_coreListener == null) {
+                return;
+            }
+
+            try {
+                string details = (args.Length == 0) ? format : String.Format(format, args);
+                _coreListener.OnTrace(details);
+            }
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
+    }
+
 }

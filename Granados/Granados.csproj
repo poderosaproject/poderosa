@@ -222,6 +222,7 @@
     <Compile Include="StringResource.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="SSHConnection.cs" />
     <Compile Include="Tutorial.cs">
       <SubType>Code</SubType>
     </Compile>

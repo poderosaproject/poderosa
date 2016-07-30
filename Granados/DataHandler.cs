@@ -67,6 +67,18 @@ namespace Granados.IO {
         protected abstract DataFragment GetPacketImage(PacketType packet);
 
         /// <summary>
+        /// Do additional work for a packet to be sent.
+        /// </summary>
+        /// <param name="packet">a packet object</param>
+        protected abstract void BeforeSend(PacketType packet);
+
+        /// <summary>
+        /// Do additional work for a received packet.
+        /// </summary>
+        /// <param name="packet">a packet image</param>
+        protected abstract void AfterReceived(DataFragment packet);
+
+        /// <summary>
         /// Gets the packet type name of the packet to be sent. (for debugging)
         /// </summary>
         /// <param name="packet">a packet object</param>
@@ -95,6 +107,7 @@ namespace Granados.IO {
         /// </summary>
         /// <param name="packet">a packet object.</param>
         public void Send(PacketType packet) {
+            BeforeSend(packet);
             lock (_syncSend) {
 #if DEBUG_SYNCHRONOUSPACKETHANDLER
                 System.Diagnostics.Debug.WriteLine("S <-- [{0}]", new object[] { GetMessageName(packet) });
@@ -159,6 +172,7 @@ namespace Granados.IO {
         /// <param name="data">packet image</param>
         public void OnData(DataFragment data) {
             lock (_syncReceive) {
+                AfterReceived(data);
                 if (_waitingResponse) {
                     _receivedPacket = data;
 #if DEBUG_SYNCHRONOUSPACKETHANDLER

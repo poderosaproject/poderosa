@@ -32,6 +32,9 @@ namespace Granados.SSH2 {
     public class SSH2Connection : SSHConnection {
         private const int RESPONSE_TIMEOUT = 10000;
 
+        private readonly SSHConnectionParameter _param;
+        private readonly SSHProtocolEventManager _protocolEventManager;
+
         private readonly SSHChannelCollection _channelCollection;
         private readonly SSH2Packetizer _packetizer;
         private readonly SSH2SynchronousPacketHandler _syncHandler;
@@ -48,13 +51,10 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="param"></param>
-        /// <param name="socket"></param>
-        /// <param name="r"></param>
-        /// <param name="serverVersion"></param>
-        /// <param name="clientVersion"></param>
-        public SSH2Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventReceiver r, string serverVersion, string clientVersion)
+        public SSH2Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventReceiver r, ISSHProtocolEventListener protocolEventListener, string serverVersion, string clientVersion)
             : base(param, socket, r) {
+            _param = param.Clone();
+            _protocolEventManager = new SSHProtocolEventManager(protocolEventListener);
             _channelCollection = new SSHChannelCollection();
             _cInfo = new SSH2ConnectionInfo(param.HostName, param.PortNumber, serverVersion, clientVersion);
             IDataHandler adapter = new DataHandlerAdapter(
@@ -69,14 +69,20 @@ namespace Granados.SSH2 {
                                 EventReceiver.OnError(error);
                             }
                         );
-            _syncHandler = new SSH2SynchronousPacketHandler(socket, adapter);
+            _syncHandler = new SSH2SynchronousPacketHandler(socket, adapter, _protocolEventManager);
             _packetizer = new SSH2Packetizer(_syncHandler);
 
             _packetInterceptors = new SSHPacketInterceptorCollection();
-            _keyExchanger = new SSH2KeyExchanger(this, _syncHandler, param, _cInfo, UpdateKey);
+            _keyExchanger = new SSH2KeyExchanger(_syncHandler, param, _protocolEventManager, _cInfo, UpdateKey);
             _packetInterceptors.Add(_keyExchanger);
 
             _remotePortForwarding = new Lazy<SSH2RemotePortForwarding>(CreateRemotePortForwarding);
+        }
+
+        public SSHConnectionParameter Param {
+            get {
+                return _param;
+            }
         }
 
         internal void SetAgentForwardConfirmed(bool value) {
@@ -95,7 +101,8 @@ namespace Granados.SSH2 {
                 _keyExchanger.ExecKeyExchange();
 
                 //user authentication
-                SSH2UserAuthentication userAuthentication = new SSH2UserAuthentication(this, _param, _syncHandler, _sessionID);
+                SSH2UserAuthentication userAuthentication =
+                    new SSH2UserAuthentication(this, _param, _protocolEventManager, _syncHandler, _sessionID);
                 _packetInterceptors.Add(userAuthentication);
                 userAuthentication.ExecAuthentication();
 
@@ -110,24 +117,32 @@ namespace Granados.SSH2 {
             }
         }
 
+        protected override void SendMyVersion() {
+            string cv = SSHUtil.ClientVersionString(SSHProtocol.SSH2);
+            string cv2 = cv + _param.VersionEOL;
+            byte[] data = Encoding.ASCII.GetBytes(cv2);
+            _stream.Write(data, 0, data.Length);
+            _protocolEventManager.Trace("client version-string : {0}", cv);
+        }
+
         public override THandler OpenShell<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator) {
             return CreateChannelByClient(
                         handlerCreator,
-                        localChannel => new SSH2ShellChannel(DetachChannel, this, _param, localChannel)
+                        localChannel => new SSH2ShellChannel(DetachChannel, this, _param, _protocolEventManager, localChannel)
                     );
         }
 
         public override THandler ExecCommand<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, string command) {
             return CreateChannelByClient(
                         handlerCreator,
-                        localChannel => new SSH2ExecChannel(DetachChannel, this, _param, localChannel, command)
+                        localChannel => new SSH2ExecChannel(DetachChannel, this, _param, _protocolEventManager, localChannel, command)
                     );
         }
 
         public override THandler OpenSubsystem<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, string subsystemName) {
             return CreateChannelByClient(
                         handlerCreator,
-                        localChannel => new SSH2SubsystemChannel(DetachChannel, this, _param, localChannel, subsystemName)
+                        localChannel => new SSH2SubsystemChannel(DetachChannel, this, _param, _protocolEventManager, localChannel, subsystemName)
                     );
         }
 
@@ -138,7 +153,7 @@ namespace Granados.SSH2 {
                         handlerCreator,
                         localChannel =>
                             new SSH2LocalPortForwardingChannel(
-                                DetachChannel, this, _param, localChannel, remoteHost, remotePort, originatorIp, originatorPort)
+                                DetachChannel, this, _param, _protocolEventManager, localChannel, remoteHost, remotePort, originatorIp, originatorPort)
                     );
         }
 
@@ -196,6 +211,7 @@ namespace Granados.SSH2 {
                                     DetachChannel,
                                     this,
                                     _param,
+                                    _protocolEventManager,
                                     localChannel,
                                     remoteChannel,
                                     serverWindowSize,
@@ -218,80 +234,13 @@ namespace Granados.SSH2 {
         }
 
         private SSH2RemotePortForwarding CreateRemotePortForwarding() {
-            var instance = new SSH2RemotePortForwarding(_syncHandler);
+            var instance = new SSH2RemotePortForwarding(_syncHandler, _protocolEventManager);
             _packetInterceptors.Add(instance);
             return instance;
         }
 
-        private void ProcessAgentForwardRequest(ISSHConnectionEventReceiver receiver, SSH2DataReader reader) {
-            int remote_channel = reader.ReadInt32();
-            int window_size = reader.ReadInt32(); //skip initial window size
-            int servermaxpacketsize = reader.ReadInt32();
-            TraceReceptionEvent("agent forward request", "");
-
-            IAgentForward af = _param.AgentForward;
-            if (_agentForwardConfirmed && af != null && af.CanAcceptForwarding()) {
-                //send OPEN_CONFIRMATION
-                AgentForwardingChannel ch = new AgentForwardingChannel(af);
-                SSH2Channel channel = new SSH2Channel(this, ChannelType.AgentForward, this.ChannelCollection.RegisterChannelEventReceiver(null, ch).LocalID, remote_channel, servermaxpacketsize);
-                ch.SetChannel(channel);
-                Transmit(
-                    new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION)
-                        .WriteInt32(remote_channel)
-                        .WriteInt32(channel.LocalChannelID)
-                        .WriteInt32(_param.WindowSize) //initial window size
-                        .WriteInt32(_param.MaxPacketSize) //max packet size
-                );
-                TraceTransmissionEvent("granados confirmed agent-forwarding request", "");
-            }
-            else {
-                Transmit(
-                    new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE)
-                        .WriteInt32(remote_channel)
-                        .WriteInt32(0)
-                        .WriteString("reject")
-                        .WriteString("") //lang tag
-                );
-                TraceTransmissionEvent("granados rejected agent-forwarding request", "");
-            }
-        }
-
         internal void Transmit(SSH2Packet packet) {
             _syncHandler.Send(packet);
-        }
-
-        //synchronous reception
-        internal DataFragment ReceivePacket() {
-            while (true) {
-                DataFragment data = _syncHandler.WaitResponse(RESPONSE_TIMEOUT);
-                if (data == null) {
-                    continue;
-                }
-
-                SSH2PacketType pt = (SSH2PacketType)data[0]; //sneak
-
-                //filter unnecessary packet
-                if (pt == SSH2PacketType.SSH_MSG_IGNORE) {
-                    SSH2DataReader r = new SSH2DataReader(data);
-                    r.ReadByte(); //skip
-                    byte[] msg = r.ReadByteString();
-                    if (_eventReceiver != null)
-                        _eventReceiver.OnIgnoreMessage(msg);
-                    TraceReceptionEvent(pt, msg);
-                }
-                else if (pt == SSH2PacketType.SSH_MSG_DEBUG) {
-                    SSH2DataReader r = new SSH2DataReader(data);
-                    r.ReadByte(); //skip
-                    bool f = r.ReadBool();
-                    string msg = r.ReadUTF8String();
-                    if (_eventReceiver != null)
-                        _eventReceiver.OnDebugMessage(f, msg);
-                    TraceReceptionEvent(pt, msg);
-                }
-                else {
-                    return data;
-                }
-            }
         }
 
         internal void AsyncReceivePacket(DataFragment packet) {
@@ -321,39 +270,15 @@ namespace Granados.SSH2 {
                 return;
             }
 
-            if (pt == SSH2PacketType.SSH_MSG_CHANNEL_OPEN) {
-                string method = r.ReadString();
-                //if (method == "forwarded-tcpip")
-                //    ProcessPortforwardingRequest(_eventReceiver, r);
-                //else
-                if (method.StartsWith("auth-agent")) //in most cases, method is "auth-agent@openssh.com"
-                    ProcessAgentForwardRequest(_eventReceiver, r);
-                else {
-                    Transmit(
-                        new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE)
-                            .WriteInt32(r.ReadInt32())
-                            .WriteInt32(3)  // SSH_OPEN_UNKNOWN_CHANNEL_TYPE
-                            .WriteUTF8String("unknown channel type")
-                            .WriteString("") //lang tag
-                    );
-                    TraceReceptionEvent("SSH_MSG_CHANNEL_OPEN rejected", "method={0}", method);
-                }
-                return;
-            }
-
             if (pt >= SSH2PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION && pt <= SSH2PacketType.SSH_MSG_CHANNEL_FAILURE) {
                 uint localChannel = r.ReadUInt32();
                 var channelOperator = _channelCollection.FindOperator(localChannel) as SSH2ChannelBase;
                 if (channelOperator != null) {
                     channelOperator.ProcessPacket(pt, r.GetRemainingDataView());
-                    return;
                 }
-
-                ChannelCollection.Entry e = this.ChannelCollection.FindChannelEntry((int)localChannel);
-                if (e != null)
-                    ((SSH2Channel)e.Channel).ProcessPacket(e.Receiver, pt, r);
-                else
+                else {
                     Debug.WriteLine("unexpected channel pt=" + pt + " local_channel=" + localChannel.ToString());
+                }
                 return;
             }
 
@@ -393,501 +318,7 @@ namespace Granados.SSH2 {
             _syncHandler.SetCipher(cipherServer, macServer);
             _packetizer.SetCipher(cipherClient, _param.CheckMACError ? macClient : null);
         }
-
-        //alternative version
-        internal void TraceTransmissionEvent(SSH2PacketType pt, string message, params object[] args) {
-            ISSHEventTracer t = _param.EventTracer;
-            if (t != null)
-                t.OnTranmission(pt.ToString(), String.Format(message, args));
-        }
-        internal void TraceReceptionEvent(SSH2PacketType pt, string message, params object[] args) {
-            ISSHEventTracer t = _param.EventTracer;
-            if (t != null)
-                t.OnReception(pt.ToString(), String.Format(message, args));
-        }
-        internal void TraceReceptionEvent(SSH2PacketType pt, byte[] msg) {
-            TraceReceptionEvent(pt.ToString(), Encoding.ASCII.GetString(msg));
-        }
     }
-
-    /**
-     * Channel
-     */
-    /// <exclude/>
-    public class SSH2Channel : SSHChannel {
-        private readonly SSH2Connection _connection;
-        //channel property
-        private readonly string _command;
-        private readonly int _windowSize;
-        private int _leftWindowSize;
-        private int _serverMaxPacketSize;
-        private uint _allowedDataSize;
-
-        //negotiation status
-        private enum NegotiationStatus {
-            Ready,
-            WaitingChannelConfirmation,
-            WaitingPtyReqConfirmation,
-            WaitingShellConfirmation,
-            WaitingExecCmdConfirmation,
-            WaitingAuthAgentReqConfirmation,
-            WaitingSubsystemConfirmation,
-        }
-        private NegotiationStatus _negotiationStatus;
-
-        //closing sequence control
-        private bool _waitingChannelClose = false;
-
-        public SSH2Channel(SSH2Connection con, ChannelType type, int local_id, string command)
-            : base(con, type, local_id) {
-            _command = command;
-            if (type == ChannelType.ExecCommand || type == ChannelType.Subsystem)
-                Debug.Assert(command != null); //'command' is required for ChannelType.ExecCommand
-            _connection = con;
-            _windowSize = _leftWindowSize = con.Param.WindowSize;
-            _negotiationStatus = NegotiationStatus.WaitingChannelConfirmation;
-        }
-
-        //attach to an existing channel
-        public SSH2Channel(SSH2Connection con, ChannelType type, int local_id, int remote_id, int maxpacketsize)
-            : base(con, type, local_id) {
-            _connection = con;
-            _windowSize = _leftWindowSize = con.Param.WindowSize;
-            Debug.Assert(type == ChannelType.ForwardedRemoteToLocal || type == ChannelType.AgentForward);
-            _remoteID = remote_id;
-            _serverMaxPacketSize = maxpacketsize;
-            _negotiationStatus = NegotiationStatus.Ready;
-        }
-
-        public override void ResizeTerminal(int width, int height, int pixel_width, int pixel_height) {
-            Transmit(
-                0,
-                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
-                    .WriteInt32(_remoteID)
-                    .WriteString("window-change")
-                    .WriteBool(false)
-                    .WriteInt32(width)
-                    .WriteInt32(height)
-                    .WriteInt32(pixel_width) //no graphics
-                    .WriteInt32(pixel_height)
-            );
-            _connection.TraceTransmissionEvent("window-change", "width={0} height={1}", width, height);
-        }
-
-        public override void Transmit(byte[] data) {
-            Transmit(
-                data.Length,
-                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_DATA)
-                    .WriteInt32(_remoteID)
-                    .WriteAsString(data)
-            );
-        }
-
-        public override void Transmit(byte[] data, int offset, int length) {
-            Transmit(
-                length,
-                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_DATA)
-                    .WriteInt32(_remoteID)
-                    .WriteAsString(data, offset, length)
-            );
-        }
-
-        public override void SendEOF() {
-            if (!_connection.IsOpen)
-                return;
-            Transmit(
-                0,
-                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_EOF)
-                    .WriteInt32(_remoteID)
-            );
-            _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_CHANNEL_EOF, "");
-        }
-
-        public override void Close() {
-            if (!_connection.IsOpen)
-                return;
-            _waitingChannelClose = true;
-            Transmit(
-                0,
-                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_CLOSE)
-                    .WriteInt32(_remoteID)
-            );
-            _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_CHANNEL_CLOSE, "");
-        }
-
-        //maybe this is SSH2 only feature
-        public void SetEnvironmentVariable(string name, string value) {
-            Transmit(
-                0,
-                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
-                    .WriteInt32(_remoteID)
-                    .WriteString("env")
-                    .WriteBool(false)
-                    .WriteString(name)
-                    .WriteString(value)
-            );
-            _connection.TraceTransmissionEvent("env", "name={0} value={1}", name, value);
-        }
-
-        public void SendBreak(int time) {
-            Transmit(
-                0,
-                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
-                    .WriteInt32(_remoteID)
-                    .WriteString("break")
-                    .WriteBool(true)
-                    .WriteInt32(time)
-            );
-            _connection.TraceTransmissionEvent("break", "time={0}", time);
-        }
-
-        internal void ProcessPacket(ISSHChannelEventReceiver receiver, SSH2PacketType pt, SSH2DataReader re) {
-            //NOTE: the offset of 're' is next to 'receipiant channel' field
-
-            if (pt == SSH2PacketType.SSH_MSG_CHANNEL_DATA || pt == SSH2PacketType.SSH_MSG_CHANNEL_EXTENDED_DATA) {
-                AdjustWindowSize(pt, re.RemainingDataLength);
-            }
-
-            //SSH_MSG_CHANNEL_WINDOW_ADJUST comes before the complete of channel establishment
-            if (pt == SSH2PacketType.SSH_MSG_CHANNEL_WINDOW_ADJUST) {
-                uint w = re.ReadUInt32();
-                //some servers may not send SSH_MSG_CHANNEL_WINDOW_ADJUST. 
-                //it is dangerous to wait this message in send procedure
-                _allowedDataSize += w;
-                if (_connection.IsEventTracerAvailable)
-                    _connection.TraceReceptionEvent("SSH_MSG_CHANNEL_WINDOW_ADJUST", "adjusted to {0} by increasing {1}", _allowedDataSize, w);
-                return;
-            }
-
-            // check closing sequence
-            if (_waitingChannelClose && pt == SSH2PacketType.SSH_MSG_CHANNEL_CLOSE) {
-                _waitingChannelClose = false;
-                return; // ignore it
-            }
-
-            if (_negotiationStatus != NegotiationStatus.Ready) //when the negotiation is not completed
-                ProgressChannelNegotiation(receiver, pt, re);
-            else
-                ProcessChannelLocalData(receiver, pt, re);
-        }
-
-        private void AdjustWindowSize(SSH2PacketType pt, int dataLength) {
-            // need not send window size to server when the channel is not opened.
-            if (_negotiationStatus != NegotiationStatus.Ready)
-                return;
-
-            _leftWindowSize = Math.Max(_leftWindowSize - dataLength, 0);
-
-            if (_leftWindowSize < _windowSize / 2) {
-                Transmit(
-                    0,
-                    new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_WINDOW_ADJUST)
-                        .WriteInt32(_remoteID)
-                        .WriteInt32(_windowSize - _leftWindowSize)
-                );
-                if (_connection.IsEventTracerAvailable)
-                    _connection.TraceTransmissionEvent("SSH_MSG_CHANNEL_WINDOW_ADJUST", "adjusted window size : {0} --> {1}", _leftWindowSize, _windowSize);
-                _leftWindowSize = _windowSize;
-            }
-        }
-
-        //Progress the state of this channel establishment negotiation
-        private void ProgressChannelNegotiation(ISSHChannelEventReceiver receiver, SSH2PacketType pt, SSH2DataReader re) {
-            if (_type == ChannelType.Shell)
-                OpenShellOrSubsystem(receiver, pt, re, "shell");
-            else if (_type == ChannelType.ForwardedLocalToRemote)
-                ReceivePortForwardingResponse(receiver, pt, re);
-            else if (_type == ChannelType.Session)
-                EstablishSession(receiver, pt, re);
-            else if (_type == ChannelType.ExecCommand)  // for SCP
-                ExecCommand(receiver, pt, re);
-            else if (_type == ChannelType.Subsystem)
-                OpenShellOrSubsystem(receiver, pt, re, "subsystem");
-        }
-
-        private void ProcessChannelLocalData(ISSHChannelEventReceiver receiver, SSH2PacketType pt, SSH2DataReader re) {
-            switch (pt) {
-                case SSH2PacketType.SSH_MSG_CHANNEL_DATA: {
-                        int len = re.ReadInt32();
-                        DataFragment frag = re.GetRemainingDataView(len);
-                        receiver.OnData(frag);
-                    }
-                    break;
-                case SSH2PacketType.SSH_MSG_CHANNEL_EXTENDED_DATA: {
-                        uint type = re.ReadUInt32();
-                        int len = re.ReadInt32();
-                        DataFragment frag = re.GetRemainingDataView(len);
-                        receiver.OnExtendedData(type, frag);
-                    }
-                    break;
-                case SSH2PacketType.SSH_MSG_CHANNEL_REQUEST: {
-                        string request = re.ReadString();
-                        bool reply = re.ReadBool();
-                        if (request == "exit-status") {
-                            int status = re.ReadInt32();
-                        }
-                        else if (reply) { //we reject unknown requests including keep-alive check
-                            Transmit(
-                                0,
-                                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_FAILURE)
-                                    .WriteInt32(_remoteID)
-                            );
-                        }
-                    }
-                    break;
-                case SSH2PacketType.SSH_MSG_CHANNEL_EOF:
-                    receiver.OnChannelEOF();
-                    break;
-                case SSH2PacketType.SSH_MSG_CHANNEL_CLOSE:
-                    _connection.ChannelCollection.UnregisterChannelEventReceiver(_localID);
-                    receiver.OnChannelClosed();
-                    break;
-                case SSH2PacketType.SSH_MSG_CHANNEL_FAILURE: {
-                        DataFragment frag = re.GetRemainingDataView();
-                        receiver.OnMiscPacket((byte)pt, frag);
-                    }
-                    break;
-                default: {
-                        DataFragment frag = re.GetRemainingDataView();
-                        receiver.OnMiscPacket((byte)pt, frag);
-                    }
-                    Debug.WriteLine("Unknown Packet " + pt);
-                    break;
-            }
-        }
-
-        private void Transmit(int consumedSize, SSH2Packet packet) {
-            if (_allowedDataSize < (uint)consumedSize) {
-                // FIXME: currently, window size on the remote side is totally ignored...
-                _allowedDataSize = 0;
-            }
-            else {
-                _allowedDataSize -= (uint)consumedSize;
-            }
-            _connection.Transmit(packet);
-        }
-
-        private void OpenShellOrSubsystem(ISSHChannelEventReceiver receiver, SSH2PacketType pt, SSH2DataReader reader, string scheme) {
-            if (_negotiationStatus == NegotiationStatus.WaitingChannelConfirmation) {
-                if (pt != SSH2PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION) {
-                    if (pt != SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE)
-                        receiver.OnChannelError(new SSHException("opening channel failed; packet type=" + pt));
-                    else {
-                        int errcode = reader.ReadInt32();
-                        string msg = reader.ReadUTF8String();
-                        receiver.OnChannelError(new SSHException(msg));
-                    }
-                    // Close() shouldn't be called because remote channel number is not given yet.
-                    // We just remove an event receiver from the collection of channels.
-                    // FIXME: _negotiationStatus sould be set an error status ?
-                    _connection.ChannelCollection.UnregisterChannelEventReceiver(_localID);
-                }
-                else {
-                    _remoteID = reader.ReadInt32();
-                    _allowedDataSize = reader.ReadUInt32();
-                    _serverMaxPacketSize = reader.ReadInt32();
-
-                    if (_type == ChannelType.Subsystem) {
-                        OpenScheme(scheme);
-                        _negotiationStatus = NegotiationStatus.WaitingSubsystemConfirmation;
-                    }
-                    else {
-                        //open pty
-                        SSHConnectionParameter param = _connection.Param;
-                        Transmit(
-                            0,
-                            new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
-                                .WriteInt32(_remoteID)
-                                .WriteString("pty-req")
-                                .WriteBool(true)
-                                .WriteString(param.TerminalName)
-                                .WriteInt32(param.TerminalWidth)
-                                .WriteInt32(param.TerminalHeight)
-                                .WriteInt32(param.TerminalPixelWidth)
-                                .WriteInt32(param.TerminalPixelHeight)
-                                .WriteAsString(new byte[0])
-                        );
-
-                        if (_connection.IsEventTracerAvailable) {
-                            _connection.TraceTransmissionEvent(
-                                SSH2PacketType.SSH_MSG_CHANNEL_REQUEST, "pty-req", "terminal={0} width={1} height={2}",
-                                param.TerminalName, param.TerminalWidth, param.TerminalHeight);
-                        }
-
-                        _negotiationStatus = NegotiationStatus.WaitingPtyReqConfirmation;
-                    }
-                }
-            }
-            else if (_negotiationStatus == NegotiationStatus.WaitingPtyReqConfirmation) {
-                if (pt != SSH2PacketType.SSH_MSG_CHANNEL_SUCCESS) {
-                    receiver.OnChannelError(new SSHException("opening pty failed"));
-                    Close();
-                }
-                else {
-                    //agent request (optional)
-                    if (_connection.Param.AgentForward != null) {
-                        Transmit(
-                            0,
-                            new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
-                                .WriteInt32(_remoteID)
-                                .WriteString("auth-agent-req@openssh.com")
-                                .WriteBool(true)
-                        );
-                        _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST, "auth-agent-req", "");
-                        _negotiationStatus = NegotiationStatus.WaitingAuthAgentReqConfirmation;
-                    }
-                    else {
-                        OpenScheme(scheme);
-                        _negotiationStatus = NegotiationStatus.WaitingShellConfirmation;
-                    }
-                }
-            }
-            else if (_negotiationStatus == NegotiationStatus.WaitingAuthAgentReqConfirmation) {
-                if (pt != SSH2PacketType.SSH_MSG_CHANNEL_SUCCESS && pt != SSH2PacketType.SSH_MSG_CHANNEL_FAILURE) {
-                    receiver.OnChannelError(new SSHException("auth-agent-req error"));
-                    Close();
-                }
-                else { //auth-agent-req is optional
-                    _connection.SetAgentForwardConfirmed(pt == SSH2PacketType.SSH_MSG_CHANNEL_SUCCESS);
-                    _connection.TraceReceptionEvent(pt, "auth-agent-req");
-
-                    OpenScheme(scheme);
-                    _negotiationStatus = NegotiationStatus.WaitingShellConfirmation;
-                }
-            }
-            else if (_negotiationStatus == NegotiationStatus.WaitingShellConfirmation) {
-                if (pt != SSH2PacketType.SSH_MSG_CHANNEL_SUCCESS) {
-                    receiver.OnChannelError(new SSHException("Opening shell failed: packet type=" + pt.ToString()));
-                    Close();
-                }
-                else {
-                    receiver.OnChannelReady();
-                    _negotiationStatus = NegotiationStatus.Ready; //goal!
-                }
-            }
-            else if (_negotiationStatus == NegotiationStatus.WaitingSubsystemConfirmation) {
-                if (pt != SSH2PacketType.SSH_MSG_CHANNEL_SUCCESS) {
-                    receiver.OnChannelError(new SSHException("Opening subsystem failed: packet type=" + pt.ToString()));
-                    Close();
-                }
-                else {
-                    receiver.OnChannelReady();
-                    _negotiationStatus = NegotiationStatus.Ready; //goal!
-                }
-            }
-        }
-
-        private void OpenScheme(string scheme) {
-            //open shell / subsystem
-            SSH2Packet packet =
-                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
-                    .WriteInt32(_remoteID)
-                    .WriteString(scheme)
-                    .WriteBool(true);
-            if (_command != null) {
-                packet.WriteString(_command);
-            }
-            Transmit(0, packet);
-        }
-
-        // sending "exec" service for SCP protocol.
-        private void ExecCommand(ISSHChannelEventReceiver receiver, SSH2PacketType pt, SSH2DataReader reader) {
-            if (_negotiationStatus == NegotiationStatus.WaitingChannelConfirmation) {
-                if (pt != SSH2PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION) {
-                    if (pt != SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE)
-                        receiver.OnChannelError(new SSHException("opening channel failed; packet type=" + pt));
-                    else {
-                        int errcode = reader.ReadInt32();
-                        string msg = reader.ReadUTF8String();
-                        receiver.OnChannelError(new SSHException(msg));
-                    }
-                    Close();
-                }
-                else {
-                    _remoteID = reader.ReadInt32();
-                    _allowedDataSize = reader.ReadUInt32();
-                    _serverMaxPacketSize = reader.ReadInt32();
-
-                    // exec command
-                    SSHConnectionParameter param = _connection.Param;
-                    Transmit(
-                        0,
-                        new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
-                            .WriteInt32(_remoteID)
-                            .WriteString("exec")  // "exec"
-                            .WriteBool(false)   // want confirm is disabled. (*)
-                            .WriteString(_command)
-                    );
-                    if (_connection.IsEventTracerAvailable)
-                        _connection.TraceTransmissionEvent("exec command", "cmd={0}", _command);
-
-                    //confirmation is omitted
-                    receiver.OnChannelReady();
-                    _negotiationStatus = NegotiationStatus.Ready; //goal!
-                }
-            }
-            else if (_negotiationStatus == NegotiationStatus.WaitingExecCmdConfirmation) {
-                if (pt != SSH2PacketType.SSH_MSG_CHANNEL_DATA) {
-                    receiver.OnChannelError(new SSHException("exec command failed"));
-                    Close();
-                }
-                else {
-                    receiver.OnChannelReady();
-                    _negotiationStatus = NegotiationStatus.Ready; //goal!
-                }
-            }
-            else
-                throw new SSHException("internal state error");
-        }
-
-
-        private void ReceivePortForwardingResponse(ISSHChannelEventReceiver receiver, SSH2PacketType pt, SSH2DataReader reader) {
-            if (_negotiationStatus == NegotiationStatus.WaitingChannelConfirmation) {
-                if (pt != SSH2PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION) {
-                    if (pt != SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE)
-                        receiver.OnChannelError(new SSHException("opening channel failed; packet type=" + pt));
-                    else {
-                        int errcode = reader.ReadInt32();
-                        string msg = reader.ReadUTF8String();
-                        receiver.OnChannelError(new SSHException(msg));
-                    }
-                    Close();
-                }
-                else {
-                    _remoteID = reader.ReadInt32();
-                    _serverMaxPacketSize = reader.ReadInt32();
-                    _negotiationStatus = NegotiationStatus.Ready;
-                    receiver.OnChannelReady();
-                }
-            }
-            else
-                throw new SSHException("internal state error");
-        }
-        private void EstablishSession(ISSHChannelEventReceiver receiver, SSH2PacketType pt, SSH2DataReader reader) {
-            if (_negotiationStatus == NegotiationStatus.WaitingChannelConfirmation) {
-                if (pt != SSH2PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION) {
-                    if (pt != SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE)
-                        receiver.OnChannelError(new SSHException("opening channel failed; packet type=" + pt));
-                    else {
-                        int remote_id = reader.ReadInt32();
-                        int errcode = reader.ReadInt32();
-                        string msg = reader.ReadUTF8String();
-                        receiver.OnChannelError(new SSHException(msg));
-                    }
-                    Close();
-                }
-                else {
-                    _remoteID = reader.ReadInt32();
-                    _serverMaxPacketSize = reader.ReadInt32();
-                    _negotiationStatus = NegotiationStatus.Ready;
-                    receiver.OnChannelReady();
-                }
-            }
-            else
-                throw new SSHException("internal state error");
-        }
-    }
-
 
     /// <summary>
     /// Synchronization of sending/receiving packets.
@@ -899,13 +330,18 @@ namespace Granados.SSH2 {
         private Cipher _cipher = null;
         private MAC _mac = null;
 
+        private readonly SSHProtocolEventManager _protocolEventManager;
+
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="socket">socket object for sending packets.</param>
         /// <param name="handler">the next handler received packets are redirected to.</param>
-        public SSH2SynchronousPacketHandler(IGranadosSocket socket, IDataHandler handler)
+        /// <param name="protocolEventManager">protocol event manager</param>
+        public SSH2SynchronousPacketHandler(IGranadosSocket socket, IDataHandler handler, SSHProtocolEventManager protocolEventManager)
             : base(socket, handler) {
+
+            _protocolEventManager = protocolEventManager;
         }
 
         /// <summary>
@@ -929,6 +365,44 @@ namespace Granados.SSH2 {
             lock (_cipherSync) {
                 return packet.GetImage(_cipher, _mac, _sequenceNumber++);
             }
+        }
+
+        /// <summary>
+        /// Do additional work for a packet to be sent.
+        /// </summary>
+        /// <param name="packet">a packet object</param>
+        protected override void BeforeSend(SSH2Packet packet) {
+            SSH2PacketType packetType = packet.GetPacketType();
+            switch (packetType) {
+                case SSH2PacketType.SSH_MSG_CHANNEL_DATA:
+                case SSH2PacketType.SSH_MSG_CHANNEL_EXTENDED_DATA:
+                case SSH2PacketType.SSH_MSG_IGNORE:
+                case SSH2PacketType.SSH_MSG_DEBUG:
+                    return;
+            }
+
+            _protocolEventManager.NotifySend(packetType, String.Empty);
+        }
+
+        /// <summary>
+        /// Do additional work for a received packet.
+        /// </summary>
+        /// <param name="packet">a packet image</param>
+        protected override void AfterReceived(DataFragment packet) {
+            if (packet.Length == 0) {
+                return;
+            }
+
+            SSH2PacketType packetType = (SSH2PacketType)packet.Data[packet.Offset];
+            switch (packetType) {
+                case SSH2PacketType.SSH_MSG_CHANNEL_DATA:
+                case SSH2PacketType.SSH_MSG_CHANNEL_EXTENDED_DATA:
+                case SSH2PacketType.SSH_MSG_IGNORE:
+                case SSH2PacketType.SSH_MSG_DEBUG:
+                    return;
+            }
+
+            _protocolEventManager.NotifyReceive(packetType, String.Empty);
         }
 
         /// <summary>
@@ -1027,7 +501,7 @@ namespace Granados.SSH2 {
 
         private readonly UpdateKeyDelegate _updateKey;
 
-        private readonly SSH2Connection _connection;
+        private readonly SSHProtocolEventManager _protocolEventManager;
         private readonly SSH2SynchronousPacketHandler _syncHandler;
         private readonly SSHConnectionParameter _param;
         private readonly SSH2ConnectionInfo _cInfo;
@@ -1042,20 +516,15 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="connection"></param>
-        /// <param name="syncHandler"></param>
-        /// <param name="param"></param>
-        /// <param name="info"></param>
-        /// <param name="updateKey"></param>
         public SSH2KeyExchanger(
-                    SSH2Connection connection,
                     SSH2SynchronousPacketHandler syncHandler,
                     SSHConnectionParameter param,
+                    SSHProtocolEventManager protocolEventManager,
                     SSH2ConnectionInfo info,
                     UpdateKeyDelegate updateKey) {
-            _connection = connection;
             _syncHandler = syncHandler;
             _param = param;
+            _protocolEventManager = protocolEventManager;
             _cInfo = info;
             _updateKey = updateKey;
         }
@@ -1225,19 +694,17 @@ namespace Granados.SSH2 {
 
             state.clientKEXINITPayload = packetToSend.GetPayloadBytes();
 
-            if (_connection.IsEventTracerAvailable) {
-                _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_KEXINIT, traceMsg);
-            }
-
             if (kexinitFromServer != null) {
                 // if the key exchange was initiated by the server,
                 // no need to wait for the SSH_MSG_KEXINIT response.
                 _syncHandler.Send(packetToSend);
+                _protocolEventManager.Trace(traceMsg);
                 return;
             }
 
             // send KEXINIT
             _syncHandler.Send(packetToSend);
+            _protocolEventManager.Trace(traceMsg);
 
             DataFragment response = null;
             if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
@@ -1280,10 +747,8 @@ namespace Granados.SSH2 {
 
             bool isAccepted = ProcessKEXDHREPLY(response, state);
 
-            if (_connection.IsEventTracerAvailable) {
-                _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_KEXDH_REPLY,
-                    isAccepted ? "host key has been accepted" : "host key has been denied");
-            }
+            _protocolEventManager.Trace(
+                isAccepted ? "host key has been accepted" : "host key has been denied");
 
             if (!isAccepted) {
                 throw new SSHException(Strings.GetString("HostKeyDenied"));
@@ -1314,9 +779,7 @@ namespace Granados.SSH2 {
                 CheckConnectionClosed();
             }
 
-            if (_connection.IsEventTracerAvailable) {
-                _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_NEWKEYS, "the keys are updated");
-            }
+            _protocolEventManager.Trace("the keys are updated");
         }
 
         /// <summary>
@@ -1428,9 +891,7 @@ namespace Granados.SSH2 {
                 .Append(comp_sc)
                 .ToString();
 
-            if (_connection.IsEventTracerAvailable) {
-                _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_KEXINIT, traceMessage);
-            }
+            _protocolEventManager.Trace(traceMessage);
         }
 
         /// <summary>
@@ -1490,12 +951,12 @@ namespace Granados.SSH2 {
             wr.WriteBigInteger(state.k);
             state.hash = KexComputeHash(wr.ToByteArray());
 
-            if (_connection.IsEventTracerAvailable) {
-                _connection.TraceReceptionEvent(packetType, "verifying host key");
-            }
+            _protocolEventManager.Trace("verifying host key");
 
             bool verifyExternally = (_sessionID == null) ? true : false;
             bool accepted = VerifyHostKey(key_and_cert, signature, state.hash, verifyExternally);
+
+            _protocolEventManager.Trace("verifying host key : {0}", accepted ? "accepted" : "rejected");
 
             if (accepted && _sessionID == null) {
                 //Debug.WriteLine("hash="+DebugUtil.DumpByteArray(hash));
@@ -1973,6 +1434,7 @@ namespace Granados.SSH2 {
 
         private readonly SSHConnectionParameter _param;
         private readonly SSH2Connection _connection;
+        private readonly SSHProtocolEventManager _protocolEventManager;
         private readonly SSH2SynchronousPacketHandler _syncHandler;
         private readonly byte[] _sessionID;
 
@@ -2029,17 +1491,15 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="connection"></param>
-        /// <param name="param"></param>
-        /// <param name="syncHandler"></param>
-        /// <param name="sessionID"></param>
         public SSH2UserAuthentication(
                     SSH2Connection connection,
                     SSHConnectionParameter param,
+                    SSHProtocolEventManager protocolEventManager,
                     SSH2SynchronousPacketHandler syncHandler,
                     byte[] sessionID) {
             _connection = connection;
             _param = param;
+            _protocolEventManager = protocolEventManager;
             _syncHandler = syncHandler;
             _sessionID = sessionID;
             _kiHandler = param.KeyboardInteractiveAuthenticationHandler;
@@ -2221,9 +1681,7 @@ namespace Granados.SSH2 {
             var packet = BuildServiceRequestPacket(serviceName);
             _syncHandler.Send(packet);
 
-            if (_connection.IsEventTracerAvailable) {
-                _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_SERVICE_REQUEST, serviceName);
-            }
+            _protocolEventManager.Trace("SSH_MSG_SERVICE_REQUEST : serviceName={0}", serviceName);
 
             DataFragment response = null;
             if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
@@ -2241,9 +1699,8 @@ namespace Granados.SSH2 {
 
             string responseServiceName = reader.ReadString();
 
-            if (_connection.IsEventTracerAvailable) {
-                _connection.TraceReceptionEvent(SSH2PacketType.SSH_MSG_SERVICE_ACCEPT, responseServiceName);
-            }
+            _protocolEventManager.Trace("SSH_MSG_SERVICE_ACCEPT serviceName={0} ({1})",
+                responseServiceName, (responseServiceName != serviceName) ? "invalid" : "valid");
 
             if (responseServiceName != serviceName) {
                 throw new SSHException("Invalid service name : " + responseServiceName);
@@ -2302,9 +1759,7 @@ namespace Granados.SSH2 {
             var packet = BuildKeyboardInteractiveUserAuthRequestPacket(serviceName);
             _syncHandler.Send(packet);
 
-            if (_connection.IsEventTracerAvailable) {
-                _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_USERAUTH_REQUEST, "starting keyboard-interactive authentication");
-            }
+            _protocolEventManager.Trace("starting keyboard-interactive authentication");
 
             // start asynchronous prompt-input-verify loop
             Task.Run(() => KeyboardInteractiveUserAuthInput(serviceName));
@@ -2365,26 +1820,20 @@ namespace Granados.SSH2 {
                         || _sequenceStatus == SequenceStatus.KI_BannerReceived);
 
                     if (_sequenceStatus == SequenceStatus.KI_SuccessReceived) {
-                        if (_connection.IsEventTracerAvailable) {
-                            _connection.TraceReceptionEvent(packetType, "user authentication succeeded");
-                        }
+                        _protocolEventManager.Trace("user authentication succeeded");
                         return;
                     }
 
                     if (_sequenceStatus == SequenceStatus.KI_FailureReceived) {
                         string msg = reader.ReadString();
-                        if (_connection.IsEventTracerAvailable) {
-                            _connection.TraceReceptionEvent(packetType, "user authentication failed: " + msg);
-                        }
+                        _protocolEventManager.Trace("user authentication failed: {0}", msg);
                         throw new SSHException(Strings.GetString("AuthenticationFailed"));
                     }
 
                     if (_sequenceStatus == SequenceStatus.KI_BannerReceived) {
                         string msg = reader.ReadUTF8String();
                         string langtag = reader.ReadString();
-                        if (_connection.IsEventTracerAvailable) {
-                            _connection.TraceReceptionEvent(packetType, "banner: " + msg);
-                        }
+                        _protocolEventManager.Trace("banner: lang={0} message={1}", langtag, msg);
                         _sequenceStatus = SequenceStatus.KI_WaitUserAuthInfoRequest;
                         continue;   // wait for the next response packet
                     }
@@ -2528,9 +1977,7 @@ namespace Granados.SSH2 {
 
             _syncHandler.Send(packet);
 
-            if (_connection.IsEventTracerAvailable) {
-                _connection.TraceTransmissionEvent(SSH2PacketType.SSH_MSG_USERAUTH_REQUEST, traceMessage);
-            }
+            _protocolEventManager.Trace(traceMessage);
 
             while (true) {
                 DataFragment response = null;
@@ -2549,26 +1996,20 @@ namespace Granados.SSH2 {
                         || _sequenceStatus == SequenceStatus.PA_BannerReceived);
 
                     if (_sequenceStatus == SequenceStatus.PA_SuccessReceived) {
-                        if (_connection.IsEventTracerAvailable) {
-                            _connection.TraceReceptionEvent(packetType, "user authentication succeeded");
-                        }
+                        _protocolEventManager.Trace("user authentication succeeded");
                         return;
                     }
 
                     if (_sequenceStatus == SequenceStatus.PA_FailureReceived) {
                         string msg = reader.ReadString();
-                        if (_connection.IsEventTracerAvailable) {
-                            _connection.TraceReceptionEvent(packetType, "user authentication failed: " + msg);
-                        }
+                        _protocolEventManager.Trace("user authentication failed: {0}", msg);
                         throw new SSHException(Strings.GetString("AuthenticationFailed"));
                     }
 
                     if (_sequenceStatus == SequenceStatus.PA_BannerReceived) {
                         string msg = reader.ReadUTF8String();
                         string langtag = reader.ReadString();
-                        if (_connection.IsEventTracerAvailable) {
-                            _connection.TraceReceptionEvent(packetType, "banner: " + msg);
-                        }
+                        _protocolEventManager.Trace("banner: lang={0} message={1}", langtag, msg);
                         _sequenceStatus = SequenceStatus.PA_WaitUserAuthResponse;
                         continue;   // wait for the next response packet
                     }
@@ -2605,6 +2046,7 @@ namespace Granados.SSH2 {
         public delegate void RegisterChannelFunc(SSH2RemotePortForwardingChannel channel, ISSHChannelEventHandler eventHandler);
 
         private readonly SSH2SynchronousPacketHandler _syncHandler;
+        private readonly SSHProtocolEventManager _protocolEventManager;
 
         private class PortInfo {
             public readonly IRemotePortForwardingHandler RequestHandler;
@@ -2646,8 +2088,9 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Constructor
         /// </summary>
-        public SSH2RemotePortForwarding(SSH2SynchronousPacketHandler syncHandler) {
+        public SSH2RemotePortForwarding(SSH2SynchronousPacketHandler syncHandler, SSHProtocolEventManager protocolEventManager) {
             _syncHandler = syncHandler;
+            _protocolEventManager = protocolEventManager;
         }
 
         /// <summary>
@@ -2721,6 +2164,10 @@ namespace Granados.SSH2 {
             string originatorIp = reader.ReadString();
             uint originatorPort = reader.ReadUInt32();
 
+            _protocolEventManager.Trace(
+                "forwarded-tcpip : address={0} port={1} originatorIP={2} originatorPort={3} windowSize={4} maxPacketSize={5}",
+                addressConnected, portConnected, originatorIp, originatorPort, initialWindowSize, maxPacketSize);
+
             // reject the request if we don't know the port number.
             PortInfo portInfo;
             if (!_portDict.TryGetValue(portConnected, out portInfo)) {
@@ -2733,6 +2180,8 @@ namespace Granados.SSH2 {
 
             // create a temporary channel
             var channel = portInfo.CreateChannel(requestInfo, remoteChannel, initialWindowSize, maxPacketSize);
+
+            _protocolEventManager.Trace("new port-forwarding channel : local={0} remote={1}", channel.LocalChannel, channel.RemoteChannel);
 
             // check the request by the request handler
             RemotePortForwardingReply reply;
@@ -2796,6 +2245,7 @@ namespace Granados.SSH2 {
         private void RejectForwardedTcpIp(uint remoteChannel, string description, uint reasonCode = SSH_OPEN_ADMINISTRATIVELY_PROHIBITED) {
             var packet = BuildChannelOpenFailurePacket(remoteChannel, reasonCode, description);
             _syncHandler.Send(packet);
+            _protocolEventManager.Trace("reject forwarded-tcpip : {0}", description);
         }
 
         /// <summary>
@@ -2888,6 +2338,8 @@ namespace Granados.SSH2 {
             var packet = BuildTcpIpForwardPacket(addressToBind, portNumberToBind);
             _syncHandler.Send(packet);
 
+            _protocolEventManager.Trace("tcpip-forward : address={0} port={1}", addressToBind, portNumberToBind);
+
             DataFragment response = null;
             bool accepted = false;
             if (_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
@@ -2907,6 +2359,13 @@ namespace Granados.SSH2 {
                             new PortInfo(requestHandler, createChannel, registerChannel));
                     }
                 }
+            }
+
+            if (accepted) {
+                _protocolEventManager.Trace("tcpip-forward succeeded : bound port={0}", portNumberBound);
+            }
+            else {
+                _protocolEventManager.Trace("tcpip-forward failed");
             }
 
             lock (_sequenceLock) {
@@ -2940,6 +2399,8 @@ namespace Granados.SSH2 {
             var packet = BuildCancelTcpIpForwardPacket(addressToBind, portNumberToBind);
             _syncHandler.Send(packet);
 
+            _protocolEventManager.Trace("cancel-tcpip-forward : address={0} port={1}", addressToBind, portNumberToBind);
+
             DataFragment response = null;
             bool accepted = false;
             if (_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
@@ -2955,6 +2416,13 @@ namespace Granados.SSH2 {
                         }
                     }
                 }
+            }
+
+            if (accepted) {
+                _protocolEventManager.Trace("cancel-tcpip-forward succeeded");
+            }
+            else {
+                _protocolEventManager.Trace("cancel-tcpip-forward failed");
             }
 
             lock (_sequenceLock) {

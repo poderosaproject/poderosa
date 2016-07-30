@@ -14,11 +14,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Globalization;
 
-using Granados.Crypto;
 using Granados.IO;
-using Granados.SSH1;
 using Granados.SSH2;
 using Granados.Util;
 using Granados.PKI;
@@ -122,12 +119,14 @@ namespace Granados.Tutorial {
         private static void ConnectAndOpenShell() {
             SampleKeyboardInteractiveAuthenticationHandler authHandler = new SampleKeyboardInteractiveAuthenticationHandler("aaa");
             SSHConnectionParameter f = new SSHConnectionParameter("172.22.1.15", 22, SSHProtocol.SSH2, AuthenticationType.PublicKey, "okajima", "aaa");
-            f.EventTracer = new Tracer(); //to receive detailed events, set ISSHEventTracer
             //former algorithm is given priority in the algorithm negotiation
             f.PreferableHostKeyAlgorithms = new PublicKeyAlgorithm[] { PublicKeyAlgorithm.RSA, PublicKeyAlgorithm.DSA };
             f.PreferableCipherAlgorithms = new CipherAlgorithm[] { CipherAlgorithm.Blowfish, CipherAlgorithm.TripleDES };
             f.WindowSize = 0x1000; //this option is ignored with SSH1
             f.KeyboardInteractiveAuthenticationHandler = authHandler;
+
+            Tracer tracer = new Tracer();
+
             Reader reader = new Reader(); //simple event receiver
 
             Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -136,7 +135,7 @@ namespace Granados.Tutorial {
             if (f.AuthenticationType == AuthenticationType.KeyboardInteractive) {
                 //Creating a new SSH connection over the underlying socket
                 AuthenticationResult authResult;
-                _conn = SSHConnection.Connect(f, reader, s, out authResult);
+                _conn = SSHConnection.Connect(f, reader, tracer, s, out authResult);
                 reader._conn = _conn;
                 bool result = authHandler.GetResult();
                 Debug.Assert(result == true);
@@ -154,7 +153,7 @@ namespace Granados.Tutorial {
 
                 //Creating a new SSH connection over the underlying socket
                 AuthenticationResult authResult;
-                _conn = SSHConnection.Connect(f, reader, s, out authResult);
+                _conn = SSHConnection.Connect(f, reader, null, s, out authResult);
                 reader._conn = _conn;
             }
 
@@ -174,7 +173,9 @@ namespace Granados.Tutorial {
         //Tutorial: port forwarding
         private static void ConnectSSH2AndPortforwarding() {
             SSHConnectionParameter f = new SSHConnectionParameter("10.10.9.8", 22, SSHProtocol.SSH2, AuthenticationType.Password, "root", "");
-            f.EventTracer = new Tracer(); //to receive detailed events, set ISSHEventTracer
+
+            Tracer tracer = new Tracer();
+
             Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             s.Connect(new IPEndPoint(IPAddress.Parse(f.HostName), f.PortNumber)); //22 is the default SSH port
 
@@ -193,7 +194,7 @@ namespace Granados.Tutorial {
 
             //Creating a new SSH connection over the underlying socket
             AuthenticationResult authResult;
-            _conn = SSHConnection.Connect(f, reader, s, out authResult);
+            _conn = SSHConnection.Connect(f, reader, tracer, s, out authResult);
             reader._conn = _conn;
 
             //Local->Remote port forwarding
@@ -225,7 +226,9 @@ namespace Granados.Tutorial {
 
         private static void AgentForward() {
             SSHConnectionParameter f = new SSHConnectionParameter("172.22.1.15", 22, SSHProtocol.SSH2, AuthenticationType.Password, "root", "");
-            f.EventTracer = new Tracer(); //to receive detailed events, set ISSHEventTracer
+
+            Tracer tracer = new Tracer();
+
             Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             s.Connect(new IPEndPoint(IPAddress.Parse(f.HostName), f.PortNumber)); //22 is the default SSH port
 
@@ -238,7 +241,7 @@ namespace Granados.Tutorial {
 
             //Creating a new SSH connection over the underlying socket
             AuthenticationResult authResult;
-            _conn = SSHConnection.Connect(f, reader, s, out authResult);
+            _conn = SSHConnection.Connect(f, reader, tracer, s, out authResult);
             reader._conn = _conn;
 
             //Opening a shell
@@ -369,16 +372,17 @@ namespace Granados.Tutorial {
 
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <exclude/>
-    class Tracer : ISSHEventTracer {
-        public void OnTranmission(string type, string detail) {
-            Debug.WriteLine("T:" + type + ":" + detail);
+    class Tracer : ISSHProtocolEventListener {
+        public void OnSend(string messageType, string details) {
+            Debug.WriteLine("EVENT:[S] <{0}> {1}", messageType, details);
         }
-        public void OnReception(string type, string detail) {
-            Debug.WriteLine("R:" + type + ":" + detail);
+
+        public void OnReceived(string messageType, string details) {
+            Debug.WriteLine("EVENT:[R] <{0}> {1}", messageType, details);
+        }
+
+        public void OnTrace(string details) {
+            Debug.WriteLine("TRACE: {0}", details);
         }
     }
 

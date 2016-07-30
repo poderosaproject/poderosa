@@ -7,9 +7,6 @@
  $Id: ConnectionParameter.cs,v 1.5 2011/10/27 23:21:56 kzmi Exp $
 */
 
-using System;
-using System.Security.Cryptography;
-
 using Granados.PKI;
 using Granados.KnownHosts;
 using Granados.KeyboardInteractive;
@@ -196,14 +193,6 @@ namespace Granados {
         private string _versionEOL;
 
         /// <summary>
-        /// Protocol event tracer. (optional)
-        /// </summary>
-        public ISSHEventTracer EventTracer {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Agent forward (optional)
         /// </summary>
         public IAgentForward AgentForward {
@@ -247,18 +236,5 @@ namespace Granados {
             p.PreferableHostKeyAlgorithms = (PublicKeyAlgorithm[])p.PreferableHostKeyAlgorithms.Clone();
             return p;
         }
-    }
-
-    //To receive the events of the SSH protocol negotiation, set an implementation of this interface to ConnectionParameter
-    //note that :
-    // * these methods are called by different threads asynchronously
-    // * DO NOT throw any exceptions in the implementation
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <exclude/>
-    public interface ISSHEventTracer {
-        void OnTranmission(string type, string detail);
-        void OnReception(string type, string detail);
     }
 }
