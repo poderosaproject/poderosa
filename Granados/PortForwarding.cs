@@ -171,7 +171,9 @@ namespace Granados.PortForwarding {
             try {
                 _coreHandler.OnRemotePortForwardingStarted(port);
             }
-            catch (Exception) {
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
             }
         }
 
@@ -179,7 +181,9 @@ namespace Granados.PortForwarding {
             try {
                 _coreHandler.OnRemotePortForwardingFailed();
             }
-            catch (Exception) {
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
             }
         }
 

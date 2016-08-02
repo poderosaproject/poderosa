@@ -255,7 +255,9 @@ namespace Granados.SSH {
             try {
                 _coreHandler.OnEstablished(data);
             }
-            catch (Exception) {
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
             }
         }
 
@@ -263,7 +265,9 @@ namespace Granados.SSH {
             try {
                 _coreHandler.OnReady();
             }
-            catch (Exception) {
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
             }
         }
 
@@ -271,7 +275,9 @@ namespace Granados.SSH {
             try {
                 _coreHandler.OnData(data);
             }
-            catch (Exception) {
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
             }
         }
 
@@ -279,7 +285,9 @@ namespace Granados.SSH {
             try {
                 _coreHandler.OnExtendedData(type, data);
             }
-            catch (Exception) {
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
             }
         }
 
@@ -287,7 +295,9 @@ namespace Granados.SSH {
             try {
                 _coreHandler.OnClosing(byServer);
             }
-            catch (Exception) {
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
             }
         }
 
@@ -295,7 +305,9 @@ namespace Granados.SSH {
             try {
                 _coreHandler.OnClosed(byServer);
             }
-            catch (Exception) {
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
             }
         }
 
@@ -303,7 +315,9 @@ namespace Granados.SSH {
             try {
                 _coreHandler.OnEOF();
             }
-            catch (Exception) {
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
             }
         }
 
@@ -311,7 +325,9 @@ namespace Granados.SSH {
             try {
                 _coreHandler.OnRequestFailed();
             }
-            catch (Exception) {
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
             }
         }
 
@@ -319,7 +335,9 @@ namespace Granados.SSH {
             try {
                 _coreHandler.OnError(error);
             }
-            catch (Exception) {
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
             }
         }
 
@@ -327,7 +345,9 @@ namespace Granados.SSH {
             try {
                 _coreHandler.OnUnhandledPacket(packetType, data);
             }
-            catch (Exception) {
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
             }
         }
 
