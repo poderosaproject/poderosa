@@ -32,6 +32,7 @@ namespace Granados.SSH1 {
         private BigInteger _primeP;
         private BigInteger _primeQ;
         private BigInteger _crtCoefficient;
+        private string _comment;
 
         public BigInteger PublicModulus {
             get {
@@ -41,6 +42,12 @@ namespace Granados.SSH1 {
         public BigInteger PublicExponent {
             get {
                 return _publicExponent;
+            }
+        }
+
+        public string Comment {
+            get {
+                return _comment;
             }
         }
 
@@ -59,7 +66,8 @@ namespace Granados.SSH1 {
                             out _privateExponent,
                             out _primeP,
                             out _primeQ,
-                            out _crtCoefficient);
+                            out _crtCoefficient,
+                            out _comment);
 #else
             Stream s = File.Open(path, FileMode.Open);
             byte[] header = new byte[32];
@@ -75,8 +83,8 @@ namespace Granados.SSH1 {
 
             _modulus = reader.ReadMPInt();
             _publicExponent = reader.ReadMPInt();
-            byte[] comment = reader.ReadString();
-            byte[] prvt = reader.ReadAll();
+            _comment = reader.ReadString();
+            byte[] prvt = reader.GetRemainingDataView().GetBytes();
             //必要なら復号
             CipherAlgorithm algo = (CipherAlgorithm)cipher[1];
             if (algo != 0) {

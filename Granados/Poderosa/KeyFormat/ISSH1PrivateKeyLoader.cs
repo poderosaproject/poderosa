@@ -32,7 +32,8 @@ namespace Granados.Poderosa.KeyFormat {
             out BigInteger privateExponent,
             out BigInteger primeP,
             out BigInteger primeQ,
-            out BigInteger crtCoefficient);
+            out BigInteger crtCoefficient,
+            out string comment);
 
     }
 
