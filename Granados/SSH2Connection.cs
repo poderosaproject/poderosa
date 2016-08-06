@@ -6,6 +6,7 @@
 
  $Id: SSH2Connection.cs,v 1.11 2012/02/25 03:49:46 kzmi Exp $
 */
+using Granados.AgentForwarding;
 using Granados.Crypto;
 using Granados.IO;
 using Granados.IO.SSH2;
@@ -27,6 +28,16 @@ using System.Threading.Tasks;
 namespace Granados.SSH2 {
 
     /// <summary>
+    /// SSH_MSG_CHANNEL_OPEN_FAILURE reason code
+    /// </summary>
+    internal static class SSH2ChannelOpenFailureCode {
+        public const uint SSH_OPEN_ADMINISTRATIVELY_PROHIBITED = 1;
+        public const uint SSH_OPEN_CONNECT_FAILED = 2;
+        public const uint SSH_OPEN_UNKNOWN_CHANNEL_TYPE = 3;
+        public const uint SSH_OPEN_RESOURCE_SHORTAGE = 4;
+    }
+
+    /// <summary>
     /// SSH2
     /// </summary>
     public class SSH2Connection : SSHConnection {
@@ -42,6 +53,7 @@ namespace Granados.SSH2 {
         private readonly SSH2KeyExchanger _keyExchanger;
 
         private readonly Lazy<SSH2RemotePortForwarding> _remotePortForwarding;
+        private readonly Lazy<SSH2OpenSSHAgentForwarding> _agentForwarding;
 
         //server info
         private readonly SSH2ConnectionInfo _cInfo;
@@ -77,6 +89,7 @@ namespace Granados.SSH2 {
             _packetInterceptors.Add(_keyExchanger);
 
             _remotePortForwarding = new Lazy<SSH2RemotePortForwarding>(CreateRemotePortForwarding);
+            _agentForwarding = new Lazy<SSH2OpenSSHAgentForwarding>(CreateAgentForwarding);
         }
 
         public SSHConnectionParameter Param {
@@ -126,6 +139,10 @@ namespace Granados.SSH2 {
         }
 
         public override THandler OpenShell<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator) {
+            if (_param.AgentForwardingAuthKeyProvider != null) {
+                var agentForwarding = _agentForwarding.Value;   // create instance
+            }
+
             return CreateChannelByClient(
                         handlerCreator,
                         localChannel => new SSH2ShellChannel(DetachChannel, this, _param, _protocolEventManager, localChannel)
@@ -235,6 +252,37 @@ namespace Granados.SSH2 {
 
         private SSH2RemotePortForwarding CreateRemotePortForwarding() {
             var instance = new SSH2RemotePortForwarding(_syncHandler, _protocolEventManager);
+            _packetInterceptors.Add(instance);
+            return instance;
+        }
+
+        private SSH2OpenSSHAgentForwarding CreateAgentForwarding() {
+            SSH2OpenSSHAgentForwarding.CreateChannelFunc createChannel =
+               (remoteChannel, serverWindowSize, serverMaxPacketSize) => {
+                   uint localChannel = _channelCollection.GetNewChannelNumber();
+                   return new SSH2OpenSSHAgentForwardingChannel(
+                               DetachChannel,
+                               this,
+                               _param,
+                               _protocolEventManager,
+                               localChannel,
+                               remoteChannel,
+                               serverWindowSize,
+                               serverMaxPacketSize);
+               };
+
+            SSH2OpenSSHAgentForwarding.RegisterChannelFunc registerChannel =
+                (channel, eventHandler) => {
+                    channel.SetHandler(eventHandler);
+                    _channelCollection.Add(channel, eventHandler);
+                };
+
+            var instance = new SSH2OpenSSHAgentForwarding(
+                                _syncHandler,
+                                _param.AgentForwardingAuthKeyProvider,
+                                _protocolEventManager,
+                                createChannel,
+                                registerChannel);
             _packetInterceptors.Add(instance);
             return instance;
         }
@@ -2040,8 +2088,6 @@ namespace Granados.SSH2 {
         private const int PASSING_TIMEOUT = 1000;
         private const int RESPONSE_TIMEOUT = 5000;
 
-        private const uint SSH_OPEN_ADMINISTRATIVELY_PROHIBITED = 1;
-
         public delegate SSH2RemotePortForwardingChannel CreateChannelFunc(RemotePortForwardingRequest requestInfo, uint remoteChannel, uint serverWindowSize, uint serverMaxPacketSize);
         public delegate void RegisterChannelFunc(SSH2RemotePortForwardingChannel channel, ISSHChannelEventHandler eventHandler);
 
@@ -2242,7 +2288,7 @@ namespace Granados.SSH2 {
         /// <param name="remoteChannel">remote channel number</param>
         /// <param name="description">description</param>
         /// <param name="reasonCode">reason code</param>
-        private void RejectForwardedTcpIp(uint remoteChannel, string description, uint reasonCode = SSH_OPEN_ADMINISTRATIVELY_PROHIBITED) {
+        private void RejectForwardedTcpIp(uint remoteChannel, string description, uint reasonCode = SSH2ChannelOpenFailureCode.SSH_OPEN_ADMINISTRATIVELY_PROHIBITED) {
             var packet = BuildChannelOpenFailurePacket(remoteChannel, reasonCode, description);
             _syncHandler.Send(packet);
             _protocolEventManager.Trace("reject forwarded-tcpip : {0}", description);
@@ -2432,6 +2478,145 @@ namespace Granados.SSH2 {
             }
 
             return accepted;
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// Class for supporting OpenSSH's agent forwarding
+    /// </summary>
+    internal class SSH2OpenSSHAgentForwarding : ISSHPacketInterceptor {
+        #region
+
+        private const int PASSING_TIMEOUT = 1000;
+        private const int RESPONSE_TIMEOUT = 5000;
+
+        public delegate SSH2OpenSSHAgentForwardingChannel CreateChannelFunc(uint remoteChannel, uint serverWindowSize, uint serverMaxPacketSize);
+        public delegate void RegisterChannelFunc(SSH2OpenSSHAgentForwardingChannel channel, ISSHChannelEventHandler eventHandler);
+
+        private readonly IAgentForwardingAuthKeyProvider _authKeyProvider;
+        private readonly SSH2SynchronousPacketHandler _syncHandler;
+        private readonly SSHProtocolEventManager _protocolEventManager;
+        private readonly CreateChannelFunc _createChannel;
+        private readonly RegisterChannelFunc _registerChannel;
+
+        private readonly object _sequenceLock = new object();
+        private volatile SequenceStatus _sequenceStatus = SequenceStatus.Idle;
+
+        private readonly AtomicBox<DataFragment> _receivedPacket = new AtomicBox<DataFragment>();
+
+        private enum SequenceStatus {
+            /// <summary>Idle</summary>
+            Idle,
+            /// <summary>the connection has been closed</summary>
+            ConnectionClosed,
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public SSH2OpenSSHAgentForwarding(
+                SSH2SynchronousPacketHandler syncHandler,
+                IAgentForwardingAuthKeyProvider authKeyProvider,
+                SSHProtocolEventManager protocolEventManager,
+                CreateChannelFunc createChannel,
+                RegisterChannelFunc registerChannel) {
+
+            _authKeyProvider = authKeyProvider;
+            _syncHandler = syncHandler;
+            _protocolEventManager = protocolEventManager;
+            _createChannel = createChannel;
+            _registerChannel = registerChannel;
+        }
+
+        /// <summary>
+        /// Intercept a received packet.
+        /// </summary>
+        /// <param name="packet">a packet image</param>
+        /// <returns>result</returns>
+        public SSHPacketInterceptorResult InterceptPacket(DataFragment packet) {
+            SSH2PacketType packetType = (SSH2PacketType)packet[0];
+            if (packetType != SSH2PacketType.SSH_MSG_CHANNEL_OPEN) {
+                return SSHPacketInterceptorResult.PassThrough;
+            }
+
+            SSH2DataReader reader = new SSH2DataReader(packet);
+            reader.ReadByte();  // skip packet type (message number)
+            string channelType = reader.ReadString();
+            if (channelType != "auth-agent@openssh.com") {
+                return SSHPacketInterceptorResult.PassThrough;
+            }
+
+            uint remoteChannel = reader.ReadUInt32();
+            uint initialWindowSize = reader.ReadUInt32();
+            uint maxPacketSize = reader.ReadUInt32();
+
+            if (_authKeyProvider == null || !_authKeyProvider.IsAuthKeyProviderEnabled) {
+                RejectAuthAgent(remoteChannel, "Cannot accept the request");
+                _protocolEventManager.Trace("auth-agent@openssh.com : rejected");
+                return SSHPacketInterceptorResult.Consumed;
+            }
+
+            _protocolEventManager.Trace(
+                "auth-agent@openssh.com : windowSize={0} maxPacketSize={1}", initialWindowSize, maxPacketSize);
+
+            // create a channel
+            var channel = _createChannel(remoteChannel, initialWindowSize, maxPacketSize);
+
+            _protocolEventManager.Trace("new agent forwarding channel : local={0} remote={1}", channel.LocalChannel, channel.RemoteChannel);
+
+            // create a handler
+            var handler = new OpenSSHAgentForwardingMessageHandler(channel, _authKeyProvider);
+
+            // register a channel to the connection object
+            _registerChannel(channel, handler);
+
+            // send SSH_MSG_CHANNEL_OPEN_CONFIRMATION
+            channel.SendOpenConfirmation();
+
+            return SSHPacketInterceptorResult.Consumed;
+        }
+
+        /// <summary>
+        /// Handles connection close.
+        /// </summary>
+        public void OnConnectionClosed() {
+            lock (_sequenceLock) {
+                if (_sequenceStatus != SequenceStatus.ConnectionClosed) {
+                    _sequenceStatus = SequenceStatus.ConnectionClosed;
+                    DataFragment dummyPacket = new DataFragment(new byte[1] { 0xff }, 0, 1);
+                    _receivedPacket.TrySet(dummyPacket, PASSING_TIMEOUT);
+                    Monitor.PulseAll(_sequenceLock);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sends SSH_MSG_CHANNEL_OPEN_FAILURE for rejecting the request.
+        /// </summary>
+        /// <param name="remoteChannel">remote channel number</param>
+        /// <param name="description">description</param>
+        /// <param name="reasonCode">reason code</param>
+        private void RejectAuthAgent(uint remoteChannel, string description, uint reasonCode = SSH2ChannelOpenFailureCode.SSH_OPEN_ADMINISTRATIVELY_PROHIBITED) {
+            var packet = BuildChannelOpenFailurePacket(remoteChannel, reasonCode, description);
+            _syncHandler.Send(packet);
+            _protocolEventManager.Trace("reject auth-agent@openssh.com : {0}", description);
+        }
+
+        /// <summary>
+        /// Builds a SSH_MSG_CHANNEL_OPEN_FAILURE packet.
+        /// </summary>
+        /// <param name="remoteChannel">remote channel number</param>
+        /// <param name="reasonCode">reason code</param>
+        /// <param name="description">description</param>
+        /// <returns>a packet object</returns>
+        private SSH2Packet BuildChannelOpenFailurePacket(uint remoteChannel, uint reasonCode, string description) {
+            return new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE)
+                    .WriteUInt32(remoteChannel)
+                    .WriteUInt32(reasonCode)
+                    .WriteUTF8String(description)
+                    .WriteString("");   // lang tag
         }
 
         #endregion

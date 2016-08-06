@@ -758,6 +758,8 @@ namespace Granados.SSH2 {
             NotReady,
             /// <summary>waiting SSH_MSG_CHANNEL_SUCCESS | SSH_MSG_CHANNEL_FAILURE for "pty-req" request</summary>
             WaitPtyReqConfirmation,
+            /// <summary>waiting SSH_MSG_CHANNEL_SUCCESS | SSH_MSG_CHANNEL_FAILURE for "auth-agent-req@openssh.com" request</summary>
+            WaitAuthAgentReqConfirmation,
             /// <summary>waiting SSH_MSG_CHANNEL_SUCCESS | SSH_MSG_CHANNEL_FAILURE for "shell" request</summary>
             WaitShellConfirmation,
             /// <summary></summary>
@@ -820,7 +822,7 @@ namespace Granados.SSH2 {
                     lock (_stateSync) {
                         if (_state == MinorState.WaitPtyReqConfirmation) {
                             if (success) {
-                                goto SendShellRequest;
+                                goto SendAuthAgentRequest;
                             }
                             else {
                                 _state = MinorState.NotReady;
@@ -831,8 +833,8 @@ namespace Granados.SSH2 {
 
                     return;
 
-                SendShellRequest:
-                    SendShellRequest();
+                SendAuthAgentRequest:
+                    SendAuthAgentRequest();
                     return;
 
                 RequestFailed:
@@ -845,6 +847,49 @@ namespace Granados.SSH2 {
                 LocalChannel, _param.TerminalName,
                 _param.TerminalWidth, _param.TerminalHeight,
                 _param.TerminalPixelWidth, _param.TerminalPixelHeight);
+        }
+
+        /// <summary>
+        /// Sends SSH_MSG_CHANNEL_REQUEST "auth-agent-req@openssh.com"
+        /// </summary>
+        private void SendAuthAgentRequest() {
+            if (_param.AgentForwardingAuthKeyProvider == null) {
+                SendShellRequest();
+                return;
+            }
+
+            lock (_stateSync) {
+                _state = MinorState.WaitAuthAgentReqConfirmation;
+            }
+
+            SendRequest(
+                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
+                    .WriteUInt32(RemoteChannel)
+                    .WriteString("auth-agent-req@openssh.com")
+                    .WriteBool(true),
+
+                success => {
+                    lock (_stateSync) {
+                        if (_state == MinorState.WaitAuthAgentReqConfirmation) {
+                            goto SendShellRequest;
+                        }
+                    }
+
+                    return;
+
+                SendShellRequest:
+                    if (success) {
+                        Trace("CH[{0}] the request of the agent forwarding has been accepted.", LocalChannel);
+                    }
+                    else {
+                        Trace("CH[{0}] the request of the agent forwarding has been rejected.", LocalChannel);
+                    }
+                    SendShellRequest();
+                    return;
+                }
+            );
+
+            Trace("CH[{0}] auth-agent-req@openssh.com", LocalChannel);
         }
 
         /// <summary>
@@ -1155,6 +1200,33 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH2RemotePortForwardingChannel(
+                Action<ISSHChannel> detachAction,
+                SSH2Connection connection,
+                SSHConnectionParameter param,
+                SSHProtocolEventManager protocolEventManager,
+                uint localChannel,
+                uint remoteChannel,
+                uint serverWindowSize,
+                uint serverMaxPacketSize)
+            : base(detachAction, connection, param, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING, serverWindowSize, serverMaxPacketSize) {
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// SSH2 channel operator for OpenSSH's agent forwarding.
+    /// </summary>
+    internal class SSH2OpenSSHAgentForwardingChannel : SSH2ChannelBase {
+        #region
+
+        private const ChannelType CHANNEL_TYPE = ChannelType.AgentForwarding;
+        private const string CHANNEL_TYPE_STRING = "auth-agent@openssh.com";
+
+        /// <summary>
+        /// Constructor (initiated by server)
+        /// </summary>
+        public SSH2OpenSSHAgentForwardingChannel(
                 Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
