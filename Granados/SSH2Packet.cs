@@ -262,7 +262,7 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <param name="initialCapacity">initial capacity of the payload buffer.</param>
         public SSH2PayloadImageBuilder(int initialCapacity) {
-            _payload = new ByteBuffer(0x1000, -1);
+            _payload = new ByteBuffer(initialCapacity, -1);
         }
 
         /// <summary>
