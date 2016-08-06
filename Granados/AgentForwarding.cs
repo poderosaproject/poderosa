@@ -5,6 +5,7 @@
  You may not use this file except in compliance with the license.
 */
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
@@ -50,39 +51,33 @@ namespace Granados.AgentForwarding {
     }
 
     /// <summary>
-    /// SSH1 agent forwarding message types (OpenSSH's protocol)
+    /// Agent forwarding message types (OpenSSH's protocol)
     /// </summary>
-    internal enum SSH1AgentForwardingMessageType {
-        // from client
+    internal enum OpenSSHAgentForwardingMessageType {
+        //--- from client
+        // for SSH1 keys
         SSH_AGENTC_REQUEST_RSA_IDENTITIES = 1,
         SSH_AGENTC_RSA_CHALLENGE = 3,
-
-        // from agent
-        SSH_AGENT_RSA_IDENTITIES_ANSWER = 2,
-        SSH_AGENT_RSA_RESPONSE = 4,
-        SSH_AGENT_FAILURE = 5,
-        SSH_AGENT_SUCCESS = 6,
-    }
-
-    /// <summary>
-    /// SSH2 agent forwarding message types (OpenSSH's protocol)
-    /// </summary>
-    internal enum SSH2AgentForwardingMessageType {
-        // from client
+        // for SSH2 keys
         SSH2_AGENTC_REQUEST_IDENTITIES = 11,
         SSH2_AGENTC_SIGN_REQUEST = 13,
 
-        // from agent
+        //--- from agent
+        // for SSH1 keys
+        SSH_AGENT_RSA_IDENTITIES_ANSWER = 2,
+        SSH_AGENT_RSA_RESPONSE = 4,
+        // for SSH2 keys
         SSH2_AGENT_IDENTITIES_ANSWER = 12,
         SSH2_AGENT_SIGN_RESPONSE = 14,
+        // generic
         SSH_AGENT_FAILURE = 5,
         SSH_AGENT_SUCCESS = 6,
     }
 
     /// <summary>
-    /// Message builder for the agent forwarding response.
+    /// Message builder for the agent forwarding response. (OpenSSH's protocol)
     /// </summary>
-    internal abstract class AgentForwardingMessageBase : IPacketBuilder {
+    internal class OpenSSHAgentForwardingMessage : ISSH1PacketBuilder, ISSH2PacketBuilder {
 
         private readonly ByteBuffer _payload = new ByteBuffer(16 * 1024, -1);
 
@@ -103,7 +98,7 @@ namespace Granados.AgentForwarding {
         /// Constructor
         /// </summary>
         /// <param name="messageType">message type</param>
-        protected AgentForwardingMessageBase(byte messageType) {
+        public OpenSSHAgentForwardingMessage(OpenSSHAgentForwardingMessageType messageType) {
             _payload.WriteUInt32(0);    // message length (set later)
             _payload.WriteByte((byte)messageType);
         }
@@ -119,32 +114,27 @@ namespace Granados.AgentForwarding {
         }
     }
 
-    internal class SSH1AgentForwardingMessage : AgentForwardingMessageBase, ISSH1PacketBuilder {
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="messageType">message type</param>
-        public SSH1AgentForwardingMessage(SSH1AgentForwardingMessageType messageType)
-            : base((byte)messageType) {
-        }
-    }
-
-    internal class SSH2AgentForwardingMessage : AgentForwardingMessageBase, ISSH2PacketBuilder {
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="messageType">message type</param>
-        public SSH2AgentForwardingMessage(SSH2AgentForwardingMessageType messageType)
-            : base((byte)messageType) {
-        }
-    }
-
     /// <summary>
-    /// Base class for the agent forwarding message handler
+    /// Agent forwarding message handler (OpenSSH's protocol)
     /// </summary>
-    internal abstract class AgentForwardingMessageHandlerBase : SimpleSSHChannelEventHandler {
+    internal class OpenSSHAgentForwardingMessageHandler : SimpleSSHChannelEventHandler {
+
+        private const uint SSH_AGENT_OLD_SIGNATURE = 1;
+
+        private readonly ISSHChannel _channel;
+        private readonly IAgentForwardingAuthKeyProvider _authKeyProvider;
 
         private readonly ByteBuffer _buffer = new ByteBuffer(16 * 1024, 64 * 1024);
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="channel">channel object</param>
+        /// <param name="authKeyProvider">authentication key provider</param>
+        public OpenSSHAgentForwardingMessageHandler(ISSHChannel channel, IAgentForwardingAuthKeyProvider authKeyProvider) {
+            _channel = channel;
+            _authKeyProvider = authKeyProvider;
+        }
 
         /// <summary>
         /// Handles channel data
@@ -170,47 +160,23 @@ namespace Granados.AgentForwarding {
         }
 
         /// <summary>
-        /// Process an agent forwarding request message
-        /// </summary>
-        /// <param name="message">message data</param>
-        protected abstract void ProcessMessage(DataFragment message);
-    }
-
-    /// <summary>
-    /// SSH1 agent forwarding message handler
-    /// </summary>
-    internal class SSH1AgentForwardingMessageHandler : AgentForwardingMessageHandlerBase {
-
-        private readonly ISSHChannel _channel;
-        private readonly IAgentForwardingAuthKeyProvider _authKeyProvider;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="channel">channel object</param>
-        /// <param name="authKeyProvider">authentication key provider</param>
-        public SSH1AgentForwardingMessageHandler(ISSHChannel channel, IAgentForwardingAuthKeyProvider authKeyProvider) {
-            _channel = channel;
-            _authKeyProvider = authKeyProvider;
-        }
-
-        /// <summary>
         /// Process forwarded message.
         /// </summary>
         /// <param name="message">a forwarded message</param>
-        protected override void ProcessMessage(DataFragment message) {
+        private void ProcessMessage(DataFragment message) {
             if (_authKeyProvider == null || !_authKeyProvider.IsAuthKeyProviderEnabled) {
                 SendFailure();
                 return;
             }
 
             SSH1DataReader reader = new SSH1DataReader(message);
-            SSH1AgentForwardingMessageType messageType = (SSH1AgentForwardingMessageType)reader.ReadByte();
+            OpenSSHAgentForwardingMessageType messageType = (OpenSSHAgentForwardingMessageType)reader.ReadByte();
             switch (messageType) {
-                case SSH1AgentForwardingMessageType.SSH_AGENTC_REQUEST_RSA_IDENTITIES:
-                    RSAIdentities();
+                // for SSH1 keys
+                case OpenSSHAgentForwardingMessageType.SSH_AGENTC_REQUEST_RSA_IDENTITIES:
+                    SSH1Identities();
                     break;
-                case SSH1AgentForwardingMessageType.SSH_AGENTC_RSA_CHALLENGE: {
+                case OpenSSHAgentForwardingMessageType.SSH_AGENTC_RSA_CHALLENGE: {
                         reader.ReadUInt32();    // ignored
                         BigInteger e = reader.ReadMPInt();
                         BigInteger n = reader.ReadMPInt();
@@ -218,7 +184,19 @@ namespace Granados.AgentForwarding {
                         byte[] sessionId = reader.Read(16);
                         uint responseType = reader.ReadUInt32();
 
-                        RSAChallenge(e, n, encryptedChallenge, sessionId, responseType);
+                        SSH1IRSAChallenge(e, n, encryptedChallenge, sessionId, responseType);
+                    }
+                    break;
+                // for SSH2 keys
+                case OpenSSHAgentForwardingMessageType.SSH2_AGENTC_REQUEST_IDENTITIES:
+                    SSH2Identities();
+                    break;
+                case OpenSSHAgentForwardingMessageType.SSH2_AGENTC_SIGN_REQUEST: {
+                        byte[] blob = reader.ReadByteString();
+                        byte[] data = reader.ReadByteString();
+                        uint flags = reader.ReadUInt32();
+
+                        SSH2Sign(blob, data, flags);
                     }
                     break;
                 default:
@@ -228,15 +206,11 @@ namespace Granados.AgentForwarding {
         }
 
         /// <summary>
-        /// List RSA keys
+        /// List SSH1 RSA keys
         /// </summary>
-        private void RSAIdentities() {
-            var authKeys = _authKeyProvider.GetAvailableSSH1UserAuthKeys();
-            if (authKeys == null) {
-                authKeys = new SSH1UserAuthKey[0];
-            }
-
-            var message = new SSH1AgentForwardingMessage(SSH1AgentForwardingMessageType.SSH_AGENT_RSA_IDENTITIES_ANSWER);
+        private void SSH1Identities() {
+            var authKeys = _authKeyProvider.GetAvailableSSH1UserAuthKeys() ?? new SSH1UserAuthKey[0];
+            var message = new OpenSSHAgentForwardingMessage(OpenSSHAgentForwardingMessageType.SSH_AGENT_RSA_IDENTITIES_ANSWER);
             message.WriteInt32(authKeys.Length);
             foreach (var key in authKeys) {
                 message.WriteInt32(key.PublicModulus.BitCount());
@@ -244,25 +218,24 @@ namespace Granados.AgentForwarding {
                 SSH1PacketBuilderMixin.WriteBigInteger(message, key.PublicModulus);
                 message.WriteString(key.Comment);
             }
-
             Send(message);
         }
 
         /// <summary>
-        /// RSA challenge
+        /// SSH1 RSA challenge
         /// </summary>
         /// <param name="e">public exponent</param>
         /// <param name="n">public modulus</param>
         /// <param name="encryptedChallenge">encrypted challenge</param>
         /// <param name="sessionId">session id</param>
         /// <param name="responseType">response type</param>
-        private void RSAChallenge(BigInteger e, BigInteger n, BigInteger encryptedChallenge, byte[] sessionId, uint responseType) {
+        private void SSH1IRSAChallenge(BigInteger e, BigInteger n, BigInteger encryptedChallenge, byte[] sessionId, uint responseType) {
             if (responseType != 1) {
                 SendFailure();
                 return;
             }
 
-            SSH1UserAuthKey key = FindKey(e, n);
+            SSH1UserAuthKey key = SSH1FindKey(e, n);
             if (key == null) {
                 SendFailure();
                 return;
@@ -278,30 +251,77 @@ namespace Granados.AgentForwarding {
             }
 
             Send(
-                new SSH1AgentForwardingMessage(SSH1AgentForwardingMessageType.SSH_AGENT_RSA_RESPONSE)
+                new OpenSSHAgentForwardingMessage(OpenSSHAgentForwardingMessageType.SSH_AGENT_RSA_RESPONSE)
                     .Write(hash)
             );
         }
 
         /// <summary>
-        /// Find a key
+        /// Find a SSH1 key
         /// </summary>
         /// <param name="e">public exponent</param>
         /// <param name="n">public modulus</param>
         /// <returns>matched key object, or null if not found.</returns>
-        private SSH1UserAuthKey FindKey(BigInteger e, BigInteger n) {
+        private SSH1UserAuthKey SSH1FindKey(BigInteger e, BigInteger n) {
             var authKeys = _authKeyProvider.GetAvailableSSH1UserAuthKeys();
             if (authKeys == null) {
                 return null;
             }
+            return authKeys.FirstOrDefault(key => (key.PublicModulus == n && key.PublicExponent == e));
+        }
 
+        /// <summary>
+        /// List SSH2 keys
+        /// </summary>
+        private void SSH2Identities() {
+            var authKeys = _authKeyProvider.GetAvailableSSH2UserAuthKeys() ?? new SSH2UserAuthKey[0];
+            var message = new OpenSSHAgentForwardingMessage(OpenSSHAgentForwardingMessageType.SSH2_AGENT_IDENTITIES_ANSWER);
+            message.WriteInt32(authKeys.Length);
             foreach (var key in authKeys) {
-                if (key.PublicModulus == n && key.PublicExponent == e) {
-                    return key;
-                }
+                byte[] blob = key.GetPublicKeyBlob();
+                message.WriteAsString(blob);
+                message.WriteUTF8String(key.Comment);
+            }
+            Send(message);
+        }
+
+        /// <summary>
+        /// SSH2 private key signature
+        /// </summary>
+        private void SSH2Sign(byte[] blob, byte[] data, uint flags) {
+            if ((flags & SSH_AGENT_OLD_SIGNATURE) != 0) {
+                SendFailure();
+                return;
             }
 
-            return null;
+            SSH2UserAuthKey key = SSH2FindKey(blob);
+            if (key == null) {
+                SendFailure();
+                return;
+            }
+
+            SSH2PayloadImageBuilder image = new SSH2PayloadImageBuilder();
+            image.WriteString(SSH2Util.PublicKeyAlgorithmName(key.Algorithm));
+            image.WriteAsString(key.Sign(data));
+            byte[] signatureBlob = image.GetBytes();
+
+            Send(
+                new OpenSSHAgentForwardingMessage(OpenSSHAgentForwardingMessageType.SSH2_AGENT_SIGN_RESPONSE)
+                    .WriteAsString(signatureBlob)
+            );
+        }
+
+        /// <summary>
+        /// Find a SSH2 key
+        /// </summary>
+        /// <param name="blob">key blob</param>
+        /// <returns>matched key object, or null if not found.</returns>
+        private SSH2UserAuthKey SSH2FindKey(byte[] blob) {
+            var authKeys = _authKeyProvider.GetAvailableSSH2UserAuthKeys();
+            if (authKeys == null) {
+                return null;
+            }
+            return authKeys.FirstOrDefault(key => SSHUtil.ByteArrayEqual(blob, key.GetPublicKeyBlob()));
         }
 
         /// <summary>
@@ -309,7 +329,7 @@ namespace Granados.AgentForwarding {
         /// </summary>
         private void SendFailure() {
             Send(
-                new SSH1AgentForwardingMessage(SSH1AgentForwardingMessageType.SSH_AGENT_FAILURE)
+                new OpenSSHAgentForwardingMessage(OpenSSHAgentForwardingMessageType.SSH_AGENT_FAILURE)
             );
         }
 
@@ -317,143 +337,9 @@ namespace Granados.AgentForwarding {
         /// Sends a message.
         /// </summary>
         /// <param name="message">a message object</param>
-        private void Send(SSH1AgentForwardingMessage message) {
+        private void Send(OpenSSHAgentForwardingMessage message) {
             _channel.Send(message.GetImage());
         }
     }
 
-
-
-    //currently OpenSSH's SSH2 connections are only supported
-    /*
-    internal class AgentForwardingChannel : ISSHChannelEventReceiver {
-        private readonly IAgentForward _client;
-        private readonly ByteBuffer _buffer;
-        private SSHChannel _channel;
-        private bool _closed;
-
-        public AgentForwardingChannel(IAgentForward client) {
-            _client = client;
-            _buffer = new ByteBuffer(0x1000, 0x40000);
-        }
-
-        internal void SetChannel(SSHChannel channel) {
-            _channel = channel;
-        }
-
-        public void OnData(DataFragment data) {
-            _buffer.Append(data);
-            if (_buffer.Length >= 4) {
-                SSH2DataReader reader = new SSH2DataReader(_buffer.AsDataFragment());
-                int expectedLength = reader.ReadInt32();
-                if (expectedLength <= reader.RemainingDataLength) {
-                    AgentForwadPacketType pt = (AgentForwadPacketType)reader.ReadByte();
-                    switch (pt) {
-                        case AgentForwadPacketType.SSH2_AGENTC_REQUEST_IDENTITIES:
-                            SendKeyList();
-                            break;
-                        case AgentForwadPacketType.SSH2_AGENTC_SIGN_REQUEST:
-                            byte[] reqKeyBlob = reader.ReadByteString();
-                            byte[] reqData = reader.ReadByteString();
-                            uint reqFlags = reader.ReadUInt32();
-                            SendSign(reqKeyBlob, reqData, reqFlags);
-                            break;
-                        default:
-                            SendFailure();
-                            break;
-                    }
-                }
-            }
-        }
-
-        public void OnExtendedData(uint type, DataFragment data) {
-        }
-
-        public void OnChannelClosed() {
-            if (!_closed) {
-                _closed = true;
-                _client.Close();
-            }
-        }
-
-        public void OnChannelEOF() {
-            if (!_closed) {
-                _closed = true;
-                _client.Close();
-            }
-        }
-
-        public void OnChannelError(Exception error) {
-            _client.OnError(error);
-        }
-
-        public void OnChannelReady() {
-        }
-
-        public void OnMiscPacket(byte packetType, DataFragment data) {
-        }
-
-        private void SendKeyList() {
-            SSH2PayloadImageBuilder image = new SSH2PayloadImageBuilder();
-            image.WriteUInt32(0);    // length field
-            image.WriteByte((byte)AgentForwadPacketType.SSH2_AGENT_IDENTITIES_ANSWER);
-            // keycount, ((blob-len, pubkey-blob, comment-len, comment) * keycount)
-            SSH2UserAuthKey[] keys = _client.GetAvailableSSH2UserAuthKeys();
-            image.WriteInt32(keys.Length);
-            foreach (SSH2UserAuthKey key in keys) {
-                byte[] blob = key.GetPublicKeyBlob();
-                image.WriteAsString(blob);
-                Debug.WriteLine("Userkey comment=" + key.Comment);
-                image.WriteUTF8String(key.Comment);
-            }
-            int length = image.Length;
-            image.OverwriteUInt32(0, (uint)(length - 4));
-            TransmitWriter(image.AsDataFragment());
-        }
-
-        private void SendSign(byte[] blob, byte[] data, uint flags) {
-            SSH2UserAuthKey[] keys = _client.GetAvailableSSH2UserAuthKeys();
-            SSH2UserAuthKey key = FindKey(keys, blob);
-            if (key == null) {
-                SendFailure();
-                _client.NotifyPublicKeyDidNotMatch();
-                return;
-            }
-
-            SSH2PayloadImageBuilder image = new SSH2PayloadImageBuilder();
-            image.WriteString(SSH2Util.PublicKeyAlgorithmName(key.Algorithm));
-            image.WriteAsString(key.Sign(data));
-            byte[] signpackImage = image.GetBytes();
-
-            image.Clear();
-            image.WriteUInt32(0);    // length field
-            image.WriteByte((byte)AgentForwadPacketType.SSH2_AGENT_SIGN_RESPONSE);
-            image.WriteAsString(signpackImage);
-            int length = image.Length;
-            image.OverwriteUInt32(0, (uint)(length - 4));
-            TransmitWriter(image.AsDataFragment());
-        }
-
-        private void SendFailure() {
-            SSH2PayloadImageBuilder image = new SSH2PayloadImageBuilder();
-            image.WriteUInt32(1);    // length field
-            image.WriteByte((byte)AgentForwadPacketType.SSH_AGENT_FAILURE);
-            TransmitWriter(image.AsDataFragment());
-        }
-
-        private void TransmitWriter(DataFragment data) {
-            _channel.Transmit(data.Data , data.Offset, data.Length);
-        }
-
-        private SSH2UserAuthKey FindKey(SSH2UserAuthKey[] keys, byte[] blob) {
-            foreach (SSH2UserAuthKey key in keys) {
-                byte[] t = key.GetPublicKeyBlob();
-                if (Util.SSHUtil.ByteArrayEqual(t, blob)) {
-                    return key;
-                }
-            }
-            return null;
-        }
-    }
-     */
 }

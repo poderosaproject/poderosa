@@ -1805,7 +1805,7 @@ namespace Granados.SSH1 {
             var channel = _createChannel(remoteChannel);
 
             // create a handler
-            var handler = new SSH1AgentForwardingMessageHandler(channel, _authKeyProvider);
+            var handler = new OpenSSHAgentForwardingMessageHandler(channel, _authKeyProvider);
 
             // register a channel to the connection object
             _registerChannel(channel, handler);
