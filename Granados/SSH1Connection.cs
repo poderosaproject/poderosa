@@ -1801,7 +1801,12 @@ namespace Granados.SSH1 {
             reader.ReadByte();    // skip message number
             uint remoteChannel = reader.ReadUInt32();
 
-            // create a temporary channel
+            if (_authKeyProvider == null || !_authKeyProvider.IsAuthKeyProviderEnabled) {
+                RejectAgentForwarding(remoteChannel);
+                return SSHPacketInterceptorResult.Consumed;
+            }
+
+            // create a channel
             var channel = _createChannel(remoteChannel);
 
             // create a handler
@@ -1836,6 +1841,15 @@ namespace Granados.SSH1 {
         /// <returns></returns>
         private SSH1Packet BuildAgentRequestForwardingPacket() {
             return new SSH1Packet(SSH1PacketType.SSH_CMSG_AGENT_REQUEST_FORWARDING);
+        }
+
+        /// <summary>
+        /// Sends SSH_MSG_CHANNEL_OPEN_FAILURE for rejecting the request.
+        /// </summary>
+        /// <param name="remoteChannel">remote channel number</param>
+        private void RejectAgentForwarding(uint remoteChannel) {
+            var packet = new SSH1Packet(SSH1PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE);
+            _syncHandler.Send(packet);
         }
 
         /// <summary>
