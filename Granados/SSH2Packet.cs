@@ -410,7 +410,7 @@ namespace Granados.SSH2 {
                     return;
                 }
 
-                _inputBuffer.Append(data.Data, data.Offset, data.Length);
+                _inputBuffer.Append(data);
 
                 ProcessBuffer();
             }
