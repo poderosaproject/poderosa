@@ -1081,4 +1081,37 @@ namespace Granados.SSH1 {
 
         #endregion
     }
+
+    /// <summary>
+    /// SSH1 channel operator for the agent forwarding.
+    /// </summary>
+    internal class SSH1AgentForwardingChannel : SSH1SubChannelBase {
+        #region
+
+        private const ChannelType CHANNEL_TYPE = ChannelType.AgentForwarding;
+        private const string CHANNEL_TYPE_STRING = "AgentForwarding";
+
+        /// <summary>
+        /// Constructor (initiated by server)
+        /// </summary>
+        public SSH1AgentForwardingChannel(
+                Action<ISSHChannel> detachAction,
+                SSH1Connection connection,
+                SSHProtocolEventManager protocolEventManager,
+                uint localChannel,
+                uint remoteChannel)
+            : base(detachAction, connection, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+        }
+
+        /// <summary>
+        /// Builds an open-channel packet.
+        /// </summary>
+        protected override Tuple<SSH1Packet, string, object[]> BuildOpenPacket() {
+            // this method should not be called.
+            throw new InvalidOperationException();
+        }
+
+        #endregion
+    }
+
 }

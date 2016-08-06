@@ -89,7 +89,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AgentForward.cs" />
+    <Compile Include="AgentForwarding.cs" />
     <Compile Include="AlgorithmSupport.cs">
       <SubType>Code</SubType>
     </Compile>

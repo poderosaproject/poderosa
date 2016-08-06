@@ -10,24 +10,25 @@
 
  $Id: SSH1Connection.cs,v 1.4 2011/11/08 12:24:05 kzmi Exp $
 */
-using System;
-using System.IO;
-using System.Security.Cryptography;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Threading;
-
-using Granados.PKI;
-using Granados.Util;
+using Granados.AgentForwarding;
 using Granados.Crypto;
 using Granados.IO;
 using Granados.IO.SSH1;
 using Granados.Mono.Math;
-using Granados.SSH;
+using Granados.PKI;
 using Granados.PortForwarding;
+using Granados.SSH;
+using Granados.Util;
+
+using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
+using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Granados.SSH1 {
 
@@ -51,6 +52,7 @@ namespace Granados.SSH1 {
         private readonly SSH1KeyExchanger _keyExchanger;
 
         private readonly Lazy<SSH1RemotePortForwarding> _remotePortForwarding;
+        private readonly Lazy<SSH1AgentForwarding> _agentForwarding;
 
         private readonly SSH1ConnectionInfo _cInfo;
 
@@ -85,6 +87,7 @@ namespace Granados.SSH1 {
             _packetInterceptors.Add(_keyExchanger);
 
             _remotePortForwarding = new Lazy<SSH1RemotePortForwarding>(CreateRemotePortForwarding);
+            _agentForwarding = new Lazy<SSH1AgentForwarding>(CreateAgentForwarding);
         }
 
         public SSHConnectionParameter Param {
@@ -206,6 +209,16 @@ namespace Granados.SSH1 {
                 throw new SSHException(Strings.GetString("OnlySingleInteractiveSessionCanBeStarted"));
             }
 
+            if (_param.AgentForwardingAuthKeyProvider != null) {
+                bool started = _agentForwarding.Value.StartAgentForwarding();
+                if (!started) {
+                    _protocolEventManager.Trace("the request of the agent forwarding has been rejected.");
+                }
+                else {
+                    _protocolEventManager.Trace("the request of the agent forwarding has been accepted.");
+                }
+            }
+
             return CreateChannelByClient(
                         handlerCreator,
                         localChannel =>
@@ -289,6 +302,24 @@ namespace Granados.SSH1 {
 
         private SSH1RemotePortForwarding CreateRemotePortForwarding() {
             var instance = new SSH1RemotePortForwarding(_syncHandler, StartIdleInteractiveSession);
+            _packetInterceptors.Add(instance);
+            return instance;
+        }
+
+        private SSH1AgentForwarding CreateAgentForwarding() {
+            var instance = new SSH1AgentForwarding(
+                            _syncHandler,
+                            _param.AgentForwardingAuthKeyProvider,
+                            remoteChannel => {
+                                uint localChannel = _channelCollection.GetNewChannelNumber();
+                                return new SSH1AgentForwardingChannel(
+                                                DetachChannel, this, _protocolEventManager, localChannel, remoteChannel);
+                            },
+                            (channel, eventHandler) => {
+                                channel.SetHandler(eventHandler);
+                                _channelCollection.Add(channel, eventHandler);
+                            }
+                        );
             _packetInterceptors.Add(instance);
             return instance;
         }
@@ -1572,7 +1603,7 @@ namespace Granados.SSH1 {
         }
 
         /// <summary>
-        /// Builds SSH_MSG_GLOBAL_REQUEST "tcpip-forward" packet.
+        /// Builds SSH_CMSG_PORT_FORWARD_REQUEST packet.
         /// </summary>
         /// <param name="portNumberToBind">port number to bind on the server</param>
         /// <param name="hostToConnect">host the connection should be be forwarded to</param>
@@ -1658,6 +1689,181 @@ namespace Granados.SSH1 {
                         _portDict.TryAdd(
                             key,
                             new PortInfo(requestHandler, createChannel, registerChannel));
+                    }
+                }
+            }
+
+            lock (_sequenceLock) {
+                // reset status
+                _sequenceStatus = SequenceStatus.Idle;
+                Monitor.PulseAll(_sequenceLock);
+            }
+
+            return accepted;
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// Class for supporting authentication agent forwarding
+    /// </summary>
+    internal class SSH1AgentForwarding : ISSHPacketInterceptor {
+        #region
+
+        private const int PASSING_TIMEOUT = 1000;
+        private const int RESPONSE_TIMEOUT = 5000;
+
+        public delegate SSH1AgentForwardingChannel CreateChannelFunc(uint remoteChannel);
+        public delegate void RegisterChannelFunc(SSH1AgentForwardingChannel channel, ISSHChannelEventHandler eventHandler);
+
+        private readonly SSH1SynchronousPacketHandler _syncHandler;
+        private readonly CreateChannelFunc _createChannel;
+        private readonly RegisterChannelFunc _registerChannel;
+        private readonly IAgentForwardingAuthKeyProvider _authKeyProvider;
+
+        private readonly object _sequenceLock = new object();
+        private volatile SequenceStatus _sequenceStatus = SequenceStatus.Idle;
+
+        private readonly AtomicBox<DataFragment> _receivedPacket = new AtomicBox<DataFragment>();
+
+        private enum SequenceStatus {
+            /// <summary>Idle</summary>
+            Idle,
+            /// <summary>the connection has been closed</summary>
+            ConnectionClosed,
+            /// <summary>SSH_CMSG_AGENT_REQUEST_FORWARDING has been sent. waiting for SSH_SMSG_SUCCESS | SSH_SMSG_FAILURE.</summary>
+            WaitAgentForwardingResponse,
+            /// <summary>SSH_SMSG_SUCCESS has been received.</summary>
+            AgentForwardingSuccess,
+            /// <summary>SSH_SMSG_FAILURE has been received.</summary>
+            AgentForwardingFailure,
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public SSH1AgentForwarding(
+                SSH1SynchronousPacketHandler syncHandler,
+                IAgentForwardingAuthKeyProvider authKeyProvider,
+                CreateChannelFunc createChannel,
+                RegisterChannelFunc registerChannel) {
+            _syncHandler = syncHandler;
+            _createChannel = createChannel;
+            _registerChannel = registerChannel;
+            _authKeyProvider = authKeyProvider;
+        }
+
+        /// <summary>
+        /// Intercept a received packet.
+        /// </summary>
+        /// <param name="packet">a packet image</param>
+        /// <returns>result</returns>
+        public SSHPacketInterceptorResult InterceptPacket(DataFragment packet) {
+            SSH1PacketType packetType = (SSH1PacketType)packet[0];
+            SSHPacketInterceptorResult result = CheckAgentOpenRequestPacket(packetType, packet);
+            if (result != SSHPacketInterceptorResult.PassThrough) {
+                return result;
+            }
+
+            lock (_sequenceLock) {
+                switch (_sequenceStatus) {
+                    case SequenceStatus.WaitAgentForwardingResponse:
+                        if (packetType == SSH1PacketType.SSH_SMSG_SUCCESS) {
+                            _sequenceStatus = SequenceStatus.AgentForwardingSuccess;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return SSHPacketInterceptorResult.Consumed;
+                        }
+                        if (packetType == SSH1PacketType.SSH_SMSG_FAILURE) {
+                            _sequenceStatus = SequenceStatus.AgentForwardingFailure;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return SSHPacketInterceptorResult.Consumed;
+                        }
+                        break;
+                }
+
+                return SSHPacketInterceptorResult.PassThrough;
+            }
+        }
+
+        /// <summary>
+        /// Handles new request.
+        /// </summary>
+        /// <param name="packetType">packet type</param>
+        /// <param name="packet">packet data</param>
+        /// <returns>result</returns>
+        private SSHPacketInterceptorResult CheckAgentOpenRequestPacket(SSH1PacketType packetType, DataFragment packet) {
+            if (packetType != SSH1PacketType.SSH_SMSG_AGENT_OPEN) {
+                return SSHPacketInterceptorResult.PassThrough;
+            }
+
+            SSH1DataReader reader = new SSH1DataReader(packet);
+            reader.ReadByte();    // skip message number
+            uint remoteChannel = reader.ReadUInt32();
+
+            // create a temporary channel
+            var channel = _createChannel(remoteChannel);
+
+            // create a handler
+            var handler = new SSH1AgentForwardingMessageHandler(channel, _authKeyProvider);
+
+            // register a channel to the connection object
+            _registerChannel(channel, handler);
+
+            // send SSH_MSG_CHANNEL_OPEN_CONFIRMATION
+            channel.SendOpenConfirmation();
+
+            return SSHPacketInterceptorResult.Consumed;
+        }
+
+        /// <summary>
+        /// Handles connection close.
+        /// </summary>
+        public void OnConnectionClosed() {
+            lock (_sequenceLock) {
+                if (_sequenceStatus != SequenceStatus.ConnectionClosed) {
+                    _sequenceStatus = SequenceStatus.ConnectionClosed;
+                    DataFragment dummyPacket = new DataFragment(new byte[1] { 0xff }, 0, 1);
+                    _receivedPacket.TrySet(dummyPacket, PASSING_TIMEOUT);
+                    Monitor.PulseAll(_sequenceLock);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Builds SSH_CMSG_AGENT_REQUEST_FORWARDING packet.
+        /// </summary>
+        /// <returns></returns>
+        private SSH1Packet BuildAgentRequestForwardingPacket() {
+            return new SSH1Packet(SSH1PacketType.SSH_CMSG_AGENT_REQUEST_FORWARDING);
+        }
+
+        /// <summary>
+        /// Starts agent forwarding.
+        /// </summary>
+        /// <returns>true if the agent forwarding has been started.</returns>
+        public bool StartAgentForwarding() {
+            lock (_sequenceLock) {
+                while (_sequenceStatus != SequenceStatus.Idle) {
+                    if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
+                        return false;
+                    }
+                    Monitor.Wait(_sequenceLock);
+                }
+
+                _receivedPacket.Clear();
+                _sequenceStatus = SequenceStatus.WaitAgentForwardingResponse;
+            }
+
+            var packet = BuildAgentRequestForwardingPacket();
+            _syncHandler.Send(packet);
+
+            DataFragment response = null;
+            bool accepted = false;
+            if (_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+                lock (_sequenceLock) {
+                    if (_sequenceStatus == SequenceStatus.AgentForwardingSuccess) {
+                        accepted = true;
                     }
                 }
             }

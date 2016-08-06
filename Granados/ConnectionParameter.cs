@@ -10,6 +10,7 @@
 using Granados.PKI;
 using Granados.KnownHosts;
 using Granados.KeyboardInteractive;
+using Granados.AgentForwarding;
 
 namespace Granados {
 
@@ -193,9 +194,13 @@ namespace Granados {
         private string _versionEOL;
 
         /// <summary>
-        /// Agent forward (optional)
+        /// Key provider for the agent forwarding.
         /// </summary>
-        public IAgentForward AgentForward {
+        /// <remarks>
+        /// This property can be null.<br/>
+        /// If this property was not null, the agent forwarding will be requested to the server before a new shell is opened.
+        /// </remarks>
+        public IAgentForwardingAuthKeyProvider AgentForwardingAuthKeyProvider {
             get;
             set;
         }

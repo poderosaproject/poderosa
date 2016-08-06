@@ -14,6 +14,7 @@ using System.Diagnostics;
 
 using Granados;
 using Poderosa.MacroEngine;
+using Granados.AgentForwarding;
 
 namespace Poderosa.Protocols {
     /** TerminalParameter族の提供
@@ -173,7 +174,7 @@ namespace Poderosa.Protocols {
         private string _identityFile;
         private string _passwordOrPassphrase;
         private bool _letUserInputPassword;
-        private IAgentForward _agentForward;
+        private IAgentForwardingAuthKeyProvider _authKeyProvider;
 
         public SSHLoginParameter() {
             _method = SSHProtocol.SSH2;
@@ -191,7 +192,7 @@ namespace Poderosa.Protocols {
             _identityFile = src._identityFile;
             _passwordOrPassphrase = src._passwordOrPassphrase;
             _letUserInputPassword = src._letUserInputPassword;
-            _agentForward = src._agentForward;
+            _authKeyProvider = src._authKeyProvider;
         }
 
         [MacroConnectionParameter]
@@ -247,12 +248,12 @@ namespace Poderosa.Protocols {
                 _letUserInputPassword = value;
             }
         }
-        public IAgentForward AgentForward {
+        public IAgentForwardingAuthKeyProvider AgentForwardingAuthKeyProvider {
             get {
-                return _agentForward;
+                return _authKeyProvider;
             }
             set {
-                _agentForward = value;
+                _authKeyProvider = value;
             }
         }
         public override bool UIEquals(ITerminalParameter param) {

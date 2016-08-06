@@ -21,6 +21,8 @@ using Granados.Util;
 using Granados.PKI;
 using Granados.KeyboardInteractive;
 using Granados.SSH;
+using Granados.AgentForwarding;
+using Granados.SSH1;
 
 namespace Granados.Tutorial {
 #if ENABLE_TUTORIAL
@@ -236,7 +238,7 @@ namespace Granados.Tutorial {
             f.PreferableHostKeyAlgorithms = new PublicKeyAlgorithm[] { PublicKeyAlgorithm.RSA, PublicKeyAlgorithm.DSA };
             f.PreferableCipherAlgorithms = new CipherAlgorithm[] { CipherAlgorithm.Blowfish, CipherAlgorithm.TripleDES };
             f.WindowSize = 0x1000; //this option is ignored with SSH1
-            f.AgentForward = new AgentForwardClient();
+            f.AgentForwardingAuthKeyProvider = new AgentForwardingAuthKeyProvider();
             Reader reader = new Reader(); //simple event receiver
 
             //Creating a new SSH connection over the underlying socket
@@ -386,27 +388,44 @@ namespace Granados.Tutorial {
         }
     }
 
-    class AgentForwardClient : IAgentForward {
-        private SSH2UserAuthKey[] _keys;
-        public SSH2UserAuthKey[] GetAvailableSSH2UserAuthKeys() {
-            if (_keys == null) {
-                SSH2UserAuthKey k = SSH2UserAuthKey.FromSECSHStyleFile(@"C:\P4\Tools\keys\aaa", "aaa");
-                _keys = new SSH2UserAuthKey[] { k };
+    class AgentForwardingAuthKeyProvider : IAgentForwardingAuthKeyProvider {
+
+        private SSH1UserAuthKey[] _ssh1Keys;
+        private SSH2UserAuthKey[] _ssh2Keys;
+
+        public bool IsAuthKeyProviderEnabled {
+            get {
+                // always active
+                return true;
             }
-            return _keys;
         }
 
-        public void NotifyPublicKeyDidNotMatch() {
-            Debug.WriteLine("KEY NOT MATCH");
-        }
-        public bool CanAcceptForwarding() {
-            return true;
+        public SSH1UserAuthKey[] GetAvailableSSH1UserAuthKeys() {
+            if (_ssh1Keys == null) {
+                try {
+                    SSH1UserAuthKey k = new SSH1UserAuthKey(@"C:\P4\Tools\keys\aaa", "aaa");
+                    _ssh1Keys = new SSH1UserAuthKey[] { k };
+                }
+                catch (Exception e) {
+                    Debug.WriteLine(e.Message);
+                    _ssh1Keys = new SSH1UserAuthKey[0];
+                }
+            }
+            return _ssh1Keys;
         }
 
-        public void Close() {
-        }
-
-        public void OnError(Exception ex) {
+        public SSH2UserAuthKey[] GetAvailableSSH2UserAuthKeys() {
+            if (_ssh2Keys == null) {
+                try {
+                    SSH2UserAuthKey k = SSH2UserAuthKey.FromSECSHStyleFile(@"C:\P4\Tools\keys\aaa", "aaa");
+                    _ssh2Keys = new SSH2UserAuthKey[] { k };
+                }
+                catch (Exception e) {
+                    Debug.WriteLine(e.Message);
+                    _ssh2Keys = new SSH2UserAuthKey[0];
+                }
+            }
+            return _ssh2Keys;
         }
     }
 #endif

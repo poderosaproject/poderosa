@@ -13,6 +13,7 @@ using System.Net;
 
 using Poderosa.Util;
 using Granados;
+using Granados.AgentForwarding;
 
 namespace Poderosa.Protocols {
     /// <summary>
@@ -314,7 +315,7 @@ namespace Poderosa.Protocols {
         /// 
         /// </summary>
         /// <exclude/>
-        IAgentForward AgentForward {
+        IAgentForwardingAuthKeyProvider AgentForwardingAuthKeyProvider {
             get;
             set;
         }

@@ -237,7 +237,7 @@ namespace Granados {
         ForwardedRemoteToLocal,
         ExecCommand,  // for scp
         Subsystem,
-        AgentForward,
+        AgentForwarding,
         Other,
     }
 
