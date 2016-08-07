@@ -644,7 +644,7 @@ namespace Granados.SSH2 {
         }
 
         /// <summary>
-        /// Start key exchange asynchronously.
+        /// Execute key exchange.
         /// </summary>
         /// <remarks>
         /// if an error has been occurred during the key-exchange, an exception will be thrown.
