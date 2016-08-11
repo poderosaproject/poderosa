@@ -28,7 +28,6 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Granados.SSH1 {
 
@@ -105,13 +104,12 @@ namespace Granados.SSH1 {
         internal override AuthenticationResult Connect() {
             try {
                 //key exchange
-                Task kexTask = _keyExchanger.StartKeyExchange();
-                kexTask.Wait();
+                _keyExchanger.ExecKeyExchange();
 
+                //user authentication
                 SSH1UserAuthentication userAuth = new SSH1UserAuthentication(this, _param, _syncHandler, _sessionID);
                 _packetInterceptors.Add(userAuth);
-                Task userAuthTask = userAuth.StartAuthentication();
-                userAuthTask.Wait();
+                userAuth.ExecAuthentication();
 
                 return AuthenticationResult.Success;
             }
@@ -727,8 +725,6 @@ namespace Granados.SSH1 {
 
         private readonly AtomicBox<DataFragment> _receivedPacket = new AtomicBox<DataFragment>();
 
-        private Task _kexTask;
-
         /// <summary>
         /// Constructor
         /// </summary>
@@ -806,18 +802,19 @@ namespace Granados.SSH1 {
         }
 
         /// <summary>
-        /// Start key exchange asynchronously.
+        /// Executes key exchange.
         /// </summary>
-        /// <returns>a new task if the key exchange has been started, or existing task if another key exchange is running.</returns>
-        public Task StartKeyExchange() {
+        /// <remarks>
+        /// if an error has been occurred during the key-exchange, an exception will be thrown.
+        /// </remarks>
+        public void ExecKeyExchange() {
             lock (_sequenceLock) {
                 if (_sequenceStatus != SequenceStatus.Idle) {
-                    return _kexTask;
+                    throw new InvalidOperationException(Strings.GetString("RequestedTaskIsAlreadyRunning"));
                 }
                 _sequenceStatus = SequenceStatus.WaitPublicKey;
-                _kexTask = Task.Run(() => DoKeyExchange());
-                return _kexTask;
             }
+            DoKeyExchange();
         }
 
         /// <summary>
@@ -1050,8 +1047,6 @@ namespace Granados.SSH1 {
 
         private readonly AtomicBox<DataFragment> _receivedPacket = new AtomicBox<DataFragment>();
 
-        private Task _authTask;
-
         private enum SequenceStatus {
             /// <summary>authentication can be started</summary>
             Idle,
@@ -1198,18 +1193,19 @@ namespace Granados.SSH1 {
         }
 
         /// <summary>
-        /// Start authentication asynchronously.
+        /// Executes authentication.
         /// </summary>
-        /// <returns>a new task if the authentication has been started, or existing task if another authentication is running.</returns>
-        public Task StartAuthentication() {
+        /// <remarks>
+        /// if an error has been occurred during the authentication, an exception will be thrown.
+        /// </remarks>
+        public void ExecAuthentication() {
             lock (_sequenceLock) {
                 if (_sequenceStatus != SequenceStatus.Idle) {
-                    return _authTask;
+                    throw new InvalidOperationException(Strings.GetString("RequestedTaskIsAlreadyRunning"));
                 }
                 _sequenceStatus = SequenceStatus.StartAuthentication;
-                _authTask = Task.Run(() => DoAuthentication());
-                return _authTask;
             }
+            DoAuthentication();
         }
 
         /// <summary>
