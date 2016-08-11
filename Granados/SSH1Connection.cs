@@ -462,6 +462,16 @@ namespace Granados.SSH1 {
                         }
                     }
                     break;
+                case SSH1PacketType.SSH_MSG_IGNORE: {
+                        byte[] data = reader.ReadByteString();
+                        _eventReceiver.OnIgnoreMessage(data);
+                    }
+                    break;
+                case SSH1PacketType.SSH_MSG_DEBUG: {
+                        string message = reader.ReadString();
+                        _eventReceiver.OnDebugMessage(false, message);
+                    }
+                    break;
                 default:
                     _eventReceiver.OnUnknownMessage((byte)pt, packet.GetBytes());
                     break;

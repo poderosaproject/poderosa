@@ -309,33 +309,41 @@ namespace Granados.SSH2 {
                 return; // invalid packet
             }
 
-            SSH2DataReader r = new SSH2DataReader(packet);
-            SSH2PacketType pt = (SSH2PacketType)r.ReadByte();
+            SSH2DataReader reader = new SSH2DataReader(packet);
+            SSH2PacketType packetType = (SSH2PacketType)reader.ReadByte();
 
-            if (pt == SSH2PacketType.SSH_MSG_DISCONNECT) {
-                int errorcode = r.ReadInt32();
+            if (packetType == SSH2PacketType.SSH_MSG_DISCONNECT) {
+                int errorcode = reader.ReadInt32();
                 _eventReceiver.OnConnectionClosed();
                 return;
             }
 
-            if (pt >= SSH2PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION && pt <= SSH2PacketType.SSH_MSG_CHANNEL_FAILURE) {
-                uint localChannel = r.ReadUInt32();
+            if (packetType >= SSH2PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION && packetType <= SSH2PacketType.SSH_MSG_CHANNEL_FAILURE) {
+                uint localChannel = reader.ReadUInt32();
                 var channelOperator = _channelCollection.FindOperator(localChannel) as SSH2ChannelBase;
                 if (channelOperator != null) {
-                    channelOperator.ProcessPacket(pt, r.GetRemainingDataView());
+                    channelOperator.ProcessPacket(packetType, reader.GetRemainingDataView());
                 }
                 else {
-                    Debug.WriteLine("unexpected channel pt=" + pt + " local_channel=" + localChannel.ToString());
+                    Debug.WriteLine("unexpected channel pt=" + packetType + " local_channel=" + localChannel.ToString());
                 }
                 return;
             }
 
-            if (pt == SSH2PacketType.SSH_MSG_IGNORE) {
-                _eventReceiver.OnIgnoreMessage(r.ReadByteString());
+            if (packetType == SSH2PacketType.SSH_MSG_IGNORE) {
+                _eventReceiver.OnIgnoreMessage(reader.ReadByteString());
                 return;
             }
 
-            _eventReceiver.OnUnknownMessage((byte)pt, packet.GetBytes());
+            if (packetType == SSH2PacketType.SSH_MSG_DEBUG) {
+                bool alwaysDisplay = reader.ReadBool();
+                string message = reader.ReadUTF8String();
+                string languageTag = reader.ReadString();
+                _eventReceiver.OnDebugMessage(alwaysDisplay, message);
+                return;
+            }
+
+            _eventReceiver.OnUnknownMessage((byte)packetType, packet.GetBytes());
         }
 
         private void OnConnectionClosed() {
