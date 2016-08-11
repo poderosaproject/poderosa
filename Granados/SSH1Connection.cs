@@ -68,7 +68,7 @@ namespace Granados.SSH1 {
 
             IDataHandler adapter = new DataHandlerAdapter(
                             (data) => {
-                                AsyncReceivePacket(data);
+                                ProcessPacket(data);
                             },
                             () => {
                                 OnConnectionClosed();
@@ -418,16 +418,16 @@ namespace Granados.SSH1 {
             }
         }
 
-        internal void AsyncReceivePacket(DataFragment packet) {
+        internal void ProcessPacket(DataFragment packet) {
             try {
-                ProcessPacket(packet);
+                DoProcessPacket(packet);
             }
             catch (Exception ex) {
                 _eventReceiver.OnError(ex);
             }
         }
 
-        private void ProcessPacket(DataFragment packet) {
+        private void DoProcessPacket(DataFragment packet) {
             if (_packetInterceptors.InterceptPacket(packet)) {
                 return;
             }

@@ -71,7 +71,7 @@ namespace Granados.SSH2 {
             _cInfo = new SSH2ConnectionInfo(param.HostName, param.PortNumber, serverVersion, clientVersion);
             IDataHandler adapter = new DataHandlerAdapter(
                             (data) => {
-                                AsyncReceivePacket(data);
+                                ProcessPacket(data);
                             },
                             () => {
                                 OnConnectionClosed();
@@ -291,16 +291,16 @@ namespace Granados.SSH2 {
             _syncHandler.Send(packet);
         }
 
-        internal void AsyncReceivePacket(DataFragment packet) {
+        internal void ProcessPacket(DataFragment packet) {
             try {
-                ProcessPacket(packet);
+                DoProcessPacket(packet);
             }
             catch (Exception ex) {
                 _eventReceiver.OnError(ex);
             }
         }
 
-        private void ProcessPacket(DataFragment packet) {
+        private void DoProcessPacket(DataFragment packet) {
             if (_packetInterceptors.InterceptPacket(packet)) {
                 return;
             }
