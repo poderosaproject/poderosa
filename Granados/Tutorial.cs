@@ -162,14 +162,11 @@ namespace Granados.Tutorial {
             //Opening a shell
             var ch = _conn.OpenShell(channelOperator => new ChannelHandler(channelOperator));
 
-            // TODO:
-            //reader._pf = ch;
-
             //you can get the detailed connection information in this way:
             //SSHConnectionInfo ci = _conn.ConnectionInfo;
 
             //Go to sample shell
-            SampleShell(reader);
+            SampleShell(ch);
         }
 
         //Tutorial: port forwarding
@@ -216,13 +213,13 @@ namespace Granados.Tutorial {
             //((SSH2Connection)_conn).ReexchangeKeys();
         }
 
-        private static void SampleShell(Reader reader) {
+        private static void SampleShell(ChannelHandler channelHandler) {
             byte[] b = new byte[1];
             while (true) {
                 int input = System.Console.Read();
 
                 b[0] = (byte)input;
-                reader._pf.Transmit(b);
+                channelHandler.Operator.Send(new DataFragment(b, 0, b.Length));
             }
         }
 
@@ -257,7 +254,7 @@ namespace Granados.Tutorial {
             ch.Operator.Send(new DataFragment(data, 0, data.Length));
 
             //Go to sample shell
-            SampleShell(reader);
+            SampleShell(ch);
         }
 
     }
@@ -266,7 +263,7 @@ namespace Granados.Tutorial {
     /// 
     /// </summary>
     /// <exclude/>
-    class Reader : ISSHConnectionEventReceiver, ISSHChannelEventReceiver {
+    class Reader : ISSHConnectionEventReceiver {
         public SSHConnection _conn;
         public bool _ready;
 
@@ -289,7 +286,6 @@ namespace Granados.Tutorial {
             //_conn.AsyncReceive(this);
         }
         public void OnChannelEOF() {
-            _pf.Close();
             Debug.WriteLine("Channel EOF");
         }
         public void OnExtendedData(uint type, DataFragment data) {
@@ -309,8 +305,6 @@ namespace Granados.Tutorial {
         }
         public void OnMiscPacket(byte type, DataFragment data) {
         }
-
-        public SSHChannel _pf;
     }
 
     class ChannelHandler : ISSHChannelEventHandler {

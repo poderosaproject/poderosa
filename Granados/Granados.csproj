@@ -102,9 +102,6 @@
     <Compile Include="Blowfish.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ChannelCollection.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="CipherUtil.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -186,7 +183,6 @@
     <Compile Include="RSA.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="SCP.cs" />
     <Compile Include="Socket.cs">
       <SubType>Code</SubType>
     </Compile>

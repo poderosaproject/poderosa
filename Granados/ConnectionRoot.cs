@@ -23,7 +23,6 @@ namespace Granados {
     /// <exclude/>
     public abstract class SSHConnection {
 
-        protected ChannelCollection _channel_collection;      //channels
         protected IGranadosSocket _stream;                    //underlying socket
         protected ISSHConnectionEventReceiver _eventReceiver; //outgoing interface for this connection
         protected byte[] _sessionID;                          //session ID
@@ -37,7 +36,6 @@ namespace Granados {
         protected SSHConnection(SSHConnectionParameter param, IGranadosSocket strm, ISSHConnectionEventReceiver receiver) {
             _stream = strm;
             _eventReceiver = receiver;
-            _channel_collection = new ChannelCollection();
             _autoDisconnect = true;
             _execCmd = null;
             _execCmdWaitFlag = true;
@@ -73,11 +71,6 @@ namespace Granados {
         internal IGranadosSocket UnderlyingStream {
             get {
                 return _stream;
-            }
-        }
-        internal ChannelCollection ChannelCollection {
-            get {
-                return _channel_collection;
             }
         }
 
@@ -227,83 +220,17 @@ namespace Granados {
     }
 
     /// <summary>
-    /// 
+    /// Channel type
     /// </summary>
-    /// <exclude/>
     public enum ChannelType {
         Session,
         Shell,
         ForwardedLocalToRemote,
         ForwardedRemoteToLocal,
-        ExecCommand,  // for scp
+        ExecCommand,
         Subsystem,
         AgentForwarding,
         Other,
     }
 
-    /**
-     * the base class for SSH channels
-     */
-    /// <exclude/>
-    public abstract class SSHChannel {
-        protected ChannelType _type;
-        protected int _localID; // FIXME: should be uint
-        protected int _remoteID; // FIXME: should be uint
-        private SSHConnection _connection;
-
-        protected SSHChannel(SSHConnection con, ChannelType type, int localID) {
-            con.ChannelCollection.RegisterChannel(localID, this);
-            _connection = con;
-            _type = type;
-            _localID = localID;
-        }
-
-        public int LocalChannelID {
-            get {
-                return _localID;
-            }
-        }
-        public int RemoteChannelID {
-            get {
-                return _remoteID;
-            }
-        }
-        public SSHConnection Connection {
-            get {
-                return _connection;
-            }
-        }
-        public ChannelType Type {
-            get {
-                return _type;
-            }
-        }
-
-        /**
-         * resizes the size of terminal
-         */
-        public abstract void ResizeTerminal(int width, int height, int pixel_width, int pixel_height);
-
-        /**
-        * transmits channel data 
-        */
-        public abstract void Transmit(byte[] data);
-
-        /**
-        * transmits channel data 
-        */
-        public abstract void Transmit(byte[] data, int offset, int length);
-
-        /**
-         * sends EOF(SSH2 only)
-         */
-        public abstract void SendEOF();
-
-        /**
-         * closes this channel
-         */
-        public abstract void Close();
-
-
-    }
 }
