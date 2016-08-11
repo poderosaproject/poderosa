@@ -236,44 +236,6 @@ namespace Granados.SSH1 {
     }
 
     /// <summary>
-    /// A bridge handler that delegates <see cref="SSH1Packetizer"/>'s events to <see cref="SSH1Connection"/>.
-    /// </summary>
-    internal class SSH1PacketizerPacketHandler : IDataHandler {
-
-        private readonly SSH1Connection _connection;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="connection">SSH1 connection object</param>
-        public SSH1PacketizerPacketHandler(SSH1Connection connection) {
-            _connection = connection;
-        }
-
-        /// <summary>
-        /// Implements <see cref="IDataHandler"/>
-        /// </summary>
-        public void OnData(DataFragment data) {
-            _connection.AsyncReceivePacket(data);
-        }
-
-        /// <summary>
-        /// Implements <see cref="IDataHandler"/>
-        /// </summary>
-        public void OnError(Exception error) {
-            _connection.EventReceiver.OnError(error);
-        }
-
-        /// <summary>
-        /// Implements <see cref="IDataHandler"/>
-        /// </summary>
-        public void OnClosed() {
-            _connection.EventReceiver.OnConnectionClosed();
-        }
-
-    }
-
-    /// <summary>
     /// <see cref="IDataHandler"/> that extracts SSH packet from the data stream
     /// and passes it to another <see cref="IDataHandler"/>.
     /// </summary>

@@ -332,53 +332,6 @@ namespace Granados.SSH1 {
             OpenShell(channel => new SimpleSSHChannelEventHandler());
         }
 
-        private void ProcessPortforwardingRequest(ISSHConnectionEventReceiver receiver, SSH1DataReader reader) {
-            /*
-            int server_channel = reader.ReadInt32();
-            string host = reader.ReadString();
-            int port = reader.ReadInt32();
-
-            PortForwardingCheckResult result = receiver.CheckPortForwardingRequest(host, port, "", 0);
-            if (result.allowed) {
-                int local_id = _channel_collection.RegisterChannelEventReceiver(null, result.channel).LocalID;
-                _eventReceiver.EstablishPortforwarding(result.channel, new SSH1Channel(this, ChannelType.ForwardedRemoteToLocal, local_id, server_channel));
-
-                Transmit(
-                    new SSH1Packet(SSH1PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION)
-                        .WriteInt32(server_channel)
-                        .WriteInt32(local_id)
-                );
-            }
-            else {
-                Transmit(
-                    new SSH1Packet(SSH1PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE)
-                        .WriteInt32(server_channel)
-                );
-            }
-             */
-        }
-
-        private byte[] CalcSessionID() {
-            MemoryStream bos = new MemoryStream();
-            byte[] h = _cInfo.HostKey.Modulus.GetBytes();
-            byte[] s = _cInfo.ServerKey.Modulus.GetBytes();
-            //System.out.println("len h="+h.Length);
-            //System.out.println("len s="+s.Length);
-
-            int off_h = (h[0] == 0 ? 1 : 0);
-            int off_s = (s[0] == 0 ? 1 : 0);
-            bos.Write(h, off_h, h.Length - off_h);
-            bos.Write(s, off_s, s.Length - off_s);
-            bos.Write(_cInfo.AntiSpoofingCookie, 0, _cInfo.AntiSpoofingCookie.Length);
-
-            byte[] session_id;
-            using (var md5 = new MD5CryptoServiceProvider()) {
-                session_id = md5.ComputeHash(bos.ToArray());
-            }
-            //System.out.println("sess-id-len=" + session_id.Length);
-            return session_id;
-        }
-
         private void UpdateClientKey(Cipher cipherClient) {
             _packetizer.SetCipher(cipherClient, _param.CheckMACError);
         }
@@ -388,37 +341,7 @@ namespace Granados.SSH1 {
             _syncHandler.SetCipher(cipherServer);
         }
 
-        //init ciphers
-        private void InitCipher(byte[] session_key) {
-            Cipher cipherServer = CipherFactory.CreateCipher(SSHProtocol.SSH1, _cInfo.OutgoingPacketCipher.Value, session_key);
-            Cipher cipherLocal = CipherFactory.CreateCipher(SSHProtocol.SSH1, _cInfo.IncomingPacketCipher.Value, session_key);
-            _syncHandler.SetCipher(cipherServer);
-            _packetizer.SetCipher(cipherLocal, _param.CheckMACError);
-        }
-
-        private DataFragment ReceivePacket() {
-            while (true) {
-                DataFragment data = _syncHandler.WaitResponse(10000);
-
-                SSH1PacketType pt = (SSH1PacketType)data[0]; //shortcut
-                if (pt == SSH1PacketType.SSH_MSG_IGNORE) {
-                    SSH1DataReader r = new SSH1DataReader(data);
-                    r.ReadByte();
-                    if (_eventReceiver != null)
-                        _eventReceiver.OnIgnoreMessage(r.ReadByteString());
-                }
-                else if (pt == SSH1PacketType.SSH_MSG_DEBUG) {
-                    SSH1DataReader r = new SSH1DataReader(data);
-                    r.ReadByte();
-                    if (_eventReceiver != null)
-                        _eventReceiver.OnDebugMessage(false, r.ReadString());
-                }
-                else
-                    return data;
-            }
-        }
-
-        internal void ProcessPacket(DataFragment packet) {
+        private void ProcessPacket(DataFragment packet) {
             try {
                 DoProcessPacket(packet);
             }

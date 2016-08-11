@@ -335,23 +335,6 @@ namespace Granados.SSH2 {
 
     }
     
-    internal class CallbackSSH2PacketHandler : IDataHandler {
-        internal SSH2Connection _connection;
-
-        internal CallbackSSH2PacketHandler(SSH2Connection con) {
-            _connection = con;
-        }
-        public void OnData(DataFragment data) {
-            _connection.AsyncReceivePacket(data);
-        }
-        public void OnError(Exception error) {
-            _connection.EventReceiver.OnError(error);
-        }
-        public void OnClosed() {
-            _connection.EventReceiver.OnConnectionClosed();
-        }
-    }
-
     /// <summary>
     /// <see cref="IDataHandler"/> that extracts SSH packet from the data stream
     /// and passes it to another <see cref="IDataHandler"/>.

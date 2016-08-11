@@ -291,7 +291,7 @@ namespace Granados.SSH2 {
             _syncHandler.Send(packet);
         }
 
-        internal void ProcessPacket(DataFragment packet) {
+        private void ProcessPacket(DataFragment packet) {
             try {
                 DoProcessPacket(packet);
             }
