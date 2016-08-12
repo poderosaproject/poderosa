@@ -398,6 +398,12 @@ namespace Poderosa.Protocols {
             }
         }
 
+        public int MaxChannelDatagramSize {
+            get {
+                return 1024;
+            }
+        }
+
         public void ResizeTerminal(uint width, uint height, uint pixelWidth, uint pixelHeight) {
         }
 
