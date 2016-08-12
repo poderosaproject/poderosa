@@ -123,11 +123,10 @@ namespace Granados.SSH1 {
                             remoteChannel => {
                                 uint localChannel = _channelCollection.GetNewChannelNumber();
                                 return new SSH1AgentForwardingChannel(
-                                                DetachChannel, this, _protocolEventManager, localChannel, remoteChannel);
+                                                this, _protocolEventManager, localChannel, remoteChannel);
                             },
                             (channel, eventHandler) => {
-                                channel.SetHandler(eventHandler);
-                                _channelCollection.Add(channel, eventHandler);
+                                RegisterChannel(channel, eventHandler);
                             }
                         );
             _packetInterceptors.Add(instance);
@@ -275,7 +274,7 @@ namespace Granados.SSH1 {
                         handlerCreator,
                         localChannel =>
                             new SSH1InteractiveSession(
-                                DetachChannel, this, _protocolEventManager, localChannel, ChannelType.Shell, "Shell"),
+                                this, _protocolEventManager, localChannel, ChannelType.Shell, "Shell"),
                         channel => {
                             _interactiveSession = channel;
                             channel.ExecShell(_param);
@@ -300,7 +299,7 @@ namespace Granados.SSH1 {
                         handlerCreator,
                         localChannel =>
                             new SSH1InteractiveSession(
-                                DetachChannel, this, _protocolEventManager, localChannel, ChannelType.ExecCommand, "ExecCommand"),
+                                this, _protocolEventManager, localChannel, ChannelType.ExecCommand, "ExecCommand"),
                         channel => {
                             _interactiveSession = channel;
                             channel.ExecCommand(_param, command);
@@ -339,7 +338,7 @@ namespace Granados.SSH1 {
             return CreateChannelByClient(
                         handlerCreator,
                         localChannel => new SSH1LocalPortForwardingChannel(
-                                            DetachChannel, this, _protocolEventManager, localChannel,
+                                            this, _protocolEventManager, localChannel,
                                             remoteHost, remotePort, originatorIp, originatorPort),
                         channel => {
                             channel.SendOpen();
@@ -360,7 +359,6 @@ namespace Granados.SSH1 {
                 (requestInfo, remoteChannel) => {
                     uint localChannel = _channelCollection.GetNewChannelNumber();
                     return new SSH1RemotePortForwardingChannel(
-                                    DetachChannel,
                                     this,
                                     _protocolEventManager,
                                     localChannel,
@@ -368,11 +366,7 @@ namespace Granados.SSH1 {
                                 );
                 };
 
-            SSH1RemotePortForwarding.RegisterChannelFunc registerChannel =
-                (channel, eventHandler) => {
-                    channel.SetHandler(eventHandler);
-                    _channelCollection.Add(channel, eventHandler);
-                };
+            SSH1RemotePortForwarding.RegisterChannelFunc registerChannel = RegisterChannel;
 
             // Note:
             //  According to the SSH 1.5 protocol specification, the client has to specify host and port
@@ -424,9 +418,8 @@ namespace Granados.SSH1 {
             uint localChannel = _channelCollection.GetNewChannelNumber();
             var channel = channelCreator(localChannel);
             var eventHandler = handlerCreator(channel);
-            channel.SetHandler(eventHandler);
 
-            _channelCollection.Add(channel, eventHandler);
+            RegisterChannel(channel, eventHandler);
 
             try {
                 initiate(channel);
@@ -440,15 +433,26 @@ namespace Granados.SSH1 {
         }
 
         /// <summary>
+        /// Registers a new channel to this connection.
+        /// </summary>
+        /// <param name="channel">a channel object</param>
+        /// <param name="eventHandler">an event handler</param>
+        private void RegisterChannel(SSH1ChannelBase channel, ISSHChannelEventHandler eventHandler) {
+            channel.SetHandler(eventHandler);
+            channel.Died += DetachChannel;
+            _channelCollection.Add(channel, eventHandler);
+        }
+
+        /// <summary>
         /// Detach channel object.
         /// </summary>
-        /// <param name="channelOperator">a channel operator</param>
-        private void DetachChannel(ISSHChannel channelOperator) {
-            if (Object.ReferenceEquals(channelOperator, _interactiveSession)) {
+        /// <param name="channel">a channel operator</param>
+        private void DetachChannel(ISSHChannel channel) {
+            if (Object.ReferenceEquals(channel, _interactiveSession)) {
                 _interactiveSession = null;
             }
-            var handler = _channelCollection.FindHandler(channelOperator.LocalChannel);
-            _channelCollection.Remove(channelOperator);
+            var handler = _channelCollection.FindHandler(channel.LocalChannel);
+            _channelCollection.Remove(channel);
             if (handler != null) {
                 handler.Dispose();
             }

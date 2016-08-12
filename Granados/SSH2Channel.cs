@@ -41,7 +41,6 @@ namespace Granados.SSH2 {
             Consumed,
         }
 
-        private readonly Action<ISSHChannel> _detachAction;
         private readonly SSH2Connection _connection;
         private readonly SSHProtocolEventManager _protocolEventManager;
         private readonly int _localMaxPacketSize;
@@ -60,10 +59,14 @@ namespace Granados.SSH2 {
         private ISSHChannelEventHandler _handler = new SimpleSSHChannelEventHandler();
 
         /// <summary>
+        /// Event that notifies that this channel is already dead.
+        /// </summary>
+        internal event Action<ISSHChannel> Died;
+
+        /// <summary>
         /// Constructor (initiated by server)
         /// </summary>
         public SSH2ChannelBase(
-                Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
@@ -74,7 +77,6 @@ namespace Granados.SSH2 {
                 uint serverWindowSize,
                 uint serverMaxPacketSize) {
 
-            _detachAction = detachAction;
             _connection = connection;
             _protocolEventManager = protocolEventManager;
             LocalChannel = localChannel;
@@ -94,7 +96,6 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH2ChannelBase(
-                Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
@@ -102,7 +103,6 @@ namespace Granados.SSH2 {
                 ChannelType channelType,
                 string channelTypeString) {
 
-            _detachAction = detachAction;
             _connection = connection;
             _protocolEventManager = protocolEventManager;
             LocalChannel = localChannel;
@@ -457,7 +457,7 @@ namespace Granados.SSH2 {
         OnClosed:
             _handler.OnClosed(byServer);
 
-            _detachAction(this);
+            Die();
         }
 
         /// <summary>
@@ -685,6 +685,15 @@ namespace Granados.SSH2 {
             }
         }
 
+        /// <summary>
+        /// Notifies terminating this channel.
+        /// </summary>
+        protected void Die() {
+            if (Died != null) {
+                Died(this);
+            }
+        }
+
         #endregion
     }
 
@@ -701,12 +710,11 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH2SessionChannel(
-                Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel)
-            : base(detachAction, connection, param, protocolEventManager, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(connection, param, protocolEventManager, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
         }
 
         /// <summary>
@@ -775,12 +783,11 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH2ShellChannel(
-                Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel)
-            : base(detachAction, connection, param, protocolEventManager, localChannel) {
+            : base(connection, param, protocolEventManager, localChannel) {
             _param = param;
         }
 
@@ -962,13 +969,12 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH2ExecChannel(
-                Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 string command)
-            : base(detachAction, connection, param, protocolEventManager, localChannel) {
+            : base(connection, param, protocolEventManager, localChannel) {
 
             _command = command;
         }
@@ -1058,13 +1064,12 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH2SubsystemChannel(
-                Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 string subsystemName)
-            : base(detachAction, connection, param, protocolEventManager, localChannel) {
+            : base(connection, param, protocolEventManager, localChannel) {
 
             _subsystemName = subsystemName;
         }
@@ -1150,7 +1155,6 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH2LocalPortForwardingChannel(
-                Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
@@ -1159,7 +1163,7 @@ namespace Granados.SSH2 {
                 uint remotePort,
                 string originatorIp,
                 uint originatorPort)
-            : base(detachAction, connection, param, protocolEventManager, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(connection, param, protocolEventManager, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
 
             _localWindowSize = param.WindowSize;
             _localMaxPacketSize = param.WindowSize;
@@ -1200,7 +1204,6 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH2RemotePortForwardingChannel(
-                Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
@@ -1208,7 +1211,7 @@ namespace Granados.SSH2 {
                 uint remoteChannel,
                 uint serverWindowSize,
                 uint serverMaxPacketSize)
-            : base(detachAction, connection, param, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING, serverWindowSize, serverMaxPacketSize) {
+            : base(connection, param, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING, serverWindowSize, serverMaxPacketSize) {
         }
 
         #endregion
@@ -1227,7 +1230,6 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH2OpenSSHAgentForwardingChannel(
-                Action<ISSHChannel> detachAction,
                 SSH2Connection connection,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
@@ -1235,7 +1237,7 @@ namespace Granados.SSH2 {
                 uint remoteChannel,
                 uint serverWindowSize,
                 uint serverMaxPacketSize)
-            : base(detachAction, connection, param, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING, serverWindowSize, serverMaxPacketSize) {
+            : base(connection, param, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING, serverWindowSize, serverMaxPacketSize) {
         }
 
         #endregion

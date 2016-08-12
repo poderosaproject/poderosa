@@ -19,17 +19,20 @@ namespace Granados.SSH1 {
     internal abstract class SSH1ChannelBase : ISSHChannel {
         #region
 
-        private readonly Action<ISSHChannel> _detachAction;
         private readonly SSH1Connection _connection;
         private readonly SSHProtocolEventManager _protocolEventManager;
 
         private ISSHChannelEventHandler _handler = new SimpleSSHChannelEventHandler();
 
         /// <summary>
+        /// Event that notifies that this channel is already dead.
+        /// </summary>
+        internal event Action<ISSHChannel> Died;
+
+        /// <summary>
         /// Constructor
         /// </summary>
         public SSH1ChannelBase(
-                Action<ISSHChannel> detachAction,
                 SSH1Connection connection,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
@@ -37,7 +40,6 @@ namespace Granados.SSH1 {
                 ChannelType channelType,
                 string channelTypeString) {
 
-            _detachAction = detachAction;
             _connection = connection;
             _protocolEventManager = protocolEventManager;
             LocalChannel = localChannel;
@@ -185,10 +187,12 @@ namespace Granados.SSH1 {
         }
 
         /// <summary>
-        /// Detach this channel object
+        /// Notifies terminating this channel.
         /// </summary>
-        protected void Detach() {
-            _detachAction(this);
+        protected void Die() {
+            if (Died != null) {
+                Died(this);
+            }
         }
 
         /// <summary>
@@ -242,13 +246,12 @@ namespace Granados.SSH1 {
         /// Constructor
         /// </summary>
         public SSH1InteractiveSession(
-                Action<ISSHChannel> detachAction,
                 SSH1Connection connection,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 ChannelType channelType,
                 string channelTypeString)
-            : base(detachAction, connection, protocolEventManager, localChannel, 0, channelType, channelTypeString) {
+            : base(connection, protocolEventManager, localChannel, 0, channelType, channelTypeString) {
 
             _state = State.Initial;
         }
@@ -525,7 +528,7 @@ namespace Granados.SSH1 {
         OnClosed:
             Handler.OnClosed(byServer);
 
-            Detach();
+            Die();
         }
 
         /// <summary>
@@ -634,14 +637,13 @@ namespace Granados.SSH1 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH1SubChannelBase(
-                Action<ISSHChannel> detachAction,
                 SSH1Connection connection,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 uint remoteChannel,
                 ChannelType channelType,
                 string channelTypeString)
-            : base(detachAction, connection, protocolEventManager, localChannel, remoteChannel, channelType, channelTypeString) {
+            : base(connection, protocolEventManager, localChannel, remoteChannel, channelType, channelTypeString) {
 
             _state = State.InitiatedByServer; // SendOpenConfirmation() will change state to "Opened"
         }
@@ -650,13 +652,12 @@ namespace Granados.SSH1 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH1SubChannelBase(
-                Action<ISSHChannel> detachAction,
                 SSH1Connection connection,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 ChannelType channelType,
                 string channelTypeString)
-            : base(detachAction, connection, protocolEventManager, localChannel, 0, channelType, channelTypeString) {
+            : base(connection, protocolEventManager, localChannel, 0, channelType, channelTypeString) {
 
             _state = State.InitiatedByClient; // receiving SSH_MSG_CHANNEL_OPEN_CONFIRMATION will change state to "Opened"
         }
@@ -884,7 +885,7 @@ namespace Granados.SSH1 {
         OnClosed:
             Handler.OnClosed(byServer);
 
-            Detach();
+            Die();
         }
 
         /// <summary>
@@ -1009,7 +1010,6 @@ namespace Granados.SSH1 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH1LocalPortForwardingChannel(
-                Action<ISSHChannel> detachAction,
                 SSH1Connection connection,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
@@ -1017,7 +1017,7 @@ namespace Granados.SSH1 {
                 uint remotePort,
                 string originatorIp,
                 uint originatorPort)
-            : base(detachAction, connection, protocolEventManager, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(connection, protocolEventManager, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
 
             _remoteHost = remoteHost;
             _remotePort = remotePort;
@@ -1063,12 +1063,11 @@ namespace Granados.SSH1 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH1RemotePortForwardingChannel(
-                Action<ISSHChannel> detachAction,
                 SSH1Connection connection,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 uint remoteChannel)
-            : base(detachAction, connection, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(connection, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
         }
 
         /// <summary>
@@ -1095,12 +1094,11 @@ namespace Granados.SSH1 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH1AgentForwardingChannel(
-                Action<ISSHChannel> detachAction,
                 SSH1Connection connection,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 uint remoteChannel)
-            : base(detachAction, connection, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(connection, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
         }
 
         /// <summary>
