@@ -34,7 +34,6 @@ namespace Poderosa.Protocols {
         //SSHConnection確立時に呼ぶ
         public void SetSSHConnection(SSHConnection connection) {
             _connection = connection;
-            _connection.AutoDisconnect = true; //最後のチャネル切断でコネクションも切断
         }
         public SSHConnection Connection {
             get {
@@ -228,7 +227,7 @@ namespace Poderosa.Protocols {
 
         public bool Available {
             get {
-                return _connection.Available;
+                return _connection.SocketStatusReader.DataAvailable;
             }
         }
 

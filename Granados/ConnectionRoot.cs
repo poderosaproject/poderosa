@@ -17,30 +17,48 @@ using Granados.SSH;
 using Granados.PortForwarding;
 
 namespace Granados {
+
+    /// <summary>
+    /// A proxy class for reading status of the underlying socket object.
+    /// </summary>
+    public class SocketStatusReader {
+
+        private readonly IGranadosSocket _socket;
+
+        internal SocketStatusReader(IGranadosSocket socket) {
+            _socket = socket;
+        }
+
+        /// <summary>
+        /// Get status of the socket object.
+        /// </summary>
+        public SocketStatus SocketStatus {
+            get {
+                return _socket.SocketStatus;
+            }
+        }
+
+        /// <summary>
+        /// Get whether any received data are available on the socket
+        /// </summary>
+        public bool DataAvailable {
+            get {
+                return _socket.DataAvailable;
+            }
+        }
+
+    }
+
+
     /// <summary>
     /// 
     /// </summary>
     /// <exclude/>
     public abstract class SSHConnection {
 
-        protected IGranadosSocket _stream;                    //underlying socket
-        protected ISSHConnectionEventReceiver _eventReceiver; //outgoing interface for this connection
-        protected byte[] _sessionID;                          //session ID
-        protected bool _autoDisconnect;                       //if this is true, this connection will be closed with the last channel
-        protected AuthenticationResult _authenticationResult; //authentication result
 
-        // for scp
-        protected string _execCmd;        // exec command string
-        protected bool _execCmdWaitFlag;  // wait response flag for sending exec command to server
-
-        protected SSHConnection(SSHConnectionParameter param, IGranadosSocket strm, ISSHConnectionEventReceiver receiver) {
-            _stream = strm;
-            _eventReceiver = receiver;
-            _autoDisconnect = true;
-            _execCmd = null;
-            _execCmdWaitFlag = true;
+        protected SSHConnection() {
         }
-
 
         ///abstract properties
 
@@ -49,52 +67,13 @@ namespace Granados {
             get;
         }
 
-        ///  paramters
-        public ISSHConnectionEventReceiver EventReceiver {
-            get {
-                return _eventReceiver;
-            }
-            set {
-                _eventReceiver = value;
-            }
-        }
-        public SocketStatus SocketStatus {
-            get {
-                return _stream.SocketStatus;
-            }
-        }
-        public bool IsOpen {
-            get {
-                return _stream.SocketStatus == SocketStatus.Ready && _authenticationResult == AuthenticationResult.Success;
-            }
-        }
-        internal IGranadosSocket UnderlyingStream {
-            get {
-                return _stream;
-            }
+        public abstract SocketStatusReader SocketStatusReader {
+            get;
         }
 
-        //configurable properties
-        public bool AutoDisconnect {
-            get {
-                return _autoDisconnect;
-            }
-            set {
-                _autoDisconnect = value;
-            }
+        public abstract bool IsOpen {
+            get;
         }
-
-
-        //returns true if any data from server is available
-        public bool Available {
-            get {
-                if (_stream.SocketStatus != SocketStatus.Ready)
-                    return false;
-                else
-                    return _stream.DataAvailable;
-            }
-        }
-
 
         /// <summary>
         /// 
@@ -155,12 +134,7 @@ namespace Granados {
         /**
         * closes socket directly.
         */
-        public void Close() {
-            if (_stream.SocketStatus == SocketStatus.Closed || _stream.SocketStatus == SocketStatus.RequestingClose)
-                return;
-            _stream.Close();
-        }
-
+        public abstract void Close();
 
         /**
          * sends ignorable data: the server may record the message into the log

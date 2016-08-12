@@ -43,6 +43,10 @@ namespace Granados.SSH2 {
     public class SSH2Connection : SSHConnection {
         private const int RESPONSE_TIMEOUT = 10000;
 
+        private readonly IGranadosSocket _socket;
+        private readonly ISSHConnectionEventReceiver _eventReceiver;
+        private readonly SocketStatusReader _socketStatusReader;
+
         private readonly SSHConnectionParameter _param;
         private readonly SSHProtocolEventManager _protocolEventManager;
 
@@ -58,13 +62,17 @@ namespace Granados.SSH2 {
         //server info
         private readonly SSH2ConnectionInfo _cInfo;
 
-        private bool _agentForwardConfirmed;
+        private byte[] _sessionID = null;
+        private AuthenticationResult? _authenticationResult = null;
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public SSH2Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventReceiver r, ISSHProtocolEventListener protocolEventListener, string serverVersion, string clientVersion)
-            : base(param, socket, r) {
+        public SSH2Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventReceiver connectionEventReceiver, ISSHProtocolEventListener protocolEventListener, string serverVersion, string clientVersion)
+            : base() {
+            _socket = socket;
+            _eventReceiver = connectionEventReceiver;
+            _socketStatusReader = new SocketStatusReader(socket);
             _param = param.Clone();
             _protocolEventManager = new SSHProtocolEventManager(protocolEventListener);
             _channelCollection = new SSHChannelCollection();
@@ -75,10 +83,10 @@ namespace Granados.SSH2 {
                             },
                             () => {
                                 OnConnectionClosed();
-                                EventReceiver.OnConnectionClosed();
+                                _eventReceiver.OnConnectionClosed();
                             },
                             (error) => {
-                                EventReceiver.OnError(error);
+                                _eventReceiver.OnError(error);
                             }
                         );
             _syncHandler = new SSH2SynchronousPacketHandler(socket, adapter, _protocolEventManager);
@@ -98,8 +106,16 @@ namespace Granados.SSH2 {
             }
         }
 
-        internal void SetAgentForwardConfirmed(bool value) {
-            _agentForwardConfirmed = value;
+        public override SocketStatusReader SocketStatusReader {
+            get {
+                return _socketStatusReader;
+            }
+        }
+
+        public override bool IsOpen {
+            get {
+                return _socket.SocketStatus == SocketStatus.Ready && _authenticationResult == AuthenticationResult.Success;
+            }
         }
 
         internal override IDataHandler Packetizer {
@@ -116,25 +132,41 @@ namespace Granados.SSH2 {
                 //user authentication
                 SSH2UserAuthentication userAuthentication =
                     new SSH2UserAuthentication(this, _param, _protocolEventManager, _syncHandler, _sessionID);
+                if (_param.AuthenticationType == AuthenticationType.KeyboardInteractive) {
+                    userAuthentication.KeyboardInteractiveAuthenticationFinished +=
+                        result => {
+                            _authenticationResult = result ? AuthenticationResult.Success : AuthenticationResult.Failure;
+                        };
+                }
                 _packetInterceptors.Add(userAuthentication);
                 userAuthentication.ExecAuthentication();
 
                 if (_param.AuthenticationType == AuthenticationType.KeyboardInteractive) {
+                    _authenticationResult = AuthenticationResult.Prompt;
                     return AuthenticationResult.Prompt;
                 }
+
+                _authenticationResult = AuthenticationResult.Success;
                 return AuthenticationResult.Success;
             }
             catch (Exception) {
+                _authenticationResult = AuthenticationResult.Failure;
                 Close();
                 throw;
             }
+        }
+
+        public override void Close() {
+            if (_socket.SocketStatus == SocketStatus.Closed || _socket.SocketStatus == SocketStatus.RequestingClose)
+                return;
+            _socket.Close();
         }
 
         protected override void SendMyVersion() {
             string cv = SSHUtil.ClientVersionString(SSHProtocol.SSH2);
             string cv2 = cv + _param.VersionEOL;
             byte[] data = Encoding.ASCII.GetBytes(cv2);
-            _stream.Write(data, 0, data.Length);
+            _socket.Write(data, 0, data.Length);
             _protocolEventManager.Trace("client version-string : {0}", cv);
         }
 
@@ -1499,6 +1531,8 @@ namespace Granados.SSH2 {
 
         private readonly AtomicBox<DataFragment> _receivedPacket = new AtomicBox<DataFragment>();
 
+        internal event Action<bool> KeyboardInteractiveAuthenticationFinished;
+
         private enum SequenceStatus {
             /// <summary>authentication can be started</summary>
             Idle,
@@ -1843,6 +1877,10 @@ namespace Granados.SSH2 {
 
             lock (_sequenceLock) {
                 _sequenceStatus = SequenceStatus.Done;
+            }
+
+            if (KeyboardInteractiveAuthenticationFinished != null) {
+                KeyboardInteractiveAuthenticationFinished(userAuthResult);
             }
 
             if (userAuthResult == false) {

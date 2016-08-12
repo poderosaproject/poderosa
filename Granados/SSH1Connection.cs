@@ -39,6 +39,10 @@ namespace Granados.SSH1 {
         private const int AUTH_NOT_REQUIRED = 0;
         private const int AUTH_REQUIRED = 1;
 
+        private readonly IGranadosSocket _socket;
+        private readonly ISSHConnectionEventReceiver _eventReceiver;
+        private readonly SocketStatusReader _socketStatusReader;
+
         private readonly SSHConnectionParameter _param;
         private readonly SSHProtocolEventManager _protocolEventManager;
 
@@ -55,10 +59,15 @@ namespace Granados.SSH1 {
 
         private readonly SSH1ConnectionInfo _cInfo;
 
+        private byte[] _sessionID = null;
+        private AuthenticationResult? _authenticationResult = null;
         private int _remotePortForwardCount = 0;
 
-        public SSH1Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventReceiver er, ISSHProtocolEventListener protocolEventListener, string serverVersion, string clientVersion)
-            : base(param, socket, er) {
+        public SSH1Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventReceiver connectionEventReceiver, ISSHProtocolEventListener protocolEventListener, string serverVersion, string clientVersion)
+            : base() {
+            _socket = socket;
+            _eventReceiver = connectionEventReceiver;
+            _socketStatusReader = new SocketStatusReader(socket);
             _param = param.Clone();
             _protocolEventManager = new SSHProtocolEventManager(protocolEventListener);
             _channelCollection = new SSHChannelCollection();
@@ -72,10 +81,10 @@ namespace Granados.SSH1 {
                             },
                             () => {
                                 OnConnectionClosed();
-                                EventReceiver.OnConnectionClosed();
+                                _eventReceiver.OnConnectionClosed();
                             },
                             (error) => {
-                                EventReceiver.OnError(error);
+                                _eventReceiver.OnError(error);
                             }
                         );
             _syncHandler = new SSH1SynchronousPacketHandler(socket, adapter, _protocolEventManager);
@@ -95,6 +104,18 @@ namespace Granados.SSH1 {
             }
         }
 
+        public override SocketStatusReader SocketStatusReader {
+            get {
+                return _socketStatusReader;
+            }
+        }
+
+        public override bool IsOpen {
+            get {
+                return _socket.SocketStatus == SocketStatus.Ready && _authenticationResult == AuthenticationResult.Success;
+            }
+        }
+
         internal override IDataHandler Packetizer {
             get {
                 return _packetizer;
@@ -111,9 +132,11 @@ namespace Granados.SSH1 {
                 _packetInterceptors.Add(userAuth);
                 userAuth.ExecAuthentication();
 
+                _authenticationResult = AuthenticationResult.Success;
                 return AuthenticationResult.Success;
             }
             catch (Exception ex) {
+                _authenticationResult = AuthenticationResult.Failure;
                 Close();
                 if (ex is AggregateException) {
                     Exception actualException = ((AggregateException)ex).InnerException;
@@ -123,11 +146,17 @@ namespace Granados.SSH1 {
             }
         }
 
+        public override void Close() {
+            if (_socket.SocketStatus == SocketStatus.Closed || _socket.SocketStatus == SocketStatus.RequestingClose)
+                return;
+            _socket.Close();
+        }
+
         protected override void SendMyVersion() {
             string cv = SSHUtil.ClientVersionString(SSHProtocol.SSH1);
             string cv2 = cv + _param.VersionEOL;
             byte[] data = Encoding.ASCII.GetBytes(cv2);
-            _stream.Write(data, 0, data.Length);
+            _socket.Write(data, 0, data.Length);
             _protocolEventManager.Trace("client version-string : {0}", cv);
         }
 
@@ -147,7 +176,7 @@ namespace Granados.SSH1 {
                 new SSH1Packet(SSH1PacketType.SSH_MSG_DISCONNECT)
                     .WriteString(msg)
             );
-            base.Close();
+            Close();
         }
 
         public override void SendIgnorableData(string msg) {

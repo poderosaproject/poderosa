@@ -307,14 +307,6 @@ namespace Granados.IO {
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="connection">connection object</param>
-        public SynchronizedPacketReceiver(SSHConnection connection)
-            : this(connection.UnderlyingStream) {
-        }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
         /// <param name="socket">socket for sending SSH packet</param>
         public SynchronizedPacketReceiver(IGranadosSocket socket) {
             _socket = socket;
