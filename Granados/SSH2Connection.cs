@@ -60,7 +60,7 @@ namespace Granados.SSH2 {
         private readonly Lazy<SSH2OpenSSHAgentForwarding> _agentForwarding;
 
         //server info
-        private readonly SSH2ConnectionInfo _cInfo;
+        private readonly SSH2ConnectionInfo _connectionInfo;
 
         private byte[] _sessionID = null;
         private AuthenticationResult? _authenticationResult = null;
@@ -81,24 +81,21 @@ namespace Granados.SSH2 {
             _param = param.Clone();
             _protocolEventManager = new SSHProtocolEventManager(protocolEventListener);
             _channelCollection = new SSHChannelCollection();
-            _cInfo = new SSH2ConnectionInfo(param.HostName, param.PortNumber, serverVersion, clientVersion);
-            IDataHandler adapter = new DataHandlerAdapter(
-                            (data) => {
-                                ProcessPacket(data);
-                            },
-                            () => {
-                                OnConnectionClosed();
-                                _eventReceiver.OnConnectionClosed();
-                            },
-                            (error) => {
-                                _eventReceiver.OnError(error);
-                            }
-                        );
+            _connectionInfo = new SSH2ConnectionInfo(param.HostName, param.PortNumber, serverVersion, clientVersion);
+            IDataHandler adapter =
+                new DataHandlerAdapter(
+                    onData:
+                        ProcessPacket,
+                    onClosed:
+                        OnConnectionClosed,
+                    onError:
+                        OnError
+                );
             _syncHandler = new SSH2SynchronousPacketHandler(socket, adapter, _protocolEventManager);
             _packetizer = new SSH2Packetizer(_syncHandler);
 
             _packetInterceptors = new SSHPacketInterceptorCollection();
-            _keyExchanger = new SSH2KeyExchanger(_syncHandler, param, _protocolEventManager, _cInfo, UpdateKey);
+            _keyExchanger = new SSH2KeyExchanger(_syncHandler, param, _protocolEventManager, _connectionInfo, UpdateKey);
             _packetInterceptors.Add(_keyExchanger);
 
             _remotePortForwarding = new Lazy<SSH2RemotePortForwarding>(CreateRemotePortForwarding);
@@ -120,27 +117,28 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <returns>an instance of <see cref="SSH2OpenSSHAgentForwarding"/></returns>
         private SSH2OpenSSHAgentForwarding CreateAgentForwarding() {
-            SSH2OpenSSHAgentForwarding.CreateChannelFunc createChannel =
-               (remoteChannel, serverWindowSize, serverMaxPacketSize) => {
-                   uint localChannel = _channelCollection.GetNewChannelNumber();
-                   return new SSH2OpenSSHAgentForwardingChannel(
-                               this,
-                               _param,
-                               _protocolEventManager,
-                               localChannel,
-                               remoteChannel,
-                               serverWindowSize,
-                               serverMaxPacketSize);
-               };
-
-            SSH2OpenSSHAgentForwarding.RegisterChannelFunc registerChannel = RegisterChannel;
-
             var instance = new SSH2OpenSSHAgentForwarding(
-                                _syncHandler,
-                                _param.AgentForwardingAuthKeyProvider,
-                                _protocolEventManager,
-                                createChannel,
-                                registerChannel);
+                                syncHandler:
+                                    _syncHandler,
+                                authKeyProvider:
+                                    _param.AgentForwardingAuthKeyProvider,
+                                protocolEventManager:
+                                    _protocolEventManager,
+                                createChannel:
+                                    (remoteChannel, serverWindowSize, serverMaxPacketSize) => {
+                                        uint localChannel = _channelCollection.GetNewChannelNumber();
+                                        return new SSH2OpenSSHAgentForwardingChannel(
+                                                    this,
+                                                    _param,
+                                                    _protocolEventManager,
+                                                    localChannel,
+                                                    remoteChannel,
+                                                    serverWindowSize,
+                                                    serverMaxPacketSize);
+                                    },
+                                registerChannel:
+                                    RegisterChannel
+                            );
             _packetInterceptors.Add(instance);
             return instance;
         }
@@ -288,8 +286,11 @@ namespace Granados.SSH2 {
             }
 
             return CreateChannelByClient(
-                        handlerCreator,
-                        localChannel => new SSH2ShellChannel(this, _param, _protocolEventManager, localChannel)
+                        handlerCreator:
+                            handlerCreator,
+                        channelCreator:
+                            localChannel =>
+                                new SSH2ShellChannel(this, _param, _protocolEventManager, localChannel)
                     );
         }
 
@@ -304,8 +305,11 @@ namespace Granados.SSH2 {
                 where THandler : ISSHChannelEventHandler {
 
             return CreateChannelByClient(
-                        handlerCreator,
-                        localChannel => new SSH2ExecChannel(this, _param, _protocolEventManager, localChannel, command)
+                        handlerCreator:
+                            handlerCreator,
+                        channelCreator:
+                            localChannel =>
+                                new SSH2ExecChannel(this, _param, _protocolEventManager, localChannel, command)
                     );
         }
 
@@ -320,8 +324,12 @@ namespace Granados.SSH2 {
                 where THandler : ISSHChannelEventHandler {
 
             return CreateChannelByClient(
-                        handlerCreator,
-                        localChannel => new SSH2SubsystemChannel(this, _param, _protocolEventManager, localChannel, subsystemName)
+                        handlerCreator:
+                            handlerCreator,
+                        channelCreator:
+                            localChannel =>
+                                new SSH2SubsystemChannel(
+                                    this, _param, _protocolEventManager, localChannel, subsystemName)
                     );
         }
 
@@ -339,10 +347,13 @@ namespace Granados.SSH2 {
                 where THandler : ISSHChannelEventHandler {
 
             return CreateChannelByClient(
-                        handlerCreator,
-                        localChannel =>
-                            new SSH2LocalPortForwardingChannel(
-                                this, _param, _protocolEventManager, localChannel, remoteHost, remotePort, originatorIp, originatorPort)
+                        handlerCreator:
+                            handlerCreator,
+                        channelCreator:
+                            localChannel =>
+                                new SSH2LocalPortForwardingChannel(
+                                    this, _param, _protocolEventManager, localChannel,
+                                    remoteHost, remotePort, originatorIp, originatorPort)
                     );
         }
 
@@ -355,24 +366,29 @@ namespace Granados.SSH2 {
         /// <returns>true if the request has been accepted, otherwise false.</returns>
         public bool ListenForwardedPort(IRemotePortForwardingHandler requestHandler, string addressToBind, uint portNumberToBind) {
 
-            SSH2RemotePortForwarding.CreateChannelFunc createChannel =
-                (requestInfo, remoteChannel, serverWindowSize, serverMaxPacketSize) => {
-                    uint localChannel = _channelCollection.GetNewChannelNumber();
-                    return new SSH2RemotePortForwardingChannel(
-                                    this,
-                                    _param,
-                                    _protocolEventManager,
-                                    localChannel,
-                                    remoteChannel,
-                                    serverWindowSize,
-                                    serverMaxPacketSize
-                                );
-                };
-
-            SSH2RemotePortForwarding.RegisterChannelFunc registerChannel = RegisterChannel;
-
             return _remotePortForwarding.Value.ListenForwardedPort(
-                    requestHandler, createChannel, registerChannel, addressToBind, portNumberToBind);
+                        requestHandler:
+                            requestHandler,
+                        createChannel:
+                            (requestInfo, remoteChannel, serverWindowSize, serverMaxPacketSize) => {
+                                uint localChannel = _channelCollection.GetNewChannelNumber();
+                                return new SSH2RemotePortForwardingChannel(
+                                            this,
+                                            _param,
+                                            _protocolEventManager,
+                                            localChannel,
+                                            remoteChannel,
+                                            serverWindowSize,
+                                            serverMaxPacketSize
+                                        );
+                            },
+                        registerChannel:
+                            RegisterChannel,
+                        addressToBind:
+                            addressToBind,
+                        portNumberToBind:
+                            portNumberToBind
+                    );
         }
 
         /// <summary>
@@ -494,9 +510,9 @@ namespace Granados.SSH2 {
 
             if (packetType >= SSH2PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION && packetType <= SSH2PacketType.SSH_MSG_CHANNEL_FAILURE) {
                 uint localChannel = reader.ReadUInt32();
-                var channelOperator = _channelCollection.FindOperator(localChannel) as SSH2ChannelBase;
-                if (channelOperator != null) {
-                    channelOperator.ProcessPacket(packetType, reader.GetRemainingDataView());
+                var channel = _channelCollection.FindOperator(localChannel) as SSH2ChannelBase;
+                if (channel != null) {
+                    channel.ProcessPacket(packetType, reader.GetRemainingDataView());
                 }
                 else {
                     Debug.WriteLine("unexpected channel pt=" + packetType + " local_channel=" + localChannel.ToString());
@@ -525,6 +541,14 @@ namespace Granados.SSH2 {
         /// </summary>
         private void OnConnectionClosed() {
             _packetInterceptors.OnConnectionClosed();
+            _eventReceiver.OnConnectionClosed();
+        }
+
+        /// <summary>
+        /// Tasks to do when the underlying socket raised an exception.
+        /// </summary>
+        private void OnError(Exception error) {
+            _eventReceiver.OnError(error);
         }
 
         /// <summary>

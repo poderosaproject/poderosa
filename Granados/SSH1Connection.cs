@@ -53,7 +53,7 @@ namespace Granados.SSH1 {
         private readonly Lazy<SSH1RemotePortForwarding> _remotePortForwarding;
         private readonly Lazy<SSH1AgentForwarding> _agentForwarding;
 
-        private readonly SSH1ConnectionInfo _cInfo;
+        private readonly SSH1ConnectionInfo _connectionInfo;
 
         private byte[] _sessionID = null;
         private AuthenticationResult? _authenticationResult = null;
@@ -77,25 +77,22 @@ namespace Granados.SSH1 {
             _channelCollection = new SSHChannelCollection();
             _interactiveSession = null;
 
-            _cInfo = new SSH1ConnectionInfo(param.HostName, param.PortNumber, serverVersion, clientVersion);
+            _connectionInfo = new SSH1ConnectionInfo(param.HostName, param.PortNumber, serverVersion, clientVersion);
 
-            IDataHandler adapter = new DataHandlerAdapter(
-                            (data) => {
-                                ProcessPacket(data);
-                            },
-                            () => {
-                                OnConnectionClosed();
-                                _eventReceiver.OnConnectionClosed();
-                            },
-                            (error) => {
-                                _eventReceiver.OnError(error);
-                            }
-                        );
+            IDataHandler adapter =
+                new DataHandlerAdapter(
+                    onData:
+                        ProcessPacket,
+                    onClosed:
+                        OnConnectionClosed,
+                    onError:
+                        OnError
+                );
             _syncHandler = new SSH1SynchronousPacketHandler(socket, adapter, _protocolEventManager);
             _packetizer = new SSH1Packetizer(_syncHandler);
 
             _packetInterceptors = new SSHPacketInterceptorCollection();
-            _keyExchanger = new SSH1KeyExchanger(this, _syncHandler, _param, _cInfo, UpdateClientKey, UpdateServerKey);
+            _keyExchanger = new SSH1KeyExchanger(this, _syncHandler, _param, _connectionInfo, UpdateClientKey, UpdateServerKey);
             _packetInterceptors.Add(_keyExchanger);
 
             _remotePortForwarding = new Lazy<SSH1RemotePortForwarding>(CreateRemotePortForwarding);
@@ -118,16 +115,18 @@ namespace Granados.SSH1 {
         /// <returns>a new instance of <see cref="SSH1AgentForwarding"/></returns>
         private SSH1AgentForwarding CreateAgentForwarding() {
             var instance = new SSH1AgentForwarding(
-                            _syncHandler,
-                            _param.AgentForwardingAuthKeyProvider,
-                            remoteChannel => {
-                                uint localChannel = _channelCollection.GetNewChannelNumber();
-                                return new SSH1AgentForwardingChannel(
-                                                this, _protocolEventManager, localChannel, remoteChannel);
-                            },
-                            (channel, eventHandler) => {
-                                RegisterChannel(channel, eventHandler);
-                            }
+                            syncHandler:
+                                _syncHandler,
+                            authKeyProvider:
+                                _param.AgentForwardingAuthKeyProvider,
+                            createChannel:
+                                remoteChannel => {
+                                    uint localChannel = _channelCollection.GetNewChannelNumber();
+                                    return new SSH1AgentForwardingChannel(
+                                                    this, _protocolEventManager, localChannel, remoteChannel);
+                                },
+                            registerChannel:
+                                RegisterChannel
                         );
             _packetInterceptors.Add(instance);
             return instance;
@@ -271,14 +270,17 @@ namespace Granados.SSH1 {
             }
 
             return CreateChannelByClient(
-                        handlerCreator,
-                        localChannel =>
-                            new SSH1InteractiveSession(
-                                this, _protocolEventManager, localChannel, ChannelType.Shell, "Shell"),
-                        channel => {
-                            _interactiveSession = channel;
-                            channel.ExecShell(_param);
-                        }
+                        handlerCreator:
+                            handlerCreator,
+                        channelCreator:
+                            localChannel =>
+                                new SSH1InteractiveSession(
+                                    this, _protocolEventManager, localChannel, ChannelType.Shell, "Shell"),
+                        initiate:
+                            channel => {
+                                _interactiveSession = channel;
+                                channel.ExecShell(_param);
+                            }
                     );
         }
 
@@ -296,14 +298,17 @@ namespace Granados.SSH1 {
             }
 
             return CreateChannelByClient(
-                        handlerCreator,
-                        localChannel =>
-                            new SSH1InteractiveSession(
-                                this, _protocolEventManager, localChannel, ChannelType.ExecCommand, "ExecCommand"),
-                        channel => {
-                            _interactiveSession = channel;
-                            channel.ExecCommand(_param, command);
-                        }
+                        handlerCreator:
+                            handlerCreator,
+                        channelCreator:
+                            localChannel =>
+                                new SSH1InteractiveSession(
+                                    this, _protocolEventManager, localChannel, ChannelType.ExecCommand, "ExecCommand"),
+                        initiate:
+                            channel => {
+                                _interactiveSession = channel;
+                                channel.ExecCommand(_param, command);
+                            }
                     );
         }
 
@@ -336,13 +341,16 @@ namespace Granados.SSH1 {
             StartIdleInteractiveSession();
 
             return CreateChannelByClient(
-                        handlerCreator,
-                        localChannel => new SSH1LocalPortForwardingChannel(
-                                            this, _protocolEventManager, localChannel,
-                                            remoteHost, remotePort, originatorIp, originatorPort),
-                        channel => {
-                            channel.SendOpen();
-                        }
+                        handlerCreator:
+                            handlerCreator,
+                        channelCreator:
+                            localChannel => new SSH1LocalPortForwardingChannel(
+                                                this, _protocolEventManager, localChannel,
+                                                remoteHost, remotePort, originatorIp, originatorPort),
+                        initiate:
+                            channel => {
+                                channel.SendOpen();
+                            }
                     );
         }
 
@@ -513,9 +521,9 @@ namespace Granados.SSH1 {
                 case SSH1PacketType.SSH_MSG_CHANNEL_CLOSE:
                 case SSH1PacketType.SSH_MSG_CHANNEL_CLOSE_CONFIRMATION: {
                         uint localChannel = reader.ReadUInt32();
-                        var channelOperator = _channelCollection.FindOperator(localChannel) as SSH1ChannelBase;
-                        if (channelOperator != null) {
-                            channelOperator.ProcessPacket(pt, reader.GetRemainingDataView());
+                        var channel = _channelCollection.FindOperator(localChannel) as SSH1ChannelBase;
+                        if (channel != null) {
+                            channel.ProcessPacket(pt, reader.GetRemainingDataView());
                         }
                     }
                     break;
@@ -550,6 +558,14 @@ namespace Granados.SSH1 {
         /// </summary>
         private void OnConnectionClosed() {
             _packetInterceptors.OnConnectionClosed();
+            _eventReceiver.OnConnectionClosed();
+        }
+
+        /// <summary>
+        /// Tasks to do when the underlying socket raised an exception.
+        /// </summary>
+        private void OnError(Exception error) {
+            _eventReceiver.OnError(error);
         }
 
         /// <summary>
