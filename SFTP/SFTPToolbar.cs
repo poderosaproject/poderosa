@@ -197,7 +197,7 @@ namespace Poderosa.SFTP {
         /// </summary>
         /// <param name="target">Target object which has been passed to the IPoderosaCommand's method.</param>
         /// <returns>A SSH connection object corresponding with current terminal. Null if it cannot be found.</returns>
-        protected SSHConnection GetSSHConnection(ICommandTarget target) {
+        protected ISSHConnection GetSSHConnection(ICommandTarget target) {
             ITerminalConnection connection = GetTerminalConnection(target);
             // Implementation classes for SSH connection are internal classes in another assembly.
             // We need to use reflection to get an instance of SSHChannel.
@@ -205,7 +205,7 @@ namespace Poderosa.SFTP {
                 Type socketType = connection.Socket.GetType();
                 PropertyInfo prop = socketType.GetProperty("Connection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty);
                 if (prop != null && prop.CanRead) {
-                    SSHConnection sshConnection = prop.GetValue(connection.Socket, null) as SSHConnection;
+                    ISSHConnection sshConnection = prop.GetValue(connection.Socket, null) as ISSHConnection;
                     return sshConnection;
                 }
             }
@@ -429,7 +429,7 @@ namespace Poderosa.SFTP {
 
         public CommandResult InternalExecute(ICommandTarget target, params IAdaptable[] args) {
 
-            SSHConnection sshConnection = GetSSHConnection(target);
+            ISSHConnection sshConnection = GetSSHConnection(target);
 
             // Note: Currently, SCPClient supports only SSH2.
             if (!(sshConnection is SSH2Connection))

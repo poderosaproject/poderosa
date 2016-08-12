@@ -24,7 +24,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -32,12 +31,9 @@ using System.Threading;
 namespace Granados.SSH1 {
 
     /// <summary>
-    /// SSH1
+    /// SSH1 connection
     /// </summary>
-    public sealed class SSH1Connection : SSHConnection {
-
-        private const int AUTH_NOT_REQUIRED = 0;
-        private const int AUTH_REQUIRED = 1;
+    public sealed class SSH1Connection : ISSHConnection {
 
         private readonly IGranadosSocket _socket;
         private readonly ISSHConnectionEventReceiver _eventReceiver;
@@ -63,8 +59,16 @@ namespace Granados.SSH1 {
         private AuthenticationResult? _authenticationResult = null;
         private int _remotePortForwardCount = 0;
 
-        public SSH1Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventReceiver connectionEventReceiver, ISSHProtocolEventListener protocolEventListener, string serverVersion, string clientVersion)
-            : base() {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="param">connection parameter</param>
+        /// <param name="socket">socket (TCP socket or pseudo socket)</param>
+        /// <param name="connectionEventReceiver">connection event handler</param>
+        /// <param name="protocolEventListener">protocol event listener (can be null)</param>
+        /// <param name="serverVersion">server version</param>
+        /// <param name="clientVersion">client version</param>
+        public SSH1Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventReceiver connectionEventReceiver, ISSHProtocolEventListener protocolEventListener, string serverVersion, string clientVersion) {
             _socket = socket;
             _eventReceiver = new SSHConnectionEventReceiverIgnoreErrorWrapper(connectionEventReceiver);
             _socketStatusReader = new SocketStatusReader(socket);
@@ -98,31 +102,94 @@ namespace Granados.SSH1 {
             _agentForwarding = new Lazy<SSH1AgentForwarding>(CreateAgentForwarding);
         }
 
-        public SSHConnectionParameter Param {
+        /// <summary>
+        /// Lazy initialization to setup the instance of <see cref="SSH1RemotePortForwarding"/>.
+        /// </summary>
+        /// <returns>a new instance of <see cref="SSH1RemotePortForwarding"/></returns>
+        private SSH1RemotePortForwarding CreateRemotePortForwarding() {
+            var instance = new SSH1RemotePortForwarding(_syncHandler, StartIdleInteractiveSession);
+            _packetInterceptors.Add(instance);
+            return instance;
+        }
+
+        /// <summary>
+        /// Lazy initialization to setup the instance of <see cref="SSH1AgentForwarding"/>.
+        /// </summary>
+        /// <returns>a new instance of <see cref="SSH1AgentForwarding"/></returns>
+        private SSH1AgentForwarding CreateAgentForwarding() {
+            var instance = new SSH1AgentForwarding(
+                            _syncHandler,
+                            _param.AgentForwardingAuthKeyProvider,
+                            remoteChannel => {
+                                uint localChannel = _channelCollection.GetNewChannelNumber();
+                                return new SSH1AgentForwardingChannel(
+                                                DetachChannel, this, _protocolEventManager, localChannel, remoteChannel);
+                            },
+                            (channel, eventHandler) => {
+                                channel.SetHandler(eventHandler);
+                                _channelCollection.Add(channel, eventHandler);
+                            }
+                        );
+            _packetInterceptors.Add(instance);
+            return instance;
+        }
+
+        /// <summary>
+        /// SSH protocol (SSH1 or SSH2)
+        /// </summary>
+        public SSHProtocol SSHProtocol {
+            get {
+                return SSHProtocol.SSH1;
+            }
+        }
+
+        /// <summary>
+        /// Connection parameter
+        /// </summary>
+        public SSHConnectionParameter ConnectionParameter {
             get {
                 return _param;
             }
         }
 
-        public override SocketStatusReader SocketStatusReader {
-            get {
-                return _socketStatusReader;
-            }
-        }
-
-        public override bool IsOpen {
+        /// <summary>
+        /// A property that indicates whether this connection is open.
+        /// </summary>
+        public bool IsOpen {
             get {
                 return _socket.SocketStatus == SocketStatus.Ready && _authenticationResult == AuthenticationResult.Success;
             }
         }
 
-        internal override IDataHandler Packetizer {
+        /// <summary>
+        /// A proxy object for reading status of the underlying <see cref="IGranadosSocket"/> object.
+        /// </summary>
+        public SocketStatusReader SocketStatusReader {
+            get {
+                return _socketStatusReader;
+            }
+        }
+
+        // FIXME: this property shouldn't be exposed
+        /// <summary>
+        /// Packetizer
+        /// </summary>
+        internal IDataHandler Packetizer {
             get {
                 return _packetizer;
             }
         }
 
-        internal override AuthenticationResult Connect() {
+        /// <summary>
+        /// Establishes a SSH connection to the server.
+        /// </summary>
+        /// <returns>
+        /// If the authentication has been completed successfully, this method returns <see cref="AuthenticationResult.Success"/>.<br/>
+        /// In other cases this method throws exception.<br/>
+        /// Note that this method doesn't return <see cref="AuthenticationResult.Failure"/>.
+        /// </returns>
+        /// <exception cref="SSHException">error</exception>
+        internal AuthenticationResult Connect() {
             try {
                 //key exchange
                 _keyExchanger.ExecKeyExchange();
@@ -135,24 +202,45 @@ namespace Granados.SSH1 {
                 _authenticationResult = AuthenticationResult.Success;
                 return AuthenticationResult.Success;
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 _authenticationResult = AuthenticationResult.Failure;
                 Close();
-                if (ex is AggregateException) {
-                    Exception actualException = ((AggregateException)ex).InnerException;
-                    throw new SSHException(actualException.Message, actualException);
-                }
                 throw;
             }
         }
 
-        public override void Close() {
-            if (_socket.SocketStatus == SocketStatus.Closed || _socket.SocketStatus == SocketStatus.RequestingClose)
+        /// <summary>
+        /// Sends a disconnect message to the server, then closes this connection.
+        /// </summary>
+        /// <param name="message">a message to be notified to the server</param>
+        public void Disconnect(string message) {
+            if (!this.IsOpen) {
                 return;
+            }
+            Transmit(
+                new SSH1Packet(SSH1PacketType.SSH_MSG_DISCONNECT)
+                    .WriteString(message)
+            );
+            Close();
+        }
+
+        /// <summary>
+        /// Closes the connection.
+        /// </summary>
+        /// <remarks>
+        /// This method closes the underlying socket object.
+        /// </remarks>
+        public void Close() {
+            if (_socket.SocketStatus == SocketStatus.Closed || _socket.SocketStatus == SocketStatus.RequestingClose) {
+                return;
+            }
             _socket.Close();
         }
 
-        protected override void SendMyVersion() {
+        /// <summary>
+        /// Sends client version to the server.
+        /// </summary>
+        internal void SendMyVersion() {
             string cv = SSHUtil.ClientVersionString(SSHProtocol.SSH1);
             string cv2 = cv + _param.VersionEOL;
             byte[] data = Encoding.ASCII.GetBytes(cv2);
@@ -160,39 +248,174 @@ namespace Granados.SSH1 {
             _protocolEventManager.Trace("client version-string : {0}", cv);
         }
 
-        private void OnConnectionClosed() {
-            _packetInterceptors.OnConnectionClosed();
+        /// <summary>
+        /// Opens shell on an interactive session
+        /// </summary>
+        /// <typeparam name="THandler">type of the channel event handler</typeparam>
+        /// <param name="handlerCreator">a function that creates a channel event handler</param>
+        /// <returns>a new channel event handler which was created by <paramref name="handlerCreator"/></returns>
+        public THandler OpenShell<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator)
+                where THandler : ISSHChannelEventHandler {
+
+            if (_interactiveSession != null) {
+                throw new SSHException(Strings.GetString("OnlySingleInteractiveSessionCanBeStarted"));
+            }
+
+            if (_param.AgentForwardingAuthKeyProvider != null) {
+                bool started = _agentForwarding.Value.StartAgentForwarding();
+                if (!started) {
+                    _protocolEventManager.Trace("the request of the agent forwarding has been rejected.");
+                }
+                else {
+                    _protocolEventManager.Trace("the request of the agent forwarding has been accepted.");
+                }
+            }
+
+            return CreateChannelByClient(
+                        handlerCreator,
+                        localChannel =>
+                            new SSH1InteractiveSession(
+                                DetachChannel, this, _protocolEventManager, localChannel, ChannelType.Shell, "Shell"),
+                        channel => {
+                            _interactiveSession = channel;
+                            channel.ExecShell(_param);
+                        }
+                    );
         }
 
+        /// <summary>
+        /// Opens execute-command channel
+        /// </summary>
+        /// <typeparam name="THandler">type of the channel event handler</typeparam>
+        /// <param name="handlerCreator">a function that creates a channel event handler</param>
+        /// <param name="command">command to execute</param>
+        /// <returns>a new channel event handler which was created by <paramref name="handlerCreator"/></returns>
+        public THandler ExecCommand<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, string command)
+                where THandler : ISSHChannelEventHandler {
+            if (_interactiveSession != null) {
+                throw new SSHException(Strings.GetString("OnlySingleInteractiveSessionCanBeStarted"));
+            }
 
-        internal void Transmit(SSH1Packet packet) {
-            _syncHandler.Send(packet);
+            return CreateChannelByClient(
+                        handlerCreator,
+                        localChannel =>
+                            new SSH1InteractiveSession(
+                                DetachChannel, this, _protocolEventManager, localChannel, ChannelType.ExecCommand, "ExecCommand"),
+                        channel => {
+                            _interactiveSession = channel;
+                            channel.ExecCommand(_param, command);
+                        }
+                    );
         }
 
-        public override void Disconnect(string msg) {
-            if (!this.IsOpen)
-                return;
-            Transmit(
-                new SSH1Packet(SSH1PacketType.SSH_MSG_DISCONNECT)
-                    .WriteString(msg)
-            );
-            Close();
-        }
+        /// <summary>
+        /// Opens subsystem channel (SSH2 only)
+        /// </summary>
+        /// <typeparam name="THandler">type of the channel event handler</typeparam>
+        /// <param name="handlerCreator">a function that creates a channel event handler</param>
+        /// <param name="subsystemName">subsystem name</param>
+        /// <returns>a new channel event handler which was created by <paramref name="handlerCreator"/>.</returns>
+        public THandler OpenSubsystem<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, string subsystemName)
+                where THandler : ISSHChannelEventHandler {
 
-        public override void SendIgnorableData(string msg) {
-            Transmit(
-                new SSH1Packet(SSH1PacketType.SSH_MSG_IGNORE)
-                    .WriteString(msg)
-            );
-        }
-
-        public override THandler OpenSubsystem<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, string subsystemName) {
             throw new NotSupportedException("OpenSubsystem is not supported on the SSH1 connection.");
         }
 
         /// <summary>
-        /// Create a new channel (initialted by the client)
+        /// Opens local port forwarding channel
         /// </summary>
+        /// <typeparam name="THandler">type of the channel event handler</typeparam>
+        /// <param name="handlerCreator">a function that creates a channel event handler</param>
+        /// <param name="remoteHost">the host to connect to</param>
+        /// <param name="remotePort">the port number to connect to</param>
+        /// <param name="originatorIp">originator's IP address</param>
+        /// <param name="originatorPort">originator's port number</param>
+        /// <returns>a new channel event handler which was created by <paramref name="handlerCreator"/>.</returns>
+        public THandler ForwardPort<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, string remoteHost, uint remotePort, string originatorIp, uint originatorPort)
+                where THandler : ISSHChannelEventHandler {
+
+            StartIdleInteractiveSession();
+
+            return CreateChannelByClient(
+                        handlerCreator,
+                        localChannel => new SSH1LocalPortForwardingChannel(
+                                            DetachChannel, this, _protocolEventManager, localChannel,
+                                            remoteHost, remotePort, originatorIp, originatorPort),
+                        channel => {
+                            channel.SendOpen();
+                        }
+                    );
+        }
+
+        /// <summary>
+        /// Requests the remote port forwarding.
+        /// </summary>
+        /// <param name="requestHandler">a handler that handles the port forwarding requests from the server</param>
+        /// <param name="addressToBind">address to bind on the server</param>
+        /// <param name="portNumberToBind">port number to bind on the server</param>
+        /// <returns>true if the request has been accepted, otherwise false.</returns>
+        public bool ListenForwardedPort(IRemotePortForwardingHandler requestHandler, string addressToBind, uint portNumberToBind) {
+
+            SSH1RemotePortForwarding.CreateChannelFunc createChannel =
+                (requestInfo, remoteChannel) => {
+                    uint localChannel = _channelCollection.GetNewChannelNumber();
+                    return new SSH1RemotePortForwardingChannel(
+                                    DetachChannel,
+                                    this,
+                                    _protocolEventManager,
+                                    localChannel,
+                                    remoteChannel
+                                );
+                };
+
+            SSH1RemotePortForwarding.RegisterChannelFunc registerChannel =
+                (channel, eventHandler) => {
+                    channel.SetHandler(eventHandler);
+                    _channelCollection.Add(channel, eventHandler);
+                };
+
+            // Note:
+            //  According to the SSH 1.5 protocol specification, the client has to specify host and port
+            //  the connection should be forwarded to.
+            //  For keeping the interface compatible with SSH2, we use generated host-port pair that indicates
+            //  which port on the server is listening.
+            string hostToConnect = "granados" + Interlocked.Increment(ref _remotePortForwardCount).ToString(NumberFormatInfo.InvariantInfo);
+            uint portToConnect = portNumberToBind;
+
+            return _remotePortForwarding.Value.ListenForwardedPort(
+                    requestHandler, createChannel, registerChannel, portNumberToBind, hostToConnect, portToConnect);
+        }
+
+        /// <summary>
+        /// Cancel the remote port forwarding. (SSH2 only)
+        /// </summary>
+        /// <param name="addressToBind">address to bind on the server</param>
+        /// <param name="portNumberToBind">port number to bind on the server</param>
+        /// <returns>true if the remote port forwarding has been cancelled, otherwise false.</returns>
+        public bool CancelForwardedPort(string addressToBind, uint portNumberToBind) {
+
+            throw new NotSupportedException("cancellation of the port forwarding is not supported");
+        }
+
+        /// <summary>
+        /// Sends ignorable data
+        /// </summary>
+        /// <param name="message">a message to be sent. the server may record this message into the log.</param>
+        public void SendIgnorableData(string message) {
+            Transmit(
+                new SSH1Packet(SSH1PacketType.SSH_MSG_IGNORE)
+                    .WriteString(message)
+            );
+        }
+
+        /// <summary>
+        /// Creates a new channel (initialted by the client)
+        /// </summary>
+        /// <typeparam name="TChannel">type of the channel object</typeparam>
+        /// <typeparam name="THandler">type of the event handler</typeparam>
+        /// <param name="handlerCreator">a function to create an event handler</param>
+        /// <param name="channelCreator">a function to create a channel object</param>
+        /// <param name="initiate">a function to be called after a channel has been created</param>
         /// <returns></returns>
         private THandler CreateChannelByClient<TChannel, THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, Func<uint, TChannel> channelCreator, Action<TChannel> initiate)
             where TChannel : SSH1ChannelBase
@@ -231,145 +454,19 @@ namespace Granados.SSH1 {
             }
         }
 
-        public override THandler OpenShell<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator) {
-            if (_interactiveSession != null) {
-                throw new SSHException(Strings.GetString("OnlySingleInteractiveSessionCanBeStarted"));
-            }
-
-            if (_param.AgentForwardingAuthKeyProvider != null) {
-                bool started = _agentForwarding.Value.StartAgentForwarding();
-                if (!started) {
-                    _protocolEventManager.Trace("the request of the agent forwarding has been rejected.");
-                }
-                else {
-                    _protocolEventManager.Trace("the request of the agent forwarding has been accepted.");
-                }
-            }
-
-            return CreateChannelByClient(
-                        handlerCreator,
-                        localChannel =>
-                            new SSH1InteractiveSession(
-                                DetachChannel, this, _protocolEventManager, localChannel, ChannelType.Shell, "Shell"),
-                        channel => {
-                            _interactiveSession = channel;
-                            channel.ExecShell(_param);
-                        }
-                    );
-        }
-
-        public override THandler ExecCommand<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator, string command) {
-            if (_interactiveSession != null) {
-                throw new SSHException(Strings.GetString("OnlySingleInteractiveSessionCanBeStarted"));
-            }
-
-            return CreateChannelByClient(
-                        handlerCreator,
-                        localChannel =>
-                            new SSH1InteractiveSession(
-                                DetachChannel, this, _protocolEventManager, localChannel, ChannelType.ExecCommand, "ExecCommand"),
-                        channel => {
-                            _interactiveSession = channel;
-                            channel.ExecCommand(_param, command);
-                        }
-                    );
-        }
-
-        public override THandler ForwardPort<THandler>(
-                SSHChannelEventHandlerCreator<THandler> handlerCreator, string remoteHost, uint remotePort, string originatorIp, uint originatorPort) {
-
-            StartIdleInteractiveSession();
-
-            return CreateChannelByClient(
-                        handlerCreator,
-                        localChannel => new SSH1LocalPortForwardingChannel(
-                                            DetachChannel, this, _protocolEventManager, localChannel,
-                                            remoteHost, remotePort, originatorIp, originatorPort),
-                        channel => {
-                            channel.SendOpen();
-                        }
-                    );
-        }
-
-        public override bool ListenForwardedPort(IRemotePortForwardingHandler requestHandler, string addressToBind, uint portNumberToBind) {
-
-            SSH1RemotePortForwarding.CreateChannelFunc createChannel =
-                (requestInfo, remoteChannel) => {
-                    uint localChannel = _channelCollection.GetNewChannelNumber();
-                    return new SSH1RemotePortForwardingChannel(
-                                    DetachChannel,
-                                    this,
-                                    _protocolEventManager,
-                                    localChannel,
-                                    remoteChannel
-                                );
-                };
-
-            SSH1RemotePortForwarding.RegisterChannelFunc registerChannel =
-                (channel, eventHandler) => {
-                    channel.SetHandler(eventHandler);
-                    _channelCollection.Add(channel, eventHandler);
-                };
-
-            // Note:
-            //  According to the SSH 1.5 protocol specification, the client has to specify host and port
-            //  the connection should be forwarded to.
-            //  For keeping the interface compatible with SSH2, we use generated host-port pair that indicates
-            //  which port on the server is listening.
-            string hostToConnect = "granados" + Interlocked.Increment(ref _remotePortForwardCount).ToString(NumberFormatInfo.InvariantInfo);
-            uint portToConnect = portNumberToBind;
-
-            return _remotePortForwarding.Value.ListenForwardedPort(
-                    requestHandler, createChannel, registerChannel, portNumberToBind, hostToConnect, portToConnect);
-        }
-
-        public override bool CancelForwardedPort(string addressToBind, uint portNumberToBind) {
-            throw new NotSupportedException("cancellation of the port forwarding is not supported");
-        }
-
-        private SSH1RemotePortForwarding CreateRemotePortForwarding() {
-            var instance = new SSH1RemotePortForwarding(_syncHandler, StartIdleInteractiveSession);
-            _packetInterceptors.Add(instance);
-            return instance;
-        }
-
-        private SSH1AgentForwarding CreateAgentForwarding() {
-            var instance = new SSH1AgentForwarding(
-                            _syncHandler,
-                            _param.AgentForwardingAuthKeyProvider,
-                            remoteChannel => {
-                                uint localChannel = _channelCollection.GetNewChannelNumber();
-                                return new SSH1AgentForwardingChannel(
-                                                DetachChannel, this, _protocolEventManager, localChannel, remoteChannel);
-                            },
-                            (channel, eventHandler) => {
-                                channel.SetHandler(eventHandler);
-                                _channelCollection.Add(channel, eventHandler);
-                            }
-                        );
-            _packetInterceptors.Add(instance);
-            return instance;
+        // FIXME: should be private
+        /// <summary>
+        /// Sends a packet.
+        /// </summary>
+        /// <param name="packet">packet to send</param>
+        internal void Transmit(SSH1Packet packet) {
+            _syncHandler.Send(packet);
         }
 
         /// <summary>
-        /// Start idle interactive session with opening shell.
+        /// Processes a received packet.
         /// </summary>
-        private void StartIdleInteractiveSession() {
-            if (_interactiveSession != null) {
-                return;
-            }
-            OpenShell(channel => new SimpleSSHChannelEventHandler());
-        }
-
-        private void UpdateClientKey(Cipher cipherClient) {
-            _packetizer.SetCipher(cipherClient, _param.CheckMACError);
-        }
-
-        private void UpdateServerKey(byte[] sessionId, Cipher cipherServer) {
-            _sessionID = sessionId;
-            _syncHandler.SetCipher(cipherServer);
-        }
-
+        /// <param name="packet">a received packet</param>
         private void ProcessPacket(DataFragment packet) {
             try {
                 DoProcessPacket(packet);
@@ -379,6 +476,10 @@ namespace Granados.SSH1 {
             }
         }
 
+        /// <summary>
+        /// Processes a received packet.
+        /// </summary>
+        /// <param name="packet">a received packet</param>
         private void DoProcessPacket(DataFragment packet) {
             if (_packetInterceptors.InterceptPacket(packet)) {
                 return;
@@ -430,8 +531,39 @@ namespace Granados.SSH1 {
             }
         }
 
-        private SSH1PacketType SneakPacketType(DataFragment data) {
-            return (SSH1PacketType)data[0];
+        /// <summary>
+        /// Start idle interactive session with opening shell.
+        /// </summary>
+        private void StartIdleInteractiveSession() {
+            if (_interactiveSession != null) {
+                return;
+            }
+            OpenShell(channel => new SimpleSSHChannelEventHandler());
+        }
+
+        /// <summary>
+        /// Tasks to do when the underlying socket has been closed. 
+        /// </summary>
+        private void OnConnectionClosed() {
+            _packetInterceptors.OnConnectionClosed();
+        }
+
+        /// <summary>
+        /// Updates cipher settings for the client.
+        /// </summary>
+        /// <param name="cipherClient"></param>
+        private void UpdateClientKey(Cipher cipherClient) {
+            _packetizer.SetCipher(cipherClient, _param.CheckMACError);
+        }
+
+        /// <summary>
+        /// Updates cipher settings for the server.
+        /// </summary>
+        /// <param name="sessionId"></param>
+        /// <param name="cipherServer"></param>
+        private void UpdateServerKey(byte[] sessionId, Cipher cipherServer) {
+            _sessionID = sessionId;
+            _syncHandler.SetCipher(cipherServer);
         }
     }
 

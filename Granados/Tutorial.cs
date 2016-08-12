@@ -1,4 +1,4 @@
-﻿/*s
+﻿/*
  Copyright (c) 2005 Poderosa Project, All Rights Reserved.
  This file is a part of the Granados SSH Client Library that is subject to
  the license included in the distributed package.
@@ -6,23 +6,22 @@
 
  $Id: Tutorial.cs,v 1.2 2011/10/27 23:21:56 kzmi Exp $
 */
+using Granados.AgentForwarding;
+using Granados.IO;
+using Granados.KeyboardInteractive;
+using Granados.PKI;
+using Granados.SSH;
+using Granados.SSH1;
+using Granados.SSH2;
+using Granados.Util;
 using System;
-using System.IO;
-using System.Text;
-using System.Threading;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-
-using Granados.IO;
-using Granados.SSH2;
-using Granados.Util;
-using Granados.PKI;
-using Granados.KeyboardInteractive;
-using Granados.SSH;
-using Granados.AgentForwarding;
-using Granados.SSH1;
+using System.Text;
+using System.Threading;
 
 namespace Granados.Tutorial {
 #if ENABLE_TUTORIAL
@@ -33,7 +32,6 @@ namespace Granados.Tutorial {
      */
     /// <exclude/>
     class Tutorial {
-        private static SSHConnection _conn;
 
         [STAThread]
         static void Main(string[] args) {
@@ -134,11 +132,13 @@ namespace Granados.Tutorial {
             Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             s.Connect(new IPEndPoint(IPAddress.Parse(f.HostName), f.PortNumber)); //22 is the default SSH port
 
+            ISSHConnection conn;
+
             if (f.AuthenticationType == AuthenticationType.KeyboardInteractive) {
                 //Creating a new SSH connection over the underlying socket
                 AuthenticationResult authResult;
-                _conn = SSHConnection.Connect(f, reader, tracer, s, out authResult);
-                reader._conn = _conn;
+                conn = SSHConnection.Connect(f, reader, tracer, s, out authResult);
+                reader._conn = conn;
                 bool result = authHandler.GetResult();
                 Debug.Assert(result == true);
             }
@@ -155,12 +155,12 @@ namespace Granados.Tutorial {
 
                 //Creating a new SSH connection over the underlying socket
                 AuthenticationResult authResult;
-                _conn = SSHConnection.Connect(f, reader, null, s, out authResult);
-                reader._conn = _conn;
+                conn = SSHConnection.Connect(f, reader, null, s, out authResult);
+                reader._conn = conn;
             }
 
             //Opening a shell
-            var ch = _conn.OpenShell(channelOperator => new ChannelHandler(channelOperator));
+            var ch = conn.OpenShell(channelOperator => new ChannelHandler(channelOperator));
 
             //you can get the detailed connection information in this way:
             //SSHConnectionInfo ci = _conn.ConnectionInfo;
@@ -193,11 +193,11 @@ namespace Granados.Tutorial {
 
             //Creating a new SSH connection over the underlying socket
             AuthenticationResult authResult;
-            _conn = SSHConnection.Connect(f, reader, tracer, s, out authResult);
-            reader._conn = _conn;
+            ISSHConnection conn = SSHConnection.Connect(f, reader, tracer, s, out authResult);
+            reader._conn = conn;
 
             //Local->Remote port forwarding
-            ChannelHandler ch = _conn.ForwardPort(
+            ChannelHandler ch = conn.ForwardPort(
                     channelOperator => new ChannelHandler(channelOperator),
                     "www.google.co.jp", 80u, "localhost", 0u);
             while (!reader._ready)
@@ -240,11 +240,11 @@ namespace Granados.Tutorial {
 
             //Creating a new SSH connection over the underlying socket
             AuthenticationResult authResult;
-            _conn = SSHConnection.Connect(f, reader, tracer, s, out authResult);
-            reader._conn = _conn;
+            ISSHConnection conn = SSHConnection.Connect(f, reader, tracer, s, out authResult);
+            reader._conn = conn;
 
             //Opening a shell
-            var ch = _conn.OpenShell(channelOperator => new ChannelHandler(channelOperator));
+            var ch = conn.OpenShell(channelOperator => new ChannelHandler(channelOperator));
 
             while (!reader._ready)
                 Thread.Sleep(100);
@@ -264,7 +264,7 @@ namespace Granados.Tutorial {
     /// </summary>
     /// <exclude/>
     class Reader : ISSHConnectionEventReceiver {
-        public SSHConnection _conn;
+        public ISSHConnection _conn;
         public bool _ready;
 
         public void OnData(DataFragment data) {

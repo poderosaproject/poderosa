@@ -298,7 +298,7 @@ namespace Poderosa.Protocols {
             return _sshSocket;
         }
 
-        public void AttachTransmissionSide(SSHConnection con, AuthenticationResult authResult) {
+        public void AttachTransmissionSide(ISSHConnection con, AuthenticationResult authResult) {
             _sshSocket.SetSSHConnection(con);
             if (authResult == AuthenticationResult.Success) {
                 SSHSocket ss = (SSHSocket)_sshSocket;

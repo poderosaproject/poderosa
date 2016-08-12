@@ -24,7 +24,7 @@ namespace Poderosa.Protocols {
     //SSHの入出力系
     internal abstract class SSHConnectionEventReceiverBase : ISSHConnectionEventReceiver {
         protected SSHTerminalConnection _parent;
-        protected SSHConnection _connection;
+        protected ISSHConnection _connection;
         protected IByteAsyncInputStream _callback;
         private bool _normalTerminationCalled;
 
@@ -32,10 +32,10 @@ namespace Poderosa.Protocols {
             _parent = parent;
         }
         //SSHConnection確立時に呼ぶ
-        public void SetSSHConnection(SSHConnection connection) {
+        public void SetSSHConnection(ISSHConnection connection) {
             _connection = connection;
         }
-        public SSHConnection Connection {
+        public ISSHConnection Connection {
             get {
                 return _connection;
             }

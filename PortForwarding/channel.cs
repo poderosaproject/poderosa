@@ -155,18 +155,18 @@ namespace Poderosa.PortForwarding {
 
         protected static int _id_seed = 1;
         protected int _id;
-        protected SSHConnection _connection;
+        protected ISSHConnection _connection;
         protected bool _closed;
         protected bool _established;
 
         public ChannelFactory() {
             _id = _id_seed++;
         }
-        public void FixConnection(SSHConnection con) {
+        public void FixConnection(ISSHConnection con) {
             _connection = con;
             Env.Log.LogConnectionOpened(this.ChannelProfile, _id);
         }
-        public SSHConnection Connection {
+        public ISSHConnection Connection {
             get {
                 return _connection;
             }

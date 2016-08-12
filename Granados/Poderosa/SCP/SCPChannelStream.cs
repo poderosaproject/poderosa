@@ -136,7 +136,7 @@ namespace Granados.Poderosa.SCP {
         /// <param name="millisecondsTimeout">timeout in milliseconds</param>
         /// <exception cref="SCPClientInvalidStatusException">Channel has been already opened or already closed.</exception>
         /// <exception cref="SCPClientTimeoutException">Timeout has occurred while waiting for READY status.</exception>
-        public void Open(SSHConnection connection, string command, int millisecondsTimeout) {
+        public void Open(ISSHConnection connection, string command, int millisecondsTimeout) {
             if (_status != StreamStatus.NotOpened)
                 throw new SCPClientInvalidStatusException();
 
