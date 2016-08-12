@@ -123,7 +123,7 @@ namespace Granados.SSH1 {
                                 remoteChannel => {
                                     uint localChannel = _channelCollection.GetNewChannelNumber();
                                     return new SSH1AgentForwardingChannel(
-                                                    this, _protocolEventManager, localChannel, remoteChannel);
+                                                    _syncHandler, _protocolEventManager, localChannel, remoteChannel);
                                 },
                             registerChannel:
                                 RegisterChannel
@@ -275,7 +275,7 @@ namespace Granados.SSH1 {
                         channelCreator:
                             localChannel =>
                                 new SSH1InteractiveSession(
-                                    this, _protocolEventManager, localChannel, ChannelType.Shell, "Shell"),
+                                    _syncHandler, _protocolEventManager, localChannel, ChannelType.Shell, "Shell"),
                         initiate:
                             channel => {
                                 _interactiveSession = channel;
@@ -303,7 +303,7 @@ namespace Granados.SSH1 {
                         channelCreator:
                             localChannel =>
                                 new SSH1InteractiveSession(
-                                    this, _protocolEventManager, localChannel, ChannelType.ExecCommand, "ExecCommand"),
+                                    _syncHandler, _protocolEventManager, localChannel, ChannelType.ExecCommand, "ExecCommand"),
                         initiate:
                             channel => {
                                 _interactiveSession = channel;
@@ -345,7 +345,7 @@ namespace Granados.SSH1 {
                             handlerCreator,
                         channelCreator:
                             localChannel => new SSH1LocalPortForwardingChannel(
-                                                this, _protocolEventManager, localChannel,
+                                                _syncHandler, _protocolEventManager, localChannel,
                                                 remoteHost, remotePort, originatorIp, originatorPort),
                         initiate:
                             channel => {
@@ -367,7 +367,7 @@ namespace Granados.SSH1 {
                 (requestInfo, remoteChannel) => {
                     uint localChannel = _channelCollection.GetNewChannelNumber();
                     return new SSH1RemotePortForwardingChannel(
-                                    this,
+                                    _syncHandler,
                                     _protocolEventManager,
                                     localChannel,
                                     remoteChannel
@@ -466,12 +466,11 @@ namespace Granados.SSH1 {
             }
         }
 
-        // FIXME: should be private
         /// <summary>
         /// Sends a packet.
         /// </summary>
         /// <param name="packet">packet to send</param>
-        internal void Transmit(SSH1Packet packet) {
+        private void Transmit(SSH1Packet packet) {
             _syncHandler.Send(packet);
         }
 

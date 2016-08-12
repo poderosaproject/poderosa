@@ -128,7 +128,7 @@ namespace Granados.SSH2 {
                                     (remoteChannel, serverWindowSize, serverMaxPacketSize) => {
                                         uint localChannel = _channelCollection.GetNewChannelNumber();
                                         return new SSH2OpenSSHAgentForwardingChannel(
-                                                    this,
+                                                    _syncHandler,
                                                     _param,
                                                     _protocolEventManager,
                                                     localChannel,
@@ -290,7 +290,7 @@ namespace Granados.SSH2 {
                             handlerCreator,
                         channelCreator:
                             localChannel =>
-                                new SSH2ShellChannel(this, _param, _protocolEventManager, localChannel)
+                                new SSH2ShellChannel(_syncHandler, _param, _protocolEventManager, localChannel)
                     );
         }
 
@@ -309,7 +309,7 @@ namespace Granados.SSH2 {
                             handlerCreator,
                         channelCreator:
                             localChannel =>
-                                new SSH2ExecChannel(this, _param, _protocolEventManager, localChannel, command)
+                                new SSH2ExecChannel(_syncHandler, _param, _protocolEventManager, localChannel, command)
                     );
         }
 
@@ -329,7 +329,7 @@ namespace Granados.SSH2 {
                         channelCreator:
                             localChannel =>
                                 new SSH2SubsystemChannel(
-                                    this, _param, _protocolEventManager, localChannel, subsystemName)
+                                    _syncHandler, _param, _protocolEventManager, localChannel, subsystemName)
                     );
         }
 
@@ -352,7 +352,7 @@ namespace Granados.SSH2 {
                         channelCreator:
                             localChannel =>
                                 new SSH2LocalPortForwardingChannel(
-                                    this, _param, _protocolEventManager, localChannel,
+                                    _syncHandler, _param, _protocolEventManager, localChannel,
                                     remoteHost, remotePort, originatorIp, originatorPort)
                     );
         }
@@ -373,7 +373,7 @@ namespace Granados.SSH2 {
                             (requestInfo, remoteChannel, serverWindowSize, serverMaxPacketSize) => {
                                 uint localChannel = _channelCollection.GetNewChannelNumber();
                                 return new SSH2RemotePortForwardingChannel(
-                                            this,
+                                            _syncHandler,
                                             _param,
                                             _protocolEventManager,
                                             localChannel,
@@ -464,12 +464,11 @@ namespace Granados.SSH2 {
             }
         }
 
-        // FIXME: should be private
         /// <summary>
         /// Sends a packet.
         /// </summary>
         /// <param name="packet">packet to send</param>
-        internal void Transmit(SSH2Packet packet) {
+        private void Transmit(SSH2Packet packet) {
             _syncHandler.Send(packet);
         }
 

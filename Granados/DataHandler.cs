@@ -41,10 +41,22 @@ namespace Granados.IO {
     }
 
     /// <summary>
+    /// An interface for sending a packet.
+    /// </summary>
+    /// <typeparam name="PacketType">type of the packet object.</typeparam>
+    internal interface IPacketSender<PacketType> {
+        /// <summary>
+        /// Sends a packet.
+        /// </summary>
+        /// <param name="packet">a packet object.</param>
+        void Send(PacketType packet);
+    }
+
+    /// <summary>
     /// A base class for the synchronization of sending/receiving packets.
     /// </summary>
     /// <typeparam name="PacketType">type of the packet object.</typeparam>
-    internal abstract class AbstractSynchronousPacketHandler<PacketType> : IDataHandler {
+    internal abstract class AbstractSynchronousPacketHandler<PacketType> : IDataHandler, IPacketSender<PacketType> {
 
         // lock object for preventing simultaneous wait by multiple threads
         private readonly object _waitResponseLock = new object();

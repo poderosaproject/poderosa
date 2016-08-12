@@ -19,7 +19,7 @@ namespace Granados.SSH1 {
     internal abstract class SSH1ChannelBase : ISSHChannel {
         #region
 
-        private readonly SSH1Connection _connection;
+        private readonly IPacketSender<SSH1Packet> _packetSender;
         private readonly SSHProtocolEventManager _protocolEventManager;
 
         private ISSHChannelEventHandler _handler = new SimpleSSHChannelEventHandler();
@@ -33,14 +33,14 @@ namespace Granados.SSH1 {
         /// Constructor
         /// </summary>
         public SSH1ChannelBase(
-                SSH1Connection connection,
+                IPacketSender<SSH1Packet> packetSender,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 uint remoteChannel,
                 ChannelType channelType,
                 string channelTypeString) {
 
-            _connection = connection;
+            _packetSender = packetSender;
             _protocolEventManager = protocolEventManager;
             LocalChannel = localChannel;
             RemoteChannel = remoteChannel;
@@ -166,7 +166,7 @@ namespace Granados.SSH1 {
         /// </summary>
         /// <param name="packet">packet object</param>
         protected void Transmit(SSH1Packet packet) {
-            _connection.Transmit(packet);
+            _packetSender.Send(packet);
         }
 
         /// <summary>
@@ -246,12 +246,12 @@ namespace Granados.SSH1 {
         /// Constructor
         /// </summary>
         public SSH1InteractiveSession(
-                SSH1Connection connection,
+                IPacketSender<SSH1Packet> packetSender,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 ChannelType channelType,
                 string channelTypeString)
-            : base(connection, protocolEventManager, localChannel, 0, channelType, channelTypeString) {
+            : base(packetSender, protocolEventManager, localChannel, 0, channelType, channelTypeString) {
 
             _state = State.Initial;
         }
@@ -637,13 +637,13 @@ namespace Granados.SSH1 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH1SubChannelBase(
-                SSH1Connection connection,
+                IPacketSender<SSH1Packet> packetSender,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 uint remoteChannel,
                 ChannelType channelType,
                 string channelTypeString)
-            : base(connection, protocolEventManager, localChannel, remoteChannel, channelType, channelTypeString) {
+            : base(packetSender, protocolEventManager, localChannel, remoteChannel, channelType, channelTypeString) {
 
             _state = State.InitiatedByServer; // SendOpenConfirmation() will change state to "Opened"
         }
@@ -652,12 +652,12 @@ namespace Granados.SSH1 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH1SubChannelBase(
-                SSH1Connection connection,
+                IPacketSender<SSH1Packet> packetSender,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 ChannelType channelType,
                 string channelTypeString)
-            : base(connection, protocolEventManager, localChannel, 0, channelType, channelTypeString) {
+            : base(packetSender, protocolEventManager, localChannel, 0, channelType, channelTypeString) {
 
             _state = State.InitiatedByClient; // receiving SSH_MSG_CHANNEL_OPEN_CONFIRMATION will change state to "Opened"
         }
@@ -1010,14 +1010,14 @@ namespace Granados.SSH1 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH1LocalPortForwardingChannel(
-                SSH1Connection connection,
+                IPacketSender<SSH1Packet> packetSender,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 string remoteHost,
                 uint remotePort,
                 string originatorIp,
                 uint originatorPort)
-            : base(connection, protocolEventManager, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(packetSender, protocolEventManager, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
 
             _remoteHost = remoteHost;
             _remotePort = remotePort;
@@ -1063,11 +1063,11 @@ namespace Granados.SSH1 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH1RemotePortForwardingChannel(
-                SSH1Connection connection,
+                IPacketSender<SSH1Packet> packetSender,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 uint remoteChannel)
-            : base(connection, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(packetSender, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
         }
 
         /// <summary>
@@ -1094,11 +1094,11 @@ namespace Granados.SSH1 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH1AgentForwardingChannel(
-                SSH1Connection connection,
+                IPacketSender<SSH1Packet> packetSender,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 uint remoteChannel)
-            : base(connection, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(packetSender, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
         }
 
         /// <summary>
