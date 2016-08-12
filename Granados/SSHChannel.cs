@@ -62,6 +62,17 @@ namespace Granados.SSH {
         }
 
         /// <summary>
+        /// Maximum size of the channel data which can be sent with a single SSH packet.
+        /// </summary>
+        /// <remarks>
+        /// In SSH2, this size will be determined from the maximum packet size specified by the server.
+        /// In SSH1, this size will be determined from the maximum packet size specified in the protocol specification.
+        /// </remarks>
+        int MaxChannelDatagramSize {
+            get;
+        }
+
+        /// <summary>
         /// Send window dimension change message.
         /// </summary>
         /// <remarks>

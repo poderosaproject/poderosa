@@ -96,6 +96,16 @@ namespace Granados.SSH1 {
             get;
         }
 
+        /// <summary>
+        /// Maximum size of the channel data which can be sent with a single SSH packet.
+        /// </summary>
+        /// <remarks>
+        /// In SSH1, this size will be determined from the maximum packet size specified in the protocol specification.
+        /// </remarks>
+        public abstract int MaxChannelDatagramSize {
+            get;
+        }
+
         #endregion
 
         #region ISSHChannel methods
@@ -242,6 +252,15 @@ namespace Granados.SSH1 {
 
         private readonly AtomicBox<DataFragment> _receivedPacket = new AtomicBox<DataFragment>();
 
+        // Min/Max size of the SSH_CMSG_STDIN_DATA datagram
+        // Maximum packet size is 262144 bytes. (not including the length field and padding)
+        // SSH_CMSG_STDIN_DATA:
+        //   Packet type (SSH_CMSG_STDIN_DATA) : 1 byte
+        //   Data length : 4 bytes
+        //   Data : n bytes
+        //   Check bytes : 4 bytes
+        private const int MAX_DATAGRAM_SIZE = 262144 - (1 + 4 + 4);
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -273,6 +292,18 @@ namespace Granados.SSH1 {
         public override bool IsReady {
             get {
                 return _state == State.Ready;
+            }
+        }
+
+        /// <summary>
+        /// Maximum size of the channel data which can be sent with a single SSH packet.
+        /// </summary>
+        /// <remarks>
+        /// In SSH1, this size will be determined from the maximum packet size specified in the protocol specification.
+        /// </remarks>
+        public override int MaxChannelDatagramSize {
+            get {
+                return MAX_DATAGRAM_SIZE;
             }
         }
 
@@ -318,10 +349,19 @@ namespace Granados.SSH1 {
                     throw new SSHChannelInvalidOperationException("Channel already closed");
                 }
 
-                Transmit(
-                    new SSH1Packet(SSH1PacketType.SSH_CMSG_STDIN_DATA)
-                        .WriteAsString(data.Data, data.Offset, data.Length)
-                );
+                int offset = data.Offset;
+                int length = data.Length;
+                int maxSize = MaxChannelDatagramSize;
+
+                while (length > 0) {
+                    int datagramSize = (length > maxSize) ? maxSize : length;
+                    Transmit(
+                        new SSH1Packet(SSH1PacketType.SSH_CMSG_STDIN_DATA)
+                            .WriteAsString(data.Data, offset, datagramSize)
+                    );
+                    offset += datagramSize;
+                    length -= datagramSize;
+                }
             }
         }
 
@@ -633,6 +673,16 @@ namespace Granados.SSH1 {
         private volatile State _state;
         private readonly object _stateSync = new object();
 
+        // Min/Max size of the SSH_MSG_CHANNEL_DATA datagram
+        // Maximum packet size is 262144 bytes. (not including the length field and padding)
+        // SSH_MSG_CHANNEL_DATA:
+        //   Packet type (SSH_MSG_CHANNEL_DATA) : 1 byte
+        //   Remote channel : 4 bytes
+        //   Data length : 4 bytes
+        //   Data : n bytes
+        //   Check bytes : 4 bytes
+        private const int MAX_DATAGRAM_SIZE = 262144 - (1 + 4 + 4 + 4);
+
         /// <summary>
         /// Constructor (initiated by server)
         /// </summary>
@@ -731,6 +781,18 @@ namespace Granados.SSH1 {
             }
         }
 
+        /// <summary>
+        /// Maximum size of the channel data which can be sent with a single SSH packet.
+        /// </summary>
+        /// <remarks>
+        /// In SSH1, this size will be determined from the maximum packet size specified in the protocol specification.
+        /// </remarks>
+        public override int MaxChannelDatagramSize {
+            get {
+                return MAX_DATAGRAM_SIZE;
+            }
+        }
+
         #endregion
 
         #region ISSHChannel methods
@@ -758,11 +820,20 @@ namespace Granados.SSH1 {
                     throw new SSHChannelInvalidOperationException("Channel already closed");
                 }
 
-                Transmit(
-                    new SSH1Packet(SSH1PacketType.SSH_MSG_CHANNEL_DATA)
-                        .WriteUInt32(RemoteChannel)
-                        .WriteAsString(data.Data, data.Offset, data.Length)
-                );
+                int offset = data.Offset;
+                int length = data.Length;
+                int maxSize = MaxChannelDatagramSize;
+
+                while (length > 0) {
+                    int datagramSize = (length > maxSize) ? maxSize : length;
+                    Transmit(
+                        new SSH1Packet(SSH1PacketType.SSH_MSG_CHANNEL_DATA)
+                            .WriteUInt32(RemoteChannel)
+                            .WriteAsString(data.Data, offset, datagramSize)
+                    );
+                    offset += datagramSize;
+                    length -= datagramSize;
+                }
             }
         }
 

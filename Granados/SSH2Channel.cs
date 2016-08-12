@@ -41,6 +41,17 @@ namespace Granados.SSH2 {
             Consumed,
         }
 
+        // Min/Max size of the SSH_MSG_CHANNEL_DATA datagram
+        // Maximum payload size is 32768 bytes. (described in RFC4253)
+        // SSH_MSG_CHANNEL_DATA:
+        //   Packet type (SSH_MSG_CHANNEL_DATA) : 1 byte
+        //   Recipient channel : 4 bytes
+        //   Data length : 4 bytes
+        //   Data : n bytes
+        private const int CHANNEL_DATA_INFO_SIZE = 1 + 4 + 4;
+        private const int MIN_DATAGRAM_SIZE = 512;
+        private const int MAX_DATAGRAM_SIZE = 32768 - CHANNEL_DATA_INFO_SIZE;
+
         private readonly IPacketSender<SSH2Packet> _packetSender;
         private readonly SSHProtocolEventManager _protocolEventManager;
         private readonly int _localMaxPacketSize;
@@ -57,6 +68,8 @@ namespace Granados.SSH2 {
         private readonly object _channelRequestSync = new object();
 
         private ISSHChannelEventHandler _handler = new SimpleSSHChannelEventHandler();
+
+        private int? _maxDatagramSize = null;
 
         /// <summary>
         /// Event that notifies that this channel is already dead.
@@ -199,6 +212,27 @@ namespace Granados.SSH2 {
             }
         }
 
+        /// <summary>
+        /// Maximum size of the channel data which can be sent with a single SSH packet.
+        /// </summary>
+        /// <remarks>
+        /// In SSH2, this size will be determined from the maximum packet size specified by the server.
+        /// </remarks>
+        public int MaxChannelDatagramSize {
+            get {
+                if (_maxDatagramSize == null) {
+                    if (_serverMaxPacketSize == 0) {
+                        return MIN_DATAGRAM_SIZE;
+                    }
+                    _maxDatagramSize =
+                        (_serverMaxPacketSize < CHANNEL_DATA_INFO_SIZE) ?
+                            MIN_DATAGRAM_SIZE :
+                            (int)Math.Max(Math.Min(_serverMaxPacketSize - CHANNEL_DATA_INFO_SIZE, MAX_DATAGRAM_SIZE), MIN_DATAGRAM_SIZE);
+                }
+                return _maxDatagramSize.Value;
+            }
+        }
+
         #endregion
 
         #region ISSHChannel methods
@@ -247,12 +281,21 @@ namespace Granados.SSH2 {
                     throw new SSHChannelInvalidOperationException("Channel already closed");
                 }
 
-                Transmit(
-                    data.Length,
-                    new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_DATA)
-                        .WriteUInt32(RemoteChannel)
-                        .WriteAsString(data.Data, data.Offset, data.Length)
-                );
+                int offset = data.Offset;
+                int length = data.Length;
+                int maxSize = MaxChannelDatagramSize;
+
+                while (length > 0) {
+                    int datagramSize = (length > maxSize) ? maxSize : length;
+                    Transmit(
+                        datagramSize,
+                        new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_DATA)
+                            .WriteUInt32(RemoteChannel)
+                            .WriteAsString(data.Data, offset, datagramSize)
+                    );
+                    offset += datagramSize;
+                    length -= datagramSize;
+                }
             }
         }
 
