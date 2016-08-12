@@ -52,3 +52,68 @@ namespace Granados {
     }
 
 }
+
+namespace Granados.SSH {
+
+    /// <summary>
+    /// A wrapper class of <see cref="ISSHConnectionEventReceiver"/> for internal use.
+    /// </summary>
+    internal class SSHConnectionEventReceiverIgnoreErrorWrapper : ISSHConnectionEventReceiver {
+
+        private readonly ISSHConnectionEventReceiver _coreHandler;
+
+        public SSHConnectionEventReceiverIgnoreErrorWrapper(ISSHConnectionEventReceiver handler) {
+            _coreHandler = handler;
+        }
+
+        public void OnDebugMessage(bool alwaysDisplay, string message) {
+            try {
+                _coreHandler.OnDebugMessage(alwaysDisplay, message);
+            }
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
+
+        public void OnIgnoreMessage(byte[] data) {
+            try {
+                _coreHandler.OnIgnoreMessage(data);
+            }
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
+
+        public void OnUnknownMessage(byte type, byte[] data) {
+            try {
+                _coreHandler.OnUnknownMessage(type, data);
+            }
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
+
+        public void OnError(Exception error) {
+            try {
+                _coreHandler.OnError(error);
+            }
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
+
+        public void OnConnectionClosed() {
+            try {
+                _coreHandler.OnConnectionClosed();
+            }
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
+    }
+}

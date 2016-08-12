@@ -71,7 +71,7 @@ namespace Granados.SSH2 {
         public SSH2Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventReceiver connectionEventReceiver, ISSHProtocolEventListener protocolEventListener, string serverVersion, string clientVersion)
             : base() {
             _socket = socket;
-            _eventReceiver = connectionEventReceiver;
+            _eventReceiver = new SSHConnectionEventReceiverIgnoreErrorWrapper(connectionEventReceiver);
             _socketStatusReader = new SocketStatusReader(socket);
             _param = param.Clone();
             _protocolEventManager = new SSHProtocolEventManager(protocolEventListener);
