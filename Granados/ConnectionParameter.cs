@@ -1,16 +1,12 @@
-﻿/*
- Copyright (c) 2005 Poderosa Project, All Rights Reserved.
- This file is a part of the Granados SSH Client Library that is subject to
- the license included in the distributed package.
- You may not use this file except in compliance with the license.
+﻿// Copyright (c) 2005-2016 Poderosa Project, All Rights Reserved.
+// This file is a part of the Granados SSH Client Library that is subject to
+// the license included in the distributed package.
+// You may not use this file except in compliance with the license.
 
- $Id: ConnectionParameter.cs,v 1.5 2011/10/27 23:21:56 kzmi Exp $
-*/
-
-using Granados.PKI;
-using Granados.KnownHosts;
-using Granados.KeyboardInteractive;
 using Granados.AgentForwarding;
+using Granados.KeyboardInteractive;
+using Granados.KnownHosts;
+using Granados.PKI;
 
 namespace Granados {
 

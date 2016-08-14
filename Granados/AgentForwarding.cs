@@ -1,24 +1,18 @@
-﻿/*
- Copyright (c) 2016 Poderosa Project, All Rights Reserved.
- This file is a part of the Granados SSH Client Library that is subject to
- the license included in the distributed package.
- You may not use this file except in compliance with the license.
-*/
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Text;
-using System.Diagnostics;
+﻿// Copyright (c) 2005-2016 Poderosa Project, All Rights Reserved.
+// This file is a part of the Granados SSH Client Library that is subject to
+// the license included in the distributed package.
+// You may not use this file except in compliance with the license.
 
 using Granados.IO;
-using Granados.IO.SSH2;
-using Granados.SSH2;
-using Granados.Util;
-using Granados.SSH1;
-using Granados.SSH;
 using Granados.IO.SSH1;
 using Granados.Mono.Math;
 using Granados.PKI;
+using Granados.SSH1;
+using Granados.SSH2;
+using Granados.Util;
+using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Security.Cryptography;
 
 namespace Granados.AgentForwarding {

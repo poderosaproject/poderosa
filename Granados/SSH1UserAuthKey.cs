@@ -1,21 +1,19 @@
-﻿/*
- Copyright (c) 2005 Poderosa Project, All Rights Reserved.
- This file is a part of the Granados SSH Client Library that is subject to
- the license included in the distributed package.
- You may not use this file except in compliance with the license.
+﻿// Copyright (c) 2005-2016 Poderosa Project, All Rights Reserved.
+// This file is a part of the Granados SSH Client Library that is subject to
+// the license included in the distributed package.
+// You may not use this file except in compliance with the license.
 
- $Id: SSH1UserAuthKey.cs,v 1.6 2011/11/03 16:27:38 kzmi Exp $
-*/
 using System;
 using System.IO;
 using System.Text;
 using System.Security.Cryptography;
-using System.Diagnostics;
 
 using Granados.IO.SSH1;
 using Granados.Crypto;
 using Granados.Util;
 using Granados.Mono.Math;
+
+
 #if PODEROSA_KEYFORMAT
 using Granados.Poderosa.KeyFormat;
 #endif

@@ -1,30 +1,14 @@
-﻿/*
- Copyright (c) 2005 Poderosa Project, All Rights Reserved.
- This file is a part of the Granados SSH Client Library that is subject to
- the license included in the distributed package.
- You may not use this file except in compliance with the license.
+﻿// Copyright (c) 2005-2016 Poderosa Project, All Rights Reserved.
+// This file is a part of the Granados SSH Client Library that is subject to
+// the license included in the distributed package.
+// You may not use this file except in compliance with the license.
 
- $Id: SSH1Packet.cs,v 1.4 2011/10/27 23:21:56 kzmi Exp $
-*/
-/*
- * structure of packet
- * 
- * length(4) padding(1-8) type(1) data(0+) crc(4)    
- * 
- * 1. length = type+data+crc
- * 2. the length of padding+type+data+crc must be a multiple of 8
- * 3. padding length must be 1 at least
- * 4. crc is calculated from padding,type and data
- *
- */
-
-using System;
-using System.Threading;
 using Granados.Crypto;
 using Granados.IO;
-
-using Granados.Util;
 using Granados.Mono.Math;
+using Granados.Util;
+using System;
+using System.Threading;
 
 namespace Granados.SSH1 {
 

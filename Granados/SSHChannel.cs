@@ -1,15 +1,11 @@
-﻿/*
- Copyright (c) 2016 Poderosa Project, All Rights Reserved.
- This file is a part of the Granados SSH Client Library that is subject to
- the license included in the distributed package.
- You may not use this file except in compliance with the license.
-*/
-using Granados.IO;
-using System;
-using System.Collections.Concurrent;
-using System.Threading;
+﻿// Copyright (c) 2005-2016 Poderosa Project, All Rights Reserved.
+// This file is a part of the Granados SSH Client Library that is subject to
+// the license included in the distributed package.
+// You may not use this file except in compliance with the license.
 
 namespace Granados {
+    using Granados.IO;
+    using System;
 
     /// <summary>
     /// An interface of the class that can send data through the specific channel.
@@ -270,6 +266,10 @@ namespace Granados {
 }
 
 namespace Granados.SSH {
+    using Granados.IO;
+    using System;
+    using System.Collections.Concurrent;
+    using System.Threading;
 
     /// <summary>
     /// A wrapper class of <see cref="ISSHChannelEventHandler"/> for internal use.

@@ -1,18 +1,11 @@
-﻿/*
- Copyright (c) 2005 Poderosa Project, All Rights Reserved.
- This file is a part of the Granados SSH Client Library that is subject to
- the license included in the distributed package.
- You may not use this file except in compliance with the license.
-
- $Id: SSHUtil.cs,v 1.5 2011/10/27 23:21:56 kzmi Exp $
-*/
-using Granados.SSH;
-using System;
-using System.Reflection;
-using System.Text;
-using System.Threading;
+﻿// Copyright (c) 2005-2016 Poderosa Project, All Rights Reserved.
+// This file is a part of the Granados SSH Client Library that is subject to
+// the license included in the distributed package.
+// You may not use this file except in compliance with the license.
 
 namespace Granados {
+
+    using System;
 
     /// <summary>
     /// Exception about SSH operation.
@@ -172,6 +165,11 @@ namespace Granados {
 }
 
 namespace Granados.Util {
+
+    using System;
+    using System.Reflection;
+    using System.Text;
+    using System.Threading;
 
     internal static class SSHUtil {
 

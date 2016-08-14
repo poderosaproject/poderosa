@@ -1,33 +1,14 @@
-﻿/*
- Copyright (c) 2005 Poderosa Project, All Rights Reserved.
- This file is a part of the Granados SSH Client Library that is subject to
- the license included in the distributed package.
- You may not use this file except in compliance with the license.
-
-  I implemented this algorithm with reference to following products and books though the algorithm is known publicly.
-    * MindTerm ( AppGate Network Security )
-    * Applied Cryptography ( Bruce Schneier )
-
- $Id: SSH2Packet.cs,v 1.8 2011/11/14 13:35:59 kzmi Exp $
-*/
-/* SSH2 Packet Structure
- * 
- * uint32    packet_length
- * byte      padding_length
- * byte[n1]  payload; n1 = packet_length - padding_length - 1
- * byte[n2]  random padding; n2 = padding_length (max 255)
- * byte[m]   mac (message authentication code); m = mac_length
- * 
- * 4+1+n1+n2 must be a multiple of the cipher block size
- */
-using System;
+﻿// Copyright (c) 2005-2016 Poderosa Project, All Rights Reserved.
+// This file is a part of the Granados SSH Client Library that is subject to
+// the license included in the distributed package.
+// You may not use this file except in compliance with the license.
 
 using Granados.Crypto;
 using Granados.IO;
-using Granados.IO.SSH2;
-using Granados.Util;
-using System.Threading;
 using Granados.Mono.Math;
+using Granados.Util;
+using System;
+using System.Threading;
 
 namespace Granados.SSH2 {
 

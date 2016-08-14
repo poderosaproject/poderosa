@@ -1,15 +1,8 @@
-﻿/*
- Copyright (c) 2005 Poderosa Project, All Rights Reserved.
- This file is a part of the Granados SSH Client Library that is subject to
- the license included in the distributed package.
- You may not use this file except in compliance with the license.
+﻿// Copyright (c) 2005-2016 Poderosa Project, All Rights Reserved.
+// This file is a part of the Granados SSH Client Library that is subject to
+// the license included in the distributed package.
+// You may not use this file except in compliance with the license.
 
-  I implemented this algorithm with reference to following products and books though the algorithm is known publicly.
-    * MindTerm ( AppGate Network Security )
-    * Applied Cryptography ( Bruce Schneier )
-
- $Id: SSH2UserAuthKey.cs,v 1.7 2011/11/08 12:24:05 kzmi Exp $
-*/
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -17,12 +10,12 @@ using System.Security.Cryptography;
 using System.Text;
 using Granados.PKI;
 using Granados.Util;
+using Granados.IO;
+using Granados.Mono.Math;
 using Granados.IO.SSH2;
 using Granados.Crypto;
 #if PODEROSA_KEYFORMAT
 using Granados.Poderosa.KeyFormat;
-using Granados.IO;
-using Granados.Mono.Math;
 #endif
 
 namespace Granados.SSH2 {

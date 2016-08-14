@@ -189,9 +189,6 @@
     <Compile Include="SSH1UserAuthKey.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="SSH1Util.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="SSH2Connection.cs">
       <SubType>Code</SubType>
     </Compile>

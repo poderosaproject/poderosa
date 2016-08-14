@@ -1,15 +1,8 @@
-﻿/*
- Copyright (c) 2005 Poderosa Project, All Rights Reserved.
- This file is a part of the Granados SSH Client Library that is subject to
- the license included in the distributed package.
- You may not use this file except in compliance with the license.
+﻿// Copyright (c) 2005-2016 Poderosa Project, All Rights Reserved.
+// This file is a part of the Granados SSH Client Library that is subject to
+// the license included in the distributed package.
+// You may not use this file except in compliance with the license.
 
-  I implemented this algorithm with reference to following products and books though the algorithm is known publicly.
-    * MindTerm ( AppGate Network Security )
-    * Applied Cryptography ( Bruce Schneier )
-
- $Id: SSH2Util.cs,v 1.4 2011/10/27 23:21:56 kzmi Exp $
-*/
 using System;
 using Granados.PKI;
 
@@ -37,14 +30,13 @@ namespace Granados.SSH2 {
     }
 
     /// <summary>
-    /// 
+    /// SSH_MSG_CHANNEL_OPEN_FAILURE reason code
     /// </summary>
-    /// <exclude/>
-    public enum ChannelOpenFailureReason {
-        SSH_OPEN_ADMINISTRATIVELY_PROHIBITED = 1,
-        SSH_OPEN_CONNECT_FAILED = 2,
-        SSH_OPEN_UNKNOWN_CHANNEL_TYPE = 3,
-        SSH_OPEN_RESOURCE_SHORTAGE = 4
+    public static class SSH2ChannelOpenFailureCode {
+        public const uint SSH_OPEN_ADMINISTRATIVELY_PROHIBITED = 1;
+        public const uint SSH_OPEN_CONNECT_FAILED = 2;
+        public const uint SSH_OPEN_UNKNOWN_CHANNEL_TYPE = 3;
+        public const uint SSH_OPEN_RESOURCE_SHORTAGE = 4;
     }
 
     internal static class SSH2Util {
