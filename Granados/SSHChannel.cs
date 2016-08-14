@@ -9,7 +9,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace Granados.SSH {
+namespace Granados {
 
     /// <summary>
     /// An interface of the class that can send data through the specific channel.
@@ -252,6 +252,26 @@ namespace Granados.SSH {
     }
 
     /// <summary>
+    /// A function type that creates a new channel handler object.
+    /// </summary>
+    /// <param name="channel">channel object</param>
+    public delegate THandler SSHChannelEventHandlerCreator<THandler>(ISSHChannel channel)
+                where THandler : ISSHChannelEventHandler;
+
+    /// <summary>
+    /// An exception that indicates the operation is not allowed under the current state of the channel.
+    /// </summary>
+    public class SSHChannelInvalidOperationException : SSHException {
+        public SSHChannelInvalidOperationException(string message)
+            : base(message) {
+        }
+    }
+
+}
+
+namespace Granados.SSH {
+
+    /// <summary>
     /// A wrapper class of <see cref="ISSHChannelEventHandler"/> for internal use.
     /// </summary>
     internal class SSHChannelEventHandlerIgnoreErrorWrapper : ISSHChannelEventHandler {
@@ -363,22 +383,6 @@ namespace Granados.SSH {
         }
 
         public void Dispose() {
-        }
-    }
-
-    /// <summary>
-    /// A function type that creates a new channel handler object.
-    /// </summary>
-    /// <param name="channel">channel object</param>
-    public delegate THandler SSHChannelEventHandlerCreator<THandler>(ISSHChannel channel)
-                where THandler : ISSHChannelEventHandler;
-
-    /// <summary>
-    /// An exception that indicates the operation is not allowed under the current state of the channel.
-    /// </summary>
-    public class SSHChannelInvalidOperationException : SSHException {
-        public SSHChannelInvalidOperationException(string message)
-            : base(message) {
         }
     }
 
