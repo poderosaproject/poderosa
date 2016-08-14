@@ -33,7 +33,7 @@ namespace Granados.SSH1 {
     /// <summary>
     /// SSH1 connection
     /// </summary>
-    public sealed class SSH1Connection : ISSHConnection {
+    public class SSH1Connection : ISSHConnection {
 
         private readonly IGranadosSocket _socket;
         private readonly ISSHConnectionEventHandler _eventHandler;
