@@ -7,13 +7,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Collections;
 using System.Threading;
-using System.Text;
 
 using Granados;
 using Granados.IO;
-using Granados.SSH;
 using Granados.PortForwarding;
 
 namespace Poderosa.PortForwarding {
@@ -139,7 +136,7 @@ namespace Poderosa.PortForwarding {
 
 
 
-    internal abstract class ChannelFactory : ISSHConnectionEventReceiver {
+    internal abstract class ChannelFactory : ISSHConnectionEventHandler {
 
         public static ChannelFactory Create(ChannelProfile prof) {
             /*
