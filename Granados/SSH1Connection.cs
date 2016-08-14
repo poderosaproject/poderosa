@@ -36,7 +36,7 @@ namespace Granados.SSH1 {
     public sealed class SSH1Connection : ISSHConnection {
 
         private readonly IGranadosSocket _socket;
-        private readonly ISSHConnectionEventReceiver _eventReceiver;
+        private readonly ISSHConnectionEventHandler _eventHandler;
         private readonly SocketStatusReader _socketStatusReader;
 
         private readonly SSHConnectionParameter _param;
@@ -64,16 +64,16 @@ namespace Granados.SSH1 {
         /// </summary>
         /// <param name="param">connection parameter</param>
         /// <param name="socket">socket (TCP socket or pseudo socket)</param>
-        /// <param name="connectionEventReceiver">connection event handler</param>
-        /// <param name="protocolEventListener">protocol event listener (can be null)</param>
+        /// <param name="connectionEventHandler">connection event handler</param>
+        /// <param name="protocolEventLogger">protocol event listener (can be null)</param>
         /// <param name="serverVersion">server version</param>
         /// <param name="clientVersion">client version</param>
-        public SSH1Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventReceiver connectionEventReceiver, ISSHProtocolEventListener protocolEventListener, string serverVersion, string clientVersion) {
+        public SSH1Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventHandler connectionEventHandler, ISSHProtocolEventLogger protocolEventLogger, string serverVersion, string clientVersion) {
             _socket = socket;
-            _eventReceiver = new SSHConnectionEventReceiverIgnoreErrorWrapper(connectionEventReceiver);
+            _eventHandler = new SSHConnectionEventHandlerIgnoreErrorWrapper(connectionEventHandler);
             _socketStatusReader = new SocketStatusReader(socket);
             _param = param.Clone();
-            _protocolEventManager = new SSHProtocolEventManager(protocolEventListener);
+            _protocolEventManager = new SSHProtocolEventManager(protocolEventLogger);
             _channelCollection = new SSHChannelCollection();
             _interactiveSession = null;
 
@@ -483,7 +483,7 @@ namespace Granados.SSH1 {
                 DoProcessPacket(packet);
             }
             catch (Exception ex) {
-                _eventReceiver.OnError(ex);
+                _eventHandler.OnError(ex);
             }
         }
 
@@ -528,16 +528,16 @@ namespace Granados.SSH1 {
                     break;
                 case SSH1PacketType.SSH_MSG_IGNORE: {
                         byte[] data = reader.ReadByteString();
-                        _eventReceiver.OnIgnoreMessage(data);
+                        _eventHandler.OnIgnoreMessage(data);
                     }
                     break;
                 case SSH1PacketType.SSH_MSG_DEBUG: {
                         string message = reader.ReadString();
-                        _eventReceiver.OnDebugMessage(false, message);
+                        _eventHandler.OnDebugMessage(false, message);
                     }
                     break;
                 default:
-                    _eventReceiver.OnUnknownMessage((byte)pt, packet.GetBytes());
+                    _eventHandler.OnUnknownMessage((byte)pt, packet.GetBytes());
                     break;
             }
         }
@@ -557,14 +557,14 @@ namespace Granados.SSH1 {
         /// </summary>
         private void OnConnectionClosed() {
             _packetInterceptors.OnConnectionClosed();
-            _eventReceiver.OnConnectionClosed();
+            _eventHandler.OnConnectionClosed();
         }
 
         /// <summary>
         /// Tasks to do when the underlying socket raised an exception.
         /// </summary>
         private void OnError(Exception error) {
-            _eventReceiver.OnError(error);
+            _eventHandler.OnError(error);
         }
 
         /// <summary>

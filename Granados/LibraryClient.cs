@@ -13,9 +13,9 @@ using Granados.IO;
 namespace Granados {
 
     /// <summary>
-    /// Connection specific receiver
+    /// Connection event handler
     /// </summary>
-    public interface ISSHConnectionEventReceiver {
+    public interface ISSHConnectionEventHandler {
         /// <summary>
         /// Notifies SSH_MSG_DEBUG.
         /// </summary>
@@ -56,13 +56,13 @@ namespace Granados {
 namespace Granados.SSH {
 
     /// <summary>
-    /// A wrapper class of <see cref="ISSHConnectionEventReceiver"/> for internal use.
+    /// A wrapper class of <see cref="ISSHConnectionEventHandler"/> for internal use.
     /// </summary>
-    internal class SSHConnectionEventReceiverIgnoreErrorWrapper : ISSHConnectionEventReceiver {
+    internal class SSHConnectionEventHandlerIgnoreErrorWrapper : ISSHConnectionEventHandler {
 
-        private readonly ISSHConnectionEventReceiver _coreHandler;
+        private readonly ISSHConnectionEventHandler _coreHandler;
 
-        public SSHConnectionEventReceiverIgnoreErrorWrapper(ISSHConnectionEventReceiver handler) {
+        public SSHConnectionEventHandlerIgnoreErrorWrapper(ISSHConnectionEventHandler handler) {
             _coreHandler = handler;
         }
 

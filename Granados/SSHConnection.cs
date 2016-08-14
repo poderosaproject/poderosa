@@ -20,9 +20,9 @@ namespace Granados {
     }
 
     /// <summary>
-    /// SSH protocol event listener 
+    /// SSH protocol event logger
     /// </summary>
-    public interface ISSHProtocolEventListener {
+    public interface ISSHProtocolEventLogger {
 
         /// <summary>
         /// Notifies sending a packet related to the negotiation or status changes.

@@ -70,16 +70,16 @@ namespace Poderosa.Protocols {
             }
             con.KeyboardInteractiveAuthenticationHandler = terminalConnection.GetKeyboardInteractiveAuthenticationHandler();
 
-            ISSHProtocolEventListener protocolEventListener;
+            ISSHProtocolEventLogger protocolEventLogger;
             if (ProtocolsPlugin.Instance.ProtocolOptions.LogSSHEvents) {
-                protocolEventListener = new SSHEventTracer(tcp.Destination);
+                protocolEventLogger = new SSHEventTracer(tcp.Destination);
             }
             else {
-                protocolEventListener = null;
+                protocolEventLogger = null;
             }
 
             AuthenticationResult authResult;
-            ISSHConnection ssh = SSHConnection.Connect(con, terminalConnection.ConnectionEventReceiver, protocolEventListener, _socket, out authResult);
+            ISSHConnection ssh = SSHConnection.Connect(con, terminalConnection.ConnectionEventReceiver, protocolEventLogger, _socket, out authResult);
             if (ssh != null) {
                 if (PEnv.Options.RetainsPassphrase && _destination.AuthenticationType != AuthenticationType.KeyboardInteractive) {
                     ProtocolsPlugin.Instance.PassphraseCache.Add(tcp.Destination, _destination.Account, _destination.PasswordOrPassphrase); //接続成功時のみセット
@@ -176,7 +176,7 @@ namespace Poderosa.Protocols {
         }
     }
 
-    internal class SSHEventTracer : ISSHProtocolEventListener {
+    internal class SSHEventTracer : ISSHProtocolEventLogger {
         private IPoderosaLog _log;
         private PoderosaLogCategoryImpl _category;
 

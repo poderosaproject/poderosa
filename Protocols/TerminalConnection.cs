@@ -284,7 +284,7 @@ namespace Poderosa.Protocols {
             _socket = s;
             _terminalOutput = s;
         }
-        public ISSHConnectionEventReceiver ConnectionEventReceiver {
+        public ISSHConnectionEventHandler ConnectionEventReceiver {
             get {
                 return _sshSocket;
             }

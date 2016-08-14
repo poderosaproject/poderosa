@@ -44,7 +44,7 @@ namespace Granados.SSH2 {
         private const int RESPONSE_TIMEOUT = 10000;
 
         private readonly IGranadosSocket _socket;
-        private readonly ISSHConnectionEventReceiver _eventReceiver;
+        private readonly ISSHConnectionEventHandler _eventHandler;
         private readonly SocketStatusReader _socketStatusReader;
 
         private readonly SSHConnectionParameter _param;
@@ -70,16 +70,16 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <param name="param">connection parameter</param>
         /// <param name="socket">socket (TCP socket or pseudo socket)</param>
-        /// <param name="connectionEventReceiver">connection event handler</param>
-        /// <param name="protocolEventListener">protocol event listener (can be null)</param>
+        /// <param name="connectionEventHandler">connection event handler</param>
+        /// <param name="protocolEventLogger">protocol event listener (can be null)</param>
         /// <param name="serverVersion">server version</param>
         /// <param name="clientVersion">client version</param>
-        public SSH2Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventReceiver connectionEventReceiver, ISSHProtocolEventListener protocolEventListener, string serverVersion, string clientVersion) {
+        public SSH2Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventHandler connectionEventHandler, ISSHProtocolEventLogger protocolEventLogger, string serverVersion, string clientVersion) {
             _socket = socket;
-            _eventReceiver = new SSHConnectionEventReceiverIgnoreErrorWrapper(connectionEventReceiver);
+            _eventHandler = new SSHConnectionEventHandlerIgnoreErrorWrapper(connectionEventHandler);
             _socketStatusReader = new SocketStatusReader(socket);
             _param = param.Clone();
-            _protocolEventManager = new SSHProtocolEventManager(protocolEventListener);
+            _protocolEventManager = new SSHProtocolEventManager(protocolEventLogger);
             _channelCollection = new SSHChannelCollection();
             _connectionInfo = new SSH2ConnectionInfo(param.HostName, param.PortNumber, serverVersion, clientVersion);
             IDataHandler adapter =
@@ -481,7 +481,7 @@ namespace Granados.SSH2 {
                 DoProcessPacket(packet);
             }
             catch (Exception ex) {
-                _eventReceiver.OnError(ex);
+                _eventHandler.OnError(ex);
             }
         }
 
@@ -503,7 +503,7 @@ namespace Granados.SSH2 {
 
             if (packetType == SSH2PacketType.SSH_MSG_DISCONNECT) {
                 int errorcode = reader.ReadInt32();
-                _eventReceiver.OnConnectionClosed();
+                _eventHandler.OnConnectionClosed();
                 return;
             }
 
@@ -520,7 +520,7 @@ namespace Granados.SSH2 {
             }
 
             if (packetType == SSH2PacketType.SSH_MSG_IGNORE) {
-                _eventReceiver.OnIgnoreMessage(reader.ReadByteString());
+                _eventHandler.OnIgnoreMessage(reader.ReadByteString());
                 return;
             }
 
@@ -528,11 +528,11 @@ namespace Granados.SSH2 {
                 bool alwaysDisplay = reader.ReadBool();
                 string message = reader.ReadUTF8String();
                 string languageTag = reader.ReadString();
-                _eventReceiver.OnDebugMessage(alwaysDisplay, message);
+                _eventHandler.OnDebugMessage(alwaysDisplay, message);
                 return;
             }
 
-            _eventReceiver.OnUnknownMessage((byte)packetType, packet.GetBytes());
+            _eventHandler.OnUnknownMessage((byte)packetType, packet.GetBytes());
         }
 
         /// <summary>
@@ -540,14 +540,14 @@ namespace Granados.SSH2 {
         /// </summary>
         private void OnConnectionClosed() {
             _packetInterceptors.OnConnectionClosed();
-            _eventReceiver.OnConnectionClosed();
+            _eventHandler.OnConnectionClosed();
         }
 
         /// <summary>
         /// Tasks to do when the underlying socket raised an exception.
         /// </summary>
         private void OnError(Exception error) {
-            _eventReceiver.OnError(error);
+            _eventHandler.OnError(error);
         }
 
         /// <summary>

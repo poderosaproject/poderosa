@@ -263,7 +263,7 @@ namespace Granados.Tutorial {
     /// 
     /// </summary>
     /// <exclude/>
-    class Reader : ISSHConnectionEventReceiver {
+    class Reader : ISSHConnectionEventHandler {
         public ISSHConnection _conn;
         public bool _ready;
 
@@ -368,7 +368,7 @@ namespace Granados.Tutorial {
 
     }
 
-    class Tracer : ISSHProtocolEventListener {
+    class Tracer : ISSHProtocolEventLogger {
         public void OnSend(string messageType, string details) {
             Debug.WriteLine("EVENT:[S] <{0}> {1}", messageType, details);
         }

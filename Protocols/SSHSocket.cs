@@ -22,7 +22,7 @@ using Granados.SSH;
 
 namespace Poderosa.Protocols {
     //SSHの入出力系
-    internal abstract class SSHConnectionEventReceiverBase : ISSHConnectionEventReceiver {
+    internal abstract class SSHConnectionEventReceiverBase : ISSHConnectionEventHandler {
         protected SSHTerminalConnection _parent;
         protected ISSHConnection _connection;
         protected IByteAsyncInputStream _callback;

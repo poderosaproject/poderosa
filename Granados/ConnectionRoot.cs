@@ -27,8 +27,8 @@ namespace Granados {
          */
         public static ISSHConnection Connect(
                     SSHConnectionParameter param,
-                    ISSHConnectionEventReceiver receiver,
-                    ISSHProtocolEventListener protocolEventListener,
+                    ISSHConnectionEventHandler connectionEventHandler,
+                    ISSHProtocolEventLogger protocolEventLogger,
                     Socket underlying_socket,
                     out AuthenticationResult authResult) {
 
@@ -46,7 +46,7 @@ namespace Granados {
                 ISSHConnection sshConnection;
                 if (param.Protocol == SSHProtocol.SSH1) {
                     var con = new SSH1Connection(
-                                param, s, receiver, protocolEventListener,
+                                param, s, connectionEventHandler, protocolEventLogger,
                                 protoVerReceiver.ServerVersion, SSHUtil.ClientVersionString(param.Protocol));
                     s.SetHandler(con.Packetizer);
                     s.RepeatAsyncRead();
@@ -56,7 +56,7 @@ namespace Granados {
                 }
                 else {
                     var con = new SSH2Connection(
-                                param, s, receiver, protocolEventListener,
+                                param, s, connectionEventHandler, protocolEventLogger,
                                 protoVerReceiver.ServerVersion, SSHUtil.ClientVersionString(param.Protocol));
                     s.SetHandler(con.Packetizer);
                     s.RepeatAsyncRead();

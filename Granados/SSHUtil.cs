@@ -406,18 +406,18 @@ namespace Granados.Util {
     }
 
     /// <summary>
-    /// An internal class to pass the protocol events to <see cref="ISSHProtocolEventListener"/>.
+    /// An internal class to pass the protocol events to <see cref="ISSHProtocolEventLogger"/>.
     /// </summary>
     internal class SSHProtocolEventManager {
 
-        private readonly ISSHProtocolEventListener _coreListener;
+        private readonly ISSHProtocolEventLogger _coreHandler;
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="coreListener">listener object or null</param>
-        public SSHProtocolEventManager(ISSHProtocolEventListener coreListener) {
-            _coreListener = coreListener;
+        /// <param name="coreHandler">listener object or null</param>
+        public SSHProtocolEventManager(ISSHProtocolEventLogger coreHandler) {
+            _coreHandler = coreHandler;
         }
 
         /// <summary>
@@ -428,13 +428,13 @@ namespace Granados.Util {
         /// <param name="format">format string for the "details" text</param>
         /// <param name="args">format arguments for the "details" text</param>
         public void NotifySend<MessageTypeEnum>(MessageTypeEnum messageType, string format, params object[] args) {
-            if (_coreListener == null) {
+            if (_coreHandler == null) {
                 return;
             }
 
             try {
                 string details = (args.Length == 0) ? format : String.Format(format, args);
-                _coreListener.OnSend(messageType.ToString(), details);
+                _coreHandler.OnSend(messageType.ToString(), details);
             }
             catch (Exception e) {
                 System.Diagnostics.Debug.WriteLine(e.Message);
@@ -450,13 +450,13 @@ namespace Granados.Util {
         /// <param name="format">format string for the "details" text</param>
         /// <param name="args">format arguments for the "details" text</param>
         public void NotifyReceive<MessageTypeEnum>(MessageTypeEnum messageType, string format, params object[] args) {
-            if (_coreListener == null) {
+            if (_coreHandler == null) {
                 return;
             }
 
             try {
                 string details = (args.Length == 0) ? format : String.Format(format, args);
-                _coreListener.OnReceived(messageType.ToString(), details);
+                _coreHandler.OnReceived(messageType.ToString(), details);
             }
             catch (Exception e) {
                 System.Diagnostics.Debug.WriteLine(e.Message);
@@ -470,13 +470,13 @@ namespace Granados.Util {
         /// <param name="format">format string for the "details" text</param>
         /// <param name="args">format arguments for the "details" text</param>
         public void Trace(string format, params object[] args) {
-            if (_coreListener == null) {
+            if (_coreHandler == null) {
                 return;
             }
 
             try {
                 string details = (args.Length == 0) ? format : String.Format(format, args);
-                _coreListener.OnTrace(details);
+                _coreHandler.OnTrace(details);
             }
             catch (Exception e) {
                 System.Diagnostics.Debug.WriteLine(e.Message);
