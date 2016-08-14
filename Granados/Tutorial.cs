@@ -137,7 +137,7 @@ namespace Granados.Tutorial {
             if (f.AuthenticationType == AuthenticationType.KeyboardInteractive) {
                 //Creating a new SSH connection over the underlying socket
                 AuthenticationResult authResult;
-                conn = SSHConnection.Connect(f, reader, tracer, s, out authResult);
+                conn = SSHConnection.Connect(s, f, out authResult, reader, tracer);
                 reader._conn = conn;
                 bool result = authHandler.GetResult();
                 Debug.Assert(result == true);
@@ -155,7 +155,7 @@ namespace Granados.Tutorial {
 
                 //Creating a new SSH connection over the underlying socket
                 AuthenticationResult authResult;
-                conn = SSHConnection.Connect(f, reader, null, s, out authResult);
+                conn = SSHConnection.Connect(s, f, out authResult, reader, null);
                 reader._conn = conn;
             }
 
@@ -193,7 +193,7 @@ namespace Granados.Tutorial {
 
             //Creating a new SSH connection over the underlying socket
             AuthenticationResult authResult;
-            ISSHConnection conn = SSHConnection.Connect(f, reader, tracer, s, out authResult);
+            ISSHConnection conn = SSHConnection.Connect(s, f, out authResult, reader, tracer);
             reader._conn = conn;
 
             //Local->Remote port forwarding
@@ -240,7 +240,7 @@ namespace Granados.Tutorial {
 
             //Creating a new SSH connection over the underlying socket
             AuthenticationResult authResult;
-            ISSHConnection conn = SSHConnection.Connect(f, reader, tracer, s, out authResult);
+            ISSHConnection conn = SSHConnection.Connect(s, f, out authResult, reader, tracer);
             reader._conn = conn;
 
             //Opening a shell

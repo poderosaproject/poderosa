@@ -1,9 +1,20 @@
-﻿
-using Granados.IO;
-using Granados.PortForwarding;
-using Granados.SSH;
+﻿/*
+ Copyright (c) 2016 Poderosa Project, All Rights Reserved.
+ This file is a part of the Granados SSH Client Library that is subject to
+ the license included in the distributed package.
+ You may not use this file except in compliance with the license.
+*/
 
 namespace Granados {
+
+    using Granados.IO;
+    using Granados.PortForwarding;
+    using Granados.SSH;
+    using Granados.SSH1;
+    using Granados.SSH2;
+    using Granados.Util;
+    using System;
+    using System.Net.Sockets;
 
     /// <summary>
     /// Channel type
@@ -194,5 +205,340 @@ namespace Granados {
 
     }
 
+    /// <summary>
+    /// Connection event handler
+    /// </summary>
+    public interface ISSHConnectionEventHandler {
+        /// <summary>
+        /// Notifies SSH_MSG_DEBUG.
+        /// </summary>
+        /// <param name="alwaysDisplay">
+        /// If true, the message should be displayed.
+        /// Otherwise, it should not be displayed unless debugging information has been explicitly requested by the user.
+        /// </param>
+        /// <param name="message">a message text</param>
+        void OnDebugMessage(bool alwaysDisplay, string message);
+
+        /// <summary>
+        /// Notifies SSH_MSG_IGNORE.
+        /// </summary>
+        /// <param name="data">data</param>
+        void OnIgnoreMessage(byte[] data);
+
+        /// <summary>
+        /// Notifies unknown message.
+        /// </summary>
+        /// <param name="type">value of the message number field</param>
+        /// <param name="data">packet image</param>
+        void OnUnknownMessage(byte type, byte[] data);
+
+        /// <summary>
+        /// Notifies that an exception has occurred. 
+        /// </summary>
+        /// <param name="error">exception object</param>
+        void OnError(Exception error);
+
+        /// <summary>
+        /// Notifies that the connection has been closed.
+        /// </summary>
+        void OnConnectionClosed();
+    }
+
+    /// <summary>
+    /// A simple connection event handler class that do nothing.
+    /// </summary>
+    public class SimpleSSHConnectionEventHandler : ISSHConnectionEventHandler {
+
+        public virtual void OnDebugMessage(bool alwaysDisplay, string message) {
+        }
+
+        public virtual void OnIgnoreMessage(byte[] data) {
+        }
+
+        public virtual void OnUnknownMessage(byte type, byte[] data) {
+        }
+
+        public virtual void OnError(Exception error) {
+        }
+
+        public virtual void OnConnectionClosed() {
+        }
+    }
+
+    /// <summary>
+    /// A static class for creating a new SSH connection
+    /// </summary>
+    public static class SSHConnection {
+
+        /// <summary>
+        /// Establish a SSH connection
+        /// </summary>
+        /// <param name="socket">TCP socket which is already connected to the server.</param>
+        /// <param name="param">SSH connection parameter</param>
+        /// <param name="authResult">returns a result of the authentication</param>
+        /// <param name="connectionEventHandler">connection event handler (can be null)</param>
+        /// <param name="protocolEventLogger">protocol log event handler (can be null)</param>
+        /// <returns></returns>
+        public static ISSHConnection Connect(
+                    Socket socket,
+                    SSHConnectionParameter param,
+                    out AuthenticationResult authResult,
+                    ISSHConnectionEventHandler connectionEventHandler = null,
+                    ISSHProtocolEventLogger protocolEventLogger = null) {
+
+            if (socket == null) {
+                throw new ArgumentNullException("socket");
+            }
+            if (param == null) {
+                throw new ArgumentNullException("param");
+            }
+            if (!socket.Connected) {
+                throw new ArgumentException("socket is not connected to the remote host", "socket");
+            }
+            if (param.UserName == null) {
+                throw new ArgumentException("UserName property is not set", "param");
+            }
+            if (param.AuthenticationType != AuthenticationType.KeyboardInteractive && param.Password == null) {
+                throw new ArgumentException("Password property is not set", "param");
+            }
+
+            string clientVersion = SSHUtil.ClientVersionString(param.Protocol);
+
+            PlainSocket psocket = new PlainSocket(socket, null);
+            try {
+                // receive protocol version string
+                SSHProtocolVersionReceiver protoVerReceiver = new SSHProtocolVersionReceiver();
+                protoVerReceiver.Receive(psocket, 5000);
+                // verify the version string
+                protoVerReceiver.Verify(param.Protocol);
+
+                ISSHConnection sshConnection;
+                if (param.Protocol == SSHProtocol.SSH1) {
+                    // create a connection object
+                    var con = new SSH1Connection(
+                                psocket,
+                                param,
+                                protoVerReceiver.ServerVersion,
+                                clientVersion,
+                                connectionEventHandler,
+                                protocolEventLogger);
+                    // start receiving loop
+                    psocket.RepeatAsyncRead();
+                    // send client version
+                    con.SendMyVersion();
+                    // establish a SSH connection
+                    authResult = con.Connect();
+                    sshConnection = con;
+                }
+                else {
+                    // create a connection object
+                    var con = new SSH2Connection(
+                                psocket,
+                                param,
+                                protoVerReceiver.ServerVersion,
+                                clientVersion,
+                                connectionEventHandler,
+                                protocolEventLogger);
+                    // start receiving loop
+                    psocket.RepeatAsyncRead();
+                    // send client version
+                    con.SendMyVersion();
+                    // establish a SSH connection
+                    authResult = con.Connect();
+                    sshConnection = con;
+                }
+
+                // Note: Connect() doesn't return AuthenticationResult.Failure
+                //if (authResult == AuthenticationResult.Failure) {
+                //    psocket.Close();
+                //    return null;
+                //}
+
+                return sshConnection;
+            }
+            catch (Exception) {
+                psocket.Close();
+                throw;
+            }
+        }
+
+    }
+
 }
 
+
+namespace Granados.SSH {
+
+    using Granados.IO;
+    using Granados.Util;
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Text;
+    using System.Threading;
+
+    /// <summary>
+    /// A wrapper class of <see cref="ISSHConnectionEventHandler"/> for internal use.
+    /// </summary>
+    internal class SSHConnectionEventHandlerIgnoreErrorWrapper : ISSHConnectionEventHandler {
+
+        private readonly ISSHConnectionEventHandler _coreHandler;
+
+        public SSHConnectionEventHandlerIgnoreErrorWrapper(ISSHConnectionEventHandler handler) {
+            _coreHandler = handler;
+        }
+
+        public void OnDebugMessage(bool alwaysDisplay, string message) {
+            try {
+                _coreHandler.OnDebugMessage(alwaysDisplay, message);
+            }
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
+
+        public void OnIgnoreMessage(byte[] data) {
+            try {
+                _coreHandler.OnIgnoreMessage(data);
+            }
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
+
+        public void OnUnknownMessage(byte type, byte[] data) {
+            try {
+                _coreHandler.OnUnknownMessage(type, data);
+            }
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
+
+        public void OnError(Exception error) {
+            try {
+                _coreHandler.OnError(error);
+            }
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
+
+        public void OnConnectionClosed() {
+            try {
+                _coreHandler.OnConnectionClosed();
+            }
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
+    }
+
+    /// <summary>
+    /// A class reads SSH protocol version
+    /// </summary>
+    internal class SSHProtocolVersionReceiver {
+
+        private string _serverVersion = null;
+        private readonly List<string> _lines = new List<string>();
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public SSHProtocolVersionReceiver() {
+        }
+
+        /// <summary>
+        /// All lines recevied from the server including the version string.
+        /// </summary>
+        /// <remarks>Each string value doesn't contain the new-line characters.</remarks>
+        public string[] Lines {
+            get {
+                return _lines.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Version string recevied from the server.
+        /// </summary>
+        /// <remarks>The string value doesn't contain the new-line characters.</remarks>
+        public string ServerVersion {
+            get {
+                return _serverVersion;
+            }
+        }
+
+        /// <summary>
+        /// Receive version string.
+        /// </summary>
+        /// <param name="sock">socket object</param>
+        /// <param name="timeout">timeout in msec</param>
+        /// <returns>true if version string was received.</returns>
+        public bool Receive(PlainSocket sock, long timeout) {
+            byte[] buf = new byte[1];
+            DateTime tm = DateTime.UtcNow.AddMilliseconds(timeout);
+            using (MemoryStream mem = new MemoryStream()) {
+                while (DateTime.UtcNow < tm && sock.SocketStatus == SocketStatus.Ready) {
+                    int n = sock.ReadIfAvailable(buf);
+                    if (n != 1) {
+                        Thread.Sleep(10);
+                        continue;
+                    }
+                    byte b = buf[0];
+                    mem.WriteByte(b);
+                    if (b == 0xa) { // LF
+                        byte[] bytestr = mem.ToArray();
+                        mem.SetLength(0);
+                        string line = Encoding.UTF8.GetString(bytestr).TrimEnd('\xd', '\xa');
+                        _lines.Add(line);
+                        if (line.StartsWith("SSH-")) {
+                            _serverVersion = line;
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Verify server version
+        /// </summary>
+        /// <param name="protocol">expected protocol version</param>
+        /// <exception cref="SSHException">server version doesn't match</exception>
+        public void Verify(SSHProtocol protocol) {
+            if (_serverVersion == null) {
+                throw new SSHException(Strings.GetString("NotSSHServer"));
+            }
+
+            string[] sv = _serverVersion.Split('-');
+            if (sv.Length >= 3 && sv[0] == "SSH") {
+                string protocolVersion = sv[1];
+                string[] pv = protocolVersion.Split('.');
+                if (pv.Length >= 2) {
+                    if (protocol == SSHProtocol.SSH1) {
+                        if (pv[0] == "1") {
+                            return; // OK
+                        }
+                    }
+                    else if (protocol == SSHProtocol.SSH2) {
+                        if (pv[0] == "2" || (pv[0] == "1" && pv[1] == "99")) {
+                            return; // OK
+                        }
+                    }
+                    throw new SSHException(
+                        String.Format(Strings.GetString("IncompatibleProtocolVersion"), _serverVersion, protocol.ToString()));
+                }
+            }
+
+            throw new SSHException(
+                String.Format(Strings.GetString("InvalidServerVersionFormat"), _serverVersion));
+        }
+    }
+
+}

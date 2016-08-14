@@ -68,15 +68,27 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Constructor
         /// </summary>
+        /// <param name="socket">socket wrapper</param>
         /// <param name="param">connection parameter</param>
-        /// <param name="socket">socket (TCP socket or pseudo socket)</param>
-        /// <param name="connectionEventHandler">connection event handler</param>
-        /// <param name="protocolEventLogger">protocol event listener (can be null)</param>
         /// <param name="serverVersion">server version</param>
         /// <param name="clientVersion">client version</param>
-        public SSH2Connection(SSHConnectionParameter param, IGranadosSocket socket, ISSHConnectionEventHandler connectionEventHandler, ISSHProtocolEventLogger protocolEventLogger, string serverVersion, string clientVersion) {
+        /// <param name="connectionEventHandler">connection event handler (can be null)</param>
+        /// <param name="protocolEventLogger">protocol log event handler (can be null)</param>
+        internal SSH2Connection(
+                    PlainSocket socket,
+                    SSHConnectionParameter param,
+                    string serverVersion,
+                    string clientVersion,
+                    ISSHConnectionEventHandler connectionEventHandler,
+                    ISSHProtocolEventLogger protocolEventLogger) {
+
             _socket = socket;
-            _eventHandler = new SSHConnectionEventHandlerIgnoreErrorWrapper(connectionEventHandler);
+            if (connectionEventHandler != null) {
+                _eventHandler = new SSHConnectionEventHandlerIgnoreErrorWrapper(connectionEventHandler);
+            }
+            else {
+                _eventHandler = new SimpleSSHConnectionEventHandler();
+            }
             _socketStatusReader = new SocketStatusReader(socket);
             _param = param.Clone();
             _protocolEventManager = new SSHProtocolEventManager(protocolEventLogger);
@@ -100,6 +112,9 @@ namespace Granados.SSH2 {
 
             _remotePortForwarding = new Lazy<SSH2RemotePortForwarding>(CreateRemotePortForwarding);
             _agentForwarding = new Lazy<SSH2OpenSSHAgentForwarding>(CreateAgentForwarding);
+
+            // set packetizer as a socket data handler
+            socket.SetHandler(_packetizer);
         }
 
         /// <summary>
@@ -179,16 +194,6 @@ namespace Granados.SSH2 {
             }
         }
 
-        // FIXME: this property shouldn't be exposed
-        /// <summary>
-        /// Packetizer
-        /// </summary>
-        internal IDataHandler Packetizer {
-            get {
-                return _packetizer;
-            }
-        }
-
         /// <summary>
         /// Establishes a SSH connection to the server.
         /// </summary>
@@ -265,7 +270,7 @@ namespace Granados.SSH2 {
         /// Sends version information to the server.
         /// </summary>
         internal void SendMyVersion() {
-            string cv = SSHUtil.ClientVersionString(SSHProtocol.SSH2);
+            string cv = _connectionInfo.ClientVersionString;
             string cv2 = cv + _param.VersionEOL;
             byte[] data = Encoding.ASCII.GetBytes(cv2);
             _socket.Write(data, 0, data.Length);

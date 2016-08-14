@@ -115,9 +115,6 @@
     <Compile Include="ConnectionParameter.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ConnectionRoot.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="CRC.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -131,9 +128,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="KnownHosts.cs" />
-    <Compile Include="LibraryClient.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Mono\BigInteger.cs" />
     <Compile Include="Mono\ConfidenceFactor.cs" />
     <Compile Include="Mono\NextPrimeFinder.cs" />

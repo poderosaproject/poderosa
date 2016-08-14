@@ -79,7 +79,7 @@ namespace Poderosa.Protocols {
             }
 
             AuthenticationResult authResult;
-            ISSHConnection ssh = SSHConnection.Connect(con, terminalConnection.ConnectionEventReceiver, protocolEventLogger, _socket, out authResult);
+            ISSHConnection ssh = SSHConnection.Connect(_socket, con, out authResult, terminalConnection.ConnectionEventReceiver, protocolEventLogger);
             if (ssh != null) {
                 if (PEnv.Options.RetainsPassphrase && _destination.AuthenticationType != AuthenticationType.KeyboardInteractive) {
                     ProtocolsPlugin.Instance.PassphraseCache.Add(tcp.Destination, _destination.Account, _destination.PasswordOrPassphrase); //接続成功時のみセット
