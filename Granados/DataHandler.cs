@@ -58,8 +58,6 @@ namespace Granados.IO {
     /// <typeparam name="PacketType">type of the packet object.</typeparam>
     internal abstract class AbstractSynchronousPacketHandler<PacketType> : IDataHandler, IPacketSender<PacketType> {
 
-        // lock object for preventing simultaneous wait by multiple threads
-        private readonly object _waitResponseLock = new object();
         // lock object for synchronization of sending packet
         private readonly object _syncSend = new object();
         // lock object for synchronization of receiving packet
@@ -67,9 +65,6 @@ namespace Granados.IO {
 
         private readonly IGranadosSocket _socket;
         private readonly IDataHandler _handler;
-
-        private bool _waitingResponse;
-        private DataFragment _receivedPacket;
 
         /// <summary>
         /// Gets the binary image of the packet to be sent.
@@ -129,75 +124,16 @@ namespace Granados.IO {
         }
 
         /// <summary>
-        /// Sends a packet, then waits a response packet.
-        /// </summary>
-        /// <param name="packet">a packet object to send</param>
-        /// <param name="msecTimeout">timeout for waiting a response packet in milliseconds.</param>
-        /// <returns>a response packet image. or null if no response has been received.</returns>
-        public DataFragment SendAndWaitResponse(PacketType packet, int msecTimeout) {
-            lock (_waitResponseLock) {
-                lock (_syncReceive) {
-                    Send(packet);
-                    _receivedPacket = null;
-                    _waitingResponse = true;
-                    bool signaled = Monitor.Wait(_syncReceive, msecTimeout);
-                    _waitingResponse = false;
-                    DataFragment rcvPacket = signaled ? _receivedPacket : null;
-                    _receivedPacket = null;
-#if DEBUG_SYNCHRONOUSPACKETHANDLER
-                    if (rcvPacket != null) {
-                        System.Diagnostics.Debug.WriteLine("      [{0}] {1} bytes --> retrieved", GetMessageName(rcvPacket), rcvPacket.Length);
-                    }
-#endif
-                    return rcvPacket;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Waits a received packet.
-        /// </summary>
-        /// <param name="msecTimeout">timeout for waiting a packet in milliseconds.</param>
-        /// <returns>the received packet image. or null if no packet has been received.</returns>
-        public DataFragment WaitResponse(int msecTimeout) {
-            lock (_waitResponseLock) {
-                lock (_syncReceive) {
-                    _receivedPacket = null;
-                    _waitingResponse = true;
-                    bool signaled = Monitor.Wait(_syncReceive, msecTimeout);
-                    _waitingResponse = false;
-                    DataFragment rcvPacket = signaled ? _receivedPacket : null;
-                    _receivedPacket = null;
-#if DEBUG_SYNCHRONOUSPACKETHANDLER
-                    if (rcvPacket != null) {
-                        System.Diagnostics.Debug.WriteLine("      [{0}] {1} bytes --> retrieved", GetMessageName(rcvPacket), rcvPacket.Length);
-                    }
-#endif
-                    return rcvPacket;
-                }
-            }
-        }
-
-        /// <summary>
         /// Handles received packet.
         /// </summary>
         /// <param name="data">packet image</param>
         public void OnData(DataFragment data) {
             lock (_syncReceive) {
                 AfterReceived(data);
-                if (_waitingResponse) {
-                    _receivedPacket = data;
 #if DEBUG_SYNCHRONOUSPACKETHANDLER
-                    System.Diagnostics.Debug.WriteLine("S --> [{0}] {1} bytes (wait)", GetMessageName(data), data.Length);
+                System.Diagnostics.Debug.WriteLine("S --> [{0}] {1} bytes --> OnData", GetMessageName(data), data.Length);
 #endif
-                    Monitor.PulseAll(_syncReceive);
-                }
-                else {
-#if DEBUG_SYNCHRONOUSPACKETHANDLER
-                    System.Diagnostics.Debug.WriteLine("S --> [{0}] {1} bytes --> OnData", GetMessageName(data), data.Length);
-#endif
-                    _handler.OnData(data);
-                }
+                _handler.OnData(data);
             }
         }
 
