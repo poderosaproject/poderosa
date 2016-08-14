@@ -226,14 +226,15 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Sends a disconnect message to the server, then closes this connection.
         /// </summary>
+        /// <param name="reasonCode">reason code (this value is ignored on the SSH1 connection)</param>
         /// <param name="message">a message to be notified to the server</param>
-        public void Disconnect(string message) {
+        public void Disconnect(DisconnectionReasonCode reasonCode, string message) {
             if (!this.IsOpen) {
                 return;
             }
             Transmit(
                 new SSH2Packet(SSH2PacketType.SSH_MSG_DISCONNECT)
-                    .WriteInt32(0)
+                    .WriteInt32((int)reasonCode)
                     .WriteString(message)
                     .WriteString("") //language
             );
