@@ -92,7 +92,7 @@ namespace Poderosa.PortForwarding {
             lock (this) {
                 ISSHConnection c = (ISSHConnection)_profileToConnection[prof];
                 _manualClosingConnections.Add(c);
-                c.Disconnect("");
+                c.Disconnect(DisconnectionReasonCode.ByApplication, "close by application");
             }
         }
         public void CloseAll() {
@@ -164,7 +164,7 @@ namespace Poderosa.PortForwarding {
 
             _result = ChannelFactory.Create(_profile);
             AuthenticationResult authResult;
-            ISSHConnection c = SSHConnection.Connect(con, _result, null, _socket, out authResult);
+            ISSHConnection c = SSHConnection.Connect(_socket, con, out authResult, _result, null);
             if (c != null) {
                 /*
                 if(_profile.ProtocolType==ProtocolType.Udp)
