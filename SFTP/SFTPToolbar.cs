@@ -330,8 +330,8 @@ namespace Poderosa.SFTP {
 
         public CommandResult InternalExecute(ICommandTarget target, params IAdaptable[] args) {
 
-            SSH2Connection ssh2Connection = GetSSHConnection(target) as SSH2Connection;
-            if (ssh2Connection == null)
+            ISSHConnection sshConnection = GetSSHConnection(target) as ISSHConnection;
+            if (sshConnection == null || sshConnection.SSHProtocol != SSHProtocol.SSH2)
                 return CommandResult.Ignored;
 
             string connectionName = GetTerminalName(target);
@@ -345,7 +345,7 @@ namespace Poderosa.SFTP {
 
             SFTPClient sftp = null;
             try {
-                sftp = SFTPClient.OpenSFTPChannel(ssh2Connection);
+                sftp = SFTPClient.OpenSFTPChannel(sshConnection);
 
                 SFTPForm form = new SFTPForm(ownerForm, sftp, connectionName);
                 form.Show();    // Note: don't specify owner to avoid fixed z-order.
@@ -432,7 +432,7 @@ namespace Poderosa.SFTP {
             ISSHConnection sshConnection = GetSSHConnection(target);
 
             // Note: Currently, SCPClient supports only SSH2.
-            if (!(sshConnection is SSH2Connection))
+            if (sshConnection == null || sshConnection.SSHProtocol != SSHProtocol.SSH2)
                 return CommandResult.Ignored;
 
             string connectionName = GetTerminalName(target);

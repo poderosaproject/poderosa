@@ -40,7 +40,7 @@ namespace Granados.SSH2 {
     /// <summary>
     /// SSH2 connection
     /// </summary>
-    public class SSH2Connection : ISSHConnection {
+    internal class SSH2Connection : ISSHConnection {
         private const int RESPONSE_TIMEOUT = 10000;
 
         private readonly IGranadosSocket _socket;

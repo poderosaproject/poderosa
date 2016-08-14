@@ -153,7 +153,7 @@ namespace Granados.Poderosa.SFTP {
         /// </summary>
         /// <param name="connection">SSH2 connection object</param>
         /// <returns>New instance.</returns>
-        public static SFTPClient OpenSFTPChannel(SSH2Connection connection) {
+        public static SFTPClient OpenSFTPChannel(ISSHConnection connection) {
             ISSHChannel channel = null;
             SFTPClientChannelEventHandler eventHandler =
                 connection.OpenSubsystem(

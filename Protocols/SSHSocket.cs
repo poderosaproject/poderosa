@@ -163,12 +163,11 @@ namespace Poderosa.Protocols {
         }
 
         public void OpenSubsystem(string subsystem) {
-            SSH2Connection ssh2 = _connection as SSH2Connection;
-            if (ssh2 == null)
+            if (_connection.SSHProtocol != SSHProtocol.SSH2) {
                 throw new SSHException("OpenSubsystem() can be applied to only SSH2 connection");
-
+            }
             // TODO:
-            //_channel = ssh2.OpenSubsystem(this, subsystem);
+            //_channel = _connection.OpenSubsystem(this, subsystem);
         }
 
         public override void Close() {
