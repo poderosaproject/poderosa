@@ -49,7 +49,7 @@ namespace Granados.SSH1 {
         private readonly SSH1ConnectionInfo _connectionInfo;
 
         private byte[] _sessionID = null;
-        private AuthenticationResult? _authenticationResult = null;
+        private AuthenticationStatus _authenticationStatus = AuthenticationStatus.NotStarted;
         private int _remotePortForwardCount = 0;
 
         /// <summary>
@@ -163,7 +163,16 @@ namespace Granados.SSH1 {
         /// </summary>
         public bool IsOpen {
             get {
-                return _socket.SocketStatus == SocketStatus.Ready && _authenticationResult == AuthenticationResult.Success;
+                return _socket.SocketStatus == SocketStatus.Ready && _authenticationStatus == AuthenticationStatus.Success;
+            }
+        }
+
+        /// <summary>
+        /// Authenticatrion status
+        /// </summary>
+        public AuthenticationStatus AuthenticationStatus {
+            get {
+                return _authenticationStatus;
             }
         }
 
@@ -179,13 +188,12 @@ namespace Granados.SSH1 {
         /// <summary>
         /// Establishes a SSH connection to the server.
         /// </summary>
-        /// <returns>
-        /// If the authentication has been completed successfully, this method returns <see cref="AuthenticationResult.Success"/>.<br/>
-        /// In other cases this method throws exception.<br/>
-        /// Note that this method doesn't return <see cref="AuthenticationResult.Failure"/>.
-        /// </returns>
         /// <exception cref="SSHException">error</exception>
-        internal AuthenticationResult Connect() {
+        internal void Connect() {
+            if (_authenticationStatus != AuthenticationStatus.NotStarted) {
+                throw new SSHException("Connect() was called twice.");
+            }
+
             try {
                 //key exchange
                 _keyExchanger.ExecKeyExchange();
@@ -195,11 +203,10 @@ namespace Granados.SSH1 {
                 _packetInterceptors.Add(userAuth);
                 userAuth.ExecAuthentication();
 
-                _authenticationResult = AuthenticationResult.Success;
-                return AuthenticationResult.Success;
+                _authenticationStatus = AuthenticationStatus.Success;
             }
             catch (Exception) {
-                _authenticationResult = AuthenticationResult.Failure;
+                _authenticationStatus = AuthenticationStatus.Failure;
                 Close();
                 throw;
             }

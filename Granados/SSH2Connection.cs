@@ -50,7 +50,7 @@ namespace Granados.SSH2 {
         private readonly SSH2ConnectionInfo _connectionInfo;
 
         private byte[] _sessionID = null;
-        private AuthenticationResult? _authenticationResult = null;
+        private AuthenticationStatus _authenticationStatus = AuthenticationStatus.NotStarted;
 
         /// <summary>
         /// Constructor
@@ -168,7 +168,16 @@ namespace Granados.SSH2 {
         /// </summary>
         public bool IsOpen {
             get {
-                return _socket.SocketStatus == SocketStatus.Ready && _authenticationResult == AuthenticationResult.Success;
+                return _socket.SocketStatus == SocketStatus.Ready && _authenticationStatus == AuthenticationStatus.Success;
+            }
+        }
+
+        /// <summary>
+        /// Authenticatrion status
+        /// </summary>
+        public AuthenticationStatus AuthenticationStatus {
+            get {
+                return _authenticationStatus;
             }
         }
 
@@ -184,14 +193,12 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Establishes a SSH connection to the server.
         /// </summary>
-        /// <returns>
-        /// If the authentication has been completed successfully, this method returns <see cref="AuthenticationResult.Success"/>.<br/>
-        /// If the keyboard interactive authentication has been started successfully, this method returns <see cref="AuthenticationResult.Prompt"/>. (the authentication is still in progress)<br/>
-        /// In other cases this method throws exception.<br/>
-        /// Note that this method doesn't return <see cref="AuthenticationResult.Failure"/>.
-        /// </returns>
         /// <exception cref="SSHException">error</exception>
-        internal AuthenticationResult Connect() {
+        internal void Connect() {
+            if (_authenticationStatus != AuthenticationStatus.NotStarted) {
+                throw new SSHException("Connect() was called twice.");
+            }
+
             try {
                 //key exchange
                 _keyExchanger.ExecKeyExchange();
@@ -202,22 +209,21 @@ namespace Granados.SSH2 {
                 if (_param.AuthenticationType == AuthenticationType.KeyboardInteractive) {
                     userAuthentication.KeyboardInteractiveAuthenticationFinished +=
                         result => {
-                            _authenticationResult = result ? AuthenticationResult.Success : AuthenticationResult.Failure;
+                            _authenticationStatus = result ? AuthenticationStatus.Success : AuthenticationStatus.Failure;
                         };
                 }
                 _packetInterceptors.Add(userAuthentication);
                 userAuthentication.ExecAuthentication();
 
                 if (_param.AuthenticationType == AuthenticationType.KeyboardInteractive) {
-                    _authenticationResult = AuthenticationResult.Prompt;
-                    return AuthenticationResult.Prompt;
+                    _authenticationStatus = AuthenticationStatus.NeedKeyboardInput;
                 }
-
-                _authenticationResult = AuthenticationResult.Success;
-                return AuthenticationResult.Success;
+                else {
+                    _authenticationStatus = AuthenticationStatus.Success;
+                }
             }
             catch (Exception) {
-                _authenticationResult = AuthenticationResult.Failure;
+                _authenticationStatus = AuthenticationStatus.Failure;
                 Close();
                 throw;
             }

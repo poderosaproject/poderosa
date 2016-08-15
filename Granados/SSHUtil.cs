@@ -112,28 +112,36 @@ namespace Granados {
 
     /// <summary>
     /// <ja>
-    /// 認証結果を示します。
+    /// 認証状態
     /// </ja>
     /// <en>
-    /// Result of authentication.
+    /// Status of the authentication.
     /// </en>
     /// </summary>
-    public enum AuthenticationResult {
+    public enum AuthenticationStatus {
         /// <summary>
-        /// <ja>成功</ja>
-        /// <en>Succeed</en>
+        /// <ja>認証がまだ開始されていない</ja>
+        /// <en>The authentication has not started yet.</en>
+        /// </summary>
+        NotStarted,
+
+        /// <summary>
+        /// <ja>認証に成功</ja>
+        /// <en>The authentication has succeeded.</en>
         /// </summary>
         Success,
+
         /// <summary>
-        /// <ja>失敗</ja>
-        /// <en>Failed</en>
+        /// <ja>認証に失敗</ja>
+        /// <en>The authentication has failed.</en>
         /// </summary>
         Failure,
+
         /// <summary>
-        /// <ja>プロンプト</ja>
-        /// <en>Prompt</en>
+        /// <ja>認証のためキー入力が必要(キーボードインタラクティブ認証)</ja>
+        /// <en>Need keyboard input for the authentication (keyboard interactive authentication)</en>
         /// </summary>
-        Prompt
+        NeedKeyboardInput,
     }
 
     /// <summary>

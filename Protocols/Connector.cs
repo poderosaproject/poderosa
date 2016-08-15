@@ -78,19 +78,13 @@ namespace Poderosa.Protocols {
                 protocolEventLogger = null;
             }
 
-            AuthenticationResult authResult;
-            ISSHConnection ssh = SSHConnection.Connect(_socket, con, out authResult, terminalConnection.ConnectionEventReceiver, protocolEventLogger);
-            if (ssh != null) {
-                if (PEnv.Options.RetainsPassphrase && _destination.AuthenticationType != AuthenticationType.KeyboardInteractive) {
-                    ProtocolsPlugin.Instance.PassphraseCache.Add(tcp.Destination, _destination.Account, _destination.PasswordOrPassphrase); //接続成功時のみセット
-                }
-                //_destination.PasswordOrPassphrase = ""; 接続の複製のためにここで消さずに残しておく
-                terminalConnection.AttachTransmissionSide(ssh, authResult);
-                _result = terminalConnection;
+            var connection = SSHConnection.Connect(_socket, con, terminalConnection.ConnectionEventReceiver, protocolEventLogger);
+            if (PEnv.Options.RetainsPassphrase && _destination.AuthenticationType != AuthenticationType.KeyboardInteractive) {
+                ProtocolsPlugin.Instance.PassphraseCache.Add(tcp.Destination, _destination.Account, _destination.PasswordOrPassphrase); //接続成功時のみセット
             }
-            else {
-                throw new IOException(PEnv.Strings.GetString("Message.SSHConnector.Cancelled"));
-            }
+            //_destination.PasswordOrPassphrase = ""; 接続の複製のためにここで消さずに残しておく
+            terminalConnection.AttachTransmissionSide(connection, connection.AuthenticationStatus);
+            _result = terminalConnection;
         }
         internal override TerminalConnection Result {
             get {

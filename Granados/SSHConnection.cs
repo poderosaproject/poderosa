@@ -116,6 +116,13 @@ namespace Granados {
         }
 
         /// <summary>
+        /// Authenticatrion status
+        /// </summary>
+        AuthenticationStatus AuthenticationStatus {
+            get;
+        }
+
+        /// <summary>
         /// A proxy object for reading status of the underlying <see cref="IGranadosSocket"/> object.
         /// </summary>
         SocketStatusReader SocketStatusReader {
@@ -274,14 +281,12 @@ namespace Granados {
         /// </summary>
         /// <param name="socket">TCP socket which is already connected to the server.</param>
         /// <param name="param">SSH connection parameter</param>
-        /// <param name="authResult">returns a result of the authentication</param>
         /// <param name="connectionEventHandler">connection event handler (can be null)</param>
         /// <param name="protocolEventLogger">protocol log event handler (can be null)</param>
-        /// <returns></returns>
+        /// <returns>new connection object</returns>
         public static ISSHConnection Connect(
                     Socket socket,
                     SSHConnectionParameter param,
-                    out AuthenticationResult authResult,
                     ISSHConnectionEventHandler connectionEventHandler = null,
                     ISSHProtocolEventLogger protocolEventLogger = null) {
 
@@ -312,6 +317,7 @@ namespace Granados {
                 protoVerReceiver.Verify(param.Protocol);
 
                 ISSHConnection sshConnection;
+
                 if (param.Protocol == SSHProtocol.SSH1) {
                     // create a connection object
                     var con = new SSH1Connection(
@@ -326,7 +332,7 @@ namespace Granados {
                     // send client version
                     con.SendMyVersion();
                     // establish a SSH connection
-                    authResult = con.Connect();
+                    con.Connect();
                     sshConnection = con;
                 }
                 else {
@@ -343,15 +349,9 @@ namespace Granados {
                     // send client version
                     con.SendMyVersion();
                     // establish a SSH connection
-                    authResult = con.Connect();
+                    con.Connect();
                     sshConnection = con;
                 }
-
-                // Note: Connect() doesn't return AuthenticationResult.Failure
-                //if (authResult == AuthenticationResult.Failure) {
-                //    psocket.Close();
-                //    return null;
-                //}
 
                 return sshConnection;
             }
