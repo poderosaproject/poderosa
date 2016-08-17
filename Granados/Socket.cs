@@ -336,7 +336,7 @@ namespace Granados.IO {
     /// <summary>
     /// Socket wrapper class that have receiving loop
     /// </summary>
-    internal class PlainSocket : IGranadosSocket {
+    internal class PlainSocket : IGranadosSocket, IDisposable {
 
         /// <summary>
         /// Object used for synchronization
@@ -438,6 +438,11 @@ namespace Granados.IO {
         /// Close connection
         /// </summary>
         public void Close() {
+            DoClose();
+            FireOnClosed();
+        }
+
+        private void DoClose() {
             lock (_sync) {
                 if (_socketStatus == SocketStatus.Closed) {
                     return;
@@ -446,7 +451,6 @@ namespace Granados.IO {
                 _socket.Close();
                 _socketStatus = SocketStatus.Closed;
             }
-            FireOnClosed();
         }
 
         /// <summary>
@@ -510,6 +514,14 @@ namespace Granados.IO {
             // PlainSocket.Close() may be called from another thread again in _handler.OnClosed().
             // For avoiding deadlock, _handler.OnClosed() have to be called out of the lock() block.
             _handler.OnClosed();
+        }
+
+        /// <summary>
+        /// Implements <see cref="IDisposable"/>.
+        /// </summary>
+        public void Dispose() {
+            DoClose();
+            _socket.Dispose();
         }
     }
 

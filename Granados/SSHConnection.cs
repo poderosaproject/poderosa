@@ -92,7 +92,7 @@ namespace Granados {
     /// <summary>
     /// SSH connection
     /// </summary>
-    public interface ISSHConnection {
+    public interface ISSHConnection : IDisposable {
 
         /// <summary>
         /// SSH protocol (SSH1 or SSH2)

@@ -27,7 +27,7 @@ namespace Granados.SSH2 {
     /// <summary>
     /// SSH2 connection
     /// </summary>
-    internal class SSH2Connection : ISSHConnection {
+    internal class SSH2Connection : ISSHConnection, IDisposable {
         private const int RESPONSE_TIMEOUT = 10000;
 
         private readonly IGranadosSocket _socket;
@@ -187,6 +187,15 @@ namespace Granados.SSH2 {
         public SocketStatusReader SocketStatusReader {
             get {
                 return _socketStatusReader;
+            }
+        }
+
+        /// <summary>
+        /// Implements <see cref="IDisposable"/>.
+        /// </summary>
+        public void Dispose() {
+            if (_socket is IDisposable) {
+                ((IDisposable)_socket).Dispose();
             }
         }
 

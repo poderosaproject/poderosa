@@ -26,7 +26,7 @@ namespace Granados.SSH1 {
     /// <summary>
     /// SSH1 connection
     /// </summary>
-    internal class SSH1Connection : ISSHConnection {
+    internal class SSH1Connection : ISSHConnection, IDisposable {
 
         private readonly IGranadosSocket _socket;
         private readonly ISSHConnectionEventHandler _eventHandler;
@@ -182,6 +182,15 @@ namespace Granados.SSH1 {
         public SocketStatusReader SocketStatusReader {
             get {
                 return _socketStatusReader;
+            }
+        }
+
+        /// <summary>
+        /// Implements <see cref="IDisposable"/>.
+        /// </summary>
+        public void Dispose() {
+            if (_socket is IDisposable) {
+                ((IDisposable)_socket).Dispose();
             }
         }
 
