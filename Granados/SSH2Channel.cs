@@ -284,7 +284,7 @@ namespace Granados.SSH2 {
                 int length = data.Length;
                 int maxSize = MaxChannelDatagramSize;
 
-                while (length > 0) {
+                do {
                     int datagramSize = (length > maxSize) ? maxSize : length;
                     Transmit(
                         datagramSize,
@@ -294,7 +294,7 @@ namespace Granados.SSH2 {
                     );
                     offset += datagramSize;
                     length -= datagramSize;
-                }
+                } while (length > 0);
             }
         }
 

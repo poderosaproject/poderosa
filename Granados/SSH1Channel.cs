@@ -352,7 +352,7 @@ namespace Granados.SSH1 {
                 int length = data.Length;
                 int maxSize = MaxChannelDatagramSize;
 
-                while (length > 0) {
+                do {
                     int datagramSize = (length > maxSize) ? maxSize : length;
                     Transmit(
                         new SSH1Packet(SSH1PacketType.SSH_CMSG_STDIN_DATA)
@@ -360,7 +360,7 @@ namespace Granados.SSH1 {
                     );
                     offset += datagramSize;
                     length -= datagramSize;
-                }
+                } while (length > 0);
             }
         }
 
@@ -823,7 +823,7 @@ namespace Granados.SSH1 {
                 int length = data.Length;
                 int maxSize = MaxChannelDatagramSize;
 
-                while (length > 0) {
+                do {
                     int datagramSize = (length > maxSize) ? maxSize : length;
                     Transmit(
                         new SSH1Packet(SSH1PacketType.SSH_MSG_CHANNEL_DATA)
@@ -832,7 +832,7 @@ namespace Granados.SSH1 {
                     );
                     offset += datagramSize;
                     length -= datagramSize;
-                }
+                } while (length > 0);
             }
         }
 
