@@ -668,7 +668,7 @@ namespace Granados.SSH2 {
 
         OnWindowAdjust:
             _protocolEventManager.Trace(
-                "CH[{0}] : adjusted remote window size to {1}",
+                "CH[{0}] adjusted remote window size to {1}",
                 LocalChannel, _serverWindowSizeLeft);
             return;
 
