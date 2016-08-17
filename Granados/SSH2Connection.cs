@@ -509,12 +509,6 @@ namespace Granados.SSH2 {
             SSH2DataReader reader = new SSH2DataReader(packet);
             SSH2PacketType packetType = (SSH2PacketType)reader.ReadByte();
 
-            if (packetType == SSH2PacketType.SSH_MSG_DISCONNECT) {
-                int errorcode = reader.ReadInt32();
-                _eventHandler.OnConnectionClosed();
-                return;
-            }
-
             if (packetType >= SSH2PacketType.SSH_MSG_CHANNEL_OPEN_CONFIRMATION && packetType <= SSH2PacketType.SSH_MSG_CHANNEL_FAILURE) {
                 uint localChannel = reader.ReadUInt32();
                 var channel = _channelCollection.FindOperator(localChannel) as SSH2ChannelBase;
@@ -527,17 +521,34 @@ namespace Granados.SSH2 {
                 return;
             }
 
-            if (packetType == SSH2PacketType.SSH_MSG_IGNORE) {
-                _eventHandler.OnIgnoreMessage(reader.ReadByteString());
-                return;
-            }
-
-            if (packetType == SSH2PacketType.SSH_MSG_DEBUG) {
-                bool alwaysDisplay = reader.ReadBool();
-                string message = reader.ReadUTF8String();
-                string languageTag = reader.ReadString();
-                _eventHandler.OnDebugMessage(alwaysDisplay, message);
-                return;
+            switch (packetType) {
+                case SSH2PacketType.SSH_MSG_DISCONNECT: {
+                        int errorcode = reader.ReadInt32();
+                        _eventHandler.OnConnectionClosed();
+                    }
+                    return;
+                case SSH2PacketType.SSH_MSG_IGNORE: {
+                        _eventHandler.OnIgnoreMessage(reader.ReadByteString());
+                    }
+                    return;
+                case SSH2PacketType.SSH_MSG_DEBUG: {
+                        bool alwaysDisplay = reader.ReadBool();
+                        string message = reader.ReadUTF8String();
+                        string languageTag = reader.ReadString();
+                        _eventHandler.OnDebugMessage(alwaysDisplay, message);
+                    }
+                    return;
+                case SSH2PacketType.SSH_MSG_GLOBAL_REQUEST: {
+                        string requestName = reader.ReadString();
+                        bool wantReply = reader.ReadBool();
+                        _protocolEventManager.Trace("Unhandled request: name={0} wantReply={1}", requestName, wantReply);
+                        if (wantReply) {
+                            Transmit(
+                                new SSH2Packet(SSH2PacketType.SSH_MSG_REQUEST_FAILURE)
+                            );
+                        }
+                    }
+                    return;
             }
 
             _eventHandler.OnUnknownMessage((byte)packetType, packet.GetBytes());
