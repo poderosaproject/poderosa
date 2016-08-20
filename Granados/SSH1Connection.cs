@@ -558,7 +558,7 @@ namespace Granados.SSH1 {
                     }
                     break;
                 default:
-                    _eventHandler.OnUnknownMessage((byte)pt, packet.GetBytes());
+                    _eventHandler.OnUnhandledMessage((byte)pt, packet.GetBytes());
                     break;
             }
         }

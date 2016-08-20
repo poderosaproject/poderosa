@@ -197,8 +197,8 @@ namespace Poderosa.PortForwarding {
             return RemotePortForwardingReply.Reject(RemotePortForwardingReply.Reason.AdministrativelyProhibited, "rejected");
         }
 
-        public void OnUnknownMessage(byte type, byte[] data) {
-            Debug.WriteLine("UnknownMessage");
+        public void OnUnhandledMessage(byte type, byte[] data) {
+            Debug.WriteLine("UnhandledMessage");
         }
 
         public void OnAuthenticationPrompt(string[] prompts) {

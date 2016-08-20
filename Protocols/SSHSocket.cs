@@ -68,7 +68,7 @@ namespace Poderosa.Protocols {
             Debug.WriteLine(String.Format("SSH ignore {0}[{1}]", data.Length, data[0]));
         }
 
-        public virtual void OnUnknownMessage(byte type, byte[] data) {
+        public virtual void OnUnhandledMessage(byte type, byte[] data) {
             Debug.WriteLine(String.Format("Unexpected SSH packet type {0}", type));
         }
 

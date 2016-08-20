@@ -557,7 +557,7 @@ namespace Granados.SSH2 {
                     return;
             }
 
-            _eventHandler.OnUnknownMessage((byte)packetType, packet.GetBytes());
+            _eventHandler.OnUnhandledMessage((byte)packetType, packet.GetBytes());
         }
 
         /// <summary>

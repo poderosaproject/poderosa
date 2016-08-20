@@ -300,8 +300,8 @@ namespace Granados.Tutorial {
         public void OnConnectionClosed() {
             Debug.WriteLine("Connection closed");
         }
-        public void OnUnknownMessage(byte type, byte[] data) {
-            Debug.WriteLine("Unknown Message " + type);
+        public void OnUnhandledMessage(byte type, byte[] data) {
+            Debug.WriteLine("Unhandled Message " + type);
         }
         public void OnChannelReady() {
             _ready = true;

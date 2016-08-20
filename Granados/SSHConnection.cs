@@ -232,11 +232,11 @@ namespace Granados {
         void OnIgnoreMessage(byte[] data);
 
         /// <summary>
-        /// Notifies unknown message.
+        /// Notifies unhandled message.
         /// </summary>
         /// <param name="type">value of the message number field</param>
         /// <param name="data">packet image</param>
-        void OnUnknownMessage(byte type, byte[] data);
+        void OnUnhandledMessage(byte type, byte[] data);
 
         /// <summary>
         /// Notifies that an exception has occurred. 
@@ -261,7 +261,7 @@ namespace Granados {
         public virtual void OnIgnoreMessage(byte[] data) {
         }
 
-        public virtual void OnUnknownMessage(byte type, byte[] data) {
+        public virtual void OnUnhandledMessage(byte type, byte[] data) {
         }
 
         public virtual void OnError(Exception error) {
@@ -407,9 +407,9 @@ namespace Granados.SSH {
             }
         }
 
-        public void OnUnknownMessage(byte type, byte[] data) {
+        public void OnUnhandledMessage(byte type, byte[] data) {
             try {
-                _coreHandler.OnUnknownMessage(type, data);
+                _coreHandler.OnUnhandledMessage(type, data);
             }
             catch (Exception e) {
                 System.Diagnostics.Debug.WriteLine(e.Message);
