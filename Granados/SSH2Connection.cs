@@ -1922,9 +1922,8 @@ namespace Granados.SSH2 {
                 }
             }
             finally {
-                _receivedPacket.Clear();
-
                 if (!keepSequenceStatusOnExit) {
+                    _receivedPacket.Clear();
                     lock (_sequenceLock) {
                         _sequenceStatus = SequenceStatus.Done;
                     }
@@ -2073,6 +2072,8 @@ namespace Granados.SSH2 {
 
             // notify
             _kiHandler.OnKeyboardInteractiveAuthenticationCompleted(userAuthResult, error);
+
+            _receivedPacket.Clear();
         }
 
         /// <summary>
