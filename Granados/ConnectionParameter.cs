@@ -7,6 +7,7 @@ using Granados.AgentForwarding;
 using Granados.KeyboardInteractive;
 using Granados.KnownHosts;
 using Granados.PKI;
+using System;
 
 namespace Granados {
 
@@ -99,9 +100,12 @@ namespace Granados {
         }
 
         /// <summary>
-        /// Handler for the keyboard-interactive authentication.
+        /// A factory function to create a handler for the keyboard-interactive authentication.
         /// </summary>
-        public IKeyboardInteractiveAuthenticationHandler KeyboardInteractiveAuthenticationHandler {
+        /// <remarks>
+        /// This property can be null if the keyboard-interactive authentication is not used.
+        /// </remarks>
+        public Func<ISSHConnection, IKeyboardInteractiveAuthenticationHandler> KeyboardInteractiveAuthenticationHandlerCreator {
             get;
             set;
         }
@@ -224,7 +228,6 @@ namespace Granados {
             MaxPacketSize = 0x10000;
             CheckMACError = true;
             VerifySSHHostKey = p => true;
-            KeyboardInteractiveAuthenticationHandler = new NullKeyboardInteractiveAuthenticationHandler();
         }
 
         /// <summary>

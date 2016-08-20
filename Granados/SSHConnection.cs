@@ -281,14 +281,14 @@ namespace Granados {
         /// </summary>
         /// <param name="socket">TCP socket which is already connected to the server.</param>
         /// <param name="param">SSH connection parameter</param>
-        /// <param name="connectionEventHandler">connection event handler (can be null)</param>
-        /// <param name="protocolEventLogger">protocol log event handler (can be null)</param>
+        /// <param name="connectionEventHandlerCreator">a factory function to create a connection event handler (can be null)</param>
+        /// <param name="protocolEventLoggerCreator">a factory function to create a protocol log event handler (can be null)</param>
         /// <returns>new connection object</returns>
         public static ISSHConnection Connect(
                     Socket socket,
                     SSHConnectionParameter param,
-                    ISSHConnectionEventHandler connectionEventHandler = null,
-                    ISSHProtocolEventLogger protocolEventLogger = null) {
+                    Func<ISSHConnection, ISSHConnectionEventHandler> connectionEventHandlerCreator = null,
+                    Func<ISSHConnection, ISSHProtocolEventLogger> protocolEventLoggerCreator = null) {
 
             if (socket == null) {
                 throw new ArgumentNullException("socket");
@@ -325,8 +325,8 @@ namespace Granados {
                                 param,
                                 protoVerReceiver.ServerVersion,
                                 clientVersion,
-                                connectionEventHandler,
-                                protocolEventLogger);
+                                connectionEventHandlerCreator,
+                                protocolEventLoggerCreator);
                     // start receiving loop
                     psocket.RepeatAsyncRead();
                     // send client version
@@ -342,8 +342,8 @@ namespace Granados {
                                 param,
                                 protoVerReceiver.ServerVersion,
                                 clientVersion,
-                                connectionEventHandler,
-                                protocolEventLogger);
+                                connectionEventHandlerCreator,
+                                protocolEventLoggerCreator);
                     // start receiving loop
                     psocket.RepeatAsyncRead();
                     // send client version

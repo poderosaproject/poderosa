@@ -163,7 +163,9 @@ namespace Poderosa.PortForwarding {
                 con.VerifySSHHostKey = this.CheckKey;
 
             _result = ChannelFactory.Create(_profile);
-            ISSHConnection c = SSHConnection.Connect(_socket, con, _result, null);
+            ISSHConnection c = SSHConnection.Connect(
+                                _socket, con,
+                                sshconn => _result, null);
             if (c != null) {
                 /*
                 if(_profile.ProtocolType==ProtocolType.Udp)

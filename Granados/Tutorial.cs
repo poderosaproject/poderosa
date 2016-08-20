@@ -117,17 +117,18 @@ namespace Granados.Tutorial {
 
         //Tutorial: Connecting to a host and opening a shell
         private static void ConnectAndOpenShell() {
-            SampleKeyboardInteractiveAuthenticationHandler authHandler = new SampleKeyboardInteractiveAuthenticationHandler("aaa");
+            SampleKeyboardInteractiveAuthenticationHandler authHandler = null;
             SSHConnectionParameter f = new SSHConnectionParameter("172.22.1.15", 22, SSHProtocol.SSH2, AuthenticationType.PublicKey, "okajima", "aaa");
             //former algorithm is given priority in the algorithm negotiation
             f.PreferableHostKeyAlgorithms = new PublicKeyAlgorithm[] { PublicKeyAlgorithm.RSA, PublicKeyAlgorithm.DSA };
             f.PreferableCipherAlgorithms = new CipherAlgorithm[] { CipherAlgorithm.Blowfish, CipherAlgorithm.TripleDES };
             f.WindowSize = 0x1000; //this option is ignored with SSH1
-            f.KeyboardInteractiveAuthenticationHandler = authHandler;
+            f.KeyboardInteractiveAuthenticationHandlerCreator =
+                (connection) => {
+                    return (authHandler = new SampleKeyboardInteractiveAuthenticationHandler("aaa"));
+                };
 
             Tracer tracer = new Tracer();
-
-            Reader reader = new Reader(); //simple event receiver
 
             Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             s.Connect(new IPEndPoint(IPAddress.Parse(f.HostName), f.PortNumber)); //22 is the default SSH port
@@ -136,8 +137,7 @@ namespace Granados.Tutorial {
 
             if (f.AuthenticationType == AuthenticationType.KeyboardInteractive) {
                 //Creating a new SSH connection over the underlying socket
-                conn = SSHConnection.Connect(s, f, reader, tracer);
-                reader._conn = conn;
+                conn = SSHConnection.Connect(s, f, c => new Reader(c), c => new Tracer());
                 bool result = authHandler.GetResult();
                 Debug.Assert(result == true);
             }
@@ -153,8 +153,7 @@ namespace Granados.Tutorial {
                 };
 
                 //Creating a new SSH connection over the underlying socket
-                conn = SSHConnection.Connect(s, f, reader, null);
-                reader._conn = conn;
+                conn = SSHConnection.Connect(s, f, c => new Reader(c), null);
             }
 
             //Opening a shell
@@ -171,8 +170,6 @@ namespace Granados.Tutorial {
         private static void ConnectSSH2AndPortforwarding() {
             SSHConnectionParameter f = new SSHConnectionParameter("10.10.9.8", 22, SSHProtocol.SSH2, AuthenticationType.Password, "root", "");
 
-            Tracer tracer = new Tracer();
-
             Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             s.Connect(new IPEndPoint(IPAddress.Parse(f.HostName), f.PortNumber)); //22 is the default SSH port
 
@@ -187,11 +184,15 @@ namespace Granados.Tutorial {
 
             f.WindowSize = 0x1000; //this option is ignored with SSH1
 
-            Reader reader = new Reader(); //simple event receiver
-
             //Creating a new SSH connection over the underlying socket
-            var conn = SSHConnection.Connect(s, f, reader, tracer);
-            reader._conn = conn;
+            Reader reader = null;
+            var conn = SSHConnection.Connect(s, f,
+                c => {
+                    return reader = new Reader(c);
+                },
+                c => new Tracer());
+
+            Debug.Assert(reader != null);
 
             //Local->Remote port forwarding
             ChannelHandler ch = conn.ForwardPort(
@@ -233,11 +234,16 @@ namespace Granados.Tutorial {
             f.PreferableCipherAlgorithms = new CipherAlgorithm[] { CipherAlgorithm.Blowfish, CipherAlgorithm.TripleDES };
             f.WindowSize = 0x1000; //this option is ignored with SSH1
             f.AgentForwardingAuthKeyProvider = new AgentForwardingAuthKeyProvider();
-            Reader reader = new Reader(); //simple event receiver
 
             //Creating a new SSH connection over the underlying socket
-            var conn = SSHConnection.Connect(s, f, reader, tracer);
-            reader._conn = conn;
+            Reader reader = null;
+            var conn = SSHConnection.Connect(s, f,
+                            c => {
+                                return reader = new Reader(c);
+                            },
+                            c => new Tracer()
+                       );
+            Debug.Assert(reader != null);
 
             //Opening a shell
             var ch = conn.OpenShell(channelOperator => new ChannelHandler(channelOperator));
@@ -260,8 +266,12 @@ namespace Granados.Tutorial {
     /// </summary>
     /// <exclude/>
     class Reader : ISSHConnectionEventHandler {
-        public ISSHConnection _conn;
+        private readonly ISSHConnection _conn;
         public bool _ready;
+
+        public Reader(ISSHConnection conn) {
+            _conn = conn;
+        }
 
         public void OnData(DataFragment data) {
             System.Console.Write(Encoding.ASCII.GetString(data.Data, data.Offset, data.Length));

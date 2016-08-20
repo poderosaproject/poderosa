@@ -59,26 +59,32 @@ namespace Granados.SSH2 {
         /// <param name="param">connection parameter</param>
         /// <param name="serverVersion">server version</param>
         /// <param name="clientVersion">client version</param>
-        /// <param name="connectionEventHandler">connection event handler (can be null)</param>
-        /// <param name="protocolEventLogger">protocol log event handler (can be null)</param>
+        /// <param name="connectionEventHandlerCreator">a factory function to create a connection event handler (can be null)</param>
+        /// <param name="protocolEventLoggerCreator">a factory function to create a protocol log event handler (can be null)</param>
         internal SSH2Connection(
                     PlainSocket socket,
                     SSHConnectionParameter param,
                     string serverVersion,
                     string clientVersion,
-                    ISSHConnectionEventHandler connectionEventHandler,
-                    ISSHProtocolEventLogger protocolEventLogger) {
+                    Func<ISSHConnection, ISSHConnectionEventHandler> connectionEventHandlerCreator,
+                    Func<ISSHConnection, ISSHProtocolEventLogger> protocolEventLoggerCreator) {
 
             _socket = socket;
-            if (connectionEventHandler != null) {
-                _eventHandler = new SSHConnectionEventHandlerIgnoreErrorWrapper(connectionEventHandler);
+
+            var connEventHandler = connectionEventHandlerCreator != null ? connectionEventHandlerCreator(this) : null;
+            if (connEventHandler != null) {
+                _eventHandler = new SSHConnectionEventHandlerIgnoreErrorWrapper(connEventHandler);
             }
             else {
                 _eventHandler = new SimpleSSHConnectionEventHandler();
             }
+
+            _protocolEventManager = new SSHProtocolEventManager(
+                            protocolEventLoggerCreator != null ?
+                                protocolEventLoggerCreator(this) : null);
+
             _socketStatusReader = new SocketStatusReader(socket);
             _param = param.Clone();
-            _protocolEventManager = new SSHProtocolEventManager(protocolEventLogger);
             _channelCollection = new SSHChannelCollection();
             _connectionInfo = new SSH2ConnectionInfo(param.HostName, param.PortNumber, serverVersion, clientVersion);
             IDataHandler adapter =
@@ -1768,7 +1774,9 @@ namespace Granados.SSH2 {
             _protocolEventManager = protocolEventManager;
             _syncHandler = syncHandler;
             _sessionID = sessionID;
-            _kiHandler = param.KeyboardInteractiveAuthenticationHandler;
+            _kiHandler =
+                param.KeyboardInteractiveAuthenticationHandlerCreator != null ?
+                    param.KeyboardInteractiveAuthenticationHandlerCreator(_connection) : null;
         }
 
         /// <summary>
@@ -2014,7 +2022,7 @@ namespace Granados.SSH2 {
 
             // check handler
             if (_kiHandler == null) {
-                throw new SSHException("KeyboardInteractiveAuthenticationHandler is not set.");
+                throw new SSHException("KeyboardInteractiveAuthenticationHandler is required.");
             }
 
             lock (_sequenceLock) {

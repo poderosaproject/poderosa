@@ -68,7 +68,8 @@ namespace Poderosa.Protocols {
                     return _keycheck.Vefiry(info);
                 };
             }
-            con.KeyboardInteractiveAuthenticationHandler = terminalConnection.GetKeyboardInteractiveAuthenticationHandler();
+            con.KeyboardInteractiveAuthenticationHandlerCreator =
+                sshconn => terminalConnection.GetKeyboardInteractiveAuthenticationHandler();
 
             ISSHProtocolEventLogger protocolEventLogger;
             if (ProtocolsPlugin.Instance.ProtocolOptions.LogSSHEvents) {
@@ -78,7 +79,9 @@ namespace Poderosa.Protocols {
                 protocolEventLogger = null;
             }
 
-            var connection = SSHConnection.Connect(_socket, con, terminalConnection.ConnectionEventReceiver, protocolEventLogger);
+            var connection = SSHConnection.Connect(_socket, con,
+                                sshconn => terminalConnection.ConnectionEventReceiver,
+                                sshconn => protocolEventLogger);
             if (PEnv.Options.RetainsPassphrase && _destination.AuthenticationType != AuthenticationType.KeyboardInteractive) {
                 ProtocolsPlugin.Instance.PassphraseCache.Add(tcp.Destination, _destination.Account, _destination.PasswordOrPassphrase); //接続成功時のみセット
             }
