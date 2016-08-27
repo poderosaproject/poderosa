@@ -838,13 +838,7 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <returns>true if the channel is ready for use.</returns>
         protected override void OnChannelEstablished() {
-            lock (_stateSync) {
-                if (_state != MinorState.NotReady) {
-                    return;
-                }
-
-                SendPtyRequest();
-            }
+            SendPtyRequest();
         }
 
         /// <summary>
@@ -852,6 +846,9 @@ namespace Granados.SSH2 {
         /// </summary>
         private void SendPtyRequest() {
             lock (_stateSync) {
+                if (_state != MinorState.NotReady) {
+                    return;
+                }
                 _state = MinorState.WaitPtyReqConfirmation;
             }
 
@@ -1026,13 +1023,7 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <returns>true if the channel is ready for use.</returns>
         protected override void OnChannelEstablished() {
-            lock (_stateSync) {
-                if (_state != MinorState.NotReady) {
-                    return;
-                }
-
-                SendExecRequest();
-            }
+            SendExecRequest();
         }
 
         /// <summary>
@@ -1040,6 +1031,9 @@ namespace Granados.SSH2 {
         /// </summary>
         private void SendExecRequest() {
             lock (_stateSync) {
+                if (_state != MinorState.NotReady) {
+                    return;
+                }
                 _state = MinorState.WaitExecConfirmation;
             }
 
@@ -1121,13 +1115,7 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <returns>true if the channel is ready for use.</returns>
         protected override void OnChannelEstablished() {
-            lock (_stateSync) {
-                if (_state != MinorState.NotReady) {
-                    return;
-                }
-
-                SendSubsystemRequest();
-            }
+            SendSubsystemRequest();
         }
 
         /// <summary>
@@ -1135,6 +1123,9 @@ namespace Granados.SSH2 {
         /// </summary>
         private void SendSubsystemRequest() {
             lock (_stateSync) {
+                if (_state != MinorState.NotReady) {
+                    return;
+                }
                 _state = MinorState.WaitSubsystemConfirmation;
             }
 
