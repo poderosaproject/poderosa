@@ -156,7 +156,6 @@ namespace Poderosa.Protocols {
                 shellparam.SetTerminalSize(term.InitialWidth, term.InitialHeight);
                 TelnetTerminalConnection r = new TelnetTerminalConnection(shellparam, neg, new PlainPoderosaSocket(sock));
                 r.Destination = (ITerminalParameter)_param.GetAdapter(typeof(ITerminalParameter)); //TelnetでなくオリジナルのCygwinParamで上書き
-                r.UsingSocks = false;
                 return r;
             }
 

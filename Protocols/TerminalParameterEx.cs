@@ -13,6 +13,7 @@ using System.Net;
 
 using Poderosa.Util;
 using Granados;
+using Granados.AgentForwarding;
 
 namespace Poderosa.Protocols {
     /// <summary>
@@ -314,17 +315,7 @@ namespace Poderosa.Protocols {
         /// 
         /// </summary>
         /// <exclude/>
-        IAgentForward AgentForward {
-            get;
-            set;
-        }
-    }
-
-    /// <summary>
-    /// </summary>
-    /// <exclude/>
-    public interface ISSHSubsystemParameter : IAdaptable, ICloneable {
-        string SubsystemName {
+        IAgentForwardingAuthKeyProvider AgentForwardingAuthKeyProvider {
             get;
             set;
         }

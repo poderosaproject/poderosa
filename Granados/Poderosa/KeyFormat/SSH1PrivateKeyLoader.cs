@@ -45,6 +45,7 @@ namespace Granados.Poderosa.KeyFormat {
         /// <param name="primeP">private key parameter</param>
         /// <param name="primeQ">private key parameter</param>
         /// <param name="crtCoefficient">private key parameter</param>
+        /// <param name="comment">comment</param>
         /// <exception cref="SSHException">failed to parse</exception>
         public void Load(
                             string passphrase,
@@ -53,7 +54,8 @@ namespace Granados.Poderosa.KeyFormat {
                             out BigInteger privateExponent,
                             out BigInteger primeP,
                             out BigInteger primeQ,
-                            out BigInteger crtCoefficient) {
+                            out BigInteger crtCoefficient,
+                            out string comment) {
 
             if (keyFile == null)
                 throw new SSHException("A key file is not loaded yet");
@@ -69,7 +71,7 @@ namespace Granados.Poderosa.KeyFormat {
 
             modulus = reader.ReadMPInt();
             publicExponent = reader.ReadMPInt();
-            byte[] comment = reader.ReadByteString();
+            comment = reader.ReadString();
             byte[] prvt = reader.GetRemainingDataView().GetBytes();
             //必要なら復号
             CipherAlgorithm algo = (CipherAlgorithm)cipher[1];

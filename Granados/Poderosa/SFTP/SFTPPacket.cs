@@ -13,6 +13,7 @@ using Granados.IO;
 using Granados.IO.SSH2;
 using Granados.Util;
 using Granados.Crypto;
+using System.Threading;
 
 namespace Granados.Poderosa.SFTP {
 
@@ -23,36 +24,43 @@ namespace Granados.Poderosa.SFTP {
     /// The instances of this class share single thread-local buffer.
     /// You should be careful that only single instance is used while constructing a packet.
     /// </remarks>
-    internal class SFTPPacket : SSH2Packet {
+    internal class SFTPPacket : ISSH2PacketBuilder {
+        private readonly ByteBuffer _payload;
+
+        private static readonly ThreadLocal<ByteBuffer> _payloadBuffer =
+            new ThreadLocal<ByteBuffer>(() => new ByteBuffer(0x1000, -1));
 
         private readonly int _sftpDataOffset;
 
-        private const int CHANNEL_DATA_LENGTH_FIELD_LEN = 4;
         private const int SFTP_MESSAGE_LENGTH_FIELD_LEN = 4;
+
+        /// <summary>
+        /// Payload buffer
+        /// </summary>
+        public ByteBuffer Payload {
+            get {
+                return _payload;
+            }
+        }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="packetType">SFTP packet type.</param>
-        /// <param name="remoteChannel">remote channel number</param>
-        public SFTPPacket(SFTPPacketType packetType, uint remoteChannel)
-            : base(SSH2PacketType.SSH_MSG_CHANNEL_DATA) {
-            Payload.WriteUInt32(remoteChannel);
-            Payload.WriteUInt32(0);  // channel data length
-            Payload.WriteUInt32(0);  // SFTP message length
-            _sftpDataOffset = Payload.Length;
-            Payload.WriteByte((byte)packetType);
+        public SFTPPacket(SFTPPacketType packetType) {
+            _payload = _payloadBuffer.Value;
+            _payload.Clear();
+            _payload.WriteUInt32(0);  // SFTP message length
+            _payload.WriteByte((byte)packetType);
         }
 
         /// <summary>
-        /// Prepare SFTP message before making a packet image.
+        /// Get SFTP message image.
         /// </summary>
-        protected override void BeforeBuildImage() {
-            int sftpDataLength = Payload.Length - _sftpDataOffset;
-            int offset = _sftpDataOffset - SFTP_MESSAGE_LENGTH_FIELD_LEN;
-            Payload.OverwriteUInt32(offset, (uint)sftpDataLength);
-            offset -= CHANNEL_DATA_LENGTH_FIELD_LEN;
-            Payload.OverwriteUInt32(offset, (uint)(sftpDataLength + SFTP_MESSAGE_LENGTH_FIELD_LEN));
+        public DataFragment GetImage() {
+            int sftpDataLength = _payload.Length - SFTP_MESSAGE_LENGTH_FIELD_LEN;
+            _payload.OverwriteUInt32(0, (uint)sftpDataLength);
+            return _payload.AsDataFragment();
         }
 
     }

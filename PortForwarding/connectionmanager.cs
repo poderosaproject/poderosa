@@ -27,9 +27,9 @@ namespace Poderosa.PortForwarding {
         }
 
         //profに対応したSSHConnectionを返す。接続がなければparentを親に認証ダイアログを出して認証する
-        public SSHConnection GetOrCreateConnection(ChannelProfile prof, Form parent) {
+        public ISSHConnection GetOrCreateConnection(ChannelProfile prof, Form parent) {
             //ホスト名とアカウントのペアからコネクションを共有する仕組みがあるとよいかも
-            SSHConnection c = (SSHConnection)_profileToConnection[prof];
+            ISSHConnection c = _profileToConnection[prof] as ISSHConnection;
             if (c != null)
                 return c;
 
@@ -90,9 +90,9 @@ namespace Poderosa.PortForwarding {
             }
 
             lock (this) {
-                SSHConnection c = (SSHConnection)_profileToConnection[prof];
+                ISSHConnection c = (ISSHConnection)_profileToConnection[prof];
                 _manualClosingConnections.Add(c);
-                c.Disconnect("");
+                c.Disconnect(DisconnectionReasonCode.ByApplication, "close by application");
             }
         }
         public void CloseAll() {
@@ -105,7 +105,7 @@ namespace Poderosa.PortForwarding {
         private delegate void RefreshProfileStatusDelegate(ChannelProfile prof);
 
         //終了のハンドリング 非同期に別スレッドから呼ばれるので注意
-        public void ConnectionClosed(SSHConnection connection) {
+        public void ConnectionClosed(ISSHConnection connection) {
             IDictionaryEnumerator e = _profileToConnection.GetEnumerator();
             while (e.MoveNext()) {
                 if (connection == e.Value) {
@@ -128,7 +128,7 @@ namespace Poderosa.PortForwarding {
                 }
             }
         }
-        public void ConnectionError(SSHConnection connection, Exception error) {
+        public void ConnectionError(ISSHConnection connection, Exception error) {
             Debug.WriteLine(error.StackTrace);
             Util.InterThreadWarning(error.Message);
             ConnectionClosed(connection);
@@ -163,8 +163,9 @@ namespace Poderosa.PortForwarding {
                 con.VerifySSHHostKey = this.CheckKey;
 
             _result = ChannelFactory.Create(_profile);
-            SSHConnection c = SSHConnection.Connect(con, _result, _socket);
-            c.AutoDisconnect = false;
+            ISSHConnection c = SSHConnection.Connect(
+                                _socket, con,
+                                sshconn => _result, null);
             if (c != null) {
                 /*
                 if(_profile.ProtocolType==ProtocolType.Udp)

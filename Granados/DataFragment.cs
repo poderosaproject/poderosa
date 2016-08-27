@@ -1,18 +1,10 @@
-﻿/*
- Copyright (c) 2005 Poderosa Project, All Rights Reserved.
- This file is a part of the Granados SSH Client Library that is subject to
- the license included in the distributed package.
- You may not use this file except in compliance with the license.
+﻿// Copyright (c) 2005-2016 Poderosa Project, All Rights Reserved.
+// This file is a part of the Granados SSH Client Library that is subject to
+// the license included in the distributed package.
+// You may not use this file except in compliance with the license.
 
-  I implemented this algorithm with reference to following products and books though the algorithm is known publicly.
-    * MindTerm ( AppGate Network Security )
-    * Applied Cryptography ( Bruce Schneier )
-
- $Id: DataFragment.cs,v 1.4 2012/03/10 18:00:15 kzmi Exp $
-*/
-using System;
-using System.Diagnostics;
 using Granados.Util;
+using System;
 
 namespace Granados.IO {
     /// <summary>
@@ -147,7 +139,7 @@ namespace Granados.IO {
     /// 
     /// </summary>
     /// <exclude/>
-    public class SimpleMemoryStream {
+    internal class SimpleMemoryStream {
         private byte[] _buffer;
         private int _offset;
 
@@ -312,6 +304,14 @@ namespace Granados.IO {
         }
 
         /// <summary>
+        /// Append <see cref="DataFragment"/>.
+        /// </summary>
+        /// <param name="data">data</param>
+        public void Append(DataFragment data) {
+            Append(data.Data, data.Offset, data.Length);
+        }
+
+        /// <summary>
         /// Append data which is read from another buffer.
         /// </summary>
         /// <param name="buffer">another buffer</param>
@@ -450,6 +450,15 @@ namespace Granados.IO {
         /// <returns>new <see cref="DataFragment"/> instance that wraps this buffer.</returns>
         public DataFragment AsDataFragment() {
             return new DataFragment(_buff, _offset, _length);
+        }
+
+        /// <summary>
+        /// Create a new <see cref="DataFragment"/>.
+        /// </summary>
+        /// <returns>new <see cref="DataFragment"/> instance that have data copied from this buffer.</returns>
+        public DataFragment ToDataFragment() {
+            byte[] data = GetBytes();
+            return new DataFragment(data, 0, data.Length);
         }
 
         #region Writer methods

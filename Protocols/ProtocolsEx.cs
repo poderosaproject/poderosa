@@ -275,17 +275,6 @@ namespace Poderosa.Protocols {
 
         /// <summary>
         /// <ja>
-        /// SSH接続のサブシステム指定付きパラメータを格納したオブジェクトを生成します。
-        /// </ja>
-        /// <en>
-        /// Create the object stored default parameter of SSH connection with subsystem designation.
-        /// </en>
-        /// </summary>
-        /// <returns><ja>デフォルトパラメータが格納されたオブジェクト</ja><en>Object with default parameter.</en></returns>
-        ISSHSubsystemParameter CreateDefaultSSHSubsystemParameter();
-
-        /// <summary>
-        /// <ja>
         /// 非同期接続でCygwin接続のターミナルコネクションを作ります。
         /// </ja>
         /// <en>

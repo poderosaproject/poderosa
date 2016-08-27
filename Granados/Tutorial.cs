@@ -1,4 +1,4 @@
-﻿/*s
+﻿/*
  Copyright (c) 2005 Poderosa Project, All Rights Reserved.
  This file is a part of the Granados SSH Client Library that is subject to
  the license included in the distributed package.
@@ -6,21 +6,22 @@
 
  $Id: Tutorial.cs,v 1.2 2011/10/27 23:21:56 kzmi Exp $
 */
-using System;
-using System.IO;
-using System.Text;
-using System.Threading;
-using System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
-using System.Globalization;
-
-using Granados.Crypto;
+using Granados.AgentForwarding;
 using Granados.IO;
+using Granados.KeyboardInteractive;
+using Granados.PKI;
+using Granados.SSH;
 using Granados.SSH1;
 using Granados.SSH2;
 using Granados.Util;
-using Granados.PKI;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
 
 namespace Granados.Tutorial {
 #if ENABLE_TUTORIAL
@@ -31,7 +32,6 @@ namespace Granados.Tutorial {
      */
     /// <exclude/>
     class Tutorial {
-        private static SSHConnection _conn;
 
         [STAThread]
         static void Main(string[] args) {
@@ -47,8 +47,6 @@ namespace Granados.Tutorial {
                 ConnectAndOpenShell();
             else if (tutorial == 3)
                 ConnectSSH2AndPortforwarding();
-            else if (tutorial == 4)
-                ScpCommand(args);
             else if (tutorial == 5)
                 AgentForward();
         }
@@ -89,26 +87,59 @@ namespace Granados.Tutorial {
             SSH2UserAuthKey newpk = SSH2UserAuthKey.FromSECSHStyleFile("newrsakey.bin", "passphrase");
         }
 
+        private class SampleKeyboardInteractiveAuthenticationHandler : IKeyboardInteractiveAuthenticationHandler {
+
+            private readonly string _password;
+
+            private readonly AtomicBox<bool> _box = new AtomicBox<bool>();
+
+            public SampleKeyboardInteractiveAuthenticationHandler(string password) {
+                _password = password;
+            }
+
+            public bool GetResult() {
+                bool result = false;
+                _box.TryGet(ref result, 10000);
+                return result;
+            }
+
+            public string[] KeyboardInteractiveAuthenticationPrompt(string[] prompts, bool[] echoes) {
+                return prompts.Select(s => s.Contains("assword") ? _password : "").ToArray();
+            }
+
+            public void OnKeyboardInteractiveAuthenticationStarted() {
+            }
+
+            public void OnKeyboardInteractiveAuthenticationCompleted(bool success, Exception error) {
+                _box.TrySet(success, 10000);
+            }
+        }
+
         //Tutorial: Connecting to a host and opening a shell
         private static void ConnectAndOpenShell() {
+            SampleKeyboardInteractiveAuthenticationHandler authHandler = null;
             SSHConnectionParameter f = new SSHConnectionParameter("172.22.1.15", 22, SSHProtocol.SSH2, AuthenticationType.PublicKey, "okajima", "aaa");
-            f.EventTracer = new Tracer(); //to receive detailed events, set ISSHEventTracer
             //former algorithm is given priority in the algorithm negotiation
             f.PreferableHostKeyAlgorithms = new PublicKeyAlgorithm[] { PublicKeyAlgorithm.RSA, PublicKeyAlgorithm.DSA };
             f.PreferableCipherAlgorithms = new CipherAlgorithm[] { CipherAlgorithm.Blowfish, CipherAlgorithm.TripleDES };
             f.WindowSize = 0x1000; //this option is ignored with SSH1
-            Reader reader = new Reader(); //simple event receiver
+            f.KeyboardInteractiveAuthenticationHandlerCreator =
+                (connection) => {
+                    return (authHandler = new SampleKeyboardInteractiveAuthenticationHandler("aaa"));
+                };
+
+            Tracer tracer = new Tracer();
 
             Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             s.Connect(new IPEndPoint(IPAddress.Parse(f.HostName), f.PortNumber)); //22 is the default SSH port
 
+            ISSHConnection conn;
+
             if (f.AuthenticationType == AuthenticationType.KeyboardInteractive) {
                 //Creating a new SSH connection over the underlying socket
-                _conn = SSHConnection.Connect(f, reader, s);
-                reader._conn = _conn;
-                Debug.Assert(_conn.AuthenticationResult == AuthenticationResult.Prompt);
-                AuthenticationResult r = ((SSH2Connection)_conn).DoKeyboardInteractiveAuth(new string[] { f.Password });
-                Debug.Assert(r == AuthenticationResult.Success);
+                conn = SSHConnection.Connect(s, f, c => new Reader(c), c => new Tracer());
+                bool result = authHandler.GetResult();
+                Debug.Assert(result == true);
             }
             else {
                 //NOTE: if you use public-key authentication, follow this sample instead of the line above:
@@ -122,25 +153,23 @@ namespace Granados.Tutorial {
                 };
 
                 //Creating a new SSH connection over the underlying socket
-                _conn = SSHConnection.Connect(f, reader, s);
-                reader._conn = _conn;
+                conn = SSHConnection.Connect(s, f, c => new Reader(c), null);
             }
 
             //Opening a shell
-            SSHChannel ch = _conn.OpenShell(reader);
-            reader._pf = ch;
+            var ch = conn.OpenShell(channelOperator => new ChannelHandler(channelOperator));
 
             //you can get the detailed connection information in this way:
             //SSHConnectionInfo ci = _conn.ConnectionInfo;
 
             //Go to sample shell
-            SampleShell(reader);
+            SampleShell(ch);
         }
 
         //Tutorial: port forwarding
         private static void ConnectSSH2AndPortforwarding() {
             SSHConnectionParameter f = new SSHConnectionParameter("10.10.9.8", 22, SSHProtocol.SSH2, AuthenticationType.Password, "root", "");
-            f.EventTracer = new Tracer(); //to receive detailed events, set ISSHEventTracer
+
             Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             s.Connect(new IPEndPoint(IPAddress.Parse(f.HostName), f.PortNumber)); //22 is the default SSH port
 
@@ -155,18 +184,24 @@ namespace Granados.Tutorial {
 
             f.WindowSize = 0x1000; //this option is ignored with SSH1
 
-            Reader reader = new Reader(); //simple event receiver
-
             //Creating a new SSH connection over the underlying socket
-            _conn = SSHConnection.Connect(f, reader, s);
-            reader._conn = _conn;
+            Reader reader = null;
+            var conn = SSHConnection.Connect(s, f,
+                c => {
+                    return reader = new Reader(c);
+                },
+                c => new Tracer());
+
+            Debug.Assert(reader != null);
 
             //Local->Remote port forwarding
-            SSHChannel ch = _conn.ForwardPort(reader, "www.google.co.jp", 80, "localhost", 0);
-            reader._pf = ch;
+            ChannelHandler ch = conn.ForwardPort(
+                    channelOperator => new ChannelHandler(channelOperator),
+                    "www.google.co.jp", 80u, "localhost", 0u);
             while (!reader._ready)
                 System.Threading.Thread.Sleep(100); //wait response
-            reader._pf.Transmit(Encoding.ASCII.GetBytes("GET / HTTP/1.0\r\n\r\n")); //get the toppage
+            byte[] data = Encoding.ASCII.GetBytes("GET / HTTP/1.0\r\n\r\n");
+            ch.Operator.Send(new DataFragment(data, 0, data.Length)); //get the toppage
 
             //Remote->Local
             // if you want to listen to a port on the SSH server, follow this line:
@@ -176,225 +211,21 @@ namespace Granados.Tutorial {
             //((SSH2Connection)_conn).ReexchangeKeys();
         }
 
-        private static void SampleShell(Reader reader) {
+        private static void SampleShell(ChannelHandler channelHandler) {
             byte[] b = new byte[1];
             while (true) {
                 int input = System.Console.Read();
 
                 b[0] = (byte)input;
-                reader._pf.Transmit(b);
+                channelHandler.Operator.Send(new DataFragment(b, 0, b.Length));
             }
-        }
-
-        // This method uses SCP protocol.
-        private static void ScpCommand(string[] args) {
-            ScpParameter scp_param = new ScpParameter();
-#if true //OKAJIMA
-#if true
-            scp_param.Direction = SCPCopyDirection.LocalToRemote;
-            scp_param.RemoteFilename = "test.txt";
-            scp_param.LocalSource = new ScpLocalSource("C:\\IOPort\\test.txt");
-#else
-            scp_param.Direction = SCPCopyDirection.RemoteToLocal;
-            scp_param.RemoteFilename = "hiro.jpg";
-            scp_param.LocalSource = new ScpLocalSource("C:\\IOPort\\hiro.jpg");
-#endif
-            //string host_ip;
-            //string username, password;
-
-            SSHConnectionParameter f = new SSHConnectionParameter("172.22.1.2", 22, SSHProtocol.SSH2, AuthenticationType.Password, "root", "intb0bo");
-            f.EventTracer = new Tracer(); //to receive detailed events, set ISSHEventTracer
-            Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            s.Connect(new IPEndPoint(IPAddress.Parse(f.HostName), f.PortNumber)); //22 is the default SSH port
-
-            SSHConnection conn = SSHConnection.Connect(f, new Reader(), s);
-            conn.AutoDisconnect = false; //auto close is disabled for multiple scp operations
-            conn.ExecuteSCP(scp_param);
-
-            conn.Disconnect("");
-#endif
-#if HIRATA
-            // check argument
-            if (args.Length != 6) {
-                Console.WriteLine("Usage: ScpCommand <server:port> <username> <password> to|from <src_file> <dst_file>");
-                Environment.Exit(0);
-            }
-
-            // test pattern
-            int test = 103;
-
-            if (test == 0) {
-                args[0] = "192.168.1.2";
-                args[1] = "yutaka";
-                args[2] = "yutaka";
-                args[3] = "to";
-                args[4] = "hoge6.txt";
-                args[5] = "hoge6s.txt";
-            }
-            if (test == 1) {
-                args[0] = "192.168.1.2";
-                args[1] = "yutaka";
-                args[2] = "yutaka";
-                args[3] = "to";
-                args[4] = "hoge28k.txt";
-                args[5] = "hoge28ks.txt";
-            }
-            if (test == 2) {
-                args[0] = "192.168.1.2";
-                args[1] = "yutaka";
-                args[2] = "yutaka";
-                args[3] = "to";
-                args[4] = null;   // use Local Memory
-                args[5] = "hogeLM.txt";
-            }
-            if (test == 3) { // big file transfer
-                args[0] = "192.168.1.2";
-                args[1] = "yutaka";
-                args[2] = "yutaka";
-                args[3] = "to";
-                args[4] = "bigfile.bin";
-                args[5] = "bigfile.bin";
-            }
-
-            if (test == 100) {
-                args[0] = "192.168.1.2";
-                args[1] = "yutaka";
-                args[2] = "yutaka";
-                args[3] = "from";
-                args[4] = "hoge6.txt";
-                args[5] = "hoge6c.txt";
-            }
-            if (test == 101) {
-                args[0] = "192.168.1.2";
-                args[1] = "yutaka";
-                args[2] = "yutaka";
-                args[3] = "from";
-                args[4] = "hoge28k.txt";
-                args[5] = "hoge28kc.txt";
-            }
-            if (test == 102) {
-                args[0] = "192.168.1.2";
-                args[1] = "yutaka";
-                args[2] = "yutaka";
-                args[3] = "from";
-                args[4] = "hoge6.txt";
-                //args[4] = "hoge28k.txt";
-                args[5] = null;   // use Local Memory
-            }
-            if (test == 103) {  // big file transfer
-                args[0] = "192.168.1.2";
-                args[1] = "yutaka";
-                args[2] = "yutaka";
-                args[3] = "from";
-                args[4] = "bigfile.bin";
-                args[5] = "bigfilec.bin";
-            }
-
-            host_ip = args[0];
-            username = args[1];
-            password = args[2];
-
-            // setup SCP parameter
-            if (args[3] == "to") {  // Local to Remote
-                if (args[5] == null || args[5] == "") {
-                    param.RemoteFilename = null;
-                }
-                else {
-                    param.RemoteFilename = args[5];  // remote file
-                }
-
-                // 転送元の指定（ローカルファイルおよびローカルメモリを選択）
-                if (args[4] != null) {
-                    // ローカルファイルの転送
-                    param.LocalSource = args[4]; // src file
-
-                }
-                else {
-                    // オンラインメモリの転送
-                    //param.IoStream = new MemoryStream(256);
-                    param.IoStream = new MemoryStream(8192);
-                    for (int i = 0; i < 8192; i++) {
-                        param.IoStream.WriteByte((byte)i);
-                    }
-                    param.IoStream.Seek(0, SeekOrigin.Begin);
-                }
-                param.Direction = true;
-
-                param.Permission = "0666";
-
-            }
-            else {  // Remote to Local
-                param.RemoteFilename = args[4]; // remote file
-
-                // 転送元の指定（ローカルファイルおよびローカルメモリを選択）
-                if (args[5] != null) {
-                    // ローカルファイルの転送
-                    param.LocalSource = args[5];
-                }
-                else {
-                    // オンラインメモリの転送
-                    param.IoStream = null;
-                }
-                param.Direction = false;
-            }
-
-            // connect to server with SSH protocol
-            SSHConnectionParameter f = new SSHConnectionParameter();
-            f.EventTracer = new Tracer(); //to receive detailed events, set ISSHEventTracer
-            Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            f.Protocol = SSHProtocol.SSH2; //this sample works on both SSH1 and SSH2
-            f.UserName = username;          //<--!!! if you try this sample, edit these values for your environment!
-            f.Password = password;              //<--!!! 
-            s.Connect(new IPEndPoint(IPAddress.Parse(host_ip), 22)); //22 is the default SSH port
-
-            f.AuthenticationType = AuthenticationType.Password;
-            //NOTE: if you use public-key authentication, follow this sample instead of the line above:
-            //  f.AuthenticationType = AuthenticationType.PublicKey;
-            //  f.IdentityFile = "privatekey.bin";
-            //  f.Password = "passphrase";
-
-            //former algorithm is given priority in the algorithm negotiation
-            f.PreferableHostKeyAlgorithms = new PublicKeyAlgorithm[] { PublicKeyAlgorithm.DSA };
-            f.PreferableCipherAlgorithms = new CipherAlgorithm[] { CipherAlgorithm.Blowfish, CipherAlgorithm.TripleDES };
-
-            //this option is ignored with SSH1
-            f.WindowSize = 0x1000; //NG: ERROR: MAC mismatch
-            //f.WindowSize = 0x800; //NG
-            //f.WindowSize = 0x30000; //NG
-            //f.WindowSize = 0x400; //OK
-            //f.CheckMACError = false; //NG: unexpected channel pt=SSH_MSG_CHANNEL_DATA local_channel=33243
-
-            /* USER OPTION */
-            //param.CancelTransfer = true;  // cancel flag
-            param.ProgressCallback = delegate() {
-                Debug.Write("*");
-            };   // callback function
-
-            if (SSHConnection.SCPExecute(param, f, s)) {
-                Debug.WriteLine("scp success!");
-
-                if (param.Direction == false) {
-                    if (param.IoStream != null) {
-                        Debug.Write("IO Stream: ");
-                        for (int i = 0; i < param.IoStream.Length; i++) {
-                            byte b = (byte)param.IoStream.ReadByte();
-                            Debug.Write(b.ToString("x2") + " ");
-                        }
-                        Debug.WriteLine("");
-                    }
-                }
-            }
-            else {
-                Debug.WriteLine("scp failure: " + param.ErrorMessage);
-            }
-
-#endif
         }
 
         private static void AgentForward() {
             SSHConnectionParameter f = new SSHConnectionParameter("172.22.1.15", 22, SSHProtocol.SSH2, AuthenticationType.Password, "root", "");
-            f.EventTracer = new Tracer(); //to receive detailed events, set ISSHEventTracer
+
+            Tracer tracer = new Tracer();
+
             Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             s.Connect(new IPEndPoint(IPAddress.Parse(f.HostName), f.PortNumber)); //22 is the default SSH port
 
@@ -402,25 +233,30 @@ namespace Granados.Tutorial {
             f.PreferableHostKeyAlgorithms = new PublicKeyAlgorithm[] { PublicKeyAlgorithm.RSA, PublicKeyAlgorithm.DSA };
             f.PreferableCipherAlgorithms = new CipherAlgorithm[] { CipherAlgorithm.Blowfish, CipherAlgorithm.TripleDES };
             f.WindowSize = 0x1000; //this option is ignored with SSH1
-            f.AgentForward = new AgentForwardClient();
-            Reader reader = new Reader(); //simple event receiver
+            f.AgentForwardingAuthKeyProvider = new AgentForwardingAuthKeyProvider();
 
             //Creating a new SSH connection over the underlying socket
-            _conn = SSHConnection.Connect(f, reader, s);
-            reader._conn = _conn;
+            Reader reader = null;
+            var conn = SSHConnection.Connect(s, f,
+                            c => {
+                                return reader = new Reader(c);
+                            },
+                            c => new Tracer()
+                       );
+            Debug.Assert(reader != null);
 
             //Opening a shell
-            SSHChannel ch = _conn.OpenShell(reader);
-            reader._pf = ch;
+            var ch = conn.OpenShell(channelOperator => new ChannelHandler(channelOperator));
 
             while (!reader._ready)
                 Thread.Sleep(100);
 
             Thread.Sleep(1000);
-            ch.Transmit(Encoding.Default.GetBytes("ssh -A -l okajima localhost\r"));
+            byte[] data = Encoding.Default.GetBytes("ssh -A -l okajima localhost\r");
+            ch.Operator.Send(new DataFragment(data, 0, data.Length));
 
             //Go to sample shell
-            SampleShell(reader);
+            SampleShell(ch);
         }
 
     }
@@ -429,21 +265,22 @@ namespace Granados.Tutorial {
     /// 
     /// </summary>
     /// <exclude/>
-    class Reader : ISSHConnectionEventReceiver, ISSHChannelEventReceiver {
-        public SSHConnection _conn;
+    class Reader : ISSHConnectionEventHandler {
+        private readonly ISSHConnection _conn;
         public bool _ready;
 
-        public void OnData(byte[] data, int offset, int length) {
-            System.Console.Write(Encoding.ASCII.GetString(data, offset, length));
+        public Reader(ISSHConnection conn) {
+            _conn = conn;
         }
-        public void OnDebugMessage(bool always_display, byte[] data) {
-            Debug.WriteLine("DEBUG: " + Encoding.ASCII.GetString(data));
+
+        public void OnData(DataFragment data) {
+            System.Console.Write(Encoding.ASCII.GetString(data.Data, data.Offset, data.Length));
+        }
+        public void OnDebugMessage(bool alwaysDisplay, string message) {
+            Debug.WriteLine("DEBUG: " + message);
         }
         public void OnIgnoreMessage(byte[] data) {
             Debug.WriteLine("Ignore: " + Encoding.ASCII.GetString(data));
-        }
-        public void OnAuthenticationPrompt(string[] msg) {
-            Debug.WriteLine("Auth Prompt " + (msg.Length > 0 ? msg[0] : "(empty)"));
         }
 
         public void OnError(Exception error) {
@@ -455,17 +292,16 @@ namespace Granados.Tutorial {
             //_conn.AsyncReceive(this);
         }
         public void OnChannelEOF() {
-            _pf.Close();
             Debug.WriteLine("Channel EOF");
         }
-        public void OnExtendedData(int type, byte[] data) {
+        public void OnExtendedData(uint type, DataFragment data) {
             Debug.WriteLine("EXTENDED DATA");
         }
         public void OnConnectionClosed() {
             Debug.WriteLine("Connection closed");
         }
-        public void OnUnknownMessage(byte type, byte[] data) {
-            Debug.WriteLine("Unknown Message " + type);
+        public void OnUnhandledMessage(byte type, byte[] data) {
+            Debug.WriteLine("Unhandled Message " + type);
         }
         public void OnChannelReady() {
             _ready = true;
@@ -473,56 +309,123 @@ namespace Granados.Tutorial {
         public void OnChannelError(Exception error) {
             Debug.WriteLine("Channel ERROR: " + error.Message);
         }
-        public void OnMiscPacket(byte type, byte[] data, int offset, int length) {
-        }
-
-        public PortForwardingCheckResult CheckPortForwardingRequest(string host, int port, string originator_host, int originator_port) {
-            PortForwardingCheckResult r = new PortForwardingCheckResult();
-            r.allowed = true;
-            r.channel = this;
-            return r;
-        }
-        public void EstablishPortforwarding(ISSHChannelEventReceiver rec, SSHChannel channel) {
-            _pf = channel;
-        }
-
-        public SSHChannel _pf;
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <exclude/>
-    class Tracer : ISSHEventTracer {
-        public void OnTranmission(string type, string detail) {
-            Debug.WriteLine("T:" + type + ":" + detail);
-        }
-        public void OnReception(string type, string detail) {
-            Debug.WriteLine("R:" + type + ":" + detail);
+        public void OnMiscPacket(byte type, DataFragment data) {
         }
     }
 
-    class AgentForwardClient : IAgentForward {
-        private SSH2UserAuthKey[] _keys;
-        public SSH2UserAuthKey[] GetAvailableSSH2UserAuthKeys() {
-            if (_keys == null) {
-                SSH2UserAuthKey k = SSH2UserAuthKey.FromSECSHStyleFile(@"C:\P4\Tools\keys\aaa", "aaa");
-                _keys = new SSH2UserAuthKey[] { k };
+    class ChannelHandler : ISSHChannelEventHandler {
+
+        private readonly ISSHChannel _operator;
+
+        public ISSHChannel Operator {
+            get {
+                return _operator;
             }
-            return _keys;
         }
 
-        public void NotifyPublicKeyDidNotMatch() {
-            Debug.WriteLine("KEY NOT MATCH");
-        }
-        public bool CanAcceptForwarding() {
-            return true;
+        public ChannelHandler(ISSHChannel channelOperator) {
+            _operator = channelOperator;
         }
 
-        public void Close() {
+        public void OnEstablished(DataFragment data) {
+            Debug.WriteLine("Channel Established");
         }
 
-        public void OnError(Exception ex) {
+        public void OnReady() {
+            Debug.WriteLine("Channel Ready");
+        }
+
+        public void OnData(DataFragment data) {
+            System.Console.Write(Encoding.UTF8.GetString(data.Data, data.Offset, data.Length));
+        }
+
+        public void OnExtendedData(uint type, DataFragment data) {
+            System.Console.WriteLine("EXT[{0}] {1}", type, Encoding.UTF8.GetString(data.Data, data.Offset, data.Length));
+        }
+
+        public void OnClosing(bool byServer) {
+            Debug.WriteLine("Channel Closing");
+        }
+
+        public void OnClosed(bool byServer) {
+            Debug.WriteLine("Channel Closed");
+        }
+
+        public void OnEOF() {
+            Debug.WriteLine("Channel EOF");
+        }
+
+        public void OnRequestFailed() {
+            throw new NotImplementedException();
+        }
+
+        public void OnError(Exception error) {
+            Debug.WriteLine("Channel ERROR: " + error.Message);
+            Debug.WriteLine(error.StackTrace);
+        }
+
+        public void OnUnhandledPacket(byte packetType, DataFragment data) {
+            Debug.WriteLine("Channel Unhandled Packet: {0}", packetType);
+        }
+
+        public void Dispose() {
+            Debug.WriteLine("Channel Dispose");
+        }
+
+    }
+
+    class Tracer : ISSHProtocolEventLogger {
+        public void OnSend(string messageType, string details) {
+            Debug.WriteLine("EVENT:[S] <{0}> {1}", messageType, details);
+        }
+
+        public void OnReceived(string messageType, string details) {
+            Debug.WriteLine("EVENT:[R] <{0}> {1}", messageType, details);
+        }
+
+        public void OnTrace(string details) {
+            Debug.WriteLine("TRACE: {0}", details);
+        }
+    }
+
+    class AgentForwardingAuthKeyProvider : IAgentForwardingAuthKeyProvider {
+
+        private SSH1UserAuthKey[] _ssh1Keys;
+        private SSH2UserAuthKey[] _ssh2Keys;
+
+        public bool IsAuthKeyProviderEnabled {
+            get {
+                // always active
+                return true;
+            }
+        }
+
+        public SSH1UserAuthKey[] GetAvailableSSH1UserAuthKeys() {
+            if (_ssh1Keys == null) {
+                try {
+                    SSH1UserAuthKey k = new SSH1UserAuthKey(@"C:\P4\Tools\keys\aaa", "aaa");
+                    _ssh1Keys = new SSH1UserAuthKey[] { k };
+                }
+                catch (Exception e) {
+                    Debug.WriteLine(e.Message);
+                    _ssh1Keys = new SSH1UserAuthKey[0];
+                }
+            }
+            return _ssh1Keys;
+        }
+
+        public SSH2UserAuthKey[] GetAvailableSSH2UserAuthKeys() {
+            if (_ssh2Keys == null) {
+                try {
+                    SSH2UserAuthKey k = SSH2UserAuthKey.FromSECSHStyleFile(@"C:\P4\Tools\keys\aaa", "aaa");
+                    _ssh2Keys = new SSH2UserAuthKey[] { k };
+                }
+                catch (Exception e) {
+                    Debug.WriteLine(e.Message);
+                    _ssh2Keys = new SSH2UserAuthKey[0];
+                }
+            }
+            return _ssh2Keys;
         }
     }
 #endif

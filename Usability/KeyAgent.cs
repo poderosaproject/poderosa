@@ -14,6 +14,8 @@ using System.Windows.Forms;
 using System.Diagnostics;
 
 using Granados;
+using Granados.AgentForwarding;
+using Granados.SSH1;
 using Granados.SSH2;
 using Poderosa.Plugins;
 using Poderosa.Protocols;
@@ -103,7 +105,7 @@ namespace Poderosa.Usability {
 
 
     //鍵の管理をする。プラグインの区分としてはSSHUtilPlugin内
-    internal class KeyAgent : IPreferenceSupplier, IAgentForward, IConnectionResultEventHandler {
+    internal class KeyAgent : IPreferenceSupplier, IAgentForwardingAuthKeyProvider, IConnectionResultEventHandler {
         private KeyAgentOptions _originalOptions;
         private List<AgentPrivateKey> _keys;
         private IPreferenceFolder _originalFolder;
@@ -161,7 +163,14 @@ namespace Poderosa.Usability {
 
         private delegate void InputPassphraseDelegate(IPoderosaForm form, AgentPrivateKey key);
 
-        #region IAgentForward
+        #region IAgentForwardingAuthKeyProvider
+
+        public bool IsAuthKeyProviderEnabled {
+            get {
+                return _originalOptions.EnableKeyAgent;
+            }
+        }
+
         public SSH2UserAuthKey[] GetAvailableSSH2UserAuthKeys() {
             if (_loadRequiredFlag)
                 LoadKeys();
@@ -182,19 +191,10 @@ namespace Poderosa.Usability {
             return keys.ToArray();
         }
 
-        public bool CanAcceptForwarding() {
-            return _originalOptions.EnableKeyAgent;
+        public SSH1UserAuthKey[] GetAvailableSSH1UserAuthKeys() {
+            return new SSH1UserAuthKey[0];
         }
 
-        public void Close() {
-        }
-
-        public void NotifyPublicKeyDidNotMatch() {
-            //ここでログに出してもいいかも
-        }
-
-        public void OnError(Exception ex) {
-        }
         #endregion
 
         private void OpenInputPassphraseDialog(IPoderosaForm form, AgentPrivateKey key) {
@@ -211,7 +211,7 @@ namespace Poderosa.Usability {
                 return; //SSH以外は興味なし
 
             if (ssh.Method == SSHProtocol.SSH2 && _originalOptions.EnableKeyAgent) {
-                ssh.AgentForward = this; //自分をハンドルするように設定
+                ssh.AgentForwardingAuthKeyProvider = this; //自分をハンドルするように設定
             }
         }
 

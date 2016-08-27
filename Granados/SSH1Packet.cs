@@ -1,30 +1,14 @@
-﻿/*
- Copyright (c) 2005 Poderosa Project, All Rights Reserved.
- This file is a part of the Granados SSH Client Library that is subject to
- the license included in the distributed package.
- You may not use this file except in compliance with the license.
+﻿// Copyright (c) 2005-2016 Poderosa Project, All Rights Reserved.
+// This file is a part of the Granados SSH Client Library that is subject to
+// the license included in the distributed package.
+// You may not use this file except in compliance with the license.
 
- $Id: SSH1Packet.cs,v 1.4 2011/10/27 23:21:56 kzmi Exp $
-*/
-/*
- * structure of packet
- * 
- * length(4) padding(1-8) type(1) data(0+) crc(4)    
- * 
- * 1. length = type+data+crc
- * 2. the length of padding+type+data+crc must be a multiple of 8
- * 3. padding length must be 1 at least
- * 4. crc is calculated from padding,type and data
- *
- */
-
-using System;
-using System.Threading;
 using Granados.Crypto;
 using Granados.IO;
-
-using Granados.Util;
 using Granados.Mono.Math;
+using Granados.Util;
+using System;
+using System.Threading;
 
 namespace Granados.SSH1 {
 
@@ -58,6 +42,8 @@ namespace Granados.SSH1 {
         SSH_MSG_CHANNEL_CLOSE_CONFIRMATION = 25,
         SSH_CMSG_PORT_FORWARD_REQUEST = 28,
         SSH_MSG_PORT_OPEN = 29,
+        SSH_CMSG_AGENT_REQUEST_FORWARDING = 30,
+        SSH_SMSG_AGENT_OPEN = 31,
         SSH_MSG_IGNORE = 32,
         SSH_CMSG_EXIT_CONFIRMATION = 33,
         SSH_MSG_DEBUG = 36
@@ -77,7 +63,7 @@ namespace Granados.SSH1 {
     /// You should be careful that only single instance is used while constructing a packet.
     /// </remarks>
     internal class SSH1Packet : ISSH1PacketBuilder {
-        private readonly byte _type;
+        private readonly SSH1PacketType _type;
         private readonly ByteBuffer _payload;
 
         private static readonly ThreadLocal<ByteBuffer> _payloadBuffer =
@@ -100,7 +86,7 @@ namespace Granados.SSH1 {
                     "simultaneous editing packet detected: " + typeof(SSH1Packet).FullName);
             }
             _lockFlag.Value = true;
-            _type = (byte)type;
+            _type = type;
             _payload = _payloadBuffer.Value;
             _payload.Clear();
         }
@@ -112,6 +98,14 @@ namespace Granados.SSH1 {
             get {
                 return _payload;
             }
+        }
+
+        /// <summary>
+        /// Get packet type (message number).
+        /// </summary>
+        /// <returns>a packet type (message number)</returns>
+        public SSH1PacketType GetPacketType() {
+            return _type;
         }
 
         /// <summary>
@@ -141,7 +135,7 @@ namespace Granados.SSH1 {
             int paddingLength = 8 - (packetLength % 8);
             image.WriteInt32(packetLength);
             image.WriteSecureRandomBytes(paddingLength);
-            image.WriteByte(_type);
+            image.WriteByte((byte)_type);
             if (_payload.Length > 0) {
                 image.Append(_payload);
             }
@@ -221,44 +215,6 @@ namespace Granados.SSH1 {
             packet.Payload.WriteUInt16((ushort)bits);
             packet.Payload.Append(image);
             return packet;
-        }
-
-    }
-
-    /// <summary>
-    /// A bridge handler that delegates <see cref="SSH1Packetizer"/>'s events to <see cref="SSH1Connection"/>.
-    /// </summary>
-    internal class SSH1PacketizerPacketHandler : IDataHandler {
-
-        private readonly SSH1Connection _connection;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="connection">SSH1 connection object</param>
-        public SSH1PacketizerPacketHandler(SSH1Connection connection) {
-            _connection = connection;
-        }
-
-        /// <summary>
-        /// Implements <see cref="IDataHandler"/>
-        /// </summary>
-        public void OnData(DataFragment data) {
-            _connection.AsyncReceivePacket(data);
-        }
-
-        /// <summary>
-        /// Implements <see cref="IDataHandler"/>
-        /// </summary>
-        public void OnError(Exception error) {
-            _connection.EventReceiver.OnError(error);
-        }
-
-        /// <summary>
-        /// Implements <see cref="IDataHandler"/>
-        /// </summary>
-        public void OnClosed() {
-            _connection.EventReceiver.OnConnectionClosed();
         }
 
     }

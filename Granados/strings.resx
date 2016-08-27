@@ -11,6 +11,42 @@
   <resheader name="Writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ConnectionClosed">
+    <value>Connection closed.</value>
+  </data>
+  <data name="ServerDoesntRespond">
+    <value>Server doesn't respond.</value>
+  </data>
+  <data name="RequestedTaskIsAlreadyRunning">
+    <value>The requested task is already running.</value>
+  </data>
+  <data name="HostKeyDenied">
+    <value>Host key has been denied.</value>
+  </data>
+  <data name="AlgorithmNegotiationFailed">
+    <value>Algorithm negotiation failed.</value>
+  </data>
+  <data name="HostKeyAlgorithmMismatch">
+    <value>Host key algorithm mismatch.</value>
+  </data>
+  <data name="UnsupportedHostKeyAlgorithm">
+    <value>Unsupported host key algorithm.</value>
+  </data>
+  <data name="AlgorithmNotSupportedByServer">
+    <value>Algorithm "{0}" is not supported for "{1}" by the server.</value>
+  </data>
+  <data name="KeyExchangeAlgorithmNegotiationFailed">
+    <value>Negotiating key exchange algorithm failed.</value>
+  </data>
+  <data name="HostKeyAlgorithmNegotiationFailed">
+    <value>Negotiating host key algorithm failed.</value>
+  </data>
+  <data name="EncryptionAlgorithmNegotiationFailed">
+    <value>Negotiating encryption algorithm failed.</value>
+  </data>
+  <data name="InvalidAuthenticationType">
+    <value>Invalid authentication type.</value>
+  </data>
   <data name="AuthenticationFailed">
     <value>User authentication failed.</value>
   </data>
@@ -64,5 +100,8 @@
   </data>
   <data name="Reason_UnsupportedEncryptionType">
     <value>unsupported encryption type</value>
+  </data>
+  <data name="OnlySingleInteractiveSessionCanBeStarted">
+    <value>Only single interactive session can be started</value>
   </data>
 </root>

@@ -1,39 +1,25 @@
-﻿/*
- Copyright (c) 2005 Poderosa Project, All Rights Reserved.
- This file is a part of the Granados SSH Client Library that is subject to
- the license included in the distributed package.
- You may not use this file except in compliance with the license.
-
- $Id: SSHUtil.cs,v 1.5 2011/10/27 23:21:56 kzmi Exp $
-*/
-using System;
-using System.IO;
-using System.Threading;
-using System.Diagnostics;
-using System.Text;
-//using SHA1CryptoServiceProvider = System.Security.Cryptography.SHA1CryptoServiceProvider;
-using HMACSHA1 = System.Security.Cryptography.HMACSHA1;
-
-using Granados.PKI;
-using Granados.Crypto;
-using System.Reflection;
+﻿// Copyright (c) 2005-2016 Poderosa Project, All Rights Reserved.
+// This file is a part of the Granados SSH Client Library that is subject to
+// the license included in the distributed package.
+// You may not use this file except in compliance with the license.
 
 namespace Granados {
+
+    using System;
+
     /// <summary>
-    /// 
+    /// Exception about SSH operation.
     /// </summary>
-    /// <exclude/>
     public class SSHException : Exception {
-        private byte[] _data;
 
-        public SSHException(string msg, byte[] data)
-            : base(msg) {
-            _data = data;
+        public SSHException(string message)
+            : base(message) {
         }
 
-        public SSHException(string msg)
-            : base(msg) {
+        public SSHException(string message, Exception cause)
+            : base(message, cause) {
         }
+
     }
 
     /// <summary>
@@ -126,30 +112,73 @@ namespace Granados {
 
     /// <summary>
     /// <ja>
-    /// 認証結果を示します。
+    /// 認証状態
     /// </ja>
     /// <en>
-    /// Result of authentication.
+    /// Status of the authentication.
     /// </en>
     /// </summary>
-    public enum AuthenticationResult {
+    public enum AuthenticationStatus {
         /// <summary>
-        /// <ja>成功</ja>
-        /// <en>Succeed</en>
+        /// <ja>認証がまだ開始されていない</ja>
+        /// <en>The authentication has not started yet.</en>
+        /// </summary>
+        NotStarted,
+
+        /// <summary>
+        /// <ja>認証に成功</ja>
+        /// <en>The authentication has succeeded.</en>
         /// </summary>
         Success,
+
         /// <summary>
-        /// <ja>失敗</ja>
-        /// <en>Failed</en>
+        /// <ja>認証に失敗</ja>
+        /// <en>The authentication has failed.</en>
         /// </summary>
         Failure,
+
         /// <summary>
-        /// <ja>プロンプト</ja>
-        /// <en>Prompt</en>
+        /// <ja>認証のためキー入力が必要(キーボードインタラクティブ認証)</ja>
+        /// <en>Need keyboard input for the authentication (keyboard interactive authentication)</en>
         /// </summary>
-        Prompt
+        NeedKeyboardInput,
     }
 
+    /// <summary>
+    /// Disconnection reason code
+    /// </summary>
+    public enum DisconnectionReasonCode {
+        /// <summary>SSH_DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT (SSH2)</summary>
+        HostNotAllowedToConnect = 1,
+        /// <summary>SSH_DISCONNECT_PROTOCOL_ERROR (SSH2)</summary>
+        ProtocolError = 2,
+        /// <summary>SSH_DISCONNECT_KEY_EXCHANGE_FAILED (SSH2)</summary>
+        KeyExchangeFailed = 3,
+        /// <summary>SSH_DISCONNECT_RESERVED (SSH2)</summary>
+        Reserved = 4,
+        /// <summary>SSH_DISCONNECT_MAC_ERROR (SSH2)</summary>
+        MacError = 5,
+        /// <summary>SSH_DISCONNECT_COMPRESSION_ERROR (SSH2)</summary>
+        CompressionError = 6,
+        /// <summary>SSH_DISCONNECT_SERVICE_NOT_AVAILABLE (SSH2)</summary>
+        ServiceNotAvailable = 7,
+        /// <summary>SSH_DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED (SSH2)</summary>
+        ProtocolVersionNotSupported = 8,
+        /// <summary>SSH_DISCONNECT_HOST_KEY_NOT_VERIFIABLE (SSH2)</summary>
+        HostKeyNotVerifiable = 9,
+        /// <summary>SSH_DISCONNECT_CONNECTION_LOST (SSH2)</summary>
+        ConnectionLost = 10,
+        /// <summary>SSH_DISCONNECT_BY_APPLICATION (SSH2)</summary>
+        ByApplication = 11,
+        /// <summary>SSH_DISCONNECT_TOO_MANY_CONNECTIONS (SSH2)</summary>
+        TooManyConnections = 12,
+        /// <summary>SSH_DISCONNECT_AUTH_CANCELLED_BY_USER (SSH2)</summary>
+        AuthCancelledByUser = 13,
+        /// <summary>SSH_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE (SSH2)</summary>
+        NoMoreAuthMethodsAvailable = 14,
+        /// <summary>SSH_DISCONNECT_ILLEGAL_USER_NAME (SSH2)</summary>
+        IllegalUserName = 15
+    }
 
     /// <summary>
     /// 
@@ -179,6 +208,11 @@ namespace Granados {
 }
 
 namespace Granados.Util {
+
+    using System;
+    using System.Reflection;
+    using System.Text;
+    using System.Threading;
 
     internal static class SSHUtil {
 
@@ -331,4 +365,165 @@ namespace Granados.Util {
             return t.GetHashCode().ToString();
         }
     }
+
+    /// <summary>
+    /// Utility class for pass an object to the single recipient.
+    /// </summary>
+    /// <typeparam name="T">type of the object</typeparam>
+    internal class AtomicBox<T> {
+        private readonly object _syncSet = new object();
+        private readonly object _syncGet = new object();
+        private readonly object _syncObject = new object();
+        private volatile bool _hasObject;
+        private T _object;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public AtomicBox() {
+            _hasObject = false;
+            _object = default(T);
+        }
+
+        /// <summary>
+        /// Clear the state of this box.
+        /// </summary>
+        public void Clear() {
+            lock (_syncObject) {
+                _object = default(T);
+                _hasObject = false;
+                Monitor.PulseAll(_syncObject);
+            }
+        }
+
+        /// <summary>
+        /// <para>Sets an object in the box.</para>
+        /// <para>If another object exists in the box, the thread will be blocked until the object has been received by the recipient thread.</para>
+        /// </summary>
+        /// <param name="obj">an object to set</param>
+        /// <param name="msecTimeout">timeout in milliseconds</param>
+        /// <returns>true if an object has been set into the box.</returns>
+        public bool TrySet(T obj, int msecTimeout) {
+            lock (_syncSet) {
+                lock (_syncObject) {
+                    while (_hasObject) {
+                        bool signaled = Monitor.Wait(_syncObject, msecTimeout);
+                        if (_hasObject && !signaled) {
+                            return false;
+                        }
+                    }
+                    _object = obj;
+                    _hasObject = true;
+                    Monitor.PulseAll(_syncObject);
+                    return true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// <para>Gets an object from the box.</para>
+        /// <para>If no object exists in the box, the thread will be blocked until the object has been set by the sender thread.</para>
+        /// </summary>
+        /// <param name="obj">an object if succeeded</param>
+        /// <param name="msecTimeout">timeout in milliseconds</param>
+        /// <returns>true if an object has been obtained.</returns>
+        public bool TryGet(ref T obj, int msecTimeout) {
+            lock (_syncGet) {
+                lock (_syncObject) {
+                    while (!_hasObject) {
+                        bool signaled = Monitor.Wait(_syncObject, msecTimeout);
+                        if (!_hasObject && !signaled) {
+                            return false;
+                        }
+                    }
+                    obj = _object;
+                    _object = default(T);
+                    _hasObject = false;
+                    Monitor.PulseAll(_syncObject);
+                    return true;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// An internal class to pass the protocol events to <see cref="ISSHProtocolEventLogger"/>.
+    /// </summary>
+    internal class SSHProtocolEventManager {
+
+        private readonly ISSHProtocolEventLogger _coreHandler;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="coreHandler">listener object or null</param>
+        public SSHProtocolEventManager(ISSHProtocolEventLogger coreHandler) {
+            _coreHandler = coreHandler;
+        }
+
+        /// <summary>
+        /// Notifies OnSend event.
+        /// </summary>
+        /// <typeparam name="MessageTypeEnum">SSH message type enum</typeparam>
+        /// <param name="messageType">message type</param>
+        /// <param name="format">format string for the "details" text</param>
+        /// <param name="args">format arguments for the "details" text</param>
+        public void NotifySend<MessageTypeEnum>(MessageTypeEnum messageType, string format, params object[] args) {
+            if (_coreHandler == null) {
+                return;
+            }
+
+            try {
+                string details = (args.Length == 0) ? format : String.Format(format, args);
+                _coreHandler.OnSend(messageType.ToString(), details);
+            }
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
+
+        /// <summary>
+        /// Notifies OnReceived event.
+        /// </summary>
+        /// <typeparam name="MessageTypeEnum">SSH message type enum</typeparam>
+        /// <param name="messageType">message type</param>
+        /// <param name="format">format string for the "details" text</param>
+        /// <param name="args">format arguments for the "details" text</param>
+        public void NotifyReceive<MessageTypeEnum>(MessageTypeEnum messageType, string format, params object[] args) {
+            if (_coreHandler == null) {
+                return;
+            }
+
+            try {
+                string details = (args.Length == 0) ? format : String.Format(format, args);
+                _coreHandler.OnReceived(messageType.ToString(), details);
+            }
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
+
+        /// <summary>
+        /// Notifies OnTrace event.
+        /// </summary>
+        /// <param name="format">format string for the "details" text</param>
+        /// <param name="args">format arguments for the "details" text</param>
+        public void Trace(string format, params object[] args) {
+            if (_coreHandler == null) {
+                return;
+            }
+
+            try {
+                string details = (args.Length == 0) ? format : String.Format(format, args);
+                _coreHandler.OnTrace(details);
+            }
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
+    }
+
 }

@@ -18,6 +18,7 @@ using Poderosa.Util;
 
 using Granados;
 using Granados.SSH2;
+using Granados.KeyboardInteractive;
 
 namespace Poderosa.Protocols {
     internal class PlainPoderosaSocket : IPoderosaSocket {
@@ -264,53 +265,26 @@ namespace Poderosa.Protocols {
 
     internal abstract class TCPTerminalConnection : TerminalConnection {
 
-        protected bool _usingSocks;
-
         protected TCPTerminalConnection(ITCPParameter p)
             : base((ITerminalParameter)p.GetAdapter(typeof(ITerminalParameter))) {
-            _usingSocks = false;
-        }
-
-        //設定は最初だけ行う
-        public bool UsingSocks {
-            get {
-                return _usingSocks;
-            }
-            set {
-                _usingSocks = value;
-            }
         }
     }
 
 
     internal class SSHTerminalConnection : TCPTerminalConnection {
 
-        private SSHConnectionEventReceiverBase _sshSocket; //Keyboard-interactiveのときの認証中のみ_sshSocketはKeyboardInteractiveAuthHanlder
-        private ISSHLoginParameter _sshLoginParameter;
+        private readonly SSHSocket _sshSocket;
+        private readonly ISSHLoginParameter _sshLoginParameter;
 
         public SSHTerminalConnection(ISSHLoginParameter ssh)
             : base((ITCPParameter)ssh.GetAdapter(typeof(ITCPParameter))) {
             _sshLoginParameter = ssh;
-            if (ssh.AuthenticationType != AuthenticationType.KeyboardInteractive) {
-                SSHSocket s = new SSHSocket(this);
-                _sshSocket = s;
-                _socket = s;
-                _terminalOutput = s;
-            }
-            else {
-                KeyboardInteractiveAuthHanlder s = new KeyboardInteractiveAuthHanlder(this);
-                _sshSocket = s;
-                _socket = s;
-                _terminalOutput = null; //まだ利用可能でない
-            }
+            SSHSocket s = new SSHSocket(this);
+            _sshSocket = s;
+            _socket = s;
+            _terminalOutput = s;
         }
-        //Keyboard-interactiveの場合、認証成功後にこれを実行
-        internal void ReplaceSSHSocket(SSHSocket sshsocket) {
-            _sshSocket = sshsocket;
-            _socket = sshsocket;
-            _terminalOutput = sshsocket;
-        }
-        public ISSHConnectionEventReceiver ConnectionEventReceiver {
+        public ISSHConnectionEventHandler ConnectionEventReceiver {
             get {
                 return _sshSocket;
             }
@@ -320,17 +294,19 @@ namespace Poderosa.Protocols {
                 return _sshLoginParameter;
             }
         }
+        public IKeyboardInteractiveAuthenticationHandler GetKeyboardInteractiveAuthenticationHandler() {
+            return _sshSocket;
+        }
 
-
-        public void AttachTransmissionSide(SSHConnection con) {
+        public void AttachTransmissionSide(ISSHConnection con, AuthenticationStatus authStatus) {
             _sshSocket.SetSSHConnection(con);
-            if (con.AuthenticationResult == AuthenticationResult.Success) {
-                SSHSocket ss = (SSHSocket)_sshSocket; //Keyboard-Interactiveがらみでちょっと不自然になってるな
-                ISSHSubsystemParameter subsystem = (ISSHSubsystemParameter)_sshLoginParameter.GetAdapter(typeof(ISSHSubsystemParameter));
-                if (subsystem != null)
-                    ss.OpenSubsystem(subsystem.SubsystemName);
-                else //ふつうのシェル
-                    ss.OpenShell();
+            if (authStatus == AuthenticationStatus.Success) {
+                SSHSocket ss = (SSHSocket)_sshSocket;
+                ss.OpenShell();
+            }
+            else if (authStatus == AuthenticationStatus.NeedKeyboardInput) {
+                SSHSocket ss = (SSHSocket)_sshSocket;
+                ss.OpenKeyboardInteractiveShell();
             }
         }
 

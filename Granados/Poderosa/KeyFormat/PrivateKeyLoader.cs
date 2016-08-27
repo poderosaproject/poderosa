@@ -83,6 +83,7 @@ namespace Granados.Poderosa.KeyFormat {
         /// <param name="primeP">private key parameter is set</param>
         /// <param name="primeQ">private key parameter is set</param>
         /// <param name="crtCoefficient">private key parameter is set</param>
+        /// <param name="comment">comment</param>
         /// <exception cref="SSHException">failed to parse</exception>
         public void LoadSSH1PrivateKey(
             string passphrase,
@@ -91,7 +92,8 @@ namespace Granados.Poderosa.KeyFormat {
             out BigInteger privateExponent,
             out BigInteger primeP,
             out BigInteger primeQ,
-            out BigInteger crtCoefficient) {
+            out BigInteger crtCoefficient,
+            out string comment) {
 
             PrivateKeyFileFormat format = ProbeFormat();
 
@@ -101,7 +103,7 @@ namespace Granados.Poderosa.KeyFormat {
             else
                 throw new SSHException(Strings.GetString("UnsupportedPrivateKeyFormat"));
 
-            loader.Load(passphrase, out modulus, out publicExponent, out privateExponent, out primeP, out primeQ, out crtCoefficient);
+            loader.Load(passphrase, out modulus, out publicExponent, out privateExponent, out primeP, out primeQ, out crtCoefficient, out comment);
         }
 
         /// <summary>

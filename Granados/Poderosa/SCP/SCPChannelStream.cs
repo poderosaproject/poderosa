@@ -17,11 +17,13 @@ using System.Threading;
 using System.Diagnostics;
 using System.IO;
 
+using Granados.SSH;
 using Granados.SSH1;
 using Granados.SSH2;
 using Granados.IO;
 using Granados.IO.SSH2;
 using Granados.Util;
+using System.Collections.Concurrent;
 
 namespace Granados.Poderosa.SCP {
 
@@ -61,12 +63,10 @@ namespace Granados.Poderosa.SCP {
         private StreamStatus _status;
         private readonly object _statusSync = new object();
 
-        private SSHChannel _channel = null;
-        private SCPClientChannelEventReceiver _channelReceiver = null;
+        private ISSHChannel _channel = null;
+        private SCPClientChannelEventHandler _eventHandler = null;
 
-        private byte[] _buffer = new byte[INITIAL_CAPACITY];
-        private int _bufferOffset = 0;
-        private int _bufferLength = 0;
+        private ByteBuffer _buffer = new ByteBuffer(INITIAL_CAPACITY, -1);
         private readonly object _bufferSync = new object();
 
         #endregion
@@ -136,38 +136,29 @@ namespace Granados.Poderosa.SCP {
         /// <param name="millisecondsTimeout">timeout in milliseconds</param>
         /// <exception cref="SCPClientInvalidStatusException">Channel has been already opened or already closed.</exception>
         /// <exception cref="SCPClientTimeoutException">Timeout has occurred while waiting for READY status.</exception>
-        public void Open(SSHConnection connection, string command, int millisecondsTimeout) {
+        public void Open(ISSHConnection connection, string command, int millisecondsTimeout) {
             if (_status != StreamStatus.NotOpened)
                 throw new SCPClientInvalidStatusException();
 
-            SCPClientChannelEventReceiver channelReceiver =
-                new SCPClientChannelEventReceiver(
-                    new DataReceivedDelegate(OnDataReceived),
-                    new ChannelStatusChangedDelegate(OnChannelStatusChanged)
-                );
+            ISSHChannel channel = null;
+            SCPClientChannelEventHandler eventHandler =
+             connection.ExecCommand(
+                (ch) => {
+                    channel = ch;
+                    return new SCPClientChannelEventHandler(
+                                new DataReceivedDelegate(OnDataReceived),
+                                new ChannelStatusChangedDelegate(OnChannelStatusChanged)
+                            );
+                },
+                command
+            );
 
-            SSHChannel channel;
-            /* FIXME: SSH1's executing command is not implemented !!
-            if (connection is SSH1Connection) {
-                channel = ((SSH1Connection)connection).DoExecCommand(channelReceiver, command);
-            }
-            else 
-            */
-            if (connection is SSH2Connection) {
-                channel = ((SSH2Connection)connection).DoExecCommand(channelReceiver, command);
-            }
-            else {
-                // FIXME:
-                //throw new ArgumentException("connection must be SSH1Connection or SSH2Connection.");
-                throw new ArgumentException("connection must be SSH2Connection.");
-            }
-
-            _channelReceiver = channelReceiver;
+            _eventHandler = eventHandler;
             _channel = channel;
 
-            lock (_channelReceiver.StatusChangeNotifier) {
-                while (_channelReceiver.ChannelStatus != SCPChannelStatus.READY) {
-                    bool signaled = Monitor.Wait(_channelReceiver.StatusChangeNotifier, millisecondsTimeout);
+            lock (_eventHandler.StatusChangeNotifier) {
+                while (_eventHandler.ChannelStatus != SCPChannelStatus.READY) {
+                    bool signaled = Monitor.Wait(_eventHandler.StatusChangeNotifier, millisecondsTimeout);
                     if (!signaled) {
                         throw new SCPClientTimeoutException();
                     }
@@ -246,7 +237,7 @@ namespace Granados.Poderosa.SCP {
                 throw new SCPClientInvalidStatusException();
             Debug.Assert(_channel != null);
 
-            _channel.Transmit(buffer, 0, length);
+            _channel.Send(new DataFragment(buffer, 0, length));
         }
 
         /// <summary>
@@ -273,7 +264,7 @@ namespace Granados.Poderosa.SCP {
                 throw new SCPClientInvalidStatusException();
 
             lock (_bufferSync) {
-                while (_bufferLength <= 0) {
+                while (_buffer.Length == 0) {
                     bool signaled = Monitor.Wait(_bufferSync, millisecondsTimeout);
                     if (!signaled)
                         throw new SCPClientTimeoutException();
@@ -281,10 +272,9 @@ namespace Granados.Poderosa.SCP {
                         throw new SCPClientInvalidStatusException();
                 }
 
-                int retrieveSize = Math.Min(_bufferLength, Math.Min(buffer.Length, maxLength));
-                Buffer.BlockCopy(_buffer, _bufferOffset, buffer, 0, retrieveSize);
-                _bufferOffset += retrieveSize;
-                _bufferLength -= retrieveSize;
+                int retrieveSize = Math.Min(_buffer.Length, Math.Min(buffer.Length, maxLength));
+                Buffer.BlockCopy(_buffer.RawBuffer, _buffer.RawBufferOffset, buffer, 0, retrieveSize);
+                _buffer.RemoveHead(retrieveSize);
                 return retrieveSize;
             }
         }
@@ -300,7 +290,7 @@ namespace Granados.Poderosa.SCP {
                 throw new SCPClientInvalidStatusException();
 
             lock (_bufferSync) {
-                while (_bufferLength < 1) {
+                while (_buffer.Length < 1) {
                     bool signaled = Monitor.Wait(_bufferSync, millisecondsTimeout);
                     if (!signaled)
                         throw new SCPClientTimeoutException();
@@ -308,9 +298,8 @@ namespace Granados.Poderosa.SCP {
                         throw new SCPClientInvalidStatusException();
                 }
 
-                byte b = _buffer[_bufferOffset];
-                _bufferOffset += 1;
-                _bufferLength -= 1;
+                byte b = _buffer[0];
+                _buffer.RemoveHead(1);
                 return b;
             }
         }
@@ -329,7 +318,7 @@ namespace Granados.Poderosa.SCP {
 
             lock (_bufferSync) {
                 for(int dataOffset = 0; ; dataOffset++) {
-                    while (_bufferLength <= dataOffset) {
+                    while (_buffer.Length <= dataOffset) {
                         bool signaled = Monitor.Wait(_bufferSync, millisecondsTimeout);
                         if (!signaled)
                             throw new SCPClientTimeoutException();
@@ -337,13 +326,12 @@ namespace Granados.Poderosa.SCP {
                             throw new SCPClientInvalidStatusException();
                     }
 
-                    byte b = _buffer[_bufferOffset + dataOffset];
+                    byte b = _buffer[dataOffset];
                     if (b == terminator) {
                         int dataLength = dataOffset + 1;
                         byte[] data = new byte[dataLength];
-                        Buffer.BlockCopy(_buffer, _bufferOffset, data, 0, dataLength);
-                        _bufferOffset += dataLength;
-                        _bufferLength -= dataLength;
+                        Buffer.BlockCopy(_buffer.RawBuffer, _buffer.RawBufferOffset, data, 0, dataLength);
+                        _buffer.RemoveHead(dataLength);
                         return data;
                     }
                 }
@@ -354,36 +342,9 @@ namespace Granados.Poderosa.SCP {
 
         #region SCPClientChannelEventReceiver Handlers
 
-        private void OnDataReceived(byte[] data, int offset, int length) {
+        private void OnDataReceived(DataFragment data) {
             lock (_bufferSync) {
-                int remain = _buffer.Length - _bufferOffset - _bufferLength;
-                if (remain < length) {
-                    int requiredSize = _bufferLength + length;
-                    if (_buffer.Length >= requiredSize) {
-                        Buffer.BlockCopy(_buffer, _bufferOffset, _buffer, 0, _bufferLength);
-                        Buffer.BlockCopy(data, offset, _buffer, _bufferLength, length);
-                        _bufferOffset = 0;
-                        _bufferLength = requiredSize;
-                    }
-                    else {
-                        int newBufferSize = _buffer.Length;
-                        do {
-                            newBufferSize *= 2;
-                        } while(newBufferSize < requiredSize);
-
-                        byte[] newBuffer = new byte[newBufferSize];
-                        Buffer.BlockCopy(_buffer, _bufferOffset, newBuffer, 0, _bufferLength);
-                        Buffer.BlockCopy(data, offset, newBuffer, _bufferLength, length);
-                        _buffer = newBuffer;
-                        _bufferOffset = 0;
-                        _bufferLength = requiredSize;
-                    }
-                }
-                else {
-                    Buffer.BlockCopy(data, offset, _buffer, _bufferOffset + _bufferLength, length);
-                    _bufferLength += length;
-                }
-
+                _buffer.Append(data);
                 Monitor.PulseAll(_bufferSync);
             }
         }
@@ -435,9 +396,7 @@ namespace Granados.Poderosa.SCP {
     /// Delegate that handles channel data.
     /// </summary>
     /// <param name="data">Data buffer</param>
-    /// <param name="offset">Offset</param>
-    /// <param name="length">Length</param>
-    internal delegate void DataReceivedDelegate(byte[] data, int offset, int length);
+    internal delegate void DataReceivedDelegate(DataFragment data);
 
     /// <summary>
     /// Delegate that handles transition of the channel status.
@@ -448,7 +407,7 @@ namespace Granados.Poderosa.SCP {
     /// <summary>
     /// Channel data handler for SCPClient
     /// </summary>
-    internal class SCPClientChannelEventReceiver : ISSHChannelEventReceiver {
+    internal class SCPClientChannelEventHandler : SimpleSSHChannelEventHandler {
 
         #region Private fields
 
@@ -491,31 +450,25 @@ namespace Granados.Poderosa.SCP {
         /// </summary>
         /// <param name="dataHandler">Data handler</param>
         /// <param name="statusChangeHandler">Channel status handler</param>
-        public SCPClientChannelEventReceiver(DataReceivedDelegate dataHandler, ChannelStatusChangedDelegate statusChangeHandler) {
+        public SCPClientChannelEventHandler(DataReceivedDelegate dataHandler, ChannelStatusChangedDelegate statusChangeHandler) {
             this._dataHandler = dataHandler;
             this._statusChangeHandler = statusChangeHandler;
         }
 
         #endregion
 
-        #region ISSHChannelEventReceiver
+        #region ISSHChannelEventHandler
 
-        public void OnData(byte[] data, int offset, int length) {
+        public override void OnData(DataFragment data) {
 #if DUMP_PACKET
-            Dump("SCP: OnData", data, offset, length);
+            Dump("SCP: OnData", data);
 #endif
             if (_dataHandler != null) {
-                _dataHandler(data, offset, length);
+                _dataHandler(data);
             }
         }
 
-        public void OnExtendedData(int type, byte[] data) {
-#if DUMP_PACKET
-            Dump("SCP: OnExtendedData: " + type, data, 0, data.Length);
-#endif
-        }
-
-        public void OnChannelClosed() {
+        public override void OnClosed(bool byServer) {
             lock (StatusChangeNotifier) {
 #if TRACE_RECEIVER
                 System.Diagnostics.Debug.WriteLine("SCP: Closed");
@@ -524,13 +477,7 @@ namespace Granados.Poderosa.SCP {
             }
         }
 
-        public void OnChannelEOF() {
-#if TRACE_RECEIVER
-            System.Diagnostics.Debug.WriteLine("SCP: EOF");
-#endif
-        }
-
-        public void OnChannelError(Exception error) {
+        public override void OnError(Exception error) {
             lock (StatusChangeNotifier) {
 #if TRACE_RECEIVER
                 System.Diagnostics.Debug.WriteLine("SCP: Error: " + error.Message);
@@ -539,19 +486,13 @@ namespace Granados.Poderosa.SCP {
             }
         }
 
-        public void OnChannelReady() {
+        public override void OnReady() {
             lock (StatusChangeNotifier) {
 #if TRACE_RECEIVER
                 System.Diagnostics.Debug.WriteLine("SCP: OnChannelReady");
 #endif
                 TransitStatus(SCPChannelStatus.READY);
             }
-        }
-
-        public void OnMiscPacket(byte packet_type, byte[] data, int offset, int length) {
-#if DUMP_PACKET
-            Dump("SCP: OnMiscPacket: " + packet_type, data, offset, length);
-#endif
         }
 
         #endregion
@@ -566,6 +507,11 @@ namespace Granados.Poderosa.SCP {
         }
 
 #if DUMP_PACKET
+        // for debug
+        private void Dump(string caption, DataFragment data) {
+            Dump(caption, data.Data, data.Offset, data.Length);
+        }
+
         // for debug
         private void Dump(string caption, byte[] data, int offset, int length) {
             StringBuilder s = new StringBuilder();

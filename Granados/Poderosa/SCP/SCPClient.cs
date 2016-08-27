@@ -104,7 +104,7 @@ namespace Granados.Poderosa.SCP {
 
         #region Private fields
 
-        private readonly SSHConnection _connection;
+        private readonly ISSHConnection _connection;
 
         private Encoding _encoding = Encoding.UTF8;
 
@@ -184,7 +184,7 @@ namespace Granados.Poderosa.SCP {
         /// Constructor
         /// </summary>
         /// <param name="connection">SSH connection. Currently only SSH2 connection is accepted.</param>
-        public SCPClient(SSHConnection connection) {
+        public SCPClient(ISSHConnection connection) {
             this._connection = connection;
         }
 

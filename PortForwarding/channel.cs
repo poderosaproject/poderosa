@@ -7,34 +7,34 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Collections;
 using System.Threading;
-using System.Text;
 
 using Granados;
+using Granados.IO;
+using Granados.PortForwarding;
 
 namespace Poderosa.PortForwarding {
     internal class SynchronizedSSHChannel {
-        private SSHChannel _channel;
-        private SSHConnection _connection;
+        private ISSHChannel _channel;
         private bool _closed;
         private bool _sentEOF;
+        private readonly object _sync = new object();
 
-        public SynchronizedSSHChannel(SSHChannel ch) {
+        public SynchronizedSSHChannel(ISSHChannel ch) {
             _channel = ch;
-            _connection = _channel.Connection;
             _closed = false;
         }
 
         public void Transmit(byte[] data, int offset, int length) {
-            lock (_connection) {
-                if (!_closed && !_sentEOF)
-                    _channel.Transmit(data, offset, length);
+            lock (_sync) {
+                if (!_closed && !_sentEOF) {
+                    _channel.Send(new DataFragment(data, offset, length));
+                }
             }
         }
 
         public void Close() {
-            lock (_connection) {
+            lock (_sync) {
                 if (!_closed) {
                     _closed = true;
                     _channel.Close();
@@ -43,7 +43,7 @@ namespace Poderosa.PortForwarding {
         }
 
         public void SendEOF() {
-            lock (_connection) {
+            lock (_sync) {
                 if (!_sentEOF && !_closed) {
                     _sentEOF = true;
                     _channel.SendEOF();
@@ -51,15 +51,9 @@ namespace Poderosa.PortForwarding {
             }
         }
 
-        public int LocalChannelID {
+        public uint LocalChannelID {
             get {
-                return _channel.LocalChannelID;
-            }
-        }
-
-        public SSHConnection GranadosConnection {
-            get {
-                return _connection;
+                return _channel.LocalChannel;
             }
         }
     }
@@ -142,7 +136,7 @@ namespace Poderosa.PortForwarding {
 
 
 
-    internal abstract class ChannelFactory : ISSHConnectionEventReceiver {
+    internal abstract class ChannelFactory : ISSHConnectionEventHandler {
 
         public static ChannelFactory Create(ChannelProfile prof) {
             /*
@@ -158,18 +152,18 @@ namespace Poderosa.PortForwarding {
 
         protected static int _id_seed = 1;
         protected int _id;
-        protected SSHConnection _connection;
+        protected ISSHConnection _connection;
         protected bool _closed;
         protected bool _established;
 
         public ChannelFactory() {
             _id = _id_seed++;
         }
-        public void FixConnection(SSHConnection con) {
+        public void FixConnection(ISSHConnection con) {
             _connection = con;
             Env.Log.LogConnectionOpened(this.ChannelProfile, _id);
         }
-        public SSHConnection Connection {
+        public ISSHConnection Connection {
             get {
                 return _connection;
             }
@@ -181,16 +175,13 @@ namespace Poderosa.PortForwarding {
         public abstract void WaitRequest();
 
 
-        public void OnDebugMessage(bool always_display, byte[] msg) {
+        public void OnDebugMessage(bool alwaysDisplay, string message) {
             Debug.WriteLine("DebugMessage");
         }
 
         public virtual void OnError(Exception error) {
             Env.Log.LogConnectionError(error.Message, _id);
             Env.Connections.ConnectionError(_connection, error);
-        }
-
-        public virtual void EstablishPortforwarding(ISSHChannelEventReceiver receiver, SSHChannel channel) {
         }
 
         public virtual void OnConnectionClosed() {
@@ -202,12 +193,12 @@ namespace Poderosa.PortForwarding {
             Debug.WriteLine("IgnoreMessage");
         }
 
-        public virtual PortForwardingCheckResult CheckPortForwardingRequest(string remote_host, int remote_port, string originator_ip, int originator_port) {
-            return new PortForwardingCheckResult();
+        public virtual RemotePortForwardingReply CheckPortForwardingRequest(string remote_host, int remote_port, string originator_ip, int originator_port) {
+            return RemotePortForwardingReply.Reject(RemotePortForwardingReply.Reason.AdministrativelyProhibited, "rejected");
         }
 
-        public void OnUnknownMessage(byte type, byte[] data) {
-            Debug.WriteLine("UnknownMessage");
+        public void OnUnhandledMessage(byte type, byte[] data) {
+            Debug.WriteLine("UnhandledMessage");
         }
 
         public void OnAuthenticationPrompt(string[] prompts) {
@@ -274,12 +265,18 @@ namespace Poderosa.PortForwarding {
                     return; //SSH切断があったときは非同期受信から戻ってくるが、EndAcceptを呼んでもObjectDisposedExceptionになるだけ
                 Socket local = _bindedLocalSocket.EndAccept(r);
                 //Port Forwarding
-                Channel newchannel = new Channel(_profile.SSHHost, local.RemoteEndPoint.ToString(), _id, null, local);
+                Channel newChannel;
                 lock (_connection) {
-                    SSHChannel remote = _connection.ForwardPort(newchannel, _profile.DestinationHost, _profile.DestinationPort, "localhost", 0); //!!最後の２つの引数未完
-                    Debug.WriteLine("OnRequested ch=" + remote.LocalChannelID);
-                    newchannel.FixChannel(remote);
-                    newchannel.StartAsyncReceive();
+                    newChannel = _connection.ForwardPort(
+                        channel => {
+                            return new Channel(_profile.SSHHost, local.RemoteEndPoint.ToString(), _id, channel, local);
+                        },
+                        _profile.DestinationHost,
+                        _profile.DestinationPort,
+                        "localhost",    // FIXME
+                        0   // FIXME
+                    );
+                    newChannel.StartAsyncReceive();
                 }
             }
             catch (Exception ex) {
@@ -298,7 +295,7 @@ namespace Poderosa.PortForwarding {
         }
     }
 
-    internal sealed class RemoteToLocalChannelFactory : ChannelFactory {
+    internal sealed class RemoteToLocalChannelFactory : ChannelFactory, IRemotePortForwardingHandler {
         private RemoteToLocalChannelProfile _profile;
 
         public RemoteToLocalChannelFactory(RemoteToLocalChannelProfile prof) {
@@ -311,50 +308,60 @@ namespace Poderosa.PortForwarding {
         }
 
         public override void WaitRequest() {
-            _connection.ListenForwardedPort("0.0.0.0", _profile.ListenPort);
+            bool success = _connection.ListenForwardedPort(this, "0.0.0.0", _profile.ListenPort);
+            if (!success) {
+                throw new Exception("starting remote port-forwarding failed.");
+            }
+
             _established = true;
         }
-        public override void EstablishPortforwarding(ISSHChannelEventReceiver receiver, SSHChannel channel) {
-            try {
-                Channel ch = (Channel)receiver;
-                ch.FixChannel(channel);
-                ch.OnChannelReady();
-                ch.StartAsyncReceive();
-            }
-            catch (Exception ex) {
-                Debug.WriteLine(ex.StackTrace);
-                Util.InterThreadWarning(ex.Message);
-            }
+
+        public void OnRemotePortForwardingStarted(uint port) {
+            Debug.WriteLine("port forwarding started: port = {0}", port);
         }
-        public override PortForwardingCheckResult CheckPortForwardingRequest(string remote_host, int remote_port, string originator_ip, int originator_port) {
-            PortForwardingCheckResult r = new PortForwardingCheckResult();
+
+        public void OnRemotePortForwardingFailed() {
+            Debug.WriteLine("port forwarding failed");
+        }
+
+        public RemotePortForwardingReply OnRemotePortForwardingRequest(RemotePortForwardingRequest request, ISSHChannel channel) {
             try {
-                if (!_profile.AllowsForeignConnection && originator_ip != "127.0.0.1") {
-                    r.allowed = false;
-                    r.reason_message = "refused";
-                    return r;
+                if (!_profile.AllowsForeignConnection && !IsLoopbackAddress(request.OriginatorIp)) {
+                    return RemotePortForwardingReply.Reject(
+                            RemotePortForwardingReply.Reason.AdministrativelyProhibited, "rejected");
                 }
 
                 Socket local = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 local.Connect(new IPEndPoint(Util.ResolveHost(_profile.DestinationHost), _profile.DestinationPort));
 
-                r.allowed = true;
-                r.channel = new Channel(_profile.SSHHost, originator_ip, _id, null, local);
-                return r;
+                var newChannel =
+                    new Channel(
+                        _profile.SSHHost, _profile.DestinationHost, (int)channel.LocalChannel, channel, local);
+
+                newChannel.StartAsyncReceive();
+
+                return RemotePortForwardingReply.Accept(newChannel);
             }
             catch (Exception ex) {
                 Debug.WriteLine(ex.StackTrace);
                 Util.InterThreadWarning(ex.Message);
-                r.allowed = false;
-                r.reason_message = "refused";
-                return r;
+                return RemotePortForwardingReply.Reject(
+                        RemotePortForwardingReply.Reason.AdministrativelyProhibited, "rejected");
             }
+        }
+
+        private bool IsLoopbackAddress(string ip) {
+            IPAddress ipAddr;
+            if (IPAddress.TryParse(ip, out ipAddr)) {
+                return IPAddress.IsLoopback(ipAddr);
+            }
+            return false;
         }
     }
 
 
     //SSHChannelとSocketで相互にデータの受け渡しをする。片方が閉じたらもう片方も閉じる。
-    internal class Channel : ISSHChannelEventReceiver {
+    internal class Channel : SimpleSSHChannelEventHandler {
 
         private string _serverName;
         private string _remoteDescription;
@@ -367,39 +374,36 @@ namespace Poderosa.PortForwarding {
 
         private ManualResetEvent _channelReady;
 
-        public Channel(string servername, string rd, int cid, SSHChannel channel, Socket socket) {
+        public Channel(string servername, string rd, int cid, ISSHChannel channel, Socket socket) {
             _serverName = servername;
             _remoteDescription = rd;
             _connectionID = cid;
             _wroteClosedLog = false;
 
-            if (channel != null)
-                _channel = new SynchronizedSSHChannel(channel);
+            _channel = new SynchronizedSSHChannel(channel);
             _socket = new SynchronizedSocket(socket);
             _buffer = new byte[0x1000];
             _channelReady = new ManualResetEvent(false);
         }
-        public void FixChannel(SSHChannel ch) {
-            _channel = new SynchronizedSSHChannel(ch);
-            Env.Log.LogChannelOpened(_remoteDescription, _connectionID);
-        }
+
         public void StartAsyncReceive() {
             _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(this.OnSocketData), null);
         }
 
-        public void OnData(byte[] data, int offset, int length) {
+        public override void OnData(DataFragment data) {
             //Debug.WriteLine(String.Format("OnSSHData ch={0} len={1}", _channel.LocalChannelID, length));
             if (!_socket.ShuttedDownSend)
-                _socket.Send(data, offset, length, SocketFlags.None);
+                _socket.Send(data.Data, data.Offset, data.Length, SocketFlags.None);
         }
 
-        public void OnChannelError(Exception error) {
+        public override void OnError(Exception error) {
             Debug.WriteLine(String.Format("OnChannelError ch={0}", _channel.LocalChannelID));
             _channelReady.Set();
 
             //_socket.ShutdownSend();
             //_socket.ShutdownReceive();
             try {
+                _socket.ShutdownReceive();
                 _socket.Close();
                 _channel.Close();
             }
@@ -410,7 +414,7 @@ namespace Poderosa.PortForwarding {
             Util.InterThreadWarning(String.Format(Env.Strings.GetString("Message.Channel.ServerError"), _serverName, error.Message));
         }
 
-        public void OnChannelEOF() {
+        public override void OnEOF() {
             Debug.WriteLine(String.Format("OnChannelEOF ch={0}", _channel.LocalChannelID));
             try {
                 Env.Log.LogChannelClosed(_remoteDescription, _connectionID);
@@ -422,11 +426,12 @@ namespace Poderosa.PortForwarding {
             }
         }
 
-        public void OnChannelClosed() {
+        public override void OnClosed(bool byServer) {
             try {
                 Debug.WriteLine(String.Format("OnChannelClosed ch={0}", _channel.LocalChannelID));
-                _channel.Close();
+                _socket.ShutdownReceive();
                 _socket.Close();
+                _channel.Close();
             }
             catch (Exception ex) {
                 Debug.WriteLine(ex.Message);
@@ -434,15 +439,9 @@ namespace Poderosa.PortForwarding {
             }
         }
 
-        public void OnChannelReady() {
+        public override void OnReady() {
             Debug.WriteLine(String.Format("ChannelReady"));
             _channelReady.Set();
-        }
-
-        public void OnExtendedData(int type, byte[] data) {
-
-        }
-        public void OnMiscPacket(byte type, byte[] data, int offset, int length) {
         }
 
         private void WriteChannelCloseLog() {

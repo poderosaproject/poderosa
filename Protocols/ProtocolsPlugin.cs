@@ -64,9 +64,6 @@ namespace Poderosa.Protocols {
         public ISSHLoginParameter CreateDefaultSSHParameter() {
             return new SSHLoginParameter();
         }
-        public ISSHSubsystemParameter CreateDefaultSSHSubsystemParameter() {
-            return new SSHSubsystemParameter();
-        }
 
         public IInterruptable AsyncTelnetConnect(IInterruptableConnectorClient result_client, ITCPParameter destination) {
             InterruptableConnector swt = new TelnetConnector(destination);
@@ -117,7 +114,6 @@ namespace Poderosa.Protocols {
         private void RegisterTerminalParameterSerializers(IExtensionPoint extp) {
             extp.RegisterExtension(new TelnetParameterSerializer());
             extp.RegisterExtension(new SSHParameterSerializer());
-            extp.RegisterExtension(new SSHSubsystemParameterSerializer());
             extp.RegisterExtension(new LocalShellParameterSerializer());
         }
 

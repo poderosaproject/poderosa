@@ -1,18 +1,13 @@
-﻿/*
- Copyright (c) 2005 Poderosa Project, All Rights Reserved.
- This file is a part of the Granados SSH Client Library that is subject to
- the license included in the distributed package.
- You may not use this file except in compliance with the license.
+﻿// Copyright (c) 2005-2016 Poderosa Project, All Rights Reserved.
+// This file is a part of the Granados SSH Client Library that is subject to
+// the license included in the distributed package.
+// You may not use this file except in compliance with the license.
 
- $Id: ReaderWriter.cs,v 1.6 2011/11/08 12:24:05 kzmi Exp $
-*/
-using System;
-using System.Text;
-using System.IO;
-
-using Granados.PKI;
-using Granados.Util;
 using Granados.Mono.Math;
+using Granados.Util;
+using System;
+using System.IO;
+using System.Text;
 
 namespace Granados.IO {
 
@@ -134,6 +129,22 @@ namespace Granados.IO {
         /// </summary>
         public static T WriteSecureRandomBytes<T>(this T packet, int length) where T : IPacketBuilder {
             packet.Payload.WriteSecureRandomBytes(length);
+            return packet;
+        }
+
+        /// <summary>
+        /// Overwrites Byte value.
+        /// </summary>
+        public static T OverwriteByte<T>(this T packet, int offset, byte val) where T : IPacketBuilder {
+            packet.Payload.OverwriteByte(offset, val);
+            return packet;
+        }
+
+        /// <summary>
+        /// Overwrites UInt32 value in network byte order.
+        /// </summary>
+        public static T OverwriteUInt32<T>(this T packet, int offset, uint val) where T : IPacketBuilder {
+            packet.Payload.OverwriteUInt32(offset, val);
             return packet;
         }
     }

@@ -3,6 +3,54 @@
 $Id: stringresource.xml,v 1.4 2011/05/01 15:28:52 kzmi Exp $
 -->
 <string-resource>
+  <record name="ConnectionClosed">
+    <en>Connection closed.</en>
+    <ja>接続が切断しました。</ja>
+  </record>
+  <record name="ServerDoesntRespond">
+    <en>Server doesn't respond.</en>
+    <ja>サーバから応答がありません。</ja>
+  </record>
+  <record name="RequestedTaskIsAlreadyRunning">
+    <en>The requested task is already running.</en>
+    <ja>要求されたタスクは実行中です。</ja>
+  </record>
+  <record name="HostKeyDenied">
+    <en>Host key has been denied.</en>
+    <ja>ホスト鍵を拒否しました。</ja>
+  </record>
+  <record name="AlgorithmNegotiationFailed">
+    <en>Algorithm negotiation failed.</en>
+    <ja>アルゴリズムネゴシエーションに失敗しました。</ja>
+  </record>
+  <record name="HostKeyAlgorithmMismatch">
+    <en>Host key algorithm mismatch.</en>
+    <ja>ホスト鍵のアルゴリズムが一致ません。</ja>
+  </record>
+  <record name="UnsupportedHostKeyAlgorithm">
+    <en>Unsupported host key algorithm.</en>
+    <ja>サポートしていないホスト鍵のアルゴリズムです。</ja>
+  </record>
+  <record name="AlgorithmNotSupportedByServer">
+    <en>Algorithm "{0}" is not supported for "{1}" by the server.</en>
+    <ja>サーバは"{1}"のアルゴリズム"{0}"をサポートしていません。</ja>
+  </record>
+  <record name="KeyExchangeAlgorithmNegotiationFailed">
+    <en>Negotiating key exchange algorithm failed.</en>
+    <ja>鍵交換アルゴリズムのネゴシエーションに失敗しました。</ja>
+  </record>
+  <record name="HostKeyAlgorithmNegotiationFailed">
+    <en>Negotiating host key algorithm failed.</en>
+    <ja>ホスト鍵アルゴリズムのネゴシエーションに失敗しました。</ja>
+  </record>
+  <record name="EncryptionAlgorithmNegotiationFailed">
+    <en>Negotiating encryption algorithm failed.</en>
+    <ja>暗号化アルゴリズムのネゴシエーションに失敗しました。</ja>
+  </record>
+  <record name="InvalidAuthenticationType">
+    <en>Invalid authentication type.</en>
+    <ja>認証方法が正しくありません。</ja>
+  </record>
   <record name="AuthenticationFailed">
     <en>User authentication failed.</en>
     <ja>ユーザ認証に失敗しました。</ja>
@@ -74,5 +122,9 @@ $Id: stringresource.xml,v 1.4 2011/05/01 15:28:52 kzmi Exp $
   <record name="Reason_UnsupportedEncryptionType">
     <en>unsupported encryption type</en>
     <ja>サポートされない暗号化方式</ja>
+  </record>
+  <record name="OnlySingleInteractiveSessionCanBeStarted">
+    <en>Only single interactive session can be started</en>
+    <ja>開始できるインタラクティブセッションは一つだけです</ja>
   </record>
 </string-resource>
