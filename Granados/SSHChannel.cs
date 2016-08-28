@@ -84,6 +84,16 @@ namespace Granados {
         void ResizeTerminal(uint width, uint height, uint pixelWidth, uint pixelHeight);
 
         /// <summary>
+        /// Block execution of the current thread until the channel is ready for the communication.
+        /// </summary>
+        /// <returns>
+        /// true if this channel is ready for the communication.<br/>
+        /// false if this channel failed to open.<br/>
+        /// false if this channel is going to close or is already closed.
+        /// </returns>
+        bool WaitReady();
+
+        /// <summary>
         /// Send data.
         /// </summary>
         /// <remarks>

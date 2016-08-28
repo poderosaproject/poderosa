@@ -8,6 +8,7 @@ using Granados.IO.SSH1;
 using Granados.SSH;
 using Granados.Util;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Granados.SSH1 {
@@ -118,6 +119,16 @@ namespace Granados.SSH1 {
         /// <param name="pixelHeight">terminal height, pixels</param>
         /// <exception cref="SSHChannelInvalidOperationException">the channel is already closed.</exception>
         public abstract void ResizeTerminal(uint width, uint height, uint pixelWidth, uint pixelHeight);
+
+        /// <summary>
+        /// Block execution of the current thread until the channel is ready for the communication.
+        /// </summary>
+        /// <returns>
+        /// true if this channel is ready for the communication.<br/>
+        /// false if this channel failed to open.<br/>
+        /// false if this channel is going to close or is already closed.
+        /// </returns>
+        public abstract bool WaitReady();
 
         /// <summary>
         /// Send data.
@@ -338,6 +349,32 @@ namespace Granados.SSH1 {
         }
 
         /// <summary>
+        /// Block execution of the current thread until the channel is ready for the communication.
+        /// </summary>
+        /// <returns>
+        /// true if this channel is ready for the communication.<br/>
+        /// false if this channel failed to open.<br/>
+        /// false if this channel is going to close or is already closed.
+        /// </returns>
+        public override bool WaitReady() {
+            // quick check before the lock block
+            if (_state == State.Ready) {
+                return true;
+            }
+            lock (_stateSync) {
+                while (true) {
+                    if (_state == State.Ready) {
+                        return true;
+                    }
+                    if (_state == State.Closing || _state == State.Closed) {
+                        return false;
+                    }
+                    Monitor.Wait(_stateSync);
+                }
+            }
+        }
+
+        /// <summary>
         /// Send data.
         /// </summary>
         /// <param name="data">data to send</param>
@@ -431,6 +468,7 @@ namespace Granados.SSH1 {
                     new SSH1Packet(SSH1PacketType.SSH_CMSG_EXEC_SHELL)
                 );
                 _state = State.Established;
+                Monitor.PulseAll(_stateSync);   // notifies state change
             }
 
             Trace("CH[{0}] execute shell", LocalChannel);
@@ -440,6 +478,7 @@ namespace Granados.SSH1 {
 
             lock (_stateSync) {
                 _state = State.Ready;
+                Monitor.PulseAll(_stateSync);   // notifies state change
             }
 
             Handler.OnReady();
@@ -472,6 +511,7 @@ namespace Granados.SSH1 {
                         .WriteString(command)
                 );
                 _state = State.Established;
+                Monitor.PulseAll(_stateSync);   // notifies state change
             }
 
             Trace("CH[{0}] execute command : command={1}", LocalChannel, command);
@@ -481,6 +521,7 @@ namespace Granados.SSH1 {
 
             lock (_stateSync) {
                 _state = State.Ready;
+                Monitor.PulseAll(_stateSync);   // notifies state change
             }
 
             Handler.OnReady();
@@ -498,6 +539,7 @@ namespace Granados.SSH1 {
                 }
 
                 _state = State.WaitStartPTYResponse;
+                Monitor.PulseAll(_stateSync);   // notifies state change
             }
 
             Transmit(
@@ -550,9 +592,11 @@ namespace Granados.SSH1 {
                 }
                 if (_state == State.Closing) {
                     _state = State.Closed;
+                    Monitor.PulseAll(_stateSync);   // notifies state change
                     goto OnClosed;
                 }
                 _state = State.Closing;
+                Monitor.PulseAll(_stateSync);   // notifies state change
             }
 
             Handler.OnClosing(byServer);
@@ -562,6 +606,7 @@ namespace Granados.SSH1 {
                     return;
                 }
                 _state = State.Closed;
+                Monitor.PulseAll(_stateSync);   // notifies state change
             }
 
         OnClosed:
@@ -589,10 +634,12 @@ namespace Granados.SSH1 {
                     case State.WaitStartPTYResponse:
                         if (packetType == SSH1PacketType.SSH_SMSG_SUCCESS) {
                             _state = State.StartPTYSuccess;
+                            Monitor.PulseAll(_stateSync);   // notifies state change
                             _receivedPacket.TrySet(packetFragment, PASSING_TIMEOUT);
                         }
                         else if (packetType == SSH1PacketType.SSH_SMSG_FAILURE) {
                             _state = State.StartPTYFailure;
+                            Monitor.PulseAll(_stateSync);   // notifies state change
                             _receivedPacket.TrySet(packetFragment, PASSING_TIMEOUT);
                         }
                         break;
@@ -752,6 +799,7 @@ namespace Granados.SSH1 {
                 );
 
                 _state = State.Established;
+                Monitor.PulseAll(_stateSync);   // notifies state change
             }
 
             Trace("CH[{0}] opened", LocalChannel);
@@ -806,6 +854,32 @@ namespace Granados.SSH1 {
         /// <exception cref="SSHChannelInvalidOperationException">the channel is already closed.</exception>
         public override void ResizeTerminal(uint width, uint height, uint pixelWidth, uint pixelHeight) {
             // do nothing
+        }
+
+        /// <summary>
+        /// Block execution of the current thread until the channel is ready for the communication.
+        /// </summary>
+        /// <returns>
+        /// true if this channel is ready for the communication.<br/>
+        /// false if this channel failed to open.<br/>
+        /// false if this channel is going to close or is already closed.
+        /// </returns>
+        public override bool WaitReady() {
+            // quick check before the lock block
+            if (_state == State.Ready) {
+                return true;
+            }
+            lock (_stateSync) {
+                while (true) {
+                    if (_state == State.Ready) {
+                        return true;
+                    }
+                    if (_state == State.Closing || _state == State.Closed) {
+                        return false;
+                    }
+                    Monitor.Wait(_stateSync);
+                }
+            }
         }
 
         /// <summary>
@@ -865,6 +939,7 @@ namespace Granados.SSH1 {
                 }
 
                 _state = State.Closing;
+                Monitor.PulseAll(_stateSync);   // notifies state change
             }
 
             Handler.OnClosing(false);
@@ -897,6 +972,7 @@ namespace Granados.SSH1 {
                 }
 
                 _state = State.Ready;
+                Monitor.PulseAll(_stateSync);   // notifies state change
             }
             Handler.OnReady();
         }
@@ -938,9 +1014,11 @@ namespace Granados.SSH1 {
                 }
                 if (_state == State.Closing) {
                     _state = State.Closed;
+                    Monitor.PulseAll(_stateSync);   // notifies state change
                     goto OnClosed;
                 }
                 _state = State.Closing;
+                Monitor.PulseAll(_stateSync);   // notifies state change
             }
 
             Handler.OnClosing(byServer);
@@ -950,6 +1028,7 @@ namespace Granados.SSH1 {
                     return;
                 }
                 _state = State.Closed;
+                Monitor.PulseAll(_stateSync);   // notifies state change
             }
 
         OnClosed:
@@ -993,6 +1072,7 @@ namespace Granados.SSH1 {
                             SSH1DataReader reader = new SSH1DataReader(packetFragment);
                             SetRemoteChannel(reader.ReadUInt32());
                             _state = State.Established;
+                            Monitor.PulseAll(_stateSync);   // notifies state change
                             dataFragmentArg = new DataFragment(0);
                             goto OnEstablished; // do it out of the lock block
                         }

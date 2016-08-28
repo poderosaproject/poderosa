@@ -270,6 +270,32 @@ namespace Granados.SSH2 {
         }
 
         /// <summary>
+        /// Block execution of the current thread until the channel is ready for the communication.
+        /// </summary>
+        /// <returns>
+        /// true if this channel is ready for the communication.<br/>
+        /// false if this channel failed to open.<br/>
+        /// false if this channel is going to close or is already closed.
+        /// </returns>
+        public bool WaitReady() {
+            // quick check before the lock block
+            if (_state == State.Ready) {
+                return true;
+            }
+            lock (_stateSync) {
+                while (true) {
+                    if (_state == State.Ready) {
+                        return true;
+                    }
+                    if (_state == State.Closing || _state == State.Closed) {
+                        return false;
+                    }
+                    Monitor.Wait(_stateSync);
+                }
+            }
+        }
+
+        /// <summary>
         /// Send data.
         /// </summary>
         /// <param name="data">data to send</param>
@@ -350,6 +376,7 @@ namespace Granados.SSH2 {
                 }
 
                 _state = State.Closing;
+                Monitor.PulseAll(_stateSync);   // notifies state change
             }
 
             _handler.OnClosing(false);
@@ -414,6 +441,7 @@ namespace Granados.SSH2 {
                 );
 
                 _state = State.Established;
+                Monitor.PulseAll(_stateSync);   // notifies state change
             }
 
             _protocolEventManager.Trace(
@@ -440,6 +468,7 @@ namespace Granados.SSH2 {
             lock (_stateSync) {
                 if (_state == State.Established) {
                     _state = State.Ready;
+                    Monitor.PulseAll(_stateSync);   // notifies state change
                 }
             }
             _handler.OnReady();
@@ -482,9 +511,11 @@ namespace Granados.SSH2 {
                 }
                 if (_state == State.Closing) {
                     _state = State.Closed;
+                    Monitor.PulseAll(_stateSync);   // notifies state change
                     goto OnClosed;
                 }
                 _state = State.Closing;
+                Monitor.PulseAll(_stateSync);   // notifies state change
             }
 
             _handler.OnClosing(byServer);
@@ -494,6 +525,7 @@ namespace Granados.SSH2 {
                     return;
                 }
                 _state = State.Closed;
+                Monitor.PulseAll(_stateSync);   // notifies state change
             }
 
         OnClosed:
@@ -541,6 +573,7 @@ namespace Granados.SSH2 {
                             _serverMaxPacketSize = reader.ReadUInt32();
 
                             _state = State.Established;
+                            Monitor.PulseAll(_stateSync);   // notifies state change
                             dataFragmentArg = reader.GetRemainingDataView();
                             goto OnEstablished; // do it out of the lock block
                         }

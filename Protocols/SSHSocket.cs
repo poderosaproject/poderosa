@@ -406,6 +406,10 @@ namespace Poderosa.Protocols {
         public void ResizeTerminal(uint width, uint height, uint pixelWidth, uint pixelHeight) {
         }
 
+        public bool WaitReady() {
+            return true;
+        }
+
         public void Send(DataFragment data) {
         }
 
