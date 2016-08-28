@@ -298,10 +298,6 @@ namespace Poderosa.Protocols {
             }
         }
 
-        public void Transmit(byte[] buf, int offset, int length) {
-            _channelOperator.Send(new DataFragment(buf, offset, length));
-        }
-
         public void OnEstablished(DataFragment data) {
         }
 
