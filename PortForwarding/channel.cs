@@ -15,7 +15,7 @@ using Granados.PortForwarding;
 
 namespace Poderosa.PortForwarding {
     internal class SynchronizedSSHChannel {
-        private ISSHChannel _channel;
+        private readonly ISSHChannel _channel;
         private bool _closed;
         private bool _sentEOF;
         private readonly object _sync = new object();
@@ -23,6 +23,10 @@ namespace Poderosa.PortForwarding {
         public SynchronizedSSHChannel(ISSHChannel ch) {
             _channel = ch;
             _closed = false;
+        }
+
+        public bool WaitReady() {
+            return _channel.WaitReady();
         }
 
         public void Transmit(byte[] data, int offset, int length) {
@@ -276,6 +280,15 @@ namespace Poderosa.PortForwarding {
                         "localhost",    // FIXME
                         0   // FIXME
                     );
+
+                    var isReady = newChannel.WaitReady();
+                    if (!isReady) {
+                        // failed to port forwarding
+                        Debug.WriteLine("failed to port forwarding");
+                        // the accepted socket will already be closed (at the time of the channel's close)
+                        return;
+                    }
+
                     newChannel.StartAsyncReceive();
                 }
             }
@@ -384,6 +397,10 @@ namespace Poderosa.PortForwarding {
             _socket = new SynchronizedSocket(socket);
             _buffer = new byte[0x1000];
             _channelReady = new ManualResetEvent(false);
+        }
+
+        public bool WaitReady() {
+            return _channel.WaitReady();
         }
 
         public void StartAsyncReceive() {
