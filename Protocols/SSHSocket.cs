@@ -19,6 +19,7 @@ using Granados.SSH2;
 using Granados.IO;
 using Granados.KeyboardInteractive;
 using Granados.SSH;
+using System.Threading.Tasks;
 
 namespace Poderosa.Protocols {
     //SSHの入出力系
@@ -143,7 +144,7 @@ namespace Poderosa.Protocols {
         }
 
         public void OpenShell() {
-            _channelHandler =
+            var channelHandler =
                 _connection.OpenShell(
                     channelOperator => {
                         var handler = new SSHChannelHandler(channelOperator, OnNormalTerminationCore, OnAbnormalTerminationCore);
@@ -153,6 +154,14 @@ namespace Poderosa.Protocols {
                         return handler;
                     }
                 );
+
+            bool isReady = channelHandler.Operator.WaitReady();
+            if (!isReady) {
+                ForceDisposed();
+                throw new Exception(PEnv.Strings.GetString("Message.SSHSocket.FailedToStartShell"));
+            }
+
+            _channelHandler = channelHandler;
         }
 
         public void OpenKeyboardInteractiveShell() {
@@ -162,20 +171,16 @@ namespace Poderosa.Protocols {
             }
         }
 
-        public void OpenSubsystem(string subsystem) {
-            if (_connection.SSHProtocol != SSHProtocol.SSH2) {
-                throw new SSHException("OpenSubsystem() can be applied to only SSH2 connection");
-            }
-            // TODO:
-            //_channel = _connection.OpenSubsystem(this, subsystem);
-        }
-
         public override void Close() {
             if (_channelHandler != null)
                 _channelHandler.Operator.Close();
         }
         public void ForceDisposed() {
-            _connection.Close(); //マルチチャネルだとアウトかも
+            try {
+                _connection.Close(); //マルチチャネルだとアウトかも
+            }
+            catch (Exception) {
+            }
         }
 
         public void Transmit(ByteDataFragment data) {
@@ -252,8 +257,18 @@ namespace Poderosa.Protocols {
 
         public void OnKeyboardInteractiveAuthenticationCompleted(bool success, Exception error) {
             _keyboardInteractiveAuthHanlder = null;
-            if (success) {
+            try {
+                if (!success) {
+                    ForceDisposed();
+                    throw new Exception(PEnv.Strings.GetString("Message.SSHSocket.AuthenticationFailed"));
+                }
+
                 OpenShell();
+            }
+            catch (Exception e) {
+                // FIXME:
+                //  the message will not be displayed...
+                OnAbnormalTerminationCore(e.Message);
             }
         }
 

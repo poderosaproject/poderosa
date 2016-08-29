@@ -97,6 +97,12 @@
   <data name="Message.HostKeyChecker.AskHostKeyRenew">
     <value>SSHサーバの公開鍵はssh_known_hostsに登録されているものと異なります。更新して続行しますか？</value>
   </data>
+  <data name="Message.SSHSocket.FailedToStartShell">
+    <value>シェルの開始に失敗しました。</value>
+  </data>
+  <data name="Message.SSHSocket.AuthenticationFailed">
+    <value>認証に失敗しました。</value>
+  </data>
   <data name="Message.Telnet.FailedToSendTerminalType">
     <value>ターミナルタイプの指定に失敗しました。</value>
   </data>

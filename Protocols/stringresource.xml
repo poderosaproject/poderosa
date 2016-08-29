@@ -132,7 +132,17 @@ $Id: stringresource.xml,v 1.6 2011/12/23 07:18:44 kzmi Exp $
   <en>The public key of the SSH server differs from the old key in ssh_known_hosts. Do you wish to renew it and continue?</en>
 </record>
 
-<!-- Telnet.cs -->
+<!-- SSHSocket.cs -->
+<record name="Message.SSHSocket.FailedToStartShell">
+  <ja>シェルの開始に失敗しました。</ja>
+  <en>Failed to start the shell.</en>
+</record>
+<record name="Message.SSHSocket.AuthenticationFailed">
+  <ja>認証に失敗しました。</ja>
+  <en>Authentication failed.</en>
+</record>
+
+  <!-- Telnet.cs -->
 <record name="Message.Telnet.FailedToSendTerminalType">
   <ja>ターミナルタイプの指定に失敗しました。</ja>
   <en>Failed to specify terminal type.</en>

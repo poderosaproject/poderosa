@@ -97,6 +97,12 @@
   <data name="Message.HostKeyChecker.AskHostKeyRenew">
     <value>The public key of the SSH server differs from the old key in ssh_known_hosts. Do you wish to renew it and continue?</value>
   </data>
+  <data name="Message.SSHSocket.FailedToStartShell">
+    <value>Failed to start the shell.</value>
+  </data>
+  <data name="Message.SSHSocket.AuthenticationFailed">
+    <value>Authentication failed.</value>
+  </data>
   <data name="Message.Telnet.FailedToSendTerminalType">
     <value>Failed to specify terminal type.</value>
   </data>
