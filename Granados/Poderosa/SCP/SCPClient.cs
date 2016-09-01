@@ -120,7 +120,7 @@ namespace Granados.Poderosa.SCP {
 
         #region Private constants
 
-        private const int FILE_TRANSFER_BLOCK_SIZE = 10240; // FIXME: should it be flexible ?
+        private const int FILE_TRANSFER_BLOCK_SIZE = 0x8000;
 
         private const byte LF = 0xa;
 
@@ -333,7 +333,7 @@ namespace Granados.Poderosa.SCP {
                 stream.Write(_encoding.GetBytes(line));
                 CheckResponse(stream);
 
-                byte[] buff = new byte[FILE_TRANSFER_BLOCK_SIZE];
+                byte[] buff = new byte[stream.GetPreferredDatagramSize()];
 
                 long remain = fileSize;
                 while (remain > 0) {

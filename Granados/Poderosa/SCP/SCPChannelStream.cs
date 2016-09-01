@@ -60,7 +60,7 @@ namespace Granados.Poderosa.SCP {
 
         #region Private fields
 
-        private StreamStatus _status;
+        private volatile StreamStatus _status;
         private readonly object _statusSync = new object();
 
         private ISSHChannel _channel = null;
@@ -156,13 +156,8 @@ namespace Granados.Poderosa.SCP {
             _eventHandler = eventHandler;
             _channel = channel;
 
-            lock (_eventHandler.StatusChangeNotifier) {
-                while (_eventHandler.ChannelStatus != SCPChannelStatus.READY) {
-                    bool signaled = Monitor.Wait(_eventHandler.StatusChangeNotifier, millisecondsTimeout);
-                    if (!signaled) {
-                        throw new SCPClientTimeoutException();
-                    }
-                }
+            if (!_eventHandler.WaitStatus(SCPChannelStatus.READY, millisecondsTimeout)) {
+                throw new SCPClientTimeoutException();
             }
 
             lock(_statusSync) {
@@ -217,6 +212,14 @@ namespace Granados.Poderosa.SCP {
                     _status = StreamStatus.Closed;
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets preferred datagram size.
+        /// </summary>
+        /// <returns>size in bytes</returns>
+        public int GetPreferredDatagramSize() {
+            return (_channel != null) ? Math.Max(1024, _channel.MaxChannelDatagramSize) : 1024;
         }
 
         /// <summary>
@@ -411,9 +414,9 @@ namespace Granados.Poderosa.SCP {
 
         #region Private fields
 
-        private SCPChannelStatus _channelStatus = SCPChannelStatus.UNKNOWN;
+        private volatile SCPChannelStatus _channelStatus = SCPChannelStatus.UNKNOWN;
 
-        private readonly Object _statusChangeNotifier = new object();
+        private readonly Object _statusSync = new object();
         private readonly Object _responseNotifier = new object();
 
         private readonly DataReceivedDelegate _dataHandler = null;
@@ -422,15 +425,6 @@ namespace Granados.Poderosa.SCP {
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Gets an object for synchronizing change of the channel status.
-        /// </summary>
-        public object StatusChangeNotifier {
-            get {
-                return _statusChangeNotifier;
-            }
-        }
 
         /// <summary>
         /// Gets channel status
@@ -457,6 +451,18 @@ namespace Granados.Poderosa.SCP {
 
         #endregion
 
+        public bool WaitStatus(SCPChannelStatus status, int millisecondsTimeout) {
+            lock (_statusSync) {
+                while (_channelStatus != status) {
+                    bool acquired = Monitor.Wait(_statusSync, millisecondsTimeout);
+                    if (!acquired) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+
         #region ISSHChannelEventHandler
 
         public override void OnData(DataFragment data) {
@@ -469,30 +475,24 @@ namespace Granados.Poderosa.SCP {
         }
 
         public override void OnClosed(bool byServer) {
-            lock (StatusChangeNotifier) {
 #if TRACE_RECEIVER
-                System.Diagnostics.Debug.WriteLine("SCP: Closed");
+            System.Diagnostics.Debug.WriteLine("SCP: Closed");
 #endif
-                TransitStatus(SCPChannelStatus.CLOSED);
-            }
+            TransitStatus(SCPChannelStatus.CLOSED);
         }
 
         public override void OnError(Exception error) {
-            lock (StatusChangeNotifier) {
 #if TRACE_RECEIVER
-                System.Diagnostics.Debug.WriteLine("SCP: Error: " + error.Message);
+            System.Diagnostics.Debug.WriteLine("SCP: Error: " + error.Message);
 #endif
-                TransitStatus(SCPChannelStatus.ERROR);
-            }
+            TransitStatus(SCPChannelStatus.ERROR);
         }
 
         public override void OnReady() {
-            lock (StatusChangeNotifier) {
 #if TRACE_RECEIVER
-                System.Diagnostics.Debug.WriteLine("SCP: OnChannelReady");
+            System.Diagnostics.Debug.WriteLine("SCP: OnChannelReady");
 #endif
-                TransitStatus(SCPChannelStatus.READY);
-            }
+            TransitStatus(SCPChannelStatus.READY);
         }
 
         #endregion
@@ -500,10 +500,13 @@ namespace Granados.Poderosa.SCP {
         #region Private methods
 
         private void TransitStatus(SCPChannelStatus newStatus) {
-            _channelStatus = newStatus;
-            Monitor.PulseAll(StatusChangeNotifier);
-            if (_statusChangeHandler != null)
+            lock (_statusSync) {
+                _channelStatus = newStatus;
+                Monitor.PulseAll(_statusSync);
+            }
+            if (_statusChangeHandler != null) {
                 _statusChangeHandler(newStatus);
+            }
         }
 
 #if DUMP_PACKET
