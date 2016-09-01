@@ -23,6 +23,7 @@ using Granados.IO.SSH2;
 using Granados.Util;
 using Granados.Poderosa.FileTransfer;
 using Granados.SSH;
+using System.Threading.Tasks;
 
 namespace Granados.Poderosa.SFTP {
 
@@ -104,8 +105,6 @@ namespace Granados.Poderosa.SFTP {
         private const uint SSH_FXF_CREAT = 0x00000008;
         private const uint SSH_FXF_TRUNC = 0x00000010;
         private const uint SSH_FXF_EXCL = 0x00000020;
-
-        private const int FILE_TRANSFER_BLOCK_SIZE = 10240; // FIXME: should it be flexible ?
 
         #endregion
 
@@ -201,34 +200,35 @@ namespace Granados.Poderosa.SFTP {
                 new SFTPPacket(SFTPPacketType.SSH_FXP_INIT)
                     .WriteInt32(SFTP_VERSION);
 
-            bool[] result = new bool[] { false };
+            bool result = false;
 
-            lock (_eventHandler.ResponseNotifier) {
-                Transmit(packet);
-                _eventHandler.WaitResponse(
-                    delegate(SFTPPacketType packetType, SSHDataReader dataReader) {
-                        if (packetType == SFTPPacketType.SSH_FXP_VERSION) {
-                            int version = dataReader.ReadInt32();
-                            Debug.WriteLine("SFTP: SSH_FXP_VERSION => " + version);
+            _eventHandler.ClearResponseBuffer();
+            Transmit(packet);
+            _eventHandler.WaitResponse(
+                (packetType, dataReader) => {
+                    if (packetType == SFTPPacketType.SSH_FXP_VERSION) {
+                        int version = dataReader.ReadInt32();
+                        Debug.WriteLine("SFTP: SSH_FXP_VERSION => " + version);
 
-                            result[0] = true;   // OK, received SSH_FXP_VERSION
+                        result = true;   // OK, received SSH_FXP_VERSION
 
-                            while (dataReader.RemainingDataLength > 4) {
-                                string extensionText = dataReader.ReadUTF8String();
-                                Debug.WriteLine("SFTP: SSH_FXP_VERSION => " + extensionText);
-                            }
-
-                            return true;    // processed
+                        while (dataReader.RemainingDataLength > 4) {
+                            string extensionText = dataReader.ReadUTF8String();
+                            Debug.WriteLine("SFTP: SSH_FXP_VERSION => " + extensionText);
                         }
 
-                        return false;   // ignored
-                    },
-                    _protocolTimeout);
-            }
+                        return true;    // processed
+                    }
+
+                    return false;   // ignored
+                },
+                _protocolTimeout
+            );
 
             // sanity check
-            if (!result[0])
+            if (!Volatile.Read(ref result)) {
                 throw new SFTPClientException("Missing SSH_FXP_VERSION");
+            }
         }
 
         /// <summary>
@@ -286,48 +286,49 @@ namespace Granados.Poderosa.SFTP {
                         .WriteUInt32(requestId)
                         .WriteAsString(pathData);
 
-            bool[] result = new bool[] { false };
+            bool result = false;
             string realPath = null;
 
-            lock (_eventHandler.ResponseNotifier) {
-                Transmit(packet);
-                _eventHandler.WaitResponse(
-                    delegate(SFTPPacketType packetType, SSHDataReader dataReader) {
-                        if (packetType == SFTPPacketType.SSH_FXP_STATUS) {
-                            SFTPClientErrorException exception = SFTPClientErrorException.Create(dataReader);
-                            if (exception.ID == requestId) {
-                                throw exception;
-                            }
+            _eventHandler.ClearResponseBuffer();
+            Transmit(packet);
+            _eventHandler.WaitResponse(
+                (packetType, dataReader) => {
+                    if (packetType == SFTPPacketType.SSH_FXP_STATUS) {
+                        SFTPClientErrorException exception = SFTPClientErrorException.Create(dataReader);
+                        if (exception.ID == requestId) {
+                            throw exception;
                         }
-                        else if (packetType == SFTPPacketType.SSH_FXP_NAME) {
-                            uint id = dataReader.ReadUInt32();
-                            if (id == requestId) {
-                                uint count = (uint)dataReader.ReadInt32();
+                    }
+                    else if (packetType == SFTPPacketType.SSH_FXP_NAME) {
+                        uint id = dataReader.ReadUInt32();
+                        if (id == requestId) {
+                            uint count = (uint)dataReader.ReadInt32();
 
-                                if (count > 0) {
-                                    // use Encoding object with replacement fallback
-                                    Encoding encoding = Encoding.GetEncoding(
-                                                        _encoding.CodePage,
-                                                        EncoderFallback.ReplacementFallback,
-                                                        DecoderFallback.ReplacementFallback);
+                            if (count > 0) {
+                                // use Encoding object with replacement fallback
+                                Encoding encoding = Encoding.GetEncoding(
+                                                    _encoding.CodePage,
+                                                    EncoderFallback.ReplacementFallback,
+                                                    DecoderFallback.ReplacementFallback);
 
-                                    SFTPFileInfo fileInfo = ReadFileInfo(dataReader, encoding);
-                                    realPath = fileInfo.FileName;
-                                }
-
-                                result[0] = true;   // OK, received SSH_FXP_NAME
-                                return true;    // processed
+                                SFTPFileInfo fileInfo = ReadFileInfo(dataReader, encoding);
+                                realPath = fileInfo.FileName;
                             }
-                        }
 
-                        return false;   // ignored
-                    },
-                    _protocolTimeout);
-            }
+                            result = true;   // OK, received SSH_FXP_NAME
+                            return true;    // processed
+                        }
+                    }
+
+                    return false;   // ignored
+                },
+                _protocolTimeout
+            );
 
             // sanity check
-            if (!result[0])
+            if (!Volatile.Read(ref result)) {
                 throw new SFTPClientException("Missing SSH_FXP_NAME");
+            }
 
             return realPath;
         }
@@ -440,36 +441,37 @@ namespace Granados.Poderosa.SFTP {
                         .WriteUInt32(requestId)
                         .WriteAsString(pathData);
 
-            bool[] result = new bool[] { false };
+            bool result = false;
             SFTPFileAttributes attributes = null;
 
-            lock (_eventHandler.ResponseNotifier) {
-                Transmit(packet);
-                _eventHandler.WaitResponse(
-                    delegate(SFTPPacketType packetType, SSHDataReader dataReader) {
-                        if (packetType == SFTPPacketType.SSH_FXP_STATUS) {
-                            SFTPClientErrorException exception = SFTPClientErrorException.Create(dataReader);
-                            if (exception.ID == requestId) {
-                                throw exception;
-                            }
+            _eventHandler.ClearResponseBuffer();
+            Transmit(packet);
+            _eventHandler.WaitResponse(
+                delegate(SFTPPacketType packetType, SSHDataReader dataReader) {
+                    if (packetType == SFTPPacketType.SSH_FXP_STATUS) {
+                        SFTPClientErrorException exception = SFTPClientErrorException.Create(dataReader);
+                        if (exception.ID == requestId) {
+                            throw exception;
                         }
-                        else if (packetType == SFTPPacketType.SSH_FXP_ATTRS) {
-                            uint id = dataReader.ReadUInt32();
-                            if (id == requestId) {
-                                attributes = ReadFileAttributes(dataReader);
-                                result[0] = true;   // Ok, received SSH_FXP_ATTRS
-                                return true;    // processed
-                            }
+                    }
+                    else if (packetType == SFTPPacketType.SSH_FXP_ATTRS) {
+                        uint id = dataReader.ReadUInt32();
+                        if (id == requestId) {
+                            attributes = ReadFileAttributes(dataReader);
+                            result = true;   // Ok, received SSH_FXP_ATTRS
+                            return true;    // processed
                         }
+                    }
 
-                        return false;   // ignored
-                    },
-                    _protocolTimeout);
-            }
+                    return false;   // ignored
+                },
+                _protocolTimeout
+            );
 
             // sanity check
-            if (!result[0])
+            if (!Volatile.Read(ref result)) {
                 throw new SFTPClientException("Missing SSH_FXP_ATTRS");
+            }
 
             return attributes;
         }
@@ -576,68 +578,142 @@ namespace Granados.Poderosa.SFTP {
 
             Exception pendingException = null;
 
+            if (progressDelegate != null) {
+                progressDelegate(SFTPFileTransferStatus.Open, transmitted);
+            }
+
+            byte[] handle;
             try {
-                if (progressDelegate != null)
-                    progressDelegate(SFTPFileTransferStatus.Open, transmitted);
+                handle = OpenFile(requestId, remotePath, SSH_FXF_READ);
+            }
+            catch (Exception) {
+                if (progressDelegate != null) {
+                    progressDelegate(SFTPFileTransferStatus.CompletedError, transmitted);
+                }
+                throw;
+            }
 
-                byte[] handle = OpenFile(requestId, remotePath, SSH_FXF_READ);
+            bool hasError = false;
+            bool dataFinished = false;
+            try {
+                using (FileStream fileStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.Read)) {
 
-                bool isTransferring = false;
-                bool hasError = false;
-                bool isCanceled = false;
-                try {
-                    using (FileStream fileStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.Read)) {
+                    var dataToSave = new AtomicBox<DataFragment>();
+                    var cancelTask = new CancellationTokenSource();
+                    var cancelToken = cancelTask.Token;
+
+                    Task writeFileTask = Task.Run(() => {
+                        while (true) {
+                            DataFragment df = null;
+                            while (true) {
+                                if (dataToSave.TryGet(ref df, 500)) {
+                                    break;
+                                }
+                                if (cancelToken.IsCancellationRequested) {
+                                    return;
+                                }
+                            }
+
+                            if (df == null) {
+                                dataFinished = true;
+                                return; // end of file
+                            }
+
+                            fileStream.Write(df.Data, df.Offset, df.Length);
+                        }
+                    }, cancelToken);
+
+                    try {
+                        // fixed buffer size is used.
+                        // it is very difficult to decide optimal buffer size
+                        // because the server may change the packet size
+                        // depending on the available window size.
+                        const int buffSize = 0x10000;
+                        // use multiple buffers cyclically.
+                        // at least 3 buffers are required.
+                        DataFragment[] dataFrags =
+                            {
+                                new DataFragment(new byte[buffSize], 0, buffSize),
+                                new DataFragment(new byte[buffSize], 0, buffSize),
+                                new DataFragment(new byte[buffSize], 0, buffSize),
+                            };
+                        int buffIndex = 0;
+
                         while (true) {
                             if (cancellation != null && cancellation.IsRequested) {
-                                isCanceled = true;
                                 break;
                             }
 
-                            if (progressDelegate != null)
+                            DataFragment df = dataFrags[buffIndex];
+                            buffIndex = (buffIndex + 1) % 3;
+
+                            int length = ReadFile(requestId, handle, transmitted, buffSize, df.Data);
+                            if (length == 0) {
+                                df = null;  // end of file
+                            } else {
+                                df.SetLength(0, length);
+                            }
+
+                            // pass to the writing task
+                            if (!dataToSave.TrySet(df, 1000)) {
+                                throw new Exception("write error");
+                            }
+
+                            transmitted += (ulong)length;
+
+                            if (progressDelegate != null) {
                                 progressDelegate(SFTPFileTransferStatus.Transmitting, transmitted);
+                            }
 
-                            isTransferring = true;
-                            byte[] data = ReadFile(requestId, handle, transmitted, FILE_TRANSFER_BLOCK_SIZE);
-                            isTransferring = false;
-
-                            if (data == null)
+                            if (length == 0) {
+                                writeFileTask.Wait(1000);
                                 break; // EOF
-
-                            if (data.Length > 0) {
-                                fileStream.Write(data, 0, data.Length);
-                                transmitted += (ulong)data.Length;
                             }
                         }
                     }
+                    finally {
+                        if (!writeFileTask.IsCompleted) {
+                            cancelTask.Cancel();
+                        }
+                        writeFileTask.Wait();
+                    }
                 }
-                catch (Exception e) {
-                    if (isTransferring)    // exception was raised in ReadFile() ?
-                        throw;
-
+            }
+            catch (Exception e) {
+                if (e is AggregateException) {
+                    pendingException = ((AggregateException)e).InnerExceptions[0];
+                }
+                else {
                     pendingException = e;
-                    hasError = true;
                 }
 
-                if (progressDelegate != null)
+                hasError = true;
+            }
+
+            try {
+                if (progressDelegate != null) {
                     progressDelegate(SFTPFileTransferStatus.Close, transmitted);
+                }
 
                 CloseHandle(requestId, handle);
 
                 if (progressDelegate != null) {
                     SFTPFileTransferStatus status =
                         hasError ? SFTPFileTransferStatus.CompletedError :
-                        isCanceled ? SFTPFileTransferStatus.CompletedAbort : SFTPFileTransferStatus.CompletedSuccess;
+                        dataFinished ? SFTPFileTransferStatus.CompletedSuccess : SFTPFileTransferStatus.CompletedAbort;
                     progressDelegate(status, transmitted);
                 }
             }
             catch (Exception) {
-                if (progressDelegate != null)
+                if (progressDelegate != null) {
                     progressDelegate(SFTPFileTransferStatus.CompletedError, transmitted);
+                }
                 throw;
             }
 
-            if (pendingException != null)
+            if (pendingException != null) {
                 throw new SFTPClientException(pendingException.Message, pendingException);
+            }
         }
 
         /// <summary>
@@ -663,55 +739,119 @@ namespace Granados.Poderosa.SFTP {
 
             Exception pendingException = null;
 
+            bool hasError = false;
+            bool dataFinished = false;
+            byte[] handle = null;
             try {
-                bool isTransferring = false;
-                bool hasError = false;
-                bool isCanceled = false;
-                byte[] handle = null;
-                try {
-                    using (FileStream fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
+                using (FileStream fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
 
-                        if (progressDelegate != null)
-                            progressDelegate(SFTPFileTransferStatus.Open, transmitted);
+                    if (progressDelegate != null) {
+                        progressDelegate(SFTPFileTransferStatus.Open, transmitted);
+                    }
 
-                        isTransferring = true;
-                        handle = OpenFile(requestId, remotePath, SSH_FXF_WRITE | SSH_FXF_CREAT | SSH_FXF_TRUNC);
-                        isTransferring = false;
+                    handle = OpenFile(requestId, remotePath, SSH_FXF_WRITE | SSH_FXF_CREAT | SSH_FXF_TRUNC);
 
-                        byte[] buff = new byte[FILE_TRANSFER_BLOCK_SIZE];
+                    var dataToSend = new AtomicBox<DataFragment>();
+                    var cancelTask = new CancellationTokenSource();
+                    var cancelToken = cancelTask.Token;
+
+                    Task readFileTask = Task.Run(() => {
+                        // SSH_FXP_WRITE header part
+                        //   4 bytes : packet length
+                        //   1 byte  : message type (SSH_FXP_WRITE)
+                        //   4 bytes : request id
+                        //   4 bytes : handle length
+                        //   n bytes : handle
+                        //   8 bytes : offset
+                        //   4 bytes : length of the datagram
+                        int buffSize = _channel.MaxChannelDatagramSize - 25 - handle.Length;
+                        // use multiple buffers cyclically.
+                        // at least 3 buffers are required.
+                        DataFragment[] dataFrags =
+                            {
+                                new DataFragment(new byte[buffSize], 0, buffSize),
+                                new DataFragment(new byte[buffSize], 0, buffSize),
+                                new DataFragment(new byte[buffSize], 0, buffSize),
+                            };
+                        int buffIndex = 0;
 
                         while (true) {
+                            if (cancelToken.IsCancellationRequested) {
+                                return;
+                            }
+
+                            DataFragment df = dataFrags[buffIndex];
+                            buffIndex = (buffIndex + 1) % 3;
+
+                            int length = fileStream.Read(df.Data, 0, df.Data.Length);
+                            if (length == 0) {
+                                df = null;  // end of file
+                            }
+                            else {
+                                df.SetLength(0, length);
+                            }
+
+                            // pass to the sending loop
+                            while (true) {
+                                if (dataToSend.TrySet(df, 500)) {
+                                    break;
+                                }
+                                if (cancelToken.IsCancellationRequested) {
+                                    return;
+                                }
+                            }
+
+                            if (length == 0) {
+                                return; // end of file
+                            }
+                        }
+                    }, cancelToken);
+
+                    try {
+                        while (true) {
                             if (cancellation != null && cancellation.IsRequested) {
-                                isCanceled = true;
                                 break;
                             }
 
-                            if (progressDelegate != null)
-                                progressDelegate(SFTPFileTransferStatus.Transmitting, transmitted);
-
-                            int length = fileStream.Read(buff, 0, buff.Length);
-
-                            if (length > 0) {
-                                isTransferring = true;
-                                WriteFile(requestId, handle, transmitted, buff, length);
-                                isTransferring = false;
-
-                                transmitted += (ulong)length;
+                            DataFragment dataFrag = null;
+                            if (!dataToSend.TryGet(ref dataFrag, 1000)) {
+                                throw new Exception("read error");
                             }
 
-                            if (length == 0 || length < buff.Length)
-                                break; // EOF
+                            if (dataFrag == null) {
+                                dataFinished = true;
+                                break;
+                            }
+
+                            WriteFile(requestId, handle, transmitted, dataFrag.Data, dataFrag.Length);
+
+                            transmitted += (ulong)dataFrag.Length;
+
+                            if (progressDelegate != null) {
+                                progressDelegate(SFTPFileTransferStatus.Transmitting, transmitted);
+                            }
                         }
                     }
+                    finally {
+                        if (!readFileTask.IsCompleted) {
+                            cancelTask.Cancel();
+                        }
+                        readFileTask.Wait();
+                    }
+                }   // using
+            }
+            catch (Exception e) {
+                if (e is AggregateException) {
+                    pendingException = ((AggregateException)e).InnerExceptions[0];
                 }
-                catch (Exception e) {
-                    if (isTransferring)    // exception was raised in OpenFile() or WriteFile() ?
-                        throw;
-
+                else {
                     pendingException = e;
-                    hasError = true;
                 }
 
+                hasError = true;
+            }
+
+            try {
                 if (handle != null) {
                     if (progressDelegate != null)
                         progressDelegate(SFTPFileTransferStatus.Close, transmitted);
@@ -722,18 +862,20 @@ namespace Granados.Poderosa.SFTP {
                 if (progressDelegate != null) {
                     SFTPFileTransferStatus status =
                         hasError ? SFTPFileTransferStatus.CompletedError :
-                        isCanceled ? SFTPFileTransferStatus.CompletedAbort : SFTPFileTransferStatus.CompletedSuccess;
+                        dataFinished ? SFTPFileTransferStatus.CompletedSuccess : SFTPFileTransferStatus.CompletedAbort;
                     progressDelegate(status, transmitted);
                 }
             }
             catch (Exception) {
-                if (progressDelegate != null)
+                if (progressDelegate != null) {
                     progressDelegate(SFTPFileTransferStatus.CompletedError, transmitted);
+                }
                 throw;
             }
 
-            if (pendingException != null)
+            if (pendingException != null) {
                 throw new SFTPClientException(pendingException.Message, pendingException);
+            }
         }
 
         #endregion
@@ -741,33 +883,34 @@ namespace Granados.Poderosa.SFTP {
         #region Private methods about status
 
         private void TransmitPacketAndWaitForStatusOK(uint requestId, SFTPPacket packet) {
-            bool[] result = new bool[] { false };
+            bool result = false;
 
-            lock (_eventHandler.ResponseNotifier) {
-                Transmit(packet);
-                _eventHandler.WaitResponse(
-                    delegate(SFTPPacketType packetType, SSHDataReader dataReader) {
-                        if (packetType == SFTPPacketType.SSH_FXP_STATUS) {
-                            SFTPClientErrorException exception = SFTPClientErrorException.Create(dataReader);
-                            if (exception.ID == requestId) {
-                                if (exception.Code == SFTPStatusCode.SSH_FX_OK) {
-                                    result[0] = true;   // Ok, received SSH_FX_OK
-                                    return true;    // processed
-                                }
-                                else {
-                                    throw exception;
-                                }
+            _eventHandler.ClearResponseBuffer();
+            Transmit(packet);
+            _eventHandler.WaitResponse(
+                (packetType, dataReader) => {
+                    if (packetType == SFTPPacketType.SSH_FXP_STATUS) {
+                        SFTPClientErrorException exception = SFTPClientErrorException.Create(dataReader);
+                        if (exception.ID == requestId) {
+                            if (exception.Code == SFTPStatusCode.SSH_FX_OK) {
+                                result = true;   // Ok, received SSH_FX_OK
+                                return true;    // processed
+                            }
+                            else {
+                                throw exception;
                             }
                         }
+                    }
 
-                        return false;   // ignored
-                    },
-                    _protocolTimeout);
-            }
+                    return false;   // ignored
+                },
+                _protocolTimeout
+            );
 
             // sanity check
-            if (!result[0])
+            if (!Volatile.Read(ref result)) {
                 throw new SFTPClientException("Missing SSH_FXP_STATUS");
+            }
         }
 
         #endregion
@@ -785,7 +928,7 @@ namespace Granados.Poderosa.SFTP {
             return WaitHandle(packet, requestId);
         }
 
-        private byte[] ReadFile(uint requestId, byte[] handle, ulong offset, int length) {
+        private int ReadFile(uint requestId, byte[] handle, ulong offset, int length, byte[] buffer) {
             SFTPPacket packet =
                 new SFTPPacket(SFTPPacketType.SSH_FXP_READ)
                     .WriteUInt32(requestId)
@@ -793,45 +936,44 @@ namespace Granados.Poderosa.SFTP {
                     .WriteUInt64(offset)
                     .WriteInt32(length);
 
-            byte[] data = null;
-            bool[] result = new bool[] { false };
+            int? readLength = null;
 
-            lock (_eventHandler.ResponseNotifier) {
-                Transmit(packet);
-                _eventHandler.WaitResponse(
-                    delegate(SFTPPacketType packetType, SSHDataReader dataReader) {
-                        if (packetType == SFTPPacketType.SSH_FXP_STATUS) {
-                            SFTPClientErrorException exception = SFTPClientErrorException.Create(dataReader);
-                            if (exception.ID == requestId) {
-                                if (exception.Code == SFTPStatusCode.SSH_FX_EOF) {
-                                    data = null;    // EOF
-                                    result[0] = true;   // OK, received SSH_FX_EOF
-                                    return true;    // processed
-                                }
-                                else {
-                                    throw exception;
-                                }
-                            }
-                        }
-                        else if (packetType == SFTPPacketType.SSH_FXP_DATA) {
-                            uint id = dataReader.ReadUInt32();
-                            if (id == requestId) {
-                                data = dataReader.ReadByteString();
-                                result[0] = true;   // OK, received SSH_FXP_DATA
+            _eventHandler.ClearResponseBuffer();
+            Transmit(packet);
+            _eventHandler.WaitResponse(
+                (packetType, dataReader) => {
+                    if (packetType == SFTPPacketType.SSH_FXP_STATUS) {
+                        SFTPClientErrorException exception = SFTPClientErrorException.Create(dataReader);
+                        if (exception.ID == requestId) {
+                            if (exception.Code == SFTPStatusCode.SSH_FX_EOF) {
+                                readLength = 0;
                                 return true;    // processed
                             }
+                            else {
+                                throw exception;
+                            }
                         }
+                    }
+                    else if (packetType == SFTPPacketType.SSH_FXP_DATA) {
+                        uint id = dataReader.ReadUInt32();
+                        if (id == requestId) {
+                            readLength = dataReader.ReadByteStringInto(buffer);
+                            return true;    // processed
+                        }
+                    }
 
-                        return false;   // ignored
-                    },
-                    _protocolTimeout);
-            }
+                    return false;   // ignored
+                },
+                _protocolTimeout
+            );
 
             // sanity check
-            if (!result[0])
+            Thread.MemoryBarrier();
+            if (!readLength.HasValue) {
                 throw new SFTPClientException("Missing SSH_FXP_DATA");
+            }
 
-            return data;
+            return readLength.Value;
         }
 
         private void WriteFile(uint requestId, byte[] handle, ulong offset, byte[] buff, int length) {
@@ -865,54 +1007,55 @@ namespace Granados.Poderosa.SFTP {
                     .WriteAsString(handle);
 
             List<SFTPFileInfo> fileList = new List<SFTPFileInfo>();
-            bool[] result = new bool[] { false };
+            bool result = false;
 
-            lock (_eventHandler.ResponseNotifier) {
-                Transmit(packet);
-                _eventHandler.WaitResponse(
-                    delegate(SFTPPacketType packetType, SSHDataReader dataReader) {
-                        if (packetType == SFTPPacketType.SSH_FXP_STATUS) {
-                            SFTPClientErrorException exception = SFTPClientErrorException.Create(dataReader);
-                            if (exception.ID == requestId) {
-                                if (exception.Code == SFTPStatusCode.SSH_FX_EOF) {
-                                    result[0] = true;
-                                    return true;    // processed
-                                }
-                                else {
-                                    throw exception;
-                                }
-                            }
-                        }
-                        else if (packetType == SFTPPacketType.SSH_FXP_NAME) {
-                            uint id = dataReader.ReadUInt32();
-                            if (id == requestId) {
-                                uint count = (uint)dataReader.ReadInt32();
-
-                                // use Encoding object with replacement fallback
-                                Encoding encoding = Encoding.GetEncoding(
-                                                    _encoding.CodePage,
-                                                    EncoderFallback.ReplacementFallback,
-                                                    DecoderFallback.ReplacementFallback);
-
-                                for (int i = 0; i < count; i++) {
-                                    SFTPFileInfo fileInfo = ReadFileInfo(dataReader, encoding);
-                                    fileList.Add(fileInfo);
-                                }
-
-                                result[0] = true;   // OK, received SSH_FXP_NAME
-
+            _eventHandler.ClearResponseBuffer();
+            Transmit(packet);
+            _eventHandler.WaitResponse(
+                (packetType, dataReader) => {
+                    if (packetType == SFTPPacketType.SSH_FXP_STATUS) {
+                        SFTPClientErrorException exception = SFTPClientErrorException.Create(dataReader);
+                        if (exception.ID == requestId) {
+                            if (exception.Code == SFTPStatusCode.SSH_FX_EOF) {
+                                result = true;
                                 return true;    // processed
                             }
+                            else {
+                                throw exception;
+                            }
                         }
+                    }
+                    else if (packetType == SFTPPacketType.SSH_FXP_NAME) {
+                        uint id = dataReader.ReadUInt32();
+                        if (id == requestId) {
+                            uint count = (uint)dataReader.ReadInt32();
 
-                        return false;   // ignored
-                    },
-                    _protocolTimeout);
-            }
+                            // use Encoding object with replacement fallback
+                            Encoding encoding = Encoding.GetEncoding(
+                                                _encoding.CodePage,
+                                                EncoderFallback.ReplacementFallback,
+                                                DecoderFallback.ReplacementFallback);
+
+                            for (int i = 0; i < count; i++) {
+                                SFTPFileInfo fileInfo = ReadFileInfo(dataReader, encoding);
+                                fileList.Add(fileInfo);
+                            }
+
+                            result = true;   // OK, received SSH_FXP_NAME
+
+                            return true;    // processed
+                        }
+                    }
+
+                    return false;   // ignored
+                },
+                _protocolTimeout
+            );
 
             // sanity check
-            if (!result[0])
+            if (!Volatile.Read(ref result)) {
                 throw new SFTPClientException("Missing SSH_FXP_NAME");
+            }
 
             return fileList;
         }
@@ -973,31 +1116,32 @@ namespace Granados.Poderosa.SFTP {
 
         private byte[] WaitHandle(SFTPPacket requestPacket, uint requestId) {
             byte[] handle = null;
-            lock (_eventHandler.ResponseNotifier) {
-                Transmit(requestPacket);
-                _eventHandler.WaitResponse(
-                    delegate(SFTPPacketType packetType, SSHDataReader dataReader) {
-                        if (packetType == SFTPPacketType.SSH_FXP_STATUS) {
-                            SFTPClientErrorException exception = SFTPClientErrorException.Create(dataReader);
-                            if (exception.ID == requestId)
-                                throw exception;
+            _eventHandler.ClearResponseBuffer();
+            Transmit(requestPacket);
+            _eventHandler.WaitResponse(
+                delegate(SFTPPacketType packetType, SSHDataReader dataReader) {
+                    if (packetType == SFTPPacketType.SSH_FXP_STATUS) {
+                        SFTPClientErrorException exception = SFTPClientErrorException.Create(dataReader);
+                        if (exception.ID == requestId)
+                            throw exception;
+                    }
+                    else if (packetType == SFTPPacketType.SSH_FXP_HANDLE) {
+                        uint id = dataReader.ReadUInt32();
+                        if (id == requestId) {
+                            handle = dataReader.ReadByteString();
+                            return true;    // processed
                         }
-                        else if (packetType == SFTPPacketType.SSH_FXP_HANDLE) {
-                            uint id = dataReader.ReadUInt32();
-                            if (id == requestId) {
-                                handle = dataReader.ReadByteString();
-                                return true;    // processed
-                            }
-                        }
+                    }
 
-                        return false;   // ignored
-                    },
-                    _protocolTimeout);
-            }
+                    return false;   // ignored
+                },
+                _protocolTimeout
+            );
 
             // sanity check
-            if (handle == null)
+            if (Volatile.Read(ref handle) == null) {
                 throw new SFTPClientException("Missing SSH_FXP_HANDLE");
+            }
 
             return handle;
         }
@@ -1054,15 +1198,10 @@ namespace Granados.Poderosa.SFTP {
 
         private SFTPChannelStatus _channelStatus = SFTPChannelStatus.UNKNOWN;
 
-        private readonly Object _statusChangeNotifier = new object();
-        private readonly Object _responseNotifier = new object();
+        private readonly object _statusChangeNotifier = new object();
 
-        private DataReceivedDelegate _responseHandler = null;
-        private Exception _responseHandlerException = null;
-
-        private bool _isDataIncomplete = false;
         private readonly ByteBuffer _dataBuffer = new ByteBuffer(0x10000, -1);
-        private int _dataTotal = 0;
+        private readonly object _dataBufferSync = new object();
 
         #endregion
 
@@ -1074,15 +1213,6 @@ namespace Granados.Poderosa.SFTP {
         public object StatusChangeNotifier {
             get {
                 return _statusChangeNotifier;
-            }
-        }
-
-        /// <summary>
-        /// Gets an object for synchronizing handling of the response.
-        /// </summary>
-        public object ResponseNotifier {
-            get {
-                return _responseNotifier;
             }
         }
 
@@ -1100,6 +1230,15 @@ namespace Granados.Poderosa.SFTP {
         #region Utility methods
 
         /// <summary>
+        /// Crear response buffer
+        /// </summary>
+        public void ClearResponseBuffer() {
+            lock (_dataBufferSync) {
+                _dataBuffer.Clear();
+            }
+        }
+
+        /// <summary>
         /// Wait for response.
         /// </summary>
         /// <remarks>
@@ -1113,19 +1252,39 @@ namespace Granados.Poderosa.SFTP {
         /// <exception cref="SFTPClientTimeoutException">Timeout has occured.</exception>
         /// <exception cref="Exception">an exception which was thrown while executing responseHandler.</exception>
         public void WaitResponse(DataReceivedDelegate responseHandler, int millisecondsTimeout) {
-            // Note: This lock is not required if the caller has locked ResponseNotifier.
-            //       We do this for make clear that Monitor.Wait() is called in the locked context.
-            lock (_responseNotifier) {
-                _isDataIncomplete = false;
-                _dataTotal = 0;
-                _responseHandler = responseHandler;
-                _responseHandlerException = null;
-                bool signaled = Monitor.Wait(_responseNotifier, millisecondsTimeout);
-                _responseHandler = null;
-                if (_responseHandlerException != null)
-                    throw new SFTPClientException(_responseHandlerException.Message, _responseHandlerException);
-                if (!signaled)
-                    throw new SFTPClientTimeoutException();
+            lock (_dataBufferSync) {
+                bool processed = false;
+                while (!processed) {
+                    while (_dataBuffer.Length < 4) {
+                        if (!Monitor.Wait(_dataBufferSync, millisecondsTimeout)) {
+                            throw new SFTPClientTimeoutException();
+                        }
+                    }
+
+                    int totalSize = SSHUtil.ReadInt32(_dataBuffer.RawBuffer, _dataBuffer.RawBufferOffset);
+
+                    while (_dataBuffer.Length < 4 + totalSize) {
+                        if (!Monitor.Wait(_dataBufferSync, millisecondsTimeout)) {
+                            throw new SFTPClientTimeoutException();
+                        }
+                    }
+
+                    _dataBuffer.RemoveHead(4);      // length field
+
+                    if (totalSize >= 1) {
+                        SSH2DataReader reader = new SSH2DataReader(
+                                    new DataFragment(_dataBuffer.RawBuffer, _dataBuffer.RawBufferOffset, totalSize));
+                        SFTPPacketType packetType = (SFTPPacketType)reader.ReadByte();
+                        if (responseHandler != null) {
+                            processed = responseHandler(packetType, reader);
+                        }
+                        else {
+                            processed = true;
+                        }
+                    }
+
+                    _dataBuffer.RemoveHead(totalSize);
+                }
             }
         }
 
@@ -1137,69 +1296,10 @@ namespace Granados.Poderosa.SFTP {
 #if DUMP_PACKET
             Dump("SFTP: OnData", data, offset, length);
 #endif
-            DataFragment dataFragment;
-            if (_isDataIncomplete) {
+            lock (_dataBufferSync) {
                 _dataBuffer.Append(data);
-
-                if (_dataTotal == 0) {  // not determined yet
-                    if (_dataBuffer.Length < 4)
-                        return;
-                    _dataTotal = SSHUtil.ReadInt32(_dataBuffer.RawBuffer, _dataBuffer.RawBufferOffset);
-                }
-
-                if (_dataBuffer.Length < _dataTotal)
-                    return;
-
-                _isDataIncomplete = false;
-                _dataTotal = 0;
-                dataFragment = _dataBuffer.AsDataFragment();
+                Monitor.PulseAll(_dataBufferSync);
             }
-            else {
-                if (data.Length < 4) {
-                    _dataBuffer.Clear();
-                    _dataBuffer.Append(data);
-                    _isDataIncomplete = true;
-                    _dataTotal = 0; // determine later...
-                    return;
-                }
-
-                int total = SSHUtil.ReadInt32(data.Data, data.Offset);
-                if (data.Length - 4 < total) {
-                    _dataBuffer.Clear();
-                    _dataBuffer.Append(data);
-                    _isDataIncomplete = true;
-                    _dataTotal = total;
-                    return;
-                }
-                dataFragment = data;
-            }
-
-            SSH2DataReader reader = new SSH2DataReader(dataFragment);
-            int dataLength = reader.ReadInt32();
-            if (dataLength >= 1) {
-                SFTPPacketType packetType = (SFTPPacketType)reader.ReadByte();
-                dataLength--;
-                lock (ResponseNotifier) {
-                    bool processed = false;
-                    if (_responseHandler != null) {
-                        try {
-                            processed = _responseHandler(packetType, reader);
-                        }
-                        catch (Exception e) {
-                            _responseHandlerException = e;
-                            processed = true;
-                        }
-                    }
-                    else {
-                        processed = true;
-                    }
-
-                    if (processed) {
-                        Monitor.PulseAll(_responseNotifier);
-                    }
-                }
-            }
-            // FIXME: invalid packet should be alerted
         }
 
         public override void OnClosed(bool byServer) {

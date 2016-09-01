@@ -329,11 +329,20 @@ namespace Granados.IO {
         /// <param name="length">number of bytes.</param>
         /// <returns>byte array.</returns>
         public byte[] Read(int length) {
-            CheckEnd(length);
             byte[] image = new byte[length];
-            Buffer.BlockCopy(_data, _currentIndex, image, 0, length);
-            _currentIndex += length;
+            Copy(length, image);
             return image;
+        }
+
+        /// <summary>
+        /// Reads bytes of the specified length and copies them to the specified buffer.
+        /// </summary>
+        /// <param name="length">number of bytes.</param>
+        /// <param name="buffrer">buffer</param>
+        internal void Copy(int length, byte[] buffrer) {
+            CheckEnd(length);
+            Buffer.BlockCopy(_data, _currentIndex, buffrer, 0, length);
+            _currentIndex += length;
         }
 
         /// <summary>
@@ -346,6 +355,23 @@ namespace Granados.IO {
                 throw new IOException("Invalid byte string length.");
             }
             return Read(length);
+        }
+
+        /// <summary>
+        /// Reads binary string according to the SSH specification and copies it to the specified buffer.
+        /// </summary>
+        /// <param name="buffer">a buffer that the binary string is copied to</param>
+        /// <returns>length of bytes copied</returns>
+        internal int ReadByteStringInto(byte[] buffer) {
+            int length = ReadInt32();
+            if (length < 0) {
+                throw new IOException("Invalid byte string length.");
+            }
+            if (buffer.Length < length) {
+                throw new IOException("Insufficient buffer size.");
+            }
+            Copy(length, buffer);
+            return length;
         }
 
         /// <summary>
