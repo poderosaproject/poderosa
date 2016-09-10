@@ -4,6 +4,7 @@
 // You may not use this file except in compliance with the license.
 
 using Granados.IO;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -81,12 +82,19 @@ namespace Granados.SSH {
         }
 
         /// <summary>
-        /// Notifies connection-close to the packet interceptors.
+        /// Call the specified action on each interceptor of the collection.
         /// </summary>
-        public void OnConnectionClosed() {
+        /// <param name="action"></param>
+        public void ForEach(Action<ISSHPacketInterceptor> action) {
             lock (_interceptors) {
-                foreach (var interceptor in _interceptors) {
-                    interceptor.OnConnectionClosed();
+                foreach (var entry in _interceptors) {
+                    try {
+                        action(entry);
+                    }
+                    catch (Exception e) {
+                        Debug.WriteLine(e.Message);
+                        Debug.WriteLine(e.StackTrace);
+                    }
                 }
             }
         }

@@ -368,6 +368,10 @@ namespace Granados.Tutorial {
             Debug.WriteLine("Channel Unhandled Packet: {0}", packetType);
         }
 
+        public void OnConnectionLost() {
+            Debug.WriteLine("Connection Lost");
+        }
+
         public void Dispose() {
             Debug.WriteLine("Channel Dispose");
         }

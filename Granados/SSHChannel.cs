@@ -216,6 +216,13 @@ namespace Granados {
         /// <param name="data">packet image excluding message number field and channel number field.</param>
         void OnUnhandledPacket(byte packetType, DataFragment data);
 
+        /// <summary>
+        /// Notifies that the SSH connection has been closed or disposed.
+        /// </summary>
+        /// <remarks>
+        /// This method may be called multiple times.
+        /// </remarks>
+        void OnConnectionLost();
     }
 
     /// <summary>
@@ -253,8 +260,12 @@ namespace Granados {
         public virtual void OnUnhandledPacket(byte packetType, DataFragment data) {
         }
 
+        public virtual void OnConnectionLost() {
+        }
+
         public virtual void Dispose() {
         }
+
     }
 
     /// <summary>
@@ -279,6 +290,7 @@ namespace Granados.SSH {
     using Granados.IO;
     using System;
     using System.Collections.Concurrent;
+    using System.Diagnostics;
     using System.Threading;
 
     /// <summary>
@@ -392,6 +404,16 @@ namespace Granados.SSH {
             }
         }
 
+        public void OnConnectionLost() {
+            try {
+                _coreHandler.OnConnectionLost();
+            }
+            catch (Exception e) {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
+
         public void Dispose() {
         }
     }
@@ -474,6 +496,22 @@ namespace Granados.SSH {
                 return entry.EventHandler;
             }
             return null;
+        }
+
+        /// <summary>
+        /// Call the specified action on each channel of the collection.
+        /// </summary>
+        /// <param name="action"></param>
+        public void ForEach(Action<ISSHChannel, ISSHChannelEventHandler> action) {
+            foreach (var entry in _dic.Values) {
+                try {
+                    action(entry.Channel, entry.EventHandler);
+                }
+                catch (Exception e) {
+                    Debug.WriteLine(e.Message);
+                    Debug.WriteLine(e.StackTrace);
+                }
+            }
         }
     }
 

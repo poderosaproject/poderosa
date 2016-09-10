@@ -359,6 +359,9 @@ namespace Poderosa.Protocols {
         public void OnUnhandledPacket(byte packetType, DataFragment data) {
         }
 
+        public void OnConnectionLost() {
+        }
+
         public void Dispose() {
             if (_buffer != null) {
                 _buffer.Dispose();

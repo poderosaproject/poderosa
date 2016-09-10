@@ -577,7 +577,8 @@ namespace Granados.SSH1 {
         /// Tasks to do when the underlying socket has been closed. 
         /// </summary>
         private void OnConnectionClosed() {
-            _packetInterceptors.OnConnectionClosed();
+            _channelCollection.ForEach((channel, handler) => handler.OnConnectionLost());
+            _packetInterceptors.ForEach(interceptor => interceptor.OnConnectionClosed());
             _eventHandler.OnConnectionClosed();
         }
 
