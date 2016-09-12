@@ -9,6 +9,7 @@ using Granados.SSH;
 using Granados.Util;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Granados.SSH2 {
 
@@ -40,6 +41,15 @@ namespace Granados.SSH2 {
             Consumed,
         }
 
+        protected enum ChannelRequestResult {
+            /// <summary>server replied SSH_MSG_REQUEST_SUCCESS</summary>
+            Success,
+            /// <summary>server replied SSH_MSG_REQUEST_FAILURE</summary>
+            Failure,
+            /// <summary>no response</summary>
+            Timeout,
+        }
+
         // Min/Max size of the SSH_MSG_CHANNEL_DATA datagram
         // Maximum payload size is 32768 bytes. (described in RFC4253)
         // SSH_MSG_CHANNEL_DATA:
@@ -62,9 +72,9 @@ namespace Granados.SSH2 {
         private volatile State _state;
         private readonly object _stateSync = new object();
 
-        // channel request slot
-        private volatile Action<bool> _channelRequestReplyCallback;
-        private readonly object _channelRequestSync = new object();
+        private readonly object _channelRequestStatusSync = new object();
+        private volatile bool _channelRequestStatus = false;
+        private readonly AtomicBox<bool> _channelRequestResult = new AtomicBox<bool>();
 
         private ISSHChannelEventHandler _handler = new SimpleSSHChannelEventHandler();
 
@@ -140,23 +150,58 @@ namespace Granados.SSH2 {
         }
 
         /// <summary>
-        /// Sends SSH_MSG_CHANNEL_REQUEST packet
+        /// Sends SSH_MSG_CHANNEL_REQUEST packet (no response)
         /// </summary>
         /// <param name="requestPacket">SSH_MSG_CHANNEL_REQUEST packet</param>
-        /// <param name="resultCallback">
-        /// an action that will be called when SSH_MSG_REQUEST_SUCCESS or SSH_MSG_REQUEST_FAILURE has been received.
-        /// or null if no reply is wanted.
-        /// </param>
-        protected void SendRequest(SSH2Packet requestPacket, Action<bool> resultCallback) {
-            lock (_channelRequestSync) {
-                while (_channelRequestReplyCallback != null) {
-                    Monitor.Wait(_channelRequestSync);
-                }
-
-                _channelRequestReplyCallback = resultCallback;
-
+        protected void SendRequest(SSH2Packet requestPacket) {
+            lock (_channelRequestStatusSync) {
+                SpinWait.SpinUntil(() => _channelRequestStatus == false);
+                _channelRequestStatus = true;
+            }
+            try {
                 Transmit(0, requestPacket);
             }
+            finally {
+                lock (_channelRequestStatusSync) {
+                    _channelRequestStatus = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sends SSH_MSG_CHANNEL_REQUEST packet and wait response asynchronously.
+        /// </summary>
+        /// <param name="requestPacket">SSH_MSG_CHANNEL_REQUEST packet</param>
+        /// <returns>asynchronous task that wait for the response</returns>
+        protected async Task<ChannelRequestResult> SendRequestAndWaitResponseAsync(SSH2Packet requestPacket) {
+            lock (_channelRequestStatusSync) {
+                SpinWait.SpinUntil(() => _channelRequestStatus == false);
+                _channelRequestStatus = true;
+            }
+
+            try {
+                _channelRequestResult.Clear();
+                Transmit(0, requestPacket);
+                return await WaitResponseAsync();
+            }
+            finally {
+                lock (_channelRequestStatusSync) {
+                    _channelRequestStatus = false;
+                }
+            }
+        }
+
+        private Task<ChannelRequestResult> WaitResponseAsync() {
+            const int RESPONSE_TIMEOUT = 10000;
+            return Task<ChannelRequestResult>.Run(() => {
+                bool result = false;
+                if (_channelRequestResult.TryGet(ref result, RESPONSE_TIMEOUT)) {
+                    return result ? ChannelRequestResult.Success : ChannelRequestResult.Failure;
+                }
+                else {
+                    return ChannelRequestResult.Timeout;
+                }
+            });
         }
 
         #region ISSHChannel properties
@@ -258,9 +303,7 @@ namespace Granados.SSH2 {
                         .WriteUInt32(width)
                         .WriteUInt32(height)
                         .WriteUInt32(pixelWidth)
-                        .WriteUInt32(pixelHeight),
-
-                    null    // no reply
+                        .WriteUInt32(pixelHeight)
                 );
             }
 
@@ -643,15 +686,7 @@ namespace Granados.SSH2 {
                                 goto OnWindowAdjust;
                             case SSH2PacketType.SSH_MSG_CHANNEL_SUCCESS:
                             case SSH2PacketType.SSH_MSG_CHANNEL_FAILURE: {
-                                    Action<bool> callback;
-                                    lock (_channelRequestSync) {
-                                        callback = _channelRequestReplyCallback;
-                                        _channelRequestReplyCallback = null;
-                                        Monitor.PulseAll(_channelRequestSync); // the next request can entry in the slot
-                                    }
-                                    if (callback != null) {
-                                        callback(packetType == SSH2PacketType.SSH_MSG_CHANNEL_SUCCESS);
-                                    }
+                                    _channelRequestResult.TrySet(packetType == SSH2PacketType.SSH_MSG_CHANNEL_SUCCESS, 1000);
                                 }
                                 break;
                             default:
@@ -803,28 +838,20 @@ namespace Granados.SSH2 {
                 throw new SSHChannelInvalidOperationException("Channel already closed");
             }
 
-            const int RESPONCE_TIMEOUT = 10000;
-            AtomicBox<bool> resultBox = new AtomicBox<bool>();
-
-            SendRequest(
-                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
-                    .WriteUInt32(RemoteChannel)
-                    .WriteString("break")
-                    .WriteBool(true)
-                    .WriteInt32(breakLength),
-
-                success => {
-                    resultBox.TrySet(success, 1000);
-                }
-            );
+            var reqTask =
+                SendRequestAndWaitResponseAsync(
+                    new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
+                        .WriteUInt32(RemoteChannel)
+                        .WriteString("break")
+                        .WriteBool(true)
+                        .WriteInt32(breakLength)
+                );
 
             Trace("CH[{0}] break : breakLength={1}", LocalChannel, breakLength);
 
-            bool resultValue = false;
-            if (!resultBox.TryGet(ref resultValue, RESPONCE_TIMEOUT)) {
-                return false;
-            }
-            return resultValue;
+            var result = reqTask.Result;
+
+            return result == ChannelRequestResult.Success;
         }
 
         #endregion
@@ -871,147 +898,159 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <returns>true if the channel is ready for use.</returns>
         protected override void OnChannelEstablished() {
-            SendPtyRequest();
+            Task.Run(async () => {
+                var reqPtyResult = await SendPtyRequest();
+                if (!reqPtyResult) {
+                    return;
+                }
+
+                var reqAuthAgentResult = await SendAuthAgentRequest();
+                if (!reqAuthAgentResult) {
+                    return;
+                }
+
+                var reqShellResult = await SendShellRequest();
+                if (!reqShellResult) {
+                    return;
+                }
+            });
         }
 
         /// <summary>
         /// Sends SSH_MSG_CHANNEL_REQUEST "pty-req"
         /// </summary>
-        private void SendPtyRequest() {
+        private async Task<bool> SendPtyRequest() {
             lock (_stateSync) {
                 if (_state != MinorState.NotReady) {
-                    return;
+                    return false;
                 }
                 _state = MinorState.WaitPtyReqConfirmation;
             }
 
-            SendRequest(
-                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
-                    .WriteUInt32(RemoteChannel)
-                    .WriteString("pty-req")
-                    .WriteBool(true)
-                    .WriteString(_param.TerminalName)
-                    .WriteInt32(_param.TerminalWidth)
-                    .WriteInt32(_param.TerminalHeight)
-                    .WriteInt32(_param.TerminalPixelWidth)
-                    .WriteInt32(_param.TerminalPixelHeight)
-                    .WriteAsString(new byte[0]),
-
-                success => {
-                    lock (_stateSync) {
-                        if (_state == MinorState.WaitPtyReqConfirmation) {
-                            if (success) {
-                                goto SendAuthAgentRequest;
-                            }
-                            else {
-                                _state = MinorState.NotReady;
-                                goto RequestFailed;
-                            }
-                        }
-                    }
-
-                    return;
-
-                SendAuthAgentRequest:
-                    SendAuthAgentRequest();
-                    return;
-
-                RequestFailed:
-                    RequestFailed();
-                    return;
-                }
-            );
+            var reqTask =
+                SendRequestAndWaitResponseAsync(
+                    new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
+                        .WriteUInt32(RemoteChannel)
+                        .WriteString("pty-req")
+                        .WriteBool(true)
+                        .WriteString(_param.TerminalName)
+                        .WriteInt32(_param.TerminalWidth)
+                        .WriteInt32(_param.TerminalHeight)
+                        .WriteInt32(_param.TerminalPixelWidth)
+                        .WriteInt32(_param.TerminalPixelHeight)
+                        .WriteAsString(new byte[0])
+                );
 
             Trace("CH[{0}] pty-req : term={1} width={2} height={3} pixelWidth={4} pixelHeight={5}",
                 LocalChannel, _param.TerminalName,
                 _param.TerminalWidth, _param.TerminalHeight,
                 _param.TerminalPixelWidth, _param.TerminalPixelHeight);
+
+            var result = await reqTask;
+
+            lock (_stateSync) {
+                if (_state != MinorState.WaitPtyReqConfirmation) {
+                    return false;
+                }
+                if (result == ChannelRequestResult.Success) {
+                    return true;    // do the next task
+                }
+                else {
+                    _state = MinorState.NotReady;
+                    goto RequestFailed;
+                }
+            }
+
+        RequestFailed:
+            RequestFailed();
+            return false;
         }
 
         /// <summary>
         /// Sends SSH_MSG_CHANNEL_REQUEST "auth-agent-req@openssh.com"
         /// </summary>
-        private void SendAuthAgentRequest() {
+        private async Task<bool> SendAuthAgentRequest() {
             if (_param.AgentForwardingAuthKeyProvider == null) {
-                SendShellRequest();
-                return;
+                return true;    // do the next task
             }
 
             lock (_stateSync) {
                 _state = MinorState.WaitAuthAgentReqConfirmation;
             }
 
-            SendRequest(
-                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
-                    .WriteUInt32(RemoteChannel)
-                    .WriteString("auth-agent-req@openssh.com")
-                    .WriteBool(true),
-
-                success => {
-                    lock (_stateSync) {
-                        if (_state == MinorState.WaitAuthAgentReqConfirmation) {
-                            goto SendShellRequest;
-                        }
-                    }
-
-                    return;
-
-                SendShellRequest:
-                    if (success) {
-                        Trace("CH[{0}] the request of the agent forwarding has been accepted.", LocalChannel);
-                    }
-                    else {
-                        Trace("CH[{0}] the request of the agent forwarding has been rejected.", LocalChannel);
-                    }
-                    SendShellRequest();
-                    return;
-                }
-            );
+            var reqTask =
+                SendRequestAndWaitResponseAsync(
+                    new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
+                        .WriteUInt32(RemoteChannel)
+                        .WriteString("auth-agent-req@openssh.com")
+                        .WriteBool(true)
+                );
 
             Trace("CH[{0}] auth-agent-req@openssh.com", LocalChannel);
+
+            var result = await reqTask;
+
+            lock (_stateSync) {
+                if (_state != MinorState.WaitAuthAgentReqConfirmation) {
+                    return false;
+                }
+                if (result == ChannelRequestResult.Success) {
+                    Trace("CH[{0}] the request of the agent forwarding has been accepted.", LocalChannel);
+                    return true;    // do the next task
+                }
+                else {
+                    Trace("CH[{0}] the request of the agent forwarding has been rejected.", LocalChannel);
+                    _state = MinorState.NotReady;
+                    goto RequestFailed;
+                }
+            }
+
+        RequestFailed:
+            RequestFailed();
+            return false;
         }
 
         /// <summary>
         /// Sends SSH_MSG_CHANNEL_REQUEST "shell"
         /// </summary>
-        private void SendShellRequest() {
+        private async Task<bool> SendShellRequest() {
             lock (_stateSync) {
                 _state = MinorState.WaitShellConfirmation;
             }
 
-            SendRequest(
-                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
-                    .WriteUInt32(RemoteChannel)
-                    .WriteString("shell")
-                    .WriteBool(true),
-
-                success => {
-                    lock (_stateSync) {
-                        if (_state == MinorState.WaitShellConfirmation) {
-                            if (success) {
-                                _state = MinorState.Ready;
-                                goto SetStateReady;
-                            }
-                            else {
-                                _state = MinorState.NotReady;
-                                goto RequestFailed;
-                            }
-                        }
-                    }
-
-                    return;
-
-                SetStateReady:
-                    SetStateReady();
-                    return;
-
-                RequestFailed:
-                    RequestFailed();
-                    return;
-                }
-            );
+            var reqTask =
+                SendRequestAndWaitResponseAsync(
+                    new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
+                        .WriteUInt32(RemoteChannel)
+                        .WriteString("shell")
+                        .WriteBool(true)
+                );
 
             Trace("CH[{0}] shell", LocalChannel);
+
+            var result = await reqTask;
+
+            lock (_stateSync) {
+                if (_state != MinorState.WaitShellConfirmation) {
+                    return false;
+                }
+                if (result == ChannelRequestResult.Success) {
+                    _state = MinorState.Ready;
+                    goto SetStateReady;
+                }
+                else {
+                    _state = MinorState.NotReady;
+                    goto RequestFailed;
+                }
+            }
+
+        SetStateReady:
+            SetStateReady();
+            return true;
+
+        RequestFailed:
+            RequestFailed();
+            return false;
         }
 
         #endregion
@@ -1056,13 +1095,14 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <returns>true if the channel is ready for use.</returns>
         protected override void OnChannelEstablished() {
-            SendExecRequest();
+            var task = SendExecRequest();
+            task.Wait();
         }
 
         /// <summary>
         /// Sends SSH_MSG_CHANNEL_REQUEST "exec"
         /// </summary>
-        private void SendExecRequest() {
+        private async Task SendExecRequest() {
             lock (_stateSync) {
                 if (_state != MinorState.NotReady) {
                     return;
@@ -1070,40 +1110,40 @@ namespace Granados.SSH2 {
                 _state = MinorState.WaitExecConfirmation;
             }
 
-            SendRequest(
-                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
-                    .WriteUInt32(RemoteChannel)
-                    .WriteString("exec")
-                    .WriteBool(true)
-                    .WriteString(_command),
-
-                success => {
-                    lock (_stateSync) {
-                        if (_state == MinorState.WaitExecConfirmation) {
-                            if (success) {
-                                _state = MinorState.Ready;
-                                goto SetStateReady;
-                            }
-                            else {
-                                _state = MinorState.NotReady;
-                                goto RequestFailed;
-                            }
-                        }
-                    }
-
-                    return;
-
-                SetStateReady:
-                    SetStateReady();
-                    return;
-
-                RequestFailed:
-                    RequestFailed();
-                    return;
-                }
-            );
+            var reqTask =
+                SendRequestAndWaitResponseAsync(
+                    new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
+                        .WriteUInt32(RemoteChannel)
+                        .WriteString("exec")
+                        .WriteBool(true)
+                        .WriteString(_command)
+                );
 
             Trace("CH[{0}] exec : command={1}", LocalChannel, _command);
+
+            var result = await reqTask;
+
+            lock (_stateSync) {
+                if (_state != MinorState.WaitExecConfirmation) {
+                    return;
+                }
+                if (result == ChannelRequestResult.Success) {
+                    _state = MinorState.Ready;
+                    goto SetStateReady;
+                }
+                else {
+                    _state = MinorState.NotReady;
+                    goto RequestFailed;
+                }
+            }
+
+        SetStateReady:
+            SetStateReady();
+            return;
+
+        RequestFailed:
+            RequestFailed();
+            return;
         }
 
         #endregion
@@ -1148,13 +1188,14 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <returns>true if the channel is ready for use.</returns>
         protected override void OnChannelEstablished() {
-            SendSubsystemRequest();
+            var task = SendSubsystemRequest();
+            task.Wait();
         }
 
         /// <summary>
         /// Sends SSH_MSG_CHANNEL_REQUEST "subsystem"
         /// </summary>
-        private void SendSubsystemRequest() {
+        private async Task SendSubsystemRequest() {
             lock (_stateSync) {
                 if (_state != MinorState.NotReady) {
                     return;
@@ -1162,40 +1203,40 @@ namespace Granados.SSH2 {
                 _state = MinorState.WaitSubsystemConfirmation;
             }
 
-            SendRequest(
-                new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
-                    .WriteUInt32(RemoteChannel)
-                    .WriteString("subsystem")
-                    .WriteBool(true)
-                    .WriteString(_subsystemName),
-
-                success => {
-                    lock (_stateSync) {
-                        if (_state == MinorState.WaitSubsystemConfirmation) {
-                            if (success) {
-                                _state = MinorState.Ready;
-                                goto SetStateReady;
-                            }
-                            else {
-                                _state = MinorState.NotReady;
-                                goto RequestFailed;
-                            }
-                        }
-                    }
-
-                    return;
-
-                SetStateReady:
-                    SetStateReady();
-                    return;
-
-                RequestFailed:
-                    RequestFailed();
-                    return;
-                }
-            );
+            var reqTask =
+                SendRequestAndWaitResponseAsync(
+                    new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
+                        .WriteUInt32(RemoteChannel)
+                        .WriteString("subsystem")
+                        .WriteBool(true)
+                        .WriteString(_subsystemName)
+                );
 
             Trace("CH[{0}] subsystem : subsystem={1}", LocalChannel, _subsystemName);
+
+            var result = await reqTask;
+
+            lock (_stateSync) {
+                if (_state != MinorState.WaitSubsystemConfirmation) {
+                    return;
+                }
+                if (result == ChannelRequestResult.Success) {
+                    _state = MinorState.Ready;
+                    goto SetStateReady;
+                }
+                else {
+                    _state = MinorState.NotReady;
+                    goto RequestFailed;
+                }
+            }
+
+        SetStateReady:
+            SetStateReady();
+            return;
+
+        RequestFailed:
+            RequestFailed();
+            return;
         }
 
         #endregion
