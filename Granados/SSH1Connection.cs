@@ -557,6 +557,13 @@ namespace Granados.SSH1 {
                         _eventHandler.OnDebugMessage(false, message);
                     }
                     break;
+                case SSH1PacketType.SSH_MSG_PORT_OPEN:
+                case SSH1PacketType.SSH_SMSG_AGENT_OPEN:
+                case SSH1PacketType.SSH_SMSG_X11_OPEN: {    // unhandled channel-open requests
+                        var failurePacket = new SSH1Packet(SSH1PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE);
+                        _syncHandler.Send(failurePacket);
+                    }
+                    break;
                 default:
                     _eventHandler.OnUnhandledMessage((byte)pt, packet.GetBytes());
                     break;
