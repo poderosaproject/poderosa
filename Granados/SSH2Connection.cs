@@ -555,6 +555,19 @@ namespace Granados.SSH2 {
                         }
                     }
                     return;
+                case SSH2PacketType.SSH_MSG_CHANNEL_OPEN: { // unhandled channel-open request
+                        string channelType = reader.ReadString();
+                        uint remoteChannel = reader.ReadUInt32();
+                        _protocolEventManager.Trace("Unhandled channel open: channelType={0} remoteChannel={1}", channelType, remoteChannel);
+                        _syncHandler.Send(
+                            new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE)
+                                    .WriteUInt32(remoteChannel)
+                                    .WriteUInt32(SSH2ChannelOpenFailureCode.SSH_OPEN_UNKNOWN_CHANNEL_TYPE)
+                                    .WriteUTF8String("Unknown channel type")
+                                    .WriteString("")   // lang tag
+                        );
+                    }
+                    return;
             }
 
             _eventHandler.OnUnhandledMessage((byte)packetType, packet.GetBytes());
