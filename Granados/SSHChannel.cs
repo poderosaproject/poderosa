@@ -3,6 +3,8 @@
 // the license included in the distributed package.
 // You may not use this file except in compliance with the license.
 
+//#define DEBUG_REPORT_SSHCHANNELS
+
 namespace Granados {
     using Granados.IO;
     using System;
@@ -292,6 +294,9 @@ namespace Granados.SSH {
     using System.Collections.Concurrent;
     using System.Diagnostics;
     using System.Threading;
+#if DEBUG_REPORT_SSHCHANNELS
+    using System.Linq;
+#endif
 
     /// <summary>
     /// A wrapper class of <see cref="ISSHChannelEventHandler"/> for internal use.
@@ -460,6 +465,10 @@ namespace Granados.SSH {
             uint channelNumber = channel.LocalChannel;
             var entry = new ChannelEntry(channel, eventHandler);
             _dic.TryAdd(channelNumber, entry);
+#if DEBUG_REPORT_SSHCHANNELS
+            Debug.WriteLine("** CHANNEL ADD " + channelNumber.ToString()
+                + " { " + String.Join(", ", _dic.Keys.OrderBy(n => n).Select(n => n.ToString())) + " }");
+#endif
         }
 
         /// <summary>
@@ -470,6 +479,10 @@ namespace Granados.SSH {
             uint channelNumber = channel.LocalChannel;
             ChannelEntry entry;
             _dic.TryRemove(channelNumber, out entry);
+#if DEBUG_REPORT_SSHCHANNELS
+            Debug.WriteLine("** CHANNEL REMOVE " + channelNumber.ToString()
+                + " { " + String.Join(", ", _dic.Keys.OrderBy(n => n).Select(n => n.ToString())) + " }");
+#endif
         }
 
         /// <summary>
