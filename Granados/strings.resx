@@ -104,4 +104,46 @@
   <data name="OnlySingleInteractiveSessionCanBeStarted">
     <value>Only single interactive session can be started</value>
   </data>
+  <data name="X11ForwardingRejectedFromServer">
+    <value>X11 forwarding has been rejected from the server.</value>
+  </data>
+  <data name="XauthorityFileNotFound">
+    <value>.Xauthority file was not found.</value>
+  </data>
+  <data name="ReadingXauthorityFileFailed">
+    <value>Reading .Xauthority file failed.</value>
+  </data>
+  <data name="SuitableAuthorizationInformationNotFound">
+    <value>The suitable authorization information was not found in the .Xauthority file.</value>
+  </data>
+  <data name="FailedToSendMessageToXServer">
+    <value>Failed to send a message to the X server.</value>
+  </data>
+  <data name="XServerDoesntRespond">
+    <value>X server doesn't respond.</value>
+  </data>
+  <data name="X11AuthorizationFailed">
+    <value>X11 authorization failed.</value>
+  </data>
+  <data name="InvalidDisplayNumber">
+    <value>Invalid display number.</value>
+  </data>
+  <data name="FailedConnectXServer">
+    <value>Failed to connect to the X server.</value>
+  </data>
+  <data name="FailedConnectXServerWithCygwinDomainSocket">
+    <value>Failed to connect to the X server with Cygwin's unix domain socket.</value>
+  </data>
+  <data name="X11UnixDirectoryPathRequired">
+    <value>Path to the .X11-unix directory is required.</value>
+  </data>
+  <data name="DomainSocketFileNotFound">
+    <value>Domain socket file was not found.</value>
+  </data>
+  <data name="FailedToReadDomainSocketFile">
+    <value>Failed to read the domain socket file.</value>
+  </data>
+  <data name="FailedToOpenCygwinDomainSocket">
+    <value>Failed to open Cygwin's domain socket.</value>
+  </data>
 </root>

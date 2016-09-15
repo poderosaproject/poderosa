@@ -13,10 +13,12 @@ using Granados.PKI;
 using Granados.PortForwarding;
 using Granados.SSH;
 using Granados.Util;
+using Granados.X11;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -43,8 +45,11 @@ namespace Granados.SSH2 {
         private readonly SSHPacketInterceptorCollection _packetInterceptors;
         private readonly SSH2KeyExchanger _keyExchanger;
 
+        private readonly X11ConnectionManager _x11ConnectionManager;
+
         private readonly Lazy<SSH2RemotePortForwarding> _remotePortForwarding;
         private readonly Lazy<SSH2OpenSSHAgentForwarding> _agentForwarding;
+        private readonly Lazy<SSH2X11Forwarding> _x11Forwarding;
 
         //server info
         private readonly SSH2ConnectionInfo _connectionInfo;
@@ -103,8 +108,11 @@ namespace Granados.SSH2 {
             _keyExchanger = new SSH2KeyExchanger(_syncHandler, param, _protocolEventManager, _connectionInfo, UpdateKey);
             _packetInterceptors.Add(_keyExchanger);
 
+            _x11ConnectionManager = (param.X11ForwardingParams != null) ? new X11ConnectionManager(_protocolEventManager) : null;
+
             _remotePortForwarding = new Lazy<SSH2RemotePortForwarding>(CreateRemotePortForwarding);
             _agentForwarding = new Lazy<SSH2OpenSSHAgentForwarding>(CreateAgentForwarding);
+            _x11Forwarding = new Lazy<SSH2X11Forwarding>(CreateX11Forwarding);
 
             // set packetizer as a socket data handler
             socket.SetHandler(_packetizer);
@@ -147,6 +155,37 @@ namespace Granados.SSH2 {
                                 registerChannel:
                                     RegisterChannel
                             );
+            _packetInterceptors.Add(instance);
+            return instance;
+        }
+
+        /// <summary>
+        /// Lazy initialization of the <see cref="SSH2X11Forwarding"/>.
+        /// </summary>
+        /// <returns>an instance of <see cref="SSH2X11Forwarding"/></returns>
+        private SSH2X11Forwarding CreateX11Forwarding() {
+            var instance = new SSH2X11Forwarding(
+                            syncHandler:
+                                _syncHandler,
+                            protocolEventManager:
+                                _protocolEventManager,
+                            x11ConnectionManager:
+                                _x11ConnectionManager,
+                            createChannel:
+                                (remoteChannel, serverWindowSize, serverMaxPacketSize) => {
+                                    uint localChannel = _channelCollection.GetNewChannelNumber();
+                                    return new SSH2X11ForwardingChannel(
+                                                _syncHandler,
+                                                _param,
+                                                _protocolEventManager,
+                                                localChannel,
+                                                remoteChannel,
+                                                serverWindowSize,
+                                                serverMaxPacketSize);
+                                },
+                            registerChannel:
+                                RegisterChannel
+                        );
             _packetInterceptors.Add(instance);
             return instance;
         }
@@ -295,16 +334,23 @@ namespace Granados.SSH2 {
         public THandler OpenShell<THandler>(SSHChannelEventHandlerCreator<THandler> handlerCreator)
                 where THandler : ISSHChannelEventHandler {
 
+            if (_x11ConnectionManager != null && !_x11ConnectionManager.SetupDone) {
+                _x11ConnectionManager.Setup(_param.X11ForwardingParams);
+                var x11Forwarding = _x11Forwarding.Value;   // create instance
+            }
+
             if (_param.AgentForwardingAuthKeyProvider != null) {
                 var agentForwarding = _agentForwarding.Value;   // create instance
             }
+
 
             return CreateChannelByClient(
                         handlerCreator:
                             handlerCreator,
                         channelCreator:
                             localChannel =>
-                                new SSH2ShellChannel(_syncHandler, _param, _protocolEventManager, localChannel)
+                                new SSH2ShellChannel(
+                                    _syncHandler, _param, _protocolEventManager, localChannel, _x11ConnectionManager)
                     );
         }
 
@@ -560,11 +606,11 @@ namespace Granados.SSH2 {
                         uint remoteChannel = reader.ReadUInt32();
                         _protocolEventManager.Trace("Unhandled channel open: channelType={0} remoteChannel={1}", channelType, remoteChannel);
                         _syncHandler.Send(
-                            new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE)
-                                    .WriteUInt32(remoteChannel)
-                                    .WriteUInt32(SSH2ChannelOpenFailureCode.SSH_OPEN_UNKNOWN_CHANNEL_TYPE)
-                                    .WriteUTF8String("Unknown channel type")
-                                    .WriteString("")   // lang tag
+                            new SSH2ChannelOpenFailurePacket(
+                                remoteChannel,
+                                "Unknown channel type",
+                                SSH2ChannelOpenFailureCode.SSH_OPEN_UNKNOWN_CHANNEL_TYPE
+                            )
                         );
                     }
                     return;
@@ -2513,28 +2559,17 @@ namespace Granados.SSH2 {
         }
 
         /// <summary>
-        /// Builds a SSH_MSG_CHANNEL_OPEN_FAILURE packet.
-        /// </summary>
-        /// <param name="remoteChannel">remote channel number</param>
-        /// <param name="reasonCode">reason code</param>
-        /// <param name="description">description</param>
-        /// <returns>a packet object</returns>
-        private SSH2Packet BuildChannelOpenFailurePacket(uint remoteChannel, uint reasonCode, string description) {
-            return new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE)
-                    .WriteUInt32(remoteChannel)
-                    .WriteUInt32(reasonCode)
-                    .WriteUTF8String(description)
-                    .WriteString("");   // lang tag
-        }
-
-        /// <summary>
         /// Sends SSH_MSG_CHANNEL_OPEN_FAILURE for rejecting the request.
         /// </summary>
         /// <param name="remoteChannel">remote channel number</param>
         /// <param name="description">description</param>
         /// <param name="reasonCode">reason code</param>
-        private void RejectForwardedTcpIp(uint remoteChannel, string description, uint reasonCode = SSH2ChannelOpenFailureCode.SSH_OPEN_ADMINISTRATIVELY_PROHIBITED) {
-            var packet = BuildChannelOpenFailurePacket(remoteChannel, reasonCode, description);
+        private void RejectForwardedTcpIp(
+                uint remoteChannel,
+                string description,
+                uint reasonCode = SSH2ChannelOpenFailureCode.SSH_OPEN_ADMINISTRATIVELY_PROHIBITED) {
+
+            var packet = new SSH2ChannelOpenFailurePacket(remoteChannel, description, reasonCode);
             _syncHandler.Send(packet);
             _protocolEventManager.Trace("reject forwarded-tcpip : {0}", description);
         }
@@ -2842,28 +2877,170 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <param name="remoteChannel">remote channel number</param>
         /// <param name="description">description</param>
-        /// <param name="reasonCode">reason code</param>
-        private void RejectAuthAgent(uint remoteChannel, string description, uint reasonCode = SSH2ChannelOpenFailureCode.SSH_OPEN_ADMINISTRATIVELY_PROHIBITED) {
-            var packet = BuildChannelOpenFailurePacket(remoteChannel, reasonCode, description);
+        private void RejectAuthAgent(uint remoteChannel, string description) {
+            var packet = new SSH2ChannelOpenFailurePacket(remoteChannel, description);
             _syncHandler.Send(packet);
             _protocolEventManager.Trace("reject auth-agent@openssh.com : {0}", description);
         }
 
+        #endregion
+    }
+
+    /// <summary>
+    /// Class for supporting X11 forwarding
+    /// </summary>
+    internal class SSH2X11Forwarding : ISSHPacketInterceptor {
+        #region
+
+        private const int PASSING_TIMEOUT = 1000;
+        private const int RESPONSE_TIMEOUT = 5000;
+
+        public delegate SSH2X11ForwardingChannel CreateChannelFunc(uint remoteChannel, uint serverWindowSize, uint serverMaxPacketSize);
+        public delegate void RegisterChannelFunc(SSH2X11ForwardingChannel channel, ISSHChannelEventHandler eventHandler);
+
+        private readonly X11ConnectionManager _x11ConnectionManager;
+        private readonly SSH2SynchronousPacketHandler _syncHandler;
+        private readonly SSHProtocolEventManager _protocolEventManager;
+        private readonly CreateChannelFunc _createChannel;
+        private readonly RegisterChannelFunc _registerChannel;
+
+        private readonly object _sequenceLock = new object();
+        private volatile SequenceStatus _sequenceStatus = SequenceStatus.Idle;
+
+        private readonly AtomicBox<DataFragment> _receivedPacket = new AtomicBox<DataFragment>();
+
+        private enum SequenceStatus {
+            /// <summary>Idle</summary>
+            Idle,
+            /// <summary>the connection has been closed</summary>
+            ConnectionClosed,
+        }
+
         /// <summary>
-        /// Builds a SSH_MSG_CHANNEL_OPEN_FAILURE packet.
+        /// Constructor
+        /// </summary>
+        public SSH2X11Forwarding(
+                SSH2SynchronousPacketHandler syncHandler,
+                SSHProtocolEventManager protocolEventManager,
+                X11ConnectionManager x11ConnectionManager,
+                CreateChannelFunc createChannel,
+                RegisterChannelFunc registerChannel) {
+
+            _x11ConnectionManager = x11ConnectionManager;
+            _syncHandler = syncHandler;
+            _protocolEventManager = protocolEventManager;
+            _createChannel = createChannel;
+            _registerChannel = registerChannel;
+        }
+
+        /// <summary>
+        /// Intercept a received packet.
+        /// </summary>
+        /// <param name="packet">a packet image</param>
+        /// <returns>result</returns>
+        public SSHPacketInterceptorResult InterceptPacket(DataFragment packet) {
+            SSH2PacketType packetType = (SSH2PacketType)packet[0];
+            if (packetType != SSH2PacketType.SSH_MSG_CHANNEL_OPEN) {
+                return SSHPacketInterceptorResult.PassThrough;
+            }
+
+            SSH2DataReader reader = new SSH2DataReader(packet);
+            reader.ReadByte();  // skip packet type (message number)
+            string channelType = reader.ReadString();
+            if (channelType != "x11") {
+                return SSHPacketInterceptorResult.PassThrough;
+            }
+
+            uint remoteChannel = reader.ReadUInt32();
+            uint initialWindowSize = reader.ReadUInt32();
+            uint maxPacketSize = reader.ReadUInt32();
+            string originatorAddr = reader.ReadString();
+            uint originatorPort = reader.ReadUInt32();
+
+            if (_x11ConnectionManager == null || !_x11ConnectionManager.SetupDone) {
+                RejectX11(remoteChannel, "Cannot accept the request");
+                _protocolEventManager.Trace("x11 : rejected");
+                return SSHPacketInterceptorResult.Consumed;
+            }
+
+            _protocolEventManager.Trace(
+                "x11 : windowSize={0} maxPacketSize={1} originator={2}:{3}",
+                initialWindowSize, maxPacketSize, originatorAddr, originatorPort);
+
+            IPAddress ipaddr;
+            if (IPAddress.TryParse(originatorAddr, out ipaddr)) {
+                if (!IPAddress.IsLoopback(ipaddr)) {
+                    RejectX11(remoteChannel, "Cannot accept the request");
+                    _protocolEventManager.Trace("x11 : rejected");
+                    return SSHPacketInterceptorResult.Consumed;
+                }
+            }
+
+            // create a channel
+            var channel = _createChannel(remoteChannel, initialWindowSize, maxPacketSize);
+
+            _protocolEventManager.Trace("new X11 forwarding channel : local={0} remote={1}", channel.LocalChannel, channel.RemoteChannel);
+
+            // create a handler
+            var handler = _x11ConnectionManager.CreateChannelHandler(channel);
+
+            // register a channel to the connection object
+            _registerChannel(channel, handler);
+
+            // send SSH_MSG_CHANNEL_OPEN_CONFIRMATION
+            channel.SendOpenConfirmation();
+
+            return SSHPacketInterceptorResult.Consumed;
+        }
+
+        /// <summary>
+        /// Handles connection close.
+        /// </summary>
+        public void OnConnectionClosed() {
+            lock (_sequenceLock) {
+                if (_sequenceStatus != SequenceStatus.ConnectionClosed) {
+                    _sequenceStatus = SequenceStatus.ConnectionClosed;
+                    DataFragment dummyPacket = new DataFragment(new byte[1] { 0xff }, 0, 1);
+                    _receivedPacket.TrySet(dummyPacket, PASSING_TIMEOUT);
+                    Monitor.PulseAll(_sequenceLock);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sends SSH_MSG_CHANNEL_OPEN_FAILURE for rejecting the request.
         /// </summary>
         /// <param name="remoteChannel">remote channel number</param>
-        /// <param name="reasonCode">reason code</param>
         /// <param name="description">description</param>
-        /// <returns>a packet object</returns>
-        private SSH2Packet BuildChannelOpenFailurePacket(uint remoteChannel, uint reasonCode, string description) {
-            return new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE)
-                    .WriteUInt32(remoteChannel)
-                    .WriteUInt32(reasonCode)
-                    .WriteUTF8String(description)
-                    .WriteString("");   // lang tag
+        private void RejectX11(uint remoteChannel, string description) {
+            var packet = new SSH2ChannelOpenFailurePacket(remoteChannel, description);
+            _syncHandler.Send(packet);
+            _protocolEventManager.Trace("reject x11 : {0}", description);
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// SSH_MSG_CHANNEL_OPEN_FAILURE packet.
+    /// </summary>
+    internal class SSH2ChannelOpenFailurePacket : SSH2Packet {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="remoteChannel">remote channel number</param>
+        /// <param name="description">description</param>
+        /// <param name="reasonCode">reason code</param>
+        public SSH2ChannelOpenFailurePacket(
+                uint remoteChannel,
+                string description,
+                uint reasonCode = SSH2ChannelOpenFailureCode.SSH_OPEN_ADMINISTRATIVELY_PROHIBITED)
+            : base(SSH2PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE) {
+
+            this.WriteUInt32(remoteChannel)
+                .WriteUInt32(reasonCode)
+                .WriteUTF8String(description)
+                .WriteString("");   // lang tag
+        }
     }
 }

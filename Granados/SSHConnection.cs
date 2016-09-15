@@ -25,6 +25,7 @@ namespace Granados {
         ExecCommand,
         Subsystem,
         AgentForwarding,
+        X11Forwarding,
         Other,
     }
 

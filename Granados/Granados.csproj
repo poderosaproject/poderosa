@@ -107,6 +107,9 @@
     </Compile>
     <Compile Include="DataHandler.cs" />
     <Compile Include="KeyboardInteractive.cs" />
+    <Compile Include="X11Utils.cs" />
+    <Compile Include="X11Socket.cs" />
+    <Compile Include="X11Forwarding.cs" />
     <Compile Include="PortForwarding.cs" />
     <Compile Include="SSH1Channel.cs" />
     <Compile Include="SSH2Channel.cs" />
@@ -213,6 +216,7 @@
     <Compile Include="Tutorial.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="X11ConnectionManager.cs" />
     <EmbeddedResource Include="strings.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>

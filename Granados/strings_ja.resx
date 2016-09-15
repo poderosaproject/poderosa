@@ -104,4 +104,46 @@
   <data name="OnlySingleInteractiveSessionCanBeStarted">
     <value>開始できるインタラクティブセッションは一つだけです</value>
   </data>
+  <data name="X11ForwardingRejectedFromServer">
+    <value>X11フォワーディングがサーバから拒否されました。</value>
+  </data>
+  <data name="XauthorityFileNotFound">
+    <value>.Xauthorityファイルが見つかりません。</value>
+  </data>
+  <data name="ReadingXauthorityFileFailed">
+    <value>.Xauthorityファイルの読み込みに失敗しました。</value>
+  </data>
+  <data name="SuitableAuthorizationInformationNotFound">
+    <value>.Xauthorityファイルに適当な認証情報が見つかりません。</value>
+  </data>
+  <data name="FailedToSendMessageToXServer">
+    <value>Xサーバへのメッセージ送信が失敗しました。</value>
+  </data>
+  <data name="XServerDoesntRespond">
+    <value>Xサーバからの応答がありません。</value>
+  </data>
+  <data name="X11AuthorizationFailed">
+    <value>X11認証が失敗しました。</value>
+  </data>
+  <data name="InvalidDisplayNumber">
+    <value>ディスプレイ番号が不正です。</value>
+  </data>
+  <data name="FailedConnectXServer">
+    <value>Xサーバへの接続に失敗しました。</value>
+  </data>
+  <data name="FailedConnectXServerWithCygwinDomainSocket">
+    <value>CygwinのUnixドメインソケットによるXサーバへの接続に失敗しました。</value>
+  </data>
+  <data name="X11UnixDirectoryPathRequired">
+    <value>.X11-unixディレクトリのパスが必要です。</value>
+  </data>
+  <data name="DomainSocketFileNotFound">
+    <value>ドメインソケットファイルが見つかりません。</value>
+  </data>
+  <data name="FailedToReadDomainSocketFile">
+    <value>ドメインソケットファイルの読み込みに失敗しました。</value>
+  </data>
+  <data name="FailedToOpenCygwinDomainSocket">
+    <value>Cygwinドメインソケットのオープンに失敗しました。</value>
+  </data>
 </root>

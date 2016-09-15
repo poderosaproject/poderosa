@@ -14,6 +14,15 @@ using System.Text;
 namespace Granados.SSH1 {
 
     /// <summary>
+    /// SSH1 protocol flags
+    /// </summary>
+    [Flags]
+    internal enum SSH1ProtocolFlags : uint {
+        SSH_PROTOFLAG_SCREEN_NUMBER = 1,
+        SSH_PROTOFLAG_HOST_IN_FWD_OPEN = 2,
+    }
+
+    /// <summary>
     /// A class retains miscellaneous informations about a SSH1 connection.
     /// </summary>
     internal class SSH1ConnectionInfo {
@@ -30,6 +39,7 @@ namespace Granados.SSH1 {
             PortNumber = portNumber;
             ServerVersionString = serverVersionString;
             ClientVersionString = clientVersionString;
+            ClientProtocolFlags = SSH1ProtocolFlags.SSH_PROTOFLAG_SCREEN_NUMBER | SSH1ProtocolFlags.SSH_PROTOFLAG_HOST_IN_FWD_OPEN;
         }
 
         /// <summary>
@@ -162,6 +172,22 @@ namespace Granados.SSH1 {
         /// </summary>
         /// <remarks>This property is null until the algorithm is detemined.</remarks>
         public CipherAlgorithm? IncomingPacketCipher {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Protocol flags of the client.
+        /// </summary>
+        public SSH1ProtocolFlags ClientProtocolFlags {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Protocol flags that received from the server.
+        /// </summary>
+        public SSH1ProtocolFlags ServerProtocolFlags {
             get;
             set;
         }

@@ -7,6 +7,7 @@ using Granados.AgentForwarding;
 using Granados.KeyboardInteractive;
 using Granados.KnownHosts;
 using Granados.PKI;
+using Granados.X11Forwarding;
 using System;
 
 namespace Granados {
@@ -206,6 +207,19 @@ namespace Granados {
         }
 
         /// <summary>
+        /// X11 forwarding parameters.
+        /// </summary>
+        /// <remarks>
+        /// This property can be null.<br/>
+        /// If this property was not null, the X11 forwarding will be requested to the server before a new shell is opened.
+        /// </remarks>
+        public X11ForwardingParams X11ForwardingParams {
+            get;
+            set;
+        }
+
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="hostName">Host name</param>
@@ -238,6 +252,9 @@ namespace Granados {
             SSHConnectionParameter p = (SSHConnectionParameter)MemberwiseClone();
             p.PreferableCipherAlgorithms = (CipherAlgorithm[])p.PreferableCipherAlgorithms.Clone();
             p.PreferableHostKeyAlgorithms = (PublicKeyAlgorithm[])p.PreferableHostKeyAlgorithms.Clone();
+            if (p.X11ForwardingParams != null) {
+                p.X11ForwardingParams = p.X11ForwardingParams.Clone();
+            }
             return p;
         }
     }

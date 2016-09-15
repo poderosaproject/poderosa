@@ -1147,6 +1147,7 @@ namespace Granados.SSH1 {
     /// SSH1 channel operator for the local port forwarding.
     /// </summary>
     internal class SSH1LocalPortForwardingChannel : SSH1SubChannelBase {
+        #region
 
         private const ChannelType CHANNEL_TYPE = ChannelType.ForwardedLocalToRemote;
         private const string CHANNEL_TYPE_STRING = "ForwardedLocalToRemote";
@@ -1198,6 +1199,7 @@ namespace Granados.SSH1 {
             );
 
         }
+        #endregion
     }
 
     /// <summary>
@@ -1262,4 +1264,34 @@ namespace Granados.SSH1 {
         #endregion
     }
 
+    /// <summary>
+    /// SSH1 channel operator for the X11 forwarding.
+    /// </summary>
+    internal class SSH1X11ForwardingChannel : SSH1SubChannelBase {
+        #region
+
+        private const ChannelType CHANNEL_TYPE = ChannelType.X11Forwarding;
+        private const string CHANNEL_TYPE_STRING = "X11Forwarding";
+
+        /// <summary>
+        /// Constructor (initiated by server)
+        /// </summary>
+        public SSH1X11ForwardingChannel(
+                IPacketSender<SSH1Packet> packetSender,
+                SSHProtocolEventManager protocolEventManager,
+                uint localChannel,
+                uint remoteChannel)
+            : base(packetSender, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+        }
+
+        /// <summary>
+        /// Builds an open-channel packet.
+        /// </summary>
+        protected override Tuple<SSH1Packet, string, object[]> BuildOpenPacket() {
+            // this method should not be called.
+            throw new InvalidOperationException();
+        }
+
+        #endregion
+    }
 }

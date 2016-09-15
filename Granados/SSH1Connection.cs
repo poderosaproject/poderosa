@@ -12,13 +12,17 @@ using Granados.PKI;
 using Granados.PortForwarding;
 using Granados.SSH;
 using Granados.Util;
-
+using Granados.X11;
+using Granados.X11Forwarding;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace Granados.SSH1 {
@@ -45,6 +49,7 @@ namespace Granados.SSH1 {
 
         private readonly Lazy<SSH1RemotePortForwarding> _remotePortForwarding;
         private readonly Lazy<SSH1AgentForwarding> _agentForwarding;
+        private readonly Lazy<SSH1X11Forwarding> _x11Forwarding;
 
         private readonly SSH1ConnectionInfo _connectionInfo;
 
@@ -108,6 +113,7 @@ namespace Granados.SSH1 {
 
             _remotePortForwarding = new Lazy<SSH1RemotePortForwarding>(CreateRemotePortForwarding);
             _agentForwarding = new Lazy<SSH1AgentForwarding>(CreateAgentForwarding);
+            _x11Forwarding = new Lazy<SSH1X11Forwarding>(CreateX11Forwarding);
 
             // set packetizer as a socket data handler
             socket.SetHandler(_packetizer);
@@ -137,6 +143,31 @@ namespace Granados.SSH1 {
                                 remoteChannel => {
                                     uint localChannel = _channelCollection.GetNewChannelNumber();
                                     return new SSH1AgentForwardingChannel(
+                                                    _syncHandler, _protocolEventManager, localChannel, remoteChannel);
+                                },
+                            registerChannel:
+                                RegisterChannel
+                        );
+            _packetInterceptors.Add(instance);
+            return instance;
+        }
+
+        /// <summary>
+        /// Lazy initialization to setup the instance of <see cref="SSH1X11Forwarding"/>.
+        /// </summary>
+        /// <returns>a new instance of <see cref="SSH1X11Forwarding"/></returns>
+        private SSH1X11Forwarding CreateX11Forwarding() {
+            var instance = new SSH1X11Forwarding(
+                            syncHandler:
+                                _syncHandler,
+                            connectionInfo:
+                                _connectionInfo,
+                            protocolEventManager:
+                                _protocolEventManager,
+                            createChannel:
+                                remoteChannel => {
+                                    uint localChannel = _channelCollection.GetNewChannelNumber();
+                                    return new SSH1X11ForwardingChannel(
                                                     _syncHandler, _protocolEventManager, localChannel, remoteChannel);
                                 },
                             registerChannel:
@@ -284,9 +315,21 @@ namespace Granados.SSH1 {
                 bool started = _agentForwarding.Value.StartAgentForwarding();
                 if (!started) {
                     _protocolEventManager.Trace("the request of the agent forwarding has been rejected.");
+                    // FIXME: OpenShell() should be aborted in this case if the user can disable the agent forwarding.
                 }
                 else {
                     _protocolEventManager.Trace("the request of the agent forwarding has been accepted.");
+                }
+            }
+
+            if (_param.X11ForwardingParams != null) {
+                bool started = _x11Forwarding.Value.ListenX11Forwarding(_param.X11ForwardingParams);
+                if (!started) {
+                    _protocolEventManager.Trace("the request of the X11 forwarding has been rejected.");
+                    throw new SSHException(Strings.GetString("X11ForwardingRejectedFromServer"));
+                }
+                else {
+                    _protocolEventManager.Trace("the request of the X11 forwarding has been accepted.");
                 }
             }
 
@@ -925,7 +968,7 @@ namespace Granados.SSH1 {
             BigInteger hostKeyExponent = reader.ReadMPInt();
             BigInteger hostKeyModulus = reader.ReadMPInt();
             _cInfo.HostKey = new RSAPublicKey(hostKeyExponent, hostKeyModulus);
-            int protocolFlags = reader.ReadInt32();
+            _cInfo.ServerProtocolFlags = (SSH1ProtocolFlags)reader.ReadUInt32();
             int supportedCiphersMask = reader.ReadInt32();
             _cInfo.SupportedEncryptionAlgorithmsMask = supportedCiphersMask;
             int supportedAuthenticationsMask = reader.ReadInt32();
@@ -1016,7 +1059,7 @@ namespace Granados.SSH1 {
                     .WriteByte((byte)_cInfo.OutgoingPacketCipher.Value)
                     .Write(_cInfo.AntiSpoofingCookie)
                     .WriteBigInteger(secondResult)
-                    .WriteInt32(0); //protocol flags
+                    .WriteUInt32((uint)_cInfo.ClientProtocolFlags);
         }
 
         /// <summary>
@@ -1925,6 +1968,255 @@ namespace Granados.SSH1 {
             lock (_sequenceLock) {
                 // reset status
                 _sequenceStatus = SequenceStatus.Idle;
+                Monitor.PulseAll(_sequenceLock);
+            }
+
+            return accepted;
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// Class for supporting X11 forwarding
+    /// </summary>
+    internal class SSH1X11Forwarding : ISSHPacketInterceptor {
+        #region
+
+        private const int PASSING_TIMEOUT = 1000;
+        private const int RESPONSE_TIMEOUT = 5000;
+
+        public delegate SSH1X11ForwardingChannel CreateChannelFunc(uint remoteChannel);
+        public delegate void RegisterChannelFunc(SSH1X11ForwardingChannel channel, ISSHChannelEventHandler eventHandler);
+
+        private readonly CreateChannelFunc _createChannel;
+        private readonly RegisterChannelFunc _registerChannel;
+        private readonly X11ConnectionManager _x11ConnectionManager;
+        private readonly SSH1SynchronousPacketHandler _syncHandler;
+        private readonly SSH1ConnectionInfo _connectionInfo;
+        private readonly SSHProtocolEventManager _protocolEventManager;
+
+        private readonly object _sequenceLock = new object();
+        private volatile SequenceStatus _sequenceStatus = SequenceStatus.Idle;
+
+        private readonly AtomicBox<DataFragment> _receivedPacket = new AtomicBox<DataFragment>();
+
+        private enum SequenceStatus {
+            /// <summary>Idle</summary>
+            Idle,
+            /// <summary>the connection has been closed</summary>
+            ConnectionClosed,
+            /// <summary>SSH_CMSG_X11_REQUEST_FORWARDING has been sent. waiting for SSH_SMSG_SUCCESS | SSH_SMSG_FAILURE.</summary>
+            WaitX11ForwardResponse,
+            /// <summary>SSH_SMSG_SUCCESS has been received.</summary>
+            X11ForwardSuccess,
+            /// <summary>SSH_SMSG_FAILURE has been received.</summary>
+            X11ForwardFailure,
+            /// <summary>SSH_SMSG_X11_OPEN can be accepted</summary>
+            CanOpenX11Forward,
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public SSH1X11Forwarding(
+                    SSH1SynchronousPacketHandler syncHandler,
+                    SSH1ConnectionInfo connectionInfo,
+                    SSHProtocolEventManager protocolEventManager,
+                    CreateChannelFunc createChannel,
+                    RegisterChannelFunc registerChannel) {
+            _syncHandler = syncHandler;
+            _connectionInfo = connectionInfo;
+            _x11ConnectionManager = new X11ConnectionManager(protocolEventManager);
+            _createChannel = createChannel;
+            _registerChannel = registerChannel;
+            _protocolEventManager = protocolEventManager;
+        }
+
+        /// <summary>
+        /// Intercept a received packet.
+        /// </summary>
+        /// <param name="packet">a packet image</param>
+        /// <returns>result</returns>
+        public SSHPacketInterceptorResult InterceptPacket(DataFragment packet) {
+            SSH1PacketType packetType = (SSH1PacketType)packet[0];
+            SSHPacketInterceptorResult result = CheckX11OpenRequestPacket(packetType, packet);
+            if (result != SSHPacketInterceptorResult.PassThrough) {
+                return result;
+            }
+
+            lock (_sequenceLock) {
+                switch (_sequenceStatus) {
+                    case SequenceStatus.WaitX11ForwardResponse:
+                        if (packetType == SSH1PacketType.SSH_SMSG_SUCCESS) {
+                            _sequenceStatus = SequenceStatus.X11ForwardSuccess;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return SSHPacketInterceptorResult.Consumed;
+                        }
+                        if (packetType == SSH1PacketType.SSH_SMSG_FAILURE) {
+                            _sequenceStatus = SequenceStatus.X11ForwardFailure;
+                            _receivedPacket.TrySet(packet, PASSING_TIMEOUT);
+                            return SSHPacketInterceptorResult.Consumed;
+                        }
+                        break;
+                }
+
+                return SSHPacketInterceptorResult.PassThrough;
+            }
+        }
+
+        /// <summary>
+        /// Handles new request.
+        /// </summary>
+        /// <param name="packetType">packet type</param>
+        /// <param name="packet">packet data</param>
+        /// <returns>result</returns>
+        private SSHPacketInterceptorResult CheckX11OpenRequestPacket(SSH1PacketType packetType, DataFragment packet) {
+            lock (_sequenceLock) {
+                if (_sequenceStatus != SequenceStatus.CanOpenX11Forward) {
+                    return SSHPacketInterceptorResult.PassThrough;
+                }
+            }
+
+            if (packetType != SSH1PacketType.SSH_SMSG_X11_OPEN) {
+                return SSHPacketInterceptorResult.PassThrough;
+            }
+
+            SSH1DataReader reader = new SSH1DataReader(packet);
+            reader.ReadByte();    // skip message number
+            uint remoteChannel = reader.ReadUInt32();
+            string originator;
+            if (_connectionInfo.ServerProtocolFlags.HasFlag(SSH1ProtocolFlags.SSH_PROTOFLAG_HOST_IN_FWD_OPEN)
+                && _connectionInfo.ClientProtocolFlags.HasFlag(SSH1ProtocolFlags.SSH_PROTOFLAG_HOST_IN_FWD_OPEN)
+                && reader.RemainingDataLength >= 4) {
+
+                originator = reader.ReadString();
+            }
+            else {
+                originator = "";
+            }
+
+            // OpenSSH sends originator in the form of "X11 connection from {address} port {port}".
+            // Only in the case that "{address} port {port}" part was found in the originator,
+            // the address will be checked to determine whether the request can be accepted.
+
+            var match = Regex.Match(originator, @"(\S+)\s+port\s+(\d+)");
+            if (match.Success) {
+                IPAddress addr;
+                if (IPAddress.TryParse(match.Groups[1].Value, out addr)) {
+                    if (!IPAddress.IsLoopback(addr)) {
+                        _protocolEventManager.Trace("SSH_SMSG_X11_OPEN originator is \"{0}\" (rejected)", originator);
+                        RejectX11Forward(remoteChannel);
+                        return SSHPacketInterceptorResult.Consumed;
+                    }
+                }
+            }
+
+            _protocolEventManager.Trace("SSH_SMSG_X11_OPEN originator is \"{0}\" (accepted)", originator);
+
+            // create a temporary channel
+            var channel = _createChannel(remoteChannel);
+
+            // get a channel handler
+            var handler = _x11ConnectionManager.CreateChannelHandler(channel);
+            if (handler == null) {
+                // failed to connect to the X server
+                _protocolEventManager.Trace("SSH_SMSG_X11_OPEN failed");
+                RejectX11Forward(remoteChannel);
+                return SSHPacketInterceptorResult.Consumed;
+            }
+
+            // register a channel to the connection object
+            _registerChannel(channel, handler);
+
+            // send SSH_MSG_CHANNEL_OPEN_CONFIRMATION
+            channel.SendOpenConfirmation();
+
+            return SSHPacketInterceptorResult.Consumed;
+        }
+
+        /// <summary>
+        /// Handles connection close.
+        /// </summary>
+        public void OnConnectionClosed() {
+            lock (_sequenceLock) {
+                if (_sequenceStatus != SequenceStatus.ConnectionClosed) {
+                    _sequenceStatus = SequenceStatus.ConnectionClosed;
+                    DataFragment dummyPacket = new DataFragment(new byte[1] { 0xff }, 0, 1);
+                    _receivedPacket.TrySet(dummyPacket, PASSING_TIMEOUT);
+                    Monitor.PulseAll(_sequenceLock);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sends SSH_MSG_CHANNEL_OPEN_FAILURE for rejecting the request.
+        /// </summary>
+        /// <param name="remoteChannel">remote channel number</param>
+        private void RejectX11Forward(uint remoteChannel) {
+            var packet = new SSH1Packet(SSH1PacketType.SSH_MSG_CHANNEL_OPEN_FAILURE);
+            _syncHandler.Send(packet);
+        }
+
+        /// <summary>
+        /// Builds SSH_CMSG_X11_REQUEST_FORWARDING packet.
+        /// </summary>
+        /// <param name="authProtocolName">authorization protocol name</param>
+        /// <param name="authCookieHex">authorization cookie (hex string)</param>
+        /// <param name="screen">screen number</param>
+        /// <returns>packet object</returns>
+        private SSH1Packet BuildX11ForwardPacket(string authProtocolName, string authCookieHex, int screen) {
+            var packet = new SSH1Packet(SSH1PacketType.SSH_CMSG_X11_REQUEST_FORWARDING)
+                    .WriteString(authProtocolName)
+                    .WriteString(authCookieHex);
+            if (_connectionInfo.ClientProtocolFlags.HasFlag(SSH1ProtocolFlags.SSH_PROTOFLAG_SCREEN_NUMBER)) {
+                packet.WriteUInt32((uint)screen);
+            }
+            return packet;
+        }
+
+        /// <summary>
+        /// Starts X11 forwarding.
+        /// </summary>
+        /// <param name="param">X11 forwarding parameters</param>
+        /// <returns>true if the X11 forwarding has been started.</returns>
+        /// <exception cref="X11UtilException"></exception>
+        /// <exception cref="X11SocketException"></exception>
+        public bool ListenX11Forwarding(X11ForwardingParams param) {
+            lock (_sequenceLock) {
+                while (_sequenceStatus != SequenceStatus.Idle) {
+                    if (_sequenceStatus == SequenceStatus.ConnectionClosed) {
+                        return false;
+                    }
+                    Monitor.Wait(_sequenceLock);
+                }
+
+                _receivedPacket.Clear();
+                _sequenceStatus = SequenceStatus.WaitX11ForwardResponse;
+            }
+
+            if (!_x11ConnectionManager.SetupDone) {
+                _x11ConnectionManager.Setup(param);
+            }
+
+            var packet = BuildX11ForwardPacket(
+                            _x11ConnectionManager.SpoofedAuthProtocolName,
+                            _x11ConnectionManager.SpoofedAuthProtocolDataHex,
+                            _x11ConnectionManager.Params.Screen);
+            _syncHandler.Send(packet);
+
+            DataFragment response = null;
+            bool accepted = false;
+            if (_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+                lock (_sequenceLock) {
+                    if (_sequenceStatus == SequenceStatus.X11ForwardSuccess) {
+                        accepted = true;
+                    }
+                }
+            }
+
+            lock (_sequenceLock) {
+                _sequenceStatus = accepted ? SequenceStatus.CanOpenX11Forward : SequenceStatus.Idle;
                 Monitor.PulseAll(_sequenceLock);
             }
 

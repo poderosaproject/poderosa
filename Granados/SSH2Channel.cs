@@ -7,7 +7,10 @@ using Granados.IO;
 using Granados.IO.SSH2;
 using Granados.SSH;
 using Granados.Util;
+using Granados.X11;
+using Granados.X11Forwarding;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -870,6 +873,8 @@ namespace Granados.SSH2 {
             WaitPtyReqConfirmation,
             /// <summary>waiting SSH_MSG_CHANNEL_SUCCESS | SSH_MSG_CHANNEL_FAILURE for "auth-agent-req@openssh.com" request</summary>
             WaitAuthAgentReqConfirmation,
+            /// <summary>waiting SSH_MSG_CHANNEL_SUCCESS | SSH_MSG_CHANNEL_FAILURE for "x11-req" request</summary>
+            WaitX11ReqConfirmation,
             /// <summary>waiting SSH_MSG_CHANNEL_SUCCESS | SSH_MSG_CHANNEL_FAILURE for "shell" request</summary>
             WaitShellConfirmation,
             /// <summary></summary>
@@ -877,6 +882,8 @@ namespace Granados.SSH2 {
         }
 
         private readonly SSHConnectionParameter _param;
+        // X11 connection manager (null if X11 forwarding is inactive)
+        private readonly X11ConnectionManager _x11ConnectionManager;
 
         private volatile MinorState _state;
         private readonly object _stateSync = new object();
@@ -888,9 +895,11 @@ namespace Granados.SSH2 {
                 IPacketSender<SSH2Packet> packetSender,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
-                uint localChannel)
+                uint localChannel,
+                X11ConnectionManager x11ConnectionManager)
             : base(packetSender, param, protocolEventManager, localChannel) {
             _param = param;
+            _x11ConnectionManager = x11ConnectionManager;
         }
 
         /// <summary>
@@ -906,6 +915,11 @@ namespace Granados.SSH2 {
 
                 var reqAuthAgentResult = await SendAuthAgentRequest();
                 if (!reqAuthAgentResult) {
+                    return;
+                }
+
+                var reqX11Result = await SendX11Request();
+                if (!reqX11Result) {
                     return;
                 }
 
@@ -1000,6 +1014,54 @@ namespace Granados.SSH2 {
                 }
                 else {
                     Trace("CH[{0}] the request of the agent forwarding has been rejected.", LocalChannel);
+                    _state = MinorState.NotReady;
+                    goto RequestFailed;
+                }
+            }
+
+        RequestFailed:
+            RequestFailed();
+            return false;
+        }
+
+        /// <summary>
+        /// Sends SSH_MSG_CHANNEL_REQUEST "x11-req"
+        /// </summary>
+        private async Task<bool> SendX11Request() {
+            if (_param.X11ForwardingParams == null || _x11ConnectionManager == null) {
+                return true;    // do the next task
+            }
+
+            lock (_stateSync) {
+                _state = MinorState.WaitX11ReqConfirmation;
+            }
+
+            var reqTask =
+                SendRequestAndWaitResponseAsync(
+                    new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
+                        .WriteUInt32(RemoteChannel)
+                        .WriteString("x11-req")
+                        .WriteBool(true)
+                        .WriteBool(false)   // not single-connection
+                        .WriteString(_x11ConnectionManager.SpoofedAuthProtocolName)
+                        .WriteString(_x11ConnectionManager.SpoofedAuthProtocolDataHex)
+                        .WriteUInt32((uint)_x11ConnectionManager.Params.Screen) // screen number
+                );
+
+            Trace("CH[{0}] x11-req", LocalChannel);
+
+            var result = await reqTask;
+
+            lock (_stateSync) {
+                if (_state != MinorState.WaitX11ReqConfirmation) {
+                    return false;
+                }
+                if (result == ChannelRequestResult.Success) {
+                    Trace("CH[{0}] the request of the X11 forwarding has been accepted.", LocalChannel);
+                    return true;    // do the next task
+                }
+                else {
+                    Trace("CH[{0}] the request of the X11 forwarding has been rejected.", LocalChannel);
                     _state = MinorState.NotReady;
                     goto RequestFailed;
                 }
@@ -1349,4 +1411,31 @@ namespace Granados.SSH2 {
 
         #endregion
     }
+
+    /// <summary>
+    /// SSH2 channel operator for the X11 forwarding.
+    /// </summary>
+    internal class SSH2X11ForwardingChannel : SSH2ChannelBase {
+        #region
+
+        private const ChannelType CHANNEL_TYPE = ChannelType.X11Forwarding;
+        private const string CHANNEL_TYPE_STRING = "x11";
+
+        /// <summary>
+        /// Constructor (initiated by server)
+        /// </summary>
+        public SSH2X11ForwardingChannel(
+                IPacketSender<SSH2Packet> packetSender,
+                SSHConnectionParameter param,
+                SSHProtocolEventManager protocolEventManager,
+                uint localChannel,
+                uint remoteChannel,
+                uint serverWindowSize,
+                uint serverMaxPacketSize)
+            : base(packetSender, param, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING, serverWindowSize, serverMaxPacketSize) {
+        }
+
+        #endregion
+    }
+
 }
