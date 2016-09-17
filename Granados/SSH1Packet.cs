@@ -301,7 +301,7 @@ namespace Granados.SSH1 {
                     return;
                 }
 
-                DataFragment packet = _packetImage.AsDataFragment();
+                DataFragment packet = _packetImage.ToDataFragment();    // duplicate bytes
                 OnDataInternal(packet);
             }
         }
