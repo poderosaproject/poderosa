@@ -841,14 +841,16 @@ namespace Granados.SSH2 {
                 throw new SSHChannelInvalidOperationException("Channel already closed");
             }
 
-            var reqTask =
-                SendRequestAndWaitResponseAsync(
-                    new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
-                        .WriteUInt32(RemoteChannel)
-                        .WriteString("break")
-                        .WriteBool(true)
-                        .WriteInt32(breakLength)
-                );
+            var reqTask = Task.Run( // do await in the worker thread for avoiding deadlock
+                async () =>
+                    await SendRequestAndWaitResponseAsync(
+                        new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
+                            .WriteUInt32(RemoteChannel)
+                            .WriteString("break")
+                            .WriteBool(true)
+                            .WriteInt32(breakLength)
+                    )
+            );
 
             Trace("CH[{0}] break : breakLength={1}", LocalChannel, breakLength);
 
