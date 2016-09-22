@@ -1158,7 +1158,6 @@ namespace Granados.SSH2 {
         /// <returns>true if the channel is ready for use.</returns>
         protected override void OnChannelEstablished() {
             var task = SendExecRequest();
-            task.Wait();
         }
 
         /// <summary>
@@ -1251,7 +1250,6 @@ namespace Granados.SSH2 {
         /// <returns>true if the channel is ready for use.</returns>
         protected override void OnChannelEstablished() {
             var task = SendSubsystemRequest();
-            task.Wait();
         }
 
         /// <summary>
