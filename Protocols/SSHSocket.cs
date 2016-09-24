@@ -172,14 +172,18 @@ namespace Poderosa.Protocols {
         }
 
         public override void Close() {
-            if (_channelHandler != null)
-                _channelHandler.Operator.Close();
+            ForceDisposed();
         }
+
         public void ForceDisposed() {
             try {
-                _connection.Close(); //マルチチャネルだとアウトかも
+                if (_connection != null && _connection.IsOpen) {
+                    _connection.Disconnect(DisconnectionReasonCode.ByApplication, "bye");
+                }
             }
-            catch (Exception) {
+            catch(Exception e) {
+                Debug.WriteLine(e.Message);
+                Debug.WriteLine(e.StackTrace);
             }
         }
 
