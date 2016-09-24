@@ -176,7 +176,7 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <param name="requestPacket">SSH_MSG_CHANNEL_REQUEST packet</param>
         /// <returns>asynchronous task that wait for the response</returns>
-        protected async Task<ChannelRequestResult> SendRequestAndWaitResponseAsync(SSH2Packet requestPacket) {
+        protected Task<ChannelRequestResult> SendRequestAndWaitResponseAsync(SSH2Packet requestPacket) {
             lock (_channelRequestStatusSync) {
                 SpinWait.SpinUntil(() => _channelRequestStatus == false);
                 _channelRequestStatus = true;
@@ -185,7 +185,7 @@ namespace Granados.SSH2 {
             try {
                 _channelRequestResult.Clear();
                 Transmit(0, requestPacket);
-                return await WaitResponseAsync();
+                return WaitResponseAsync();
             }
             finally {
                 lock (_channelRequestStatusSync) {
@@ -841,16 +841,14 @@ namespace Granados.SSH2 {
                 throw new SSHChannelInvalidOperationException("Channel already closed");
             }
 
-            var reqTask = Task.Run( // do await in the worker thread for avoiding deadlock
-                async () =>
-                    await SendRequestAndWaitResponseAsync(
-                        new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
-                            .WriteUInt32(RemoteChannel)
-                            .WriteString("break")
-                            .WriteBool(true)
-                            .WriteInt32(breakLength)
-                    )
-            );
+            var reqTask =
+                SendRequestAndWaitResponseAsync(
+                            new SSH2Packet(SSH2PacketType.SSH_MSG_CHANNEL_REQUEST)
+                                .WriteUInt32(RemoteChannel)
+                                .WriteString("break")
+                                .WriteBool(true)
+                                .WriteInt32(breakLength)
+                );
 
             Trace("CH[{0}] break : breakLength={1}", LocalChannel, breakLength);
 
@@ -909,23 +907,23 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <returns>true if the channel is ready for use.</returns>
         protected override void OnChannelEstablished() {
-            Task.Run(async () => {
-                var reqPtyResult = await SendPtyRequest();
+            Task.Run(() => {
+                var reqPtyResult = SendPtyRequest();
                 if (!reqPtyResult) {
                     return;
                 }
 
-                var reqAuthAgentResult = await SendAuthAgentRequest();
+                var reqAuthAgentResult = SendAuthAgentRequest();
                 if (!reqAuthAgentResult) {
                     return;
                 }
 
-                var reqX11Result = await SendX11Request();
+                var reqX11Result = SendX11Request();
                 if (!reqX11Result) {
                     return;
                 }
 
-                var reqShellResult = await SendShellRequest();
+                var reqShellResult = SendShellRequest();
                 if (!reqShellResult) {
                     return;
                 }
@@ -935,7 +933,7 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Sends SSH_MSG_CHANNEL_REQUEST "pty-req"
         /// </summary>
-        private async Task<bool> SendPtyRequest() {
+        private bool SendPtyRequest() {
             lock (_stateSync) {
                 if (_state != MinorState.NotReady) {
                     return false;
@@ -962,7 +960,7 @@ namespace Granados.SSH2 {
                 _param.TerminalWidth, _param.TerminalHeight,
                 _param.TerminalPixelWidth, _param.TerminalPixelHeight);
 
-            var result = await reqTask;
+            var result = reqTask.Result;
 
             lock (_stateSync) {
                 if (_state != MinorState.WaitPtyReqConfirmation) {
@@ -985,7 +983,7 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Sends SSH_MSG_CHANNEL_REQUEST "auth-agent-req@openssh.com"
         /// </summary>
-        private async Task<bool> SendAuthAgentRequest() {
+        private bool SendAuthAgentRequest() {
             if (_param.AgentForwardingAuthKeyProvider == null) {
                 return true;    // do the next task
             }
@@ -1004,7 +1002,7 @@ namespace Granados.SSH2 {
 
             Trace("CH[{0}] auth-agent-req@openssh.com", LocalChannel);
 
-            var result = await reqTask;
+            var result = reqTask.Result;
 
             lock (_stateSync) {
                 if (_state != MinorState.WaitAuthAgentReqConfirmation) {
@@ -1029,7 +1027,7 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Sends SSH_MSG_CHANNEL_REQUEST "x11-req"
         /// </summary>
-        private async Task<bool> SendX11Request() {
+        private bool SendX11Request() {
             if (_param.X11ForwardingParams == null || _x11ConnectionManager == null) {
                 return true;    // do the next task
             }
@@ -1052,7 +1050,7 @@ namespace Granados.SSH2 {
 
             Trace("CH[{0}] x11-req", LocalChannel);
 
-            var result = await reqTask;
+            var result = reqTask.Result;
 
             lock (_stateSync) {
                 if (_state != MinorState.WaitX11ReqConfirmation) {
@@ -1077,7 +1075,7 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Sends SSH_MSG_CHANNEL_REQUEST "shell"
         /// </summary>
-        private async Task<bool> SendShellRequest() {
+        private bool SendShellRequest() {
             lock (_stateSync) {
                 _state = MinorState.WaitShellConfirmation;
             }
@@ -1092,7 +1090,7 @@ namespace Granados.SSH2 {
 
             Trace("CH[{0}] shell", LocalChannel);
 
-            var result = await reqTask;
+            var result = reqTask.Result;
 
             lock (_stateSync) {
                 if (_state != MinorState.WaitShellConfirmation) {
@@ -1159,13 +1157,13 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <returns>true if the channel is ready for use.</returns>
         protected override void OnChannelEstablished() {
-            var task = SendExecRequest();
+            Task.Run(() => SendExecRequest());
         }
 
         /// <summary>
         /// Sends SSH_MSG_CHANNEL_REQUEST "exec"
         /// </summary>
-        private async Task SendExecRequest() {
+        private void SendExecRequest() {
             lock (_stateSync) {
                 if (_state != MinorState.NotReady) {
                     return;
@@ -1184,7 +1182,7 @@ namespace Granados.SSH2 {
 
             Trace("CH[{0}] exec : command={1}", LocalChannel, _command);
 
-            var result = await reqTask;
+            var result = reqTask.Result;
 
             lock (_stateSync) {
                 if (_state != MinorState.WaitExecConfirmation) {
@@ -1251,13 +1249,13 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <returns>true if the channel is ready for use.</returns>
         protected override void OnChannelEstablished() {
-            var task = SendSubsystemRequest();
+            Task.Run(() => SendSubsystemRequest());
         }
 
         /// <summary>
         /// Sends SSH_MSG_CHANNEL_REQUEST "subsystem"
         /// </summary>
-        private async Task SendSubsystemRequest() {
+        private void SendSubsystemRequest() {
             lock (_stateSync) {
                 if (_state != MinorState.NotReady) {
                     return;
@@ -1276,7 +1274,7 @@ namespace Granados.SSH2 {
 
             Trace("CH[{0}] subsystem : subsystem={1}", LocalChannel, _subsystemName);
 
-            var result = await reqTask;
+            var result = reqTask.Result;
 
             lock (_stateSync) {
                 if (_state != MinorState.WaitSubsystemConfirmation) {
