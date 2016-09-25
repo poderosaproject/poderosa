@@ -292,7 +292,7 @@ namespace Granados.SSH2 {
             if (!this.IsOpen) {
                 return;
             }
-            Transmit(
+            _syncHandler.SendDisconnect(
                 new SSH2Packet(SSH2PacketType.SSH_MSG_DISCONNECT)
                     .WriteInt32((int)reasonCode)
                     .WriteString(message)

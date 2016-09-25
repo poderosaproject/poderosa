@@ -267,7 +267,7 @@ namespace Granados.SSH1 {
             if (!this.IsOpen) {
                 return;
             }
-            Transmit(
+            _syncHandler.SendDisconnect(
                 new SSH1Packet(SSH1PacketType.SSH_MSG_DISCONNECT)
                     .WriteString(message)
             );

@@ -63,6 +63,8 @@ namespace Granados.IO {
         private readonly IGranadosSocket _socket;
         private readonly IDataHandler _handler;
 
+        private volatile bool _disconnected = false;
+
         /// <summary>
         /// Gets the binary image of the packet to be sent.
         /// </summary>
@@ -113,6 +115,36 @@ namespace Granados.IO {
         public void Send(PacketType packet) {
             BeforeSend(packet);
             lock (_syncSend) {
+                if (_disconnected) {
+#if DEBUG_SYNCHRONOUSPACKETHANDLER
+                    System.Diagnostics.Debug.WriteLine("(blocked) <-- [{0}]", new object[] { GetMessageName(packet) });
+#endif
+                    return;
+                }
+
+#if DEBUG_SYNCHRONOUSPACKETHANDLER
+                System.Diagnostics.Debug.WriteLine("S <-- [{0}]", new object[] { GetMessageName(packet) });
+#endif
+                _socket.Write(GetPacketImage(packet));
+            }
+        }
+
+        /// <summary>
+        /// Sends a DISCONNECT packet.
+        /// </summary>
+        /// <param name="packet">a packet object.</param>
+        public void SendDisconnect(PacketType packet) {
+            BeforeSend(packet);
+            lock (_syncSend) {
+                if (_disconnected) {
+#if DEBUG_SYNCHRONOUSPACKETHANDLER
+                    System.Diagnostics.Debug.WriteLine("(blocked) <-- [{0}]", new object[] { GetMessageName(packet) });
+#endif
+                    return;
+                }
+
+                _disconnected = true;
+
 #if DEBUG_SYNCHRONOUSPACKETHANDLER
                 System.Diagnostics.Debug.WriteLine("S <-- [{0}]", new object[] { GetMessageName(packet) });
 #endif
@@ -126,6 +158,13 @@ namespace Granados.IO {
         /// <param name="data">packet image</param>
         public void OnData(DataFragment data) {
             lock (_syncReceive) {
+                if (_disconnected) {
+#if DEBUG_SYNCHRONOUSPACKETHANDLER
+                    System.Diagnostics.Debug.WriteLine("S --> [{0}] {1} bytes --> (blocked)", GetMessageName(data), data.Length);
+#endif
+                    return;
+                }
+
                 AfterReceived(data);
 #if DEBUG_SYNCHRONOUSPACKETHANDLER
                 System.Diagnostics.Debug.WriteLine("S --> [{0}] {1} bytes --> OnData", GetMessageName(data), data.Length);
