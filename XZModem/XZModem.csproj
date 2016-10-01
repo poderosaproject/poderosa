@@ -47,6 +47,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Crc.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="xmodem.cs" />
     <Compile Include="XZModemDialog.cs">

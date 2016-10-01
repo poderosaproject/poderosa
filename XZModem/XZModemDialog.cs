@@ -326,18 +326,21 @@ namespace Poderosa.XZModem {
             else
                 CloseAndDispose();
         }
-        public void AsyncSetProgressValue(int value) {
+        public void SetProgressValue(int value) {
             if (this.InvokeRequired)
-                Invoke(new SetProgressValueDelegate(SetProgressValue), value);
+                Invoke(new SetProgressValueDelegate(DoSetProgressValue), value);
             else
-                SetProgressValue(value);
+                DoSetProgressValue(value);
         }
         private void CloseAndDispose() {
             _closed = true;
             Close();
             Dispose();
         }
-        private void SetProgressValue(int value) {
+        private void DoSetProgressValue(int value) {
+            if (this.IsDisposed) {
+                return;
+            }
             StringResource sr = XZModemPlugin.Instance.Strings;
             if (_modemTask.IsReceivingTask)
                 _progressText.Text = String.Format(sr.GetString("Caption.XZModemDialog.ReceptionProgress"), value);

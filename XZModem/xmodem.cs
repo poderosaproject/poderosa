@@ -221,7 +221,7 @@ namespace Poderosa.XZModem {
                         int len = t + 1 - body_offset;
                         _outputStream.Write(data, body_offset, len);
                         _processedLength += len;
-                        _parent.AsyncSetProgressValue((int)_processedLength);
+                        _parent.SetProgressValue((int)_processedLength);
                         _retryCount = 0;
                     }
                     else {
@@ -375,7 +375,7 @@ namespace Poderosa.XZModem {
 
                 _nextOffset = _offset + len;
                 _connection.Socket.Transmit(buf, 0, buf.Length);
-                _parent.AsyncSetProgressValue(_nextOffset);
+                _parent.SetProgressValue(_nextOffset);
                 //Debug.WriteLine("Transmitted "+_sequenceNumber+" " +_offset);
             }
 

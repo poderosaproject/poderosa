@@ -110,4 +110,26 @@ $Id: stringresource.xml,v 1.1 2010/11/19 15:41:42 kzmi Exp $
   <en>Failed to receive the block start signal of XMODEM. The procedure will be aborted.</en>
 </record>
 
+<!-- zmodem.cs -->
+<record name="Message.ZModem.CRCError">
+  <ja>CRCエラー。</ja>
+  <en>CRC Error.</en>
+</record>
+<record name="Message.ZModem.BufferFull">
+  <ja>バッファが一杯です。</ja>
+  <en>Buffer is full.</en>
+</record>
+<record name="Message.ZModem.InvalidHeader">
+  <ja>不正なヘッダ。</ja>
+  <en>Invalid header.</en>
+</record>
+<record name="Message.ZModem.Aborted">
+  <ja>相手側から中止されました。</ja>
+  <en>Aborted by peer.</en>
+</record>
+<record name="Message.ZModem.FileSkipped">
+  <ja>ファイルがスキップされました。(ファイルがすでに存在しているかもしれません)</ja>
+  <en>File has been skipped. (Maybe file already exists)</en>
+</record>
+
 </string-resource>
