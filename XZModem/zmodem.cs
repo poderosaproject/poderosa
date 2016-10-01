@@ -1,16 +1,15 @@
-﻿/*
- * Copyright 2004-2016 The Poderosa Project.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- */
-using System;
-using System.Text;
-using System.IO;
-using System.Threading;
-using System.Diagnostics;
+﻿// Copyright 2004-2016 The Poderosa Project.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
 
 using Poderosa.Protocols;
+
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -1045,9 +1044,9 @@ namespace Poderosa.XZModem {
     /// </summary>
     internal class ZModemReceiver : ZModem {
         private readonly string _filename;
-        private readonly byte[] _PktOut = new byte[1032];
-        protected FileStream _filestream;
-        private int _CurrentPos;
+        private readonly byte[] _sndBuff = new byte[1032];
+        private FileStream _fileStream;
+        private int _filePos;
 
         private bool _stopped = false;
 
@@ -1063,7 +1062,8 @@ namespace Poderosa.XZModem {
         }
 
         public override void Start() {
-            _filestream = new FileStream(_filename, FileMode.Create);
+            _fileStream = new FileStream(_filename, FileMode.Create);
+            _filePos = 0;
             StartListening();
             SendZRInit();
         }
@@ -1082,24 +1082,24 @@ namespace Poderosa.XZModem {
         // ZRINIT
         private void SendZRInit() {
             if (!_stopped) {
-                int pktOutCount = BuildHEXHeader(_PktOut, new Header(ZRINIT, zf0: CANFC32 | CANOVIO));
-                SendPacket(_PktOut, pktOutCount);
+                int pktOutCount = BuildHEXHeader(_sndBuff, new Header(ZRINIT, zf0: CANFC32 | CANOVIO));
+                SendPacket(_sndBuff, pktOutCount);
             }
         }
 
         // ZRPOS
         private void SendZRPOS() {
             if (!_stopped) {
-                int pktOutCount = BuildHEXHeader(_PktOut, new Header(ZRPOS, pos: _CurrentPos));
-                SendPacket(_PktOut, pktOutCount);
+                int pktOutCount = BuildHEXHeader(_sndBuff, new Header(ZRPOS, pos: _filePos));
+                SendPacket(_sndBuff, pktOutCount);
             }
         }
 
         // ZFIN
         private void SendZFIN() {
             if (!_stopped) {
-                int pktOutCount = BuildHEXHeader(_PktOut, new Header(ZFIN));
-                SendPacket(_PktOut, pktOutCount);
+                int pktOutCount = BuildHEXHeader(_sndBuff, new Header(ZFIN));
+                SendPacket(_sndBuff, pktOutCount);
             }
         }
 
@@ -1118,7 +1118,7 @@ namespace Poderosa.XZModem {
 
                 case ZFILE:
                     Debug.WriteLine("Got ZFILE");
-                    _CurrentPos = 0;
+                    _filePos = 0;
                     SendZRPOS();
                     break;
 
@@ -1149,12 +1149,12 @@ namespace Poderosa.XZModem {
                 return;
             }
 
-            _filestream.Write(data, offset, length);
-            int oldPos = _CurrentPos;
-            _CurrentPos += length;
-            if ((oldPos / 1024) != (_CurrentPos / 1024)) {
+            _fileStream.Write(data, offset, length);
+            int oldPos = _filePos;
+            _filePos += length;
+            if ((oldPos / 1024) != (_filePos / 1024)) {
                 if (!_stopped) {
-                    _parent.SetProgressValue((int)_CurrentPos);
+                    _parent.SetProgressValue((int)_filePos);
                 }
             }
         }
@@ -1166,9 +1166,9 @@ namespace Poderosa.XZModem {
         }
 
         public override void Dispose() {
-            if (_filestream != null) {
+            if (_fileStream != null) {
                 try {
-                    _filestream.Dispose();
+                    _fileStream.Dispose();
                 }
                 catch {
                 }
