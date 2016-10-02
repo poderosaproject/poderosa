@@ -76,12 +76,14 @@ namespace Poderosa.XZModem {
         protected const byte ZCBIN = 1;
         protected const byte ZCNL = 2;
 
-        protected const byte CR = 0x8D;
-        protected const byte LF = 0x8A;
+        protected const byte CR = 0x0d;
+        protected const byte LF = 0x0a;
         protected const byte XON = 0x11;
         protected const byte XOFF = 0x13;
         protected const byte CAN = 0x18;
         protected const byte BS = 0x8;
+
+        protected const int MAX_BLOCK = 8192;
 
         protected enum CRCType {
             CRC16,
@@ -163,14 +165,14 @@ namespace Poderosa.XZModem {
         protected readonly XZModemDialog _parent;
 
         // packet buffer
-        private readonly byte[] _rcvPacket = new byte[8200];
+        private readonly byte[] _rcvPacket = new byte[MAX_BLOCK + 6];   // data + ZDLE + ZCRCx + CRC*4
         // packet length
         private int _rcvPacketLen;
         // byte count to be read
         private int _bytesNeeded;
 
         // buffer for sending packet
-        private byte[] _sndBuff = new byte[30];
+        private byte[] _sndBuff = new byte[21]; // for hex header
 
         // current receiving state
         private State _state = State.None;
@@ -551,7 +553,7 @@ namespace Poderosa.XZModem {
         private bool CheckCRC(CRCType crcType, byte[] data, int len) {
             if (crcType == CRCType.CRC32) {
                 uint crc = Crc32.Update(Crc32.InitialValue, data, 0, len - 4) ^ Crc32.XorValue;
-                //Debug.Print("CRC32: {0:x8}", crc);
+                //Debug.WriteLine("CRC32: {0:x8}", crc);
                 uint crcfld = (((uint)data[len - 4]) |
                                ((uint)data[len - 3] << 8) |
                                ((uint)data[len - 2] << 16) |
@@ -561,7 +563,7 @@ namespace Poderosa.XZModem {
             else {
                 // CRC16
                 ushort crc = Crc16.Update(Crc16.InitialValue, data, 0, len - 2);
-                //Debug.Print("CRC16: {0:x4}", crc);
+                //Debug.WriteLine("CRC16: {0:x4}", crc);
                 ushort crcfld = (ushort)((data[len - 2] << 8) | data[len - 1]);
                 return crc == crcfld;
             }
@@ -601,7 +603,7 @@ namespace Poderosa.XZModem {
             index = PutHex(data, index, (byte)(crc >> 8));
             index = PutHex(data, index, (byte)(crc));
             data[index++] = CR;
-            data[index++] = LF;
+            data[index++] = LF | 0x80;  // sz/rz send 8a instead of 0a
 
             if (!(hdr.Type == ZFIN || hdr.Type == ZACK)) {
                 data[index++] = XON;
@@ -757,7 +759,7 @@ namespace Poderosa.XZModem {
     internal class ZModemSender : ZModem {
         private readonly string _fileName;
         private readonly int _fileSize;
-        private readonly byte[] _sndBuff = new byte[8200];
+        private readonly byte[] _sndBuff = new byte[MAX_BLOCK * 2 + 10];    // data(escaped) + ZDLE + ZCRCx + CRC(escaped)*4
 
         private Task _sendingTask;
         private readonly CancellationTokenSource _cancellation = new CancellationTokenSource();
@@ -973,10 +975,7 @@ namespace Poderosa.XZModem {
                     }
                     else {
                         int bufSize = (hdr.ZP1 << 8) | hdr.ZP0;
-                        if (bufSize > _frameSize) {
-                            _frameSize = bufSize;
-                        }
-
+                        _frameSize = Math.Min(Math.Max(_frameSize, bufSize), MAX_BLOCK);
                         _txCrcType = ((hdr.ZF0 & CANFC32) != 0) ? CRCType.CRC32 : CRCType.CRC16;
 
                         SendZFILE();
