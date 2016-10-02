@@ -371,6 +371,7 @@ namespace Poderosa.Protocols {
         private TelnetNegotiator _negotiator;
         private TelnetTerminalConnection _parent;
         private ByteDataFragment _localdata;
+        private bool _gotCR;
 
         public TelnetReceiver(TelnetTerminalConnection parent, TelnetNegotiator negotiator) {
             _parent = parent;
@@ -413,11 +414,15 @@ namespace Poderosa.Protocols {
                 while (delim < limit) {
                     byte b = buf[delim];
                     if (b == 0xFF) {
+                        _gotCR = false;
                         _negotiator.StartNegotiate();
                         break;
                     }
-                    if (b == 0 && delim - 1 >= 0 && buf[delim - 1] == 0x0D)
-                        break; //CR NULサポート
+                    if (b == 0 && _gotCR) {
+                        _gotCR = false;
+                        break; //CR NUL
+                    }
+                    _gotCR = (b == 0xd);
                     delim++;
                 }
 
