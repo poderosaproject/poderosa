@@ -28,16 +28,28 @@ namespace Poderosa.Commands {
         public PasteToTerminalCommand() {
         }
 
+        // Get Text (UNICODE or ANSI) from Clipboard
+        private string GetClipboardText()
+        {
+            var clipboardData = Clipboard.GetDataObject();
+            if (clipboardData.GetDataPresent("UnicodeText"))
+            {
+                return clipboardData.GetData("UnicodeText") as string;
+            }
+            if (!clipboardData.GetDataPresent("Text"))
+            {
+                return clipboardData.GetData("Text") as string;
+            }
+            return null;
+        }
+
         public CommandResult InternalExecute(ICommandTarget target, params IAdaptable[] args) {
             IPoderosaView view;
             ITerminalSession session;
             if (!GetViewAndSession(target, out view, out session))
                 return CommandResult.Ignored;
-            var clipboardData = Clipboard.GetDataObject();
-            if (!clipboardData.GetDataPresent("Text"))
-                return CommandResult.Ignored;
 
-            string data = clipboardData.GetData("Text") as string;
+            string data = GetClipboardText();
             if (data == null)
                 return CommandResult.Ignored;
 
@@ -68,7 +80,7 @@ namespace Poderosa.Commands {
             if (!GetViewAndSession(target, out view, out session))
                 return false;
             var clipboardData = Clipboard.GetDataObject();
-            if (!clipboardData.GetDataPresent("Text"))
+            if (!clipboardData.GetDataPresent("UnicodeText") && !clipboardData.GetDataPresent("Text"))
                 return false;
             return true;
         }
