@@ -180,7 +180,7 @@ namespace Poderosa.Protocols {
             _cipherAlgorithmOrder = builder.DefineStringValue(_folder, "cipherAlgorithmOrder", DEFAULT_CIPHER_ALGORITHM_ORDER, null);
             _cipherAlgorithmOrderWasChecked = false;
             _hostKeyAlgorithmOrder = builder.DefineStringValue(_folder, "hostKeyAlgorithmOrder", "DSA;RSA", null);
-            _sshWindowSize = builder.DefineIntValue(_folder, "sshWindowSize", 4096, PreferenceValidatorUtil.PositiveIntegerValidator);
+            _sshWindowSize = builder.DefineIntValue(_folder, "sshWindowSize", 2097152, PreferenceValidatorUtil.PositiveIntegerValidator);
             _sshCheckMAC = builder.DefineBoolValue(_folder, "sshCheckMAC", true, null);
             _hostKeyCheckerVerifierTypeName = builder.DefineStringValue(_folder, "hostKeyCheckerVerifierTypeName", "Poderosa.Usability.SSHKnownHosts", null);
             _logSSHEvents = builder.DefineBoolValue(_folder, "logSSHEvents", false, null);
