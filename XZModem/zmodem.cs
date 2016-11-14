@@ -885,6 +885,7 @@ namespace Poderosa.XZModem {
 
         // ZDATA
         private void SendZDATA(CancellationToken cancelToken) {
+        Restart:
             int filePos = Volatile.Read(ref _filePosReq);
             Volatile.Write(ref _filePosReqChanged, false);
             _fileStream.Seek(filePos, SeekOrigin.Begin);
@@ -899,9 +900,7 @@ namespace Poderosa.XZModem {
             // Sub frames
             while (!cancelToken.IsCancellationRequested) {
                 if (Volatile.Read(ref _filePosReqChanged)) {
-                    filePos = Volatile.Read(ref _filePosReq);
-                    Volatile.Write(ref _filePosReqChanged, false);
-                    _fileStream.Seek(filePos, SeekOrigin.Begin);
+                    goto Restart;
                 }
 
                 uint crc = (_txCrcType == CRCType.CRC32) ? Crc32.InitialValue : Crc16.InitialValue;
@@ -990,6 +989,7 @@ namespace Poderosa.XZModem {
                                 | (hdr.ZP1 << 8)
                                 | (hdr.ZP0);
                         _filePosReq = Math.Min(Math.Max(0, pos), _fileSize);
+                        Debug.WriteLine("_filePosReq = {0}", _filePosReq);
                         _filePosReqChanged = true;
                         if (_sendingTask == null) {
                             _sendingTask = Task.Run(() => SendZDATA(_cancellation.Token), _cancellation.Token);
@@ -1009,6 +1009,10 @@ namespace Poderosa.XZModem {
                     Debug.WriteLine("Got ZSKIP");
                     _fileSkipped = true;
                     SendZFIN();
+                    break;
+
+                case ZACK:
+                    Debug.WriteLine("Got ZACK");
                     break;
 
                 default:
