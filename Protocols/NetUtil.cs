@@ -130,6 +130,7 @@ namespace Poderosa.Protocols {
         public static Socket ConnectTCPSocket(IPAddress addr, int port, int timeout) {
 
             Socket s = new Socket(addr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            s.NoDelay = true;
             IAsyncResult ar = null;
             bool timed_out = false;
             AsyncConnectProcessor proc = new AsyncConnectProcessor(s);
