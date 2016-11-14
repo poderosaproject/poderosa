@@ -944,6 +944,8 @@ namespace Poderosa.XZModem {
                 if (frameType == ZCRCE) {
                     break;
                 }
+
+                Thread.Sleep(0);
             }
 
             // ZEOF
