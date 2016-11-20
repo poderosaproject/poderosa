@@ -68,6 +68,9 @@
   <data name="Caption.XZModemDialog.Negotiating">
     <value>通信中...</value>
   </data>
+  <data name="Caption.XZModemDialog.FileMustBeSpecified">
+    <value>ファイルを指定してください。</value>
+  </data>
   <data name="Message.XModem.ReceivingTimedOut">
     <value>受信がタイムアウトしました。</value>
   </data>

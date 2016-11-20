@@ -71,10 +71,6 @@ namespace Poderosa.XZModem {
             //TODO 前回の起動時の設定を覚えておくとよい
             _protocolBox.SelectedIndex = 1;
             _directionBox.SelectedIndex = 0;
-#if DEBUG
-            //テスト時にはここに初期値を設定
-            _fileNameBox.Text = "C:\\P4\\Work\\FF4K_R.bin";
-#endif
         }
 
 
@@ -241,6 +237,13 @@ namespace Poderosa.XZModem {
 
         private void OnOK(object sedner, EventArgs args) {
             Debug.Assert(!_executing);
+
+            if (_fileNameBox.Text.Length == 0) {
+                var window = _terminal.TerminalHost.OwnerWindow;
+                window.Warning(XZModemPlugin.Instance.Strings.GetString("Caption.XZModemDialog.FileMustBeSpecified"));
+                return;
+            }
+
             this.DialogResult = DialogResult.None;
             if (_directionBox.SelectedIndex == 0) { //index 0が受信
                 if (!StartReceive())
@@ -252,7 +255,18 @@ namespace Poderosa.XZModem {
             }
 
             _terminal.StartModalTerminalTask(_modemTask);
-            _modemTask.Start();
+
+            try {
+                _modemTask.Start();
+            }
+            catch (Exception ex) {
+                _terminal.EndModalTerminalTask();
+                RuntimeUtil.SilentReportException(ex);
+                GUtil.Warning(this, ex.Message);
+                _modemTask.Dispose();
+                AsyncReset();
+                return;
+            }
 
             StringResource sr = XZModemPlugin.Instance.Strings;
             _executing = true;

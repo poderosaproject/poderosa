@@ -68,6 +68,9 @@
   <data name="Caption.XZModemDialog.Negotiating">
     <value>Negotiating...</value>
   </data>
+  <data name="Caption.XZModemDialog.FileMustBeSpecified">
+    <value>File must be specified.</value>
+  </data>
   <data name="Message.XModem.ReceivingTimedOut">
     <value>Receiving data timed out.</value>
   </data>

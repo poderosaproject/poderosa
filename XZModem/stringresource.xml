@@ -83,8 +83,12 @@ $Id: stringresource.xml,v 1.1 2010/11/19 15:41:42 kzmi Exp $
   <ja>通信中...</ja>
   <en>Negotiating...</en>
 </record>
+<record name="Caption.XZModemDialog.FileMustBeSpecified">
+  <ja>ファイルを指定してください。</ja>
+  <en>File must be specified.</en>
+</record>
 
-<!-- xmodem.cs -->
+  <!-- xmodem.cs -->
 <record name="Message.XModem.ReceivingTimedOut">
   <ja>受信がタイムアウトしました。</ja>
   <en>Receiving data timed out.</en>
