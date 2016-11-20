@@ -117,11 +117,8 @@ namespace Poderosa.XZModem {
         private byte _nextSequenceNumber;
         private int _mode;  // MODE_CHECKSUM or MODE_CRC
 
-        private DateTime _lastReceptionUtcTime;
-        private readonly object _lastReceptionUtcTimeSync = new object();
-
-        private DateTime _lastBlockUtcTime;
-        private readonly object _lastBlockUtcTimeSync = new object();
+        private long _lastReceptionTimeUtcTicks;
+        private long _lastBlockTimeUtcTicks;
 
         // count of the consecutive errors
         private int _errorCount;
@@ -131,6 +128,7 @@ namespace Poderosa.XZModem {
         public XModemReceiver(XZModemDialog parent, string filePath)
             : base(parent) {
             _filePath = filePath;
+            _lastReceptionTimeUtcTicks = _lastBlockTimeUtcTicks = DateTime.UtcNow.Ticks;
         }
 
         public override bool IsReceivingTask {
@@ -143,13 +141,8 @@ namespace Poderosa.XZModem {
             int crcModeRetries = 0;
 
             while (!Volatile.Read(ref _teminateMonitorTask)) {
-                DateTime lastAcc;
-                lock (_lastBlockUtcTimeSync) {
-                    lastAcc = _lastBlockUtcTime;
-                }
-
-                DateTime now = DateTime.UtcNow;
-                int elapsedMsec = (int)((now - lastAcc).Ticks / TimeSpan.TicksPerMillisecond);
+                long last = Interlocked.Read(ref _lastBlockTimeUtcTicks);
+                int elapsedMsec = (int)((DateTime.UtcNow.Ticks - last) / TimeSpan.TicksPerMillisecond);
 
                 int mode = Volatile.Read(ref _mode);
                 int sn = Volatile.Read(ref _nextSequenceNumber);
@@ -157,16 +150,12 @@ namespace Poderosa.XZModem {
                 if (mode == MODE_CRC && sn == 1 && elapsedMsec > WAIT_CRCBLOCK_TIMEOUT) {
                     if (crcModeRetries < 3) {
                         crcModeRetries++;
-                        lock (_lastBlockUtcTimeSync) {
-                            _lastBlockUtcTime = DateTime.UtcNow;
-                        }
+                        Interlocked.Exchange(ref _lastBlockTimeUtcTicks, DateTime.UtcNow.Ticks);
                         Trace("<-- Retry: C");
                         Send(LETTER_C);
                     }
                     else {
-                        lock (_lastBlockUtcTimeSync) {
-                            _lastBlockUtcTime = DateTime.UtcNow;
-                        }
+                        Interlocked.Exchange(ref _lastBlockTimeUtcTicks, DateTime.UtcNow.Ticks);
                         Volatile.Write(ref _mode, MODE_CHECKSUM);
                         Trace("<-- Retry: NAK");
                         Send(NAK);  // fallback into checksum mode
@@ -191,7 +180,6 @@ namespace Poderosa.XZModem {
             _teminateMonitorTask = false;
             _mode = MODE_CRC;
             _nextSequenceNumber = 1;
-            _lastBlockUtcTime = DateTime.UtcNow;
             _errorCount = 0;
             Thread.MemoryBarrier();
             _monitorTask = Task.Run(() => Monitor());
@@ -241,9 +229,7 @@ namespace Poderosa.XZModem {
         }
 
         public override void OnReception(ByteDataFragment fragment) {
-            lock (_lastReceptionUtcTimeSync) {
-                _lastReceptionUtcTime = DateTime.UtcNow;
-            }
+            Interlocked.Exchange(ref _lastReceptionTimeUtcTicks, DateTime.UtcNow.Ticks);
 
             if (_aborting) {
                 return;
@@ -252,7 +238,6 @@ namespace Poderosa.XZModem {
             byte[] data = fragment.Buffer;
             int offset = fragment.Offset;
             int length = fragment.Length;
-
 
             BlockTypeInfo blockInfo;
             if (_recvLen > 0) {
@@ -294,9 +279,7 @@ namespace Poderosa.XZModem {
 
         BlockReceived:
             // a block has been received
-            lock (_lastBlockUtcTimeSync) {
-                _lastBlockUtcTime = DateTime.UtcNow;
-            }
+            Interlocked.Exchange(ref _lastBlockTimeUtcTicks, DateTime.UtcNow.Ticks);
 
             Trace("--> {0:X2} {1:X2} ...({2})", _recvBuff[0], _recvBuff[1], _recvLen);
 
@@ -391,11 +374,8 @@ namespace Poderosa.XZModem {
 
         private void DiscardAllIncomingData() {
             while (true) {
-                DateTime last;
-                lock (_lastReceptionUtcTimeSync) {
-                    last = _lastReceptionUtcTime;
-                }
-                if ((DateTime.UtcNow - last).Ticks > 500 * TimeSpan.TicksPerMillisecond) {
+                long last = Interlocked.Read(ref _lastReceptionTimeUtcTicks);
+                if ((DateTime.UtcNow.Ticks - last) > 500 * TimeSpan.TicksPerMillisecond) {
                     return;
                 }
                 Thread.Sleep(100);
@@ -424,8 +404,7 @@ namespace Poderosa.XZModem {
         private long _nextPos;
         private readonly byte[] _sendBuff = new byte[1029];
 
-        private DateTime _lastResponseUtcTime;
-        private readonly object _lastResponseUtcTimeSync = new object();
+        private long _lastResponseTimeUtcTicks;
 
         private enum State {
             None,
@@ -455,18 +434,15 @@ namespace Poderosa.XZModem {
             _prevPos = _nextPos = 0;
             _crcMode = false;
             _state = State.None;
-            _lastResponseUtcTime = DateTime.UtcNow;
+            _lastResponseTimeUtcTicks = DateTime.UtcNow.Ticks;
             Thread.MemoryBarrier();
             _monitorTask = Task.Run(() => Monitor());
         }
 
         private void Monitor() {
             while (!Volatile.Read(ref _teminateMonitorTask)) {
-                DateTime lastRes;
-                lock (_lastResponseUtcTimeSync) {
-                    lastRes = _lastResponseUtcTime;
-                }
-                int elapsedMsec = (int)((lastRes - DateTime.UtcNow).Ticks / TimeSpan.TicksPerMillisecond);
+                long last = Interlocked.Read(ref _lastResponseTimeUtcTicks);
+                int elapsedMsec = (int)((DateTime.UtcNow.Ticks - last) / TimeSpan.TicksPerMillisecond);
 
                 if (elapsedMsec > RESPONSE_TIMEOUT) {
                     Abort(XZModemPlugin.Instance.Strings.GetString("Message.XModem.NoResponse"), false);

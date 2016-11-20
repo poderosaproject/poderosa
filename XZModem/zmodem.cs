@@ -187,8 +187,7 @@ namespace Poderosa.XZModem {
         // current CRC type
         private CRCType _crcType = CRCType.CRC16;
 
-        private DateTime _lastReceptionUtc;
-        private readonly object _lastReceptionUtcSync = new object();
+        private long _lastReceptionTimeUtcTicks;
 
         // true when file transfer is aborting
         private bool _aborting;
@@ -202,7 +201,7 @@ namespace Poderosa.XZModem {
         protected ZModem(XZModemDialog dialog)
             : base(dialog) {
             _parent = dialog;
-            _lastReceptionUtc = DateTime.UtcNow;
+            _lastReceptionTimeUtcTicks = DateTime.UtcNow.Ticks;
         }
 
         protected void StartListening() {
@@ -271,9 +270,7 @@ namespace Poderosa.XZModem {
         // サーバからの受信データを解析する
         // Readerクラスから呼ばれる
         public override void OnReception(ByteDataFragment fragment) {
-            lock (_lastReceptionUtcSync) {
-                _lastReceptionUtc = DateTime.UtcNow;
-            }
+            Interlocked.Exchange(ref _lastReceptionTimeUtcTicks, DateTime.UtcNow.Ticks);
 
             byte[] data = fragment.Buffer;
             int offset = fragment.Offset;
@@ -682,11 +679,8 @@ namespace Poderosa.XZModem {
 
         protected void DiscardAllIncomingData() {
             while (true) {
-                DateTime last;
-                lock (_lastReceptionUtcSync) {
-                    last = _lastReceptionUtc;
-                }
-                if ((DateTime.UtcNow - last).Ticks > 1000 * TimeSpan.TicksPerMillisecond) {
+                long last = Interlocked.Read(ref _lastReceptionTimeUtcTicks);
+                if (DateTime.UtcNow.Ticks - last > 1000 * TimeSpan.TicksPerMillisecond) {
                     return;
                 }
                 Thread.Sleep(100);
