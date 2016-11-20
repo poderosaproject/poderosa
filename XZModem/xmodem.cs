@@ -279,16 +279,20 @@ namespace Poderosa.XZModem {
                         continue;   // skip
                     }
 
+                    // determine expected block type
                     blockInfo = GetBlockTypeInfo(c, Volatile.Read(ref _mode));
                 }
 
                 _recvBuff[_recvLen++] = c;
 
                 if (_recvLen >= blockInfo.BlockSize) {
-                    break;
+                    goto BlockReceived;
                 }
             }
 
+            return;
+
+        BlockReceived:
             // a block has been received
             lock (_lastBlockUtcTimeSync) {
                 _lastBlockUtcTime = DateTime.UtcNow;
@@ -548,21 +552,19 @@ namespace Poderosa.XZModem {
             int offset = fragment.Offset;
             int length = fragment.Length;
 
-            byte response = 0;
+            byte response;
             for (int i = 0; i < length; ++i) {
                 byte c = data[offset + i];
                 if (c == LETTER_C || c == ACK || c == NAK || c == CAN) {
                     response = c;
-                    break;
+                    goto GotResponse;
                 }
             }
-            if (response == 0) {
-                return;
-            }
 
-            lock (_lastResponseUtcTimeSync) {
-                _lastResponseUtcTime = DateTime.UtcNow;
-            }
+            return;
+
+        GotResponse:
+            Interlocked.Exchange(ref _lastResponseTimeUtcTicks, DateTime.UtcNow.Ticks);
 
             switch (response) {
                 case NAK:
