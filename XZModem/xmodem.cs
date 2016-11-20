@@ -388,7 +388,7 @@ namespace Poderosa.XZModem {
     /// </summary>
     internal class XModemSender : XModem {
 
-        private const int RESPONSE_TIMEOUT = 10000;
+        private const int RESPONSE_TIMEOUT = 15000;
 
         private readonly string _filePath;
 
@@ -442,13 +442,10 @@ namespace Poderosa.XZModem {
         private void Monitor() {
             while (!Volatile.Read(ref _teminateMonitorTask)) {
                 long last = Interlocked.Read(ref _lastResponseTimeUtcTicks);
-                int elapsedMsec = (int)((DateTime.UtcNow.Ticks - last) / TimeSpan.TicksPerMillisecond);
-
-                if (elapsedMsec > RESPONSE_TIMEOUT) {
+                if (DateTime.UtcNow.Ticks - last > RESPONSE_TIMEOUT * TimeSpan.TicksPerMillisecond) {
                     Abort(XZModemPlugin.Instance.Strings.GetString("Message.XModem.NoResponse"), false);
                     break;
                 }
-
                 Thread.Sleep(200);
             }
 
