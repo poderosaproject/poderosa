@@ -153,7 +153,7 @@ namespace Poderosa.XZModem {
                 ZP3 = zf0;
             }
 
-            public Header(byte type, int pos) {
+            public Header(byte type, uint pos) {
                 Type = type;
                 ZP0 = (byte)pos;
                 ZP1 = (byte)(pos >> 8);
@@ -758,7 +758,7 @@ namespace Poderosa.XZModem {
     /// </summary>
     internal class ZModemSender : ZModem {
         private readonly string _fileName;
-        private readonly int _fileSize;
+        private readonly long _fileSize;
         private readonly byte[] _sndBuff = new byte[MAX_BLOCK * 2 + 10];    // data(escaped) + ZDLE + ZCRCx + CRC(escaped)*4
 
         private Task _sendingTask;
@@ -768,7 +768,7 @@ namespace Poderosa.XZModem {
         private int _frameSize = 1024;
         private CRCType _txCrcType = CRCType.CRC16;
 
-        private int _filePosReq;
+        private uint _filePosReq;
         private bool _filePosReqChanged;
 
         private bool _afterZRPOS;
@@ -778,7 +778,7 @@ namespace Poderosa.XZModem {
         public ZModemSender(XZModemDialog parent, string filename)
             : base(parent) {
             _fileName = filename;
-            _fileSize = (int)new FileInfo(filename).Length;
+            _fileSize = new FileInfo(filename).Length;
             _fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         }
 
@@ -886,7 +886,7 @@ namespace Poderosa.XZModem {
         // ZDATA
         private void SendZDATA(CancellationToken cancelToken) {
         Restart:
-            int filePos = Volatile.Read(ref _filePosReq);
+            uint filePos = Volatile.Read(ref _filePosReq);
             Volatile.Write(ref _filePosReqChanged, false);
             _fileStream.Seek(filePos, SeekOrigin.Begin);
 
@@ -905,7 +905,7 @@ namespace Poderosa.XZModem {
 
                 uint crc = (_txCrcType == CRCType.CRC32) ? Crc32.InitialValue : Crc16.InitialValue;
                 int index = 0;
-                int len = Math.Min(_fileSize - filePos, _frameSize);
+                int len = (int)Math.Min(_fileSize - filePos, (long)_frameSize);
                 for (int i = 0; i < len; ++i) {
                     int c = _fileStream.ReadByte();
                     if (c < 0) {
@@ -986,13 +986,13 @@ namespace Poderosa.XZModem {
                 case ZRPOS: {
                         Debug.WriteLine("Got ZRPOS");
                         _afterZRPOS = true;
-                        int pos = (hdr.ZP3 << 24)
-                                | (hdr.ZP2 << 16)
-                                | (hdr.ZP1 << 8)
-                                | (hdr.ZP0);
-                        _filePosReq = Math.Min(Math.Max(0, pos), _fileSize);
+                        uint pos = ((uint)hdr.ZP3 << 24)
+                                 | ((uint)hdr.ZP2 << 16)
+                                 | ((uint)hdr.ZP1 << 8)
+                                 | ((uint)hdr.ZP0);
+                        Volatile.Write(ref _filePosReq, (uint)Math.Min(Math.Max(0, pos), _fileSize));
                         Debug.WriteLine("_filePosReq = {0}", _filePosReq);
-                        _filePosReqChanged = true;
+                        Volatile.Write(ref _filePosReqChanged, true);
                         if (_sendingTask == null) {
                             _sendingTask = Task.Run(() => SendZDATA(_cancellation.Token), _cancellation.Token);
                         }
@@ -1051,7 +1051,7 @@ namespace Poderosa.XZModem {
         private readonly string _filename;
         private readonly byte[] _sndBuff = new byte[1032];
         private FileStream _fileStream;
-        private int _filePos;
+        private uint _filePos;
 
         private bool _stopped = false;
 
@@ -1155,11 +1155,11 @@ namespace Poderosa.XZModem {
             }
 
             _fileStream.Write(data, offset, length);
-            int oldPos = _filePos;
-            _filePos += length;
+            uint oldPos = _filePos;
+            _filePos += (uint)length;
             if ((oldPos / 1024) != (_filePos / 1024)) {
                 if (!_stopped) {
-                    _parent.SetProgressValue((int)_filePos);
+                    _parent.SetProgressValue(_filePos);
                 }
             }
         }

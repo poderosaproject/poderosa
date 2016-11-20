@@ -316,7 +316,7 @@ namespace Poderosa.XZModem {
         }
 
         private delegate void CloseAndDisposeDelegate();
-        private delegate void SetProgressValueDelegate(int value);
+        private delegate void SetProgressValueDelegate(long value);
         public void AsyncClose() {
             if (_closed)
                 return;
@@ -326,7 +326,7 @@ namespace Poderosa.XZModem {
             else
                 CloseAndDispose();
         }
-        public void SetProgressValue(int value) {
+        public void SetProgressValue(long value) {
             if (this.InvokeRequired)
                 Invoke(new SetProgressValueDelegate(DoSetProgressValue), value);
             else
@@ -337,7 +337,7 @@ namespace Poderosa.XZModem {
             Close();
             Dispose();
         }
-        private void DoSetProgressValue(int value) {
+        private void DoSetProgressValue(long value) {
             if (this.IsDisposed) {
                 return;
             }
