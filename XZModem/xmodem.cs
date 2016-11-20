@@ -33,10 +33,10 @@ namespace Poderosa.XZModem {
         private readonly byte[] _singleByteBuff = new byte[1];
 
         private readonly XZModemDialog _parent;
-        private bool _closed = false;
 
-        protected XModem(XZModemDialog parent) {
-            _parent = parent;
+        protected XModem(XZModemDialog dialog)
+            : base(dialog) {
+            _parent = dialog;
         }
 
         #region IModalTerminalTask
@@ -62,62 +62,6 @@ namespace Poderosa.XZModem {
 
         protected void SetProgressValue(long pos) {
             _parent.SetProgressValue(pos);
-        }
-
-        // Additional tasks for aborting the protocol
-        protected abstract void OnAbort();
-
-        // Called when the protocol is going to be stopped
-        protected abstract void OnStop();
-
-        public override void Abort() {
-            Abort(null);
-        }
-
-        protected void Abort(string message) {
-            if (_closed) {
-                return;
-            }
-            OnAbort();
-            Cancel(message);
-        }
-
-        protected void Cancel(string message) {
-            if (_closed) {
-                return;
-            }
-            _closed = true;
-            OnStop();
-            // pending UI tasks have to be processed before the dialog is closed.
-            DoUIEvents();
-            _site.Cancel(message);
-            _parent.AsyncClose();
-            Dispose();
-        }
-
-        protected void Complete(string message) {
-            if (_closed) {
-                return;
-            }
-            _closed = true;
-            OnStop();
-            _site.MainWindow.Information(message);
-            // pending UI tasks have to be processed before the dialog is closed.
-            DoUIEvents();
-            _site.Complete();
-            _parent.AsyncClose();
-            Dispose();
-        }
-
-        private void DoUIEvents() {
-            if (_parent.InvokeRequired) {
-                _parent.Invoke((Action)(() => {
-                    // do nothing
-                }));
-            }
-            else {
-                Application.DoEvents();
-            }
         }
 
         protected void Trace(string message) {
@@ -171,10 +115,18 @@ namespace Poderosa.XZModem {
         private readonly byte[] _recvBuff = new byte[1029];
         private int _recvLen = 0;
         private byte _nextSequenceNumber;
-        private int _mode;
+        private int _mode;  // MODE_CHECKSUM or MODE_CRC
+
+        private DateTime _lastReceptionUtcTime;
+        private readonly object _lastReceptionUtcTimeSync = new object();
+
         private DateTime _lastBlockUtcTime;
         private readonly object _lastBlockUtcTimeSync = new object();
+
+        // count of the consecutive errors
         private int _errorCount;
+        // true when the file transfer is aborting
+        private bool _aborting;
 
         public XModemReceiver(XZModemDialog parent, string filePath)
             : base(parent) {
@@ -210,7 +162,8 @@ namespace Poderosa.XZModem {
                         }
                         Trace("<-- Retry: C");
                         Send(LETTER_C);
-                    } else {
+                    }
+                    else {
                         lock (_lastBlockUtcTimeSync) {
                             _lastBlockUtcTime = DateTime.UtcNow;
                         }
@@ -222,7 +175,7 @@ namespace Poderosa.XZModem {
                 }
 
                 if (elapsedMsec > WAIT_BLOCK_TIMEOUT) {
-                    Abort(XZModemPlugin.Instance.Strings.GetString("Message.XModem.ReceivingTimedOut"));
+                    Abort(XZModemPlugin.Instance.Strings.GetString("Message.XModem.ReceivingTimedOut"), false);
                     break;
                 }
 
@@ -233,7 +186,7 @@ namespace Poderosa.XZModem {
             Trace("exit monitor thread");
         }
 
-        public override void Start() {
+        protected override void OnStart() {
             _output = new FileStream(_filePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
             _teminateMonitorTask = false;
             _mode = MODE_CRC;
@@ -255,15 +208,23 @@ namespace Poderosa.XZModem {
             }
         }
 
-        protected override void OnAbort() {
+        protected override void OnAbort(string message, bool closeDialog) {
+            // stop monitor thread
             StopMonitor();
-            Thread.MemoryBarrier();
-            Trace("<-- CAN");
-            Send(CAN);
-            Send(CAN);
+            // run aborting sequence
+            Task.Run(() => {
+                _aborting = true;
+                Thread.MemoryBarrier();
+                Thread.Sleep(200);
+                Trace("<-- CAN");
+                Send(CAN);
+                Send(CAN);
+                DiscardAllIncomingData();
+                Completed(true, closeDialog, message);
+            });
         }
 
-        protected override void OnStop() {
+        protected override void OnStopped() {
             StopMonitor();
             _fileClosed = true;
             if (_output != null) {
@@ -280,14 +241,24 @@ namespace Poderosa.XZModem {
         }
 
         public override void OnReception(ByteDataFragment fragment) {
+            lock (_lastReceptionUtcTimeSync) {
+                _lastReceptionUtcTime = DateTime.UtcNow;
+            }
+
+            if (_aborting) {
+                return;
+            }
+
             byte[] data = fragment.Buffer;
             int offset = fragment.Offset;
             int length = fragment.Length;
 
+
             BlockTypeInfo blockInfo;
             if (_recvLen > 0) {
                 blockInfo = GetBlockTypeInfo(_recvBuff[0], Volatile.Read(ref _mode));
-            } else {
+            }
+            else {
                 blockInfo = new BlockTypeInfo();    // update later
             }
 
@@ -300,7 +271,7 @@ namespace Poderosa.XZModem {
                         FlushPendingBuffer(true);
                         Trace("<-- ACK");
                         Send(ACK);
-                        Complete(XZModemPlugin.Instance.Strings.GetString("Message.XModem.ReceiveComplete"));
+                        Completed(false, true, XZModemPlugin.Instance.Strings.GetString("Message.XModem.ReceiveComplete"));
                         return;
                     }
 
@@ -340,7 +311,8 @@ namespace Poderosa.XZModem {
                     Trace("<-- NAK (CRC error)");
                     goto Error;
                 }
-            } else {
+            }
+            else {
                 byte checksum = 0;
                 int index = blockInfo.DataOffset;
                 for (int n = 0; n < blockInfo.DataLength; ++n) {
@@ -368,7 +340,7 @@ namespace Poderosa.XZModem {
             _recvLen = 0;
             _errorCount++;
             if (_errorCount > MAX_ERROR) {
-                Cancel(XZModemPlugin.Instance.Strings.GetString("Message.XModem.CouldNotReceiveCorrectData"));
+                Abort(XZModemPlugin.Instance.Strings.GetString("Message.XModem.CouldNotReceiveCorrectData"), false);
             }
             else {
                 Send(NAK);
@@ -413,6 +385,18 @@ namespace Poderosa.XZModem {
             return new BlockTypeInfo(false, 132, 3, 128);
         }
 
+        private void DiscardAllIncomingData() {
+            while (true) {
+                DateTime last;
+                lock (_lastReceptionUtcTimeSync) {
+                    last = _lastReceptionUtcTime;
+                }
+                if ((DateTime.UtcNow - last).Ticks > 500 * TimeSpan.TicksPerMillisecond) {
+                    return;
+                }
+                Thread.Sleep(100);
+            }
+        }
     }
 
     /// <summary>
@@ -435,10 +419,18 @@ namespace Poderosa.XZModem {
         private long _prevPos;
         private long _nextPos;
         private readonly byte[] _sendBuff = new byte[1029];
+
         private DateTime _lastResponseUtcTime;
         private readonly object _lastResponseUtcTimeSync = new object();
-        private bool _stopped;
-        private bool _afterEOT;
+
+        private enum State {
+            None,
+            AfterEOT,
+            Aborting,
+            Stopped,
+        }
+
+        private volatile State _state = State.None;
 
         public XModemSender(XZModemDialog parent, string filePath)
             : base(parent) {
@@ -451,14 +443,14 @@ namespace Poderosa.XZModem {
             }
         }
 
-        public override void Start() {
+        protected override void OnStart() {
             _fileSize = new FileInfo(_filePath).Length;
             _input = new FileStream(_filePath, FileMode.Open, FileAccess.Read);
             _sequenceNumber = 1;
             _teminateMonitorTask = false;
             _prevPos = _nextPos = 0;
             _crcMode = false;
-            _afterEOT = false;
+            _state = State.None;
             _lastResponseUtcTime = DateTime.UtcNow;
             Thread.MemoryBarrier();
             _monitorTask = Task.Run(() => Monitor());
@@ -473,10 +465,10 @@ namespace Poderosa.XZModem {
                 int elapsedMsec = (int)((lastRes - DateTime.UtcNow).Ticks / TimeSpan.TicksPerMillisecond);
 
                 if (elapsedMsec > RESPONSE_TIMEOUT) {
-                    Cancel(XZModemPlugin.Instance.Strings.GetString("Message.XModem.NoResponse"));
+                    Abort(XZModemPlugin.Instance.Strings.GetString("Message.XModem.NoResponse"), false);
                     break;
                 }
-                
+
                 Thread.Sleep(200);
             }
 
@@ -492,11 +484,38 @@ namespace Poderosa.XZModem {
             }
         }
 
-        protected override void OnAbort() {
+        protected override void OnAbort(string message, bool closeDialog) {
+            // stop monitor thread
             StopMonitor();
+            // run aborting sequence
+            Task.Run(() => {
+                _state = State.Aborting;
+                Thread.MemoryBarrier();
+                // CAN mast be sent after the ACK or NAK from peer
+                DateTime limit = DateTime.UtcNow.AddMilliseconds(3000);
+                SpinWait.SpinUntil(() => {
+                    if (DateTime.UtcNow > limit) {
+                        // timeout
+                        return true;
+                    }
+                    if (_state == State.Stopped) {
+                        // CAN has been sent
+                        return true;
+                    }
+                    return false;
+                });
+                Thread.MemoryBarrier();
+                if (_state != State.Stopped) {
+                    // no response ?
+                    Send(CAN);
+                    Send(CAN);
+                    Thread.Sleep(500);
+                }
+                Completed(true, closeDialog, message);
+            });
         }
 
-        protected override void OnStop() {
+        protected override void OnStopped() {
             StopMonitor();
             _fileClosed = true;
             Thread.MemoryBarrier();
@@ -514,7 +533,14 @@ namespace Poderosa.XZModem {
         }
 
         public override void OnReception(ByteDataFragment fragment) {
-            if (_stopped) {
+            if (_state == State.Stopped) {
+                return;
+            }
+
+            if (_state == State.Aborting) {
+                Send(CAN);
+                Send(CAN);
+                _state = State.Stopped;
                 return;
             }
 
@@ -542,7 +568,7 @@ namespace Poderosa.XZModem {
                 case NAK:
                     Trace("--> NAK");
                 Resend:
-                    if (_afterEOT) {
+                    if (_state == State.AfterEOT) {
                         Trace("<-- EOT(resend)");
                         Send(EOT);
                     }
@@ -556,9 +582,9 @@ namespace Poderosa.XZModem {
                     goto Resend;
                 case ACK:
                     Trace("--> ACK");
-                    if (_afterEOT) {
-                        _stopped = true;
-                        Complete(XZModemPlugin.Instance.Strings.GetString("Message.XModem.SendComplete"));
+                    if (_state == State.AfterEOT) {
+                        _state = State.Stopped;
+                        Completed(false, true, XZModemPlugin.Instance.Strings.GetString("Message.XModem.SendComplete"));
                     }
                     else {
                         SendBlock(_crcMode, false);
@@ -566,8 +592,8 @@ namespace Poderosa.XZModem {
                     break;
                 case CAN:
                     Trace("--> CAN");
-                    _stopped = true;
-                    Cancel(XZModemPlugin.Instance.Strings.GetString("Message.ZModem.Aborted"));
+                    _state = State.Stopped;
+                    Abort(XZModemPlugin.Instance.Strings.GetString("Message.ZModem.Aborted"), false);
                     break;
             }
         }
@@ -580,7 +606,8 @@ namespace Poderosa.XZModem {
             if (resend) {
                 Trace("Seek to {0}", _prevPos);
                 _input.Seek(_prevPos, SeekOrigin.Begin);
-            } else {
+            }
+            else {
                 _prevPos = _nextPos;
                 _sequenceNumber++;
             }
@@ -588,7 +615,8 @@ namespace Poderosa.XZModem {
             int dataLength;
             if (useCrc) {
                 dataLength = (_fileSize - _prevPos < 1024L) ? 128 : 1024;
-            } else {
+            }
+            else {
                 dataLength = 128;
             }
 
@@ -596,7 +624,7 @@ namespace Poderosa.XZModem {
             _nextPos = _input.Position;
 
             if (readLen == 0) {
-                _afterEOT = true;
+                _state = State.AfterEOT;
                 Trace("<-- EOT");
                 Send(EOT);
                 return;

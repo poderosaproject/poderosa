@@ -83,6 +83,9 @@
   <data name="Message.XModem.CouldNotReceiveCorrectData">
     <value>正常なデータを受信できませんでした。中止します。</value>
   </data>
+  <data name="Message.XModem.Cancelled">
+    <value>ファイル転送はキャンセルされました。</value>
+  </data>
   <data name="Message.ZModem.CRCError">
     <value>CRCエラー。</value>
   </data>

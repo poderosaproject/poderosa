@@ -93,6 +93,7 @@ namespace Poderosa.XZModem {
         private enum State {
             None,
             Error,
+            Aborting,
 
             // for sending
             WaitingZPAD,
@@ -186,8 +187,11 @@ namespace Poderosa.XZModem {
         // current CRC type
         private CRCType _crcType = CRCType.CRC16;
 
-        // a flag for preventing multiple closing of the instance
-        private bool _closed;
+        private DateTime _lastReceptionUtc;
+        private readonly object _lastReceptionUtcSync = new object();
+
+        // true when file transfer is aborting
+        private bool _aborting;
 
         public override string Caption {
             get {
@@ -195,8 +199,10 @@ namespace Poderosa.XZModem {
             }
         }
 
-        protected ZModem(XZModemDialog parent) {
-            _parent = parent;
+        protected ZModem(XZModemDialog dialog)
+            : base(dialog) {
+            _parent = dialog;
+            _lastReceptionUtc = DateTime.UtcNow;
         }
 
         protected void StartListening() {
@@ -265,19 +271,27 @@ namespace Poderosa.XZModem {
         // サーバからの受信データを解析する
         // Readerクラスから呼ばれる
         public override void OnReception(ByteDataFragment fragment) {
+            lock (_lastReceptionUtcSync) {
+                _lastReceptionUtc = DateTime.UtcNow;
+            }
+
             byte[] data = fragment.Buffer;
             int offset = fragment.Offset;
             int length = fragment.Length;
 
             //Debug.WriteLine(String.Format("OnReception len={0} state={1}", length, _state.ToString()));
 
-            if (_state == State.None || _state == State.Error) {
+            if (_state == State.None || _state == State.Error || Volatile.Read(ref _aborting)) {
                 return;
             }
 
             string errorMessage = null;
 
             for (int i = 0; i < length; i++) {
+                if (Volatile.Read(ref _aborting)) {
+                    return;
+                }
+
                 byte c = data[offset + i];
 
                 // abort sequence detection
@@ -547,7 +561,7 @@ namespace Poderosa.XZModem {
 
         Error:
             _state = State.Error;
-            Abort(errorMessage);
+            Abort(errorMessage, false);
         }
 
         private bool CheckCRC(CRCType crcType, byte[] data, int len) {
@@ -662,6 +676,23 @@ namespace Poderosa.XZModem {
             SendPacket(_abortSeq, _abortSeq.Length);
         }
 
+        protected void IgnoreAllIncomingData() {
+            _aborting = true;
+        }
+
+        protected void DiscardAllIncomingData() {
+            while (true) {
+                DateTime last;
+                lock (_lastReceptionUtcSync) {
+                    last = _lastReceptionUtc;
+                }
+                if ((DateTime.UtcNow - last).Ticks > 1000 * TimeSpan.TicksPerMillisecond) {
+                    return;
+                }
+                Thread.Sleep(100);
+            }
+        }
+
         // Process received header
         protected abstract void ProcessHeader(Header hdr);
 
@@ -694,62 +725,6 @@ namespace Poderosa.XZModem {
 
         // Process abort sequence
         protected abstract void ProcessAbortByPeer();
-
-        // Additional tasks for aborting the protocol
-        protected abstract void OnAbort();
-
-        // Called when the protocol is going to be stopped
-        protected abstract void OnStop();
-
-        public override void Abort() {
-            Abort(null);
-        }
-
-        private void Abort(string message) {
-            if (_closed) {
-                return;
-            }
-            OnAbort();
-            Cancel(message);
-        }
-
-        protected void Cancel(string message) {
-            if (_closed) {
-                return;
-            }
-            _closed = true;
-            OnStop();
-            // pending UI tasks have to be processed before the dialog is closed.
-            DoUIEvents();
-            _site.Cancel(message);
-            _parent.AsyncClose();
-            Dispose();
-        }
-
-        protected void Complete(string message) {
-            if (_closed) {
-                return;
-            }
-            _closed = true;
-            _site.MainWindow.Information(message);
-            OnStop();
-            // pending UI tasks have to be processed before the dialog is closed.
-            DoUIEvents();
-            _site.Complete();
-            _parent.AsyncClose();
-            Dispose();
-        }
-
-        private void DoUIEvents() {
-            if (_parent.InvokeRequired) {
-                _parent.Invoke((Action)(() => {
-                    // do nothing
-                }));
-            }
-            else {
-                Application.DoEvents();
-            }
-        }
     }
 
 
@@ -775,6 +750,7 @@ namespace Poderosa.XZModem {
         private bool _fileSkipped;
         private bool _stopped;
 
+
         public ZModemSender(XZModemDialog parent, string filename)
             : base(parent) {
             _fileName = filename;
@@ -788,7 +764,7 @@ namespace Poderosa.XZModem {
             }
         }
 
-        public override void Start() {
+        protected override void OnStart() {
             StartListening();
             Task.Run(() => {
                 SendRZ();
@@ -797,12 +773,21 @@ namespace Poderosa.XZModem {
             });
         }
 
-        protected override void OnAbort() {
+        protected override void OnAbort(string message, bool closeDialog) {
+            // stop sending task
             StopSendingTask(false);
-            SendAbortSequence();
+
+            // run aborting sequence
+            Task.Run(() => {
+                IgnoreAllIncomingData();
+                Thread.Sleep(200);
+                SendAbortSequence();
+                DiscardAllIncomingData();
+                Completed(true, closeDialog, message);
+            });
         }
 
-        protected override void OnStop() {
+        protected override void OnStopped() {
             _stopped = true;
             StopSendingTask(false);
         }
@@ -1002,9 +987,10 @@ namespace Poderosa.XZModem {
                 case ZFIN:
                     Debug.WriteLine("Got ZFIN");
                     SendOverAndOut();
-                    Complete(_fileSkipped ?
-                        XZModemPlugin.Instance.Strings.GetString("Message.ZModem.FileSkipped") :
-                        XZModemPlugin.Instance.Strings.GetString("Message.XModem.SendComplete"));
+                    Completed(false, true,
+                        _fileSkipped ?
+                            XZModemPlugin.Instance.Strings.GetString("Message.ZModem.FileSkipped") :
+                            XZModemPlugin.Instance.Strings.GetString("Message.XModem.SendComplete"));
                     break;
 
                 case ZSKIP:
@@ -1030,7 +1016,7 @@ namespace Poderosa.XZModem {
         protected override void ProcessAbortByPeer() {
             if (!_stopped) {
                 StopSendingTask(false);
-                Cancel(XZModemPlugin.Instance.Strings.GetString("Message.ZModem.Aborted"));
+                Abort(XZModemPlugin.Instance.Strings.GetString("Message.ZModem.Aborted"), false);
             }
         }
 
@@ -1066,21 +1052,24 @@ namespace Poderosa.XZModem {
             }
         }
 
-        public override void Start() {
+        protected override void OnStart() {
             _fileStream = new FileStream(_filename, FileMode.Create);
             _filePos = 0;
             StartListening();
             SendZRInit();
         }
 
-        protected override void OnAbort() {
-            SendAbortSequence();
-            // FIXME:
-            //  sender will send more data until the sender recognizes the abort sequence.
-            //  trailing data will be displayed on the terminal, and may cause problems.
+        protected override void OnAbort(string message, bool closeDialog) {
+            // run aborting sequence
+            Task.Run(() => {
+                IgnoreAllIncomingData();
+                SendAbortSequence();
+                DiscardAllIncomingData();
+                Completed(true, closeDialog, message);
+            });
         }
 
-        protected override void OnStop() {
+        protected override void OnStopped() {
             _stopped = true;
         }
 
@@ -1118,7 +1107,7 @@ namespace Poderosa.XZModem {
                 case ZFIN:
                     Debug.WriteLine("Got ZFIN");
                     SendZFIN();
-                    Complete(XZModemPlugin.Instance.Strings.GetString("Message.XModem.ReceiveComplete"));
+                    Completed(false, true, XZModemPlugin.Instance.Strings.GetString("Message.XModem.ReceiveComplete"));
                     break;
 
                 case ZFILE:
@@ -1139,7 +1128,7 @@ namespace Poderosa.XZModem {
                 case ZABORT:
                     Debug.WriteLine("Got ZABORT");
                     if (!_stopped) {
-                        Cancel(XZModemPlugin.Instance.Strings.GetString("Message.ZModem.Aborted"));
+                        Abort(XZModemPlugin.Instance.Strings.GetString("Message.ZModem.Aborted"), false);
                     }
                     break;
 
@@ -1166,7 +1155,7 @@ namespace Poderosa.XZModem {
 
         protected override void ProcessAbortByPeer() {
             if (!_stopped) {
-                Cancel(XZModemPlugin.Instance.Strings.GetString("Message.ZModem.Aborted"));
+                Abort(XZModemPlugin.Instance.Strings.GetString("Message.ZModem.Aborted"), false);
             }
         }
 

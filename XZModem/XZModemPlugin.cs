@@ -122,6 +122,14 @@ namespace Poderosa.XZModem {
         protected IByteAsyncInputStream _defaultHandler;
         protected ITerminalConnection _connection;
 
+        private readonly XZModemDialog _dialog;
+        private bool _stopped;
+        private bool _aborting;
+
+        protected ModemBase(XZModemDialog dialog) {
+            _dialog = dialog;
+        }
+
         public void InitializeModelTerminalTask(IModalTerminalTaskSite site, IByteAsyncInputStream default_handler, ITerminalConnection connection) {
             _site = site;
             _defaultHandler = default_handler;
@@ -158,15 +166,79 @@ namespace Poderosa.XZModem {
             _defaultHandler.OnAbnormalTermination(message);
         }
 
-        //開始と終了
-        public abstract void Start();
-        public abstract void Abort();
-
-        //送信か受信か
         public abstract bool IsReceivingTask {
             get;
         }
 
+        // start file transfer
+        protected abstract void OnStart();
+
+        // start aborting sequence
+        protected abstract void OnAbort(string message, bool closeDialog);
+
+        // additional task when the file transfer was stopped
+        protected abstract void OnStopped();
+
         public abstract void Dispose();
+
+        public void Start() {
+            if (_stopped) {
+                return;
+            }
+            OnStart();
+        }
+
+        public void AbortByCancelButton() {
+            Abort(XZModemPlugin.Instance.Strings.GetString("Message.XModem.Cancelled"), false);
+        }
+
+        public void AbortByCloseButton() {
+            Abort(null, true);
+        }
+
+        protected void Abort(string message, bool closeDialog) {
+            if (_stopped || _aborting) {
+                return;
+            }
+            _aborting = true;
+            OnAbort(message, closeDialog);
+        }
+
+        protected void Completed(bool isAborted, bool closeDialog, string message) {
+            if (_stopped) {
+                return;
+            }
+            _stopped = true;
+            OnStopped();
+            // pending UI tasks have to be processed before the dialog is closed.
+            DoUIEvents();
+            if (isAborted) {
+                _site.Cancel(message);
+            }
+            else {
+                if (message != null) {
+                    _site.MainWindow.Information(message);
+                }
+                _site.Complete();
+            }
+            if (closeDialog) {
+                _dialog.AsyncClose();
+            }
+            else {
+                _dialog.AsyncReset();
+            }
+            Dispose();
+        }
+
+        private void DoUIEvents() {
+            if (_dialog.InvokeRequired) {
+                _dialog.Invoke((Action)(() => {
+                    // do nothing
+                }));
+            }
+            else {
+                Application.DoEvents();
+            }
+        }
     }
 }

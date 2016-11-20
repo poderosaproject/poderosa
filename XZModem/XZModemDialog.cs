@@ -290,54 +290,65 @@ namespace Poderosa.XZModem {
             }
         }
 
-        private void Exit() {
-            if (_modemTask != null) {
-                _modemTask.Abort();
-                _modemTask = null;
+        private void OnCancel(object sender, EventArgs args) {
+            _cancelButton.Enabled = false;
+            if (_executing && _modemTask != null) {
+                _modemTask.AbortByCancelButton();
             }
+            else {
+                AsyncClose();
+            }
+        }
+
+        protected override void OnClosing(CancelEventArgs e) {
+            _cancelButton.Enabled = false;
+            if (_executing && _modemTask != null) {
+                e.Cancel = true;
+                _modemTask.AbortByCloseButton();
+            }
+        }
+
+        public void AsyncReset() {
+            if (_closed) {
+                return;
+            }
+
+            if (this.InvokeRequired) {
+                Invoke((Action)AsyncReset);
+                return;
+            }
+
+            _modemTask = null;
             _executing = false;
             _okButton.Enabled = true;
+            _cancelButton.Enabled = true;
             _fileNameBox.Enabled = true;
             _selectButton.Enabled = true;
             _protocolBox.Enabled = true;
             _directionBox.Enabled = true;
+            _progressText.Text = "";
         }
 
-        private void OnCancel(object sender, EventArgs args) {
-            if (_executing)
-                Exit();
-            else
-                Close();
-        }
-        protected override void OnClosed(EventArgs e) {
-            base.OnClosed(e);
-            if (_executing)
-                Exit();
-        }
-
-        private delegate void CloseAndDisposeDelegate();
-        private delegate void SetProgressValueDelegate(long value);
         public void AsyncClose() {
-            if (_closed)
+            if (this.InvokeRequired) {
+                Invoke((Action)AsyncClose);
                 return;
+            }
 
-            if (this.InvokeRequired)
-                Invoke(new CloseAndDisposeDelegate(CloseAndDispose));
-            else
-                CloseAndDispose();
-        }
-        public void SetProgressValue(long value) {
-            if (this.InvokeRequired)
-                Invoke(new SetProgressValueDelegate(DoSetProgressValue), value);
-            else
-                DoSetProgressValue(value);
-        }
-        private void CloseAndDispose() {
+            if (_closed) {
+                return;
+            }
             _closed = true;
             Close();
             Dispose();
         }
-        private void DoSetProgressValue(long value) {
+
+        public void SetProgressValue(long value) {
+            if (this.InvokeRequired) {
+                Invoke((Action)(() => SetProgressValue(value)));
+                return;
+            }
+
             if (this.IsDisposed) {
                 return;
             }

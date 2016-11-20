@@ -105,6 +105,10 @@ $Id: stringresource.xml,v 1.1 2010/11/19 15:41:42 kzmi Exp $
   <ja>正常なデータを受信できませんでした。中止します。</ja>
   <en>Couldn't receive correct data. Aborted.</en>
 </record>
+<record name="Message.XModem.Cancelled">
+  <ja>ファイル転送はキャンセルされました。</ja>
+  <en>File transfter has been cancelled.</en>
+</record>
 
   <!-- zmodem.cs -->
 <record name="Message.ZModem.CRCError">
