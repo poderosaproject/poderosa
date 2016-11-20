@@ -1,102 +1,46 @@
-﻿/*
- * Copyright 2004,2006 The Poderosa Project.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- *
- * $Id: xmodem.cs,v 1.2 2011/10/27 23:21:59 kzmi Exp $
- */
+﻿// Copyright 2004-2016 The Poderosa Project.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+
+#define TRACE_XMODEM
+
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 
-using Poderosa.Terminal;
 using Poderosa.Protocols;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
 
 namespace Poderosa.XZModem {
+
+    /// <summary>
+    /// XMODEM protocol base class
+    /// </summary>
     internal abstract class XModem : ModemBase {
-        public const byte SOH = 1;
-        public const byte STX = 2;
-        public const byte EOT = 4;
-        public const byte ACK = 6;
-        public const byte NAK = 21;
-        public const byte CAN = 24;
-        public const byte SUB = 26;
+        protected const byte SOH = 0x01;
+        protected const byte STX = 0x02;
+        protected const byte EOT = 0x04;
+        protected const byte ACK = 0x06;
+        protected const byte NAK = 0x15;
+        protected const byte CAN = 0x18;
+        protected const byte CPMEOF = 0x1a;
+        protected const byte LETTER_C = 0x43;
 
+        private readonly byte[] _singleByteBuff = new byte[1];
 
-        //CRC
-        public static ushort CalcCRC(byte[] data, int offset, int length) {
-            ushort crc = 0;
-            for (int i = 0; i < length; i++) {
-                byte d = data[offset + i];
-                /*
-                int count = 8;
-                while(--count>=0) {
-                    if((crc & 0x8000)!=0) {
-                        crc <<= 1;
-                        crc += (((d<<=1) & 0x0400) != 0);
-                        crc ^= 0x1021;
-                    }
-                    else {
-                        crc <<= 1;
-                        crc += (((d<<=1) & 0x0400) != 0);
-                    }
-                }
-                */
-                crc ^= (ushort)((ushort)d << 8);
-                for (int j = 1; j <= 8; j++) {
-                    if ((crc & 0x8000) != 0)
-                        crc = (ushort)((crc << 1) ^ (ushort)0x1021);
-                    else
-                        crc <<= 1;
-                }
-            }
-            return crc;
-        }
+        private readonly XZModemDialog _parent;
+        private bool _closed = false;
 
-        protected XZModemDialog _parent;
-        protected string _fileName;
-        protected byte _sequenceNumber;
-        protected long _processedLength;
-        protected bool _crcEnabled;
-        protected Timer _timer;
-
-        public XModem(XZModemDialog parent, string fn) {
+        protected XModem(XZModemDialog parent) {
             _parent = parent;
-            _fileName = fn;
-            _sequenceNumber = 1;
         }
-        public bool CRCEnabled {
-            get {
-                return _crcEnabled;
-            }
-        }
-
-        public override void Dispose() {
-            if (_timer != null)
-                _timer.Dispose();
-        }
-        protected void Fail(string msg) {
-            _parent.AsyncClose();
-            _site.Cancel(msg);
-            Dispose();
-        }
-
-        private byte[] _byteBuf = new byte[1];
-        protected void SendByte(byte b) {
-            _byteBuf[0] = b;
-            _connection.Socket.Transmit(_byteBuf, 0, 1);
-        }
-
-        protected void Complete() {
-            _site.Complete();
-            _parent.AsyncClose();
-            Dispose();
-        }
-
 
         #region IModalTerminalTask
+
         public override string Caption {
             get {
                 return "XMODEM";
@@ -104,281 +48,587 @@ namespace Poderosa.XZModem {
         }
 
         #endregion
-    }
 
-    internal class XModemReceiver : XModem {
-        private int _retryCount;
-        private Stream _outputStream;
-        private MemoryStream _buffer;
-
-
-        private const int CRC_TIMEOUT = 1;
-        private const int NEGOTIATION_TIMEOUT = 2;
-
-        public XModemReceiver(XZModemDialog dlg, string filename)
-            : base(dlg, filename) {
-            _outputStream = new FileStream(_fileName, FileMode.Create, FileAccess.Write);
-        }
-        public override void Start() {
-            _timer = new Timer(new TimerCallback(OnTimeout), CRC_TIMEOUT, 3000, Timeout.Infinite);
-            _crcEnabled = true;
-            SendByte((byte)'C'); //CRCモードでトライ
+        protected void Send(byte[] data, int len) {
+            _connection.Socket.Transmit(data, 0, len);
         }
 
-
-        private void OnTimeout(object state) {
-            _timer.Dispose();
-            _timer = null;
-            switch ((int)state) {
-                case CRC_TIMEOUT:
-                    _crcEnabled = false;
-                    _timer = new Timer(new TimerCallback(OnTimeout), NEGOTIATION_TIMEOUT, 5000, Timeout.Infinite);
-                    SendByte(NAK);
-                    break;
-                case NEGOTIATION_TIMEOUT:
-                    SendByte(CAN);
-                    Fail(XZModemPlugin.Instance.Strings.GetString("Message.XModem.StartTimedOut"));
-                    break;
+        protected void Send(byte ch) {
+            lock (_singleByteBuff) {
+                _singleByteBuff[0] = ch;
+                Send(_singleByteBuff, 1);
             }
+        }
 
+        protected void SetProgressValue(long pos) {
+            _parent.SetProgressValue(pos);
         }
-        public override void Dispose() {
-            base.Dispose();
-            _outputStream.Close();
-        }
+
+        // Additional tasks for aborting the protocol
+        protected abstract void OnAbort();
+
+        // Called when the protocol is going to be stopped
+        protected abstract void OnStop();
+
         public override void Abort() {
-            SendByte(CAN);
-            _site.Cancel(null);
+            Abort(null);
+        }
+
+        protected void Abort(string message) {
+            if (_closed) {
+                return;
+            }
+            OnAbort();
+            Cancel(message);
+        }
+
+        protected void Cancel(string message) {
+            if (_closed) {
+                return;
+            }
+            _closed = true;
+            OnStop();
+            // pending UI tasks have to be processed before the dialog is closed.
+            DoUIEvents();
+            _site.Cancel(message);
+            _parent.AsyncClose();
             Dispose();
         }
+
+        protected void Complete(string message) {
+            if (_closed) {
+                return;
+            }
+            _closed = true;
+            OnStop();
+            _site.MainWindow.Information(message);
+            // pending UI tasks have to be processed before the dialog is closed.
+            DoUIEvents();
+            _site.Complete();
+            _parent.AsyncClose();
+            Dispose();
+        }
+
+        private void DoUIEvents() {
+            if (_parent.InvokeRequired) {
+                _parent.Invoke((Action)(() => {
+                    // do nothing
+                }));
+            }
+            else {
+                Application.DoEvents();
+            }
+        }
+
+        protected void Trace(string message) {
+#if TRACE_XMODEM
+            Debug.WriteLine(message);
+#endif
+        }
+
+        protected void Trace(string format, params object[] args) {
+#if TRACE_XMODEM
+            Debug.WriteLine(format, args);
+#endif
+        }
+    }
+
+    /// <summary>
+    /// XMODEM receiver
+    /// </summary>
+    internal class XModemReceiver : XModem {
+
+        private const int WAIT_CRCBLOCK_TIMEOUT = 3000;
+        private const int WAIT_BLOCK_TIMEOUT = 10000;
+        private const int MAX_ERROR = 10;
+
+        private const int MODE_CHECKSUM = 0;
+        private const int MODE_CRC = 1;
+
+        private struct BlockTypeInfo {
+            public readonly bool HasCRC;
+            public readonly int BlockSize;
+            public readonly int DataOffset;
+            public readonly int DataLength;
+
+            public BlockTypeInfo(bool hasCRC, int blockSize, int dataOffset, int dataLength) {
+                HasCRC = hasCRC;
+                BlockSize = blockSize;
+                DataOffset = dataOffset;
+                DataLength = dataLength;
+            }
+        }
+
+        private readonly string _filePath;
+
+        private FileStream _output;
+        private Task _monitorTask;
+        private bool _teminateMonitorTask;
+        private bool _fileClosed;
+        private long _fileSize = 0;
+        private readonly byte[] _pendingBuff = new byte[1024];
+        private int _pendingLen = 0;
+        private readonly byte[] _recvBuff = new byte[1029];
+        private int _recvLen = 0;
+        private byte _nextSequenceNumber;
+        private int _mode;
+        private DateTime _lastBlockUtcTime;
+        private readonly object _lastBlockUtcTimeSync = new object();
+        private int _errorCount;
+
+        public XModemReceiver(XZModemDialog parent, string filePath)
+            : base(parent) {
+            _filePath = filePath;
+        }
+
         public override bool IsReceivingTask {
             get {
                 return true;
             }
         }
 
-        public override void OnReception(ByteDataFragment fragment) {
-            if (_timer != null) {
-                _timer.Dispose();
-                _timer = null;
+        private void Monitor() {
+            int crcModeRetries = 0;
+
+            while (!Volatile.Read(ref _teminateMonitorTask)) {
+                DateTime lastAcc;
+                lock (_lastBlockUtcTimeSync) {
+                    lastAcc = _lastBlockUtcTime;
+                }
+
+                DateTime now = DateTime.UtcNow;
+                int elapsedMsec = (int)((now - lastAcc).Ticks / TimeSpan.TicksPerMillisecond);
+
+                int mode = Volatile.Read(ref _mode);
+                int sn = Volatile.Read(ref _nextSequenceNumber);
+
+                if (mode == MODE_CRC && sn == 1 && elapsedMsec > WAIT_CRCBLOCK_TIMEOUT) {
+                    if (crcModeRetries < 3) {
+                        crcModeRetries++;
+                        lock (_lastBlockUtcTimeSync) {
+                            _lastBlockUtcTime = DateTime.UtcNow;
+                        }
+                        Trace("<-- Retry: C");
+                        Send(LETTER_C);
+                    } else {
+                        lock (_lastBlockUtcTimeSync) {
+                            _lastBlockUtcTime = DateTime.UtcNow;
+                        }
+                        Volatile.Write(ref _mode, MODE_CHECKSUM);
+                        Trace("<-- Retry: NAK");
+                        Send(NAK);  // fallback into checksum mode
+                    }
+                    goto Continue;
+                }
+
+                if (elapsedMsec > WAIT_BLOCK_TIMEOUT) {
+                    Abort(XZModemPlugin.Instance.Strings.GetString("Message.XModem.ReceivingTimedOut"));
+                    break;
+                }
+
+            Continue:
+                Thread.Sleep(200);
             }
 
-            //Debug.WriteLine(String.Format("Received {0}", count));
-            //_debugStream.Write(data, offset, count);
-            //_debugStream.Flush();
-            AdjustBuffer(ref fragment);
+            Trace("exit monitor thread");
+        }
+
+        public override void Start() {
+            _output = new FileStream(_filePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+            _teminateMonitorTask = false;
+            _mode = MODE_CRC;
+            _nextSequenceNumber = 1;
+            _lastBlockUtcTime = DateTime.UtcNow;
+            _errorCount = 0;
+            Thread.MemoryBarrier();
+            _monitorTask = Task.Run(() => Monitor());
+            Trace("<-- C");
+            Send(LETTER_C); // request CRC mode
+        }
+
+        private void StopMonitor() {
+            if (_monitorTask != null) {
+                Volatile.Write(ref _teminateMonitorTask, true);
+                // don't wait completion of monitor task here
+                // because cancellation may be invoked from monitor task.
+                _monitorTask = null;
+            }
+        }
+
+        protected override void OnAbort() {
+            StopMonitor();
+            Thread.MemoryBarrier();
+            Trace("<-- CAN");
+            Send(CAN);
+            Send(CAN);
+        }
+
+        protected override void OnStop() {
+            StopMonitor();
+            _fileClosed = true;
+            if (_output != null) {
+                _output.Close();
+                Trace("file closed");
+            }
+        }
+
+        public override void Dispose() {
+            StopMonitor();
+            if (_output != null) {
+                _output.Dispose();
+            }
+        }
+
+        public override void OnReception(ByteDataFragment fragment) {
             byte[] data = fragment.Buffer;
             int offset = fragment.Offset;
-            int count = fragment.Length;
+            int length = fragment.Length;
 
-            byte head = data[offset];
-            if (head == EOT) { //successfully exit
-                SendByte(ACK);
-                _site.MainWindow.Information(XZModemPlugin.Instance.Strings.GetString("Message.XModem.ReceiveComplete"));
-                Complete();
-                //_debugStream.Close();
+            BlockTypeInfo blockInfo;
+            if (_recvLen > 0) {
+                blockInfo = GetBlockTypeInfo(_recvBuff[0], Volatile.Read(ref _mode));
+            } else {
+                blockInfo = new BlockTypeInfo();    // update later
+            }
+
+            for (int i = 0; i < length; i++) {
+                byte c = data[offset + i];
+
+                if (_recvLen == 0) {
+                    if (c == EOT) {
+                        Trace("--> EOT");
+                        FlushPendingBuffer(true);
+                        Trace("<-- ACK");
+                        Send(ACK);
+                        Complete(XZModemPlugin.Instance.Strings.GetString("Message.XModem.ReceiveComplete"));
+                        return;
+                    }
+
+                    if (c != SOH && c != STX) {
+                        continue;   // skip
+                    }
+
+                    blockInfo = GetBlockTypeInfo(c, Volatile.Read(ref _mode));
+                }
+
+                _recvBuff[_recvLen++] = c;
+
+                if (_recvLen >= blockInfo.BlockSize) {
+                    break;
+                }
+            }
+
+            // a block has been received
+            lock (_lastBlockUtcTimeSync) {
+                _lastBlockUtcTime = DateTime.UtcNow;
+            }
+
+            Trace("--> {0:X2} {1:X2} ...({2})", _recvBuff[0], _recvBuff[1], _recvLen);
+
+            // check sequence number
+            if (_recvBuff[1] != _nextSequenceNumber || _recvBuff[2] != (255 - _nextSequenceNumber)) {
+                Trace("<-- NAK (bad seq)");
+                goto Error;
+            }
+
+            // check CRC or checksum
+            if (blockInfo.HasCRC) {
+                ushort crc = Crc16.Update(Crc16.InitialValue, _recvBuff, blockInfo.DataOffset, blockInfo.DataLength);
+                int crcIndex = blockInfo.DataOffset + blockInfo.DataLength;
+                if (_recvBuff[crcIndex] != (byte)(crc >> 8) || _recvBuff[crcIndex + 1] != (byte)crc) {
+                    // CRC error
+                    Trace("<-- NAK (CRC error)");
+                    goto Error;
+                }
+            } else {
+                byte checksum = 0;
+                int index = blockInfo.DataOffset;
+                for (int n = 0; n < blockInfo.DataLength; ++n) {
+                    checksum += _recvBuff[index++];
+                }
+                if (_recvBuff[index] != checksum) {
+                    // checksum error
+                    Trace("<-- NAK (checksum error)");
+                    goto Error;
+                }
+            }
+
+            // ok
+            _nextSequenceNumber++;
+
+            FlushPendingBuffer(false);
+            SaveToPendingBuffer(_recvBuff, blockInfo.DataOffset, blockInfo.DataLength);
+
+            _errorCount = 0;
+            _recvLen = 0;
+            Send(ACK);
+            return;
+
+        Error:
+            _recvLen = 0;
+            _errorCount++;
+            if (_errorCount > MAX_ERROR) {
+                Cancel(XZModemPlugin.Instance.Strings.GetString("Message.XModem.CouldNotReceiveCorrectData"));
             }
             else {
-                int required = 3 + (head == STX ? 1024 : 128) + (_crcEnabled ? 2 : 1);
-                if (required > count) {
-                    ReserveBuffer(data, offset, count); //途中で切れていた場合
-                    //Debug.WriteLine(String.Format("Reserving #{0} last={1} offset={2} count={3}", seq, last, offset, count));
-                    return;
-                }
-
-                byte seq = data[offset + 1];
-                byte neg = data[offset + 2];
-                if (seq != _sequenceNumber || seq + neg != 255) {
-                    Fail(XZModemPlugin.Instance.Strings.GetString("Message.XModem.SequenceError"));
-                }
-                else {
-                    //Debug.WriteLine(String.Format("Processing #{0}", seq));
-                    bool success;
-                    int body_offset = offset + 3;
-                    int body_len = head == STX ? 1024 : 128;
-                    int checksum_offset = offset + 3 + body_len;
-                    if (_crcEnabled) {
-                        ushort sent = (ushort)((((ushort)data[checksum_offset]) << 8) + (ushort)data[checksum_offset + 1]);
-                        ushort sum = CalcCRC(data, body_offset, body_len);
-                        success = (sent == sum);
-                    }
-                    else {
-                        byte sent = data[checksum_offset];
-                        byte sum = 0;
-                        for (int i = body_offset; i < checksum_offset; i++)
-                            sum += data[i];
-                        success = (sent == sum);
-                    }
-
-                    _buffer = null; //ブロックごとにACKを待つ仕様なので、もらってきたデータが複数ブロックにまたがることはない。したがってここで破棄して構わない。
-                    if (success) {
-                        SendByte(ACK);
-                        _sequenceNumber++;
-
-                        int t = checksum_offset - 1;
-                        while (t >= body_offset && data[t] == 26)
-                            t--; //Ctrl+Zで埋まっているところは無視
-                        int len = t + 1 - body_offset;
-                        _outputStream.Write(data, body_offset, len);
-                        _processedLength += len;
-                        _parent.SetProgressValue((int)_processedLength);
-                        _retryCount = 0;
-                    }
-                    else {
-                        //_debugStream.Close();
-                        if (++_retryCount == 3) { //もうあきらめる
-                            Fail(XZModemPlugin.Instance.Strings.GetString("Message.XModem.CheckSumError"));
-                        }
-                        else {
-                            SendByte(NAK);
-                        }
-                    }
-
-                }
+                Send(NAK);
             }
         }
 
-        private void ReserveBuffer(byte[] data, int offset, int count) {
-            _buffer = new MemoryStream();
-            _buffer.Write(data, offset, count);
-        }
-        private void AdjustBuffer(ref ByteDataFragment fragment) {
-            if (_buffer == null || _buffer.Position == 0)
-                return;
+        private void FlushPendingBuffer(bool isLastBlock) {
+            if (isLastBlock) {
+                while (_pendingLen > 0 && _pendingBuff[_pendingLen - 1] == CPMEOF) {
+                    _pendingLen--;
+                }
+            }
 
-            _buffer.Write(fragment.Buffer, fragment.Offset, fragment.Length);
-            int count = (int)_buffer.Position;
-            _buffer.Close();
-            fragment.Set(_buffer.ToArray(), 0, count);
+            if (_pendingLen > 0) {
+                if (!Volatile.Read(ref _fileClosed)) {
+                    _output.Write(_pendingBuff, 0, _pendingLen);
+                }
+                _fileSize += _pendingLen;
+                _pendingLen = 0;
+            }
+
+            SetProgressValue(_fileSize);
+        }
+
+        private void SaveToPendingBuffer(byte[] buff, int offset, int length) {
+            Buffer.BlockCopy(buff, offset, _pendingBuff, 0, length);
+            _pendingLen = length;
+        }
+
+        private BlockTypeInfo GetBlockTypeInfo(byte firstByte, int mode) {
+            if (firstByte == STX) {
+                // XMODEM/1k
+                return new BlockTypeInfo(true, 1029, 3, 1024);
+            }
+
+            if (mode == MODE_CRC) {
+                // XMODEM/CRC
+                return new BlockTypeInfo(true, 133, 3, 128);
+            }
+
+            // XMODEM
+            return new BlockTypeInfo(false, 132, 3, 128);
         }
 
     }
 
+    /// <summary>
+    /// XMODEM sender
+    /// </summary>
     internal class XModemSender : XModem {
-        private bool _negotiating;
-        private int _retryCount;
-        private byte[] _body;
-        private int _offset;
-        private int _nextOffset;
 
-        private const int NEGOTIATION_TIMEOUT = 1;
+        private const int RESPONSE_TIMEOUT = 10000;
 
-        public int TotalLength {
-            get {
-                return _body.Length;
-            }
+        private readonly string _filePath;
+
+        private long _fileSize;
+        private FileStream _input;
+        private Task _monitorTask;
+        private bool _teminateMonitorTask;
+        private bool _fileClosed;
+
+        private byte _sequenceNumber;
+        private bool _crcMode;
+        private long _prevPos;
+        private long _nextPos;
+        private readonly byte[] _sendBuff = new byte[1029];
+        private DateTime _lastResponseUtcTime;
+        private readonly object _lastResponseUtcTimeSync = new object();
+        private bool _stopped;
+        private bool _afterEOT;
+
+        public XModemSender(XZModemDialog parent, string filePath)
+            : base(parent) {
+            _filePath = filePath;
         }
+
         public override bool IsReceivingTask {
             get {
                 return false;
             }
         }
 
-        public XModemSender(XZModemDialog dlg, string filename)
-            : base(dlg, filename) {
-            _body = new byte[new FileInfo(filename).Length];
-            FileStream strm = new FileStream(filename, FileMode.Open, FileAccess.Read);
-            strm.Read(_body, 0, _body.Length);
-            strm.Close();
-        }
         public override void Start() {
-            _timer = new Timer(new TimerCallback(OnTimeout), NEGOTIATION_TIMEOUT, 60000, Timeout.Infinite);
-            _negotiating = true;
+            _fileSize = new FileInfo(_filePath).Length;
+            _input = new FileStream(_filePath, FileMode.Open, FileAccess.Read);
+            _sequenceNumber = 1;
+            _teminateMonitorTask = false;
+            _prevPos = _nextPos = 0;
+            _crcMode = false;
+            _afterEOT = false;
+            _lastResponseUtcTime = DateTime.UtcNow;
+            Thread.MemoryBarrier();
+            _monitorTask = Task.Run(() => Monitor());
         }
 
-        private void OnTimeout(object state) {
-            _timer.Dispose();
-            _timer = null;
-            switch ((int)state) {
-                case NEGOTIATION_TIMEOUT:
-                    Fail(XZModemPlugin.Instance.Strings.GetString("Message.XModem.StartTimedOut"));
+        private void Monitor() {
+            while (!Volatile.Read(ref _teminateMonitorTask)) {
+                DateTime lastRes;
+                lock (_lastResponseUtcTimeSync) {
+                    lastRes = _lastResponseUtcTime;
+                }
+                int elapsedMsec = (int)((lastRes - DateTime.UtcNow).Ticks / TimeSpan.TicksPerMillisecond);
+
+                if (elapsedMsec > RESPONSE_TIMEOUT) {
+                    Cancel(XZModemPlugin.Instance.Strings.GetString("Message.XModem.NoResponse"));
                     break;
+                }
+                
+                Thread.Sleep(200);
             }
 
+            Trace("exit monitor thread");
         }
 
-        public override void Abort() {
-            SendByte(CAN);
-            _site.Cancel(null);
-            Dispose();
+        private void StopMonitor() {
+            if (_monitorTask != null) {
+                Volatile.Write(ref _teminateMonitorTask, true);
+                // don't wait completion of sending task here
+                // because cancellation may be invoked from sending task.
+                _monitorTask = null;
+            }
+        }
+
+        protected override void OnAbort() {
+            StopMonitor();
+        }
+
+        protected override void OnStop() {
+            StopMonitor();
+            _fileClosed = true;
+            Thread.MemoryBarrier();
+            if (_input != null) {
+                _input.Close();
+                Trace("file closed");
+            }
+        }
+
+        public override void Dispose() {
+            StopMonitor();
+            if (_input != null) {
+                _input.Dispose();
+            }
         }
 
         public override void OnReception(ByteDataFragment fragment) {
-            if (_timer != null) {
-                _timer.Dispose();
-                _timer = null;
+            if (_stopped) {
+                return;
             }
 
             byte[] data = fragment.Buffer;
             int offset = fragment.Offset;
-            int count = fragment.Length;
+            int length = fragment.Length;
 
-            if (_negotiating) {
-                for (int i = 0; i < count; i++) {
-                    byte t = data[offset + i];
-                    if (t == NAK || t == (byte)'C') {
-                        _crcEnabled = t == (byte)'C';
-                        _negotiating = false;
-                        _sequenceNumber = 1;
-                        _offset = _nextOffset = 0;
-                        break;
-                    }
+            byte response = 0;
+            for (int i = 0; i < length; ++i) {
+                byte c = data[offset + i];
+                if (c == LETTER_C || c == ACK || c == NAK || c == CAN) {
+                    response = c;
+                    break;
                 }
-                if (_negotiating)
-                    return; //あたまがきていない
+            }
+            if (response == 0) {
+                return;
+            }
+
+            lock (_lastResponseUtcTimeSync) {
+                _lastResponseUtcTime = DateTime.UtcNow;
+            }
+
+            switch (response) {
+                case NAK:
+                    Trace("--> NAK");
+                Resend:
+                    if (_afterEOT) {
+                        Trace("<-- EOT(resend)");
+                        Send(EOT);
+                    }
+                    else {
+                        SendBlock(_crcMode, true);
+                    }
+                    break;
+                case LETTER_C:
+                    Trace("--> C");
+                    _crcMode = true;
+                    goto Resend;
+                case ACK:
+                    Trace("--> ACK");
+                    if (_afterEOT) {
+                        _stopped = true;
+                        Complete(XZModemPlugin.Instance.Strings.GetString("Message.XModem.SendComplete"));
+                    }
+                    else {
+                        SendBlock(_crcMode, false);
+                    }
+                    break;
+                case CAN:
+                    Trace("--> CAN");
+                    _stopped = true;
+                    Cancel(XZModemPlugin.Instance.Strings.GetString("Message.ZModem.Aborted"));
+                    break;
+            }
+        }
+
+        private void SendBlock(bool useCrc, bool resend) {
+            if (_input == null || _fileClosed) {
+                return;
+            }
+
+            if (resend) {
+                Trace("Seek to {0}", _prevPos);
+                _input.Seek(_prevPos, SeekOrigin.Begin);
+            } else {
+                _prevPos = _nextPos;
+                _sequenceNumber++;
+            }
+
+            int dataLength;
+            if (useCrc) {
+                dataLength = (_fileSize - _prevPos < 1024L) ? 128 : 1024;
+            } else {
+                dataLength = 128;
+            }
+
+            int readLen = _input.Read(_sendBuff, 3, dataLength);
+            _nextPos = _input.Position;
+
+            if (readLen == 0) {
+                _afterEOT = true;
+                Trace("<-- EOT");
+                Send(EOT);
+                return;
+            }
+
+            _sendBuff[0] = (dataLength == 1024) ? STX : SOH;
+            _sendBuff[1] = _sequenceNumber;
+            _sendBuff[2] = (byte)(255 - _sequenceNumber);
+
+            for (int i = 3 + readLen; i < 3 + dataLength; ++i) {
+                _sendBuff[i] = CPMEOF;
+            }
+
+            int blockLen = 3 + dataLength;
+            if (useCrc) {
+                ushort crc = Crc16.Update(Crc16.InitialValue, _sendBuff, 3, dataLength);
+                _sendBuff[blockLen++] = (byte)(crc >> 8);
+                _sendBuff[blockLen++] = (byte)crc;
             }
             else {
-                byte t = data[offset];
-                if (t == ACK) {
-                    _sequenceNumber++;
-                    _retryCount = 0;
-                    if (_offset == _body.Length) { //successfully exit
-                        _site.MainWindow.Information(XZModemPlugin.Instance.Strings.GetString("Message.XModem.SendComplete"));
-                        Complete();
-                        return;
-                    }
-                    _offset = _nextOffset;
+                byte checksum = 0;
+                for (int i = 3; i < 3 + dataLength; ++i) {
+                    checksum += _sendBuff[i];
                 }
-                else if (t != NAK || (++_retryCount == 3)) {
-                    Fail(XZModemPlugin.Instance.Strings.GetString("Message.XModem.BlockStartError"));
-                    return;
-                }
+                _sendBuff[blockLen++] = checksum;
             }
 
-            if (_nextOffset >= _body.Length) { //last
-                SendByte(EOT);
-                _offset = _body.Length;
-            }
-            else {
-                int len = 128;
-                if (_crcEnabled && _offset + 1024 <= _body.Length)
-                    len = 1024;
-                byte[] buf = new byte[3 + len + (_crcEnabled ? 2 : 1)];
-                buf[0] = len == 128 ? SOH : STX;
-                buf[1] = (byte)_sequenceNumber;
-                buf[2] = (byte)(255 - buf[1]);
-                int body_len = Math.Min(len, _body.Length - _offset);
-                Array.Copy(_body, _offset, buf, 3, body_len);
-                for (int i = body_len; i < len; i++)
-                    buf[3 + i] = 26; //padding
-                if (_crcEnabled) {
-                    ushort sum = CalcCRC(buf, 3, len);
-                    buf[3 + len] = (byte)(sum >> 8);
-                    buf[3 + len + 1] = (byte)(sum & 0xFF);
-                }
-                else {
-                    byte sum = 0;
-                    for (int i = 0; i < len; i++)
-                        sum += buf[3 + i];
-                    buf[3 + len] = sum;
-                }
+            Trace("<-- {0:X2} {1:X2} ...({2})", _sendBuff[0], _sendBuff[1], blockLen);
 
-                _nextOffset = _offset + len;
-                _connection.Socket.Transmit(buf, 0, buf.Length);
-                _parent.SetProgressValue(_nextOffset);
-                //Debug.WriteLine("Transmitted "+_sequenceNumber+" " +_offset);
-            }
+            Send(_sendBuff, blockLen);
 
+            SetProgressValue((int)_nextPos);
         }
     }
 }

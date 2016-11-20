@@ -68,23 +68,20 @@
   <data name="Caption.XZModemDialog.Negotiating">
     <value>Negotiating...</value>
   </data>
-  <data name="Message.XModem.StartTimedOut">
-    <value>Time out is occurred when the xmodem negotiation is started.</value>
+  <data name="Message.XModem.ReceivingTimedOut">
+    <value>Receiving data timed out.</value>
   </data>
   <data name="Message.XModem.ReceiveComplete">
     <value>Reception completed successfully.</value>
   </data>
-  <data name="Message.XModem.SequenceError">
-    <value>An XMODEM sequence number error occurred. The procedure will be aborted.</value>
-  </data>
-  <data name="Message.XModem.CheckSumError">
-    <value>An XMODEM checksum error occurred. The procedure will be aborted.</value>
-  </data>
   <data name="Message.XModem.SendComplete">
     <value>Transmission completed successfully.</value>
   </data>
-  <data name="Message.XModem.BlockStartError">
-    <value>Failed to receive the block start signal of XMODEM. The procedure will be aborted.</value>
+  <data name="Message.XModem.NoResponse">
+    <value>No response from peer. Aborted.</value>
+  </data>
+  <data name="Message.XModem.CouldNotReceiveCorrectData">
+    <value>Couldn't receive correct data. Aborted.</value>
   </data>
   <data name="Message.ZModem.CRCError">
     <value>CRC Error.</value>

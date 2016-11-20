@@ -85,32 +85,28 @@ $Id: stringresource.xml,v 1.1 2010/11/19 15:41:42 kzmi Exp $
 </record>
 
 <!-- xmodem.cs -->
-<record name="Message.XModem.StartTimedOut">
-  <ja>XMODEMの開始はタイムアウトしました。</ja>
-  <en>Time out is occurred when the xmodem negotiation is started.</en>
+<record name="Message.XModem.ReceivingTimedOut">
+  <ja>受信がタイムアウトしました。</ja>
+  <en>Receiving data timed out.</en>
 </record>
 <record name="Message.XModem.ReceiveComplete">
   <ja>受信を完了しました。</ja>
   <en>Reception completed successfully.</en>
 </record>
-<record name="Message.XModem.SequenceError">
-  <ja>XMODEMのシーケンス番号エラーです。処理を中止します。</ja>
-  <en>An XMODEM sequence number error occurred. The procedure will be aborted.</en>
-</record>
-<record name="Message.XModem.CheckSumError">
-  <ja>XMODEMのチェックサムエラーです。処理を中止します。</ja>
-  <en>An XMODEM checksum error occurred. The procedure will be aborted.</en>
-</record>
 <record name="Message.XModem.SendComplete">
   <ja>送信が完了しました。</ja>
   <en>Transmission completed successfully.</en>
 </record>
-<record name="Message.XModem.BlockStartError">
-  <ja>XMODEMのブロック受信信号を受け取れませんでした。処理を中止します。</ja>
-  <en>Failed to receive the block start signal of XMODEM. The procedure will be aborted.</en>
+<record name="Message.XModem.NoResponse">
+  <ja>応答がありません。中止します。</ja>
+  <en>No response from peer. Aborted.</en>
+</record>
+<record name="Message.XModem.CouldNotReceiveCorrectData">
+  <ja>正常なデータを受信できませんでした。中止します。</ja>
+  <en>Couldn't receive correct data. Aborted.</en>
 </record>
 
-<!-- zmodem.cs -->
+  <!-- zmodem.cs -->
 <record name="Message.ZModem.CRCError">
   <ja>CRCエラー。</ja>
   <en>CRC Error.</en>

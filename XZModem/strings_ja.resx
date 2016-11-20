@@ -68,23 +68,20 @@
   <data name="Caption.XZModemDialog.Negotiating">
     <value>通信中...</value>
   </data>
-  <data name="Message.XModem.StartTimedOut">
-    <value>XMODEMの開始はタイムアウトしました。</value>
+  <data name="Message.XModem.ReceivingTimedOut">
+    <value>受信がタイムアウトしました。</value>
   </data>
   <data name="Message.XModem.ReceiveComplete">
     <value>受信を完了しました。</value>
   </data>
-  <data name="Message.XModem.SequenceError">
-    <value>XMODEMのシーケンス番号エラーです。処理を中止します。</value>
-  </data>
-  <data name="Message.XModem.CheckSumError">
-    <value>XMODEMのチェックサムエラーです。処理を中止します。</value>
-  </data>
   <data name="Message.XModem.SendComplete">
     <value>送信が完了しました。</value>
   </data>
-  <data name="Message.XModem.BlockStartError">
-    <value>XMODEMのブロック受信信号を受け取れませんでした。処理を中止します。</value>
+  <data name="Message.XModem.NoResponse">
+    <value>応答がありません。中止します。</value>
+  </data>
+  <data name="Message.XModem.CouldNotReceiveCorrectData">
+    <value>正常なデータを受信できませんでした。中止します。</value>
   </data>
   <data name="Message.ZModem.CRCError">
     <value>CRCエラー。</value>
