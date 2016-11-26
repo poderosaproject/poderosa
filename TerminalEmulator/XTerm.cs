@@ -604,6 +604,125 @@ namespace Poderosa.Terminal {
                 return ProcessCharResult.Unsupported;
         }
 
+        protected override void ProcessSGR(string param) {
+            int state = 0, target = 0, r = 0, g = 0, b = 0;
+            string[] ps = param.Split(';');
+            TextDecoration dec = _currentdecoration;
+            foreach (string cmd in ps) {
+                int code = ParseSGRCode(cmd);
+                if (state != 0) {
+                    switch (state) {
+                        case 1:
+                            if (code == 5) { // select indexed color
+                                state = 2;
+                            }
+                            else if (code == 2) { // select RGB color
+                                state = 3;  // read R value
+                            }
+                            else {
+                                Debug.WriteLine("Invalid SGR code : {0}", code);
+                                goto Apply;
+                            }
+                            break;
+                        case 2:
+                            if (code < 256) {
+                                if (target == 3) {
+                                    dec = SelectForeColor(dec, code);
+                                }
+                                else if (target == 4) {
+                                    dec = SelectBackgroundColor(dec, code);
+                                }
+                            }
+                            state = 0;
+                            target = 0;
+                            break;
+                        case 3:
+                            if (code < 256) {
+                                r = code;
+                                state = 4;  // read G value
+                            }
+                            else {
+                                Debug.WriteLine("Invalid SGR R value : {0}", code);
+                                goto Apply;
+                            }
+                            break;
+                        case 4:
+                            if (code < 256) {
+                                g = code;
+                                state = 5;  // read B value
+                            }
+                            else {
+                                Debug.WriteLine("Invalid SGR G value : {0}", code);
+                                goto Apply;
+                            }
+                            break;
+                        case 5:
+                            if (code < 256) {
+                                b = code;
+                                if (target == 3) {
+                                    dec = SetForeColorByRGB(dec, r, g, b);
+                                }
+                                else if (target == 4) {
+                                    dec = SetBackColorByRGB(dec, r, g, b);
+                                }
+                                state = 0;
+                                target = 0;
+                            }
+                            else {
+                                Debug.WriteLine("Invalid SGR B value : {0}", code);
+                                goto Apply;
+                            }
+                            break;
+                    }
+                }
+                else {
+                    switch (code) {
+                        case 38: // Set foreground color (XTERM,ISO-8613-3)
+                            state = 1;  // start reading subsequent values
+                            target = 3; // set foreground color
+                            break;
+                        case 48: // Set background color (XTERM,ISO-8613-3)
+                            state = 1;  // start reading subsequent values
+                            target = 4; // set background color
+                            break;
+                        case 90: // Set foreground color to Black (XTERM)
+                        case 91: // Set foreground color to Red (XTERM)
+                        case 92: // Set foreground color to Green (XTERM)
+                        case 93: // Set foreground color to Yellow (XTERM)
+                        case 94: // Set foreground color to Blue (XTERM)
+                        case 95: // Set foreground color to Magenta (XTERM)
+                        case 96: // Set foreground color to Cyan (XTERM)
+                        case 97: // Set foreground color to White (XTERM)
+                            dec = SelectForeColor(dec, code - 90 + 8);
+                            break;
+                        case 100: // Set background color to Black (XTERM)
+                        case 101: // Set background color to Red (XTERM)
+                        case 102: // Set background color to Green (XTERM)
+                        case 103: // Set background color to Yellow (XTERM)
+                        case 104: // Set background color to Blue (XTERM)
+                        case 105: // Set background color to Magenta (XTERM)
+                        case 106: // Set background color to Cyan (XTERM)
+                        case 107: // Set background color to White (XTERM)
+                            dec = SelectBackgroundColor(dec, code - 100 + 8);
+                            break;
+                        default:
+                            ProcessSGRParameterANSI(code, ref dec);
+                            break;
+                    }
+                }
+            }
+        Apply:
+            _currentdecoration = dec;
+        }
+
+        private TextDecoration SetForeColorByRGB(TextDecoration dec, int r, int g, int b) {
+            return dec.GetCopyWithTextColor(Color.FromArgb(r, g, b));
+        }
+
+        private TextDecoration SetBackColorByRGB(TextDecoration dec, int r, int g, int b) {
+            return dec.GetCopyWithBackColor(Color.FromArgb(r, g, b));
+        }
+
         protected override ProcessCharResult ProcessDECSET(string param, char code) {
             ProcessCharResult v = base.ProcessDECSET(param, code);
             if (v != ProcessCharResult.Unsupported)
