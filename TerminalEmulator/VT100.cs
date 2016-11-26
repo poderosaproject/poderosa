@@ -266,7 +266,7 @@ namespace Poderosa.Terminal {
                     break;
                 default:
                     // other values are ignored without notification to the user
-                    Debug.WriteLine(String.Format("unknown SGR code (ANSI) : {0}", code));
+                    Debug.WriteLine("unknown SGR code (ANSI) : {0}", code);
                     break;
             }
         }
