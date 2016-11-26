@@ -604,6 +604,102 @@ namespace Poderosa.Terminal {
                 return ProcessCharResult.Unsupported;
         }
 
+        protected override void ProcessSGR(string param) {
+            int state = 0, target = 0, r = 0, g = 0, b = 0;
+            string[] ps = param.Split(';');
+            TextDecoration dec = _currentdecoration;
+            foreach (string cmd in ps) {
+                int code = ParseSGRCode(cmd);
+                if (state != 0) {
+                    switch (state) {
+                        case 1:
+                            if (code == 5) {
+                                state = 2;
+                            }
+                            else if (code == 2) {
+                                state = 3;
+                            }
+                            else {
+                                state = 0;
+                                target = 0;
+                            }
+                            break;
+                        case 2:
+                            if (code < 256) {
+                                if (target == 3) {
+                                    dec = SelectForeColor(dec, code);
+                                }
+                                else if (target == 4) {
+                                    dec = SelectBackgroundColor(dec, code);
+                                }
+                            }
+                            state = 0;
+                            target = 0;
+                            break;
+                        case 3:
+                            if (code < 256) {
+                                r = code;
+                                state = 4;
+                            }
+                            else {
+                                state = 0;
+                                target = 0;
+                            }
+                            break;
+                        case 4:
+                            if (code < 256) {
+                                g = code;
+                                state = 5;
+                            }
+                            else {
+                                state = 0;
+                                target = 0;
+                            }
+                            break;
+                        case 5:
+                            if (code < 256) {
+                                b = code;
+                                if (target == 3) {
+                                    dec = SetForeColorByRGB(dec, r, g, b);
+                                }
+                                else if (target == 4) {
+                                    dec = SetBackColorByRGB(dec, r, g, b);
+                                }
+                            }
+                            state = 0;
+                            target = 0;
+                            break;
+                    }
+                }
+                else if (code >= 90 && code <= 97) {
+                    dec = SelectForeColor(dec, code - 90 + 8);
+                }
+                else if (code >= 100 && code <= 107) {
+                    dec = SelectBackgroundColor(dec, code - 100 + 8);
+                }
+                else if (code == 38) {
+                    state = 1;
+                    target = 3;
+                }
+                else if (code == 48) {
+                    state = 1;
+                    target = 4;
+                }
+                else {
+                    ProcessSGRParameterANSI(code, ref dec);
+                }
+            }
+            _currentdecoration = dec;
+        }
+
+        private TextDecoration SetForeColorByRGB(TextDecoration dec, int r, int g, int b) {
+            return dec.GetCopyWithTextColor(Color.FromArgb(r, g, b));
+        }
+
+        private TextDecoration SetBackColorByRGB(TextDecoration dec, int r, int g, int b) {
+            return dec.GetCopyWithBackColor(Color.FromArgb(r, g, b));
+        }
+
         protected override ProcessCharResult ProcessDECSET(string param, char code) {
             ProcessCharResult v = base.ProcessDECSET(param, code);
             if (v != ProcessCharResult.Unsupported)
