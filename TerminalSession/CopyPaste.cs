@@ -29,16 +29,15 @@ namespace Poderosa.Commands {
         }
 
         // Get Text (UNICODE or ANSI) from Clipboard
-        private string GetClipboardText()
-        {
+        private string GetClipboardText() {
             var clipboardData = Clipboard.GetDataObject();
-            if (clipboardData.GetDataPresent("UnicodeText"))
-            {
-                return clipboardData.GetData("UnicodeText") as string;
-            }
-            if (!clipboardData.GetDataPresent("Text"))
-            {
-                return clipboardData.GetData("Text") as string;
+            if (clipboardData != null) {
+                if (clipboardData.GetDataPresent(DataFormats.UnicodeText)) {
+                    return clipboardData.GetData(DataFormats.UnicodeText) as string;
+                }
+                if (clipboardData.GetDataPresent(DataFormats.Text)) {
+                    return clipboardData.GetData(DataFormats.Text) as string;
+                }
             }
             return null;
         }
@@ -70,7 +69,7 @@ namespace Poderosa.Commands {
 
             StringReader reader = new StringReader(data);
             TerminalTransmission output = session.TerminalTransmission;
-            output.SendTextStream(reader, data[data.Length - 1] == '\n');
+            output.SendTextStream(reader, data.Length > 0 && data[data.Length - 1] == '\n');
             return CommandResult.Succeeded;
         }
 
@@ -80,8 +79,11 @@ namespace Poderosa.Commands {
             if (!GetViewAndSession(target, out view, out session))
                 return false;
             var clipboardData = Clipboard.GetDataObject();
-            if (!clipboardData.GetDataPresent("UnicodeText") && !clipboardData.GetDataPresent("Text"))
+            if (clipboardData == null || (
+                       !clipboardData.GetDataPresent(DataFormats.UnicodeText)
+                    && !clipboardData.GetDataPresent(DataFormats.Text))) {
                 return false;
+            }
             return true;
         }
 
