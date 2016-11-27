@@ -26,11 +26,6 @@
   <data name="Common.UnknownPeer">
     <value>(不明)</value>
   </data>
-  <data name="Common.WarnExperimentalFormat">
-    <value>{0}はまだ実験的な機能です。
-コンソールのSSH接続が終了することがあるかもしれません。
-{0}を使用しますか？</value>
-  </data>
   <data name="SFTPForm.labelDropHere">
     <value>ファイルやフォルダをドロップしてアップロード</value>
   </data>

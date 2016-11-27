@@ -265,13 +265,6 @@ namespace Poderosa.SFTP {
             return false;
         }
 
-        protected bool ConfirmToUse(Form ownerForm, string feature) {
-            string messageFormat = SFTPPlugin.Instance.StringResource.GetString("Common.WarnExperimentalFormat");
-            string message = String.Format(messageFormat, feature);
-            DialogResult result = GUtil.AskUserYesNo(ownerForm, message, MessageBoxIcon.Warning);
-            return (result == DialogResult.Yes);
-        }
-
         #endregion
 
         #region Private methods
@@ -339,9 +332,6 @@ namespace Poderosa.SFTP {
                 connectionName = SFTPPlugin.Instance.StringResource.GetString("Common.UnknownPeer");
 
             Form ownerForm = GetForm(target);
-
-            if (!ConfirmToUse(ownerForm, "SFTP"))
-                return CommandResult.Cancelled;
 
             SFTPClient sftp = null;
             try {
@@ -440,9 +430,6 @@ namespace Poderosa.SFTP {
                 connectionName = SFTPPlugin.Instance.StringResource.GetString("Common.UnknownPeer");
 
             Form ownerForm = GetForm(target);
-
-            if (!ConfirmToUse(ownerForm, "SCP"))
-                return CommandResult.Cancelled;
 
             SCPClient scp = new SCPClient(sshConnection);
 

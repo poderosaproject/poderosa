@@ -29,11 +29,6 @@ $Id: stringresource.xml,v 1.2 2012/05/05 12:42:45 kzmi Exp $
   <en>(unknown)</en>
 </record>
 
-<record name="Common.WarnExperimentalFormat">
-  <ja>{0}はまだ実験的な機能です。&#13;&#10;コンソールのSSH接続が終了することがあるかもしれません。&#13;&#10;{0}を使用しますか？</ja>
-  <en>{0} is still experimental.&#13;&#10;SSH connection of the console may be closed unexpectedly.&#13;&#10;Do you want to use {0} ?</en>
-</record>
-
 <!--
  SFTPForm
 -->

@@ -26,11 +26,6 @@
   <data name="Common.UnknownPeer">
     <value>(unknown)</value>
   </data>
-  <data name="Common.WarnExperimentalFormat">
-    <value>{0} is still experimental.
-SSH connection of the console may be closed unexpectedly.
-Do you want to use {0} ?</value>
-  </data>
   <data name="SFTPForm.labelDropHere">
     <value>Drop files or folders to upload</value>
   </data>
