@@ -206,6 +206,10 @@ $Id: stringresource.xml,v 1.7 2012/03/14 16:33:38 kzmi Exp $
   <ja>ディスプレイ番号</ja>
   <en>Display number</en>
 </record>
+<record name="Form.LoginDialog._x11DisplayNote">
+  <ja>(ローカルXサーバ)</ja>
+  <en>(local X server)</en>
+</record>
 <record name="Form.LoginDialog._x11DisplayText_ToolTip">
   <ja>ローカルのXサーバのディスプレイ番号です。</ja>
   <en>Display number of the local X server.</en>

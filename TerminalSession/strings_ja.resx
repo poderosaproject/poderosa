@@ -159,6 +159,9 @@ New Line</value>
   <data name="Form.LoginDialog._x11DisplayLabel">
     <value>ディスプレイ番号</value>
   </data>
+  <data name="Form.LoginDialog._x11DisplayNote">
+    <value>(ローカルXサーバ)</value>
+  </data>
   <data name="Form.LoginDialog._x11DisplayText_ToolTip">
     <value>ローカルのXサーバのディスプレイ番号です。</value>
   </data>

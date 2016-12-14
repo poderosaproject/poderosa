@@ -73,6 +73,7 @@ namespace Poderosa.Sessions {
             this._x11ScreenText = new System.Windows.Forms.TextBox();
             this._x11ScreenLabel = new System.Windows.Forms.Label();
             this._x11DisplayText = new System.Windows.Forms.TextBox();
+            this._x11DisplayNote = new System.Windows.Forms.Label();
             this._x11DisplayLabel = new System.Windows.Forms.Label();
             this._useX11ForwardingCheckBox = new System.Windows.Forms.CheckBox();
             this._agentForwardingTabPage = new System.Windows.Forms.TabPage();
@@ -444,6 +445,7 @@ namespace Poderosa.Sessions {
             this._x11ForwardingOptionsPanel.Controls.Add(this._x11ScreenText);
             this._x11ForwardingOptionsPanel.Controls.Add(this._x11ScreenLabel);
             this._x11ForwardingOptionsPanel.Controls.Add(this._x11DisplayText);
+            this._x11ForwardingOptionsPanel.Controls.Add(this._x11DisplayNote);
             this._x11ForwardingOptionsPanel.Controls.Add(this._x11DisplayLabel);
             this._x11ForwardingOptionsPanel.Location = new System.Drawing.Point(0, 26);
             this._x11ForwardingOptionsPanel.Name = "_x11ForwardingOptionsPanel";
@@ -460,7 +462,7 @@ namespace Poderosa.Sessions {
             this._x11CygwinX11UnixFolderButton.Name = "_x11CygwinX11UnixFolderButton";
             this._x11CygwinX11UnixFolderButton.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this._x11CygwinX11UnixFolderButton.Size = new System.Drawing.Size(20, 19);
-            this._x11CygwinX11UnixFolderButton.TabIndex = 11;
+            this._x11CygwinX11UnixFolderButton.TabIndex = 12;
             this._x11CygwinX11UnixFolderButton.Text = "...";
             this._x11CygwinX11UnixFolderButton.Click += new System.EventHandler(this._x11CygwinX11UnixFolderButton_Click);
             // 
@@ -474,7 +476,7 @@ namespace Poderosa.Sessions {
             this._x11XauthorityButton.Name = "_x11XauthorityButton";
             this._x11XauthorityButton.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this._x11XauthorityButton.Size = new System.Drawing.Size(20, 19);
-            this._x11XauthorityButton.TabIndex = 7;
+            this._x11XauthorityButton.TabIndex = 8;
             this._x11XauthorityButton.Text = "...";
             this._x11XauthorityButton.Click += new System.EventHandler(this._x11XauthorityButton_Click);
             // 
@@ -485,7 +487,7 @@ namespace Poderosa.Sessions {
             this._x11CygwinX11UnixFolderExampleLabel.Name = "_x11CygwinX11UnixFolderExampleLabel";
             this._x11CygwinX11UnixFolderExampleLabel.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this._x11CygwinX11UnixFolderExampleLabel.Size = new System.Drawing.Size(170, 14);
-            this._x11CygwinX11UnixFolderExampleLabel.TabIndex = 12;
+            this._x11CygwinX11UnixFolderExampleLabel.TabIndex = 13;
             this._x11CygwinX11UnixFolderExampleLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // _x11CygwinX11UnixFolderLabel
@@ -495,7 +497,7 @@ namespace Poderosa.Sessions {
             this._x11CygwinX11UnixFolderLabel.Name = "_x11CygwinX11UnixFolderLabel";
             this._x11CygwinX11UnixFolderLabel.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this._x11CygwinX11UnixFolderLabel.Size = new System.Drawing.Size(100, 16);
-            this._x11CygwinX11UnixFolderLabel.TabIndex = 9;
+            this._x11CygwinX11UnixFolderLabel.TabIndex = 10;
             this._x11CygwinX11UnixFolderLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // _x11XauthorityLabel
@@ -505,7 +507,7 @@ namespace Poderosa.Sessions {
             this._x11XauthorityLabel.Name = "_x11XauthorityLabel";
             this._x11XauthorityLabel.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this._x11XauthorityLabel.Size = new System.Drawing.Size(100, 16);
-            this._x11XauthorityLabel.TabIndex = 5;
+            this._x11XauthorityLabel.TabIndex = 6;
             this._x11XauthorityLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // _x11CygwinX11UnixFolderText
@@ -515,7 +517,7 @@ namespace Poderosa.Sessions {
             this._x11CygwinX11UnixFolderText.Location = new System.Drawing.Point(110, 131);
             this._x11CygwinX11UnixFolderText.Name = "_x11CygwinX11UnixFolderText";
             this._x11CygwinX11UnixFolderText.Size = new System.Drawing.Size(168, 19);
-            this._x11CygwinX11UnixFolderText.TabIndex = 10;
+            this._x11CygwinX11UnixFolderText.TabIndex = 11;
             // 
             // _x11UseCygwinDomainSocketCheckBox
             // 
@@ -523,7 +525,7 @@ namespace Poderosa.Sessions {
             this._x11UseCygwinDomainSocketCheckBox.Location = new System.Drawing.Point(3, 109);
             this._x11UseCygwinDomainSocketCheckBox.Name = "_x11UseCygwinDomainSocketCheckBox";
             this._x11UseCygwinDomainSocketCheckBox.Size = new System.Drawing.Size(15, 14);
-            this._x11UseCygwinDomainSocketCheckBox.TabIndex = 8;
+            this._x11UseCygwinDomainSocketCheckBox.TabIndex = 9;
             this._x11UseCygwinDomainSocketCheckBox.UseVisualStyleBackColor = true;
             this._x11UseCygwinDomainSocketCheckBox.CheckedChanged += new System.EventHandler(this._x11UseCygwinDomainSocketCheckBox_CheckedChanged);
             // 
@@ -534,7 +536,7 @@ namespace Poderosa.Sessions {
             this._x11XauthorityText.Location = new System.Drawing.Point(110, 80);
             this._x11XauthorityText.Name = "_x11XauthorityText";
             this._x11XauthorityText.Size = new System.Drawing.Size(168, 19);
-            this._x11XauthorityText.TabIndex = 6;
+            this._x11XauthorityText.TabIndex = 7;
             // 
             // _x11NeedAuthCheckBox
             // 
@@ -542,7 +544,7 @@ namespace Poderosa.Sessions {
             this._x11NeedAuthCheckBox.Location = new System.Drawing.Point(3, 58);
             this._x11NeedAuthCheckBox.Name = "_x11NeedAuthCheckBox";
             this._x11NeedAuthCheckBox.Size = new System.Drawing.Size(15, 14);
-            this._x11NeedAuthCheckBox.TabIndex = 4;
+            this._x11NeedAuthCheckBox.TabIndex = 5;
             this._x11NeedAuthCheckBox.UseVisualStyleBackColor = true;
             this._x11NeedAuthCheckBox.CheckedChanged += new System.EventHandler(this._x11NeedAuthCheckBox_CheckedChanged);
             // 
@@ -551,7 +553,7 @@ namespace Poderosa.Sessions {
             this._x11ScreenText.Location = new System.Drawing.Point(110, 28);
             this._x11ScreenText.Name = "_x11ScreenText";
             this._x11ScreenText.Size = new System.Drawing.Size(60, 19);
-            this._x11ScreenText.TabIndex = 3;
+            this._x11ScreenText.TabIndex = 4;
             // 
             // _x11ScreenLabel
             // 
@@ -560,7 +562,7 @@ namespace Poderosa.Sessions {
             this._x11ScreenLabel.Name = "_x11ScreenLabel";
             this._x11ScreenLabel.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this._x11ScreenLabel.Size = new System.Drawing.Size(100, 16);
-            this._x11ScreenLabel.TabIndex = 2;
+            this._x11ScreenLabel.TabIndex = 3;
             this._x11ScreenLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // _x11DisplayText
@@ -569,6 +571,18 @@ namespace Poderosa.Sessions {
             this._x11DisplayText.Name = "_x11DisplayText";
             this._x11DisplayText.Size = new System.Drawing.Size(60, 19);
             this._x11DisplayText.TabIndex = 1;
+            // 
+            // _x11DisplayNote
+            // 
+            this._x11DisplayNote.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._x11DisplayNote.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this._x11DisplayNote.Location = new System.Drawing.Point(178, 4);
+            this._x11DisplayNote.Name = "_x11DisplayNote";
+            this._x11DisplayNote.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this._x11DisplayNote.Size = new System.Drawing.Size(120, 18);
+            this._x11DisplayNote.TabIndex = 2;
+            this._x11DisplayNote.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // _x11DisplayLabel
             // 
@@ -762,5 +776,6 @@ namespace Poderosa.Sessions {
         private System.Windows.Forms.ComboBox _portBox;
         private System.Windows.Forms.Label _x11CygwinX11UnixFolderExampleLabel;
         private System.Windows.Forms.ImageList _icons;
+        private System.Windows.Forms.Label _x11DisplayNote;
     }
 }

@@ -185,6 +185,7 @@ namespace Poderosa.Sessions {
 
             this._useX11ForwardingCheckBox.Text = TEnv.Strings.GetString("Form.LoginDialog._useX11ForwardingCheckBox");
             this._x11DisplayLabel.Text = TEnv.Strings.GetString("Form.LoginDialog._x11DisplayLabel");
+            this._x11DisplayNote.Text = TEnv.Strings.GetString("Form.LoginDialog._x11DisplayNote");
             this._toolTip.SetToolTip(this._x11DisplayText, TEnv.Strings.GetString("Form.LoginDialog._x11DisplayText_ToolTip"));
             this._x11ScreenLabel.Text = TEnv.Strings.GetString("Form.LoginDialog._x11ScreenLabel");
             this._toolTip.SetToolTip(this._x11ScreenText, TEnv.Strings.GetString("Form.LoginDialog._x11ScreenText_ToolTip"));

@@ -159,6 +159,9 @@ New Line</value>
   <data name="Form.LoginDialog._x11DisplayLabel">
     <value>Display number</value>
   </data>
+  <data name="Form.LoginDialog._x11DisplayNote">
+    <value>(local X server)</value>
+  </data>
   <data name="Form.LoginDialog._x11DisplayText_ToolTip">
     <value>Display number of the local X server.</value>
   </data>
