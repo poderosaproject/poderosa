@@ -20,6 +20,7 @@ using Poderosa.Terminal;
 using Poderosa.Util;
 using Poderosa.View;
 using Poderosa.Protocols;
+using Granados;
 
 namespace Poderosa.ConnectionParam {
 
@@ -56,6 +57,53 @@ namespace Poderosa.ConnectionParam {
         /// </summary>
         [EnumValue(Description = "Enum.AuthType.KeyboardInteractive")]
         KeyboardInteractive
+    }
+
+    /// <summary>
+    /// Utility methods for conversion between <see cref="AuthType"/> and <see cref="AuthenticationType"/>.
+    /// </summary>
+    public static class AuthTypeMixin {
+        /// <summary>
+        /// Converts <see cref="AuthType"/> to <see cref="AuthenticationType"/>.
+        /// </summary>
+        /// <param name="authType"></param>
+        /// <returns></returns>
+        public static AuthenticationType ToAuthenticationType(this AuthType authType) {
+            switch (authType) {
+                case AuthType.Password:
+                    return AuthenticationType.Password;
+
+                case AuthType.PublicKey:
+                    return AuthenticationType.PublicKey;
+
+                case AuthType.KeyboardInteractive:
+                    return AuthenticationType.KeyboardInteractive;
+
+                default:
+                    throw new ArgumentException("Unsupported AuthType", "authType");
+            }
+        }
+
+        /// <summary>
+        /// Converts <see cref="AuthenticationType"/> to <see cref="AuthType"/>.
+        /// </summary>
+        /// <param name="authType"></param>
+        /// <returns></returns>
+        public static AuthType ToAuthType(this AuthenticationType authenticationType) {
+            switch (authenticationType) {
+                case AuthenticationType.Password:
+                    return AuthType.Password;
+
+                case AuthenticationType.PublicKey:
+                    return AuthType.PublicKey;
+
+                case AuthenticationType.KeyboardInteractive:
+                    return AuthType.KeyboardInteractive;
+
+                default:
+                    throw new ArgumentException("Unsupported AuthenticationType", "authenticationType");
+            }
+        }
     }
 
     /// <summary>
@@ -254,6 +302,31 @@ namespace Poderosa.ConnectionParam {
         /// </summary>
         [EnumValue(Description = "Enum.TerminalType.KTerm")]
         KTerm
+    }
+
+    /// <summary>
+    /// Utility methods for conversion of <see cref="TerminalType"/>.
+    /// </summary>
+    public static class TerminalTypeMixin {
+
+        /// <summary>
+        /// Converts <see cref="TerminalType"/> to a value of the TERM environment variable.
+        /// </summary>
+        /// <param name="type">terminal type</param>
+        /// <returns></returns>
+        public static string ToTermValue(this TerminalType type) {
+            switch (type) {
+                case TerminalType.VT100:
+                    return "vt100";
+                case TerminalType.XTerm:
+                    return "xterm";
+                case TerminalType.KTerm:
+                    return "kterm";
+                default:
+                    throw new ArgumentException("Unknown TerminalType : " + type.ToString(), "type");
+            }
+        }
+
     }
 
     /// <summary>
