@@ -386,10 +386,6 @@
   <data name="Form.OptionDialog._sshMiscGroup">
     <value>その他</value>
   </data>
-  <data name="Form.OptionDialog._enableAgentForward">
-    <value>エージェントフォワーディングを使用(&amp;F)
-(OpenSSHに対するSSH2接続でのみ有効)</value>
-  </data>
   <data name="Form.OptionDialog._retainsPassphrase">
     <value>終了までは一度入力したパスフレーズを記憶(&amp;M)</value>
   </data>

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2004,2006 The Poderosa Project.
+ * Copyright 2004-2016 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -167,7 +167,7 @@ namespace Poderosa.Usability {
 
         public bool IsAuthKeyProviderEnabled {
             get {
-                return _originalOptions.EnableKeyAgent;
+                return true;    // always enabled whenever this instance was set to the connection parameter.
             }
         }
 
@@ -210,7 +210,7 @@ namespace Poderosa.Usability {
             if (ssh == null)
                 return; //SSH以外は興味なし
 
-            if (ssh.Method == SSHProtocol.SSH2 && _originalOptions.EnableKeyAgent) {
+            if (ssh.Method == SSHProtocol.SSH2 && ssh.EnableAgentForwarding) {
                 ssh.AgentForwardingAuthKeyProvider = this; //自分をハンドルするように設定
             }
         }
@@ -234,17 +234,12 @@ namespace Poderosa.Usability {
 
     //Preference用インタフェース
     internal interface IKeyAgentOptions {
-        bool EnableKeyAgent {
-            get;
-            set;
-        }
         string PrivateKeyFileNames {
             get;
         } //取得のみ
     }
 
     internal class KeyAgentOptions : SnapshotAwarePreferenceBase, IKeyAgentOptions {
-        private IBoolPreferenceItem _enabled;
         private IStringPreferenceItem _privateKeyFileNames;
 
         public KeyAgentOptions(IPreferenceFolder folder)
@@ -252,24 +247,14 @@ namespace Poderosa.Usability {
         }
 
         public override void DefineItems(IPreferenceBuilder builder) {
-            _enabled = builder.DefineBoolValue(_folder, "enabled", true, null);
             _privateKeyFileNames = builder.DefineStringValue(_folder, "filenames", "", null);
         }
 
         public KeyAgentOptions Import(KeyAgentOptions src) {
-            _enabled = ConvertItem(src._enabled);
             _privateKeyFileNames = ConvertItem(src._privateKeyFileNames);
             return this;
         }
 
-        public bool EnableKeyAgent {
-            get {
-                return _enabled.Value;
-            }
-            set {
-                _enabled.Value = value;
-            }
-        }
         public string PrivateKeyFileNames {
             get {
                 return _privateKeyFileNames.Value;

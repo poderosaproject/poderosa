@@ -33,7 +33,6 @@ namespace Poderosa.Forms {
         private System.Windows.Forms.Label _windowSizeLabel;
         private TextBox _windowSizeBox;
         private System.Windows.Forms.GroupBox _sshMiscGroup;
-        private CheckBox _enableAgentForward;
         private CheckBox _retainsPassphrase;
         private CheckBox _sshCheckMAC;
         private CheckBox _sshEventLog;
@@ -49,33 +48,26 @@ namespace Poderosa.Forms {
             this._algorithmOrderDown = new System.Windows.Forms.Button();
             this._ssh2OptionGroup = new System.Windows.Forms.GroupBox();
             this._hostKeyLabel = new System.Windows.Forms.Label();
-            this._hostKeyBox = new ComboBox();
+            this._hostKeyBox = new System.Windows.Forms.ComboBox();
             this._windowSizeLabel = new System.Windows.Forms.Label();
-            this._windowSizeBox = new TextBox();
+            this._windowSizeBox = new System.Windows.Forms.TextBox();
             this._sshMiscGroup = new System.Windows.Forms.GroupBox();
-            this._enableAgentForward = new CheckBox();
-            this._retainsPassphrase = new System.Windows.Forms.CheckBox();
             this._sshCheckMAC = new System.Windows.Forms.CheckBox();
-            this._sshEventLog = new CheckBox();
-
+            this._retainsPassphrase = new System.Windows.Forms.CheckBox();
+            this._sshEventLog = new System.Windows.Forms.CheckBox();
             this._cipherOrderGroup.SuspendLayout();
             this._ssh2OptionGroup.SuspendLayout();
             this._sshMiscGroup.SuspendLayout();
-
-            this.Controls.AddRange(new System.Windows.Forms.Control[] {
-                this._cipherOrderGroup,
-                this._ssh2OptionGroup,
-                this._sshMiscGroup});
+            this.SuspendLayout();
             // 
             // _cipherOrderGroup
             // 
-            this._cipherOrderGroup.Controls.AddRange(new System.Windows.Forms.Control[] {
-                this._cipherOrderList,
-                this._algorithmOrderUp,
-                this._algorithmOrderDown});
+            this._cipherOrderGroup.Controls.Add(this._cipherOrderList);
+            this._cipherOrderGroup.Controls.Add(this._algorithmOrderUp);
+            this._cipherOrderGroup.Controls.Add(this._algorithmOrderDown);
+            this._cipherOrderGroup.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this._cipherOrderGroup.Location = new System.Drawing.Point(8, 8);
             this._cipherOrderGroup.Name = "_cipherOrderGroup";
-            this._cipherOrderGroup.FlatStyle = FlatStyle.System;
             this._cipherOrderGroup.Size = new System.Drawing.Size(416, 80);
             this._cipherOrderGroup.TabIndex = 0;
             this._cipherOrderGroup.TabStop = false;
@@ -85,35 +77,36 @@ namespace Poderosa.Forms {
             this._cipherOrderList.ItemHeight = 12;
             this._cipherOrderList.Location = new System.Drawing.Point(8, 16);
             this._cipherOrderList.Name = "_cipherOrderList";
-            this._cipherOrderList.Size = new System.Drawing.Size(208, 56);
+            this._cipherOrderList.Size = new System.Drawing.Size(208, 52);
             this._cipherOrderList.TabIndex = 1;
             // 
             // _algorithmOrderUp
             // 
+            this._algorithmOrderUp.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this._algorithmOrderUp.Location = new System.Drawing.Point(232, 16);
             this._algorithmOrderUp.Name = "_algorithmOrderUp";
-            this._algorithmOrderUp.FlatStyle = FlatStyle.System;
+            this._algorithmOrderUp.Size = new System.Drawing.Size(75, 23);
             this._algorithmOrderUp.TabIndex = 2;
             this._algorithmOrderUp.Click += new System.EventHandler(this.OnCipherAlgorithmOrderUp);
             // 
             // _algorithmOrderDown
             // 
+            this._algorithmOrderDown.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this._algorithmOrderDown.Location = new System.Drawing.Point(232, 48);
             this._algorithmOrderDown.Name = "_algorithmOrderDown";
-            this._algorithmOrderDown.FlatStyle = FlatStyle.System;
+            this._algorithmOrderDown.Size = new System.Drawing.Size(75, 23);
             this._algorithmOrderDown.TabIndex = 3;
             this._algorithmOrderDown.Click += new System.EventHandler(this.OnCipherAlgorithmOrderDown);
             // 
             // _ssh2OptionGroup
             // 
-            this._ssh2OptionGroup.Controls.AddRange(new System.Windows.Forms.Control[] {
-                this._hostKeyLabel,
-                this._hostKeyBox,
-                this._windowSizeLabel,
-                this._windowSizeBox});
+            this._ssh2OptionGroup.Controls.Add(this._hostKeyLabel);
+            this._ssh2OptionGroup.Controls.Add(this._hostKeyBox);
+            this._ssh2OptionGroup.Controls.Add(this._windowSizeLabel);
+            this._ssh2OptionGroup.Controls.Add(this._windowSizeBox);
+            this._ssh2OptionGroup.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this._ssh2OptionGroup.Location = new System.Drawing.Point(8, 96);
             this._ssh2OptionGroup.Name = "_ssh2OptionGroup";
-            this._ssh2OptionGroup.FlatStyle = FlatStyle.System;
             this._ssh2OptionGroup.Size = new System.Drawing.Size(416, 80);
             this._ssh2OptionGroup.TabIndex = 4;
             this._ssh2OptionGroup.TabStop = false;
@@ -130,8 +123,8 @@ namespace Poderosa.Forms {
             // 
             this._hostKeyBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._hostKeyBox.Items.AddRange(new object[] {
-                "DSA",
-                "RSA"});
+            "DSA",
+            "RSA"});
             this._hostKeyBox.Location = new System.Drawing.Point(224, 16);
             this._hostKeyBox.Name = "_hostKeyBox";
             this._hostKeyBox.Size = new System.Drawing.Size(121, 20);
@@ -156,54 +149,54 @@ namespace Poderosa.Forms {
             // 
             // _sshMiscGroup
             // 
-            this._sshMiscGroup.Controls.AddRange(new System.Windows.Forms.Control[] {
-                this._enableAgentForward,
-                this._sshCheckMAC,
-                this._retainsPassphrase,
-                this._sshEventLog});
+            this._sshMiscGroup.Controls.Add(this._sshCheckMAC);
+            this._sshMiscGroup.Controls.Add(this._retainsPassphrase);
+            this._sshMiscGroup.Controls.Add(this._sshEventLog);
+            this._sshMiscGroup.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this._sshMiscGroup.Location = new System.Drawing.Point(8, 180);
             this._sshMiscGroup.Name = "_sshMiscGroup";
-            this._sshMiscGroup.FlatStyle = FlatStyle.System;
-            this._sshMiscGroup.Size = new System.Drawing.Size(416, 132);
+            this._sshMiscGroup.Size = new System.Drawing.Size(416, 105);
             this._sshMiscGroup.TabIndex = 9;
             this._sshMiscGroup.TabStop = false;
             // 
-            // _enableAgentForward
-            // 
-            this._enableAgentForward.Location = new System.Drawing.Point(8, 14);
-            this._enableAgentForward.Name = "_enableAgentForward";
-            this._enableAgentForward.FlatStyle = FlatStyle.System;
-            this._enableAgentForward.Size = new System.Drawing.Size(400, 28);
-            this._enableAgentForward.TabIndex = 10;
-            // 
-            // _retainsPassphrase
-            // 
-            this._retainsPassphrase.Location = new System.Drawing.Point(8, 44);
-            this._retainsPassphrase.Name = "_retainsPassphrase";
-            this._retainsPassphrase.FlatStyle = FlatStyle.System;
-            this._retainsPassphrase.Size = new System.Drawing.Size(400, 23);
-            this._retainsPassphrase.TabIndex = 11;
-            // 
             // _sshCheckMAC
             // 
-            this._sshCheckMAC.Location = new System.Drawing.Point(8, 66);
+            this._sshCheckMAC.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this._sshCheckMAC.Location = new System.Drawing.Point(8, 34);
             this._sshCheckMAC.Name = "_sshCheckMAC";
-            this._sshCheckMAC.FlatStyle = FlatStyle.System;
             this._sshCheckMAC.Size = new System.Drawing.Size(400, 37);
             this._sshCheckMAC.TabIndex = 12;
             // 
+            // _retainsPassphrase
+            // 
+            this._retainsPassphrase.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this._retainsPassphrase.Location = new System.Drawing.Point(8, 12);
+            this._retainsPassphrase.Name = "_retainsPassphrase";
+            this._retainsPassphrase.Size = new System.Drawing.Size(400, 23);
+            this._retainsPassphrase.TabIndex = 11;
+            // 
             // _sshEventLog
             // 
-            this._sshEventLog.Location = new System.Drawing.Point(8, 102);
-            this._sshEventLog.Name = "_sshCheckMAC";
-            this._sshEventLog.FlatStyle = FlatStyle.System;
+            this._sshEventLog.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this._sshEventLog.Location = new System.Drawing.Point(8, 70);
+            this._sshEventLog.Name = "_sshEventLog";
             this._sshEventLog.Size = new System.Drawing.Size(400, 23);
             this._sshEventLog.TabIndex = 13;
+            // 
+            // SSHOptionPanel
+            // 
+            this.BackColor = System.Drawing.SystemColors.Window;
+            this.Controls.Add(this._cipherOrderGroup);
+            this.Controls.Add(this._ssh2OptionGroup);
+            this.Controls.Add(this._sshMiscGroup);
+            this.Name = "SSHOptionPanel";
+            this.Size = new System.Drawing.Size(381, 279);
+            this._cipherOrderGroup.ResumeLayout(false);
+            this._ssh2OptionGroup.ResumeLayout(false);
+            this._ssh2OptionGroup.PerformLayout();
+            this._sshMiscGroup.ResumeLayout(false);
+            this.ResumeLayout(false);
 
-            this.BackColor = SystemColors.Window;
-            this._cipherOrderGroup.ResumeLayout();
-            this._ssh2OptionGroup.ResumeLayout();
-            this._sshMiscGroup.ResumeLayout();
         }
         private void FillText() {
             StringResource sr = OptionDialogPlugin.Instance.Strings;
@@ -214,7 +207,6 @@ namespace Poderosa.Forms {
             this._hostKeyLabel.Text = sr.GetString("Form.OptionDialog._hostKeyLabel");
             this._windowSizeLabel.Text = sr.GetString("Form.OptionDialog._windowSizeLabel");
             this._sshMiscGroup.Text = sr.GetString("Form.OptionDialog._sshMiscGroup");
-            this._enableAgentForward.Text = sr.GetString("Form.OptionDialog._enableAgentForward");
             this._retainsPassphrase.Text = sr.GetString("Form.OptionDialog._retainsPassphrase");
             this._sshCheckMAC.Text = sr.GetString("Form.OptionDialog._sshCheckMAC");
             this._sshEventLog.Text = sr.GetString("Form.OptionDialog._sshEventLog");
@@ -230,7 +222,6 @@ namespace Poderosa.Forms {
             _sshCheckMAC.Checked = options.SSHCheckMAC;
             _sshEventLog.Checked = options.LogSSHEvents;
             _cipherAlgorithmOrder = options.CipherAlgorithmOrder;
-            _enableAgentForward.Checked = agent.EnableKeyAgent;
         }
         public bool Commit(IProtocolOptions options, IKeyAgentOptions agent) {
             StringResource sr = OptionDialogPlugin.Instance.Strings;
@@ -259,7 +250,6 @@ namespace Poderosa.Forms {
                 options.SSHCheckMAC = _sshCheckMAC.Checked;
                 options.CipherAlgorithmOrder = _cipherAlgorithmOrder;
                 options.LogSSHEvents = _sshEventLog.Checked;
-                agent.EnableKeyAgent = _enableAgentForward.Checked;
 
                 return true;
             }

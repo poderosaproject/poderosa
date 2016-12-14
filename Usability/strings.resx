@@ -388,10 +388,6 @@
   <data name="Form.OptionDialog._sshMiscGroup">
     <value>Miscellaneous</value>
   </data>
-  <data name="Form.OptionDialog._enableAgentForward">
-    <value>Enable agent &amp;forwarding
-(Only for SSH2 connections to OpenSSH)</value>
-  </data>
   <data name="Form.OptionDialog._retainsPassphrase">
     <value>&amp;Memorize passphrase until the application is terminated</value>
   </data>
