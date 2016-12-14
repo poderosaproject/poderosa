@@ -602,16 +602,16 @@ namespace Poderosa.Terminal {
     /// <exclude/>
     public static class LogUtil {
         public static string SelectLogFileByDialog(Form parent) {
-            SaveFileDialog dlg = new SaveFileDialog();
-            dlg.AddExtension = true;
-            dlg.DefaultExt = "log";
-            dlg.Title = "Select Log";
-            dlg.Filter = "Log Files(*.log)|*.log|All Files(*.*)|*.*";
-            if (dlg.ShowDialog(parent) == DialogResult.OK) {
-                return dlg.FileName;
-            }
-            else
+            using (SaveFileDialog dlg = new SaveFileDialog()) {
+                dlg.AddExtension = true;
+                dlg.DefaultExt = "log";
+                dlg.Title = "Select Log";
+                dlg.Filter = "Log Files(*.log)|*.log|All Files(*.*)|*.*";
+                if (dlg.ShowDialog(parent) == DialogResult.OK) {
+                    return dlg.FileName;
+                }
                 return null;
+            }
         }
 
         //既存のファイルであったり、書き込み不可能だったら警告する

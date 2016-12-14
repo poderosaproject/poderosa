@@ -84,16 +84,16 @@ namespace Poderosa.Terminal {
 
         //秘密鍵ファイル選択
         public static string SelectPrivateKeyFileByDialog(Form parent) {
-            OpenFileDialog dlg = new OpenFileDialog();
-            dlg.CheckFileExists = true;
-            dlg.Multiselect = false;
-            dlg.Title = "Select Private Key File";
-            dlg.Filter = "Key Files(*.bin;*)|*.bin;*";
-            if (dlg.ShowDialog(parent) == DialogResult.OK) {
-                return dlg.FileName;
-            }
-            else
+            using (OpenFileDialog dlg = new OpenFileDialog()) {
+                dlg.CheckFileExists = true;
+                dlg.Multiselect = false;
+                dlg.Title = "Select Private Key File";
+                dlg.Filter = "Key Files(*.bin;*)|*.bin;*";
+                if (dlg.ShowDialog(parent) == DialogResult.OK) {
+                    return dlg.FileName;
+                }
                 return null;
+            }
         }
 
     }
