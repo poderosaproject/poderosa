@@ -65,6 +65,25 @@
   </Target>
   -->
   <ItemGroup>
+    <Compile Include="IOpenSessionTabPage.cs" />
+    <Compile Include="OpenSessionDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OpenSessionDialog.Designer.cs">
+      <DependentUpon>OpenSessionDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OpenSessionTabPageTelnet.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="OpenSessionTabPageTelnet.Designer.cs">
+      <DependentUpon>OpenSessionTabPageTelnet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OpenSessionTabPageSSH.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="OpenSessionTabPageSSH.Designer.cs">
+      <DependentUpon>OpenSessionTabPageSSH.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AutoShellExecutor.cs" />
     <Compile Include="CopyPaste.cs" />
@@ -88,6 +107,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="StartCommands.cs" />
+    <Compile Include="StoragePerWindow.cs" />
     <Compile Include="TelnetSSHLoginDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -131,6 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.XML" />
@@ -139,6 +160,15 @@
     <EmbeddedResource Include="CygwinLoginDialog.resx">
       <SubType>Designer</SubType>
       <DependentUpon>CygwinLoginDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OpenSessionDialog.resx">
+      <DependentUpon>OpenSessionDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OpenSessionTabPageTelnet.resx">
+      <DependentUpon>OpenSessionTabPageTelnet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OpenSessionTabPageSSH.resx">
+      <DependentUpon>OpenSessionTabPageSSH.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <SubType>Designer</SubType>
@@ -167,5 +197,17 @@
     <None Include="Resources\Save16x16.png" />
     <None Include="Resources\SFU16x16.png" />
     <None Include="Resources\Single16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AuthSmall.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\MacroSmall.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\TerminalSmall.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\X11Small.png" />
   </ItemGroup>
 </Project>

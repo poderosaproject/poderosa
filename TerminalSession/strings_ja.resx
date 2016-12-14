@@ -150,8 +150,50 @@ New Line</value>
   <data name="Form.LoginDialog.Text">
     <value>新規接続</value>
   </data>
+  <data name="Form.LoginDialog.Title">
+    <value>新規セッション</value>
+  </data>
+  <data name="Form.LoginDialog._useX11ForwardingCheckBox">
+    <value>X11フォワーディングを使用</value>
+  </data>
+  <data name="Form.LoginDialog._x11DisplayLabel">
+    <value>ディスプレイ番号</value>
+  </data>
+  <data name="Form.LoginDialog._x11DisplayText_ToolTip">
+    <value>ローカルのXサーバのディスプレイ番号です。</value>
+  </data>
+  <data name="Form.LoginDialog._x11ScreenLabel">
+    <value>スクリーン番号</value>
+  </data>
+  <data name="Form.LoginDialog._x11ScreenText_ToolTip">
+    <value>X11フォワーディングで使用するスクリーン番号です。</value>
+  </data>
+  <data name="Form.LoginDialog._x11NeedAuthCheckBox">
+    <value>Xサーバは認証が必要</value>
+  </data>
+  <data name="Form.LoginDialog._x11XauthorityLabel">
+    <value>.Xauthorityファイル</value>
+  </data>
+  <data name="Form.LoginDialog._x11UseCygwinDomainSocketCheckBox">
+    <value>CygwinのUnixドメインソケットを使用</value>
+  </data>
+  <data name="Form.LoginDialog._x11CygwinX11UnixFolderLabel">
+    <value>.X11-unixフォルダ</value>
+  </data>
+  <data name="Form.LoginDialog._x11CygwinX11UnixFolderExampleLabel">
+    <value>例 C:\Cygwin\tmp\.X11-unix</value>
+  </data>
+  <data name="Form.LoginDialog._useAgentForwardingCheckBox">
+    <value>エージェントフォワーディングを使用 (SSH2のみ)</value>
+  </data>
+  <data name="Form.LoginDialog._agentForwardingConfigButton">
+    <value>秘密鍵の設定...</value>
+  </data>
   <data name="Message.LoginDialog.InvalidPort">
     <value>ポートの指定 {0} は正しくありません。</value>
+  </data>
+  <data name="Caption.LoginDialog.SelectXauthorityFile">
+    <value>.Xauthorityファイルの選択</value>
   </data>
   <data name="Caption.LoginDialog.Connecting">
     <value>新規接続 - 接続中 (Ctrl+Cで中止します)</value>
@@ -161,6 +203,30 @@ New Line</value>
   </data>
   <data name="Message.LoginDialog.KeyFileNotExist">
     <value>秘密鍵ファイルが存在しません。</value>
+  </data>
+  <data name="Message.LoginDialog.ProtocolVersionIsNotSpecified">
+    <value>プロトコルバージョンが指定されていません。</value>
+  </data>
+  <data name="Message.LoginDialog.PrivateKeyFileIsNotSpecified">
+    <value>鍵ファイルが指定されていません。</value>
+  </data>
+  <data name="Message.LoginDialog.X11DisplayIsNotEntered">
+    <value>X11ディスプレイ番号が入力されていません。</value>
+  </data>
+  <data name="Message.LoginDialog.InvalidX11Display">
+    <value>X11ディスプレイ番号が正しくありません。</value>
+  </data>
+  <data name="Message.LoginDialog.X11ScreenIsNotEntered">
+    <value>X11スクリーン番号が入力されていません。</value>
+  </data>
+  <data name="Message.LoginDialog.InvalidX11Screen">
+    <value>X11スクリーン番号が正しくありません。</value>
+  </data>
+  <data name="Message.LoginDialog.XauthorityFileIsNotSpecified">
+    <value>.Xauthorityファイルが指定されていません。</value>
+  </data>
+  <data name="Message.LoginDialog.X11UnixFolderIsNotSpecified">
+    <value>.X11-unixフォルダが指定されていません。</value>
   </data>
   <data name="Caption.LoginDialog.ConnectionError">
     <value>接続エラー</value>

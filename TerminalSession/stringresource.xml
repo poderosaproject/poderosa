@@ -194,9 +194,65 @@ $Id: stringresource.xml,v 1.7 2012/03/14 16:33:38 kzmi Exp $
   <ja>新規接続</ja>
   <en>New Connection</en>
 </record>
+<record name="Form.LoginDialog.Title">
+  <ja>新規セッション</ja>
+  <en>New Session</en>
+</record>
+<record name="Form.LoginDialog._useX11ForwardingCheckBox">
+  <ja>X11フォワーディングを使用</ja>
+  <en>Use X11 forwarding</en>
+</record>
+<record name="Form.LoginDialog._x11DisplayLabel">
+  <ja>ディスプレイ番号</ja>
+  <en>Display number</en>
+</record>
+<record name="Form.LoginDialog._x11DisplayText_ToolTip">
+  <ja>ローカルのXサーバのディスプレイ番号です。</ja>
+  <en>Display number of the local X server.</en>
+</record>
+<record name="Form.LoginDialog._x11ScreenLabel">
+  <ja>スクリーン番号</ja>
+  <en>Screen number</en>
+</record>
+<record name="Form.LoginDialog._x11ScreenText_ToolTip">
+  <ja>X11フォワーディングで使用するスクリーン番号です。</ja>
+  <en>Screen number to be used in the X11 forwarding.</en>
+</record>
+<record name="Form.LoginDialog._x11NeedAuthCheckBox">
+  <ja>Xサーバは認証が必要</ja>
+  <en>X server requires authorization</en>
+</record>
+<record name="Form.LoginDialog._x11XauthorityLabel">
+  <ja>.Xauthorityファイル</ja>
+  <en>.Xauthority file</en>
+</record>
+<record name="Form.LoginDialog._x11UseCygwinDomainSocketCheckBox">
+  <ja>CygwinのUnixドメインソケットを使用</ja>
+  <en>Use Cygwin's unix domain socket</en>
+</record>
+<record name="Form.LoginDialog._x11CygwinX11UnixFolderLabel">
+  <ja>.X11-unixフォルダ</ja>
+  <en>.X11-unix folder</en>
+</record>
+<record name="Form.LoginDialog._x11CygwinX11UnixFolderExampleLabel">
+  <ja>例 C:\Cygwin\tmp\.X11-unix</ja>
+  <en>e.g. C:\Cygwin\tmp\.X11-unix</en>
+</record>
+<record name="Form.LoginDialog._useAgentForwardingCheckBox">
+  <ja>エージェントフォワーディングを使用 (SSH2のみ)</ja>
+  <en>Use agent forwarding (only SSH2)</en>
+</record>
+<record name="Form.LoginDialog._agentForwardingConfigButton">
+  <ja>秘密鍵の設定...</ja>
+  <en>Private keys...</en>
+</record>
 <record name="Message.LoginDialog.InvalidPort">
   <ja>ポートの指定 {0} は正しくありません。</ja>
   <en>{0} is not valid as a port.</en>
+</record>
+<record name="Caption.LoginDialog.SelectXauthorityFile">
+  <ja>.Xauthorityファイルの選択</ja>
+  <en>Select .Xauthority file</en>
 </record>
 <record name="Caption.LoginDialog.Connecting">
   <ja>新規接続 - 接続中 (Ctrl+Cで中止します)</ja>
@@ -209,6 +265,38 @@ $Id: stringresource.xml,v 1.7 2012/03/14 16:33:38 kzmi Exp $
 <record name="Message.LoginDialog.KeyFileNotExist">
   <ja>秘密鍵ファイルが存在しません。</ja>
   <en>The private key file does not exist.</en>
+</record>
+<record name="Message.LoginDialog.ProtocolVersionIsNotSpecified">
+  <ja>プロトコルバージョンが指定されていません。</ja>
+  <en>Protocol version is not specified.</en>
+</record>
+<record name="Message.LoginDialog.PrivateKeyFileIsNotSpecified">
+  <ja>鍵ファイルが指定されていません。</ja>
+  <en>Key file is not specified.</en>
+</record>
+<record name="Message.LoginDialog.X11DisplayIsNotEntered">
+  <ja>X11ディスプレイ番号が入力されていません。</ja>
+  <en>X11 display number is not entered.</en>
+</record>
+<record name="Message.LoginDialog.InvalidX11Display">
+  <ja>X11ディスプレイ番号が正しくありません。</ja>
+  <en>Invalid X11 display number.</en>
+</record>
+<record name="Message.LoginDialog.X11ScreenIsNotEntered">
+  <ja>X11スクリーン番号が入力されていません。</ja>
+  <en>X11 screen number is not entered.</en>
+</record>
+<record name="Message.LoginDialog.InvalidX11Screen">
+  <ja>X11スクリーン番号が正しくありません。</ja>
+  <en>Invalid X11 screen number.</en>
+</record>
+<record name="Message.LoginDialog.XauthorityFileIsNotSpecified">
+  <ja>.Xauthorityファイルが指定されていません。</ja>
+  <en>.Xauthority file is not specified.</en>
+</record>
+<record name="Message.LoginDialog.X11UnixFolderIsNotSpecified">
+  <ja>.X11-unixフォルダが指定されていません。</ja>
+  <en>.X11-unix folder is not specified.</en>
 </record>
 <record name="Caption.LoginDialog.ConnectionError">
   <ja>接続エラー</ja>

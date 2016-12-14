@@ -150,8 +150,50 @@ New Line</value>
   <data name="Form.LoginDialog.Text">
     <value>New Connection</value>
   </data>
+  <data name="Form.LoginDialog.Title">
+    <value>New Session</value>
+  </data>
+  <data name="Form.LoginDialog._useX11ForwardingCheckBox">
+    <value>Use X11 forwarding</value>
+  </data>
+  <data name="Form.LoginDialog._x11DisplayLabel">
+    <value>Display number</value>
+  </data>
+  <data name="Form.LoginDialog._x11DisplayText_ToolTip">
+    <value>Display number of the local X server.</value>
+  </data>
+  <data name="Form.LoginDialog._x11ScreenLabel">
+    <value>Screen number</value>
+  </data>
+  <data name="Form.LoginDialog._x11ScreenText_ToolTip">
+    <value>Screen number to be used in the X11 forwarding.</value>
+  </data>
+  <data name="Form.LoginDialog._x11NeedAuthCheckBox">
+    <value>X server requires authorization</value>
+  </data>
+  <data name="Form.LoginDialog._x11XauthorityLabel">
+    <value>.Xauthority file</value>
+  </data>
+  <data name="Form.LoginDialog._x11UseCygwinDomainSocketCheckBox">
+    <value>Use Cygwin's unix domain socket</value>
+  </data>
+  <data name="Form.LoginDialog._x11CygwinX11UnixFolderLabel">
+    <value>.X11-unix folder</value>
+  </data>
+  <data name="Form.LoginDialog._x11CygwinX11UnixFolderExampleLabel">
+    <value>e.g. C:\Cygwin\tmp\.X11-unix</value>
+  </data>
+  <data name="Form.LoginDialog._useAgentForwardingCheckBox">
+    <value>Use agent forwarding (only SSH2)</value>
+  </data>
+  <data name="Form.LoginDialog._agentForwardingConfigButton">
+    <value>Private keys...</value>
+  </data>
   <data name="Message.LoginDialog.InvalidPort">
     <value>{0} is not valid as a port.</value>
+  </data>
+  <data name="Caption.LoginDialog.SelectXauthorityFile">
+    <value>Select .Xauthority file</value>
   </data>
   <data name="Caption.LoginDialog.Connecting">
     <value>New Connection - Connecting... (Ctrl+C to Stop)</value>
@@ -161,6 +203,30 @@ New Line</value>
   </data>
   <data name="Message.LoginDialog.KeyFileNotExist">
     <value>The private key file does not exist.</value>
+  </data>
+  <data name="Message.LoginDialog.ProtocolVersionIsNotSpecified">
+    <value>Protocol version is not specified.</value>
+  </data>
+  <data name="Message.LoginDialog.PrivateKeyFileIsNotSpecified">
+    <value>Key file is not specified.</value>
+  </data>
+  <data name="Message.LoginDialog.X11DisplayIsNotEntered">
+    <value>X11 display number is not entered.</value>
+  </data>
+  <data name="Message.LoginDialog.InvalidX11Display">
+    <value>Invalid X11 display number.</value>
+  </data>
+  <data name="Message.LoginDialog.X11ScreenIsNotEntered">
+    <value>X11 screen number is not entered.</value>
+  </data>
+  <data name="Message.LoginDialog.InvalidX11Screen">
+    <value>Invalid X11 screen number.</value>
+  </data>
+  <data name="Message.LoginDialog.XauthorityFileIsNotSpecified">
+    <value>.Xauthority file is not specified.</value>
+  </data>
+  <data name="Message.LoginDialog.X11UnixFolderIsNotSpecified">
+    <value>.X11-unix folder is not specified.</value>
   </data>
   <data name="Caption.LoginDialog.ConnectionError">
     <value>Connection error</value>
