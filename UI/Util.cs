@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Text;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace Poderosa.UI {
     /// <summary>
@@ -64,4 +65,39 @@ namespace Poderosa.UI {
                 DumpControlTree(c, indent + 1);
         }
     }
+
+    /// <summary>
+    /// Utility methods for creating icon.
+    /// </summary>
+    public static class IconUtil {
+
+        /// <summary>
+        /// Creates a monotone icon from alpha channel of the specified image and the specified color.
+        /// </summary>
+        /// <param name="mask">image which has alpha channel</param>
+        /// <param name="color">icon color</param>
+        /// <returns>new icon image</returns>
+        public static Bitmap CreateColoredIcon(Image mask, Color color) {
+            Bitmap bmp = new Bitmap(mask.Width, mask.Height, PixelFormat.Format32bppArgb);
+            var rval = color.R / 255f;
+            var gval = color.G / 255f;
+            var bval = color.B / 255f;
+            using (var attr = new ImageAttributes()) {
+                attr.SetColorMatrix(new ColorMatrix(new float[][] {
+                    new float[] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+                    new float[] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+                    new float[] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+                    new float[] { 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+                    new float[] { rval, gval, bval, 0.0f, 1.0f },
+                }));
+                using (var g = Graphics.FromImage(bmp)) {
+                    g.DrawImage(mask, new Rectangle(0, 0, mask.Width, mask.Height), 0, 0, mask.Width, mask.Height, GraphicsUnit.Pixel, attr);
+                }
+            }
+            return bmp;
+        }
+
+
+    }
+
 }
