@@ -13,8 +13,10 @@ using System.Net;
 using System.Diagnostics;
 
 using Granados;
-using Poderosa.MacroEngine;
 using Granados.AgentForwarding;
+using Granados.X11Forwarding;
+
+using Poderosa.MacroEngine;
 
 namespace Poderosa.Protocols {
     /** TerminalParameter族の提供
@@ -174,7 +176,10 @@ namespace Poderosa.Protocols {
         private string _identityFile;
         private string _passwordOrPassphrase;
         private bool _letUserInputPassword;
+        private bool _enableAgentForwarding;
         private IAgentForwardingAuthKeyProvider _authKeyProvider;
+        private bool _enableX11Forwarding;
+        private X11ForwardingParams _x11Forwarding;
 
         public SSHLoginParameter() {
             _method = SSHProtocol.SSH2;
@@ -248,6 +253,16 @@ namespace Poderosa.Protocols {
                 _letUserInputPassword = value;
             }
         }
+
+        public bool EnableAgentForwarding {
+            get {
+                return _enableAgentForwarding;
+            }
+            set {
+                _enableAgentForwarding = value;
+            }
+        }
+
         public IAgentForwardingAuthKeyProvider AgentForwardingAuthKeyProvider {
             get {
                 return _authKeyProvider;
@@ -256,6 +271,25 @@ namespace Poderosa.Protocols {
                 _authKeyProvider = value;
             }
         }
+
+        public bool EnableX11Forwarding {
+            get {
+                return _enableX11Forwarding;
+            }
+            set {
+                _enableX11Forwarding = value;
+            }
+        }
+
+        public X11ForwardingParams X11Forwarding {
+            get {
+                return _x11Forwarding;
+            }
+            set {
+                _x11Forwarding = value;
+            }
+        }
+
         public override bool UIEquals(ITerminalParameter param) {
             ISSHLoginParameter ssh = (ISSHLoginParameter)param.GetAdapter(typeof(ISSHLoginParameter));
             return ssh != null && base.UIEquals(param) && _account == ssh.Account; //プロトコルが違うだけでは同一視してしまう

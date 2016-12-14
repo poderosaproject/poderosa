@@ -14,6 +14,7 @@ using System.Net;
 using Poderosa.Util;
 using Granados;
 using Granados.AgentForwarding;
+using Granados.X11Forwarding;
 
 namespace Poderosa.Protocols {
     /// <summary>
@@ -312,10 +313,33 @@ namespace Poderosa.Protocols {
         }
 
         /// <summary>
-        /// 
+        /// Whether the agent forwarding is enabled.
         /// </summary>
-        /// <exclude/>
+        bool EnableAgentForwarding {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Key provider for the agent forwarding.
+        /// </summary>
         IAgentForwardingAuthKeyProvider AgentForwardingAuthKeyProvider {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Whether the X11 forwarding is enabled.
+        /// </summary>
+        bool EnableX11Forwarding {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// X11 forwarding settings.
+        /// </summary>
+        X11ForwardingParams X11Forwarding {
             get;
             set;
         }

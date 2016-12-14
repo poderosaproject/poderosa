@@ -18,6 +18,8 @@ using NUnit.Framework;
 #endif
 
 using Poderosa.Serializing;
+using System.Globalization;
+using Granados.X11Forwarding;
 
 namespace Poderosa.Protocols {
     internal abstract class TerminalParameterSerializer : ISerializeServiceElement {
@@ -125,6 +127,24 @@ namespace Poderosa.Protocols {
                     }
                 }
             }
+
+            node.Set("enableAgentForwarding", tp.EnableAgentForwarding.ToString());
+
+            node.Set("enableX11Forwarding", tp.EnableX11Forwarding.ToString());
+
+            if (tp.X11Forwarding != null) {
+                StructuredText x11Node = node.AddChild("x11Forwarding");
+                x11Node.Set("display", tp.X11Forwarding.Display.ToString(NumberFormatInfo.InvariantInfo));
+                x11Node.Set("screen", tp.X11Forwarding.Screen.ToString(NumberFormatInfo.InvariantInfo));
+                x11Node.Set("needAuth", tp.X11Forwarding.NeedAuth.ToString());
+                if (tp.X11Forwarding.XauthorityFile != null) {
+                    x11Node.Set("xauthorityFile", tp.X11Forwarding.XauthorityFile);
+                }
+                x11Node.Set("useCygwinUnixDomainSocket", tp.X11Forwarding.UseCygwinUnixDomainSocket.ToString());
+                if (tp.X11Forwarding.X11UnixFolder != null) {
+                    x11Node.Set("x11UnixFolder", tp.X11Forwarding.X11UnixFolder);
+                }
+            }
         }
         public void Deserialize(SSHLoginParameter tp, StructuredText node) {
             base.Deserialize(tp, node);
@@ -149,6 +169,22 @@ namespace Poderosa.Protocols {
                     }
                 }
             }
+
+            tp.EnableAgentForwarding = GetBoolValue(node, "enableAgentForwarding", false);
+
+            tp.EnableX11Forwarding = GetBoolValue(node, "enableX11Forwarding", false);
+
+            StructuredText x11Node = node.FindChild("x11Forwarding");
+            if (x11Node != null) {
+                int display = GetIntValue(x11Node, "display", 0);
+                X11ForwardingParams x11params = new X11ForwardingParams(display);
+                x11params.Screen = GetIntValue(x11Node, "screen", 0);
+                x11params.NeedAuth = GetBoolValue(x11Node, "needAuth", false);
+                x11params.XauthorityFile = x11Node.Get("xauthorityFile", null);
+                x11params.UseCygwinUnixDomainSocket = GetBoolValue(x11Node, "useCygwinUnixDomainSocket", false);
+                x11params.X11UnixFolder = x11Node.Get("x11UnixFolder", null);
+                tp.X11Forwarding = x11params;
+            }
         }
 
         public override StructuredText Serialize(object obj) {
@@ -161,6 +197,28 @@ namespace Poderosa.Protocols {
             SSHLoginParameter t = new SSHLoginParameter();
             Deserialize(t, node);
             return t;
+        }
+
+        private bool GetBoolValue(StructuredText node, string key, bool defaultValue) {
+            string str = node.Get(key);
+            if (str != null) {
+                bool val;
+                if (Boolean.TryParse(str, out val)) {
+                    return val;
+                }
+            }
+            return defaultValue;
+        }
+
+        private int GetIntValue(StructuredText node, string key, int defaultValue) {
+            string str = node.Get(key);
+            if (str != null) {
+                int val;
+                if (Int32.TryParse(str, out val)) {
+                    return val;
+                }
+            }
+            return defaultValue;
         }
     }
 

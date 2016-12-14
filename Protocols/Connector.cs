@@ -63,6 +63,7 @@ namespace Poderosa.Protocols {
             con.PreferableCipherAlgorithms = LocalSSHUtil.ParseCipherAlgorithm(PEnv.Options.CipherAlgorithmOrder);
             con.PreferableHostKeyAlgorithms = LocalSSHUtil.ParsePublicKeyAlgorithm(PEnv.Options.HostKeyAlgorithmOrder);
             con.AgentForwardingAuthKeyProvider = _destination.AgentForwardingAuthKeyProvider;
+            con.X11ForwardingParams = _destination.X11Forwarding;
             if (_keycheck != null) {
                 con.VerifySSHHostKey = (info) => {
                     return _keycheck.Vefiry(info);
