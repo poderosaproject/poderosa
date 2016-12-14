@@ -61,6 +61,7 @@ namespace Poderosa.Sessions {
             //ログインダイアログのサポート用
             pm.CreateExtensionPoint("org.poderosa.terminalsessions.telnetSSHLoginDialogInitializer", typeof(ITelnetSSHLoginDialogInitializer), this);
             pm.CreateExtensionPoint("org.poderosa.terminalsessions.loginDialogUISupport", typeof(ILoginDialogUISupport), this);
+            pm.CreateExtensionPoint("org.poderosa.terminalsessions.terminalParameterStore", typeof(ITerminalSessionParameterStore), this);
             IExtensionPoint factory_point = pm.CreateExtensionPoint(TERMINAL_CONNECTION_FACTORY_ID, typeof(ITerminalConnectionFactory), this);
 
             _pasteCommandExt = pm.CreateExtensionPoint("org.poderosa.terminalsessions.pasteCommand", typeof(IPoderosaCommand), this);

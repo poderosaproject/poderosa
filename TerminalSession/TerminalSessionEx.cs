@@ -374,6 +374,36 @@ namespace Poderosa.Sessions {
         void ApplyLoginDialogInfo(ITelnetSSHLoginDialogInitializeInfo info);
     }
 
+    /// <summary>
+    /// Parameters about a terminal session.
+    /// </summary>
+    /// <typeparam name="T">Class or interface of the connection parameter</typeparam>
+    public class TerminalSessionParameters<T> {
+        public readonly T ConnectionParameter;
+        public readonly ITerminalParameter TerminalParameter;
+        public readonly ITerminalSettings TerminalSettings;
+
+        public TerminalSessionParameters(T connectionParam, ITerminalParameter terminalParam, ITerminalSettings terminalSettings) {
+            ConnectionParameter = connectionParam;
+            TerminalParameter = terminalParam;
+            TerminalSettings = terminalSettings;
+        }
+    }
+
+    /// <summary>
+    /// Provides saved terminal session parameters
+    /// </summary>
+    public interface ITerminalSessionParameterStore {
+        /// <summary>
+        /// Retrieves terminal parameters matched with the specified type.
+        /// </summary>
+        /// <typeparam name="T">Class or interface of the connection parameter</typeparam>
+        /// <returns>
+        /// Enumerable of <see cref="TerminalSessionParameters"/>.
+        /// </returns>
+        IEnumerable<TerminalSessionParameters<T>> FindTerminalParameter<T>() where T : class;
+    }
+
     //Extension Pointが提供
     //既に格納されている情報は壊さないようにするのがルール
     /// <summary>

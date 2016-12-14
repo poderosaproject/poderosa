@@ -8,6 +8,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Diagnostics;
 
@@ -55,6 +56,7 @@ namespace Poderosa.Usability {
             pm.FindExtensionPoint("org.poderosa.menu.file").RegisterExtension(_mruList);
             pm.FindExtensionPoint("org.poderosa.terminalsessions.telnetSSHLoginDialogInitializer").RegisterExtension(_mruList);
             pm.FindExtensionPoint("org.poderosa.terminalsessions.loginDialogUISupport").RegisterExtension(_mruList);
+            pm.FindExtensionPoint("org.poderosa.terminalsessions.terminalParameterStore").RegisterExtension(_mruList);
 
             _mruCommand = new OpenMRUCommand();
         }
@@ -246,6 +248,7 @@ namespace Poderosa.Usability {
         ISessionListener,
         IPoderosaMenuGroup,
         IPositionDesignation,
+        ITerminalSessionParameterStore,
         ITelnetSSHLoginDialogInitializer,
         ILoginDialogUISupport {
         private MRUItemSerializer _serializer;
@@ -378,6 +381,26 @@ namespace Poderosa.Usability {
                 if (ssh != null)
                     info.AddAccount(ssh.Account);
             }
+        }
+
+        #endregion
+
+        #region ITerminalSessionParameterStore
+
+        public IEnumerable<TerminalSessionParameters<T>> FindTerminalParameter<T>() where T : class {
+            return _data.Select((item) => {
+                        ITerminalParameter tp = item.TerminalParameter;
+                        T param = tp.GetAdapter(typeof(T)) as T;
+                        if (param != null && item.TerminalParameter != null && item.TerminalSettings != null) {
+                            return new TerminalSessionParameters<T>(param, item.TerminalParameter, item.TerminalSettings);
+                        }
+                        else {
+                            return null;
+                        }
+                    })
+                    .Where((item) => {
+                        return item != null;
+                    });
         }
 
         #endregion
