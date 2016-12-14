@@ -175,6 +175,8 @@ namespace Poderosa.Sessions {
                 IPoderosaMainWindow window = (IPoderosaMainWindow)target.GetAdapter(typeof(IPoderosaMainWindow));
                 if (window == null)
                     return CommandResult.Ignored;
+
+#if OLD_LOGIN_DIALOG
                 TelnetSSHLoginDialog dlg = new TelnetSSHLoginDialog(window);
 
                 dlg.ApplyParam();
@@ -199,6 +201,26 @@ namespace Poderosa.Sessions {
                 dlg.Dispose();
 
                 return res;
+#else
+                using (OpenSessionDialog dlg = new OpenSessionDialog(window)) {
+                    if (dlg.ShowDialog() == DialogResult.OK) {
+                        IContentReplaceableView view = (IContentReplaceableView)window.ViewManager.GetCandidateViewForNewDocument().GetAdapter(typeof(IContentReplaceableView));
+                        IPoderosaView targetView = view.AssureViewClass(typeof(TerminalView));
+
+                        ISessionManager sm = (ISessionManager)TelnetSSHPlugin.Instance.PoderosaWorld.PluginManager.FindPlugin("org.poderosa.core.sessions", typeof(ISessionManager));
+                        TerminalSession ts = new TerminalSession(dlg.TerminalConnection, dlg.TerminalSettings);
+                        sm.StartNewSession(ts, targetView);
+                        sm.ActivateDocument(ts.Terminal.IDocument, ActivateReason.InternalAction);
+
+                        IAutoExecMacroParameter autoExecParam = dlg.TerminalConnection.Destination.GetAdapter(typeof(IAutoExecMacroParameter)) as IAutoExecMacroParameter;
+                        if (autoExecParam != null && autoExecParam.AutoExecMacroPath != null && TelnetSSHPlugin.Instance.MacroEngine != null) {
+                            TelnetSSHPlugin.Instance.MacroEngine.RunMacro(autoExecParam.AutoExecMacroPath, ts);
+                        }
+                        return CommandResult.Succeeded;
+                    }
+                    return CommandResult.Cancelled;
+                }
+#endif
             }
 
             public string CommandID {
