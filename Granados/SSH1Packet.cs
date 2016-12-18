@@ -111,6 +111,13 @@ namespace Granados.SSH1 {
         }
 
         /// <summary>
+        /// Allow this packet to be reused.
+        /// </summary>
+        public void Recycle() {
+            _lockFlag.Value = false;
+        }
+
+        /// <summary>
         /// Gets the binary image of this packet.
         /// </summary>
         /// <param name="cipher">cipher algorithm, or null if no encryption.</param>
@@ -122,7 +129,7 @@ namespace Granados.SSH1 {
                     image.RawBuffer, image.RawBufferOffset + PACKET_LENGTH_FIELD_LEN, image.Length - PACKET_LENGTH_FIELD_LEN,
                     image.RawBuffer, image.RawBufferOffset + PACKET_LENGTH_FIELD_LEN);
             }
-            _lockFlag.Value = false;
+            Recycle();
             return image.AsDataFragment();
         }
 

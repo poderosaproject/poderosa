@@ -68,9 +68,18 @@ namespace Granados.IO {
         /// <summary>
         /// Gets the binary image of the packet to be sent.
         /// </summary>
+        /// <remarks>
+        /// The packet object will be allowed to be reused.
+        /// </remarks>
         /// <param name="packet">a packet object</param>
         /// <returns>binary image of the packet</returns>
         protected abstract DataFragment GetPacketImage(PacketType packet);
+
+        /// <summary>
+        /// Allows to reuse a packet object.
+        /// </summary>
+        /// <param name="packet">a packet object</param>
+        protected abstract void Recycle(PacketType packet);
 
         /// <summary>
         /// Do additional work for a packet to be sent.
@@ -119,6 +128,7 @@ namespace Granados.IO {
 #if DEBUG_SYNCHRONOUSPACKETHANDLER
                     System.Diagnostics.Debug.WriteLine("(blocked) <-- [{0}]", new object[] { GetMessageName(packet) });
 #endif
+                    Recycle(packet);
                     return;
                 }
 
@@ -140,6 +150,7 @@ namespace Granados.IO {
 #if DEBUG_SYNCHRONOUSPACKETHANDLER
                     System.Diagnostics.Debug.WriteLine("(blocked) <-- [{0}]", new object[] { GetMessageName(packet) });
 #endif
+                    Recycle(packet);
                     return;
                 }
 

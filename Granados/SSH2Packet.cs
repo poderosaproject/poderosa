@@ -147,6 +147,13 @@ namespace Granados.SSH2 {
         }
 
         /// <summary>
+        /// Allow this packet to be reused.
+        /// </summary>
+        public void Recycle() {
+            _lockFlag.Value = false;
+        }
+
+        /// <summary>
         /// Gets the binary image of this packet.
         /// </summary>
         /// <param name="cipher">cipher algorithm, or null if no encryption.</param>
@@ -156,7 +163,7 @@ namespace Granados.SSH2 {
         public DataFragment GetImage(Cipher cipher, MAC mac, uint sequenceNumber) {
             BeforeBuildImage();
             ByteBuffer image = BuildImage(cipher, mac, sequenceNumber);
-            _lockFlag.Value = false;
+            Recycle();
             return image.AsDataFragment();
         }
 
@@ -315,7 +322,7 @@ namespace Granados.SSH2 {
         }
 
     }
-    
+
     /// <summary>
     /// <see cref="IDataHandler"/> that extracts SSH packet from the data stream
     /// and passes it to another <see cref="IDataHandler"/>.

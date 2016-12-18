@@ -736,12 +736,23 @@ namespace Granados.SSH1 {
         /// <summary>
         /// Gets the binary image of the packet to be sent.
         /// </summary>
+        /// <remarks>
+        /// The packet object will be allowed to be reused.
+        /// </remarks>
         /// <param name="packet">a packet object</param>
         /// <returns>binary image of the packet</returns>
         protected override DataFragment GetPacketImage(SSH1Packet packet) {
             lock (_cipherSync) {
                 return packet.GetImage(_cipher);
             }
+        }
+
+        /// <summary>
+        /// Allows to reuse a packet object.
+        /// </summary>
+        /// <param name="packet">a packet object</param>
+        protected override void Recycle(SSH1Packet packet) {
+            packet.Recycle();
         }
 
         /// <summary>
