@@ -1,3 +1,33 @@
+4.4.0-dev (still under development)
+---------
+    * Only .NET Framework 4.x is supported.
+
+    * Granados (SSH library) has new interfaces and new internal design.
+
+    * SSH X11 forwarding.
+
+    * The following SSH key exchange algorithm was added.
+      (by IWAMOTO Kouichi)
+        diffie-hellman-group14-sha256
+        diffie-hellman-group16-sha512
+        diffie-hellman-group18-sha512
+
+    * Faster SFTP and SCP.
+
+    * ZMODEM/XMODEM works.
+
+    * XTERM SGR full-color (by IWAMOTO Kouichi)
+
+    * Accepts unicode text from clipboard on the paste action. (by kobake)
+
+　　　* Default value of the SSH window size was changed to 2097152.
+
+    * TCP_NODELAY socket option is used in SSH or TELNET connection.
+
+    * Global option of the SSH agent forwarding was deleted.
+      SSH agent forwarding can be enabled for each session by specifying
+      it on the open-session dialog.
+
 4.3.16
 ------
     * Added ExtendPaste plugin. (by yoshikixxxx)
