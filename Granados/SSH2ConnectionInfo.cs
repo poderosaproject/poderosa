@@ -210,6 +210,12 @@ namespace Granados.SSH2 {
                                 image.WriteBigInteger(dsa.G);
                                 image.WriteBigInteger(dsa.Y);
                             }
+                            else if (_hostKey is ECDSAPublicKey) {
+                                ECDSAPublicKey ec = (ECDSAPublicKey)_hostKey;
+                                image.WriteString(ec.CurveName);
+                                image.WriteBigInteger(ec.Point.X);
+                                image.WriteBigInteger(ec.Point.Y);
+                            }
                             else {
                                 throw new SSHException("Host key algorithm is unsupported");
                             }

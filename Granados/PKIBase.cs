@@ -35,9 +35,10 @@ namespace Granados.PKI {
     /// </summary>
     /// <exclude/>
     public interface IKeyWriter {
+        void WriteString(string s);
+        void WriteByteString(byte[] data);
         void WriteBigInteger(BigInteger bi);
     }
-
 
     /// <summary>
     /// 
@@ -45,7 +46,10 @@ namespace Granados.PKI {
     /// <exclude/>
     public enum PublicKeyAlgorithm {
         DSA,
-        RSA
+        RSA,
+        ECDSA_SHA2_NISTP256,
+        ECDSA_SHA2_NISTP384,
+        ECDSA_SHA2_NISTP521,
     }
 
     /// <summary>

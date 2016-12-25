@@ -58,10 +58,15 @@ namespace Granados.SSH2 {
 
         public byte[] Sign(byte[] data) {
             PublicKeyAlgorithm a = _keypair.Algorithm;
-            if (a == PublicKeyAlgorithm.RSA)
+            if (a == PublicKeyAlgorithm.RSA) {
                 return ((RSAKeyPair)_keypair).SignWithSHA1(data);
-            else
+            }
+            else if (a == PublicKeyAlgorithm.DSA) {
                 return ((DSAKeyPair)_keypair).Sign(new SHA1CryptoServiceProvider().ComputeHash(data));
+            }
+            else {
+                return ((ECDSAKeyPair)_keypair).Sign(data);
+            }
         }
         public byte[] GetPublicKeyBlob() {
             SSH2PayloadImageBuilder imageBuilder =
@@ -80,6 +85,14 @@ namespace Granados.SSH2 {
 
             public SSH2KeyWriter(ISSH2PacketBuilder builder) {
                 _builder = builder;
+            }
+
+            public void WriteString(string s) {
+                _builder.WriteString(s);
+            }
+
+            public void WriteByteString(byte[] data) {
+                _builder.WriteAsString(data);
             }
 
             public void WriteBigInteger(BigInteger bi) {

@@ -1,15 +1,15 @@
 ﻿/*
- * Copyright 2011 The Poderosa Project.
+ * Copyright 2011-2016 The Poderosa Project.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- *
- * $Id: BERReader.cs,v 1.1 2011/11/03 16:27:38 kzmi Exp $
  */
 using System;
 using System.IO;
 
 using Granados.Mono.Math;
+using System.Text;
+using System.Globalization;
 
 #if UNITTEST
 using NUnit.Framework;
@@ -21,7 +21,7 @@ namespace Granados.Poderosa.KeyFormat {
     /// Reads elements which are encoded by ASN.1 Basic Encoding Rules
     /// </summary>
     /// <remarks>
-    /// Only SEQUENCE and INTEGER are supported.
+    /// Only SEQUENCE, BIT STRING, OCTET STRING, OBJECT IDENTIFIER and INTEGER are supported.
     /// </remarks>
     internal class BERReader {
 
@@ -29,6 +29,9 @@ namespace Granados.Poderosa.KeyFormat {
 
         private const int LENGTH_INDEFINITE = -1;
         private const int TAG_INTEGER = 2;
+        private const int TAG_BITSTRING = 3;
+        private const int TAG_OCTETSTRING = 4;
+        private const int TAG_OBJECTIDENTIFIER = 6;
         private const int TAG_SEQUENCE = 16;
 
         internal struct BERTagInfo {
@@ -36,6 +39,13 @@ namespace Granados.Poderosa.KeyFormat {
             public bool IsConstructed;
             public int TagNumber;
             public int Length;
+        }
+
+        public enum TagClass {
+            Universal = 0,
+            Application = 1,
+            ContextSpecific = 2,
+            Private = 3,
         }
 
         /// <summary>
@@ -51,14 +61,30 @@ namespace Granados.Poderosa.KeyFormat {
         /// </summary>
         /// <returns>true if succeeded.</returns>
         public bool ReadSequence() {
+            int len;
+            return ReadTag(TagClass.Universal, true, TAG_SEQUENCE, out len);
+        }
+
+        /// <summary>
+        /// Read tag. (only check the value type)
+        /// </summary>
+        /// <param name="tagClass">expected tag class</param>
+        /// <param name="isConstructed">expected value of "constructed" flag</param>
+        /// <param name="tagNumber">expected tag number</param>
+        /// <param name="length">length of the value field will be stored</param>
+        /// <returns>true if succeeded.</returns>
+        public bool ReadTag(TagClass tagClass, bool isConstructed, int tagNumber, out int length) {
             BERTagInfo tagInfo = new BERTagInfo();
             if (ReadTagInfo(ref tagInfo)
-                && tagInfo.IsConstructed == true
-                && tagInfo.TagNumber == TAG_SEQUENCE
-                && (tagInfo.Length == LENGTH_INDEFINITE || tagInfo.Length > 0)) {
+                && tagInfo.ClassBits == (int)tagClass
+                && tagInfo.IsConstructed == isConstructed
+                && tagInfo.TagNumber == tagNumber) {
 
+                length = tagInfo.Length;
                 return true;
             }
+
+            length = 0;
             return false;
         }
 
@@ -68,22 +94,94 @@ namespace Granados.Poderosa.KeyFormat {
         /// <param name="bigint">BigInteger instance will be stored if succeeded.</param>
         /// <returns>true if succeeded.</returns>
         public bool ReadInteger(out BigInteger bigint) {
-            BERTagInfo tagInfo = new BERTagInfo();
-            if (ReadTagInfo(ref tagInfo)
-                && tagInfo.IsConstructed == false
-                && tagInfo.TagNumber == TAG_INTEGER
-                && tagInfo.Length != LENGTH_INDEFINITE
-                && tagInfo.Length > 0) {
+            byte[] data;
+            if (ReadBinary(TagClass.Universal, false, TAG_INTEGER, out data)) {
+                bigint = new BigInteger(data);
+                return true;
+            }
 
-                byte[] buff = new byte[tagInfo.Length];
-                int len = strm.Read(buff, 0, tagInfo.Length);
-                if (len == tagInfo.Length) {
-                    bigint = new BigInteger(buff);
+            bigint = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Read octet-string.
+        /// </summary>
+        /// <param name="str">byte array will be stored if succeeded.</param>
+        /// <returns>true if succeeded.</returns>
+        public bool ReadOctetString(out byte[] str) {
+            return ReadBinary(TagClass.Universal, false, TAG_OCTETSTRING, out str);
+        }
+
+        /// <summary>
+        /// Read object-identifier.
+        /// </summary>
+        /// <param name="oid">object identifier will be stored if succeeded.</param>
+        /// <returns>true if succeeded.</returns>
+        public bool ReadObjectIdentifier(out string oid) {
+            byte[] data;
+            if (ReadBinary(TagClass.Universal, false, TAG_OBJECTIDENTIFIER, out data)) {
+                var s = new StringBuilder();
+                s.Append((data[0] / 40).ToString(NumberFormatInfo.InvariantInfo));
+                s.Append('.').Append((data[0] % 40).ToString(NumberFormatInfo.InvariantInfo));
+
+                uint val = 0;
+                for (int i = 1; i < data.Length; ++i) {
+                    val = (val << 7) | (data[i] & 0x7fu);
+                    if ((data[i] & 0x80) == 0) {
+                        s.Append('.').Append(val.ToString(NumberFormatInfo.InvariantInfo));
+                        val = 0;
+                    }
+                }
+
+                oid = s.ToString();
+                return true;
+            }
+
+            oid = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Read bit string.
+        /// </summary>
+        /// <param name="bits">byte array will be stored if succeeded.</param>
+        /// <returns>true if succeeded.</returns>
+        public bool ReadBitString(out byte[] bits) {
+            byte[] data;
+            if (ReadBinary(TagClass.Universal, false, TAG_BITSTRING, out data)) {
+                int unusedBits = data[0];
+                int offsetBytes = unusedBits / 8;
+                int offsetBits = unusedBits % 8;
+                int bitDataLength = data.Length - 1 - offsetBytes;
+                byte[] bitData = new byte[bitDataLength];
+                ushort w = 0;
+                for (int i = 0; i < bitDataLength; ++i) {
+                    w = (ushort)((w << 8) | data[i + 1]);
+                    bitData[i] = (byte)(w >> offsetBits);
+                }
+                bits = bitData;
+                return true;
+            }
+
+            bits = null;
+            return false;
+        }
+
+        private bool ReadBinary(TagClass tagClass, bool isConstructed, int tagNumber, out byte[] data) {
+            int valueLength;
+            if (ReadTag(tagClass, isConstructed, tagNumber, out valueLength)
+                    && valueLength != LENGTH_INDEFINITE && valueLength > 0) {
+
+                byte[] buff = new byte[valueLength];
+                int len = strm.Read(buff, 0, valueLength);
+                if (len == valueLength) {
+                    data = buff;
                     return true;
                 }
             }
 
-            bigint = null;
+            data = null;
             return false;
         }
 

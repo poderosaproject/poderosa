@@ -20,6 +20,7 @@ namespace Granados.Poderosa.KeyFormat {
         public const string SSH1_HEADER = "SSH PRIVATE KEY FILE FORMAT 1.1\n";
         public const string SSH2_OPENSSH_HEADER_RSA = "-----BEGIN RSA PRIVATE KEY-----";
         public const string SSH2_OPENSSH_HEADER_DSA = "-----BEGIN DSA PRIVATE KEY-----";
+        public const string SSH2_OPENSSH_HEADER_ECDSA = "-----BEGIN EC PRIVATE KEY-----";
         public const string SSH2_SSHCOM_HEADER = "---- BEGIN SSH2 ENCRYPTED PRIVATE KEY ----";
         public const string SSH2_SSHCOM_FOOTER = "---- END SSH2 ENCRYPTED PRIVATE KEY ----";
         public const string SSH2_PUTTY_HEADER_1 = "PuTTY-User-Key-File-1:";

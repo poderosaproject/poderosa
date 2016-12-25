@@ -60,7 +60,8 @@ namespace Granados.Poderosa.KeyFormat {
                 return PrivateKeyFileFormat.SSH1;
 
             if (ByteArrayUtil.ByteArrayStartsWith(keyFile, Encoding.ASCII.GetBytes(PrivateKeyFileHeader.SSH2_OPENSSH_HEADER_RSA))
-                || ByteArrayUtil.ByteArrayStartsWith(keyFile, Encoding.ASCII.GetBytes(PrivateKeyFileHeader.SSH2_OPENSSH_HEADER_DSA)))
+                || ByteArrayUtil.ByteArrayStartsWith(keyFile, Encoding.ASCII.GetBytes(PrivateKeyFileHeader.SSH2_OPENSSH_HEADER_DSA))
+                || ByteArrayUtil.ByteArrayStartsWith(keyFile, Encoding.ASCII.GetBytes(PrivateKeyFileHeader.SSH2_OPENSSH_HEADER_ECDSA)))
                 return PrivateKeyFileFormat.SSH2_OPENSSH;
 
             if (ByteArrayUtil.ByteArrayStartsWith(keyFile, Encoding.ASCII.GetBytes(PrivateKeyFileHeader.SSH2_SSHCOM_HEADER)))

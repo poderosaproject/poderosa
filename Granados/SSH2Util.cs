@@ -25,6 +25,12 @@ namespace Granados.SSH2 {
                     return "ssh-dss";
                 case PublicKeyAlgorithm.RSA:
                     return "ssh-rsa";
+                case PublicKeyAlgorithm.ECDSA_SHA2_NISTP256:
+                    return "ecdsa-sha2-nistp256";
+                case PublicKeyAlgorithm.ECDSA_SHA2_NISTP384:
+                    return "ecdsa-sha2-nistp384";
+                case PublicKeyAlgorithm.ECDSA_SHA2_NISTP521:
+                    return "ecdsa-sha2-nistp521";
                 default:
                     throw new SSHException("unknown HostKeyAlgorithm " + algorithm);
             }

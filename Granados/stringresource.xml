@@ -183,4 +183,24 @@ $Id: stringresource.xml,v 1.4 2011/05/01 15:28:52 kzmi Exp $
     <en>Failed to open Cygwin's domain socket.</en>
     <ja>Cygwinドメインソケットのオープンに失敗しました。</ja>
   </record>
+  <record name="UnsupportedEllipticCurveInKeyPair">
+    <en>Unsupported elliptic curve is used for the key pair.</en>
+    <ja>サポートされていない楕円曲線がキーペアに使用されています。</ja>
+  </record>
+  <record name="UnsupportedEllipticCurve">
+    <en>Unsupported elliptic curve.</en>
+    <ja>サポートされていない楕円曲線</ja>
+  </record>
+  <record name="KeysAreBroken">
+    <en>Keys are broken.</en>
+    <ja>キーが正しくありません。</ja>
+  </record>
+  <record name="InvalidECPublicKey">
+    <en>Invalid elliptic curve public key.</en>
+    <ja>楕円曲線パブリックキーが正しくありません。</ja>
+  </record>
+  <record name="FailedSigning">
+    <en>Failed signing.</en>
+    <ja>署名に失敗しました。</ja>
+  </record>
 </string-resource>

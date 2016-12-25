@@ -30,6 +30,7 @@ namespace Granados.Poderosa.KeyFormat {
         private enum KeyType {
             RSA,
             DSA,
+            ECDSA,
         }
 
         /// <summary>
@@ -69,6 +70,8 @@ namespace Granados.Poderosa.KeyFormat {
                     keyType = KeyType.RSA;
                 else if (line == PrivateKeyFileHeader.SSH2_OPENSSH_HEADER_DSA)
                     keyType = KeyType.DSA;
+                else if (line == PrivateKeyFileHeader.SSH2_OPENSSH_HEADER_ECDSA)
+                    keyType = KeyType.ECDSA;
                 else
                     throw new SSHException(Strings.GetString("NotValidPrivateKeyFile") + " (unexpected key type)");
 
@@ -190,6 +193,50 @@ namespace Granados.Poderosa.KeyFormat {
                         throw new SSHException(Strings.GetString("WrongPassphrase"));
                     }
                     keyPair = new DSAKeyPair(p, g, q, y, x);
+                }
+                else if (keyType == KeyType.ECDSA) {
+                    /* from OpenSSL ec_asn1.c
+                     *
+                     * ASN1_SIMPLE(EC_PRIVATEKEY, version, LONG),
+                     * ASN1_SIMPLE(EC_PRIVATEKEY, privateKey, ASN1_OCTET_STRING),
+                     * ASN1_EXP_OPT(EC_PRIVATEKEY, parameters, ECPKPARAMETERS, 0),
+                     *   ------
+                     *   ASN1_SIMPLE(ECPKPARAMETERS, value.named_curve, ASN1_OBJECT),
+                     *   ------
+                     * ASN1_EXP_OPT(EC_PRIVATEKEY, publicKey, ASN1_BIT_STRING, 1)
+                     */
+                    int len;
+                    byte[] privateKey;
+                    byte[] publicKey;
+                    string namedCurve;
+                    BigInteger v;
+                    if (!reader.ReadInteger(out v) ||
+                        !reader.ReadOctetString(out privateKey) ||
+                        !reader.ReadTag(BERReader.TagClass.ContextSpecific, true, 0, out len) ||
+                        !reader.ReadObjectIdentifier(out namedCurve) ||
+                        !reader.ReadTag(BERReader.TagClass.ContextSpecific, true, 1, out len) ||
+                        !reader.ReadBitString(out publicKey)) {
+
+                        throw new SSHException(Strings.GetString("WrongPassphrase"));
+                    }
+
+                    EllipticCurve curve = EllipticCurve.FindByOID(namedCurve);
+                    if (curve == null) {
+                        throw new SSHException(Strings.GetString("UnsupportedEllipticCurveInKeyPair"));
+                    }
+
+                    ECPoint ecPublicKeyPoint;
+                    if (!ECPoint.Parse(publicKey, curve, out ecPublicKeyPoint)) {
+                        throw new SSHException(Strings.GetString("KeysAreBroken"));
+                    }
+
+                    var ecKeyPair = new ECDSAKeyPair(curve, new ECDSAPublicKey(curve, ecPublicKeyPoint), new BigInteger(privateKey));
+
+                    if (!ecKeyPair.CheckKeyConsistency()) {
+                        throw new SSHException(Strings.GetString("KeysAreBroken"));
+                    }
+
+                    keyPair = ecKeyPair;
                 }
                 else {
                     throw new SSHException("Unknown file type. This should not happen.");

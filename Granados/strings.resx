@@ -146,4 +146,19 @@
   <data name="FailedToOpenCygwinDomainSocket">
     <value>Failed to open Cygwin's domain socket.</value>
   </data>
+  <data name="UnsupportedEllipticCurveInKeyPair">
+    <value>Unsupported elliptic curve is used for the key pair.</value>
+  </data>
+  <data name="UnsupportedEllipticCurve">
+    <value>Unsupported elliptic curve.</value>
+  </data>
+  <data name="KeysAreBroken">
+    <value>Keys are broken.</value>
+  </data>
+  <data name="InvalidECPublicKey">
+    <value>Invalid elliptic curve public key.</value>
+  </data>
+  <data name="FailedSigning">
+    <value>Failed signing.</value>
+  </data>
 </root>

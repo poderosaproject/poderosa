@@ -1376,6 +1376,14 @@ namespace Granados.SSH2 {
                 pk.Verify(signatureBlob, new SHA1CryptoServiceProvider().ComputeHash(hash));
                 _cInfo.HostKey = pk;
             }
+            else if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.ECDSA_SHA2_NISTP256
+                    || _cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.ECDSA_SHA2_NISTP384
+                    || _cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.ECDSA_SHA2_NISTP521) {
+
+                ECDSAPublicKey pk = ECDSAPublicKey.ReadFrom(ksReader);
+                pk.Verify(signatureBlob, hash);
+                _cInfo.HostKey = pk;
+            }
             else {
                 throw new SSHException(Strings.GetString("UnsupportedHostKeyAlgorithm"));
             }

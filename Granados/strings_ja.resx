@@ -146,4 +146,19 @@
   <data name="FailedToOpenCygwinDomainSocket">
     <value>Cygwinドメインソケットのオープンに失敗しました。</value>
   </data>
+  <data name="UnsupportedEllipticCurveInKeyPair">
+    <value>サポートされていない楕円曲線がキーペアに使用されています。</value>
+  </data>
+  <data name="UnsupportedEllipticCurve">
+    <value>サポートされていない楕円曲線</value>
+  </data>
+  <data name="KeysAreBroken">
+    <value>キーが正しくありません。</value>
+  </data>
+  <data name="InvalidECPublicKey">
+    <value>楕円曲線パブリックキーが正しくありません。</value>
+  </data>
+  <data name="FailedSigning">
+    <value>署名に失敗しました。</value>
+  </data>
 </root>
