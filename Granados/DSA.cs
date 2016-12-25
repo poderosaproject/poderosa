@@ -13,6 +13,7 @@ using System;
 using System.Diagnostics;
 
 using Granados.Mono.Math;
+using Granados.IO.SSH2;
 
 namespace Granados.PKI {
     /// <summary>
@@ -241,6 +242,15 @@ namespace Granados.PKI {
             writer.WriteBigInteger(_g);
             writer.WriteBigInteger(_y);
         }
+
+        internal static DSAPublicKey ReadFrom(SSH2DataReader reader) {
+            BigInteger p = reader.ReadMPInt();
+            BigInteger q = reader.ReadMPInt();
+            BigInteger g = reader.ReadMPInt();
+            BigInteger y = reader.ReadMPInt();
+            return new DSAPublicKey(p, g, q, y);
+        }
+
         public void Verify(byte[] data, byte[] expecteddata) {
 
             byte[] first = new byte[data.Length / 2];

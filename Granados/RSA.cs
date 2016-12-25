@@ -15,6 +15,7 @@ using System.Security.Cryptography;
 
 using Granados.Util;
 using Granados.Mono.Math;
+using Granados.IO.SSH2;
 
 namespace Granados.PKI {
     /// <summary>
@@ -256,6 +257,12 @@ namespace Granados.PKI {
         public override void WriteTo(IKeyWriter writer) {
             writer.WriteBigInteger(_e);
             writer.WriteBigInteger(_n);
+        }
+
+        internal static RSAPublicKey ReadFrom(SSH2DataReader reader) {
+            BigInteger exp = reader.ReadMPInt();
+            BigInteger mod = reader.ReadMPInt();
+            return new RSAPublicKey(exp, mod);
         }
     }
 

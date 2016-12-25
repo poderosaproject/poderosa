@@ -1367,12 +1367,12 @@ namespace Granados.SSH2 {
             byte[] signatureBlob = sigReader.ReadByteString();
 
             if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.RSA) {
-                RSAPublicKey pk = ReadRSAPublicKey(ksReader);
+                RSAPublicKey pk = RSAPublicKey.ReadFrom(ksReader);
                 pk.VerifyWithSHA1(signatureBlob, new SHA1CryptoServiceProvider().ComputeHash(hash));
                 _cInfo.HostKey = pk;
             }
             else if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.DSA) {
-                DSAPublicKey pk = ReadDSAPublicKey(ksReader);
+                DSAPublicKey pk = DSAPublicKey.ReadFrom(ksReader);
                 pk.Verify(signatureBlob, new SHA1CryptoServiceProvider().ComputeHash(hash));
                 _cInfo.HostKey = pk;
             }
@@ -1386,30 +1386,6 @@ namespace Granados.SSH2 {
             }
 
             return true;
-        }
-
-        /// <summary>
-        /// Reads RSA public key informations.
-        /// </summary>
-        /// <param name="reader">packet reader</param>
-        /// <returns>public key object</returns>
-        private RSAPublicKey ReadRSAPublicKey(SSH2DataReader reader) {
-            BigInteger exp = reader.ReadMPInt();
-            BigInteger mod = reader.ReadMPInt();
-            return new RSAPublicKey(exp, mod);
-        }
-
-        /// <summary>
-        /// Reads DSA public key informations.
-        /// </summary>
-        /// <param name="reader">packet reader</param>
-        /// <returns>public key object</returns>
-        private DSAPublicKey ReadDSAPublicKey(SSH2DataReader reader) {
-            BigInteger p = reader.ReadMPInt();
-            BigInteger q = reader.ReadMPInt();
-            BigInteger g = reader.ReadMPInt();
-            BigInteger y = reader.ReadMPInt();
-            return new DSAPublicKey(p, g, q, y);
         }
 
         /// <summary>
