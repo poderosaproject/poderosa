@@ -1720,43 +1720,7 @@ namespace Granados.SSH2 {
         }
 
         private static byte[] ToBytes(string hexnum) {
-            byte[] data = new byte[hexnum.Length / 2];
-            for (int i = 0, j = 0; i < hexnum.Length; i += 2, j++) {
-                data[j] = (byte)((GetHexValue(hexnum[i]) << 4) | GetHexValue(hexnum[i + 1]));
-            }
-            return data;
-        }
-
-        private static int GetHexValue(char c) {
-            switch (c) {
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                    return c - '0';
-                case 'a':
-                case 'b':
-                case 'c':
-                case 'd':
-                case 'e':
-                case 'f':
-                    return c - 'a' + 10;
-                case 'A':
-                case 'B':
-                case 'C':
-                case 'D':
-                case 'E':
-                case 'F':
-                    return c - 'A' + 10;
-                default:
-                    throw new ArgumentException("invalid hex number");
-            }
+            return BigIntegerConverter.ParseHex(hexnum);
         }
 
         #endregion  // SSH2KeyExchanger
