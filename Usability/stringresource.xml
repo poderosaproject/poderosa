@@ -515,6 +515,14 @@ $Id: stringresource.xml,v 1.6 2012/06/02 15:01:10 kzmi Exp $
   <ja>使用するホストキー認証アルゴリズム(&amp;H)</ja>
   <en>&amp;Host key authentication algorithm</en>
 </record>
+<record name="Form.OptionDialog._hostKeyAlgorithmOrderUp">
+  <ja>上へ(&amp;U)</ja>
+  <en>&amp;Up</en>
+</record>
+<record name="Form.OptionDialog._hostKeyAlgorithmOrderDown">
+  <ja>下へ(&amp;D)</ja>
+  <en>&amp;Down</en>
+</record>
 <record name="Form.OptionDialog._windowSizeLabel">
   <ja>SSHチャンネルのウィンドウサイズ(&amp;W)</ja>
   <en>&amp;Window size of SSH channel</en>

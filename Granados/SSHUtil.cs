@@ -6,6 +6,7 @@
 namespace Granados {
 
     using System;
+    using System.Reflection;
 
     /// <summary>
     /// Exception about SSH operation.
@@ -51,41 +52,91 @@ namespace Granados {
         /// <summary>
         /// TripleDES
         /// </summary>
+        [CipherAlgorithmSpec(Priority = 1)]
         TripleDES = 3,
         /// <summary>
         /// BlowFish
         /// </summary>
+        [CipherAlgorithmSpec(Priority = 2)]
         Blowfish = 6,
         /// <summary>
         /// <ja>AES128（SSH2のみ有効）</ja>
         /// <en>AES128（SSH2 only）</en>
         /// </summary>
+        [CipherAlgorithmSpec(Priority = 3)]
         AES128 = 10,
         /// <summary>
         /// <ja>AES192（SSH2のみ有効）</ja>
         /// <en>AES192（SSH2 only）</en>
         /// </summary>
+        [CipherAlgorithmSpec(Priority = 5)]
         AES192 = 11,
         /// <summary>
         /// <ja>AES256（SSH2のみ有効）</ja>
         /// <en>AES256（SSH2 only）</en>
         /// </summary>
+        [CipherAlgorithmSpec(Priority = 7)]
         AES256 = 12,
         /// <summary>
         /// <ja>AES128-CTR（SSH2のみ有効）</ja>
         /// <en>AES128-CTR（SSH2 only）</en>
         /// </summary>
+        [CipherAlgorithmSpec(Priority = 4)]
         AES128CTR = 13,
         /// <summary>
         /// <ja>AES192-CTR（SSH2のみ有効）</ja>
         /// <en>AES192-CTR（SSH2 only）</en>
         /// </summary>
+        [CipherAlgorithmSpec(Priority = 6)]
         AES192CTR = 14,
         /// <summary>
         /// <ja>AES256-CTR（SSH2のみ有効）</ja>
         /// <en>AES256-CTR（SSH2 only）</en>
         /// </summary>
+        [CipherAlgorithmSpec(Priority = 8)]
         AES256CTR = 15,
+    }
+
+    /// <summary>
+    /// Attribute to define algorithm properties.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
+    public class CipherAlgorithmSpecAttribute : Attribute {
+        /// <summary>
+        /// Default priority
+        /// </summary>
+        /// <remarks>
+        /// Larger number means higher priority.
+        /// </remarks>
+        public int Priority {
+            get;
+            set;
+        }
+    }
+
+    /// <summary>
+    /// Extension methods for <see cref="CipherAlgorithm"/>
+    /// </summary>
+    public static class CipherAlgorithmMixin {
+
+        public static int GetPriority(this CipherAlgorithm value) {
+            var spec = GetAlgorithmSpec(value);
+            return (spec != null) ? spec.Priority : Int32.MinValue;
+        }
+
+        private static CipherAlgorithmSpecAttribute GetAlgorithmSpec(CipherAlgorithm value) {
+            Type enumType = typeof(CipherAlgorithm);
+            FieldInfo field = enumType.GetField(value.ToString(), BindingFlags.Public | BindingFlags.Static);
+            if (field == null) {
+                throw new ArgumentException("Not a member of enum " + enumType.Name, "value");
+            }
+
+            object[] attrs = field.GetCustomAttributes(typeof(CipherAlgorithmSpecAttribute), false);
+            if (attrs.Length > 0) {
+                return (CipherAlgorithmSpecAttribute)attrs[0];
+            }
+            return null;
+        }
     }
 
     /// <summary>

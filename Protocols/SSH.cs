@@ -11,70 +11,86 @@ using System.Text;
 
 using Granados;
 using Granados.PKI;
-
+using System.Collections.Generic;
 
 namespace Poderosa.Protocols {
-    //Granadosを使うやつはこちら　起動時にはロードしないようにするため
+
     internal class LocalSSHUtil {
-        public static CipherAlgorithm ParseCipherAlgorithm(string t) {
-            if (t == "AES128")
-                return CipherAlgorithm.AES128;
-            else if (t == "AES192")
-                return CipherAlgorithm.AES192;
-            else if (t == "AES256")
-                return CipherAlgorithm.AES256;
-            else if (t == "AES128CTR")
-                return CipherAlgorithm.AES128CTR;
-            else if (t == "AES192CTR")
-                return CipherAlgorithm.AES192CTR;
-            else if (t == "AES256CTR")
-                return CipherAlgorithm.AES256CTR;
-            else if (t == "Blowfish")
-                return CipherAlgorithm.Blowfish;
-            else if (t == "TripleDES")
-                return CipherAlgorithm.TripleDES;
-            else
-                throw new Exception("Unknown CipherAlgorithm " + t);
-        }
+
+        /// <summary>
+        /// Parse array of <see cref="CipherAlgorithm"/>.
+        /// </summary>
+        /// <remarks>
+        /// Unknown algorithms are just ignored.
+        /// </remarks>
+        /// <param name="t">array of strings to convert</param>
+        /// <returns>array of <see cref="CipherAlgorithm"/></returns>
         public static CipherAlgorithm[] ParseCipherAlgorithm(string[] t) {
-            CipherAlgorithm[] ret = new CipherAlgorithm[t.Length];
-            int i = 0;
+            var list = new List<CipherAlgorithm>(t.Length);
             foreach (string a in t) {
-                ret[i++] = ParseCipherAlgorithm(a);
+                CipherAlgorithm algorithm;
+                if (Enum.TryParse(a, out algorithm) && Enum.IsDefined(typeof(CipherAlgorithm), algorithm)) {
+                    list.Add(algorithm);
+                }
             }
-            return ret;
-        }
-        public static string[] FormatPublicKeyAlgorithmList(PublicKeyAlgorithm[] value) {
-            string[] ret = new string[value.Length];
-            int i = 0;
-            foreach (PublicKeyAlgorithm a in value)
-                ret[i++] = a.ToString();
-            return ret;
+            return list.ToArray();
         }
 
-        public static CipherAlgorithm[] ParseCipherAlgorithmList(string value) {
-            return ParseCipherAlgorithm(value.Split(','));
+        /// <summary>
+        /// Append missing algorithm to the list of <see cref="CipherAlgorithm"/>.
+        /// </summary>
+        /// <param name="algorithms">list of <see cref="CipherAlgorithm"/></param>
+        /// <returns>new array of of <see cref="CipherAlgorithm"/></returns>
+        public static CipherAlgorithm[] AppendMissingCipherAlgorithm(CipherAlgorithm[] algorithms) {
+            var enumSet = new HashSet<CipherAlgorithm>((CipherAlgorithm[])Enum.GetValues(typeof(CipherAlgorithm)));
+            foreach (var a in algorithms) {
+                enumSet.Remove(a);
+            }
+            var listToAppend = new List<CipherAlgorithm>(enumSet);
+            listToAppend.Sort((a1, a2) => a2.GetPriority().CompareTo(a1.GetPriority()));    // descending order
+
+            var list = new List<CipherAlgorithm>(algorithms.Length + enumSet.Count);
+            list.AddRange(algorithms);
+            list.AddRange(listToAppend);
+            return list.ToArray();
         }
 
-
-        public static PublicKeyAlgorithm ParsePublicKeyAlgorithm(string t) {
-            if (t == "DSA")
-                return PublicKeyAlgorithm.DSA;
-            else if (t == "RSA")
-                return PublicKeyAlgorithm.RSA;
-            else
-                throw new Exception("Unknown PublicKeyAlgorithm " + t);
-        }
+        /// <summary>
+        /// Parse array of <see cref="PublicKeyAlgorithm"/>.
+        /// </summary>
+        /// <remarks>
+        /// Unknown algorithms are just ignored.
+        /// </remarks>
+        /// <param name="t">array of strings to convert</param>
+        /// <returns>array of <see cref="PublicKeyAlgorithm"/></returns>
         public static PublicKeyAlgorithm[] ParsePublicKeyAlgorithm(string[] t) {
-            PublicKeyAlgorithm[] ret = new PublicKeyAlgorithm[t.Length];
-            int i = 0;
+            var list = new List<PublicKeyAlgorithm>(t.Length);
             foreach (string a in t) {
-                ret[i++] = ParsePublicKeyAlgorithm(a);
+                PublicKeyAlgorithm algorithm;
+                if (Enum.TryParse(a, out algorithm) && Enum.IsDefined(typeof(PublicKeyAlgorithm), algorithm)) {
+                    list.Add(algorithm);
+                }
             }
-            return ret;
+            return list.ToArray();
         }
-        public static PublicKeyAlgorithm[] ParsePublicKeyAlgorithmList(string value) {
-            return ParsePublicKeyAlgorithm(value.Split(','));
+
+        /// <summary>
+        /// Append missing algorithm to the list of <see cref="PublicKeyAlgorithm"/>.
+        /// </summary>
+        /// <param name="algorithms">list of <see cref="PublicKeyAlgorithm"/></param>
+        /// <returns>new array of of <see cref="PublicKeyAlgorithm"/></returns>
+        public static PublicKeyAlgorithm[] AppendMissingPublicKeyAlgorithm(PublicKeyAlgorithm[] algorithms) {
+            var enumSet = new HashSet<PublicKeyAlgorithm>((PublicKeyAlgorithm[])Enum.GetValues(typeof(PublicKeyAlgorithm)));
+            foreach (var a in algorithms) {
+                enumSet.Remove(a);
+            }
+            var listToAppend = new List<PublicKeyAlgorithm>(enumSet);
+            listToAppend.Sort((a1, a2) => a2.GetPriority().CompareTo(a1.GetPriority()));    // descending order
+
+            var list = new List<PublicKeyAlgorithm>(algorithms.Length + listToAppend.Count);
+            list.AddRange(algorithms);
+            list.AddRange(listToAppend);
+            return list.ToArray();
         }
 
         public static string SimpleEncrypt(string plain) {

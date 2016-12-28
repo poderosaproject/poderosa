@@ -7,6 +7,7 @@
  * $Id: ProtocolOptions.cs,v 1.5 2012/03/18 11:02:29 kzmi Exp $
  */
 using System;
+using System.Linq;
 using System.Collections;
 using System.Reflection;
 using System.Diagnostics;
@@ -165,10 +166,6 @@ namespace Poderosa.Protocols {
         private IBoolPreferenceItem _savePassword;
         private IBoolPreferenceItem _savePlainTextPassword;
 
-        private bool _cipherAlgorithmOrderWasChecked = false;
-
-        private const string DEFAULT_CIPHER_ALGORITHM_ORDER = "AES256CTR;AES256;AES192CTR;AES192;AES128CTR;AES128;Blowfish;TripleDES";
-
         public ProtocolOptions(IPreferenceFolder folder)
             : base(folder) {
         }
@@ -177,9 +174,10 @@ namespace Poderosa.Protocols {
             //SSH関係
             _retainsPassphrase = builder.DefineBoolValue(_folder, "retainPassphrase", false, null);
             //Note: Validator Required
-            _cipherAlgorithmOrder = builder.DefineStringValue(_folder, "cipherAlgorithmOrder", DEFAULT_CIPHER_ALGORITHM_ORDER, null);
-            _cipherAlgorithmOrderWasChecked = false;
-            _hostKeyAlgorithmOrder = builder.DefineStringValue(_folder, "hostKeyAlgorithmOrder", "DSA;RSA", null);
+            _cipherAlgorithmOrder = builder.DefineStringValue(_folder, "cipherAlgorithmOrder", "", null);
+            FixCipherAlgorithms(_cipherAlgorithmOrder);
+            _hostKeyAlgorithmOrder = builder.DefineStringValue(_folder, "hostKeyAlgorithmOrder", "", null);
+            FixHostKeyAlgorithms(_hostKeyAlgorithmOrder);
             _sshWindowSize = builder.DefineIntValue(_folder, "sshWindowSize", 2097152, PreferenceValidatorUtil.PositiveIntegerValidator);
             _sshCheckMAC = builder.DefineBoolValue(_folder, "sshCheckMAC", true, null);
             _hostKeyCheckerVerifierTypeName = builder.DefineStringValue(_folder, "hostKeyCheckerVerifierTypeName", "Poderosa.Usability.SSHKnownHosts", null);
@@ -208,8 +206,9 @@ namespace Poderosa.Protocols {
             _retainsPassphrase = ConvertItem(src._retainsPassphrase);
 
             _cipherAlgorithmOrder = ConvertItem(src._cipherAlgorithmOrder);
-            _cipherAlgorithmOrderWasChecked = false;
+            FixCipherAlgorithms(_cipherAlgorithmOrder);
             _hostKeyAlgorithmOrder = ConvertItem(src._hostKeyAlgorithmOrder);
+            FixHostKeyAlgorithms(_hostKeyAlgorithmOrder);
             _sshWindowSize = ConvertItem(src._sshWindowSize);
             _sshCheckMAC = ConvertItem(src._sshCheckMAC);
             _hostKeyCheckerVerifierTypeName = ConvertItem(src._hostKeyCheckerVerifierTypeName);
@@ -237,15 +236,10 @@ namespace Poderosa.Protocols {
 
         public string[] CipherAlgorithmOrder {
             get {
-                if (!_cipherAlgorithmOrderWasChecked) {
-                    _cipherAlgorithmOrder.Value = fixCipherAlgorithms(_cipherAlgorithmOrder.Value);
-                    _cipherAlgorithmOrderWasChecked = true;
-                }
                 return _cipherAlgorithmOrder.Value.Split(';');
             }
             set {
-                _cipherAlgorithmOrder.Value = fixCipherAlgorithms(RuntimeUtil.ConcatStrArray(value, ';'));
-                _cipherAlgorithmOrderWasChecked = true;
+                _cipherAlgorithmOrder.Value = String.Join(";", FixCipherAlgorithms(value));
             }
         }
 
@@ -254,7 +248,7 @@ namespace Poderosa.Protocols {
                 return _hostKeyAlgorithmOrder.Value.Split(';');
             }
             set {
-                _hostKeyAlgorithmOrder.Value = RuntimeUtil.ConcatStrArray(value, ';');
+                _hostKeyAlgorithmOrder.Value = String.Join(";", FixHostKeyAlgorithms(value));
             }
         }
         public int SSHWindowSize {
@@ -385,28 +379,50 @@ namespace Poderosa.Protocols {
             }
         }
 
+        private void FixCipherAlgorithms(IStringPreferenceItem item) {
+            item.Value = FixCipherAlgorithms(item.Value);
+        }
 
-        private string fixCipherAlgorithms(string algorithms) {
-            if (algorithms == null)
+        private string FixCipherAlgorithms(string algorithms) {
+            if (algorithms == null) {
                 return null;
-            string[] inputAlgorithms = algorithms.Split(';');
-            string[] defaultAlgorithms = DEFAULT_CIPHER_ALGORITHM_ORDER.Split(';');
-            string[] validAlgorithms = new string[defaultAlgorithms.Length];
-            int index = 0;
-            foreach (string algo in inputAlgorithms) {
-                for (int i = 0; i < defaultAlgorithms.Length; i++) {
-                    if (defaultAlgorithms[i] != null && defaultAlgorithms[i] == algo) {
-                        validAlgorithms[index++] = algo;
-                        defaultAlgorithms[i] = null;
-                        break;
-                    }
-                }
             }
-            foreach (string algo in defaultAlgorithms) {
-                if (algo != null)
-                    validAlgorithms[index++] = algo;
+            return String.Join(";", FixCipherAlgorithms(algorithms.Split(';')));
+        }
+
+        private string[] FixCipherAlgorithms(string[] algorithms) {
+            if (algorithms == null) {
+                return null;
             }
-            return RuntimeUtil.ConcatStrArray(validAlgorithms, ';');
+
+            var algorithmVals =
+                LocalSSHUtil.AppendMissingCipherAlgorithm(
+                    LocalSSHUtil.ParseCipherAlgorithm(algorithms));
+
+            return algorithmVals.Select(a => a.ToString()).ToArray();
+        }
+
+        private void FixHostKeyAlgorithms(IStringPreferenceItem item) {
+            item.Value = FixHostKeyAlgorithms(item.Value);
+        }
+
+        private string FixHostKeyAlgorithms(string algorithms) {
+            if (algorithms == null) {
+                return null;
+            }
+            return String.Join(";", FixHostKeyAlgorithms(algorithms.Split(';')));
+        }
+
+        private string[] FixHostKeyAlgorithms(string[] algorithms) {
+            if (algorithms == null) {
+                return null;
+            }
+
+            var algorithmVals =
+                LocalSSHUtil.AppendMissingPublicKeyAlgorithm(
+                    LocalSSHUtil.ParsePublicKeyAlgorithm(algorithms));
+
+            return algorithmVals.Select(a => a.ToString()).ToArray();
         }
     }
 

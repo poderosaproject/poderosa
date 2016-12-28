@@ -60,8 +60,12 @@ namespace Poderosa.Protocols {
             con.TerminalHeight = term.InitialHeight;
             con.TerminalName = term.TerminalType;
             con.WindowSize = PEnv.Options.SSHWindowSize;
-            con.PreferableCipherAlgorithms = LocalSSHUtil.ParseCipherAlgorithm(PEnv.Options.CipherAlgorithmOrder);
-            con.PreferableHostKeyAlgorithms = LocalSSHUtil.ParsePublicKeyAlgorithm(PEnv.Options.HostKeyAlgorithmOrder);
+            con.PreferableCipherAlgorithms =
+                LocalSSHUtil.AppendMissingCipherAlgorithm(
+                    LocalSSHUtil.ParseCipherAlgorithm(PEnv.Options.CipherAlgorithmOrder));
+            con.PreferableHostKeyAlgorithms =
+                LocalSSHUtil.AppendMissingPublicKeyAlgorithm(
+                    LocalSSHUtil.ParsePublicKeyAlgorithm(PEnv.Options.HostKeyAlgorithmOrder));
             con.AgentForwardingAuthKeyProvider = _destination.AgentForwardingAuthKeyProvider;
             con.X11ForwardingParams = _destination.X11Forwarding;
             if (_keycheck != null) {

@@ -380,6 +380,12 @@
   <data name="Form.OptionDialog._hostKeyLabel">
     <value>使用するホストキー認証アルゴリズム(&amp;H)</value>
   </data>
+  <data name="Form.OptionDialog._hostKeyAlgorithmOrderUp">
+    <value>上へ(&amp;U)</value>
+  </data>
+  <data name="Form.OptionDialog._hostKeyAlgorithmOrderDown">
+    <value>下へ(&amp;D)</value>
+  </data>
   <data name="Form.OptionDialog._windowSizeLabel">
     <value>SSHチャンネルのウィンドウサイズ(&amp;W)</value>
   </data>
