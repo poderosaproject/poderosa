@@ -43,15 +43,15 @@ namespace Granados.PKI {
     /// Public key algorithm
     /// </summary>
     public enum PublicKeyAlgorithm {
-        [AlgorithmSpec(AlgorithmName = "ssh-dss", Order = 1)]
+        [AlgorithmSpec(AlgorithmName = "ssh-dss", Priority = 1)]
         DSA,
-        [AlgorithmSpec(AlgorithmName = "ssh-rsa", Order = 2)]
+        [AlgorithmSpec(AlgorithmName = "ssh-rsa", Priority = 2)]
         RSA,
-        [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp256", Order = 5)]
+        [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp256", Priority = 3)]
         ECDSA_SHA2_NISTP256,
-        [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp384", Order = 4)]
+        [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp384", Priority = 4)]
         ECDSA_SHA2_NISTP384,
-        [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp521", Order = 3)]
+        [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp521", Priority = 5)]
         ECDSA_SHA2_NISTP521,
     }
 
@@ -69,12 +69,12 @@ namespace Granados.PKI {
         }
 
         /// <summary>
-        /// Default priority order
+        /// Default priority
         /// </summary>
         /// <remarks>
         /// Larger number means higher priority.
         /// </remarks>
-        public int Order {
+        public int Priority {
             get;
             set;
         }
@@ -90,9 +90,9 @@ namespace Granados.PKI {
             return (spec != null) ? spec.AlgorithmName : null;
         }
 
-        public static int GetOrder(this PublicKeyAlgorithm value) {
+        public static int GetPriority(this PublicKeyAlgorithm value) {
             var spec = GetAlgorithmSpec(value);
-            return (spec != null) ? spec.Order : Int32.MaxValue;
+            return (spec != null) ? spec.Priority : Int32.MinValue;
         }
 
         private static AlgorithmSpecAttribute GetAlgorithmSpec(PublicKeyAlgorithm value) {
