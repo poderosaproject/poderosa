@@ -383,10 +383,10 @@
     <value>&amp;Host key authentication algorithm</value>
   </data>
   <data name="Form.OptionDialog._hostKeyAlgorithmOrderUp">
-    <value>&amp;Up</value>
+    <value>Up</value>
   </data>
   <data name="Form.OptionDialog._hostKeyAlgorithmOrderDown">
-    <value>&amp;Down</value>
+    <value>Down</value>
   </data>
   <data name="Form.OptionDialog._windowSizeLabel">
     <value>&amp;Window size of SSH channel</value>

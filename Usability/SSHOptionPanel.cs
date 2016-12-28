@@ -161,7 +161,7 @@ namespace Poderosa.Forms {
             // _windowSizeBox
             // 
             this._windowSizeBox.Location = new System.Drawing.Point(206, 110);
-            this._windowSizeBox.MaxLength = 5;
+            this._windowSizeBox.MaxLength = 10;
             this._windowSizeBox.Name = "_windowSizeBox";
             this._windowSizeBox.Size = new System.Drawing.Size(120, 19);
             this._windowSizeBox.TabIndex = 8;
@@ -218,6 +218,9 @@ namespace Poderosa.Forms {
             this.ResumeLayout(false);
         }
 
+        /// <summary>
+        /// List item object for displaying the algorithm name instead of the enum name.
+        /// </summary>
         private class PublicKeyAlgorithmListItem {
             public readonly string AlgorithmName;
             public readonly PublicKeyAlgorithm Value;
