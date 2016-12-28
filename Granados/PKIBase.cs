@@ -47,11 +47,11 @@ namespace Granados.PKI {
         DSA,
         [AlgorithmSpec(AlgorithmName = "ssh-rsa", Order = 2)]
         RSA,
-        [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp256", Order = 3)]
+        [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp256", Order = 5)]
         ECDSA_SHA2_NISTP256,
         [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp384", Order = 4)]
         ECDSA_SHA2_NISTP384,
-        [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp521", Order = 5)]
+        [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp521", Order = 3)]
         ECDSA_SHA2_NISTP521,
     }
 
@@ -71,6 +71,9 @@ namespace Granados.PKI {
         /// <summary>
         /// Default priority order
         /// </summary>
+        /// <remarks>
+        /// Larger number means higher priority.
+        /// </remarks>
         public int Order {
             get;
             set;
