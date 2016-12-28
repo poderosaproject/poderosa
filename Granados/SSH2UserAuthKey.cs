@@ -71,7 +71,7 @@ namespace Granados.SSH2 {
         public byte[] GetPublicKeyBlob() {
             SSH2PayloadImageBuilder imageBuilder =
                 new SSH2PayloadImageBuilder()
-                .WriteString(SSH2Util.PublicKeyAlgorithmName(_keypair.Algorithm));
+                .WriteString(_keypair.Algorithm.GetAlgorithmName());
             _keypair.PublicKey.WriteTo(new SSH2KeyWriter(imageBuilder));
             return imageBuilder.GetBytes();
         }
@@ -300,7 +300,7 @@ namespace Granados.SSH2 {
         }
         public void WritePublicPartInOpenSSHStyle(Stream dest) {
             StreamWriter sw = new StreamWriter(dest, Encoding.ASCII);
-            sw.Write(SSH2Util.PublicKeyAlgorithmName(_keypair.Algorithm));
+            sw.Write(_keypair.Algorithm.GetAlgorithmName());
             sw.Write(' ');
             sw.WriteLine(FormatBase64EncodedPublicKeyBody());
             sw.Close();

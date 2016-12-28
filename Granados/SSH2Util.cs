@@ -18,22 +18,4 @@ namespace Granados.SSH2 {
         public const uint SSH_OPEN_RESOURCE_SHORTAGE = 4;
     }
 
-    internal static class SSH2Util {
-        public static string PublicKeyAlgorithmName(PublicKeyAlgorithm algorithm) {
-            switch (algorithm) {
-                case PublicKeyAlgorithm.DSA:
-                    return "ssh-dss";
-                case PublicKeyAlgorithm.RSA:
-                    return "ssh-rsa";
-                case PublicKeyAlgorithm.ECDSA_SHA2_NISTP256:
-                    return "ecdsa-sha2-nistp256";
-                case PublicKeyAlgorithm.ECDSA_SHA2_NISTP384:
-                    return "ecdsa-sha2-nistp384";
-                case PublicKeyAlgorithm.ECDSA_SHA2_NISTP521:
-                    return "ecdsa-sha2-nistp521";
-                default:
-                    throw new SSHException("unknown HostKeyAlgorithm " + algorithm);
-            }
-        }
-    }
 }

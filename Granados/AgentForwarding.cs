@@ -295,7 +295,7 @@ namespace Granados.AgentForwarding {
             }
 
             SSH2PayloadImageBuilder image = new SSH2PayloadImageBuilder();
-            image.WriteString(SSH2Util.PublicKeyAlgorithmName(key.Algorithm));
+            image.WriteString(key.Algorithm.GetAlgorithmName());
             image.WriteAsString(key.Sign(data));
             byte[] signatureBlob = image.GetBytes();
 

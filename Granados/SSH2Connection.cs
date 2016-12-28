@@ -1355,7 +1355,7 @@ namespace Granados.SSH2 {
         private bool VerifyHostKey(byte[] ks, byte[] signature, byte[] hash, bool verifyExternally) {
             SSH2DataReader ksReader = new SSH2DataReader(ks);
             string algorithm = ksReader.ReadString();
-            if (algorithm != SSH2Util.PublicKeyAlgorithmName(_cInfo.HostKeyAlgorithm.Value)) {
+            if (algorithm != _cInfo.HostKeyAlgorithm.Value.GetAlgorithmName()) {
                 throw new SSHException(Strings.GetString("HostKeyAlgorithmMismatch"));
             }
 
@@ -1499,7 +1499,7 @@ namespace Granados.SSH2 {
         private PublicKeyAlgorithm DecideHostKeyAlgorithm(string candidates) {
             string[] candidateNames = candidates.Split(',');
             foreach (PublicKeyAlgorithm pref in _param.PreferableHostKeyAlgorithms) {
-                string prefName = SSH2Util.PublicKeyAlgorithmName(pref);
+                string prefName = pref.GetAlgorithmName();
                 if (candidateNames.Contains(prefName)) {
                     return pref;
                 }
@@ -1544,7 +1544,7 @@ namespace Granados.SSH2 {
             }
             return string.Join(",",
                     _param.PreferableHostKeyAlgorithms
-                        .Select(algorithm => SSH2Util.PublicKeyAlgorithmName(algorithm)));
+                        .Select(algorithm => algorithm.GetAlgorithmName()));
         }
 
         /// <summary>
@@ -2194,7 +2194,7 @@ namespace Granados.SSH2 {
         private SSH2Packet BuildPublickeyAuthRequestPacket(string serviceName) {
             //public key authentication
             SSH2UserAuthKey kp = SSH2UserAuthKey.FromSECSHStyleFile(_param.IdentityFile, _param.Password);
-            string algorithmName = SSH2Util.PublicKeyAlgorithmName(kp.Algorithm);
+            string algorithmName = kp.Algorithm.GetAlgorithmName();
 
             // construct a packet except signature
             SSH2Packet packet =

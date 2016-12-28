@@ -185,7 +185,7 @@ namespace Granados.SSH2 {
                         () => {
                             // Poderosa known_hosts format
                             return new StringBuilder()
-                                .Append(SSH2Util.PublicKeyAlgorithmName(_hostKey.Algorithm))
+                                .Append(_hostKey.Algorithm.GetAlgorithmName())
                                 .Append(' ')
                                 .Append(Encoding.ASCII.GetString(Base64.Encode(_encodedHostKey.Value)))
                                 .ToString();
@@ -197,7 +197,7 @@ namespace Granados.SSH2 {
                     new Lazy<byte[]>(
                         () => {
                             SSH2PayloadImageBuilder image = new SSH2PayloadImageBuilder(0x10000);
-                            image.WriteString(SSH2Util.PublicKeyAlgorithmName(_hostKey.Algorithm));
+                            image.WriteString(_hostKey.Algorithm.GetAlgorithmName());
                             if (_hostKey is RSAPublicKey) {
                                 RSAPublicKey rsa = (RSAPublicKey)_hostKey;
                                 image.WriteBigInteger(rsa.Exponent);
