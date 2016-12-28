@@ -87,9 +87,9 @@ namespace Granados.PKI {
             return (spec != null) ? spec.AlgorithmName : null;
         }
 
-        public static string GetOrder(this PublicKeyAlgorithm value) {
+        public static int GetOrder(this PublicKeyAlgorithm value) {
             var spec = GetAlgorithmSpec(value);
-            return (spec != null) ? spec.AlgorithmName : null;
+            return (spec != null) ? spec.Order : Int32.MaxValue;
         }
 
         private static AlgorithmSpecAttribute GetAlgorithmSpec(PublicKeyAlgorithm value) {
