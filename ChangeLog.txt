@@ -1,6 +1,6 @@
-4.4.0-dev (still under development)
+﻿4.4.0-dev (still under development)
 ---------
-    * Only .NET Framework 4.x is supported.
+    * Only .NET Framework >=4.5 is supported.
 
     * Granados (SSH library) has new interfaces and new internal design.
 
@@ -27,6 +27,9 @@
     * Global option of the SSH agent forwarding was deleted.
       SSH agent forwarding can be enabled for each session by specifying
       it on the open-session dialog.
+
+    * ECDSA support on SSH2. (OpenSSH key file only)
+
 
 4.3.16
 ------
