@@ -1,7 +1,9 @@
-﻿//  Copyright (c) 2016 Poderosa Project, All Rights Reserved.
+﻿// Copyright (c) 2016 Poderosa Project, All Rights Reserved.
 // This file is a part of the Granados SSH Client Library that is subject to
 // the license included in the distributed package.
 // You may not use this file except in compliance with the license.
+
+#define USE_WNAF_POINT_MULTIPLICATION
 
 using Granados.Crypto;
 using Granados.IO.SSH2;
@@ -9,6 +11,7 @@ using Granados.Mono.Math;
 using Granados.Util;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security.Cryptography;
 
@@ -127,6 +130,18 @@ namespace Granados.PKI {
     }
 
     /// <summary>
+    /// A class represents a point at infinity
+    /// </summary>
+    public class ECPointAtInfinity : ECPoint {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public ECPointAtInfinity()
+            : base(null, null) {
+        }
+    }
+
+    /// <summary>
     /// Abstract class for elliptic curve parameters.
     /// </summary>
     public abstract class EllipticCurve {
@@ -164,24 +179,36 @@ namespace Granados.PKI {
         /// Calculate kG
         /// </summary>
         /// <param name="k">scalar</param>
-        /// <returns>point, or null if failed</returns>
-        public abstract ECPoint BasePointMul(BigInteger k);
+        /// <param name="infinityToNull">
+        /// if result was point-at-infinity, and this parameter was true,
+        /// null is returned instead of <see cref="ECPointAtInfinity"/>.
+        /// </param>
+        /// <returns>point on the curve, point at infinity, or null if failed</returns>
+        public abstract ECPoint BasePointMul(BigInteger k, bool infinityToNull);
 
         /// <summary>
         /// Calculate point multiplication
         /// </summary>
         /// <param name="k">scalar</param>
         /// <param name="t">point</param>
-        /// <returns>point, or null if failed</returns>
-        public abstract ECPoint PointMul(BigInteger k, ECPoint t);
+        /// <param name="infinityToNull">
+        /// if result was point-at-infinity, and this parameter was true,
+        /// null is returned instead of <see cref="ECPointAtInfinity"/>.
+        /// </param>
+        /// <returns>point on the curve, point at infinity, or null if failed</returns>
+        public abstract ECPoint PointMul(BigInteger k, ECPoint t, bool infinityToNull);
 
         /// <summary>
         /// Calculate point addition
         /// </summary>
         /// <param name="t1">point</param>
         /// <param name="t2">point</param>
-        /// <returns>point, or null if failed</returns>
-        public abstract ECPoint PointAdd(ECPoint t1, ECPoint t2);
+        /// <param name="infinityToNull">
+        /// if result was point-at-infinity, and this parameter was true,
+        /// null is returned instead of <see cref="ECPointAtInfinity"/>.
+        /// </param>
+        /// <returns>point on the curve, point at infinity, or null if failed</returns>
+        public abstract ECPoint PointAdd(ECPoint t1, ECPoint t2, bool infinityToNull);
 
         /// <summary>
         /// Validates if the point satisfies the equation of the elliptic curve.
@@ -189,13 +216,19 @@ namespace Granados.PKI {
         /// <param name="t">point</param>
         /// <returns>true if the values satisfy.</returns>
         internal bool ValidatePoint(ECPoint t) {
+            if (t is ECPointAtInfinity) {
+                return false;
+            }
+
             if (t.Validated) {
                 return true;
             }
+
             if (ValidatePoint(t.X, t.Y)) {
                 t.Validated = true;
                 return true;
             }
+
             return false;
         }
 
@@ -456,9 +489,13 @@ namespace Granados.PKI {
         /// Calculate multiplication of G
         /// </summary>
         /// <param name="k">scalar value for multiplication</param>
-        /// <returns>point, or null if failed</returns>
-        public override ECPoint BasePointMul(BigInteger k) {
-            return PointMul(k, G);
+        /// <param name="infinityToNull">
+        /// if result was point-at-infinity, and this parameter was true,
+        /// null is returned instead of <see cref="ECPointAtInfinity"/>.
+        /// </param>
+        /// <returns>point on the curve, point at infinity, or null if failed</returns>
+        public override ECPoint BasePointMul(BigInteger k, bool infinityToNull) {
+            return PointMul(k, G, infinityToNull);
         }
 
         /// <summary>
@@ -466,18 +503,24 @@ namespace Granados.PKI {
         /// </summary>
         /// <param name="k">scalar</param>
         /// <param name="t">point</param>
-        /// <returns>point, or null if failed</returns>
-        public override ECPoint PointMul(BigInteger k, ECPoint t) {
+        /// <param name="infinityToNull">
+        /// if result was point-at-infinity, and this parameter was true,
+        /// null is returned instead of <see cref="ECPointAtInfinity"/>.
+        /// </param>
+        /// <returns>point on the curve, point at infinity, or null if failed</returns>
+        public override ECPoint PointMul(BigInteger k, ECPoint t, bool infinityToNull) {
             if (t == null) {
                 return null;
             }
             BigInteger.ModulusRing ring = new BigInteger.ModulusRing(p);
-            BigInteger x;
-            BigInteger y;
-            if (!PointMul(ring, t.X, t.Y, k, out x, out y)) {
+            ECPoint r;
+            if (!PointMul(ring, t, k, out r)) {
                 return null;
             }
-            return new ECPoint(x, y);
+            if (infinityToNull && r is ECPointAtInfinity) {
+                return null;
+            }
+            return r;
         }
 
         /// <summary>
@@ -485,18 +528,24 @@ namespace Granados.PKI {
         /// </summary>
         /// <param name="t1">point</param>
         /// <param name="t2">point</param>
+        /// <param name="infinityToNull">
+        /// if result was point-at-infinity, and this parameter was true,
+        /// null is returned instead of <see cref="ECPointAtInfinity"/>.
+        /// </param>
         /// <returns>point, or null if failed</returns>
-        public override ECPoint PointAdd(ECPoint t1, ECPoint t2) {
+        public override ECPoint PointAdd(ECPoint t1, ECPoint t2, bool infinityToNull) {
             if (t1 == null || t2 == null) {
                 return null;
             }
             BigInteger.ModulusRing ring = new BigInteger.ModulusRing(p);
-            BigInteger x;
-            BigInteger y;
-            if (!PointAdd(ring, t1.X, t1.Y, t2.X, t2.Y, out x, out y)) {
+            ECPoint r;
+            if (!PointAdd(ring, t1, t2, out r)) {
                 return null;
             }
-            return new ECPoint(x, y);
+            if (infinityToNull && r is ECPointAtInfinity) {
+                return null;
+            }
+            return r;
         }
 
         /// <summary>
@@ -504,21 +553,46 @@ namespace Granados.PKI {
         /// </summary>
         private bool PointAdd(
                 BigInteger.ModulusRing ring,
-                BigInteger x1, BigInteger y1,
-                BigInteger x2, BigInteger y2,
-                out BigInteger x3, out BigInteger y3) {
+                ECPoint p1,
+                ECPoint p2,
+                out ECPoint p3) {
+
+            if (p1 is ECPointAtInfinity) {
+                p3 = p2;
+                return true;
+            }
+            if (p2 is ECPointAtInfinity) {
+                p3 = p1;
+                return true;
+            }
+
+            if (p1.X == p2.X) {
+                if (p1.Y == p2.Y) {
+                    return PointDouble(ring, p1, out p3);
+                }
+                else {
+                    p3 = new ECPointAtInfinity();
+                    return true;
+                }
+            }
 
             // x3 = {(y2 - y1)/(x2 - x1)}^2 - (x1 + x2)
             // y3 = {(y2 - y1)/(x2 - x1)} * (x1 - x3) - y1
 
             try {
+                BigInteger x1 = p1.X;
+                BigInteger y1 = p1.Y;
+                BigInteger x2 = p2.X;
+                BigInteger y2 = p2.Y;
+
                 BigInteger lambda = ring.Multiply(ring.Difference(y2, y1), ring.Difference(x2, x1).ModInverse(p));
-                x3 = ring.Difference(ring.Multiply(lambda, lambda), x1 + x2);
-                y3 = ring.Difference(ring.Multiply(lambda, ring.Difference(x1, x3)), y1);
+                BigInteger x3 = ring.Difference(ring.Multiply(lambda, lambda), x1 + x2);
+                BigInteger y3 = ring.Difference(ring.Multiply(lambda, ring.Difference(x1, x3)), y1);
+                p3 = new ECPoint(x3, y3);
                 return true;
             }
             catch (Exception) {
-                x3 = y3 = null;
+                p3 = null;
                 return false;
             }
         }
@@ -528,68 +602,238 @@ namespace Granados.PKI {
         /// </summary>
         private bool PointDouble(
                 BigInteger.ModulusRing ring,
-                BigInteger x1, BigInteger y1,
-                out BigInteger x3, out BigInteger y3) {
+                ECPoint p1,
+                out ECPoint p3) {
+
+            if (p1 is ECPointAtInfinity) {
+                p3 = p1;
+                return true;
+            }
+
+            if (p1.Y == 0) {
+                p3 = new ECPointAtInfinity();
+                return true;
+            }
 
             // x3 = {(3 * x1^2 + a)/(2 * y1)}^2 - (2 * x1)
             // y3 = {(3 * x1^2 + a)/(2 * y1)} * (x1 - x3) - y1
 
             try {
+                BigInteger x1 = p1.X;
+                BigInteger y1 = p1.Y;
+
                 BigInteger x1_2 = ring.Multiply(x1, x1);
                 BigInteger lambda = ring.Multiply(x1_2 + x1_2 + x1_2 + a, (y1 + y1).ModInverse(p));
-                x3 = ring.Difference(ring.Multiply(lambda, lambda), x1 + x1);
-                y3 = ring.Difference(ring.Multiply(lambda, ring.Difference(x1, x3)), y1);
+                BigInteger x3 = ring.Difference(ring.Multiply(lambda, lambda), x1 + x1);
+                BigInteger y3 = ring.Difference(ring.Multiply(lambda, ring.Difference(x1, x3)), y1);
+                p3 = new ECPoint(x3, y3);
                 return true;
             }
             catch (Exception) {
-                x3 = y3 = null;
+                p3 = null;
                 return false;
             }
         }
+
+#if USE_WNAF_POINT_MULTIPLICATION
+        /// <summary>
+        /// Point multiplication over the curve
+        /// </summary>
+        private bool PointMul(
+                BigInteger.ModulusRing ring,
+                ECPoint p1,
+                BigInteger k,
+                out ECPoint p2) {
+
+            //
+            // Uses Width-w NAF method
+            //
+
+            if (p1 is ECPointAtInfinity) {
+                p2 = p1;
+                return true;
+            }
+
+            const int W = 5;
+            const uint TPW = 1u << W;   // 2^W
+            const uint TPWD = 1u << (W - 1);   // 2^(W-1)
+
+            // precompute point multiplication : {1 .. 2^(W-1)-1}P.
+            // array is allocated for {0 .. 2^(W-1)-1}P, and only elements at the odd index are used.
+            ECPoint[] precomp = new ECPoint[TPWD];
+
+            {
+                ECPoint t = p1;
+                ECPoint t2;
+                if (!PointDouble(ring, t, out t2)) {
+                    goto Failure;
+                }
+                precomp[1] = t;
+                for (uint i = 3; i < TPWD; i += 2) {
+                    // P <- P + 2P
+                    if (!PointAdd(ring, t, t2, out t)) {
+                        goto Failure;
+                    }
+                    precomp[i] = t;
+                }
+            }
+
+            Stack<sbyte> precompIndex = new Stack<sbyte>(k.BitCount() + 1);
+
+            BigInteger d = new BigInteger(k);
+            while (d != 0u) {
+                if (d % 2u == 1u) {
+                    uint m = d % TPW;
+                    if (m >= TPWD) {
+                        // m is odd; thus
+                        // (2^(W-1) + 1) <= m <= (2^W - 1)
+                        sbyte index = (sbyte)((int)m - (int)TPW);  // -2^(W-1)+1 .. -1
+                        precompIndex.Push(index);
+                        d += TPW - m;   // d -= m - TPW
+                    }
+                    else {
+                        // 1 <= m <= (2^(W-1) - 1)
+                        sbyte index = (sbyte)m; // odd index
+                        precompIndex.Push(index);
+                        d -= m;
+                    }
+                }
+                else {
+                    precompIndex.Push(0);
+                }
+                d >>= 1;
+            }
+
+            {
+                ECPoint p = null;
+
+                while (precompIndex.Count > 0) {
+                    if (p != null) {
+                        if (!PointDouble(ring, p, out p)) {
+                            goto Failure;
+                        }
+                    }
+
+                    ECPoint pre;
+                    int index = precompIndex.Pop();
+                    if (index > 0) {
+                        pre = precomp[index];
+                    }
+                    else if (index < 0) {
+                        // over F^p, P={x, y} and -P={x, -y}
+                        pre = precomp[-index];
+                        if (!(pre is ECPointAtInfinity)) {
+                            pre = new ECPoint(pre.X, ring.Difference(0, pre.Y));
+                        }
+                    }
+                    else {
+                        continue;
+                    }
+
+                    if (p != null) {
+                        if (!PointAdd(ring, p, pre, out p)) {
+                            goto Failure;
+                        }
+                    }
+                    else {
+                        p = pre;
+                    }
+                }
+
+                if (p == null) {
+                    // case of k = 0
+                    goto Failure;
+                }
+
+                // succeeded
+                p2 = p;
+                return true;
+            }
+
+        Failure:
+            p2 = null;
+            return false;
+        }
+
+#else
 
         /// <summary>
         /// Point multiplication over the curve
         /// </summary>
         private bool PointMul(
                 BigInteger.ModulusRing ring,
-                BigInteger x1, BigInteger y1,
+                ECPoint p1,
                 BigInteger k,
-                out BigInteger x2, out BigInteger y2) {
+                out ECPoint p2) {
+
+            //
+            // Windowed method
+            //
+
+            const int W = 4;
+            const uint TPW = 1u << W;   // 2^W
+
+            // precompute point multiplication : {1 .. 2^W-1}P.
+            // array is allocated for {0 .. 2^W-1}P, and index 0 is never used.
+            ECPoint[] precomp = new ECPoint[TPW];
+
+            {
+                ECPoint t = p1;
+                precomp[1] = t;
+                if (!PointDouble(ring, t, out t)) {
+                    goto Failure;
+                }
+                precomp[2] = t;
+                for (uint i = 3; i < TPW; ++i) {
+                    if (!PointAdd(ring, t, p1, out t)) {
+                        goto Failure;
+                    }
+                    precomp[i] = t;
+                }
+            }
 
             byte[] bits = k.GetBytes();
 
-            BigInteger px = x1;
-            BigInteger py = y1;
-            BigInteger vx = null;
-            BigInteger vy = null;
+            ECPoint p = null;
 
-            for (int i = bits.Length - 1; i >= 0; --i) {
-                byte b = bits[i];
-                for (byte mask = 0x01; mask != 0; mask <<= 1) {
-                    if ((b & mask) != 0) {
-                        if (vx != null && vy != null) {
-                            if (!PointAdd(ring, vx, vy, px, py, out vx, out vy)) {
-                                x2 = y2 = null;
-                                return false;
+            foreach (byte b in bits) {
+                for (int f = 0; f < 2; ++f) {
+                    if (p != null) {
+                        for (int i = 0; i < 4; ++i) {
+                            if (!PointDouble(ring, p, out p)) {
+                                goto Failure;
                             }
-                        }
-                        else {
-                            vx = px;
-                            vy = py;
                         }
                     }
 
-                    if (!PointDouble(ring, px, py, out px, out py)) {
-                        x2 = y2 = null;
-                        return false;
+                    int precompIndex = (f == 0) ? (b >> 4) : (b & 0xf);
+                    if (precompIndex != 0) {
+                        if (p != null) {
+                            if (!PointAdd(ring, p, precomp[precompIndex], out p)) {
+                                goto Failure;
+                            }
+                        }
+                        else {
+                            p = precomp[precompIndex];
+                        }
                     }
                 }
             }
 
-            x2 = vx;
-            y2 = vy;
-            return (vx != null && vy != null);
+            if (p == null) {
+                // case of k = 0
+                goto Failure;
+            }
+
+            // succeeded
+            p2 = p;
+            return true;
+
+        Failure:
+            p2 = null;
+            return false;
         }
+#endif
     }
 
 #if false
@@ -777,12 +1021,12 @@ namespace Granados.PKI {
                 BigInteger u1 = nring.Multiply(e, sInv);
                 BigInteger u2 = nring.Multiply(r, sInv);
 
-                ECPoint p1 = _curve.BasePointMul(u1);
-                ECPoint p2 = _curve.PointMul(u2, Point);
+                ECPoint p1 = _curve.BasePointMul(u1, true);
+                ECPoint p2 = _curve.PointMul(u2, Point, true);
                 if (p1 == null || p2 == null) {
                     goto Fail;
                 }
-                ECPoint R = _curve.PointAdd(p1, p2);
+                ECPoint R = _curve.PointAdd(p1, p2, true);
                 if (R == null || R.X == 0 || R.Y == 0) {
                     goto Fail;
                 }
@@ -957,7 +1201,7 @@ namespace Granados.PKI {
                         continue;
                     }
 
-                    ECPoint R = _curve.BasePointMul(k);
+                    ECPoint R = _curve.BasePointMul(k, true);
                     if (R == null) {
                         continue;
                     }
@@ -999,7 +1243,7 @@ namespace Granados.PKI {
                 return false;
             }
 
-            ECPoint q = _curve.BasePointMul(_privateKey);
+            ECPoint q = _curve.BasePointMul(_privateKey, true);
             if (q == null) {
                 return false;
             }
