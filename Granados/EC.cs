@@ -720,7 +720,7 @@ namespace Granados.PKI {
                         pre = precomp[index];
                     }
                     else if (index < 0) {
-                        // over F^p, P={x, y} and -P={x, -y}
+                        // on EC over Fp, P={x, y} and -P={x, -y}
                         pre = precomp[-index];
                         if (!(pre is ECPointAtInfinity)) {
                             pre = new ECPoint(pre.X, ring.Difference(0, pre.Y));
