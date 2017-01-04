@@ -1191,9 +1191,9 @@ namespace Granados.Mono.Math {
 
 			// TODO: Make tests for this, not really needed b/c prime stuff
 			// checks it, but still would be nice
-#if !INSIDE_CORLIB
-                        [CLSCompliant (false)]
-#endif 
+#if !INSIDE_CORLIB && !GRANADOS
+			[CLSCompliant (false)]
+#endif
 #if true
 			public BigInteger Pow (uint b, BigInteger exp)
 			{

@@ -24,6 +24,7 @@ namespace Granados.Poderosa.KeyFormat {
         /// <param name="primeP">private key parameter is set</param>
         /// <param name="primeQ">private key parameter is set</param>
         /// <param name="crtCoefficient">private key parameter is set</param>
+        /// <param name="comment">comment is set</param>
         /// <exception cref="SSHException">failed to parse</exception>
         void Load(
             string passphrase,

@@ -30,8 +30,6 @@ namespace Granados.Poderosa.SFTP {
         private static readonly ThreadLocal<ByteBuffer> _payloadBuffer =
             new ThreadLocal<ByteBuffer>(() => new ByteBuffer(0x1000, -1));
 
-        private readonly int _sftpDataOffset;
-
         private const int SFTP_MESSAGE_LENGTH_FIELD_LEN = 4;
 
         /// <summary>
