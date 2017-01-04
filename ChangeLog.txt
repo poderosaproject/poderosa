@@ -30,6 +30,8 @@
 
     * ECDSA support on SSH2. (OpenSSH key file only)
 
+    * ECDH support on SSH2.
+
 
 4.3.16
 ------
