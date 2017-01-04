@@ -1360,18 +1360,7 @@ namespace Granados.SSH2 {
             wr.WriteBigInteger(state.k);
             state.hash = state.hashAlgorithm.ComputeHash(wr.ToByteArray());
 
-            _protocolEventManager.Trace("verifying host key");
-
-            bool verifyExternally = (_sessionID == null) ? true : false;
-            bool accepted = VerifyHostKey(key_and_cert, signature, state.hash, verifyExternally);
-
-            _protocolEventManager.Trace("verifying host key : {0}", accepted ? "accepted" : "rejected");
-
-            if (accepted && _sessionID == null) {
-                //Debug.WriteLine("hash="+DebugUtil.DumpByteArray(hash));
-                _sessionID = state.hash;
-            }
-            return accepted;
+            return VerifyHostKeyAndUpdateSessionID(key_and_cert, signature, state.hash);
         }
 
         /// <summary>
@@ -1417,16 +1406,27 @@ namespace Granados.SSH2 {
             wr.WriteBigInteger(state.secret);
             state.hash = state.hashAlgorithm.ComputeHash(wr.ToByteArray());
 
+            return VerifyHostKeyAndUpdateSessionID(serverHostKey, signature, state.hash);
+        }
+
+        /// <summary>
+        /// Verifies server host key and certificates, then set session ID if it hasn't been set yet.
+        /// </summary>
+        /// <param name="ks">server public host key and certificates (K_S)</param>
+        /// <param name="signature">signature of exchange hash</param>
+        /// <param name="hash">computed exchange hash</param>
+        /// <returns>true if server host key and certificates were verified and accepted.</returns>
+        private bool VerifyHostKeyAndUpdateSessionID(byte[] ks, byte[] signature, byte[] hash) {
             _protocolEventManager.Trace("verifying host key");
 
             bool verifyExternally = (_sessionID == null) ? true : false;
-            bool accepted = VerifyHostKey(serverHostKey, signature, state.hash, verifyExternally);
+            bool accepted = VerifyHostKey(ks, signature, hash, verifyExternally);
 
             _protocolEventManager.Trace("verifying host key : {0}", accepted ? "accepted" : "rejected");
 
             if (accepted && _sessionID == null) {
                 //Debug.WriteLine("hash="+DebugUtil.DumpByteArray(hash));
-                _sessionID = state.hash;
+                _sessionID = hash;
             }
             return accepted;
         }
