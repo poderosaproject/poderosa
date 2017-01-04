@@ -333,13 +333,13 @@ namespace Granados {
         [AlgorithmSpec(AlgorithmName = "diffie-hellman-group18-sha512", DefaultPriority = 4)]
         DH_G18_SHA512,
         /// <summary>ecdh-sha2-nistp256 described in RFC5656</summary>
-        [AlgorithmSpec(AlgorithmName = "ecdh-sha2-nistp256", DefaultPriority = 6)]
+        [AlgorithmSpec(AlgorithmName = "ecdh-sha2-nistp256", DefaultPriority = 8)]
         ECDH_SHA2_NISTP256,
         /// <summary>ecdh-sha2-nistp384 described in RFC5656</summary>
         [AlgorithmSpec(AlgorithmName = "ecdh-sha2-nistp384", DefaultPriority = 7)]
         ECDH_SHA2_NISTP384,
         /// <summary>ecdh-sha2-nistp521 described in RFC5656</summary>
-        [AlgorithmSpec(AlgorithmName = "ecdh-sha2-nistp521", DefaultPriority = 8)]
+        [AlgorithmSpec(AlgorithmName = "ecdh-sha2-nistp521", DefaultPriority = 6)]
         ECDH_SHA2_NISTP521,
     }
 
