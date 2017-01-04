@@ -168,6 +168,13 @@ namespace Granados.PKI {
         }
 
         /// <summary>
+        /// Cofactor
+        /// </summary>
+        public abstract BigInteger Cofactor {
+            get;
+        }
+
+        /// <summary>
         /// Validates if the point satisfies the equation of the elliptic curve.
         /// </summary>
         /// <param name="x">value of X</param>
@@ -199,6 +206,19 @@ namespace Granados.PKI {
         public abstract ECPoint PointMul(BigInteger k, ECPoint t, bool infinityToNull);
 
         /// <summary>
+        /// Calculate point multiplication
+        /// </summary>
+        /// <param name="k1">scalar</param>
+        /// <param name="k2">scalar</param>
+        /// <param name="t">point</param>
+        /// <param name="infinityToNull">
+        /// if result was point-at-infinity, and this parameter was true,
+        /// null is returned instead of <see cref="ECPointAtInfinity"/>.
+        /// </param>
+        /// <returns>point on the curve, point at infinity, or null if failed</returns>
+        public abstract ECPoint PointMul(BigInteger k1, BigInteger k2, ECPoint t, bool infinityToNull);
+
+        /// <summary>
         /// Calculate point addition
         /// </summary>
         /// <param name="t1">point</param>
@@ -215,7 +235,7 @@ namespace Granados.PKI {
         /// </summary>
         /// <param name="t">point</param>
         /// <returns>true if the values satisfy.</returns>
-        internal bool ValidatePoint(ECPoint t) {
+        public bool ValidatePoint(ECPoint t) {
             if (t is ECPointAtInfinity) {
                 return false;
             }
@@ -230,6 +250,62 @@ namespace Granados.PKI {
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Generates new key pair.
+        /// </summary>
+        /// <returns>key pair</returns>
+        public ECDSAKeyPair GenerateKeyPair() {
+            using (var rng = new RNGCryptoServiceProvider()) {
+                return GenerateKeyPair(rng);
+            }
+        }
+
+        /// <summary>
+        /// Generates new key pair.
+        /// </summary>
+        /// <param name="rng">random number generator</param>
+        /// <returns>key pair</returns>
+        public ECDSAKeyPair GenerateKeyPair(RandomNumberGenerator rng) {
+            int curveSize = this.Order.BitCount();
+            while (true) {
+                BigInteger k = BigInteger.GenerateRandom(curveSize, rng);
+                if (k == 0 || k >= this.Order) {
+                    continue;
+                }
+
+                ECPoint R = this.BasePointMul(k, true);
+                if (R != null) {
+                    return new ECDSAKeyPair(this, new ECDSAPublicKey(this, R), k);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Convert a point to the octet string.
+        /// </summary>
+        /// <param name="point">point</param>
+        /// <returns>octet string</returns>
+        public byte[] ConvertPointToOctetString(ECPoint point) {
+            int byteLength = (this.Order.BitCount() + 7) / 8;
+            byte[] buff = new byte[1 + byteLength * 2];
+
+            buff[0] = 0x04; // uncompressed form
+
+            byte[] x = point.X.GetBytes();
+            if (x.Length > byteLength) {
+                throw new SSHException("invalid public key value");
+            }
+            Buffer.BlockCopy(x, 0, buff, 1 + byteLength - x.Length, x.Length);
+
+            byte[] y = point.Y.GetBytes();
+            if (y.Length > byteLength) {
+                throw new SSHException("invalid public key value");
+            }
+            Buffer.BlockCopy(y, 0, buff, 1 + byteLength * 2 - y.Length, y.Length);
+
+            return buff;
         }
 
         //-----------------------------------------------------------------------
@@ -417,6 +493,15 @@ namespace Granados.PKI {
         }
 
         /// <summary>
+        /// Cofactor
+        /// </summary>
+        public override BigInteger Cofactor {
+            get {
+                return h;
+            }
+        }
+
+        /// <summary>
         /// Odd prime
         /// </summary>
         public readonly BigInteger p;
@@ -521,6 +606,23 @@ namespace Granados.PKI {
                 return null;
             }
             return r;
+        }
+
+        /// <summary>
+        /// Calculate point multiplication
+        /// </summary>
+        /// <param name="k1">scalar</param>
+        /// <param name="k2">scalar</param>
+        /// <param name="t">point</param>
+        /// <param name="infinityToNull">
+        /// if result was point-at-infinity, and this parameter was true,
+        /// null is returned instead of <see cref="ECPointAtInfinity"/>.
+        /// </param>
+        /// <returns>point on the curve, point at infinity, or null if failed</returns>
+        public override ECPoint PointMul(BigInteger k1, BigInteger k2, ECPoint t, bool infinityToNull) {
+            BigInteger.ModulusRing ring = new BigInteger.ModulusRing(p);
+            BigInteger k = ring.Multiply(k1, k2);
+            return PointMul(k, t, infinityToNull);
         }
 
         /// <summary>
@@ -1009,9 +1111,8 @@ namespace Granados.PKI {
             }
 
             BigInteger order = _curve.Order;
-            int curveSize = order.BitCount();
 
-            byte[] hash = HashForSigning(expected, curveSize);
+            byte[] hash = HashForSigning(expected, _curve);
             BigInteger e = new BigInteger(hash);
 
             BigInteger.ModulusRing nring = new BigInteger.ModulusRing(order);
@@ -1048,24 +1149,9 @@ namespace Granados.PKI {
         }
 
         public override void WriteTo(IKeyWriter writer) {
-            int byteLength = (_curve.Order.BitCount() + 7) / 8;
-            byte[] buff = new byte[1 + byteLength * 2];
-
-            byte[] x = _point.X.GetBytes();
-            if (x.Length > byteLength) {
-                throw new SSHException("invalid public key value");
-            }
-            buff[0] = 0x04; // uncompressed form
-            Buffer.BlockCopy(x, 0, buff, 1 + byteLength - x.Length, x.Length);
-
-            byte[] y = _point.Y.GetBytes();
-            if (y.Length > byteLength) {
-                throw new SSHException("invalid public key value");
-            }
-            Buffer.BlockCopy(y, 0, buff, 1 + byteLength * 2 - y.Length, y.Length);
-
+            byte[] publicKeyOctetString = _curve.ConvertPointToOctetString(_point);
             writer.WriteString(_curve.CurveName);
-            writer.WriteByteString(buff);
+            writer.WriteByteString(publicKeyOctetString);
         }
 
         internal static ECDSAPublicKey ReadFrom(SSH2DataReader reader) {
@@ -1097,21 +1183,16 @@ namespace Granados.PKI {
         /// Hash data for signing
         /// </summary>
         /// <param name="data">data to be hashed</param>
-        /// <param name="orderBits">bit length of n</param>
+        /// <param name="curve">elliptic curve for determining hashing algorithm</param>
         /// <returns></returns>
-        internal byte[] HashForSigning(byte[] data, int orderBits) {
+        internal byte[] HashForSigning(byte[] data, EllipticCurve curve) {
+
             byte[] hash;
-            if (orderBits <= 256) {
-                hash = (new SHA256CryptoServiceProvider()).ComputeHash(data);
-            }
-            else if (orderBits <= 384) {
-                hash = (new SHA384CryptoServiceProvider()).ComputeHash(data);
-            }
-            else {
-                hash = (new SHA512CryptoServiceProvider()).ComputeHash(data);
+            using (var hashAlgorithm = ECDSAHashAlgorithmChooser.Choose(curve)) {
+                hash = hashAlgorithm.ComputeHash(data);
             }
 
-            return ExtractLeftBits(hash, orderBits);
+            return ExtractLeftBits(hash, curve.Order.BitCount());
         }
 
         private byte[] ExtractLeftBits(byte[] src, int bits) {
@@ -1171,6 +1252,24 @@ namespace Granados.PKI {
         }
 
         /// <summary>
+        /// Public key as a point
+        /// </summary>
+        public ECPoint PublicKeyPoint {
+            get {
+                return _publicKey.Point;
+            }
+        }
+
+        /// <summary>
+        /// Private key
+        /// </summary>
+        public BigInteger PrivateKey {
+            get {
+                return _privateKey;
+            }
+        }
+
+        /// <summary>
         /// Verification
         /// </summary>
         /// <param name="data"></param>
@@ -1186,44 +1285,38 @@ namespace Granados.PKI {
         /// <returns>signature blob</returns>
         public byte[] Sign(byte[] data) {
             BigInteger order = _curve.Order;
-            int curveSize = order.BitCount();
 
-            byte[] hash = _publicKey.HashForSigning(data, curveSize);
+            byte[] hash = _publicKey.HashForSigning(data, _curve);
             BigInteger e = new BigInteger(hash);
 
-            RandomNumberGenerator rng = RandomNumberGenerator.Create();
-            BigInteger.ModulusRing nring = new BigInteger.ModulusRing(order);
+            using (var rng = new RNGCryptoServiceProvider()) {
 
-            for (int tries = 0; tries < 10; ++tries) {
-                try {
-                    BigInteger k = BigInteger.GenerateRandom(curveSize, rng);
-                    if (k == 0 || k >= order) {
-                        continue;
+                BigInteger.ModulusRing nring = new BigInteger.ModulusRing(order);
+
+                for (int tries = 0; tries < 10; ++tries) {
+                    try {
+                        ECDSAKeyPair tempKeyPair = _curve.GenerateKeyPair(rng);
+
+                        BigInteger r = tempKeyPair.PublicKeyPoint.X % order;
+                        if (r == 0) {
+                            continue;
+                        }
+
+                        BigInteger k = tempKeyPair.PrivateKey;
+                        BigInteger s = nring.Multiply(k.ModInverse(order), e + nring.Multiply(r, _privateKey));
+                        if (s == 0) {
+                            continue;
+                        }
+
+                        SSH2DataWriter writer = new SSH2DataWriter();
+                        writer.WriteBigInteger(r);
+                        writer.WriteBigInteger(s);
+
+                        return writer.ToByteArray();
                     }
-
-                    ECPoint R = _curve.BasePointMul(k, true);
-                    if (R == null) {
-                        continue;
+                    catch (Exception ex) {
+                        Debug.WriteLine(ex);
                     }
-
-                    BigInteger r = R.X % order;
-                    if (r == 0) {
-                        continue;
-                    }
-
-                    BigInteger s = nring.Multiply(k.ModInverse(order), e + nring.Multiply(r, _privateKey));
-                    if (s == 0) {
-                        continue;
-                    }
-
-                    SSH2DataWriter writer = new SSH2DataWriter();
-                    writer.WriteBigInteger(r);
-                    writer.WriteBigInteger(s);
-
-                    return writer.ToByteArray();
-                }
-                catch (Exception ex) {
-                    Debug.WriteLine(ex);
                 }
             }
 
@@ -1252,4 +1345,31 @@ namespace Granados.PKI {
         }
     }
 
+    /// <summary>
+    /// A utility class for choosing hashing algorithm for ECDSA.
+    /// </summary>
+    public static class ECDSAHashAlgorithmChooser {
+
+        /// <summary>
+        /// Chooses a hashing algorithm.
+        /// </summary>
+        /// <remarks>
+        /// Hashing algorithm is determined according to the curve size as described in RFC5656.
+        /// </remarks>
+        /// <param name="curve">elliptic curve</param>
+        /// <returns>new instance of the hashing algorithm</returns>
+        public static HashAlgorithm Choose(EllipticCurve curve) {
+            int orderBits = curve.Order.BitCount();
+
+            if (orderBits <= 256) {
+                return new SHA256CryptoServiceProvider();
+            }
+            else if (orderBits <= 384) {
+                return new SHA384CryptoServiceProvider();
+            }
+            else {
+                return new SHA512CryptoServiceProvider();
+            }
+        }
+    }
 }
