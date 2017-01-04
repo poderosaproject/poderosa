@@ -800,7 +800,7 @@ namespace Granados.SSH2 {
             WaitUpdateCipher,
         }
 
-        private class KexState {
+        private class KexState : IDisposable {
             // payload of KEX_INIT message
             public byte[] serverKEXINITPayload;
             public byte[] clientKEXINITPayload;
@@ -810,7 +810,24 @@ namespace Granados.SSH2 {
             public BigInteger x;   // random number
             public BigInteger e;   // g^x mod p
             public BigInteger k;   // f^x mod p
-            public byte[] hash;
+
+            // values for Elliptic Curve Diffie-Hellman
+            public EllipticCurve ecdhCurve;
+            public byte[] ecdhPublicKey;        // public key octet string
+            public BigInteger ecdhPrivateKey;   // private key
+
+            // Hashing algorithm
+            public HashAlgorithm hashAlgorithm;
+
+            // result
+            public BigInteger secret;   // shared secret
+            public byte[] hash;     // exchange hash
+
+            public void Dispose() {
+                if (hashAlgorithm != null) {
+                    hashAlgorithm.Dispose();
+                }
+            }
         }
 
         private class CipherSettings {
@@ -955,22 +972,22 @@ namespace Granados.SSH2 {
         /// <exception cref="SSHException">no response</exception>
         private void DoKeyExchange(DataFragment kexinitFromServer) {
             try {
-                KexState state = new KexState();
+                using (KexState state = new KexState()) {
+                    KexInit(state, kexinitFromServer);
 
-                KexInit(state, kexinitFromServer);
+                    KexDiffieHellman(state);
 
-                KexDiffieHellman(state);
+                    CipherSettings cipherSettings = GetCipherSettings(state);
 
-                CipherSettings cipherSettings = GetCipherSettings(state);
+                    KexNewKeys(state);
 
-                KexNewKeys(state);
-
-                _updateKey(
-                    _sessionID,
-                    cipherSettings.cipherServer,
-                    cipherSettings.cipherClient,
-                    cipherSettings.macServer,
-                    cipherSettings.macClient);
+                    _updateKey(
+                        _sessionID,
+                        cipherSettings.cipherServer,
+                        cipherSettings.cipherClient,
+                        cipherSettings.macServer,
+                        cipherSettings.macClient);
+                }
 
                 lock (_sequenceLock) {
                     _sequenceStatus = SequenceStatus.Idle;
@@ -1054,8 +1071,16 @@ namespace Granados.SSH2 {
                 _sequenceStatus = SequenceStatus.WaitKexDHReplay;
             }
 
+            bool useEcdh = _cInfo.KEXAlgorithm.Value.IsECDH();
+
             // send KEXDH_INIT
-            var packetToSend = BuildKEXDHINITPacket(state);
+            SSH2Packet packetToSend;
+            if (useEcdh) {
+                packetToSend = BuildKEX_ECDH_INITPacket(state);
+            } else {
+                packetToSend = BuildKEXDHINITPacket(state);
+            }
+
             _syncHandler.Send(packetToSend);
 
             DataFragment response = null;
@@ -1068,7 +1093,13 @@ namespace Granados.SSH2 {
                 Debug.Assert(_sequenceStatus == SequenceStatus.WaitNewKeys || _sequenceStatus == SequenceStatus.WaitUpdateCipher);    // already set in FeedReceivedPacket
             }
 
-            bool isAccepted = ProcessKEXDHREPLY(response, state);
+            bool isAccepted;
+            if (useEcdh) {
+                isAccepted = ProcessKEX_ECDH_REPLY(response, state);
+            }
+            else {
+                isAccepted = ProcessKEXDHREPLY(response, state);
+            }
 
             _protocolEventManager.Trace(
                 isAccepted ? "host key has been accepted" : "host key has been denied");
@@ -1237,9 +1268,65 @@ namespace Granados.SSH2 {
             state.x = x;
             state.e = new BigInteger(2).ModPow(x, state.p);
 
+            switch (_cInfo.KEXAlgorithm.Value) {
+                case KexAlgorithm.DH_G1_SHA1:
+                case KexAlgorithm.DH_G14_SHA1:
+                    state.hashAlgorithm = new SHA1CryptoServiceProvider();
+                    break;
+                case KexAlgorithm.DH_G14_SHA256:
+                    state.hashAlgorithm = new SHA256CryptoServiceProvider();
+                    break;
+                case KexAlgorithm.DH_G16_SHA512:
+                case KexAlgorithm.DH_G18_SHA512:
+                    state.hashAlgorithm = new SHA512CryptoServiceProvider();
+                    break;
+                default:
+                    throw new SSHException("Cannot determine the hashing algorithm: " + _cInfo.KEXAlgorithm.Value.ToString());
+            }
+
             SSH2Packet packet =
                 new SSH2Packet(SSH2PacketType.SSH_MSG_KEXDH_INIT)
                     .WriteBigInteger(state.e);
+
+            return packet;
+        }
+
+        /// <summary>
+        /// Builds a SSH_MSG_KEX_ECDH_INIT packet.
+        /// </summary>
+        /// <param name="state">informations about current key exchange</param>
+        /// <returns>a packet object</returns>
+        private SSH2Packet BuildKEX_ECDH_INITPacket(KexState state) {
+            string curveName;
+            switch(_cInfo.KEXAlgorithm.Value) {
+                case KexAlgorithm.ECDH_SHA2_NISTP256:
+                    curveName = "nistp256";
+                    break;
+                case KexAlgorithm.ECDH_SHA2_NISTP384:
+                    curveName = "nistp384";
+                    break;
+                case KexAlgorithm.ECDH_SHA2_NISTP521:
+                    curveName = "nistp521";
+                    break;
+                default:
+                    throw new SSHException("Cannot determine elliptic curve : " + _cInfo.KEXAlgorithm.Value.ToString());
+            }
+
+            state.ecdhCurve = EllipticCurve.FindByName(curveName);
+            if (state.ecdhCurve == null) {
+                throw new SSHException("Unknown elliptic curve : " + curveName);
+            }
+
+            ECDSAKeyPair keyPair = state.ecdhCurve.GenerateKeyPair();
+            state.ecdhPublicKey = state.ecdhCurve.ConvertPointToOctetString(keyPair.PublicKeyPoint);
+            state.ecdhPrivateKey = keyPair.PrivateKey;
+
+            state.hashAlgorithm = ECDSAHashAlgorithmChooser.Choose(state.ecdhCurve);
+
+            // the message number of SSH_MSG_KEX_ECDH_INIT is identical to the message number of SSH_MSG_KEXDH_INIT.
+            SSH2Packet packet =
+                new SSH2Packet(SSH2PacketType.SSH_MSG_KEXDH_INIT)
+                    .WriteAsString(state.ecdhPublicKey);
 
             return packet;
         }
@@ -1261,9 +1348,8 @@ namespace Granados.SSH2 {
             Debug.Assert(reader.RemainingDataLength == 0);
 
             //Round3 calc hash H
+            state.secret = state.k = f.ModPow(state.x, state.p);
             SSH2DataWriter wr = new SSH2DataWriter();
-            state.k = f.ModPow(state.x, state.p);
-            wr = new SSH2DataWriter();
             wr.WriteString(_cInfo.ClientVersionString);
             wr.WriteString(_cInfo.ServerVersionString);
             wr.WriteAsString(state.clientKEXINITPayload);
@@ -1272,12 +1358,69 @@ namespace Granados.SSH2 {
             wr.WriteBigInteger(state.e);
             wr.WriteBigInteger(f);
             wr.WriteBigInteger(state.k);
-            state.hash = KexComputeHash(wr.ToByteArray());
+            state.hash = state.hashAlgorithm.ComputeHash(wr.ToByteArray());
 
             _protocolEventManager.Trace("verifying host key");
 
             bool verifyExternally = (_sessionID == null) ? true : false;
             bool accepted = VerifyHostKey(key_and_cert, signature, state.hash, verifyExternally);
+
+            _protocolEventManager.Trace("verifying host key : {0}", accepted ? "accepted" : "rejected");
+
+            if (accepted && _sessionID == null) {
+                //Debug.WriteLine("hash="+DebugUtil.DumpByteArray(hash));
+                _sessionID = state.hash;
+            }
+            return accepted;
+        }
+
+        /// <summary>
+        /// Reads and verifies SSH_MSG_KEX_ECDH_REPLY packet.
+        /// </summary>
+        /// <param name="packet">a received packet image</param>
+        /// <param name="state">informations about current key exchange</param>
+        /// <returns>true if verification was succeeded</returns>
+        private bool ProcessKEX_ECDH_REPLY(DataFragment packet, KexState state) {
+            SSH2DataReader reader = new SSH2DataReader(packet);
+            SSH2PacketType packetType = (SSH2PacketType)reader.ReadByte();
+
+            byte[] serverHostKey = reader.ReadByteString();
+            byte[] serverPublicKey = reader.ReadByteString();
+            byte[] signature = reader.ReadByteString();
+            Debug.Assert(reader.RemainingDataLength == 0);
+
+            // get shared secret
+            ECPoint serverPublicKeyPoint;
+            if (!ECPoint.Parse(serverPublicKey, state.ecdhCurve, out serverPublicKeyPoint)
+                    || !state.ecdhCurve.ValidatePoint(serverPublicKeyPoint)) {
+                _protocolEventManager.Trace("Server's ephemeral public key is invalid");
+                return false;
+            }
+
+            ECPoint p = state.ecdhCurve.PointMul(state.ecdhCurve.Cofactor, state.ecdhPrivateKey, serverPublicKeyPoint, true);
+            if (p == null) {
+                _protocolEventManager.Trace("Failed to get a shared secret");
+                return false;
+            }
+
+            state.secret = p.X;
+
+            // get hash
+            SSH2DataWriter wr = new SSH2DataWriter();
+            wr.WriteString(_cInfo.ClientVersionString);
+            wr.WriteString(_cInfo.ServerVersionString);
+            wr.WriteAsString(state.clientKEXINITPayload);
+            wr.WriteAsString(state.serverKEXINITPayload);
+            wr.WriteAsString(serverHostKey);
+            wr.WriteAsString(state.ecdhPublicKey);
+            wr.WriteAsString(serverPublicKey);
+            wr.WriteBigInteger(state.secret);
+            state.hash = state.hashAlgorithm.ComputeHash(wr.ToByteArray());
+
+            _protocolEventManager.Trace("verifying host key");
+
+            bool verifyExternally = (_sessionID == null) ? true : false;
+            bool accepted = VerifyHostKey(serverHostKey, signature, state.hash, verifyExternally);
 
             _protocolEventManager.Trace("verifying host key : {0}", accepted ? "accepted" : "rejected");
 
@@ -1308,20 +1451,20 @@ namespace Granados.SSH2 {
                 CipherFactory.CreateCipher(
                     SSHProtocol.SSH2,
                     _cInfo.OutgoingPacketCipher.Value,
-                    DeriveKey(state.k, state.hash, 'C', CipherFactory.GetKeySize(_cInfo.OutgoingPacketCipher.Value)),
-                    DeriveKey(state.k, state.hash, 'A', CipherFactory.GetBlockSize(_cInfo.OutgoingPacketCipher.Value))
+                    DeriveKey(state.secret, state.hash, 'C', CipherFactory.GetKeySize(_cInfo.OutgoingPacketCipher.Value), state.hashAlgorithm),
+                    DeriveKey(state.secret, state.hash, 'A', CipherFactory.GetBlockSize(_cInfo.OutgoingPacketCipher.Value), state.hashAlgorithm)
                 );
             settings.cipherClient =
                 CipherFactory.CreateCipher(
                     SSHProtocol.SSH2,
                     _cInfo.IncomingPacketCipher.Value,
-                    DeriveKey(state.k, state.hash, 'D', CipherFactory.GetKeySize(_cInfo.IncomingPacketCipher.Value)),
-                    DeriveKey(state.k, state.hash, 'B', CipherFactory.GetBlockSize(_cInfo.IncomingPacketCipher.Value))
+                    DeriveKey(state.secret, state.hash, 'D', CipherFactory.GetKeySize(_cInfo.IncomingPacketCipher.Value), state.hashAlgorithm),
+                    DeriveKey(state.secret, state.hash, 'B', CipherFactory.GetBlockSize(_cInfo.IncomingPacketCipher.Value), state.hashAlgorithm)
                 );
 
             MACAlgorithm ma = MACAlgorithm.HMACSHA1;
-            settings.macServer = MACFactory.CreateMAC(MACAlgorithm.HMACSHA1, DeriveKey(state.k, state.hash, 'E', MACFactory.GetSize(ma)));
-            settings.macClient = MACFactory.CreateMAC(MACAlgorithm.HMACSHA1, DeriveKey(state.k, state.hash, 'F', MACFactory.GetSize(ma)));
+            settings.macServer = MACFactory.CreateMAC(MACAlgorithm.HMACSHA1, DeriveKey(state.secret, state.hash, 'E', MACFactory.GetSize(ma), state.hashAlgorithm));
+            settings.macClient = MACFactory.CreateMAC(MACAlgorithm.HMACSHA1, DeriveKey(state.secret, state.hash, 'F', MACFactory.GetSize(ma), state.hashAlgorithm));
 
             return settings;
         }
@@ -1385,8 +1528,9 @@ namespace Granados.SSH2 {
         /// <param name="h">an exchange hash H</param>
         /// <param name="letter">letter ('A', 'B',...)</param>
         /// <param name="length">key length</param>
+        /// <param name="hashAlgorithm">hashing algorithm</param>
         /// <returns></returns>
-        private byte[] DeriveKey(BigInteger k, byte[] h, char letter, int length) {
+        private byte[] DeriveKey(BigInteger k, byte[] h, char letter, int length, HashAlgorithm hashAlgorithm) {
             SSH2PayloadImageBuilder image = new SSH2PayloadImageBuilder();
             ByteBuffer hashBuff = new ByteBuffer(length * 2, -1);
 
@@ -1401,7 +1545,7 @@ namespace Granados.SSH2 {
                 else {
                     image.Payload.Append(hashBuff);
                 }
-                byte[] hash = KexComputeHash(image.GetBytes());
+                byte[] hash = hashAlgorithm.ComputeHash(image.GetBytes());
 
                 hashBuff.Append(hash);
 
@@ -1412,29 +1556,6 @@ namespace Granados.SSH2 {
                     }
                     return hashBuff.GetBytes();
                 }
-            }
-        }
-
-        /// <summary>
-        /// Computes hash according to the current key exchange algorithm.
-        /// </summary>
-        /// <param name="b">source bytes</param>
-        /// <returns>hash value</returns>
-        private byte[] KexComputeHash(byte[] b) {
-            switch (_cInfo.KEXAlgorithm) {
-                case KexAlgorithm.DH_G1_SHA1:
-                case KexAlgorithm.DH_G14_SHA1:
-                    return new SHA1CryptoServiceProvider().ComputeHash(b);
-
-                case KexAlgorithm.DH_G14_SHA256:
-                    return new SHA256CryptoServiceProvider().ComputeHash(b);
-
-                case KexAlgorithm.DH_G16_SHA512:
-                case KexAlgorithm.DH_G18_SHA512:
-                    return new SHA512CryptoServiceProvider().ComputeHash(b);
-
-                default:
-                    throw new SSHException("KexAlgorithm is not set");
             }
         }
 

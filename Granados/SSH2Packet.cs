@@ -29,6 +29,12 @@ namespace Granados.SSH2 {
         SSH_MSG_KEXDH_INIT = 30,
         SSH_MSG_KEXDH_REPLY = 31,
 
+        // these message types are not defined for preventing confusion or mistake.
+        // SSH_MSG_KEX_ECDH_INIT = 30,
+        // SSH_MSG_KEX_ECDH_REPLY = 31,
+        // SSH_MSG_ECMQV_INIT = 30,
+        // SSH_MSG_ECMQV_REPLY = 31,
+
         SSH_MSG_USERAUTH_REQUEST = 50,
         SSH_MSG_USERAUTH_FAILURE = 51,
         SSH_MSG_USERAUTH_SUCCESS = 52,
