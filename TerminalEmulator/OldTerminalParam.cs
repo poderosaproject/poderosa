@@ -87,7 +87,7 @@ namespace Poderosa.ConnectionParam {
         /// <summary>
         /// Converts <see cref="AuthenticationType"/> to <see cref="AuthType"/>.
         /// </summary>
-        /// <param name="authType"></param>
+        /// <param name="authenticationType"></param>
         /// <returns></returns>
         public static AuthType ToAuthType(this AuthenticationType authenticationType) {
             switch (authenticationType) {
