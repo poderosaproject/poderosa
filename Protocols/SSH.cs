@@ -47,7 +47,7 @@ namespace Poderosa.Protocols {
                 enumSet.Remove(a);
             }
             var listToAppend = new List<CipherAlgorithm>(enumSet);
-            listToAppend.Sort((a1, a2) => a2.GetPriority().CompareTo(a1.GetPriority()));    // descending order
+            listToAppend.Sort((a1, a2) => a2.GetDefaultPriority().CompareTo(a1.GetDefaultPriority()));    // descending order
 
             var list = new List<CipherAlgorithm>(algorithms.Length + enumSet.Count);
             list.AddRange(algorithms);
@@ -85,7 +85,7 @@ namespace Poderosa.Protocols {
                 enumSet.Remove(a);
             }
             var listToAppend = new List<PublicKeyAlgorithm>(enumSet);
-            listToAppend.Sort((a1, a2) => a2.GetPriority().CompareTo(a1.GetPriority()));    // descending order
+            listToAppend.Sort((a1, a2) => a2.GetDefaultPriority().CompareTo(a1.GetDefaultPriority()));    // descending order
 
             var list = new List<PublicKeyAlgorithm>(algorithms.Length + listToAppend.Count);
             list.AddRange(algorithms);

@@ -43,41 +43,16 @@ namespace Granados.PKI {
     /// Public key algorithm
     /// </summary>
     public enum PublicKeyAlgorithm {
-        [AlgorithmSpec(AlgorithmName = "ssh-dss", Priority = 1)]
+        [AlgorithmSpec(AlgorithmName = "ssh-dss", DefaultPriority = 1)]
         DSA,
-        [AlgorithmSpec(AlgorithmName = "ssh-rsa", Priority = 2)]
+        [AlgorithmSpec(AlgorithmName = "ssh-rsa", DefaultPriority = 2)]
         RSA,
-        [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp256", Priority = 3)]
+        [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp256", DefaultPriority = 3)]
         ECDSA_SHA2_NISTP256,
-        [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp384", Priority = 4)]
+        [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp384", DefaultPriority = 4)]
         ECDSA_SHA2_NISTP384,
-        [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp521", Priority = 5)]
+        [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp521", DefaultPriority = 5)]
         ECDSA_SHA2_NISTP521,
-    }
-
-    /// <summary>
-    /// Attribute to define algorithm name.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Field)]
-    public class AlgorithmSpecAttribute : Attribute {
-        /// <summary>
-        /// Algorithm name
-        /// </summary>
-        public string AlgorithmName {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Default priority
-        /// </summary>
-        /// <remarks>
-        /// Larger number means higher priority.
-        /// </remarks>
-        public int Priority {
-            get;
-            set;
-        }
     }
 
     /// <summary>
@@ -86,27 +61,11 @@ namespace Granados.PKI {
     public static class PublicKeyAlgorithmMixin {
 
         public static string GetAlgorithmName(this PublicKeyAlgorithm value) {
-            var spec = GetAlgorithmSpec(value);
-            return (spec != null) ? spec.AlgorithmName : null;
+            return AlgorithmSpecUtil<PublicKeyAlgorithm>.GetAlgorithmName(value);
         }
 
-        public static int GetPriority(this PublicKeyAlgorithm value) {
-            var spec = GetAlgorithmSpec(value);
-            return (spec != null) ? spec.Priority : Int32.MinValue;
-        }
-
-        private static AlgorithmSpecAttribute GetAlgorithmSpec(PublicKeyAlgorithm value) {
-            Type enumType = typeof(PublicKeyAlgorithm);
-            FieldInfo field = enumType.GetField(value.ToString(), BindingFlags.Public | BindingFlags.Static);
-            if (field == null) {
-                throw new ArgumentException("Not a member of enum " + enumType.Name, "value");
-            }
-
-            object[] attrs = field.GetCustomAttributes(typeof(AlgorithmSpecAttribute), false);
-            if (attrs.Length > 0) {
-                return (AlgorithmSpecAttribute)attrs[0];
-            }
-            return null;
+        public static int GetDefaultPriority(this PublicKeyAlgorithm value) {
+            return AlgorithmSpecUtil<PublicKeyAlgorithm>.GetDefaultPriority(value);
         }
     }
 

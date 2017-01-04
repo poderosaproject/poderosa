@@ -235,6 +235,23 @@ namespace Poderosa.Forms {
             }
         }
 
+        /// <summary>
+        /// List item object for displaying the algorithm name instead of the enum name.
+        /// </summary>
+        private class CipherAlgorithmListItem {
+            public readonly string AlgorithmName;
+            public readonly CipherAlgorithm Value;
+
+            public CipherAlgorithmListItem(CipherAlgorithm value) {
+                this.Value = value;
+                this.AlgorithmName = value.GetAlgorithmName();
+            }
+
+            public override string ToString() {
+                return AlgorithmName;
+            }
+        }
+
         private void FillText() {
             StringResource sr = OptionDialogPlugin.Instance.Strings;
             this._cipherOrderGroup.Text = sr.GetString("Form.OptionDialog._cipherOrderGroup");
@@ -252,7 +269,7 @@ namespace Poderosa.Forms {
         }
         public void InitUI(IProtocolOptions options, IKeyAgentOptions agent) {
             _cipherOrderList.Items.Clear();
-            _cipherOrderList.Items.AddRange(options.CipherAlgorithmOrder);
+            _cipherOrderList.Items.AddRange(ToCipherAlgorithmListItems(options.CipherAlgorithmOrder));
             _hostKeyAlgorithmOrderList.Items.Clear();
             _hostKeyAlgorithmOrderList.Items.AddRange(ToPublicKeyAlgorithmListItems(options.HostKeyAlgorithmOrder));
             _windowSizeBox.Text = options.SSHWindowSize.ToString();
@@ -267,6 +284,17 @@ namespace Poderosa.Forms {
                 PublicKeyAlgorithm val;
                 if (Enum.TryParse(a, out val) && Enum.IsDefined(typeof(PublicKeyAlgorithm), val)) {
                     list.Add(new PublicKeyAlgorithmListItem(val));
+                }
+            }
+            return list.ToArray();
+        }
+
+        private CipherAlgorithmListItem[] ToCipherAlgorithmListItems(string[] algorithms) {
+            var list = new List<CipherAlgorithmListItem>(algorithms.Length);
+            foreach (var a in algorithms) {
+                CipherAlgorithm val;
+                if (Enum.TryParse(a, out val) && Enum.IsDefined(typeof(CipherAlgorithm), val)) {
+                    list.Add(new CipherAlgorithmListItem(val));
                 }
             }
             return list.ToArray();
@@ -309,8 +337,8 @@ namespace Poderosa.Forms {
 
         private string[] GetCipherAlgorithmOrder() {
             var algorithms = new List<string>();
-            foreach (object item in _cipherOrderList.Items) {
-                algorithms.Add(item.ToString());
+            foreach (CipherAlgorithmListItem item in _cipherOrderList.Items) {
+                algorithms.Add(item.Value.ToString());
             }
             return algorithms.ToArray();
         }

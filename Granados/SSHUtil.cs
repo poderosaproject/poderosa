@@ -6,6 +6,7 @@
 namespace Granados {
 
     using System;
+    using System.Collections.Concurrent;
     using System.Reflection;
 
     /// <summary>
@@ -21,6 +22,86 @@ namespace Granados {
             : base(message, cause) {
         }
 
+    }
+
+    /// <summary>
+    /// Attribute to define algorithm name.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
+    public class AlgorithmSpecAttribute : Attribute {
+        /// <summary>
+        /// Algorithm name
+        /// </summary>
+        public string AlgorithmName {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Default priority
+        /// </summary>
+        /// <remarks>
+        /// Larger number means higher priority.
+        /// </remarks>
+        public int DefaultPriority {
+            get;
+            set;
+        }
+    }
+
+    /// <summary>
+    /// Utility methods for accessing <see cref="AlgorithmSpecAttribute"/>.
+    /// </summary>
+    public static class AlgorithmSpecUtil<TEnum> {
+
+        // prepare dictionary of AlgorithmSpecAttribute for each given generics type parameter.
+        private static readonly ConcurrentDictionary<string, AlgorithmSpecAttribute> _specDict;
+
+        static AlgorithmSpecUtil() {
+            _specDict = new ConcurrentDictionary<string, AlgorithmSpecAttribute>();
+            Type enumType = typeof(TEnum);
+            if (enumType.IsEnum) {
+                foreach (string enumName in enumType.GetEnumNames()) {
+                    FieldInfo field = enumType.GetField(enumName, BindingFlags.Public | BindingFlags.Static);
+                    object[] attrs = field.GetCustomAttributes(typeof(AlgorithmSpecAttribute), false);
+                    if (attrs.Length > 0) {
+                        _specDict.TryAdd(enumName, (AlgorithmSpecAttribute)attrs[0]);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get algorithm name from <see cref="AlgorithmSpecAttribute"/> of the specified enum value.
+        /// </summary>
+        /// <param name="enumValue">enum value</param>
+        /// <returns>algorithm name, or null if failed</returns>
+        public static string GetAlgorithmName(TEnum enumValue) {
+            var spec = GetAlgorithmSpec(enumValue);
+            return (spec != null) ? spec.AlgorithmName : null;
+        }
+
+        /// <summary>
+        /// Get default priority from <see cref="AlgorithmSpecAttribute"/> of the specified enum value.
+        /// </summary>
+        /// <param name="enumValue">enum value</param>
+        /// <returns>default priority, or <see cref="Int32.MinValue"/> if failed</returns>
+        public static int GetDefaultPriority(TEnum enumValue) {
+            var spec = GetAlgorithmSpec(enumValue);
+            return (spec != null) ? spec.DefaultPriority : Int32.MinValue;
+        }
+
+        private static AlgorithmSpecAttribute GetAlgorithmSpec(TEnum enumValue) {
+            Type enumType = typeof(TEnum);
+            string enumName = enumType.GetEnumName(enumValue);
+            AlgorithmSpecAttribute attr;
+            if (_specDict.TryGetValue(enumName, out attr)) {
+                return attr;
+            }
+            else {
+                return null;
+            }
+        }
     }
 
     /// <summary>
@@ -52,66 +133,49 @@ namespace Granados {
         /// <summary>
         /// TripleDES
         /// </summary>
-        [CipherAlgorithmSpec(Priority = 1)]
+        [AlgorithmSpec(AlgorithmName = "TripleDES", DefaultPriority = 1)]
         TripleDES = 3,
         /// <summary>
         /// BlowFish
         /// </summary>
-        [CipherAlgorithmSpec(Priority = 2)]
+        [AlgorithmSpec(AlgorithmName = "Blowfish", DefaultPriority = 2)]
         Blowfish = 6,
         /// <summary>
         /// <ja>AES128（SSH2のみ有効）</ja>
         /// <en>AES128（SSH2 only）</en>
         /// </summary>
-        [CipherAlgorithmSpec(Priority = 3)]
+        [AlgorithmSpec(AlgorithmName = "AES128", DefaultPriority = 3)]
         AES128 = 10,
         /// <summary>
         /// <ja>AES192（SSH2のみ有効）</ja>
         /// <en>AES192（SSH2 only）</en>
         /// </summary>
-        [CipherAlgorithmSpec(Priority = 5)]
+        [AlgorithmSpec(AlgorithmName = "AES192", DefaultPriority = 5)]
         AES192 = 11,
         /// <summary>
         /// <ja>AES256（SSH2のみ有効）</ja>
         /// <en>AES256（SSH2 only）</en>
         /// </summary>
-        [CipherAlgorithmSpec(Priority = 7)]
+        [AlgorithmSpec(AlgorithmName = "AES256", DefaultPriority = 7)]
         AES256 = 12,
         /// <summary>
         /// <ja>AES128-CTR（SSH2のみ有効）</ja>
         /// <en>AES128-CTR（SSH2 only）</en>
         /// </summary>
-        [CipherAlgorithmSpec(Priority = 4)]
+        [AlgorithmSpec(AlgorithmName = "AES128CTR", DefaultPriority = 4)]
         AES128CTR = 13,
         /// <summary>
         /// <ja>AES192-CTR（SSH2のみ有効）</ja>
         /// <en>AES192-CTR（SSH2 only）</en>
         /// </summary>
-        [CipherAlgorithmSpec(Priority = 6)]
+        [AlgorithmSpec(AlgorithmName = "AES192CTR", DefaultPriority = 6)]
         AES192CTR = 14,
         /// <summary>
         /// <ja>AES256-CTR（SSH2のみ有効）</ja>
         /// <en>AES256-CTR（SSH2 only）</en>
         /// </summary>
-        [CipherAlgorithmSpec(Priority = 8)]
+        [AlgorithmSpec(AlgorithmName = "AES256CTR", DefaultPriority = 8)]
         AES256CTR = 15,
-    }
-
-    /// <summary>
-    /// Attribute to define algorithm properties.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Field)]
-    public class CipherAlgorithmSpecAttribute : Attribute {
-        /// <summary>
-        /// Default priority
-        /// </summary>
-        /// <remarks>
-        /// Larger number means higher priority.
-        /// </remarks>
-        public int Priority {
-            get;
-            set;
-        }
     }
 
     /// <summary>
@@ -119,23 +183,12 @@ namespace Granados {
     /// </summary>
     public static class CipherAlgorithmMixin {
 
-        public static int GetPriority(this CipherAlgorithm value) {
-            var spec = GetAlgorithmSpec(value);
-            return (spec != null) ? spec.Priority : Int32.MinValue;
+        public static string GetAlgorithmName(this CipherAlgorithm value) {
+            return AlgorithmSpecUtil<CipherAlgorithm>.GetAlgorithmName(value);
         }
 
-        private static CipherAlgorithmSpecAttribute GetAlgorithmSpec(CipherAlgorithm value) {
-            Type enumType = typeof(CipherAlgorithm);
-            FieldInfo field = enumType.GetField(value.ToString(), BindingFlags.Public | BindingFlags.Static);
-            if (field == null) {
-                throw new ArgumentException("Not a member of enum " + enumType.Name, "value");
-            }
-
-            object[] attrs = field.GetCustomAttributes(typeof(CipherAlgorithmSpecAttribute), false);
-            if (attrs.Length > 0) {
-                return (CipherAlgorithmSpecAttribute)attrs[0];
-            }
-            return null;
+        public static int GetDefaultPriority(this CipherAlgorithm value) {
+            return AlgorithmSpecUtil<CipherAlgorithm>.GetDefaultPriority(value);
         }
     }
 
