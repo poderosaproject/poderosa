@@ -107,7 +107,8 @@ namespace Poderosa.Terminal {
         /// </summary>
         /// <param name="ch"><ja>書き込まれようとしているデータです。</ja><en>Data to write.</en></param>
         /// <remarks>
-        /// <ja>XMLロガーの実装者は、<paramref name="char"/>に渡されたデータを書き込むように実装します。</ja><en>Those who implements about XML logger implement like writing the data passed to <paramref name="char"/>. </en>
+        /// <ja>XMLロガーの実装者は、<paramref name="ch"/>に渡されたデータを書き込むように実装します。</ja>
+        /// <en>Those who implements about XML logger implement like writing the data passed to <paramref name="ch"/>. </en>
         /// </remarks>
         void Write(char ch);
         /// <summary>

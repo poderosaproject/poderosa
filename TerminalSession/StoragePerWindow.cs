@@ -14,11 +14,11 @@ namespace Poderosa.Session {
     /// <typeparam name="T">type of the item to be stored</typeparam>
     internal class StoragePerWindow<T> {
 
-        private class StorageItem<T> {
+        private class StorageItem<ItemType> {
             public readonly WeakReference<IPoderosaMainWindow> Window;
-            public T Item;
+            public ItemType Item;
 
-            public StorageItem(IPoderosaMainWindow window, T item) {
+            public StorageItem(IPoderosaMainWindow window, ItemType item) {
                 this.Item = item;
                 this.Window = new WeakReference<IPoderosaMainWindow>(window);
             }

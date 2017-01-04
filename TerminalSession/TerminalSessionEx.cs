@@ -399,7 +399,7 @@ namespace Poderosa.Sessions {
         /// </summary>
         /// <typeparam name="T">Class or interface of the connection parameter</typeparam>
         /// <returns>
-        /// Enumerable of <see cref="TerminalSessionParameters"/>.
+        /// Enumerable of <see cref="TerminalSessionParameters{T}"/>.
         /// </returns>
         IEnumerable<TerminalSessionParameters<T>> FindTerminalParameter<T>() where T : class;
     }

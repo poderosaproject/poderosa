@@ -612,7 +612,9 @@ namespace Poderosa.Forms {
         private string _indexText;
         private Image _image;
         private bool _selected;
+#pragma warning disable 414
         private bool _mouseDown;
+#pragma warning restore 414
         private bool _mouseEnter;
 
         private int _sufficientWidth; //ボタンの全テキストを表示するのに十分な幅
