@@ -7,6 +7,7 @@ namespace Granados {
 
     using System;
     using System.Collections.Concurrent;
+    using System.Linq;
     using System.Reflection;
 
     /// <summary>
@@ -55,17 +56,19 @@ namespace Granados {
     public static class AlgorithmSpecUtil<TEnum> {
 
         // prepare dictionary of AlgorithmSpecAttribute for each given generics type parameter.
-        private static readonly ConcurrentDictionary<string, AlgorithmSpecAttribute> _specDict;
+        private static readonly ConcurrentDictionary<TEnum, AlgorithmSpecAttribute> _enumToSpec;
 
         static AlgorithmSpecUtil() {
-            _specDict = new ConcurrentDictionary<string, AlgorithmSpecAttribute>();
+            _enumToSpec = new ConcurrentDictionary<TEnum, AlgorithmSpecAttribute>();
             Type enumType = typeof(TEnum);
             if (enumType.IsEnum) {
                 foreach (string enumName in enumType.GetEnumNames()) {
                     FieldInfo field = enumType.GetField(enumName, BindingFlags.Public | BindingFlags.Static);
+                    TEnum enumValue = (TEnum)field.GetValue(null);
                     object[] attrs = field.GetCustomAttributes(typeof(AlgorithmSpecAttribute), false);
                     if (attrs.Length > 0) {
-                        _specDict.TryAdd(enumName, (AlgorithmSpecAttribute)attrs[0]);
+                        AlgorithmSpecAttribute spec = (AlgorithmSpecAttribute)attrs[0];
+                        _enumToSpec.TryAdd(enumValue, spec);
                     }
                 }
             }
@@ -77,8 +80,11 @@ namespace Granados {
         /// <param name="enumValue">enum value</param>
         /// <returns>algorithm name, or null if failed</returns>
         public static string GetAlgorithmName(TEnum enumValue) {
-            var spec = GetAlgorithmSpec(enumValue);
-            return (spec != null) ? spec.AlgorithmName : null;
+            AlgorithmSpecAttribute spec;
+            if (_enumToSpec.TryGetValue(enumValue, out spec)) {
+                return spec.AlgorithmName;
+            }
+            return null;
         }
 
         /// <summary>
@@ -87,20 +93,33 @@ namespace Granados {
         /// <param name="enumValue">enum value</param>
         /// <returns>default priority, or <see cref="Int32.MinValue"/> if failed</returns>
         public static int GetDefaultPriority(TEnum enumValue) {
-            var spec = GetAlgorithmSpec(enumValue);
-            return (spec != null) ? spec.DefaultPriority : Int32.MinValue;
+            AlgorithmSpecAttribute spec;
+            if (_enumToSpec.TryGetValue(enumValue, out spec)) {
+                return spec.DefaultPriority;
+            }
+            return Int32.MinValue;
         }
 
-        private static AlgorithmSpecAttribute GetAlgorithmSpec(TEnum enumValue) {
-            Type enumType = typeof(TEnum);
-            string enumName = enumType.GetEnumName(enumValue);
-            AlgorithmSpecAttribute attr;
-            if (_specDict.TryGetValue(enumName, out attr)) {
-                return attr;
-            }
-            else {
-                return null;
-            }
+        /// <summary>
+        /// Get all algorithm names about <typeparamref name="TEnum"/> in priority order.
+        /// </summary>
+        /// <returns>algorithm names sorted by the default priority (high priority first)</returns>
+        public static string[] GetAlgorithmNamesByPriorityOrder() {
+            return _enumToSpec
+                    .OrderByDescending(kv => kv.Value.DefaultPriority)
+                    .Select(kv => kv.Value.AlgorithmName)
+                    .ToArray();
+        }
+
+        /// <summary>
+        /// Get all <typeparamref name="TEnum"/> vales in priority order.
+        /// </summary>
+        /// <returns>algorithms sorted by the default priority (high priority first)</returns>
+        public static TEnum[] GetAlgorithmsByPriorityOrder() {
+            return _enumToSpec
+                    .OrderByDescending(kv => kv.Value.DefaultPriority)
+                    .Select(kv => kv.Key)
+                    .ToArray();
         }
     }
 
@@ -299,16 +318,22 @@ namespace Granados {
     /// <exclude/>
     public enum KexAlgorithm {
         /// <summary>diffie-hellman-group1-sha1 described in RFC4253</summary>
+        [AlgorithmSpec(AlgorithmName = "diffie-hellman-group1-sha1", DefaultPriority = 1)]
         DH_G1_SHA1,
         /// <summary>diffie-hellman-group14-sha1 described in RFC4253</summary>
+        [AlgorithmSpec(AlgorithmName = "diffie-hellman-group14-sha1", DefaultPriority = 2)]
         DH_G14_SHA1,
         /// <summary>diffie-hellman-group14-sha256 described in draft-ietf-curdle-ssh-kex-sha2</summary>
+        [AlgorithmSpec(AlgorithmName = "diffie-hellman-group14-sha256", DefaultPriority = 3)]
         DH_G14_SHA256,
         /// <summary>diffie-hellman-group16-sha512 described in draft-ietf-curdle-ssh-kex-sha2</summary>
+        [AlgorithmSpec(AlgorithmName = "diffie-hellman-group16-sha512", DefaultPriority = 5)]
         DH_G16_SHA512,
         /// <summary>diffie-hellman-group18-sha512 described in draft-ietf-curdle-ssh-kex-sha2</summary>
+        [AlgorithmSpec(AlgorithmName = "diffie-hellman-group18-sha512", DefaultPriority = 4)]
         DH_G18_SHA512,
     }
+
 }
 
 namespace Granados.Util {

@@ -820,24 +820,6 @@ namespace Granados.SSH2 {
             public MAC macClient;
         }
 
-        private struct SupportedKexAlgorithm {
-            public readonly string name;
-            public readonly KexAlgorithm value;
-
-            public SupportedKexAlgorithm(string name, KexAlgorithm value) {
-                this.name = name;
-                this.value = value;
-            }
-        }
-
-        private static readonly SupportedKexAlgorithm[] supportedKexAlgorithms = new SupportedKexAlgorithm[] {
-            new SupportedKexAlgorithm("diffie-hellman-group16-sha512", KexAlgorithm.DH_G16_SHA512),
-            new SupportedKexAlgorithm("diffie-hellman-group18-sha512", KexAlgorithm.DH_G18_SHA512),
-            new SupportedKexAlgorithm("diffie-hellman-group14-sha256", KexAlgorithm.DH_G14_SHA256),
-            new SupportedKexAlgorithm("diffie-hellman-group14-sha1", KexAlgorithm.DH_G14_SHA1),
-            new SupportedKexAlgorithm("diffie-hellman-group1-sha1", KexAlgorithm.DH_G1_SHA1),
-        };
-
         public delegate void UpdateKeyDelegate(byte[] sessionID, Cipher cipherServer, Cipher cipherClient, MAC macServer, MAC macClient);
 
         private readonly UpdateKeyDelegate _updateKey;
@@ -1480,11 +1462,10 @@ namespace Granados.SSH2 {
         /// <exception cref="SSHException">no suitable algorithm was found</exception>
         private KexAlgorithm DecideKexAlgorithm(string candidates) {
             string[] candidateNames = candidates.Split(',');
-            foreach (string candidateName in candidateNames) {
-                foreach (SupportedKexAlgorithm algorithm in supportedKexAlgorithms) {
-                    if (algorithm.name == candidateName) {
-                        return algorithm.value;
-                    }
+            foreach (KexAlgorithm algorithm in AlgorithmSpecUtil<KexAlgorithm>.GetAlgorithmsByPriorityOrder()) {
+                string algorithmName = AlgorithmSpecUtil<KexAlgorithm>.GetAlgorithmName(algorithm);
+                if (candidateNames.Contains(algorithmName)) {
+                    return algorithm;
                 }
             }
             throw new SSHException(Strings.GetString("KeyExchangeAlgorithmNegotiationFailed"));
@@ -1529,9 +1510,7 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <returns>name list</returns>
         private string GetSupportedKexAlgorithms() {
-            return string.Join(",",
-                    supportedKexAlgorithms
-                        .Select(algorithm => algorithm.name));
+            return string.Join(",", AlgorithmSpecUtil<KexAlgorithm>.GetAlgorithmNamesByPriorityOrder());
         }
 
         /// <summary>
