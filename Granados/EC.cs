@@ -748,13 +748,14 @@ namespace Granados.PKI {
                 return true;
             }
 
-            const int W = 5;
+            const int W = 6;
             const uint TPW = 1u << W;   // 2^W
             const uint TPWD = 1u << (W - 1);   // 2^(W-1)
 
             // precompute point multiplication : {1 .. 2^(W-1)-1}P.
             // array is allocated for {0 .. 2^(W-1)-1}P, and only elements at the odd index are used.
             ECPoint[] precomp = new ECPoint[TPWD];
+            ECPoint[] precompNeg = new ECPoint[TPWD];   // -{1 .. 2^(W-1)-1}P; points are set on demand.
 
             {
                 ECPoint t = p1;
@@ -762,40 +763,70 @@ namespace Granados.PKI {
                 if (!PointDouble(ring, t, out t2)) {
                     goto Failure;
                 }
-                precomp[1] = t;
-                for (uint i = 3; i < TPWD; i += 2) {
-                    // P <- P + 2P
-                    if (!PointAdd(ring, t, t2, out t)) {
-                        goto Failure;
+                for (uint i = 1; i < TPWD; i += 2) {
+                    if (i != 1) {
+                        if (!PointAdd(ring, t, t2, out t)) {
+                            goto Failure;
+                        }
                     }
                     precomp[i] = t;
                 }
             }
 
-            Stack<sbyte> precompIndex = new Stack<sbyte>(k.BitCount() + 1);
+            Stack<sbyte> precompIndex;
 
-            BigInteger d = new BigInteger(k);
-            while (d != 0u) {
-                if (d % 2u == 1u) {
-                    uint m = d % TPW;
-                    if (m >= TPWD) {
-                        // m is odd; thus
-                        // (2^(W-1) + 1) <= m <= (2^W - 1)
-                        sbyte index = (sbyte)((int)m - (int)TPW);  // -2^(W-1)+1 .. -1
-                        precompIndex.Push(index);
-                        d += TPW - m;   // d -= m - TPW
-                    }
-                    else {
-                        // 1 <= m <= (2^(W-1) - 1)
-                        sbyte index = (sbyte)m; // odd index
-                        precompIndex.Push(index);
-                        d -= m;
-                    }
+            {
+                byte[] d = k.GetBytes();
+                int bitCount = k.BitCount();
+                int bitIndex = 0;
+                int byteOffset = d.Length - 1;
+                bool noMoreBits = false;
+                uint bitBuffer = 0;
+                const uint WMASK = (1u << W) - 1;
+
+                precompIndex = new Stack<sbyte>(bitCount + 1);
+
+                if (bitIndex < bitCount) {
+                    bitBuffer = (uint)(d[byteOffset] & WMASK);
+                    bitIndex += W;
                 }
                 else {
-                    precompIndex.Push(0);
+                    noMoreBits = true;
                 }
-                d >>= 1;
+
+                while (!noMoreBits || bitBuffer != 0) {
+                    if ((bitBuffer & 1) != 0) { // bits % 2 == 1
+                        uint m = bitBuffer & WMASK; // m = bits % TPW;
+                        if ((m & TPWD) != 0) {  // test m >= 2^(W-1)
+                            // m is odd; thus
+                            // (2^(W-1) + 1) <= m <= (2^W - 1)
+                            sbyte index = (sbyte)((int)m - (int)TPW);  // -2^(W-1)+1 .. -1
+                            precompIndex.Push(index);
+                            bitBuffer = (bitBuffer & ~WMASK) + TPW; // bits -= m - 2^W
+                            // a carried bit by adding 2^W is retained in the bit buffer
+                        }
+                        else {
+                            // 1 <= m <= (2^(W-1) - 1)
+                            sbyte index = (sbyte)m; // odd index
+                            precompIndex.Push(index);
+                            bitBuffer = (bitBuffer & ~WMASK); // bits -= m
+                        }
+                    }
+                    else {
+                        precompIndex.Push(0);
+                    }
+
+                    // shift bits
+                    if (bitIndex < bitCount) {
+                        // load next bit into the bit buffer (add to the carried bits in the bit buffer)
+                        bitBuffer += (uint)((d[byteOffset - bitIndex / 8] >> (bitIndex % 8)) & 1) << W;
+                        ++bitIndex;
+                    }
+                    else {
+                        noMoreBits = true;
+                    }
+                    bitBuffer >>= 1;
+                }
             }
 
             {
@@ -814,10 +845,14 @@ namespace Granados.PKI {
                         pre = precomp[index];
                     }
                     else if (index < 0) {
-                        // on EC over Fp, P={x, y} and -P={x, -y}
-                        pre = precomp[-index];
-                        if (!(pre is ECPointAtInfinity)) {
-                            pre = new ECPoint(pre.X, ring.Difference(0, pre.Y));
+                        pre = precompNeg[-index];
+                        if (pre == null) {
+                            // on EC over Fp, P={x, y} and -P={x, -y}
+                            pre = precomp[-index];
+                            if (!(pre is ECPointAtInfinity)) {
+                                pre = new ECPoint(pre.X, ring.Difference(0, pre.Y));
+                            }
+                            precompNeg[-index] = pre;
                         }
                     }
                     else {
