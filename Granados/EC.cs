@@ -1155,7 +1155,7 @@ namespace Granados.PKI {
                     goto Fail;
                 }
                 ECPoint R = _curve.PointAdd(p1, p2, true);
-                if (R == null || R.X == 0 || R.Y == 0) {
+                if (R == null) {
                     goto Fail;
                 }
 
