@@ -161,6 +161,13 @@ namespace Granados.PKI {
         }
 
         /// <summary>
+        /// Base point G
+        /// </summary>
+        public abstract ECPoint BasePoint {
+            get;
+        }
+
+        /// <summary>
         /// Order of G
         /// </summary>
         public abstract BigInteger Order {
@@ -181,17 +188,6 @@ namespace Granados.PKI {
         /// <param name="y">value of Y</param>
         /// <returns>true if the values satisfy.</returns>
         public abstract bool ValidatePoint(BigInteger x, BigInteger y);
-
-        /// <summary>
-        /// Calculate kG
-        /// </summary>
-        /// <param name="k">scalar</param>
-        /// <param name="infinityToNull">
-        /// if result was point-at-infinity, and this parameter was true,
-        /// null is returned instead of <see cref="ECPointAtInfinity"/>.
-        /// </param>
-        /// <returns>point on the curve, point at infinity, or null if failed</returns>
-        public abstract ECPoint BasePointMul(BigInteger k, bool infinityToNull);
 
         /// <summary>
         /// Calculate point multiplication
@@ -275,7 +271,7 @@ namespace Granados.PKI {
                     continue;
                 }
 
-                ECPoint R = this.BasePointMul(k, true);
+                ECPoint R = this.PointMul(k, this.BasePoint, true);
                 if (R != null) {
                     return new ECDSAKeyPair(this, new ECDSAPublicKey(this, R), k);
                 }
@@ -484,6 +480,15 @@ namespace Granados.PKI {
         }
 
         /// <summary>
+        /// Base point G
+        /// </summary>
+        public override ECPoint BasePoint {
+            get {
+                return G;
+            }
+        }
+
+        /// <summary>
         /// Order of G
         /// </summary>
         public override BigInteger Order {
@@ -568,19 +573,6 @@ namespace Granados.PKI {
             BigInteger y2 = (y * y) % p;
             BigInteger fx = ((x * x + a) * x + b) % p;
             return y2 == fx;
-        }
-
-        /// <summary>
-        /// Calculate multiplication of G
-        /// </summary>
-        /// <param name="k">scalar value for multiplication</param>
-        /// <param name="infinityToNull">
-        /// if result was point-at-infinity, and this parameter was true,
-        /// null is returned instead of <see cref="ECPointAtInfinity"/>.
-        /// </param>
-        /// <returns>point on the curve, point at infinity, or null if failed</returns>
-        public override ECPoint BasePointMul(BigInteger k, bool infinityToNull) {
-            return PointMul(k, G, infinityToNull);
         }
 
         /// <summary>
@@ -1122,7 +1114,7 @@ namespace Granados.PKI {
                 BigInteger u1 = nring.Multiply(e, sInv);
                 BigInteger u2 = nring.Multiply(r, sInv);
 
-                ECPoint p1 = _curve.BasePointMul(u1, true);
+                ECPoint p1 = _curve.PointMul(u1, _curve.BasePoint, true);
                 ECPoint p2 = _curve.PointMul(u2, Point, true);
                 if (p1 == null || p2 == null) {
                     goto Fail;
@@ -1336,7 +1328,7 @@ namespace Granados.PKI {
                 return false;
             }
 
-            ECPoint q = _curve.BasePointMul(_privateKey, true);
+            ECPoint q = _curve.PointMul(_privateKey, _curve.BasePoint, true);
             if (q == null) {
                 return false;
             }
