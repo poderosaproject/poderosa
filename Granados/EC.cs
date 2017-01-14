@@ -1207,6 +1207,14 @@ namespace Granados.PKI {
         }
 
         /// <summary>
+        /// Convert a point of public key to an octet string.
+        /// </summary>
+        /// <returns></returns>
+        public byte[] ToOctetString() {
+            return _curve.ConvertPointToOctetString(_point);
+        }
+
+        /// <summary>
         /// Hash data for signing
         /// </summary>
         /// <param name="data">data to be hashed</param>

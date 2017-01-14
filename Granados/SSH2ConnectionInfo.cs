@@ -213,8 +213,7 @@ namespace Granados.SSH2 {
                             else if (_hostKey is ECDSAPublicKey) {
                                 ECDSAPublicKey ec = (ECDSAPublicKey)_hostKey;
                                 image.WriteString(ec.CurveName);
-                                image.WriteBigInteger(ec.Point.X);
-                                image.WriteBigInteger(ec.Point.Y);
+                                image.WriteAsString(ec.ToOctetString());
                             }
                             else {
                                 throw new SSHException("Host key algorithm is unsupported");
@@ -264,7 +263,9 @@ namespace Granados.SSH2 {
             /// </summary>
             public byte[] HostKeyFingerPrint {
                 get {
-                    return new MD5CryptoServiceProvider().ComputeHash(_encodedHostKey.Value);
+                    using (var md5 = new MD5CryptoServiceProvider()) {
+                        return md5.ComputeHash(_encodedHostKey.Value);
+                    }
                 }
             }
         }
