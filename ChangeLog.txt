@@ -32,6 +32,8 @@
 
     * ECDH support on SSH2.
 
+    * ED25519 support on SSH2. (OpenSSH key file only)
+
 
 4.3.16
 ------
