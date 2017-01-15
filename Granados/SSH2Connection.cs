@@ -1509,6 +1509,11 @@ namespace Granados.SSH2 {
                 pk.Verify(signatureBlob, hash);
                 _cInfo.HostKey = pk;
             }
+            else if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.ED25519) {
+                EDDSAPublicKey pk = EDDSAPublicKey.ReadFrom(_cInfo.HostKeyAlgorithm.Value, ksReader);
+                pk.Verify(signatureBlob, hash);
+                _cInfo.HostKey = pk;
+            }
             else {
                 throw new SSHException(Strings.GetString("UnsupportedHostKeyAlgorithm"));
             }

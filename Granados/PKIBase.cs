@@ -53,6 +53,8 @@ namespace Granados.PKI {
         ECDSA_SHA2_NISTP384,
         [AlgorithmSpec(AlgorithmName = "ecdsa-sha2-nistp521", DefaultPriority = 5)]
         ECDSA_SHA2_NISTP521,
+        [AlgorithmSpec(AlgorithmName = "ssh-ed25519", DefaultPriority = 6)]
+        ED25519,
     }
 
     /// <summary>

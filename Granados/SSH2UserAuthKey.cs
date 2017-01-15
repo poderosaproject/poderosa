@@ -57,15 +57,19 @@ namespace Granados.SSH2 {
         }
 
         public byte[] Sign(byte[] data) {
-            PublicKeyAlgorithm a = _keypair.Algorithm;
-            if (a == PublicKeyAlgorithm.RSA) {
-                return ((RSAKeyPair)_keypair).SignWithSHA1(data);
-            }
-            else if (a == PublicKeyAlgorithm.DSA) {
-                return ((DSAKeyPair)_keypair).Sign(new SHA1CryptoServiceProvider().ComputeHash(data));
-            }
-            else {
-                return ((ECDSAKeyPair)_keypair).Sign(data);
+            switch (_keypair.Algorithm) {
+                case PublicKeyAlgorithm.RSA:
+                    return ((RSAKeyPair)_keypair).SignWithSHA1(data);
+                case PublicKeyAlgorithm.DSA:
+                    return ((DSAKeyPair)_keypair).Sign(new SHA1CryptoServiceProvider().ComputeHash(data));
+                case PublicKeyAlgorithm.ECDSA_SHA2_NISTP256:
+                case PublicKeyAlgorithm.ECDSA_SHA2_NISTP384:
+                case PublicKeyAlgorithm.ECDSA_SHA2_NISTP521:
+                    return ((ECDSAKeyPair)_keypair).Sign(data);
+                case PublicKeyAlgorithm.ED25519:
+                    return ((EDDSAKeyPair)_keypair).Sign(data);
+                default:
+                    throw new SSHException("unknown algorithm");
             }
         }
         public byte[] GetPublicKeyBlob() {

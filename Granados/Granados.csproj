@@ -107,6 +107,7 @@
     </Compile>
     <Compile Include="DataHandler.cs" />
     <Compile Include="EC.cs" />
+    <Compile Include="ED.cs" />
     <Compile Include="KeyboardInteractive.cs" />
     <Compile Include="X11Utils.cs" />
     <Compile Include="X11Socket.cs" />

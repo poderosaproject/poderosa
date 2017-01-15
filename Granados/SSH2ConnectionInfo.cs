@@ -215,6 +215,10 @@ namespace Granados.SSH2 {
                                 image.WriteString(ec.CurveName);
                                 image.WriteAsString(ec.ToOctetString());
                             }
+                            else if (_hostKey is EDDSAPublicKey) {
+                                EDDSAPublicKey ed = (EDDSAPublicKey)_hostKey;
+                                image.WriteAsString(ed.Bytes);
+                            }
                             else {
                                 throw new SSHException("Host key algorithm is unsupported");
                             }
