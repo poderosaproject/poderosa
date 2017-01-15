@@ -1,13 +1,8 @@
-﻿/*
- * Copyright 2011 The Poderosa Project.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- *
- * $Id: OpenSSHPrivateKeyLoader.cs,v 1.1 2011/11/03 16:27:38 kzmi Exp $
- */
+﻿// Copyright 2011-2017 The Poderosa Project.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+
 using System;
-using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Security.Cryptography;
@@ -16,8 +11,6 @@ using Granados.Crypto;
 using Granados.PKI;
 using Granados.Util;
 using Granados.Mono.Math;
-using Granados.Algorithms;
-using System.Collections.Generic;
 
 namespace Granados.Poderosa.KeyFormat {
 
