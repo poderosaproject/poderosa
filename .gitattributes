@@ -15,6 +15,7 @@
 *.sln text
 *.txt text
 *.xml text
+*.sh text eol=lf
 
 *.dll binary
 *.exe binary
