@@ -28,11 +28,11 @@
       SSH agent forwarding can be enabled for each session by specifying
       it on the open-session dialog.
 
-    * ECDSA support on SSH2. (OpenSSH key file only)
+    * ECDSA support on SSH2. (uses private key file for OpenSSH or PuTTY)
 
     * ECDH support on SSH2.
 
-    * ED25519 support on SSH2. (OpenSSH key file only)
+    * ED25519 support on SSH2. (uses private key file for OpenSSH or PuTTY)
 
 
 4.3.16
