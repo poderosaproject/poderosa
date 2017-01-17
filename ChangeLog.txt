@@ -6,7 +6,7 @@
 
     * SSH X11 forwarding.
 
-    * The following SSH key exchange algorithm was added.
+    * The following SSH key exchange algorithms were added.
       (by IWAMOTO Kouichi)
         diffie-hellman-group14-sha256
         diffie-hellman-group16-sha512
