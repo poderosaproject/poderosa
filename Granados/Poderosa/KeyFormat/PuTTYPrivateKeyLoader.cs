@@ -1,11 +1,6 @@
-﻿/*
- * Copyright 2011 The Poderosa Project.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- *
- * $Id: PuTTYPrivateKeyLoader.cs,v 1.1 2011/11/03 16:27:38 kzmi Exp $
- */
+﻿// Copyright 2011-2017 The Poderosa Project.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
 using System;
 using System.Globalization;
 using System.IO;
@@ -31,6 +26,8 @@ namespace Granados.Poderosa.KeyFormat {
         private enum KeyType {
             RSA,
             DSA,
+            ECDSA,
+            ED25519,
         }
 
         /// <summary>
@@ -72,6 +69,10 @@ namespace Granados.Poderosa.KeyFormat {
                     keyType = KeyType.RSA;
                 else if (keyTypeName == "ssh-dss")
                     keyType = KeyType.DSA;
+                else if (keyTypeName.StartsWith("ecdsa-sha2-"))
+                    keyType = KeyType.ECDSA;
+                else if (keyTypeName == "ssh-ed25519")
+                    keyType = KeyType.ED25519;
                 else
                     throw new SSHException(Strings.GetString("NotValidPrivateKeyFile") + " (unexpected key type)");
 
@@ -80,8 +81,10 @@ namespace Granados.Poderosa.KeyFormat {
 
                 if (encryptionName == "aes256-cbc")
                     encryption = CipherAlgorithm.AES256;
-                else if (encryptionName == "none")
+                else if (encryptionName == "none") {
                     encryption = null;
+                    passphrase = "";    // prevent HMAC error
+                }
                 else
                     throw new SSHException(Strings.GetString("NotValidPrivateKeyFile") + " (unexpected encryption)");
 
@@ -162,6 +165,49 @@ namespace Granados.Poderosa.KeyFormat {
                 BigInteger x = reader.ReadMPInt();
 
                 keyPair = new DSAKeyPair(p, g, q, y, x);
+            }
+            else if (keyType == KeyType.ECDSA) {
+                SSH2DataReader reader = new SSH2DataReader(publicBlob);
+                string algorithmName = reader.ReadString();
+                string curveName = reader.ReadString();
+                byte[] publicKeyPt = reader.ReadByteString();
+
+                reader = new SSH2DataReader(privateBlob);
+                BigInteger privateKey = reader.ReadMPInt();
+
+                EllipticCurve curve = EllipticCurve.FindByName(curveName);
+                if (curve == null) {
+                    throw new SSHException(Strings.GetString("UnsupportedEllipticCurve") + " : " + curveName);
+                }
+                ECPoint publicKey;
+                if (!ECPoint.Parse(publicKeyPt, curve, out publicKey)) {
+                    throw new SSHException(Strings.GetString("NotValidPrivateKeyFile") + " (parsing public key failed)");
+                }
+
+                keyPair = new ECDSAKeyPair(curve, new ECDSAPublicKey(curve, publicKey), privateKey);
+
+                if (!((ECDSAKeyPair)keyPair).CheckKeyConsistency()) {
+                    throw new SSHException(Strings.GetString("NotValidPrivateKeyFile") + " (invalid key pair)");
+                }
+            }
+            else if (keyType == KeyType.ED25519) {
+                SSH2DataReader reader = new SSH2DataReader(publicBlob);
+                string algorithmName = reader.ReadString();
+                byte[] publicKey = reader.ReadByteString();
+
+                reader = new SSH2DataReader(privateBlob);
+                byte[] privateKey = reader.ReadByteString();
+
+                EdwardsCurve curve = EdwardsCurve.FindByAlgorithm(PublicKeyAlgorithm.ED25519);
+                if (curve == null) {
+                    throw new SSHException(Strings.GetString("UnsupportedEllipticCurve"));
+                }
+
+                keyPair = new EDDSAKeyPair(curve, new EDDSAPublicKey(curve, publicKey), privateKey);
+
+                if (!((EDDSAKeyPair)keyPair).CheckKeyConsistency()) {
+                    throw new SSHException(Strings.GetString("NotValidPrivateKeyFile") + " (invalid key pair)");
+                }
             }
             else {
                 throw new SSHException("Unknown file type. This should not happen.");
