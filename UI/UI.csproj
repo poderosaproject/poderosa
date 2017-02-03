@@ -93,6 +93,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Util.cs" />
+    <Compile Include="WaterMarkTextBox.cs" />
     <Compile Include="Win32.cs" />
     <Compile Include="WinFormsUtil.cs" />
   </ItemGroup>

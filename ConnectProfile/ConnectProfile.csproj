@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A6A3F2DF-24B0-4471-88C2-1898167A976E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Poderosa.ConnectProfile</RootNamespace>
+    <AssemblyName>Poderosa.ConnectProfile</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\bin\Debug\Poderosa.ConnectProfile.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\bin\Release\Poderosa.ConnectProfile.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Commands.cs" />
+    <Compile Include="ConnectProfileList.cs" />
+    <Compile Include="ProfileEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ProfileEditForm.Designer.cs">
+      <DependentUpon>ProfileEditForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ConnectProfileForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConnectProfileForm.Designer.cs">
+      <DependentUpon>ConnectProfileForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ConnectProfilePlugin.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{8a416f19-9031-44a1-b225-bcb31a6bc6a7}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Granados\Granados.csproj">
+      <Project>{9d114b8b-e62c-4fbf-b281-0227755c8091}</Project>
+      <Name>Granados</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Plugin\Plugin.csproj">
+      <Project>{d84b661b-503e-4c22-892b-7499b72c7e04}</Project>
+      <Name>Plugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Protocols\Protocols.csproj">
+      <Project>{04f18da5-bf47-48a3-9b8b-b6b93dcba875}</Project>
+      <Name>Protocols</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TerminalEmulator\TerminalEmulator.csproj">
+      <Project>{7f80731c-443a-4533-90d1-1643a5c1364e}</Project>
+      <Name>TerminalEmulator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TerminalSession\TerminalSession.csproj">
+      <Project>{4554e83a-2a00-47e2-ab5b-14a228895c17}</Project>
+      <Name>TerminalSession</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UI\UI.csproj">
+      <Project>{9568d8ac-7b55-42e0-acd7-204e397e7048}</Project>
+      <Name>UI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ProfileEditForm.resx">
+      <DependentUpon>ProfileEditForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ConnectProfileForm.resx">
+      <DependentUpon>ConnectProfileForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="strings.resx" />
+    <EmbeddedResource Include="strings_ja.resx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

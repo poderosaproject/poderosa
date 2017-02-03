@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio Express 2013 for Windows Desktop
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerminalEmulator", "TerminalEmulator\TerminalEmulator.csproj", "{7F80731C-443A-4533-90D1-1643A5C1364E}"
 EndProject
@@ -36,6 +36,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pipe", "Pipe\Pipe.csproj", "{BA5ADFF2-747A-4090-B758-44C70FC1544F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFTP", "SFTP\SFTP.csproj", "{A6D32222-4FA2-4197-9B48-36199FB49321}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectProfile", "ConnectProfile\ConnectProfile.csproj", "{A6A3F2DF-24B0-4471-88C2-1898167A976E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -181,6 +183,14 @@ Global
 		{A6D32222-4FA2-4197-9B48-36199FB49321}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A6D32222-4FA2-4197-9B48-36199FB49321}.UnitTest|Any CPU.ActiveCfg = Release|Any CPU
 		{A6D32222-4FA2-4197-9B48-36199FB49321}.UnitTest|Any CPU.Build.0 = Release|Any CPU
+		{A6A3F2DF-24B0-4471-88C2-1898167A976E}.Debug(UIDesign)|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6A3F2DF-24B0-4471-88C2-1898167A976E}.Debug(UIDesign)|Any CPU.Build.0 = Debug|Any CPU
+		{A6A3F2DF-24B0-4471-88C2-1898167A976E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6A3F2DF-24B0-4471-88C2-1898167A976E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6A3F2DF-24B0-4471-88C2-1898167A976E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6A3F2DF-24B0-4471-88C2-1898167A976E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6A3F2DF-24B0-4471-88C2-1898167A976E}.UnitTest|Any CPU.ActiveCfg = Release|Any CPU
+		{A6A3F2DF-24B0-4471-88C2-1898167A976E}.UnitTest|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,422 @@
+﻿<root>
+  <resheader name="ResMimeType">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="Version">
+    <value>1.0.0.0</value>
+  </resheader>
+  <resheader name="Reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="Writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Caption.AddProfile">
+    <value>Edit Profile</value>
+  </data>
+  <data name="Caption.ConnectProfile">
+    <value>Telnet/SSH Connection Profile</value>
+  </data>
+  <data name="Command.ConnectProfile">
+    <value>Telnet/SSH Connection Profile</value>
+  </data>
+  <data name="Caption.ConnectProfile.Connecting">
+    <value>Telnet/SSH Connection Profile (Connecting to {0})</value>
+  </data>
+  <data name="Form.AddProfile._authTypeLabel">
+    <value>Auth Type</value>
+  </data>
+  <data name="Form.AddProfile._autoLoginCheck">
+    <value>To Use</value>
+  </data>
+  <data name="Form.AddProfile._basicGroup">
+    <value>Basic Information</value>
+  </data>
+  <data name="Form.AddProfile._charCodeLabel">
+    <value>Char Code</value>
+  </data>
+  <data name="Form.AddProfile._descriptionLabel">
+    <value>Description</value>
+  </data>
+  <data name="Form.AddProfile._etcGroup">
+    <value>Etc</value>
+  </data>
+  <data name="Form.AddProfile._execCommandLabel">
+    <value>Run Command</value>
+  </data>
+  <data name="Form.AddProfile._hostNameLabel">
+    <value>Host Name</value>
+  </data>
+  <data name="Form.AddProfile._keyFileLabel">
+    <value>Private Key File</value>
+  </data>
+  <data name="Form.AddProfile._newLineTypeLabel">
+    <value>New Line</value>
+  </data>
+  <data name="Form.AddProfile._openKeyFileButton">
+    <value>...</value>
+  </data>
+  <data name="Form.AddProfile._passwordLabel">
+    <value>Password</value>
+  </data>
+  <data name="Form.AddProfile._passwordPromptLabel">
+    <value>Password Prompt</value>
+  </data>
+  <data name="Form.AddProfile._portLabel">
+    <value>Port</value>
+  </data>
+  <data name="Form.AddProfile._profileItemColorLabel">
+    <value>Profile Item Color</value>
+  </data>
+  <data name="Form.AddProfile._protocolLabel">
+    <value>Protocol</value>
+  </data>
+  <data name="Form.AddProfile._sshGroup">
+    <value>SSH Parameter</value>
+  </data>
+  <data name="Form.AddProfile._suGroup">
+    <value>SU Switch</value>
+  </data>
+  <data name="Form.AddProfile._suPasswordLabel">
+    <value>SU Password</value>
+  </data>
+  <data name="Form.AddProfile._suTypeLabel">
+    <value>SU Command</value>
+  </data>
+  <data name="Form.AddProfile._suTypeRadio1">
+    <value>su</value>
+  </data>
+  <data name="Form.AddProfile._suTypeRadio2">
+    <value>su -</value>
+  </data>
+  <data name="Form.AddProfile._suUserNameLabel">
+    <value>SU UserName</value>
+  </data>
+  <data name="Form.AddProfile._terminalBGColorLabel">
+    <value>Background Color</value>
+  </data>
+  <data name="Form.AddProfile._terminalFontColorLabel">
+    <value>Font Color</value>
+  </data>
+  <data name="Form.AddProfile._terminalGroup">
+    <value>Terminal</value>
+  </data>
+  <data name="Form.AddProfile._terminalTypeLabel">
+    <value>Terminal Type</value>
+  </data>
+  <data name="Form.AddProfile._userNameLabel">
+    <value>User Name</value>
+  </data>
+  <data name="Form.AddProfile._loginPromptLabel">
+    <value>Login Prompt</value>
+  </data>
+  <data name="Form.Common._cancelButton">
+    <value>Cancel</value>
+  </data>
+  <data name="Form.Common._okButton">
+    <value>OK</value>
+  </data>
+  <data name="Form.ConnectProfile._addProfileButton">
+    <value>Add(&amp;A)</value>
+  </data>
+  <data name="Form.ConnectProfile._autoLoginColumn">
+    <value>Auto Login</value>
+  </data>
+  <data name="Form.ConnectProfile._checkAllOffButton">
+    <value>Check All OFF(&amp;O)</value>
+  </data>
+  <data name="Form.ConnectProfile._csvExportButton">
+    <value>Export(&amp;X)</value>
+  </data>
+  <data name="Form.ConnectProfile._csvImportButton">
+    <value>Import(&amp;I)</value>
+  </data>
+  <data name="Form.ConnectProfile._delProfileButton">
+    <value>Delete(&amp;D)</value>
+  </data>
+  <data name="Form.ConnectProfile._descriptionColumn">
+    <value>Description</value>
+  </data>
+  <data name="Form.ConnectProfile._editProfileButton">
+    <value>Edit(&amp;E)</value>
+  </data>
+  <data name="Form.ConnectProfile._execCommandColumn">
+    <value>Run Command</value>
+  </data>
+  <data name="Form.ConnectProfile._filterLabel">
+    <value>Filter</value>
+  </data>
+  <data name="Form.ConnectProfile._hostNameColumn">
+    <value>Host Name</value>
+  </data>
+  <data name="Form.ConnectProfile._portColumn">
+    <value>Port</value>
+  </data>
+  <data name="Form.ConnectProfile._profileCountLabel">
+    <value>Profile Count : {0}</value>
+  </data>
+  <data name="Form.ConnectProfile._protocolColumn">
+    <value>Protocol</value>
+  </data>
+  <data name="Form.ConnectProfile._selectedProfileCountLabel">
+    <value>Selected : {0}</value>
+  </data>
+  <data name="Form.ConnectProfile._suSwitchColumn">
+    <value>SU Switch</value>
+  </data>
+  <data name="Form.ConnectProfile._terminalBGColorColumn">
+    <value>BG Color</value>
+  </data>
+  <data name="Form.ConnectProfile._userNameColumn">
+    <value>User Name</value>
+  </data>
+  <data name="Form.ConnectProfile_profileListView.No">
+    <value>No</value>
+  </data>
+  <data name="Form.ConnectProfile_profileListView.Yes">
+    <value>Yes</value>
+  </data>
+  <data name="Menu.ConnectProfile">
+    <value>Telnet/SSH Connection Profile</value>
+  </data>
+  <data name="Message.AddProfile.EmptyHostName">
+    <value>Host name has not been entered.</value>
+  </data>
+  <data name="Message.AddProfile.EmptyKeyFile">
+    <value>The private key file has not been specified.</value>
+  </data>
+  <data name="Message.AddProfile.EmptyPassword">
+    <value>Password has not been entered.</value>
+  </data>
+  <data name="Message.AddProfile.EmptyPasswordPrompt">
+    <value>Password prompt has not been entered.</value>
+  </data>
+  <data name="Message.AddProfile.EmptySUPassword">
+    <value>Switch to the user's password is not entered.</value>
+  </data>
+  <data name="Message.AddProfile.EmptyUserName">
+    <value>User name has not been entered.</value>
+  </data>
+  <data name="Message.AddProfile.EmptyLoginPrompt">
+    <value>Login prompt has not been entered.</value>
+  </data>
+  <data name="Message.AddProfile.KeyFileNotExist">
+    <value>The specified private key file does not exist.</value>
+  </data>
+  <data name="Message.AddProfile.SUTypeNotSelect">
+    <value>Kind of SU command has not been selected.</value>
+  </data>
+  <data name="Message.Connect.LoginPromptNotFound">
+    <value>The specified login prompt was not found.</value>
+  </data>
+  <data name="Message.Connect.PasswordPromptNotFound">
+    <value>The specified password prompt was not found.</value>
+  </data>
+  <data name="Form.AddProfile.Hint.None">
+    <value>The description will be listed here.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._authTypeBox">
+    <value>Select the SSH authentication method.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._autoLoginCheck">
+    <value>If you use the auto-login feature on the check.
+When using this feature can be used "Run Command" and "SU switch".</value>
+  </data>
+  <data name="Form.AddProfile.Hint._charCodeBox">
+    <value>Select a character set.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._commandSendIntBox">
+    <value>Enter the interval for issuing commands.
+Unit is milliseconds.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._descriptionBox">
+    <value>Enter a description for the profile.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._execCommandBox">
+    <value>Enter the one-liner command to run automatically after login.
+If you use SU switch function runs SU switch later.
+If you use this feature with caution.
+This feature is not used if left blank.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._hostNameBox">
+    <value>Enter the destination host name or IP address.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._keyFileBox">
+    <value>Specifies the private key file.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._loginPromptBox">
+    <value>Enter the login prompt.
+After receiving the prompt string given the username is entered automatically.
+This item can use regular expressions.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._newLineTypeBox">
+    <value>Select the new line code.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._passwordBox">
+    <value>Enter the login password.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._passwordPromptBox">
+    <value>Enter the password prompt.
+After receiving the prompt string given the password is entered automatically.
+This item can use regular expressions.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._portBox">
+    <value>Enter the connection port. Usually Telnet is 23, SSH is 22.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._profileItemColorButton">
+    <value>Select the profile item color.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._promptRecvTimeoutBox">
+    <value>If you use the auto-login feature, enter the prompts the receive timeout.
+Unit is milliseconds.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._protocolBox">
+    <value>Select the connection protocol.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._suPasswordBox">
+    <value>Enter the password for the user to switch.
+Passwords are automatically populated after receiving prompt string specified in item "Password Prompt".</value>
+  </data>
+  <data name="Form.AddProfile.Hint._suTypeRadio">
+    <value>Select the switch command.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._suUserNameBox">
+    <value>Enter the user name to switch to auto login after.
+If you use this feature with caution.
+This feature is not used if left blank.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._telnetNewLineCheck">
+    <value>If you use the "Telnet NewLine" on the check.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._terminalBGColorButton">
+    <value>Select the background color.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._terminalFontColorButton">
+    <value>Select a font color.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._terminalTypeBox">
+    <value>Select the type of Terminal.</value>
+  </data>
+  <data name="Form.AddProfile.Hint._userNameBox">
+    <value>Enter the login name.</value>
+  </data>
+  <data name="Form.AddProfile._accountGroup">
+    <value>Account</value>
+  </data>
+  <data name="Form.AddProfile._autoLoginGroup">
+    <value>Auto Login</value>
+  </data>
+  <data name="Form.AddProfile._commandSendIntLabel">
+    <value>Command transmit interval (ms)</value>
+  </data>
+  <data name="Form.AddProfile._promptRecvTimeoutLabel">
+    <value>Prompt Recv timeout (ms)</value>
+  </data>
+  <data name="Form.AddProfile._telnetNewLineCheck">
+    <value>TelnetNewLine</value>
+  </data>
+  <data name="Form.ConnectProfile._displaySelectedOnlyCheck">
+    <value>Display selected profile only(&amp;S)</value>
+  </data>
+  <data name="Form.ConnectProfile._filterTextBox">
+    <value>White space is 'AND condition'</value>
+  </data>
+  <data name="Message.ConnectProfile.ConnectConfirm">
+    <value>{0} profile is selected. Do you want to connect?
+{1}</value>
+  </data>
+  <data name="Message.ConnectProfile.ProfileNotSelected">
+    <value>Profile is not selected.</value>
+  </data>
+  <data name="Form.Common.WaterMark.Required">
+    <value>Required</value>
+  </data>
+  <data name="Form.ConnectProfile._openCSVFileDialog.Caption">
+    <value>Select CSV File</value>
+  </data>
+  <data name="Form.ConnectProfile._openCSVFileDialog.Filter">
+    <value>CSV Files (*.csv)|*.csv|All Files (*.*)|*.*</value>
+  </data>
+  <data name="Form.ConnectProfile._saveCSVFileDialog.Caption">
+    <value>Save connection profiles to CSV</value>
+  </data>
+  <data name="Form.ConnectProfile._saveCSVFileDialog.Filter">
+    <value>CSV Files (*.csv)|*.csv|All Files (*.*)|*.*</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVExportComplete">
+    <value>CSV export is complete. Encoding is UTF8.
+Because consistency checks during the Import CSV header information please do not modify or delete.</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVExportDetetePasssword">
+    <value>Removing password from the output?</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportComplete">
+    <value>CSV import is complete.</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportAppendProfileList">
+    <value>Do you add in the current profile it?
+If you choose 'NO' will remove all current profile list.</value>
+  </data>
+  <data name="Form.ConnectProfile._hintLabel">
+    <value>Double-click action on the list (LeftButton = Connect / MiddleButton = Add / RightButton = Edit)</value>
+  </data>
+  <data name="Form.ConnectProfile._copyButton">
+    <value>Copy(&amp;C)</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidHeader">
+    <value>CSV header integrity check failed.  (at line {0})
+See identical to the header to print on CSV export.</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportFailed">
+    <value>CSV import failed. (at line {0})</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidAuthType">
+    <value>SSH AuthType specified is not valid.</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidAutoLogin">
+    <value>AutoLogin specified is not valid.</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidCharCode">
+    <value>Character Code specified is not valid.</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidCommandSendInterval">
+    <value>Command Transmit Interval specified is not valid.</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidFieldCount">
+    <value>Incorrect number of CSV fields. (at line {0})</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidHostName">
+    <value>HostName specified is not valid.</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidNewLine">
+    <value>NewLine specified is not valid.</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidPort">
+    <value>Port specified is not valid.</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidPromptRecvTimeout">
+    <value>Prompt Receive Timeout specified is not valid.</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidProtocol">
+    <value>Protocol specified is not valid.</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidSUType">
+    <value>SU Type specified is not valid.</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidTelnetNewLine">
+    <value>TelnetNewLine specified is not valid.</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportInvalidTerminalType">
+    <value>TerminalType specified is not valid.</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportCancel">
+    <value>Import has been canceled.</value>
+  </data>
+  <data name="Message.ConnectProfile.CSVImportConfirm">
+    <value>Perform the import?
+If you encounter errors during the import process is aborted, retains the current profile.</value>
+  </data>
+  <data name="Message.ConnectProfile.ConnectCancel">
+    <value>Has been cancelled.</value>
+  </data>
+</root>

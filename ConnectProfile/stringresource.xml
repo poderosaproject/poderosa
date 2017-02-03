@@ -1,0 +1,690 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<string-resource>
+
+<record name="Caption.AddProfile">
+  <ja>プロファイルの編集</ja>
+  <en>Edit Profile</en>
+</record>
+
+<record name="Caption.ConnectProfile">
+  <ja>Telnet/SSH接続プロファイル</ja>
+  <en>Telnet/SSH Connection Profile</en>
+</record>
+
+<record name="Caption.ConnectProfile.Connecting">
+  <ja>Telnet/SSH接続プロファイル ({0} に接続中)</ja>
+  <en>Telnet/SSH Connection Profile (Connecting to {0})</en>
+</record>
+
+<record name="Command.ConnectProfile">
+  <ja>Telnet/SSH接続プロファイル</ja>
+  <en>Telnet/SSH Connection Profile</en>
+</record>
+
+<record name="Form.AddProfile._accountGroup">
+  <ja>アカウント</ja>
+  <en>Account</en>
+</record>
+
+<record name="Form.AddProfile._authTypeLabel">
+  <ja>認証方法</ja>
+  <en>Auth Type</en>
+</record>
+
+<record name="Form.AddProfile._autoLoginCheck">
+  <ja>使用する</ja>
+  <en>To Use</en>
+</record>
+
+<record name="Form.AddProfile._autoLoginGroup">
+  <ja>自動ログイン</ja>
+  <en>Auto Login</en>
+</record>
+
+<record name="Form.AddProfile._basicGroup">
+  <ja>基本情報</ja>
+  <en>Basic Information</en>
+</record>
+
+<record name="Form.AddProfile._charCodeLabel">
+  <ja>文字コード</ja>
+  <en>Char Code</en>
+</record>
+
+<record name="Form.AddProfile._commandSendIntLabel">
+  <ja>コマンド発行間隔 (ミリ秒)</ja>
+  <en>Command transmit interval (ms)</en>
+</record>
+
+<record name="Form.AddProfile._descriptionLabel">
+  <ja>備考</ja>
+  <en>Description</en>
+</record>
+
+<record name="Form.AddProfile._etcGroup">
+  <ja>その他</ja>
+  <en>Etc</en>
+</record>
+
+<record name="Form.AddProfile._execCommandLabel">
+  <ja>実行コマンド</ja>
+  <en>Run Command</en>
+</record>
+
+<record name="Form.AddProfile._hostNameLabel">
+  <ja>ホスト名</ja>
+  <en>Host Name</en>
+</record>
+
+<record name="Form.AddProfile._keyFileLabel">
+  <ja>秘密鍵ファイル</ja>
+  <en>Private Key File</en>
+</record>
+
+<record name="Form.AddProfile._loginPromptLabel">
+  <ja>ログインプロンプト</ja>
+  <en>Login Prompt</en>
+</record>
+
+<record name="Form.AddProfile._newLineTypeLabel">
+  <ja>改行コード</ja>
+  <en>New Line</en>
+</record>
+
+<record name="Form.AddProfile._openKeyFileButton">
+  <ja>...</ja>
+  <en>...</en>
+</record>
+
+<record name="Form.AddProfile._passwordLabel">
+  <ja>パスワード</ja>
+  <en>Password</en>
+</record>
+
+<record name="Form.AddProfile._passwordPromptLabel">
+  <ja>パスワードプロンプト</ja>
+  <en>Password Prompt</en>
+</record>
+
+<record name="Form.AddProfile._portLabel">
+  <ja>ポート</ja>
+  <en>Port</en>
+</record>
+
+<record name="Form.AddProfile._profileItemColorLabel">
+  <ja>プロファイル項目色</ja>
+  <en>Profile Item Color</en>
+</record>
+
+<record name="Form.AddProfile._promptRecvTimeoutLabel">
+  <ja>プロンプト受信タイムアウト (ミリ秒)</ja>
+  <en>Prompt Recv timeout (ms)</en>
+</record>
+
+<record name="Form.AddProfile._protocolLabel">
+  <ja>プロトコル</ja>
+  <en>Protocol</en>
+</record>
+
+<record name="Form.AddProfile._sshGroup">
+  <ja>SSHパラメータ</ja>
+  <en>SSH Parameter</en>
+</record>
+
+<record name="Form.AddProfile._suGroup">
+  <ja>SUスイッチ</ja>
+  <en>SU Switch</en>
+</record>
+
+<record name="Form.AddProfile._suPasswordLabel">
+  <ja>SUパスワード</ja>
+  <en>SU Password</en>
+</record>
+
+<record name="Form.AddProfile._suTypeLabel">
+  <ja>SUコマンド</ja>
+  <en>SU Command</en>
+</record>
+
+<record name="Form.AddProfile._suTypeRadio1">
+  <ja>su</ja>
+  <en>su</en>
+</record>
+
+<record name="Form.AddProfile._suTypeRadio2">
+  <ja>su -</ja>
+  <en>su -</en>
+</record>
+
+<record name="Form.AddProfile._suUserNameLabel">
+  <ja>SUユーザ名</ja>
+  <en>SU UserName</en>
+</record>
+
+<record name="Form.AddProfile._telnetNewLineCheck">
+  <ja>TelnetNewLine</ja>
+  <en>TelnetNewLine</en>
+</record>
+
+<record name="Form.AddProfile._terminalBGColorLabel">
+  <ja>ターミナル背景色</ja>
+  <en>Background Color</en>
+</record>
+
+<record name="Form.AddProfile._terminalFontColorLabel">
+  <ja>フォント色</ja>
+  <en>Font Color</en>
+</record>
+
+<record name="Form.AddProfile._terminalGroup">
+  <ja>ターミナル</ja>
+  <en>Terminal</en>
+</record>
+
+<record name="Form.AddProfile._terminalTypeLabel">
+  <ja>種類</ja>
+  <en>Terminal Type</en>
+</record>
+
+<record name="Form.AddProfile._userNameLabel">
+  <ja>ユーザ名</ja>
+  <en>User Name</en>
+</record>
+
+<record name="Form.AddProfile.Hint._authTypeBox">
+  <ja>SSH接続の認証方法を選択します。</ja>
+  <en>Select the SSH authentication method.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._autoLoginCheck">
+   <ja>自動ログインを使用する場合はチェックをONにします。
+この機能を使用した場合は「実行コマンド」と「SUスイッチ」が使用できます。</ja>
+   <en>If you use the auto-login feature on the check.
+When using this feature can be used Run Command"" and ""SU switch"".""</en>
+</record>
+
+<record name="Form.AddProfile.Hint._charCodeBox">
+  <ja>文字コードを選択します。</ja>
+  <en>Select a character set.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._commandSendIntBox">
+  <ja>コマンド発行の間隔を入力します。単位はミリ秒です。</ja>
+   <en>Enter the interval for issuing commands.
+Unit is milliseconds.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._descriptionBox">
+  <ja>プロファイルの説明を入力します。</ja>
+  <en>Enter a description for the profile.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._execCommandBox">
+   <ja>自動ログイン完了後に実行するコマンドをワンライナーで入力します。
+SUスイッチ機能を使用する場合は、SUスイッチ後に実行されます。
+この機能を使用する場合は十分注意してください。
+未入力の場合はこの機能は使用されません。</ja>
+   <en>Enter the one-liner command to run automatically after login.
+If you use SU switch function runs SU switch later.
+If you use this feature with caution.
+This feature is not used if left blank.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._hostNameBox">
+  <ja>接続先のホスト名またはIPアドレスを入力します。</ja>
+  <en>Enter the destination host name or IP address.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._keyFileBox">
+  <ja>秘密鍵ファイルを指定します。</ja>
+  <en>Specifies the private key file.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._loginPromptBox">
+   <ja>ログインプロンプトを入力します。
+指定されたプロンプト文字列を受信後に自動的にユーザ名が入力されます。
+この項目では正規表現を使用することができます。</ja>
+   <en>Enter the login prompt.
+After receiving the prompt string given the username is entered automatically.
+This item can use regular expressions.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._newLineTypeBox">
+  <ja>改行コードを選択します。</ja>
+  <en>Select the new line code.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._passwordBox">
+  <ja>ログインパスワードを入力します。</ja>
+  <en>Enter the login password.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._passwordPromptBox">
+   <ja>パスワードプロンプトを入力します。
+指定されたプロンプト文字列を受信後に自動的にパスワードが入力されます。
+この項目では正規表現を使用することができます。</ja>
+   <en>Enter the password prompt.
+After receiving the prompt string given the password is entered automatically.
+This item can use regular expressions.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._portBox">
+   <ja>接続ポート番号を入力します。
+通常、Telnetは23番、SSHは22番です。</ja>
+  <en>Enter the connection port. Usually Telnet is 23, SSH is 22.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._profileItemColorButton">
+  <ja>プロファイルの表示色を選択します。</ja>
+  <en>Select the profile item color.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._promptRecvTimeoutBox">
+   <ja>自動ログイン機能を使用する際のプロンプトの受信タイムアウトを入力します。
+単位はミリ秒です。</ja>
+   <en>If you use the auto-login feature, enter the prompts the receive timeout.
+Unit is milliseconds.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._protocolBox">
+  <ja>接続プロトコルを選択します。</ja>
+  <en>Select the connection protocol.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._suPasswordBox">
+   <ja>スイッチするユーザのパスワードを入力します。
+パスワードは「パスワードプロンプト」で指定された文字列を受信後に自動的に入力されます。</ja>
+   <en>Enter the password for the user to switch.
+Passwords are automatically populated after receiving prompt string specified in item "Password Prompt".</en>
+</record>
+
+<record name="Form.AddProfile.Hint._suTypeRadio">
+  <ja>スイッチコマンドを選択します。</ja>
+  <en>Select the switch command.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._suUserNameBox">
+   <ja>自動ログイン完了後にスイッチするユーザ名を入力します。
+この機能を使用する場合は十分注意してください。
+未入力の場合はこの機能は使用されません。</ja>
+   <en>Enter the user name to switch to auto login after.
+If you use this feature with caution.
+This feature is not used if left blank.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._telnetNewLineCheck">
+  <ja>TelnetNewLineを使用する場合はチェックをONにします。</ja>
+  <en>If you use the "Telnet NewLine" on the check.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._terminalBGColorButton">
+  <ja>背景色を選択します。</ja>
+  <en>Select the background color.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._terminalFontColorButton">
+  <ja>フォント色を選択します。</ja>
+  <en>Select a font color.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._terminalTypeBox">
+  <ja>ターミナルの種類を選択します。</ja>
+  <en>Select the type of Terminal.</en>
+</record>
+
+<record name="Form.AddProfile.Hint._userNameBox">
+  <ja>ログインユーザ名を入力します。</ja>
+  <en>Enter the login name.</en>
+</record>
+
+<record name="Form.AddProfile.Hint.None">
+  <ja>ここに説明が表示されます。</ja>
+  <en>The description will be listed here.</en>
+</record>
+
+<record name="Form.Common._cancelButton">
+  <ja>キャンセル</ja>
+  <en>Cancel</en>
+</record>
+
+<record name="Form.Common._okButton">
+  <ja>OK</ja>
+  <en>OK</en>
+</record>
+
+<record name="Form.Common.WaterMark.Required">
+  <ja>必須</ja>
+  <en>Required</en>
+</record>
+
+<record name="Form.ConnectProfile._addProfileButton">
+  <ja>追加(&A)</ja>
+  <en>Add(&A)</en>
+</record>
+
+<record name="Form.ConnectProfile._autoLoginColumn">
+  <ja>自動ログイン</ja>
+  <en>Auto Login</en>
+</record>
+
+<record name="Form.ConnectProfile._checkAllOffButton">
+  <ja>チェック全解除(&U)</ja>
+  <en>Check All OFF(&U)</en>
+</record>
+
+<record name="Form.ConnectProfile._copyButton">
+  <ja>コピー(&C)</ja>
+  <en>Copy(&C)</en>
+</record>
+
+<record name="Form.ConnectProfile._csvExportButton">
+  <ja>CSV出力(&X)</ja>
+  <en>Export(&X)</en>
+</record>
+
+<record name="Form.ConnectProfile._csvImportButton">
+  <ja>CSV入力(&I)</ja>
+  <en>Import(&I)</en>
+</record>
+
+<record name="Form.ConnectProfile._delProfileButton">
+  <ja>削除(&D)</ja>
+  <en>Delete(&D)</en>
+</record>
+
+<record name="Form.ConnectProfile._descriptionColumn">
+  <ja>説明</ja>
+  <en>Description</en>
+</record>
+
+<record name="Form.ConnectProfile._displaySelectedOnlyCheck">
+  <ja>選択済みプロファイルのみ表示(&S)</ja>
+  <en>Display selected profile only(&S)</en>
+</record>
+
+<record name="Form.ConnectProfile._editProfileButton">
+  <ja>編集(&E)</ja>
+  <en>Edit(&E)</en>
+</record>
+
+<record name="Form.ConnectProfile._execCommandColumn">
+  <ja>実行コマンド</ja>
+  <en>Run Command</en>
+</record>
+
+<record name="Form.ConnectProfile._filterLabel">
+  <ja>フィルタ</ja>
+  <en>Filter</en>
+</record>
+
+<record name="Form.ConnectProfile._filterTextBox">
+  <ja>空白区切りでAND条件検索</ja>
+  <en>White space is 'AND condition'</en>
+</record>
+
+<record name="Form.ConnectProfile._hintLabel">
+  <ja>リスト上のダブルクリック操作 (左ボタン = 接続 / 中ボタン = 追加 / 右ボタン = 編集)</ja>
+  <en>Double-click action on the list (LeftButton = Connect / MiddleButton = Add / RightButton = Edit)</en>
+</record>
+
+<record name="Form.ConnectProfile._hostNameColumn">
+  <ja>ホスト名</ja>
+  <en>Host Name</en>
+</record>
+
+<record name="Form.ConnectProfile._openCSVFileDialog.Caption">
+  <ja>CSVファイルを選択</ja>
+  <en>Select CSV File</en>
+</record>
+
+<record name="Form.ConnectProfile._openCSVFileDialog.Filter">
+  <ja>CSVファイル (*.csv)|*.csv|すべてのファイル (*.*)|*.*</ja>
+  <en>CSV Files (*.csv)|*.csv|All Files (*.*)|*.*</en>
+</record>
+
+<record name="Form.ConnectProfile._portColumn">
+  <ja>ポート</ja>
+  <en>Port</en>
+</record>
+
+<record name="Form.ConnectProfile._profileCountLabel">
+  <ja>プロファイル数：{0}</ja>
+  <en>Profile Count : {0}</en>
+</record>
+
+<record name="Form.ConnectProfile._protocolColumn">
+  <ja>プロトコル</ja>
+  <en>Protocol</en>
+</record>
+
+<record name="Form.ConnectProfile._saveCSVFileDialog.Caption">
+  <ja>接続プロファイルをCSVに保存</ja>
+  <en>Save connection profiles to CSV</en>
+</record>
+
+<record name="Form.ConnectProfile._saveCSVFileDialog.Filter">
+  <ja>CSVファイル (*.csv)|*.csv|すべてのファイル (*.*)|*.*</ja>
+  <en>CSV Files (*.csv)|*.csv|All Files (*.*)|*.*</en>
+</record>
+
+<record name="Form.ConnectProfile._selectedProfileCountLabel">
+  <ja>選択数：{0}</ja>
+  <en>Selected : {0}</en>
+</record>
+
+<record name="Form.ConnectProfile._suSwitchColumn">
+  <ja>SUスイッチ</ja>
+  <en>SU Switch</en>
+</record>
+
+<record name="Form.ConnectProfile._terminalBGColorColumn">
+  <ja>背景色</ja>
+  <en>BG Color</en>
+</record>
+
+<record name="Form.ConnectProfile._userNameColumn">
+  <ja>ユーザ名</ja>
+  <en>User Name</en>
+</record>
+
+<record name="Form.ConnectProfile_profileListView.No">
+  <ja>しない</ja>
+  <en>No</en>
+</record>
+
+<record name="Form.ConnectProfile_profileListView.Yes">
+  <ja>する</ja>
+  <en>Yes</en>
+</record>
+
+<record name="Menu.ConnectProfile">
+  <ja>Telnet/SSH接続プロファイル</ja>
+  <en>Telnet/SSH Connection Profile</en>
+</record>
+
+<record name="Message.AddProfile.EmptyHostName">
+  <ja>ホスト名が入力されていません。</ja>
+  <en>Host name has not been entered.</en>
+</record>
+
+<record name="Message.AddProfile.EmptyKeyFile">
+  <ja>秘密鍵ファイルが指定されていません。</ja>
+  <en>The private key file has not been specified.</en>
+</record>
+
+<record name="Message.AddProfile.EmptyLoginPrompt">
+  <ja>ログインプロンプトが入力されていません。</ja>
+  <en>Login prompt has not been entered.</en>
+</record>
+
+<record name="Message.AddProfile.EmptyPassword">
+  <ja>パスワードが入力されていません。</ja>
+  <en>Password has not been entered.</en>
+</record>
+
+<record name="Message.AddProfile.EmptyPasswordPrompt">
+  <ja>パスワードプロンプトが入力されていません。</ja>
+  <en>Password prompt has not been entered.</en>
+</record>
+
+<record name="Message.AddProfile.EmptySUPassword">
+  <ja>スイッチするユーザのパスワードが入力されていません。</ja>
+  <en>Switch to the user's password is not entered.</en>
+</record>
+
+<record name="Message.AddProfile.EmptyUserName">
+  <ja>ユーザ名が入力されていません。</ja>
+  <en>User name has not been entered.</en>
+</record>
+
+<record name="Message.AddProfile.KeyFileNotExist">
+  <ja>指定した秘密鍵ファイルが存在しません。</ja>
+  <en>The specified private key file does not exist.</en>
+</record>
+
+<record name="Message.AddProfile.SUTypeNotSelect">
+  <ja>SUコマンドの種類が選択されていません。</ja>
+  <en>Kind of SU command has not been selected.</en>
+</record>
+
+<record name="Message.Connect.LoginPromptNotFound">
+  <ja>指定されたログインプロンプトが見つかりませんでした。</ja>
+  <en>The specified login prompt was not found.</en>
+</record>
+
+<record name="Message.Connect.PasswordPromptNotFound">
+  <ja>指定されたパスワードプロンプトが見つかりませんでした。</ja>
+  <en>The specified password prompt was not found.</en>
+</record>
+
+<record name="Message.ConnectProfile.ConnectCancel">
+  <ja>キャンセルしました。</ja>
+  <en>Has been cancelled.</en>
+</record>
+
+<record name="Message.ConnectProfile.ConnectConfirm">
+   <ja>{0}個のプロファイルが選択されています。接続しますか？
+{1}</ja>
+   <en>{0} profile is selected. Do you want to connect?
+{1}</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVExportComplete">
+   <ja>CSVエクスポートが完了しました。文字コードはUTF8です。
+CSVヘッダー情報はインポート時に整合性確認を行っているため変更や削除は行わないでください。</ja>
+   <en>CSV export is complete. Encoding is UTF8.
+Because consistency checks during the Import CSV header information please do not modify or delete.</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVExportDetetePasssword">
+  <ja>パスワードを削除して出力しますか？</ja>
+  <en>Removing password from the output?</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportAppendProfileList">
+   <ja>現在のプロファイルリストに追加しますか？
+いいえを選択した場合は現在のプロファイルリストは全て削除されます。</ja>
+   <en>Do you add in the current profile it?
+If you choose 'NO' will remove all current profile list.</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportCancel">
+  <ja>インポートをキャンセルしました。</ja>
+  <en>Import has been canceled.</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportComplete">
+  <ja>CSVインポートが完了しました。</ja>
+  <en>CSV import is complete.</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportConfirm">
+   <ja>インポートを実行しますか？
+インポート中にエラーが発生した場合は処理が中止され、現在のプロファイルリストが保持されます。</ja>
+   <en>Perform the import?
+If you encounter errors during the import process is aborted, retains the current profile.</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportFailed">
+  <ja>CSVインポートに失敗しました。({0}行目)</ja>
+  <en>CSV import failed. (at line {0})</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportInvalidAuthType">
+  <ja>SSH認証方法の指定が正しくありません。</ja>
+  <en>SSH AuthType specified is not valid.</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportInvalidAutoLogin">
+  <ja>SSH認証方法の指定が正しくありません。</ja>
+  <en>AutoLogin specified is not valid.</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportInvalidCharCode">
+  <ja>文字コードの指定が正しくありません。</ja>
+  <en>Character Code specified is not valid.</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportInvalidCommandSendInterval">
+  <ja>コマンド発行間隔の指定が正しくありません。</ja>
+  <en>Command Transmit Interval specified is not valid.</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportInvalidFieldCount">
+  <ja>CSVのフィールド数が正しくありません。 ({0}行目)</ja>
+  <en>Incorrect number of CSV fields. (at line {0})</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportInvalidHeader">
+   <ja>CSVヘッダーの整合性チェックに失敗しました。({0}行目)
+CSVエクスポート時に出力されるヘッダーと同一にしてください。</ja>
+   <en>CSV header integrity check failed.  (at line {0})
+See identical to the header to print on CSV export.</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportInvalidHostName">
+  <ja>ホスト名の指定が正しくありません。</ja>
+  <en>HostName specified is not valid.</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportInvalidNewLine">
+  <ja>改行コードの指定が正しくありません。</ja>
+  <en>NewLine specified is not valid.</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportInvalidPort">
+  <ja>ポートの指定が正しくありません。</ja>
+  <en>Port specified is not valid.</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportInvalidPromptRecvTimeout">
+  <ja>プロンプト受信タイムアウトの指定が正しくありません。</ja>
+  <en>Prompt Receive Timeout specified is not valid.</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportInvalidProtocol">
+  <ja>プロトコルの指定が正しくありません。</ja>
+  <en>Protocol specified is not valid.</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportInvalidSUType">
+  <ja>SUコマンドの指定が正しくありません。</ja>
+  <en>SU Type specified is not valid.</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportInvalidTelnetNewLine">
+  <ja>TelnetNewLineの指定が正しくありません。</ja>
+  <en>TelnetNewLine specified is not valid.</en>
+</record>
+
+<record name="Message.ConnectProfile.CSVImportInvalidTerminalType">
+  <ja>ターミナル種類の指定が正しくありません。</ja>
+  <en>TerminalType specified is not valid.</en>
+</record>
+
+<record name="Message.ConnectProfile.ProfileNotSelected">
+  <ja>プロファイルが選択されていません。</ja>
+  <en>Profile is not selected.</en>
+</record>
+
+</string-resource>

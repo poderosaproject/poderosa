@@ -24,7 +24,7 @@ copy "%BINDIR%\Poderosa.Plugin.pdb" "%DIST%"
 copy "%BINDIR%\Granados.dll" "%DIST%"
 copy "%BINDIR%\Granados.pdb" "%DIST%"
 
-for %%P in (Core Macro PortForwardingCommand Protocols SerialPort TerminalEmulator TerminalSession UI Usability XZModem Pipe SFTP) do (
+for %%P in (Core Macro PortForwardingCommand Protocols SerialPort TerminalEmulator TerminalSession UI Usability XZModem Pipe SFTP ConnectProfile) do (
   MD "%DIST%\%%P"
   copy "%BINDIR%\Poderosa.%%P.dll" "%DIST%\%%P"
   copy "%BINDIR%\Poderosa.%%P.pdb" "%DIST%\%%P"
