@@ -451,8 +451,10 @@ namespace Granados.PKI {
             _curves.TryAdd(name, curve);
             return curve;
         }
+    }
 
 #if DEBUG
+    internal static class EllipticCurveTest {
         // Tests point-multiplication using test vectors
         // http://point-at-infinity.org/ecc/nisttv
         internal static void TestPointMultiplication() {
@@ -472,7 +474,7 @@ namespace Granados.PKI {
                     var match = System.Text.RegularExpressions.Regex.Match(line, @"Curve:\s+(\w+)");
                     if (match.Success) {
                         string curveName = "nist" + match.Groups[1].Value.ToLowerInvariant();
-                        curve = FindByName(curveName);
+                        curve = EllipticCurve.FindByName(curveName);
                         if (curve != null) {
                             Debug.WriteLine("Test " + curve.CurveName);
                         }
@@ -536,7 +538,7 @@ namespace Granados.PKI {
                     var match = System.Text.RegularExpressions.Regex.Match(line, @"\[([-\w]+)\]");
                     if (match.Success) {
                         string curveName = "nist" + match.Groups[1].Value.ToLowerInvariant().Replace("-", "");
-                        curve = FindByName(curveName);
+                        curve = EllipticCurve.FindByName(curveName);
                         if (curve != null) {
                             Debug.WriteLine("Test " + curve.CurveName);
                         }
@@ -598,7 +600,7 @@ namespace Granados.PKI {
                     var match = System.Text.RegularExpressions.Regex.Match(line, @"\[([-\w]+)\]");
                     if (match.Success) {
                         string curveName = "nist" + match.Groups[1].Value.ToLowerInvariant().Replace("-", "");
-                        curve = FindByName(curveName);
+                        curve = EllipticCurve.FindByName(curveName);
                         if (curve != null) {
                             Debug.WriteLine("Test " + curve.CurveName);
                         }
@@ -660,7 +662,7 @@ namespace Granados.PKI {
                     var match = System.Text.RegularExpressions.Regex.Match(line, @"\[([-\w]+),(SHA-\d+)\]");
                     if (match.Success) {
                         string curveName = "nist" + match.Groups[1].Value.ToLowerInvariant().Replace("-", "");
-                        curve = FindByName(curveName);
+                        curve = EllipticCurve.FindByName(curveName);
                         if (curve != null) {
                             using (var hashFunc = ECDSAHashAlgorithmChooser.Choose(curve)) {
                                 var hashName = "SHA-" + hashFunc.HashSize.ToString();
@@ -736,8 +738,8 @@ namespace Granados.PKI {
                 }
             }
         }
-#endif
     }
+#endif
 
     /// <summary>
     /// Elliptic curve domain parameters over Fp

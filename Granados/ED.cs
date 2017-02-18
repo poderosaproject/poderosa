@@ -476,11 +476,13 @@ namespace Granados.PKI {
             }
             return q;
         }
- 
+    }
+
 #if DEBUG
+    internal static class CurveEd25519Test {
         // Test of signing and verifying using test vectors
         // http://ed25519.cr.yp.to/python/sign.input
-        internal void Test() {
+        internal static void Test() {
             using (var reader = new System.IO.StreamReader(@"sign.input")) {
                 int skip = 0;
                 int count = 0;
@@ -494,7 +496,7 @@ namespace Granados.PKI {
                         continue;
                     }
                     System.Diagnostics.Debug.WriteLine("Line {0}", count);
-                    
+
                     string[] w = line.Split(':');
                     byte[][] b = w.Select(s => BigIntegerConverter.ParseHex(s)).ToArray();
                     byte[] privateKey = new byte[32];
@@ -504,8 +506,10 @@ namespace Granados.PKI {
                     byte[] signature = new byte[64];
                     Buffer.BlockCopy(b[3], 0, signature, 0, 64);
 
+                    CurveEd25519 curve = new CurveEd25519();
+
                     byte[] sig;
-                    if (!Sign(privateKey, message, out sig)) {
+                    if (!curve.Sign(privateKey, message, out sig)) {
                         throw new Exception("signing failed");
                     }
                     if (sig.Length != signature.Length) {
@@ -516,14 +520,14 @@ namespace Granados.PKI {
                             throw new Exception("signs doesn't match");
                         }
                     }
-                    if (!Verify(publicKey, signature, message)) {
+                    if (!curve.Verify(publicKey, signature, message)) {
                         throw new Exception("verification failed");
                     }
                 }
             }
         }
-#endif
     }
+#endif
 
     /// <summary>
     /// EDDSA public key

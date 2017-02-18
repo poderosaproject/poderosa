@@ -586,8 +586,11 @@ namespace Granados.Algorithms {
             0x90d4f869, 0xa65cdea0, 0x3f09252d, 0xc208e69f,
             0xb74e6132, 0xce77e25b, 0x578fdfe3, 0x3ac372e6
         };
+    }
 
 #if DEBUG
+    internal static class BlowfishTest {
+
         // Test using test vector
         // https://www.schneier.com/code/vectors.txt
         internal static void Test() {
@@ -679,6 +682,6 @@ namespace Granados.Algorithms {
                 }
             }
         }
-#endif
     }
+#endif
 }
