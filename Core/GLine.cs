@@ -26,6 +26,102 @@ using Poderosa.Forms;
 using Poderosa.View;
 
 namespace Poderosa.Document {
+
+    /// <summary>
+    /// Flag bits for <see cref="GChar"/>.
+    /// </summary>
+    [Flags]
+    internal enum GCharFlags : uint {
+        None = 0u,
+        WideWidth = UnicodeCharFlags.WideWidth,
+
+        RightSide = 0x20000000u,
+    }
+
+    /// <summary>
+    /// Character information in <see cref="GLine"/>.
+    /// </summary>
+    internal struct GChar {
+        // bit 0..20 : Unicode Code Point (inherited from UnicodeChar)
+        //
+        // bit 29 : Right half of a wide-width character
+        // bit 30 : CJK (inherited from UnicodeChar)
+        // bit 31 : wide width (inherited from UnicodeChar)
+
+        private readonly uint _bits;
+
+        private const uint CodePointMask = 0x1fffffu;
+        private const uint UnicodeCharMask = CodePointMask | (uint)(UnicodeCharFlags.WideWidth | UnicodeCharFlags.CJK);
+
+        public static readonly GChar ASCII_SPACE = new GChar(UnicodeChar.ASCII_SPACE);
+        public static readonly GChar ASCII_NUL = new GChar(UnicodeChar.ASCII_NUL);
+
+        /// <summary>
+        /// Unicode code point
+        /// </summary>
+        public uint CodePoint {
+            get {
+                return _bits & CodePointMask;
+            }
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="ch">Unicode character</param>
+        /// <param name="flags">additional informations</param>
+        public GChar(UnicodeChar ch) {
+            this._bits = ch.RawData & UnicodeCharMask;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="bits">raw bits</param>
+        private GChar(uint bits) {
+            this._bits = bits;
+        }
+
+        /// <summary>
+        /// Copy character into the char array in UTF-16.
+        /// </summary>
+        /// <param name="seq">destination array</param>
+        /// <param name="index">start index of the array</param>
+        /// <returns>char count written</returns>
+        public int WriteTo(char[] seq, int index) {
+            return Unicode.WriteCodePointTo(this._bits & CodePointMask, seq, index);
+        }
+
+        /// <summary>
+        /// Checks if the specified flags were set.
+        /// </summary>
+        /// <param name="flags"></param>
+        /// <returns>true if all of the specified flags were set.</returns>
+        public bool Has(GCharFlags flags) {
+            return (this._bits & (uint)flags) == (uint)flags;
+        }
+
+        /// <summary>
+        /// Returns copied GChar that the specified flags were set.
+        /// </summary>
+        /// <param name="ch">GChar object</param>
+        /// <param name="flags">flags to set</param>
+        /// <returns>new GChar object</returns>
+        public static GChar operator +(GChar ch, GCharFlags flags) {
+            return new GChar(ch._bits | (uint)flags);
+        }
+
+        /// <summary>
+        /// Returns copied GChar that the specified flags were cleared.
+        /// </summary>
+        /// <param name="ch">GChar object</param>
+        /// <param name="flags">flags to clear</param>
+        /// <returns>new GChar object</returns>
+        public static GChar operator -(GChar ch, GCharFlags flags) {
+            return new GChar(ch._bits & ~(uint)flags);
+        }
+    }
+
     // GLineの構成要素。１つのGWordは同じ描画がなされ、シングルリンクリストになっている。
     /// <summary>
     /// 
@@ -98,16 +194,11 @@ namespace Poderosa.Document {
         /// <summary>
         /// Delegate for copying characters in GLine.
         /// </summary>
-        /// <remarks>
-        /// WIDECHAR_PAD is not contained in buff.
-        /// </remarks>
         /// <param name="buff">An array of char which contains characters to copy.</param>
         /// <param name="length">Number of characters to copy from buff.</param>
         public delegate void BufferWriter(char[] buff, int length);
 
-        internal const char WIDECHAR_PAD = '\uFFFF';
-
-        private char[] _text; //本体：\0は行末を示す
+        private GChar[] _text;
         private int _displayLength;
         private EOLType _eolType;
         private int _id;
@@ -118,17 +209,20 @@ namespace Poderosa.Document {
         [ThreadStatic]
         private static char[] _copyTempBuff;
 
-        // Returns thread-local temporary buffer
-        // for copying characters in _text.
-        private char[] GetInternalTemporaryBufferForCopy() {
+        // Returns thread-local temporary buffer for internal use.
+        private char[] GetInternalTemporaryCharBuffer(int minLen) {
             char[] buff = _copyTempBuff;
-            int minLen = _text.Length;
             if (buff == null || buff.Length < minLen) {
                 buff = _copyTempBuff = new char[minLen];
             }
             return buff;
         }
 
+        // Returns thread-local temporary buffer
+        // for copying characters in _text.
+        private char[] GetInternalTemporaryBufferForCopy() {
+            return GetInternalTemporaryCharBuffer(_text.Length * 2);
+        }
 
         public int Length {
             get {
@@ -187,41 +281,32 @@ namespace Poderosa.Document {
 
         public GLine(int length) {
             Debug.Assert(length > 0);
-            _text = new char[length];
+            _text = new GChar[length];
             _displayLength = 0;
             _firstWord = new GWord(TextDecoration.Default, 0, CharGroup.LatinHankaku);
             _id = -1;
         }
 
         //GLineManipulatorなどのためのコンストラクタ
-        internal GLine(char[] data, int dataLength, GWord firstWord) {
+        internal GLine(GChar[] data, int dataLength, GWord firstWord) {
             _text = data;
             _displayLength = dataLength;
             _firstWord = firstWord;
             _id = -1;
         }
 
-        private static int GetDisplayLength(char[] data) {
-            int limit = data.Length;
-            for (int len = 0; len < limit; len++) {
-                if (data[len] == '\0')
-                    return len;
-            }
-            return limit;
-        }
-
-        internal char[] DuplicateBuffer(char[] reusableBuffer) {
+        internal GChar[] DuplicateBuffer(GChar[] reusableBuffer) {
             if (reusableBuffer != null && reusableBuffer.Length == _text.Length) {
-                Buffer.BlockCopy(_text, 0, reusableBuffer, 0, _text.Length * sizeof(char));
+                Array.Copy(_text, 0, reusableBuffer, 0, _text.Length);
                 return reusableBuffer;
             }
             else {
-                return (char[])_text.Clone();
+                return (GChar[])_text.Clone();
             }
         }
 
         public GLine Clone() {
-            GLine nl = new GLine((char[])_text.Clone(), _displayLength, _firstWord.DeepClone());
+            GLine nl = new GLine((GChar[])_text.Clone(), _displayLength, _firstWord.DeepClone());
             nl._eolType = _eolType;
             nl._id = _id;
             return nl;
@@ -233,7 +318,7 @@ namespace Poderosa.Document {
 
         public void Clear(TextDecoration dec) {
             TextDecoration fillDec = (dec != null) ? dec.RetainBackColor() : TextDecoration.Default;
-            char fill = fillDec.IsDefault ? '\0' : ' '; // 色指定付きのことがあるのでスペース
+            GChar fill = fillDec.IsDefault ? GChar.ASCII_NUL : GChar.ASCII_SPACE; // 色指定付きのことがあるのでスペース
             for (int i = 0; i < _text.Length; i++)
                 _text[i] = fill;
             _displayLength = fillDec.IsDefault ? 0 : _text.Length;
@@ -261,22 +346,24 @@ namespace Poderosa.Document {
             return _text.Length;
         }
 
-        private static int ToCharGroupForWordBreak(char ch) {
-            if (ch < 0x80)
-                return ASCIIWordBreakTable.Default.GetAt(ch);
-            else if (ch == '\u3000') //全角スペース
+        private static int ToCharGroupForWordBreak(GChar ch) {
+            uint cp = ch.CodePoint;
+            if (cp < 0x80)
+                return ASCIIWordBreakTable.Default.GetAt((char)cp);
+            else if (cp == '\u3000') // full-width space
                 return ASCIIWordBreakTable.SPACE;
-            else //さらにここをUnicodeCategory等をみて適当にこしらえることもできるが
+            else
                 return ASCIIWordBreakTable.NOT_ASCII;
+            // TODO: consider unicode character class
         }
 
         public void ExpandBuffer(int length) {
             if (length <= _text.Length)
                 return;
 
-            char[] current = _text;
-            char[] newBuff = new char[length];
-            Buffer.BlockCopy(current, 0, newBuff, 0, current.Length * sizeof(char));
+            GChar[] current = _text;
+            GChar[] newBuff = new GChar[length];
+            Array.Copy(current, 0, newBuff, 0, current.Length);
             _text = newBuff;
             // Note; _displayLength is not changed.
         }
@@ -298,7 +385,7 @@ namespace Poderosa.Document {
         }
 
         internal void Render(IntPtr hdc, RenderProfile prof, Color baseBackColor, int x, int y) {
-            if (_text.Length == 0 || _text[0] == '\0')
+            if (_text.Length == 0 || _text[0].CodePoint == 0)
                 return; //何も描かなくてよい。これはよくあるケース
 
             float fx0 = (float)x;
@@ -336,18 +423,24 @@ namespace Poderosa.Document {
                     // It is not always true that width of a character in the CJK font is twice of a character in the ASCII font.
                     // Characters are drawn one by one to adjust pitch.
 
+                    char[] tmpCharBuf = GetInternalTemporaryCharBuffer(2);
+
                     int step = CharGroupUtil.GetColumnsPerCharacter(word.CharGroup);
                     float charPitch = pitch * step;
                     int offset = word.Offset;
                     float fx = fx1;
+
                     if (isOpaque) {
                         // If background fill is required, we call ExtTextOut() with ETO_OPAQUE to draw the first character.
                         if (offset < nextOffset) {
                             Win32.RECT rect = new Win32.RECT((int)fx1, y1, (int)fx2, y2);
-                            char ch = _text[offset];
-                            Debug.Assert(ch != GLine.WIDECHAR_PAD);
+                            GChar ch = _text[offset];
+                            Debug.Assert(!ch.Has(GCharFlags.RightSide));
+                            int len = ch.WriteTo(tmpCharBuf, 0);
                             unsafe {
-                                Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, &ch, 1, null);
+                                fixed (char* p = tmpCharBuf) {
+                                    Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, p, len, null);
+                                }
                             }
                         }
                         offset += step;
@@ -355,29 +448,37 @@ namespace Poderosa.Document {
                     }
 
                     for (; offset < nextOffset; offset += step) {
-                        char ch = _text[offset];
-                        Debug.Assert(ch != GLine.WIDECHAR_PAD);
+                        GChar ch = _text[offset];
+                        Debug.Assert(!ch.Has(GCharFlags.RightSide));
+                        int len = ch.WriteTo(tmpCharBuf, 0);
                         unsafe {
-                            Win32.ExtTextOut(hdc, (int)fx, y1, 0, null, &ch, 1, null);
+                            fixed (char* p = tmpCharBuf) {
+                                Win32.ExtTextOut(hdc, (int)fx, y1, 0, null, p, len, null);
+                            }
                         }
                         fx += charPitch;
                     }
                 }
                 else {
                     int offset = word.Offset;
-                    int displayLength = nextOffset - offset;
+                    char[] tmpCharBuf = GetInternalTemporaryCharBuffer((nextOffset - offset) * 2);
+                    int bufLen = 0;
+                    for (int i = offset; i < nextOffset; i++) {
+                        bufLen += _text[i].WriteTo(tmpCharBuf, bufLen);
+                    }
+
                     if (isOpaque) {
                         Win32.RECT rect = new Win32.RECT((int)fx1, y1, (int)fx2, y2);
                         unsafe {
-                            fixed (char* p = &_text[offset]) {
-                                Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, p, displayLength, null);
+                            fixed (char* p = tmpCharBuf) {
+                                Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, p, bufLen, null);
                             }
                         }
                     }
                     else {
                         unsafe {
-                            fixed (char* p = &_text[offset]) {
-                                Win32.ExtTextOut(hdc, (int)fx1, y1, 0, null, p, displayLength, null);
+                            fixed (char* p = tmpCharBuf) {
+                                Win32.ExtTextOut(hdc, (int)fx1, y1, 0, null, p, bufLen, null);
                             }
                         }
                     }
@@ -430,11 +531,11 @@ namespace Poderosa.Document {
                 int prevLength = _displayLength;
                 ExpandBuffer(index + 1);
                 for (int i = prevLength; i < index + 1; i++)
-                    _text[i] = ' ';
+                    _text[i] = GChar.ASCII_SPACE;
                 _displayLength = index + 1;
                 this.LastWord.Next = new GWord(TextDecoration.Default, prevLength, CharGroup.LatinHankaku);
             }
-            if (_text[index] == WIDECHAR_PAD)
+            if (_text[index].Has(GCharFlags.RightSide))
                 index--;
 
             GWord prev = null;
@@ -494,9 +595,9 @@ namespace Poderosa.Document {
         internal GLine CreateInvertedClone(int from, int to) {
             ExpandBuffer(Math.Max(from + 1, to)); //激しくリサイズしたときなどにこの条件が満たせないことがある
             Debug.Assert(from >= 0 && from < _text.Length);
-            if (from < _text.Length && _text[from] == WIDECHAR_PAD)
+            if (from < _text.Length && _text[from].Has(GCharFlags.RightSide))
                 from--;
-            if (to < _text.Length && _text[to] == WIDECHAR_PAD)
+            if (to < _text.Length && _text[to].Has(GCharFlags.RightSide))
                 to++;
 
             const int PHASE_LEFT = 0;
@@ -557,7 +658,7 @@ namespace Poderosa.Document {
                 } while (wordStart < wordEnd);
             }
 
-            GLine ret = new GLine((char[])_text.Clone(), _displayLength, first);
+            GLine ret = new GLine((GChar[])_text.Clone(), _displayLength, first);
             ret.ID = _id;
             ret.EOLType = _eolType;
 
@@ -565,7 +666,7 @@ namespace Poderosa.Document {
         }
 
         public bool IsRightSideOfZenkaku(int index) {
-            return _text[index] == WIDECHAR_PAD;
+            return _text[index].Has(GCharFlags.RightSide);
         }
 
         public void WriteTo(BufferWriter writer, int index) {
@@ -584,14 +685,15 @@ namespace Poderosa.Document {
             // Note: must be temp.Length >= limit here
             int tempIndex = 0;
             for (int i = index; i < limit; i++) {
-                char ch = _text[i];
-                if (ch == '\0')
+                GChar ch = _text[i];
+                if (ch.CodePoint == 0) {
                     break;
-                if (ch != WIDECHAR_PAD)
-                    temp[tempIndex++] = ch;
+                }
+                tempIndex += ch.WriteTo(temp, tempIndex);
             }
-            if (writer != null)
+            if (writer != null) {
                 writer(temp, tempIndex);
+            }
         }
 
         public string ToNormalString() {
@@ -605,18 +707,39 @@ namespace Poderosa.Document {
         }
 
         public static GLine CreateSimpleGLine(string text, TextDecoration dec) {
-            char[] buff = new char[text.Length * 2];
+            GChar[] buff = new GChar[text.Length * 2];
             int offset = 0;
             int start = 0;
+            char highSurrogate = '\0';
+            bool needLowSurrogate = false;
             CharGroup prevType = CharGroup.LatinHankaku;
             GWord firstWord = null;
             GWord lastWord = null;
             for (int i = 0; i < text.Length; i++) {
                 char originalChar = text[i];
-                char privateChar = Unicode.ToPrivate(originalChar);
-                CharGroup nextType = Unicode.GetCharGroup(privateChar);
-                int size = CharGroupUtil.GetColumnsPerCharacter(nextType);
-                if (nextType != prevType) {
+                UnicodeChar unicodeChar;
+                if (needLowSurrogate) {
+                    if (Char.IsLowSurrogate(originalChar)) {
+                        unicodeChar = new UnicodeChar(highSurrogate, originalChar, true);
+                        // FIXME: it should not be assumed that a surrogate-pair character is a wide-width character.
+                    }
+                    else {
+                        unicodeChar = new UnicodeChar('\ufffd', true);
+                    }
+                    needLowSurrogate = false;
+                }
+                else {
+                    if (Char.IsHighSurrogate(originalChar)) {
+                        highSurrogate = originalChar;
+                        needLowSurrogate = true;
+                        continue;
+                    }
+
+                    unicodeChar = new UnicodeChar(originalChar, true);
+                }
+
+                CharGroup currentType = unicodeChar.GetCharGroup();
+                if (currentType != prevType) {
                     if (offset > start) {
                         GWord newWord = new GWord(dec, start, prevType);
                         if (lastWord == null) {
@@ -627,13 +750,15 @@ namespace Poderosa.Document {
                             lastWord = newWord;
                         }
                     }
-                    prevType = nextType;
+                    prevType = currentType;
                     start = offset;
                 }
 
-                buff[offset++] = originalChar;
-                if (size == 2)
-                    buff[offset++] = WIDECHAR_PAD;
+                GChar gchar = new GChar(unicodeChar);
+                buff[offset++] = gchar;
+                if (gchar.Has(GCharFlags.WideWidth)) {
+                    buff[offset++] = gchar + GCharFlags.RightSide;
+                }
             }
 
             GWord w = new GWord(dec, start, prevType);
@@ -677,7 +802,7 @@ namespace Poderosa.Document {
             }
         }
 
-        private char[] _text;
+        private GChar[] _text;
         private CharAttr[] _attrs;
         private int _caretColumn;
         private TextDecoration _defaultDecoration;
@@ -715,8 +840,8 @@ namespace Poderosa.Document {
                 Debug.Assert(value <= _text.Length);
                 _caretColumn = value;
                 value--;
-                while (value >= 0 && _text[value] == '\0')
-                    _text[value--] = ' ';
+                while (value >= 0 && _text[value].CodePoint == 0)
+                    _text[value--] = GChar.ASCII_SPACE;
             }
         }
 
@@ -744,7 +869,7 @@ namespace Poderosa.Document {
         public bool IsEmpty {
             get {
                 //_textを全部見る必要はないだろう
-                return _caretColumn == 0 && _text[0] == '\0';
+                return _caretColumn == 0 && _text[0].CodePoint == 0;
             }
         }
         /// <summary>
@@ -776,7 +901,7 @@ namespace Poderosa.Document {
         /// <param name="length"><ja>クリアする長さ</ja><en>Length to clear</en></param>
         public void Clear(int length) {
             if (_text == null || length != _text.Length) {
-                _text = new char[length];
+                _text = new GChar[length];
                 _attrs = new CharAttr[length];
             }
             else {
@@ -784,7 +909,7 @@ namespace Poderosa.Document {
                     _attrs[i] = new CharAttr(null, CharGroup.LatinHankaku);
                 }
                 for (int i = 0; i < _text.Length; i++) {
-                    _text[i] = '\0';
+                    _text[i] = GChar.ASCII_NUL;
                 }
             }
             _caretColumn = 0;
@@ -871,9 +996,9 @@ namespace Poderosa.Document {
             if (length <= _text.Length)
                 return;
 
-            char[] oldText = _text;
-            _text = new char[length];
-            Buffer.BlockCopy(oldText, 0, _text, 0, oldText.Length * sizeof(char)); 
+            GChar[] oldText = _text;
+            _text = new GChar[length];
+            Array.Copy(oldText, 0, _text, 0, oldText.Length);
 
             CharAttr[] oldAttrs = _attrs;
             _attrs = new CharAttr[length];
@@ -892,72 +1017,58 @@ namespace Poderosa.Document {
         /// <param name="dec"><ja>テキスト書式を指定するTextDecorationオブジェクト</ja>
         /// <en>TextDecoration object that specifies text format
         /// </en></param>
-        public void PutChar(char ch, TextDecoration dec) {
+        public void PutChar(UnicodeChar ch, TextDecoration dec) {
             Debug.Assert(dec != null);
             Debug.Assert(_caretColumn >= 0);
             Debug.Assert(_caretColumn < _text.Length);
 
-            char originalChar = Unicode.ToOriginal(ch);
-            CharGroup charGroup = Unicode.GetCharGroup(ch);
+            GChar newGChar = new GChar(ch);
+            CharAttr newAttr = new CharAttr(dec, ch.GetCharGroup());
 
-            bool onZenkaku = (_attrs[_caretColumn].CharGroup == CharGroup.CJKZenkaku);
-            bool onZenkakuRight = (_text[_caretColumn] == GLine.WIDECHAR_PAD);
-
-            if (onZenkaku) {
-                //全角の上に書く
-                if (!onZenkakuRight) {
-                    _text[_caretColumn] = originalChar;
-                    _attrs[_caretColumn] = new CharAttr(dec, charGroup);
-                    if (CharGroupUtil.GetColumnsPerCharacter(charGroup) == 1) {
-                        //全角の上に半角を書いた場合、隣にスペースを入れないと表示が乱れる
-                        _caretColumn++;
-                        if (_caretColumn < _text.Length) {
-                            _text[_caretColumn] = ' ';
-                            _attrs[_caretColumn].CharGroup = CharGroup.LatinHankaku;
+            if (_caretColumn >= 0 && _caretColumn < _text.Length) {
+                if (_text[_caretColumn].Has(GCharFlags.WideWidth | GCharFlags.RightSide)) {
+                    // Fix overwritten wide-width character
+                    // Old: |L|R|
+                    // New: |s|X|
+                    //  L: Left side of a wide-width character
+                    //  R: Right side of a wide-width character
+                    //  s: ASCII space
+                    //  X: New character
+                    int col = _caretColumn - 1;
+                    if (col >= 0) {
+                        GChar curGChar = _text[col];
+                        if (curGChar.Has(GCharFlags.WideWidth) && !curGChar.Has(GCharFlags.RightSide)) {
+                            _text[col] = GChar.ASCII_SPACE;
+                            _attrs[col].CharGroup = CharGroup.LatinHankaku;
                         }
                     }
-                    else {
-                        _attrs[_caretColumn + 1] = new CharAttr(dec, charGroup);
-                        _caretColumn += 2;
-                    }
                 }
-                else {
-                    _text[_caretColumn - 1] = ' ';
-                    _attrs[_caretColumn - 1].CharGroup = CharGroup.LatinHankaku;
-                    _text[_caretColumn] = originalChar;
-                    _attrs[_caretColumn] = new CharAttr(dec, charGroup);
-                    if (CharGroupUtil.GetColumnsPerCharacter(charGroup) == 2) {
-                        if (CharGroupUtil.GetColumnsPerCharacter(_attrs[_caretColumn + 1].CharGroup) == 2) {
-                            if (_caretColumn + 2 < _text.Length) {
-                                _text[_caretColumn + 2] = ' ';
-                                _attrs[_caretColumn + 2].CharGroup = CharGroup.LatinHankaku;
-                            }
-                        }
-                        _text[_caretColumn + 1] = GLine.WIDECHAR_PAD;
-                        _attrs[_caretColumn + 1] = _attrs[_caretColumn];
-                        _caretColumn += 2;
-                    }
-                    else {
-                        _caretColumn++;
-                    }
-                }
+
+                _text[_caretColumn] = newGChar;
+                _attrs[_caretColumn] = newAttr;
             }
-            else { //半角の上に書く
-                _text[_caretColumn] = originalChar;
-                _attrs[_caretColumn] = new CharAttr(dec, charGroup);
-                if (CharGroupUtil.GetColumnsPerCharacter(charGroup) == 2) {
-                    if (CharGroupUtil.GetColumnsPerCharacter(_attrs[_caretColumn + 1].CharGroup) == 2) { //半角、全角となっているところに全角を書いたら
-                        if (_caretColumn + 2 < _text.Length) {
-                            _text[_caretColumn + 2] = ' ';
-                            _attrs[_caretColumn + 2].CharGroup = CharGroup.LatinHankaku;
-                        }
-                    }
-                    _text[_caretColumn + 1] = GLine.WIDECHAR_PAD;
-                    _attrs[_caretColumn + 1] = _attrs[_caretColumn];
-                    _caretColumn += 2;
+
+            _caretColumn++;
+
+            if (newGChar.Has(GCharFlags.WideWidth)) {
+                if (_caretColumn >= 0 && _caretColumn < _text.Length) {
+                    _text[_caretColumn] = newGChar + GCharFlags.RightSide;
+                    _attrs[_caretColumn] = newAttr;
                 }
-                else {
-                    _caretColumn++; //これが最もcommonなケースだが
+                _caretColumn++;
+            }
+
+            if (_caretColumn >= 0 && _caretColumn < _text.Length) {
+                if (_text[_caretColumn].Has(GCharFlags.WideWidth | GCharFlags.RightSide)) {
+                    // Fix overwritten wide-width character
+                    // Old: |L|R|
+                    // New: |X|s|
+                    //  L: Left side of a wide-width character
+                    //  R: Right side of a wide-width character
+                    //  s: ASCII space
+                    //  X: New character
+                    _text[_caretColumn] = GChar.ASCII_SPACE;
+                    _attrs[_caretColumn].CharGroup = CharGroup.LatinHankaku;
                 }
             }
         }
@@ -1016,7 +1127,7 @@ namespace Poderosa.Document {
                     fillDec = null;
             }
             for (int i = from; i < to; i++) {
-                _text[i] = ' ';
+                _text[i] = GChar.ASCII_SPACE;
                 _attrs[i] = new CharAttr(fillDec, CharGroup.LatinHankaku);
             }
         }
@@ -1033,20 +1144,20 @@ namespace Poderosa.Document {
         /// <param name="count"><ja>削除する文字数</ja><en>Count to delete</en></param>
         /// <param name="dec"><ja>末尾の新しい空白領域のテキスト装飾</ja><en>text decoration for the new empty spaces at the tail of the line</en></param>
         public void DeleteChars(int start, int count, TextDecoration dec) {
-            char fillChar;
+            GChar fillChar;
             TextDecoration fillDec = dec;
             if (fillDec != null) {
                 fillDec = fillDec.RetainBackColor();
                 if (fillDec.IsDefault) {
                     fillDec = null;
-                    fillChar = '\0';
+                    fillChar = GChar.ASCII_NUL;
                 }
                 else {
-                    fillChar = ' ';
+                    fillChar = GChar.ASCII_SPACE;
                 }
             }
             else {
-                fillChar = '\0';
+                fillChar = GChar.ASCII_NUL;
             }
             for (int i = start; i < _text.Length; i++) {
                 int j = i + count;
@@ -1082,7 +1193,7 @@ namespace Poderosa.Document {
                     _attrs[i] = _attrs[j];
                 }
                 else {
-                    _text[i] = ' ';
+                    _text[i] = GChar.ASCII_SPACE;
                     _attrs[i] = new CharAttr(fillDec, CharGroup.LatinHankaku);
                 }
             }
@@ -1108,16 +1219,16 @@ namespace Poderosa.Document {
 
             int limit = _text.Length;
             int offset;
-            if (_text[0] == '\0') {
+            if (_text[0].CodePoint == 0) {
                 offset = 0;
             }
             else {
                 CharAttr prevAttr = firstAttr;
                 for (offset = 1; offset < limit; offset++) {
-                    char ch = _text[offset];
-                    if (ch == '\0')
+                    GChar ch = _text[offset];
+                    if (ch.CodePoint == 0)
                         break;
-                    else if (ch == GLine.WIDECHAR_PAD)
+                    else if (ch.Has(GCharFlags.RightSide))
                         continue;
 
                     CharAttr attr = _attrs[offset];
@@ -1132,7 +1243,7 @@ namespace Poderosa.Document {
                 }
             }
 
-            GLine line = new GLine((char[])_text.Clone(), offset, firstWord);
+            GLine line = new GLine((GChar[])_text.Clone(), offset, firstWord);
             line.EOLType = _eolType;
             return line;
         }

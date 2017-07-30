@@ -35,7 +35,7 @@ namespace Poderosa.Terminal {
         WheelUp,
         WheelDown,
     }
-    
+
     //TODO 名前とは裏腹にあんまAbstractじゃねーな またフィールドが多すぎるので整理する。
     /// <summary>
     /// <ja>
@@ -61,6 +61,7 @@ namespace Poderosa.Terminal {
         public delegate void AfterExitLockDelegate();
 
         private ScrollBarValues _scrollBarValues;
+        private EncodingProfile _encodingProfile;
         private ICharDecoder _decoder;
         private TerminalDocument _document;
         private IAbstractTerminalHost _session;
@@ -99,7 +100,8 @@ namespace Poderosa.Terminal {
             _document.SetOwner(_session.ISession);
             _afterExitLockActions = new List<AfterExitLockDelegate>();
 
-            _decoder = new ISO2022CharDecoder(this, EncodingProfile.Get(info.Session.TerminalSettings.Encoding));
+            _encodingProfile = EncodingProfile.Get(info.Session.TerminalSettings.Encoding);
+            _decoder = new ISO2022CharDecoder(this, _encodingProfile);
             _terminalMode = TerminalMode.Normal;
             _currentdecoration = TextDecoration.Default;
             _manipulator = new GLineManipulator();
@@ -201,6 +203,12 @@ namespace Poderosa.Terminal {
         public IAbstractTerminalHost TerminalHost {
             get {
                 return _session;
+            }
+        }
+
+        internal EncodingProfile EncodingProfile {
+            get {
+                return _encodingProfile;
             }
         }
 
@@ -554,6 +562,7 @@ namespace Poderosa.Terminal {
     internal abstract class EscapeSequenceTerminal : AbstractTerminal {
         private StringBuilder _escapeSequence;
         private IModalCharacterTask _currentCharacterTask;
+        private UnicodeCharConverter _unicodeCharConverter;
 
         protected static class ControlCode {
             public const char NUL = '\u0000';
@@ -573,11 +582,13 @@ namespace Poderosa.Terminal {
             : base(info) {
             _escapeSequence = new StringBuilder();
             _processCharResult = ProcessCharResult.Processed;
+            _unicodeCharConverter = base.EncodingProfile.CreateUnicodeCharConverter();
         }
 
         protected override void ResetInternal() {
             _escapeSequence = new StringBuilder();
             _processCharResult = ProcessCharResult.Processed;
+            _unicodeCharConverter = base.EncodingProfile.CreateUnicodeCharConverter();
         }
 
         public override void ProcessChar(char ch) {
@@ -590,7 +601,7 @@ namespace Poderosa.Terminal {
                         _currentCharacterTask.ProcessChar(ch);
                     }
 
-                    this.LogService.XmlLogger.Write(Unicode.ToOriginal(ch));
+                    this.LogService.XmlLogger.Write(ch);
 
                     if (Unicode.IsControlCharacter(ch))
                         _processCharResult = ProcessControlChar(ch);
@@ -737,10 +748,19 @@ namespace Poderosa.Terminal {
             return t;
         }
 
-        protected virtual ProcessCharResult ProcessNormalChar(char ch) {
+        protected ProcessCharResult ProcessNormalChar(char ch) {
+            UnicodeChar unicodeChar;
+            if (!_unicodeCharConverter.Feed(ch, out unicodeChar)) {
+                return ProcessCharResult.Processed;
+            }
+
+            return ProcessNormalUnicodeChar(unicodeChar);
+        }
+
+        protected virtual ProcessCharResult ProcessNormalUnicodeChar(UnicodeChar unicodeChar) {
             //既に画面右端にキャレットがあるのに文字が来たら改行をする
             int tw = GetDocument().TerminalWidth;
-            if (_manipulator.CaretColumn + Unicode.GetCharacterWidth(ch) > tw) {
+            if (_manipulator.CaretColumn + (unicodeChar.IsWideWidth ? 2 : 1) > tw) {
                 GLine l = _manipulator.Export();
                 l.EOLType = EOLType.Continue;
                 this.LogService.TextLogger.WriteLine(l); //ログに行をcommit
@@ -754,7 +774,7 @@ namespace Poderosa.Terminal {
                 _manipulator.ExpandBuffer(tw);
 
             //通常文字の処理
-            _manipulator.PutChar(ch, _currentdecoration);
+            _manipulator.PutChar(unicodeChar, _currentdecoration);
 
             return ProcessCharResult.Processed;
         }

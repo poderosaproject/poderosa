@@ -11,23 +11,193 @@ using System;
 namespace Poderosa.Document {
 
     /// <summary>
-    /// <ja>特別な処理を行うため、特定の文字を私用領域(U+E000-U+F8FF)にマップする。</ja>
-    /// <en>This class maps some characters to the private use area (U+E000-U+F8FF) for handling them specially.</en>
+    /// Flag bits for <see cref="UnicodeChar"/>.
+    /// </summary>
+    [Flags]
+    public enum UnicodeCharFlags : uint {
+        None = 0u,
+        /// <summary>CJK character (should be displayed with the CJK font)</summary>
+        CJK = 0x40000000u,
+        /// <summary>Wide-width character (should be displayed with two columns)</summary>
+        WideWidth = 0x80000000u,
+    }
+
+    /// <summary>
+    /// Unicode character
+    /// </summary>
+    public struct UnicodeChar {
+
+        // bit 0..20 : Unicode Code Point
+        //
+        // bit 30 : CJK
+        // bit 31 : wide width
+
+        public readonly uint _bits;
+
+        private const uint CodePointMask = 0x1fffffu;
+
+        public static readonly UnicodeChar ASCII_SPACE = new UnicodeChar((uint)'\u0020', UnicodeCharFlags.None);
+        public static readonly UnicodeChar ASCII_NUL = new UnicodeChar((uint)'\u0000', UnicodeCharFlags.None);
+
+        /// <summary>
+        /// Unicode code point
+        /// </summary>
+        public uint CodePoint {
+            get {
+                return _bits & CodePointMask;
+            }
+        }
+
+        /// <summary>
+        /// Raw data (Unicode code point | <see cref="UnicodeCharFlags"/>)
+        /// </summary>
+        internal uint RawData {
+            get {
+                return _bits;
+            }
+        }
+
+        /// <summary>
+        /// Whether this character is a wide-width character.
+        /// </summary>
+        public bool IsWideWidth {
+            get {
+                return Has(UnicodeCharFlags.WideWidth);
+            }
+        }
+
+        /// <summary>
+        /// Whether this character is a CJK character.
+        /// </summary>
+        public bool IsCJK {
+            get {
+                return Has(UnicodeCharFlags.CJK);
+            }
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="ch">a character</param>
+        /// <param name="cjk">allow cjk mode</param>
+        public UnicodeChar(char ch, bool cjk) {
+            uint codePoint = (uint)ch;
+            UnicodeCharFlags flags = Unicode.DetermineUnicodeCharFlags(codePoint, cjk);
+            _bits = codePoint | (uint)flags;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="highSurrogate">high surrogate code</param>
+        /// <param name="lowSurrogate">low surrogate code</param>
+        /// <param name="cjk">allow cjk mode</param>
+        public UnicodeChar(char highSurrogate, char lowSurrogate, bool cjk) {
+            uint codePoint = Unicode.SurrogatePairToCodePoint(highSurrogate, lowSurrogate);
+            UnicodeCharFlags flags = Unicode.DetermineUnicodeCharFlags(codePoint, cjk);
+            _bits = codePoint | (uint)flags;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="codePoint">Unicode code point</param>
+        /// <param name="flags">flags to set</param>
+        public UnicodeChar(uint codePoint, UnicodeCharFlags flags) {
+            _bits = codePoint | (uint)flags;
+        }
+
+        /// <summary>
+        /// Copy character into the char array in UTF-16.
+        /// </summary>
+        /// <param name="seq">destination array</param>
+        /// <param name="index">start index of the array</param>
+        /// <returns>char count written</returns>
+        public int WriteTo(char[] seq, int index) {
+            return Unicode.WriteCodePointTo(this._bits & CodePointMask, seq, index);
+        }
+
+        /// <summary>
+        /// Checks if the specified flags were set.
+        /// </summary>
+        /// <param name="flags"></param>
+        /// <returns>true if all of the specified flags were set.</returns>
+        public bool Has(UnicodeCharFlags flags) {
+            return (this._bits & (uint)flags) == (uint)flags;
+        }
+
+        /// <summary>
+        /// Get CharGroup.
+        /// </summary>
+        /// <returns>CharGroup</returns>
+        public CharGroup GetCharGroup() {
+            if (Has(UnicodeCharFlags.CJK | UnicodeCharFlags.WideWidth)) {
+                return CharGroup.CJKZenkaku;
+            }
+            if (Has(UnicodeCharFlags.CJK)) {
+                return CharGroup.CJKHankaku;
+            }
+            return CharGroup.LatinHankaku;
+        }
+    }
+
+    /// <summary>
+    /// Converter for converting <see cref="Char"/> to <see cref="UnicodeChar"/>.
+    /// </summary>
+    public class UnicodeCharConverter {
+        private readonly bool _cjk;
+        private char _highSurrogate;
+        private bool _needLowSurrogate = false;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="cjk">allow cjk mode</param>
+        public UnicodeCharConverter(bool cjk) {
+            _cjk = cjk;
+        }
+
+        /// <summary>
+        /// Feeds next char.
+        /// </summary>
+        /// <param name="c">next char</param>
+        /// <param name="unicodeChar">new <see cref="UnicodeChar"/> is set if it was composed.</param>
+        /// <returns>true if new <see cref="UnicodeChar"/> was composed.</returns>
+        public bool Feed(char c, out UnicodeChar unicodeChar) {
+            if (_needLowSurrogate) {
+                _needLowSurrogate = false;
+                if (Char.IsLowSurrogate(c)) {
+                    unicodeChar = new UnicodeChar(_highSurrogate, c, _cjk);
+                    return true;
+                }
+
+                // fall through.
+                // ignore previous high surrogate.
+            }
+
+            if (Char.IsHighSurrogate(c)) {
+                _highSurrogate = c;
+                _needLowSurrogate = true;
+                unicodeChar = UnicodeChar.ASCII_NUL;
+                return false;
+            }
+
+            unicodeChar = new UnicodeChar(c, _cjk);
+            return true;
+        }
+    }
+
+
+    /// <summary>
+    /// Unicode utility
     /// </summary>
     public static class Unicode {
 
-        // Areas:
-        // U+E080 - U+E0FF : Half-width characters in U+0080 - U+00FF (CJK font)
-        // U+E180 - U+E1FF : Full-width characters in U+0080 - U+00FF (CJK font)
-        // U+E200 - U+E2FF : Half-width characters in U+2500 - U+25FF (CJK font)
-        // U+E300 - U+E3FF : Full-width characters in U+2500 - U+25FF (CJK font)
-        // U+E400 - U+E6FF : Full-width characters in U+0200 - U+04FF (CJK font)
-
         // Tables consist of the following values.
         //
-        // 0 : Don't map to private area. Character is displayed as half-width using latin font.
-        // 1 : Map to private area. Character is displayed as half-width using CJK font.
-        // 2 : Map to private area. Character is displayed as full-width using CJK font.
+        // 0 : Character is displayed as half-width using latin font.
+        // 1 : Character is displayed as half-width using CJK font.
+        // 2 : Character is displayed as full-width using CJK font.
         //
         // Symbols or letters that are contained in CJK character set (JIS X 0201/0208, GB2312, Big5, KS X 1001)
         // except ASCII characters are treated as full-width characters.
@@ -129,142 +299,125 @@ namespace Poderosa.Document {
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1  //25F0-FF
         };
 
+        private static readonly byte[] WIDTH_MAP_FF00_FFFF = {
+            // FF01-FF5E: Fullwidth ASCII variants
+            // FF5F-FF60: Fullwidth brackets
+            // FF61-FF64: Halfwidth CJK punctuation
+            // FF65-FF9F: Halfwidth Katakana
+            // FFA0-FFDC: Halfwidth Hangul
+            // FFE0-FFE6: Fullwidth symbol variants
+            // FFE8-FFEE: Halfwidth symbol variants
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, //FF00-0F
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, //FF10-1F
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, //FF20-2F
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, //FF30-3F
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, //FF40-4F
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, //FF50-5F
+            2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, //FF60-6F
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, //FF70-7F
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, //FF80-8F
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, //FF90-9F
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, //FFA0-AF
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, //FFB0-BF
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, //FFC0-CF
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, //FFD0-DF
+            2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 2, //FFE0-EF
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2  //FFF0-FF
+        };
+
         /// <summary>
-        /// Maps an original character code to an private character code.
+        /// Gets <see cref="UnicodeCharFlags"/> for a Unicode code point.
         /// </summary>
-        /// <param name="c">Original character code.</param>
-        /// <returns>Private character code.</returns>
-        public static char ToPrivate(char c) {
-            byte upperByte = (byte)((ushort)c >> 8);
+        /// <param name="codePoint">Unicode code point</param>
+        /// <param name="cjk">allow cjk mode</param>
+        /// <returns></returns>
+        public static UnicodeCharFlags DetermineUnicodeCharFlags(uint codePoint, bool cjk) {
+            if (codePoint >= 0x10000u) {
+                return UnicodeCharFlags.CJK | UnicodeCharFlags.WideWidth;
+                // FIXME: it should not be assumed that the character is always wide-width.
+            }
 
-            switch(upperByte) {
+            if (!cjk) {
+                return UnicodeCharFlags.None;
+            }
+
+            byte upperByte = (byte)(codePoint >> 8);
+            byte t;
+            switch (upperByte) {
                 case 0x00:
-                    switch (WIDTH_MAP_0000_00FF[c]) {
-                        case 1:
-                            return (char)(0xe000 + c);  // U+E0XX --> Display as a half-width character (CJK font)
-                        case 2:
-                            return (char)(0xe100 + c);  // U+E1XX --> Display as a full-width character (CJK font)
-                        default:
-                            return c;   // U+00XX --> Display as a half-width character (Latin font)
-                    }
-
+                    t = WIDTH_MAP_0000_00FF[codePoint];
+                    break;
                 case 0x02:
                 case 0x03:
                 case 0x04:
-                    switch (WIDTH_MAP_0200_04FF[c - 0x0200]) {
-                        case 2:
-                            return (char)(c + (0xe400 - 0x0200));  // U+E4XX,U+E5XX,U+E6XX --> Display as a full-width character (CJK font)
-                        default:
-                            return c;   // U+02XX --> Display as a half-width character (Latin font)
-                    }
-
-                case 0x25:
-                    switch (WIDTH_MAP_2500_25FF[c - 0x2500]) {
-                        case 1:
-                            return (char)(c + (0xe200 - 0x2500)); // U+E2XX --> Display as half-width character (CJK font)
-                        case 2:
-                            return (char)(c + (0xe300 - 0x2500)); // U+E3XX --> Display as full-width character (CJK font)
-                        default:
-                            return c;   // U+25XX --> Display as half-width character (Latin font)
-                    }
-
-                default:
-                    return c;
-            }
-        }
-
-        /// <summary>
-        /// Reverts an private character code to an original character code.
-        /// </summary>
-        /// <param name="c">Character code (private or non-private)</param>
-        /// <returns>Original character code</returns>
-        public static char ToOriginal(char c) {
-            byte upperByte = (byte)((ushort)c >> 8);
-
-            switch(upperByte) {
-                case 0xe0:  // U+E000 - U+E0FF
-                    return (char)(c - 0xe000);  // U+0000 - U+00FF
-                case 0xe1:  // U+E100 - U+E1FF
-                    return (char)(c - 0xe100);  // U+0000 - U+00FF
-                case 0xe2:  // U+E200 - U+E2FF
-                    return (char)(c - (0xe200 - 0x2500));  // U+2500 - U+25FF
-                case 0xe3:  // U+E300 - U+E3FF
-                    return (char)(c - (0xe300 - 0x2500));  // U+2500 - U+25FF
-                case 0xe4:  // U+E400 - U+E4FF
-                case 0xe5:  // U+E500 - U+E5FF
-                case 0xe6:  // U+E600 - U+E6FF
-                    return (char)(c - (0xe400 - 0x0200));  // U+0200 - U+04FF
-                default:
-                    return c;
-            }
-        }
-
-        /// <summary>
-        /// Gets number of columns used to display a character.
-        /// </summary>
-        /// <param name="ch">Private character code.</param>
-        /// <returns>1 (half-width character) or 2 (full-width character)</returns>
-        public static int GetCharacterWidth(char ch) {
-            CharGroup charGroup = GetCharGroup(ch);
-            return CharGroupUtil.GetColumnsPerCharacter(charGroup);
-        }
-
-        /// <summary>
-        /// Gets CharGroup of a character.
-        /// </summary>
-        /// <param name="ch">Private character code.</param>
-        /// <returns>CharGroup value</returns>
-        public static CharGroup GetCharGroup(char ch) {
-            if (ch < 0x2000)
-                return CharGroup.LatinHankaku;
-
-            byte upperByte = (byte)((ushort)ch >> 8);
-
-            switch (upperByte) {
-                case 0x20:
-                    if (ch == '\u2017') // for OEM850
-                        return CharGroup.LatinHankaku;
+                    t = WIDTH_MAP_0200_04FF[codePoint - 0x0200u];
                     break;
-                case 0x25:  // 0x2500 <= ch <= 0x25ff (Box Drawing | Block Elements | Geometric Shapes)
-                    return CharGroup.LatinHankaku;
-                case 0xe0:
-                case 0xe2:  // Half-width caharacters (private character code)
-                    return CharGroup.CJKHankaku;
-                case 0xe1:
-                case 0xe3:
-                case 0xe4:
-                case 0xe5:
-                case 0xe6:  // Full-width caharacters (private character code)
-                    return CharGroup.CJKZenkaku;
-                case 0xff:
-                    if (0xFF61 <= ch && ch <= 0xFFDC) // FF61-FF64:Halfwidth CJK punctuation FF65-FF9F:Halfwidth Katakana FFA0-FFDC:Halfwidth Hangul
-                        return CharGroup.CJKHankaku;
-                    else if (0xFFE8 <= ch && ch <= 0xFFEE) // Halfwidth Symbol
-                        return CharGroup.CJKHankaku;
+                case 0x20:
+                    if (codePoint == 0x2017u) // for OEM850
+                        t = 0;
                     else
-                        return CharGroup.CJKZenkaku;
+                        t = 2;
+                    break;
+                case 0x25:
+                    t = WIDTH_MAP_2500_25FF[codePoint - 0x2500u];
+                    break;
+                case 0xff:
+                    t = WIDTH_MAP_FF00_FFFF[codePoint - 0xff00u];
+                    break;
+                default:
+                    t = 2;
+                    break;
             }
 
-            return CharGroup.CJKZenkaku;
+            switch (t) {
+                case 1:
+                    return UnicodeCharFlags.CJK;    // CJK Hankaku
+                case 2:
+                    return UnicodeCharFlags.CJK | UnicodeCharFlags.WideWidth;   // CJK Zenkaku
+                default:
+                    return UnicodeCharFlags.None;   // Latin Hankaku
+            }
         }
 
         /// <summary>
         /// Gets whether a character is a control character.
         /// </summary>
-        /// <param name="ch">Private character code.</param>
+        /// <param name="ch">character code.</param>
         /// <returns>True if a character is a control character.</returns>
         public static bool IsControlCharacter(char ch) {
             return ch < 0x20 || ch == 0x7f || (0x80 <= ch && ch <= 0x9f);
         }
 
         /// <summary>
-        /// Gets whether a character is in Unicode's private-use area.
+        /// Converts surrogate pair to a Unicode code point.
         /// </summary>
-        /// <param name="ch">A character</param>
-        /// <returns>True if a character is in Unicode's private-use area.</returns>
-        public static bool IsPrivateUseArea(char ch) {
-            return 0xe000 <= ch && ch <= 0xf8ff;
+        /// <param name="highSurrogate"></param>
+        /// <param name="lowSurrogate"></param>
+        /// <returns>Unicode code point</returns>
+        public static uint SurrogatePairToCodePoint(char highSurrogate, char lowSurrogate) {
+            return 0x10000u + (((uint)highSurrogate - 0xd800u) << 10) + ((uint)lowSurrogate - 0xdc00u);
         }
+
+        /// <summary>
+        /// Writes a Unicode code point into the char array in UTF-16.
+        /// </summary>
+        /// <param name="codePoint">Unicode code point</param>
+        /// <param name="seq">destination array</param>
+        /// <param name="index">start index of the array</param>
+        /// <returns>char count written</returns>
+        public static int WriteCodePointTo(uint codePoint, char[] seq, int index) {
+            if (codePoint <= 0xffffu) {
+                seq[index] = (char)codePoint;
+                return 1;
+            }
+            else {
+                uint f = codePoint - 0x10000u;
+                seq[index] = (char)((f >> 10) + 0xd800u);
+                seq[index + 1] = (char)((f & 0x3ff) + 0xdc00u);
+                return 2;
+            }
+        }
+
     }
 
 }

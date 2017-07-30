@@ -459,14 +459,17 @@ namespace Poderosa.Terminal {
             return b <= 0x1F;
         }
 
+        private readonly char[] _encodeCharBuff = new char[2];
+
         private void PutMBCSByte(byte b) {
             try {
-                // Note:
-                //  An incoming character may be mapped to the Unicode's private-use area.
-                //  The character code will be reverted when the character is added to the line buffer (GLine).
-                char ch = _encoding.PutByte(b);
-                if (ch != '\0')
-                    _processor.ProcessChar(ch);
+                int len = _encoding.PutByte(b, _encodeCharBuff);
+                if (len > 0) {
+                    _processor.ProcessChar(_encodeCharBuff[0]);
+                    if (len > 1) {
+                        _processor.ProcessChar(_encodeCharBuff[1]);
+                    }
+                }
             }
             catch (Exception) {
                 _processor.InvalidCharDetected(_encoding.Buffer);

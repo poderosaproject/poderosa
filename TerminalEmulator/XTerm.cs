@@ -293,9 +293,9 @@ namespace Poderosa.Terminal {
                             .Append("\x1b[")
                             .Append(statBits.ToString(NumberFormatInfo.InvariantInfo))
                             .Append(';')
-                            .Append((col+1).ToString(NumberFormatInfo.InvariantInfo))
+                            .Append((col + 1).ToString(NumberFormatInfo.InvariantInfo))
                             .Append(';')
-                            .Append((row+1).ToString(NumberFormatInfo.InvariantInfo))
+                            .Append((row + 1).ToString(NumberFormatInfo.InvariantInfo))
                             .Append("M")
                             .ToString());
                     dataLen = data.Length;
@@ -307,9 +307,9 @@ namespace Poderosa.Terminal {
                             .Append("\x1b[<")
                             .Append(statBits.ToString(NumberFormatInfo.InvariantInfo))
                             .Append(';')
-                            .Append((col+1).ToString(NumberFormatInfo.InvariantInfo))
+                            .Append((col + 1).ToString(NumberFormatInfo.InvariantInfo))
                             .Append(';')
-                            .Append((row+1).ToString(NumberFormatInfo.InvariantInfo))
+                            .Append((row + 1).ToString(NumberFormatInfo.InvariantInfo))
                             .Append(action == TerminalMouseAction.ButtonUp ? 'm' : 'M')
                             .ToString());
                     dataLen = data.Length;
@@ -324,14 +324,14 @@ namespace Poderosa.Terminal {
             return true;
         }
 
-        protected override ProcessCharResult ProcessNormalChar(char ch) {
+        protected override ProcessCharResult ProcessNormalUnicodeChar(UnicodeChar ch) {
             //WrapAroundがfalseで、キャレットが右端のときは何もしない
             if (!_wrapAroundMode && _manipulator.CaretColumn >= GetDocument().TerminalWidth - 1)
                 return ProcessCharResult.Processed;
 
             if (_insertMode)
-                _manipulator.InsertBlanks(_manipulator.CaretColumn, Unicode.GetCharacterWidth(ch), _currentdecoration);
-            return base.ProcessNormalChar(ch);
+                _manipulator.InsertBlanks(_manipulator.CaretColumn, ch.IsWideWidth ? 2 : 1, _currentdecoration);
+            return base.ProcessNormalUnicodeChar(ch);
         }
         protected override ProcessCharResult ProcessControlChar(char ch) {
             return base.ProcessControlChar(ch);
@@ -893,7 +893,7 @@ namespace Poderosa.Terminal {
             int n = ParseInt(param, 1);
             int s = _manipulator.CaretColumn;
             for (int i = 0; i < n; i++) {
-                _manipulator.PutChar(' ', _currentdecoration);
+                _manipulator.PutChar(UnicodeChar.ASCII_SPACE, _currentdecoration);
                 if (_manipulator.CaretColumn >= _manipulator.BufferSize)
                     break;
             }
@@ -1091,7 +1091,8 @@ namespace Poderosa.Terminal {
                 if (data != null)
                     return data;
                 return base.SequenceKeyData(modifier, key);
-            } else {
+            }
+            else {
                 byte[] r = new byte[4];
                 r[0] = 0x1B;
                 r[1] = (byte)'[';
