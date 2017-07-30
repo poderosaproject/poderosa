@@ -17,19 +17,176 @@ namespace Poderosa.Terminal {
     //encoding関係
     internal abstract class EncodingProfile {
 
+        /// <summary>
+        /// Decoder
+        /// </summary>
+        internal class Decoder {
+            private readonly EncodingProfile _profile;
+            private readonly byte[] _buffer;
+            private int _bytes;
+            private int _bytesNeeded;
+
+            public Decoder(EncodingProfile profile) {
+                _profile = profile;
+                _buffer = new byte[6];
+                _bytes = 0;
+                _bytesNeeded = 0;
+            }
+
+            /// <summary>
+            /// Reset status
+            /// </summary>
+            public void Reset() {
+                _bytes = 0;
+                _bytesNeeded = 0;
+            }
+
+            /// <summary>
+            /// Check whether the next byte should be processed with this decoder.
+            /// </summary>
+            /// <param name="b">the next byte</param>
+            /// <returns>true if the next byte hould be processed with this decoder.</returns>
+            public bool IsInterestingByte(byte b) {
+                // FIXME:
+                // "b>=33" is an adhoc check for the case that the escape sequence was interleaved.
+                return _bytes == 0 ? _profile.IsLeadByte(b) : b >= 33;
+            }
+
+            /// <summary>
+            /// <para>Append one byte.</para>
+            /// <para>If the byte sequence is representing a character in this encoding, this method returns the character.</para>
+            /// </summary>
+            /// <param name="b">new byte</param>
+            /// <param name="buff">char buffer (requires length >= 2)</param>
+            /// <returns>count of chars stored into the buff.</returns>
+            public int PutByte(byte b, char[] buff) {
+                if (_bytes == 0) {
+                    _bytesNeeded = _profile.GetCharLength(b);
+                }
+                _buffer[_bytes++] = b;
+                if (_bytes < _bytesNeeded) {
+                    return 0;
+                }
+
+                int len = _profile.Encoding.GetChars(_buffer, 0, _bytes, buff, 0);
+                _bytes = 0;
+
+                if (_profile.IsIgnoreableChar(buff, len)) {
+                    return 0;
+                }
+
+                return len;
+            }
+
+            /// <summary>
+            /// Gets copy of the internal buffer.
+            /// </summary>
+            /// <returns>copy of the internal buffer</returns>
+            public byte[] GetBuffer() {
+                byte[] buff = new byte[_bytes];
+                Buffer.BlockCopy(_buffer, 0, buff, 0, _bytes);
+                return buff;
+            }
+        }
+
+        /// <summary>
+        /// Encoder
+        /// </summary>
+        internal class Encoder {
+            private readonly EncodingProfile _profile;
+            private readonly char[] _buff;
+            private bool _needLowSurrogate;
+
+            public Encoder(EncodingProfile profile) {
+                _profile = profile;
+                _buff = new char[2];
+                _needLowSurrogate = false;
+            }
+
+            /// <summary>
+            /// Reset status
+            /// </summary>
+            public void Reset() {
+                _needLowSurrogate = false;
+            }
+
+            /// <summary>
+            /// Encode into the bytes
+            /// </summary>
+            /// <param name="ch">next character</param>
+            /// <param name="bytes">encoded result is set if a character was encoded.</param>
+            /// <returns>true if a character was encoded.</returns>
+            public bool GetBytes(char ch, out byte[] bytes) {
+                if (_needLowSurrogate) {
+                    _needLowSurrogate = false;
+                    if (Char.IsLowSurrogate(ch)) {
+                        _buff[1] = ch;
+                        bytes = _profile.Encoding.GetBytes(_buff, 0, 2);
+                        return true;
+                    }
+
+                    // fall through.
+                    // ignore high surrogate.
+                }
+
+                if (Char.IsHighSurrogate(ch)) {
+                    _buff[0] = ch;
+                    _needLowSurrogate = true;
+                    bytes = null;
+                    return false;
+                }
+
+                _buff[0] = ch;
+                bytes = _profile.Encoding.GetBytes(_buff, 0, 1);
+                return true;
+            }
+
+            /// <summary>
+            /// Encode into the bytes
+            /// </summary>
+            /// <param name="chs">characters</param>
+            /// <param name="bytes">encoded result is set if a character was encoded.</param>
+            /// <returns>true if a character was encoded.</returns>
+            public bool GetBytes(char[] chs, out byte[] bytes) {
+                if (chs.Length == 0) {
+                    bytes = null;
+                    return false;
+                }
+
+                char[] src = chs;
+                int srcLen = chs.Length;
+                if (_needLowSurrogate) {
+                    _needLowSurrogate = false;
+                    if (Char.IsLowSurrogate(chs[0])) {
+                        src = new char[chs.Length + 1];
+                        src[0] = _buff[0];
+                        Buffer.BlockCopy(chs, 0, src, 1, chs.Length * sizeof(char));
+                        srcLen = chs.Length + 1;
+                    }
+                }
+
+                if (Char.IsHighSurrogate(src[src.Length - 1])) {
+                    _buff[0] = src[src.Length - 1];
+                    _needLowSurrogate = true;
+                    srcLen--;
+                }
+
+                if (srcLen <= 0) {
+                    bytes = null;
+                    return false;
+                }
+
+                bytes = _profile.Encoding.GetBytes(src, 0, srcLen);
+                return true;
+            }
+        }
+
         private readonly Encoding _encoding;
         private readonly EncodingType _type;
-        private readonly byte[] _buffer;
-        private int _cursor;
-        private int _byte_len;
-        private readonly char[] _singleCharBuff;
 
         protected EncodingProfile(EncodingType t, Encoding enc) {
             _type = t;
             _encoding = enc;
-            _buffer = new byte[6];
-            _cursor = 0;
-            _singleCharBuff = new char[1];
         }
 
         // Check if the byte is the first byte of a character which should be converted the character code.
@@ -58,65 +215,6 @@ namespace Poderosa.Terminal {
             }
         }
 
-        public byte[] Buffer {
-            get {
-                return _buffer;
-            }
-        }
-
-        public byte[] GetBytes(char[] chars) {
-            return _encoding.GetBytes(chars);
-        }
-
-        //NOTE 潜在的には_tempOneCharArrayの使用でマルチスレッドでの危険がある。
-        public byte[] GetBytes(char ch) {
-            // FIXME: support surrogate pair
-            _singleCharBuff[0] = ch;
-            return _encoding.GetBytes(_singleCharBuff, 0, 1);
-        }
-
-        public bool IsInterestingByte(byte b) {
-            //"b>=33"のところはもうちょっとまじめに判定するべき。
-            //文字の間にエスケープシーケンスが入るケースへの対応。
-            return _cursor == 0 ? IsLeadByte(b) : b >= 33;
-        }
-
-        public void Reset() {
-            _cursor = 0;
-            _byte_len = 0;
-        }
-
-        /// <summary>
-        /// <para>Append one byte.</para>
-        /// <para>If the byte sequence is representing a character in this encoding, this method returns the character.
-        /// Otherwise, this method returns \0 to indicate that more bytes are required.</para>
-        /// <para>A character to be returned may be converted to a character in Unicode's private-use area by <see cref="Poderosa.Document.Unicode"/>.</para>
-        /// </summary>
-        /// <remarks>
-        /// <para>By convert the character code, informations about font-type or character's width, that are appropriate for the current encoding,
-        /// can get from the character code. See <see cref="Poderosa.Document.Unicode"/>.</para>
-        /// </remarks>
-        /// <param name="b">new byte</param>
-        /// <param name="buff">char buffer (requires length >= 2)</param>
-        /// <returns>count of chars stored into the buff.</returns>
-        public int PutByte(byte b, char[] buff) {
-            if (_cursor == 0)
-                _byte_len = GetCharLength(b);
-            _buffer[_cursor++] = b;
-            if (_cursor < _byte_len) {
-                return 0;
-            }
-
-            int len = _encoding.GetChars(_buffer, 0, _byte_len, buff, 0);
-            _cursor = 0;
-
-            if (IsIgnoreableChar(buff, len)) {
-                return 0;
-            }
-
-            return len;
-        }
-
         /// <summary>
         /// Create a new <see cref="UnicodeCharConverter"/>.
         /// </summary>
@@ -125,41 +223,52 @@ namespace Poderosa.Terminal {
             return new UnicodeCharConverter(UseCJKCharacter);
         }
 
-        public static EncodingProfile Get(EncodingType et) {
-            EncodingProfile p = null;
+        /// <summary>
+        /// Create a new <see cref="Encoder"/>.
+        /// </summary>
+        /// <returns>new instance</returns>
+        public Encoder CreateEncoder() {
+            return new Encoder(this);
+        }
+
+        /// <summary>
+        /// Create a new <see cref="Decoder"/>.
+        /// </summary>
+        /// <returns>new instance</returns>
+        public Decoder CreateDecoder() {
+            return new Decoder(this);
+        }
+
+        /// <summary>
+        /// Create a new instance.
+        /// </summary>
+        /// <param name="et">encoding type</param>
+        /// <returns>new instance</returns>
+        public static EncodingProfile Create(EncodingType et) {
             switch (et) {
                 case EncodingType.ISO8859_1:
-                    p = new ISO8859_1Profile();
-                    break;
+                    return new ISO8859_1Profile();
                 case EncodingType.EUC_JP:
-                    p = new EUCJPProfile();
-                    break;
+                    return new EUCJPProfile();
                 case EncodingType.SHIFT_JIS:
-                    p = new ShiftJISProfile();
-                    break;
+                    return new ShiftJISProfile();
                 case EncodingType.UTF8:
-                    p = new UTF8Profile();
-                    break;
+                    return new UTF8Profile();
                 case EncodingType.UTF8_Latin:
-                    p = new UTF8_LatinProfile();
-                    break;
+                    return new UTF8_LatinProfile();
                 case EncodingType.GB2312:
-                    p = new GB2312Profile();
-                    break;
+                    return new GB2312Profile();
                 case EncodingType.BIG5:
-                    p = new Big5Profile();
-                    break;
+                    return new Big5Profile();
                 case EncodingType.EUC_CN:
-                    p = new EUCCNProfile();
-                    break;
+                    return new EUCCNProfile();
                 case EncodingType.EUC_KR:
-                    p = new EUCKRProfile();
-                    break;
+                    return new EUCKRProfile();
                 case EncodingType.OEM850:
-                    p = new OEM850Profile();
-                    break;
+                    return new OEM850Profile();
+                default:
+                    return null;
             }
-            return p;
         }
 
         //NOTE これらはメソッドのoverrideでなくdelegateでまわしたほうが効率は若干よいのかも
@@ -420,4 +529,34 @@ namespace Poderosa.Terminal {
             }
         }
     }
+
+    /// <summary>
+    /// A cache bound with <see cref="EncodingType"/>.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    internal class CacheByEncodingType<T> where T : class {
+
+        private readonly Func<EncodingProfile, T> _creator;
+        private EncodingProfile _encodingProfile;
+        private T _instance = null;
+
+        public CacheByEncodingType(Func<EncodingProfile, T> creator) {
+            _creator = creator;
+        }
+
+        public EncodingProfile EncodingProfile {
+            get {
+                return _encodingProfile;
+            }
+        }
+
+        public T Get(EncodingType encodingType) {
+            if (_instance == null || _encodingProfile == null || _encodingProfile.Type != encodingType) {
+                _encodingProfile = EncodingProfile.Create(encodingType);
+                _instance = _creator(_encodingProfile);
+            }
+            return _instance;
+        }
+    }
+
 }

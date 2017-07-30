@@ -35,6 +35,9 @@ namespace Poderosa.Terminal {
         private ByteDataFragment _dataForLocalEcho;
         private readonly object _transmitSync = new object();
 
+        private readonly CacheByEncodingType<EncodingProfile.Encoder> _encoderCache =
+            new CacheByEncodingType<EncodingProfile.Encoder>((encodingProfile) => encodingProfile.CreateEncoder());
+
         /// <summary>
         /// 
         /// </summary>
@@ -82,8 +85,10 @@ namespace Poderosa.Terminal {
         /// </en>
         /// </remarks>
         public void SendString(char[] chars) {
-            byte[] data = EncodingProfile.Get(_settings.Encoding).GetBytes(chars);
-            Transmit(data);
+            byte[] data;
+            if (_encoderCache.Get(_settings.Encoding).GetBytes(chars, out data)) {
+                Transmit(data);
+            }
         }
         /// <summary>
         /// <ja>

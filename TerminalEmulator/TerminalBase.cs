@@ -63,6 +63,7 @@ namespace Poderosa.Terminal {
         private ScrollBarValues _scrollBarValues;
         private EncodingProfile _encodingProfile;
         private ICharDecoder _decoder;
+        private UnicodeCharConverter _unicodeCharConverter;
         private TerminalDocument _document;
         private IAbstractTerminalHost _session;
         private LogService _logService;
@@ -100,8 +101,9 @@ namespace Poderosa.Terminal {
             _document.SetOwner(_session.ISession);
             _afterExitLockActions = new List<AfterExitLockDelegate>();
 
-            _encodingProfile = EncodingProfile.Get(info.Session.TerminalSettings.Encoding);
+            _encodingProfile = EncodingProfile.Create(info.Session.TerminalSettings.Encoding);
             _decoder = new ISO2022CharDecoder(this, _encodingProfile);
+            _unicodeCharConverter = _encodingProfile.CreateUnicodeCharConverter();
             _terminalMode = TerminalMode.Normal;
             _currentdecoration = TextDecoration.Default;
             _manipulator = new GLineManipulator();
@@ -206,9 +208,9 @@ namespace Poderosa.Terminal {
             }
         }
 
-        internal EncodingProfile EncodingProfile {
+        protected UnicodeCharConverter UnicodeCharConverter {
             get {
-                return _encodingProfile;
+                return _unicodeCharConverter;
             }
         }
 
@@ -261,7 +263,7 @@ namespace Poderosa.Terminal {
             CharDecodeError(String.Format(GEnv.Strings.GetString("Message.AbstractTerminal.UnsupportedCharSet"), desc));
         }
         public void InvalidCharDetected(byte[] buf) {
-            CharDecodeError(String.Format(GEnv.Strings.GetString("Message.AbstractTerminal.UnexpectedChar"), EncodingProfile.Get(GetTerminalSettings().Encoding).Encoding.WebName));
+            CharDecodeError(String.Format(GEnv.Strings.GetString("Message.AbstractTerminal.UnexpectedChar"), _encodingProfile.Encoding.WebName));
         }
         #endregion
 
@@ -302,11 +304,12 @@ namespace Poderosa.Terminal {
         }
 
         public void Reset() {
-            //Encodingが同じ時は簡単に済ませることができる
-            if (_decoder.CurrentEncoding.Type == GetTerminalSettings().Encoding)
-                _decoder.Reset(_decoder.CurrentEncoding);
-            else
-                _decoder = new ISO2022CharDecoder(this, EncodingProfile.Get(GetTerminalSettings().Encoding));
+            var currentEncodingSetting = GetTerminalSettings().Encoding;
+            if (_encodingProfile.Type != currentEncodingSetting) {
+                _encodingProfile = EncodingProfile.Create(currentEncodingSetting);
+                _decoder = new ISO2022CharDecoder(this, _encodingProfile);
+                _unicodeCharConverter = _encodingProfile.CreateUnicodeCharConverter();
+            }
         }
 
         //これはメインスレッドから呼び出すこと
@@ -315,7 +318,9 @@ namespace Poderosa.Terminal {
                 ChangeMode(TerminalMode.Normal);
                 _document.ClearScrollingRegion();
                 ResetInternal();
-                _decoder = new ISO2022CharDecoder(this, EncodingProfile.Get(GetTerminalSettings().Encoding));
+                _encodingProfile = EncodingProfile.Create(GetTerminalSettings().Encoding);
+                _decoder = new ISO2022CharDecoder(this, _encodingProfile);
+                _unicodeCharConverter = _encodingProfile.CreateUnicodeCharConverter();
             }
         }
 
@@ -562,7 +567,6 @@ namespace Poderosa.Terminal {
     internal abstract class EscapeSequenceTerminal : AbstractTerminal {
         private StringBuilder _escapeSequence;
         private IModalCharacterTask _currentCharacterTask;
-        private UnicodeCharConverter _unicodeCharConverter;
 
         protected static class ControlCode {
             public const char NUL = '\u0000';
@@ -582,13 +586,11 @@ namespace Poderosa.Terminal {
             : base(info) {
             _escapeSequence = new StringBuilder();
             _processCharResult = ProcessCharResult.Processed;
-            _unicodeCharConverter = base.EncodingProfile.CreateUnicodeCharConverter();
         }
 
         protected override void ResetInternal() {
             _escapeSequence = new StringBuilder();
             _processCharResult = ProcessCharResult.Processed;
-            _unicodeCharConverter = base.EncodingProfile.CreateUnicodeCharConverter();
         }
 
         public override void ProcessChar(char ch) {
@@ -750,7 +752,7 @@ namespace Poderosa.Terminal {
 
         protected ProcessCharResult ProcessNormalChar(char ch) {
             UnicodeChar unicodeChar;
-            if (!_unicodeCharConverter.Feed(ch, out unicodeChar)) {
+            if (!base.UnicodeCharConverter.Feed(ch, out unicodeChar)) {
                 return ProcessCharResult.Processed;
             }
 

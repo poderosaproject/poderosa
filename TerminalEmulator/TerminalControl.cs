@@ -345,6 +345,8 @@ namespace Poderosa.Terminal {
          *  ProcessDialogKey: 文字キー以外は基本的にここで処理。
          *  OnKeyPress: 文字の送信
          */
+        private readonly CacheByEncodingType<EncodingProfile.Encoder> _encoderCache =
+                new CacheByEncodingType<EncodingProfile.Encoder>((encodingProfile) => encodingProfile.CreateEncoder());
         private byte[] _sendCharBuffer = new byte[1];
         public void SendChar(char ch) { //ISからのコールバックあるので
             if (ch < 0x80) {
@@ -353,13 +355,18 @@ namespace Poderosa.Terminal {
                 SendBytes(_sendCharBuffer);
             }
             else {
-                byte[] data = EncodingProfile.Get(GetTerminalSettings().Encoding).GetBytes(ch);
-                SendBytes(data);
+                byte[] data;
+                if (_encoderCache.Get(GetTerminalSettings().Encoding).GetBytes(ch, out data)) {
+                    SendBytes(data);
+                }
             }
         }
+
         public void SendCharArray(char[] chs) {
-            byte[] bytes = EncodingProfile.Get(GetTerminalSettings().Encoding).GetBytes(chs);
-            SendBytes(bytes);
+            byte[] data;
+            if (_encoderCache.Get(GetTerminalSettings().Encoding).GetBytes(chs, out data)) {
+                SendBytes(data);
+            }
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {

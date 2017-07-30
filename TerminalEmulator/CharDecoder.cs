@@ -18,7 +18,7 @@ using Poderosa.Protocols;
 namespace Poderosa.Terminal {
     internal interface ICharDecoder {
         void OnReception(ByteDataFragment data);
-        void Reset(EncodingProfile enc);
+        void Reset();
         EncodingProfile CurrentEncoding {
             get;
         }
@@ -223,9 +223,8 @@ namespace Poderosa.Terminal {
 
         private EscapeSequenceBuffer _escseq;
 
-        //MBCSの状態管理
-        private EncodingProfile _encoding;
-
+        private readonly EncodingProfile _encodingProfile;
+        private readonly EncodingProfile.Decoder _decoder;
 
         //文字を処理するターミナル
         private ICharProcessor _processor;
@@ -234,7 +233,8 @@ namespace Poderosa.Terminal {
             _escseq = new EscapeSequenceBuffer();
             _processor = processor;
             _state = State.Normal;
-            _encoding = enc;
+            _encodingProfile = enc;
+            _decoder = enc.CreateDecoder();
 
             _asciiByteProcessor = new ASCIIByteProcessor(processor);
             _currentByteProcessor = _asciiByteProcessor;
@@ -243,12 +243,12 @@ namespace Poderosa.Terminal {
 
             _byteProcessorBuffer = new ByteProcessorBuffer();
         }
+
         public EncodingProfile CurrentEncoding {
             get {
-                return _encoding;
+                return _encodingProfile;
             }
         }
-
 
         private IByteProcessor _currentByteProcessor;
         private IByteProcessor _G0ByteProcessor; //iso2022のG0,G1
@@ -301,7 +301,7 @@ namespace Poderosa.Terminal {
             if (_processor.State == ProcessCharResult.Escaping)
                 _processor.ProcessChar((char)b);
             else {
-                if (_state == State.Normal && !IsControlChar(b) && _encoding.IsInterestingByte(b)) {
+                if (_state == State.Normal && !IsControlChar(b) && _decoder.IsInterestingByte(b)) {
                     PutMBCSByte(b);
                 }
                 else {
@@ -449,10 +449,8 @@ namespace Poderosa.Terminal {
         }
 
 
-        public void Reset(EncodingProfile enc) {
-            _encoding.Reset();
-            _encoding = enc;
-            _encoding.Reset();
+        public void Reset() {
+            _decoder.Reset();
         }
 
         private static bool IsControlChar(byte b) {
@@ -463,7 +461,7 @@ namespace Poderosa.Terminal {
 
         private void PutMBCSByte(byte b) {
             try {
-                int len = _encoding.PutByte(b, _encodeCharBuff);
+                int len = _decoder.PutByte(b, _encodeCharBuff);
                 if (len > 0) {
                     _processor.ProcessChar(_encodeCharBuff[0]);
                     if (len > 1) {
@@ -472,8 +470,8 @@ namespace Poderosa.Terminal {
                 }
             }
             catch (Exception) {
-                _processor.InvalidCharDetected(_encoding.Buffer);
-                _encoding.Reset();
+                _processor.InvalidCharDetected(_decoder.GetBuffer());
+                _decoder.Reset();
             }
         }
     }
