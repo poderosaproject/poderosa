@@ -17,9 +17,9 @@ namespace Poderosa.Document {
     public enum UnicodeCharFlags : uint {
         None = 0u,
         /// <summary>CJK character (should be displayed with the CJK font)</summary>
-        CJK = 0x40000000u,
+        CJK = 1u << 30,
         /// <summary>Wide-width character (should be displayed with two columns)</summary>
-        WideWidth = 0x80000000u,
+        WideWidth = 1u << 31,
     }
 
     /// <summary>
@@ -36,8 +36,25 @@ namespace Poderosa.Document {
 
         private const uint CodePointMask = 0x1fffffu;
 
-        public static readonly UnicodeChar ASCII_SPACE = new UnicodeChar((uint)'\u0020', UnicodeCharFlags.None);
-        public static readonly UnicodeChar ASCII_NUL = new UnicodeChar((uint)'\u0000', UnicodeCharFlags.None);
+        /// <summary>
+        /// An instance of SPACE (U+0020).
+        /// </summary>
+        public static UnicodeChar ASCII_SPACE {
+            get {
+                // The cost of the constructor would be zero with JIT compiler enabling optimization.
+                return new UnicodeChar((uint)'\u0020', UnicodeCharFlags.None);
+            }
+        }
+
+        /// <summary>
+        /// An instance of NUL (U+0000).
+        /// </summary>
+        public static UnicodeChar ASCII_NUL {
+            get {
+                // The cost of the constructor would be zero with JIT compiler enabling optimization.
+                return new UnicodeChar((uint)'\u0000', UnicodeCharFlags.None);
+            }
+        }
 
         /// <summary>
         /// Unicode code point
