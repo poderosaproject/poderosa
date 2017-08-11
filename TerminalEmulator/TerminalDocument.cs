@@ -455,13 +455,13 @@ namespace Poderosa.Terminal {
             }
         }
 
-        public void ReplaceCurrentLine(GLine line) {
-#if DEBUG
-            Replace(_currentLine, line);
-#else
-            if (_currentLine != null) //クラッシュレポートをみると、何かの拍子にnullになっていたとしか思えない
-                Replace(_currentLine, line);
-#endif
+        public GLine UpdateCurrentLine(GLineManipulator manipulator) {
+            GLine line = _currentLine;
+            if (line != null) {
+                manipulator.ExportTo(line);
+                _invalidatedRegion.InvalidateLine(line.ID);
+            }
+            return line;
         }
     }
 

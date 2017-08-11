@@ -383,7 +383,7 @@ namespace Poderosa.Terminal {
 
                         _decoder.OnReception(data);
 
-                        document.ReplaceCurrentLine(_manipulator.Export());
+                        document.UpdateCurrentLine(_manipulator);
                         document.CaretColumn = _manipulator.CaretColumn;
 
                         CheckDiscardDocument();
@@ -726,10 +726,11 @@ namespace Poderosa.Terminal {
             }
         }
         private void DoLineFeed() {
-            GLine nl = _manipulator.Export();
-            nl.EOLType = (nl.EOLType == EOLType.CR || nl.EOLType == EOLType.CRLF) ? EOLType.CRLF : EOLType.LF;
-            this.LogService.TextLogger.WriteLine(nl); //ログに行をcommit
-            GetDocument().ReplaceCurrentLine(nl);
+            _manipulator.EOLType = (_manipulator.EOLType == EOLType.CR || _manipulator.EOLType == EOLType.CRLF) ? EOLType.CRLF : EOLType.LF;
+            GLine lineUpdated = GetDocument().UpdateCurrentLine(_manipulator);
+            if (lineUpdated != null) {
+                this.LogService.TextLogger.WriteLine(lineUpdated);
+            }
             GetDocument().LineFeed();
 
             //カラム保持は必要。サンプル:linuxconf.log
@@ -762,10 +763,11 @@ namespace Poderosa.Terminal {
             //既に画面右端にキャレットがあるのに文字が来たら改行をする
             int tw = GetDocument().TerminalWidth;
             if (_manipulator.CaretColumn + (unicodeChar.IsWideWidth ? 2 : 1) > tw) {
-                GLine l = _manipulator.Export();
-                l.EOLType = EOLType.Continue;
-                this.LogService.TextLogger.WriteLine(l); //ログに行をcommit
-                GetDocument().ReplaceCurrentLine(l);
+                _manipulator.EOLType = EOLType.Continue;
+                GLine lineUpdated = GetDocument().UpdateCurrentLine(_manipulator);
+                if (lineUpdated != null) {
+                    this.LogService.TextLogger.WriteLine(lineUpdated);
+                }
                 GetDocument().LineFeed();
                 _manipulator.Load(GetDocument().CurrentLine, 0);
             }

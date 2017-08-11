@@ -874,7 +874,7 @@ namespace Poderosa.Terminal {
                 int col = _manipulator.CaretColumn;
 
                 //以下はCSI Hとほぼ同じ
-                GetDocument().ReplaceCurrentLine(_manipulator.Export());
+                GetDocument().UpdateCurrentLine(_manipulator);
                 GetDocument().CurrentLineNumber = (GetDocument().TopLineNumber + row - 1);
                 _manipulator.Load(GetDocument().CurrentLine, col);
             }
@@ -905,8 +905,7 @@ namespace Poderosa.Terminal {
             TerminalDocument doc = GetDocument();
             int caret_col = _manipulator.CaretColumn;
             int offset = doc.CurrentLineNumber - doc.TopLineNumber;
-            GLine nl = _manipulator.Export();
-            doc.ReplaceCurrentLine(nl);
+            doc.UpdateCurrentLine(_manipulator);
             if (doc.ScrollingBottom == -1)
                 doc.SetScrollingRegion(0, GetDocument().TerminalHeight - 1);
             for (int i = 0; i < d; i++) {
@@ -921,8 +920,7 @@ namespace Poderosa.Terminal {
             TerminalDocument doc = GetDocument();
             int caret_col = _manipulator.CaretColumn;
             int offset = doc.CurrentLineNumber - doc.TopLineNumber;
-            GLine nl = _manipulator.Export();
-            doc.ReplaceCurrentLine(nl);
+            doc.UpdateCurrentLine(_manipulator);
             if (doc.ScrollingBottom == -1)
                 doc.SetScrollingRegion(0, GetDocument().TerminalHeight - 1);
             for (int i = 0; i < d; i++) {
@@ -1059,8 +1057,7 @@ namespace Poderosa.Terminal {
 
         protected override void RestoreCursor() {
             int sw = _isAlternateBuffer ? 1 : 0;
-            GLine nl = _manipulator.Export();
-            GetDocument().ReplaceCurrentLine(nl);
+            GetDocument().UpdateCurrentLine(_manipulator);
             GetDocument().CurrentLineNumber = GetDocument().TopLineNumber + _xtermSavedRow[sw];
             _manipulator.Load(GetDocument().CurrentLine, _xtermSavedCol[sw]);
         }

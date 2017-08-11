@@ -1329,6 +1329,18 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
+        /// Type of the line ending.
+        /// </summary>
+        public EOLType EOLType {
+            get {
+                return _eolType;
+            }
+            set {
+                _eolType = value;
+            }
+        }
+
+        /// <summary>
         /// Insert the carriage return.
         /// </summary>
         public void CarriageReturn() {
