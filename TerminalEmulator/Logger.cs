@@ -118,10 +118,7 @@ namespace Poderosa.Terminal {
 
                 if (_withTimestamp && !_continued)
                     WriteTimestamp();
-                line.WriteTo(
-                    delegate(char[] buff, int len) {
-                        _writer.Write(buff, 0, len);
-                    });
+                line.WriteTo((buff, len) => _writer.Write(buff, 0, len));
                 if (line.EOLType == EOLType.Continue) {
                     _continued = true;
                 }
@@ -143,7 +140,7 @@ namespace Poderosa.Terminal {
                 }
             }
         }
-        
+
         public void Close() {
             lock (_sync) {
                 if (!_closed) {
@@ -288,7 +285,7 @@ namespace Poderosa.Terminal {
     }
 
     internal class XmlLoggerList : ListenerList<IXmlLogger>, IXmlLogger {
-        
+
         public void Write(char ch) {
             if (this.IsEmpty)
                 return;
@@ -414,8 +411,8 @@ namespace Poderosa.Terminal {
             _textLoggers.Flush();
             _xmlLoggers.Flush();
         }
-        public void Close(GLine last_line) {
-            _textLoggers.WriteLine(last_line); //TextLogは改行ごとであるから、Close時に最終行を書き込むようにする
+        public void Close(GLine lastLine) {
+            _textLoggers.WriteLine(lastLine); //TextLogは改行ごとであるから、Close時に最終行を書き込むようにする
             StopAutoFlushThread();
             InternalClose();
         }
