@@ -380,7 +380,6 @@ namespace Poderosa.Terminal {
 
                         _manipulator.Load(document.CurrentLine, 0);
                         _manipulator.CaretColumn = document.CaretColumn;
-                        _manipulator.DefaultDecoration = _currentdecoration;
 
                         _decoder.OnReception(data);
 
@@ -696,7 +695,7 @@ namespace Poderosa.Terminal {
                         doc.InvalidatedRegion.InvalidateLine(doc.CurrentLineNumber);
                         doc.CurrentLineNumber = line;
                         if (doc.CurrentLine == null)
-                            _manipulator.Clear(doc.TerminalWidth);
+                            _manipulator.Reset(doc.TerminalWidth);
                         else
                             _manipulator.Load(doc.CurrentLine, doc.CurrentLine.DisplayLength - 1); //NOTE ここはCharLengthだったが同じだと思って改名した
                         doc.InvalidatedRegion.InvalidateLine(doc.CurrentLineNumber);

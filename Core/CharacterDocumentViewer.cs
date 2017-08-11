@@ -518,16 +518,13 @@ namespace Poderosa.View {
                     do {
                         int index = l.ID - (topline_id + param.LineFrom);
                         if (pos >= 0 && pos < l.DisplayLength && index >= 0 && index < _transientLines.Count) {
-                            GLine r = null;
                             if (l.ID == to.Line) {
-                                if (pos != to.Column)
-                                    r = _transientLines[index].CreateInvertedClone(pos, to.Column);
+                                if (pos != to.Column) {
+                                    _transientLines[index].SetSelection(pos, to.Column);
+                                }
                             }
-                            else
-                                r = _transientLines[index].CreateInvertedClone(pos, l.DisplayLength);
-
-                            if (r != null) {
-                                _transientLines[index] = r;
+                            else {
+                                _transientLines[index].SetSelection(pos, l.DisplayLength);
                             }
                         }
                         pos = 0; //２行目からの選択は行頭から
@@ -544,8 +541,9 @@ namespace Poderosa.View {
                 //ヒクヒク問題のため、キャレットを表示しないときでもこの操作は省けない
                 if (_caret.Style == CaretType.Box) {
                     int y = _caret.Y - param.LineFrom;
-                    if (y >= 0 && y < _transientLines.Count)
-                        _transientLines[y].InvertCharacter(_caret.X, _caret.IsActiveTick, _caret.Color);
+                    if (y >= 0 && y < _transientLines.Count) {
+                        _transientLines[y].SetCursor(_caret.X, _caret.IsActiveTick);
+                    }
                 }
             }
         }
@@ -553,6 +551,7 @@ namespace Poderosa.View {
 
         private void DrawLines(Graphics g, RenderParameter param, Color baseBackColor) {
             RenderProfile prof = GetRenderProfile();
+            Caret caret = _caret;
             //Rendering Core
             if (param.LineFrom <= _document.LastLineNumber) {
                 IntPtr hdc = g.GetHdc();
@@ -560,7 +559,7 @@ namespace Poderosa.View {
                     float y = (prof.Pitch.Height + prof.LineSpacing) * param.LineFrom + BORDER;
                     for (int i = 0; i < _transientLines.Count; i++) {
                         GLine line = _transientLines[i];
-                        line.Render(hdc, prof, baseBackColor, BORDER, (int)y);
+                        line.Render(hdc, prof, caret, baseBackColor, BORDER, (int)y);
                         y += prof.Pitch.Height + prof.LineSpacing;
                     }
                 }

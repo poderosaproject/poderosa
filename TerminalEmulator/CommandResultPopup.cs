@@ -115,8 +115,7 @@ namespace Poderosa.Terminal {
                 line.WriteTo(
                     delegate(char[] buff, int len) {
                         bld.Append(buff, 0, len);
-                    },
-                    0);
+                    });
                 if (line.EOLType != EOLType.Continue)
                     bld.Append("\r\n");
             }

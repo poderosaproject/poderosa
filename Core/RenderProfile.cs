@@ -688,6 +688,107 @@ namespace Poderosa.View {
                     return _font;
             }
         }
+
+        internal IntPtr CalcHFONT_NoUnderline(GAttr attr) {
+            return CalcFontInternal(attr, true).HFONT;
+        }
+
+        private FontHandle CalcFontInternal(GAttr attr, bool ignoreUnderline) {
+            if (_font == null) {
+                CreateFonts();
+            }
+
+            if (attr.Has(GAttrFlags.UseCjkFont)) {
+                if (DetermineBold(attr)) {
+                    if (!ignoreUnderline && attr.Has(GAttrFlags.Underlined)) {
+                        return _cjkBoldUnderlinefont;
+                    }
+
+                    return _cjkBoldfont;
+                }
+
+                if (!ignoreUnderline && attr.Has(GAttrFlags.Underlined)) {
+                    return _cjkUnderlinefont;
+                }
+
+                return _cjkFont;
+            }
+
+            if (DetermineBold(attr)) {
+                if (!ignoreUnderline && attr.Has(GAttrFlags.Underlined)) {
+                    return _boldunderlinefont;
+                }
+
+                return _boldfont;
+            }
+
+            if (!ignoreUnderline && attr.Has(GAttrFlags.Underlined)) {
+                return _underlinefont;
+            }
+
+            return _font;
+        }
+
+        internal bool DetermineBold(GAttr attr) {
+            if (_forceBoldStyle) {
+                return true;
+            }
+
+            if (_enableBoldStyle) {
+                return attr.Has(GAttrFlags.Bold);
+            }
+
+            return false;
+        }
+
+        internal void DetermineColors(GAttr attr, GColor24 color24, Caret caret, out Color backColor, out Color foreColor) {
+            if (_brush == null) {
+                CreateBrushes();
+            }
+
+            bool inverted = false;
+
+            if (attr.Has(GAttrFlags.Cursor)) {
+                if (!caret.Color.IsEmpty) {
+                    backColor = caret.Color;
+                    foreColor = DetermineBackColor(attr, color24);
+                    return;
+                }
+
+                inverted = true;
+            }
+
+            inverted = inverted  ^ attr.Has(GAttrFlags.Inverted) ^ attr.Has(GAttrFlags.Selected);
+
+            if (inverted) {
+                backColor = DetermineForeColor(attr, color24);
+                foreColor = DetermineBackColor(attr, color24);
+            }
+            else {
+                foreColor = DetermineForeColor(attr, color24);
+                backColor = DetermineBackColor(attr, color24);
+            }
+        }
+
+        private Color DetermineBackColor(GAttr attr, GColor24 color24) {
+            if (attr.Has(GAttrFlags.Use8bitBackColor)) {
+                return _bgcolor;    // FIXME: use color code
+            }
+            if (attr.Has(GAttrFlags.Use24bitBackColor)) {
+                return color24.BackColor;
+            }
+            return _bgcolor;
+        }
+
+        private Color DetermineForeColor(GAttr attr, GColor24 color24) {
+            if (attr.Has(GAttrFlags.Use8bitForeColor)) {
+                return _forecolor;  // FIXME: use color code
+            }
+            if (attr.Has(GAttrFlags.Use24bitForeColor)) {
+                return color24.ForeColor;
+            }
+            return _forecolor;
+        }
 #endif
     }
 

@@ -202,9 +202,13 @@ namespace Poderosa.View {
                     _forwardPivot.Column = position;
                     _backwardPivot.Column = position;
                     break;
-                case RangeType.Word:
-                    _forwardPivot.Column = line.FindPrevWordBreak(position) + 1;
-                    _backwardPivot.Column = line.FindNextWordBreak(position);
+                case RangeType.Word: {
+                        int start;
+                        int end;
+                        line.FindWordBreakPoint(position, out start, out end);
+                        _forwardPivot.Column = start;
+                        _backwardPivot.Column = end;
+                    }
                     break;
                 case RangeType.Line:
                     _forwardPivot.Column = 0;
@@ -231,9 +235,13 @@ namespace Poderosa.View {
                     _forwardDestination.Column = position;
                     _backwardDestination.Column = position;
                     break;
-                case RangeType.Word:
-                    _forwardDestination.Column = line.FindPrevWordBreak(position) + 1;
-                    _backwardDestination.Column = line.FindNextWordBreak(position);
+                case RangeType.Word: {
+                        int start;
+                        int end;
+                        line.FindWordBreakPoint(position, out start, out end);
+                        _forwardDestination.Column = start;
+                        _backwardDestination.Column = end;
+                    }
                     break;
                 case RangeType.Line:
                     _forwardDestination.Column = 0;
@@ -349,7 +357,7 @@ namespace Poderosa.View {
                 delegate(char[] buff, int len) {
                     bld.Append(buff, 0, len);
                 },
-                pos, length);
+                pos, pos + length);
         }
 
         internal TextPoint HeadPoint {

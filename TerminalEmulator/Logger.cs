@@ -121,8 +121,7 @@ namespace Poderosa.Terminal {
                 line.WriteTo(
                     delegate(char[] buff, int len) {
                         _writer.Write(buff, 0, len);
-                    },
-                    0);
+                    });
                 if (line.EOLType == EOLType.Continue) {
                     _continued = true;
                 }
