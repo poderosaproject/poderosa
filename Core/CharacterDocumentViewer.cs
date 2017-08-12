@@ -45,7 +45,8 @@ namespace Poderosa.View {
 
         private CharacterDocument _document;
         private bool _errorRaisedInDrawing;
-        private List<GLine> _transientLines; //再描画するGLineを一時的に保管する
+        private readonly List<GLine> _transientLines; //再描画するGLineを一時的に保管する
+        private readonly List<GLine> _glinePool;
         private TextSelection _textSelection;
         private SplitMarkSupport _splitMark;
         private bool _enabled; //ドキュメントがアタッチされていないときを示す 変更するときはEnabledExプロパティで！
@@ -68,6 +69,7 @@ namespace Poderosa.View {
         public CharacterDocumentViewer() {
             _enableAutoScrollBarAdjustment = true;
             _transientLines = new List<GLine>();
+            _glinePool = new List<GLine>();
             InitializeComponent();
             //SetStyle(ControlStyles.UserPaint|ControlStyles.AllPaintingInWmPaint|ControlStyles.DoubleBuffer, true);
             this.DoubleBuffered = true;
@@ -496,8 +498,22 @@ namespace Poderosa.View {
             int topline_id = GetTopLine().ID;
             GLine l = _document.FindLineOrNull(topline_id + param.LineFrom);
             if (l != null) {
+                int poolIndex = 0;
                 for (int i = param.LineFrom; i < param.LineFrom + param.LineCount; i++) {
-                    _transientLines.Add(l.Clone()); //TODO クローンはきついよなあ　だが描画の方が時間かかるので、その間ロックをしないためには仕方ない点もある
+                    GLine cloned;
+                    if (poolIndex < _glinePool.Count) {
+                        cloned = _glinePool[poolIndex];
+                        poolIndex++;
+                        cloned.CopyFrom(l);
+                    }
+                    else {
+                        cloned = l.Clone();
+                        cloned.NextLine = cloned.PrevLine = null;
+                        _glinePool.Add(cloned); // store for next use
+                        poolIndex++;
+                    }
+
+                    _transientLines.Add(cloned);
                     l = l.NextLine;
                     if (l == null)
                         break;

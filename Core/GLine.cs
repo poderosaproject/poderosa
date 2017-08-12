@@ -950,6 +950,12 @@ namespace Poderosa.Document {
             int cellStart = 0;
 
             lock (this) {
+                // Note:
+                //  Currently exclusive execution is not required here
+                //  because Render() is called on the temporary instances
+                //  copied from the GLine list.
+                //  Lock is still here for keeping internal design consistency.
+
                 while (cellStart < _displayLength) {
                     int cellEnd = cellStart + 1;
                     while (cellEnd < _displayLength && _cell[cellEnd].Attr.Has(GAttrFlags.SameToPrevious)) {
