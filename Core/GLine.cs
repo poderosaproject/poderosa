@@ -777,7 +777,7 @@ namespace Poderosa.Document {
         public void Clear(TextDecoration dec) {
             GAttr attr;
             GColor24 color;
-            TextDecorationConverter.Convert((dec != null) ? dec.RetainBackColor() : null, out attr, out color);
+            TextDecorationConverter.Convert(dec, out attr, out color);
 
             lock (this) {
                 Fill(0, _cell.Length, GChar.ASCII_NUL, attr, color);
@@ -1572,7 +1572,7 @@ namespace Poderosa.Document {
 
             GAttr fillAttr;
             GColor24 fillColor;
-            TextDecorationConverter.Convert((dec != null) ? dec.RetainBackColor() : null, out fillAttr, out fillColor);
+            TextDecorationConverter.Convert(dec, out fillAttr, out fillColor);
 
             int limit = Math.Max(0, start);
             int dstIndex = _cell.Length - 1;
