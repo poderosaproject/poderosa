@@ -447,12 +447,10 @@ namespace Poderosa.Document {
     /// </summary>
     internal static class TextDecorationConverter {
 
-        // FIXME:
-
-        public static void Convert(TextDecoration dec, out GAttr attr, out GColor24 color) {
+        public static void Convert(TextDecoration dec, out GAttr attr, out GColor24 colors) {
             if (dec == null) {
                 attr = GAttr.Default;
-                color = new GColor24();
+                colors = new GColor24();
                 return;
             }
 
@@ -465,34 +463,47 @@ namespace Poderosa.Document {
                 flags |= GAttrFlags.Bold;
             }
 
-            color = new GColor24();
+            if (dec.Inverted) {
+                flags |= GAttrFlags.Inverted;
+            }
 
-            switch (dec.TextColorType) {
-                case ColorType.DefaultText:
+            int backColorCode = 0;
+            int foreColorCode = 0;
+            colors = new GColor24();
+
+            ColorSpec decForeColor = dec.ForeColor;
+
+            switch (decForeColor.ColorType) {
+                case ColorType.Default:
                     break;
-                case ColorType.DefaultBack:
-                    flags |= GAttrFlags.Inverted;
+                case ColorType.Custom8bit:
+                    flags |= GAttrFlags.Use8bitForeColor;
+                    foreColorCode = decForeColor.ColorCode;
                     break;
-                case ColorType.Custom:
+                case ColorType.Custom24bit:
                     flags |= GAttrFlags.Use24bitForeColor;
-                    color.ForeColor = dec.TextColor;
+                    colors.ForeColor = decForeColor.Color;
                     break;
             }
 
-            switch (dec.BackColorType) {
-                case ColorType.DefaultBack:
+            ColorSpec decBackColor = dec.BackColor;
+
+            switch (decBackColor.ColorType) {
+                case ColorType.Default:
                     break;
-                case ColorType.DefaultText:
-                    flags |= GAttrFlags.Inverted;
+                case ColorType.Custom8bit:
+                    flags |= GAttrFlags.Use8bitBackColor;
+                    backColorCode = decBackColor.ColorCode;
                     break;
-                case ColorType.Custom:
+                case ColorType.Custom24bit:
                     flags |= GAttrFlags.Use24bitBackColor;
-                    color.BackColor = dec.BackColor;
+                    colors.BackColor = decBackColor.Color;
                     break;
             }
 
-            attr = new GAttr(0, 0, flags);
+            attr = new GAttr(backColorCode, foreColorCode, flags);
         }
+
     }
 
     /// <summary>

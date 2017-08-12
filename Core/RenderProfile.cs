@@ -17,6 +17,7 @@ using System.Windows.Forms;
 
 #if !MACRODOC
 using Poderosa.Util;
+using Poderosa.Util.Drawing;
 using Poderosa.Document;
 using System.Globalization;
 #endif
@@ -567,52 +568,44 @@ namespace Poderosa.View {
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dec"></param>
-        /// <returns></returns>
-        /// <exclude/>
-        public Color CalcTextColor(TextDecoration dec) {
-            if (_brush == null)
-                CreateBrushes();
-            if (dec == null)
-                return _forecolor;
+        public Color GetBackColor(ColorSpec backColorSpec) {
+            switch (backColorSpec.ColorType) {
+                case ColorType.Custom24bit:
+                    return backColorSpec.Color;
 
-            switch (dec.TextColorType) {
-                case ColorType.Custom:
-                    return dec.TextColor;
-                case ColorType.DefaultBack:
-                    return _bgcolor;
-                case ColorType.DefaultText:
-                    return _forecolor;
+                case ColorType.Custom8bit:
+                    return GetESBackColor(backColorSpec.ColorCode);
+
+                case ColorType.Default:
                 default:
-                    throw new Exception("Unexpected decoration object");
+                    return this.BackColor;
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dec"></param>
-        /// <returns></returns>
-        /// <exclude/>
-        public Color CalcBackColor(TextDecoration dec) {
-            if (_brush == null)
-                CreateBrushes();
-            if (dec == null)
-                return _bgcolor;
-
-            switch (dec.BackColorType) {
-                case ColorType.Custom:
-                    return dec.BackColor;
-                case ColorType.DefaultBack:
-                    return _bgcolor;
-                case ColorType.DefaultText:
-                    return _forecolor;
-                default:
-                    throw new Exception("Unexpected decoration object");
+        private Color GetESBackColor(int colorCode) {
+            ESColor c = this.ESColorSet[colorCode];
+            if (this.DarkenEsColorForBackground && !c.IsExactColor) {
+                return DrawUtil.DarkColor(c.Color);
             }
+            return c.Color;
+        }
+
+        public Color GetForeColor(ColorSpec foreColorSpec) {
+            switch (foreColorSpec.ColorType) {
+                case ColorType.Custom24bit:
+                    return foreColorSpec.Color;
+
+                case ColorType.Custom8bit:
+                    return GetESForeColor(foreColorSpec.ColorCode);
+
+                case ColorType.Default:
+                default:
+                    return this.ForeColor;
+            }
+        }
+
+        private Color GetESForeColor(int colorCode) {
+            return this.ESColorSet[colorCode].Color;
         }
 
         /// <summary>
@@ -639,90 +632,49 @@ namespace Poderosa.View {
         /// <returns></returns>
         /// <exclude/>
         public Font CalcFont(TextDecoration dec, CharGroup cg) {
-            return CalcFontInternal(dec, cg, false).Font;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dec"></param>
-        /// <param name="cg"></param>
-        /// <returns></returns>
-        /// <exclude/>
-        public IntPtr CalcHFONT_NoUnderline(TextDecoration dec, CharGroup cg) {
-            return CalcFontInternal(dec, cg, true).HFONT;
-        }
-
-        private FontHandle CalcFontInternal(TextDecoration dec, CharGroup cg, bool ignore_underline) {
-            if (_font == null)
-                CreateFonts();
-
-            if (CharGroupUtil.IsCJK(cg)) {
-                if (dec == null)
-                    return _cjkFont;
-
-                if (CalcBold(dec)) {
-                    if (!ignore_underline && dec.Underline)
-                        return _cjkBoldUnderlinefont;
-                    else
-                        return _cjkBoldfont;
-                }
-                else if (!ignore_underline && dec.Underline)
-                    return _cjkUnderlinefont;
-                else
-                    return _cjkFont;
-            }
-            else {
-                if (dec == null)
-                    return _font;
-
-                if (CalcBold(dec)) {
-                    if (!ignore_underline && dec.Underline)
-                        return _boldunderlinefont;
-                    else
-                        return _boldfont;
-                }
-                else if (!ignore_underline && dec.Underline)
-                    return _underlinefont;
-                else
-                    return _font;
-            }
+            return CalcFontInternal(
+                    CharGroupUtil.IsCJK(cg),
+                    (dec != null) ? CalcBold(dec) : false,
+                    false).Font;
         }
 
         internal IntPtr CalcHFONT_NoUnderline(GAttr attr) {
-            return CalcFontInternal(attr, true).HFONT;
+            return CalcFontInternal(
+                    attr.Has(GAttrFlags.UseCjkFont),
+                    DetermineBold(attr),
+                    false).HFONT;
         }
 
-        private FontHandle CalcFontInternal(GAttr attr, bool ignoreUnderline) {
+        private FontHandle CalcFontInternal(bool useCjkFont, bool bold, bool underlined) {
             if (_font == null) {
                 CreateFonts();
             }
 
-            if (attr.Has(GAttrFlags.UseCjkFont)) {
-                if (DetermineBold(attr)) {
-                    if (!ignoreUnderline && attr.Has(GAttrFlags.Underlined)) {
+            if (useCjkFont) {
+                if (bold) {
+                    if (underlined) {
                         return _cjkBoldUnderlinefont;
                     }
 
                     return _cjkBoldfont;
                 }
 
-                if (!ignoreUnderline && attr.Has(GAttrFlags.Underlined)) {
+                if (underlined) {
                     return _cjkUnderlinefont;
                 }
 
                 return _cjkFont;
             }
 
-            if (DetermineBold(attr)) {
-                if (!ignoreUnderline && attr.Has(GAttrFlags.Underlined)) {
+            if (bold) {
+                if (underlined) {
                     return _boldunderlinefont;
                 }
 
                 return _boldfont;
             }
 
-            if (!ignoreUnderline && attr.Has(GAttrFlags.Underlined)) {
+            if (underlined) {
                 return _underlinefont;
             }
 
@@ -758,7 +710,7 @@ namespace Poderosa.View {
                 inverted = true;
             }
 
-            inverted = inverted  ^ attr.Has(GAttrFlags.Inverted) ^ attr.Has(GAttrFlags.Selected);
+            inverted = inverted ^ attr.Has(GAttrFlags.Inverted) ^ attr.Has(GAttrFlags.Selected);
 
             if (inverted) {
                 backColor = DetermineForeColor(attr, color24);
@@ -772,22 +724,22 @@ namespace Poderosa.View {
 
         private Color DetermineBackColor(GAttr attr, GColor24 color24) {
             if (attr.Has(GAttrFlags.Use8bitBackColor)) {
-                return _bgcolor;    // FIXME: use color code
+                return GetESBackColor(attr.BackColor);
             }
             if (attr.Has(GAttrFlags.Use24bitBackColor)) {
                 return color24.BackColor;
             }
-            return _bgcolor;
+            return this.BackColor;
         }
 
         private Color DetermineForeColor(GAttr attr, GColor24 color24) {
             if (attr.Has(GAttrFlags.Use8bitForeColor)) {
-                return _forecolor;  // FIXME: use color code
+                return GetESForeColor(attr.ForeColor);
             }
             if (attr.Has(GAttrFlags.Use24bitForeColor)) {
                 return color24.ForeColor;
             }
-            return _forecolor;
+            return this.ForeColor;
         }
 #endif
     }
@@ -843,8 +795,7 @@ namespace Poderosa.View {
             return _color.GetHashCode();
         }
 
-        public static bool operator ==(ESColor c1, ESColor c2)
-        {
+        public static bool operator ==(ESColor c1, ESColor c2) {
             return (c1._color.ToArgb() == c2._color.ToArgb()) && (c1._isExactColor == c2._isExactColor);
         }
 
@@ -852,7 +803,7 @@ namespace Poderosa.View {
             return !(c1 == c2);
         }
     }
-    
+
     /// <summary>
     /// Color palette changeable by escape sequence.
     /// </summary>

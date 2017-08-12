@@ -44,7 +44,7 @@ namespace Poderosa.Document {
         protected GLine _lastLine;
         protected int _size; //サイズは_firstLine/lastLineから計算可能だがよく使うのでキャッシュ
 
-        protected Color _appModeBgColor = Color.Empty;
+        protected ColorSpec _appModeBgColor = ColorSpec.Default;
         protected bool _bApplicationMode;
 
         public InvalidatedRegion InvalidatedRegion {
@@ -78,7 +78,7 @@ namespace Poderosa.Document {
                 return _size;
             }
         }
-        public Color ApplicationModeBackColor {
+        public ColorSpec ApplicationModeBackColor {
             get {
                 return _appModeBgColor;
             }

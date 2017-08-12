@@ -716,11 +716,11 @@ namespace Poderosa.Terminal {
         }
 
         private TextDecoration SetForeColorByRGB(TextDecoration dec, int r, int g, int b) {
-            return dec.GetCopyWithTextColor(Color.FromArgb(r, g, b));
+            return dec.GetCopyWithForeColor(new ColorSpec(Color.FromArgb(r, g, b)));
         }
 
         private TextDecoration SetBackColorByRGB(TextDecoration dec, int r, int g, int b) {
-            return dec.GetCopyWithBackColor(Color.FromArgb(r, g, b));
+            return dec.GetCopyWithBackColor(new ColorSpec(Color.FromArgb(r, g, b)));
         }
 
         protected override ProcessCharResult ProcessDECSET(string param, char code) {

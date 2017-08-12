@@ -166,7 +166,6 @@ namespace Poderosa.Terminal {
                     dec = dec.GetCopyWithBold(true);
                     break;
                 case 2: // faint, decreased intensity or second colour (ECMA-48)
-                    dec = dec.GetCopyWithTextColor(DrawUtil.DarkColor(dec.TextColor));
                     break;
                 case 3: // italicized (ECMA-48)
                     break;
@@ -179,7 +178,7 @@ namespace Poderosa.Terminal {
                     dec = dec.GetCopyWithBold(true);
                     break;
                 case 7: // negative image (ECMA-48,VT100,VT220)
-                    dec = dec.GetInvertedCopy();
+                    dec = dec.GetCopyWithInverted(true);
                     break;
                 case 8: // concealed characters (ECMA-48,VT300)
                 case 9: // crossed-out (ECMA-48)
@@ -211,8 +210,7 @@ namespace Poderosa.Terminal {
                 case 26: // reserved (ECMA-48)
                     break;
                 case 27: // positive image (ECMA-48,VT220,VT300)
-                    // actually, there is no guarantee that this operation displays a positive attributes...
-                    dec = dec.GetInvertedCopy();
+                    dec = dec.GetCopyWithInverted(false);
                     break;
                 case 28: // revealed characters (ECMA-48)
                 case 29: // not crossed out (ECMA-48)
@@ -230,7 +228,7 @@ namespace Poderosa.Terminal {
                 case 38: // reserved (ECMA-48)
                     break;
                 case 39: // default display colour (implementation-defined) (ECMA-48)
-                    dec = dec.GetCopyWithDefaultTextColor();
+                    dec = dec.GetCopyWithForeColor(ColorSpec.Default);
                     break;
                 case 40: // black background (ECMA-48)
                 case 41: // red background (ECMA-48)
@@ -245,7 +243,7 @@ namespace Poderosa.Terminal {
                 case 48: // reserved (ECMA-48)
                     break;
                 case 49: // default background colour (implementation-defined) (ECMA-48)
-                    dec = dec.GetCopyWithDefaultBackColor();
+                    dec = dec.GetCopyWithBackColor(ColorSpec.Default);
                     break;
                 case 50: // reserved (ECMA-48)
                 case 51: // framed (ECMA-48)
@@ -272,22 +270,11 @@ namespace Poderosa.Terminal {
         }
 
         protected TextDecoration SelectForeColor(TextDecoration dec, int index) {
-            RenderProfile prof = GetRenderProfile();
-            ESColor c = prof.ESColorSet[index];
-            return dec.GetCopyWithTextColor(c.Color);
+            return dec.GetCopyWithForeColor(new ColorSpec(index));
         }
 
         protected TextDecoration SelectBackgroundColor(TextDecoration dec, int index) {
-            RenderProfile prof = GetRenderProfile();
-            ESColor c = prof.ESColorSet[index];
-
-            Color color;
-            if (prof.DarkenEsColorForBackground && !c.IsExactColor)
-                color = DrawUtil.DarkColor(c.Color);
-            else
-                color = c.Color;
-
-            return dec.GetCopyWithBackColor(color);
+            return dec.GetCopyWithBackColor(new ColorSpec(index));
         }
 
         protected int ParseSGRCode(string param) {
@@ -416,7 +403,8 @@ namespace Poderosa.Terminal {
                     break;
                 case 2: //erase all
                 ERASE_ALL: {
-                        GetDocument().ApplicationModeBackColor = (_currentdecoration != null) ? _currentdecoration.BackColor : Color.Empty;
+                        GetDocument().ApplicationModeBackColor =
+                            (_currentdecoration != null) ? _currentdecoration.BackColor : ColorSpec.Default;
 
                         doc.UpdateCurrentLine(_manipulator);
                         //if(_homePositionOnCSIJ2) { //SFUではこうなる
@@ -545,7 +533,7 @@ namespace Poderosa.Terminal {
                 GetDocument().IsApplicationMode = false;
             }
             else {
-                GetDocument().ApplicationModeBackColor = Color.Empty;
+                GetDocument().ApplicationModeBackColor = ColorSpec.Default;
                 GetDocument().SetScrollingRegion(0, GetDocument().TerminalHeight - 1);
                 GetDocument().IsApplicationMode = true;
             }

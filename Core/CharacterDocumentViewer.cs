@@ -416,9 +416,7 @@ namespace Poderosa.View {
                     // determine background color of the view
                     Color backColor;
                     if (_document.IsApplicationMode) {
-                        backColor = _document.ApplicationModeBackColor;
-                        if (backColor.IsEmpty)
-                            backColor = profile.BackColor;
+                        backColor = profile.GetBackColor(_document.ApplicationModeBackColor);
                     }
                     else {
                         backColor = profile.BackColor;
