@@ -698,23 +698,25 @@ namespace Poderosa.View {
                 CreateBrushes();
             }
 
-            bool inverted = false;
+            bool inverted = attr.Has(GAttrFlags.Inverted) ^ attr.Has(GAttrFlags.Selected);
 
-            if (attr.Has(GAttrFlags.Cursor)) {
-                if (!caret.Color.IsEmpty) {
-                    backColor = caret.Color;
-                    foreColor = DetermineBackColor(attr, color24);
-                    return;
+            if (attr.Has(GAttrFlags.Cursor) && (!caret.Blink || caret.IsActiveTick)) {
+                if (inverted) {
+                    // paint as normal
+                    foreColor = DetermineForeColor(attr, color24);
+                    backColor = caret.Color.IsEmpty ? DetermineBackColor(attr, color24) : caret.Color;
                 }
-
-                inverted = true;
+                else {
+                    // paint as inverted
+                    foreColor = DetermineBackColor(attr, color24);
+                    backColor = caret.Color.IsEmpty ? DetermineForeColor(attr, color24) : caret.Color;
+                }
+                return;
             }
 
-            inverted = inverted ^ attr.Has(GAttrFlags.Inverted) ^ attr.Has(GAttrFlags.Selected);
-
             if (inverted) {
-                backColor = DetermineForeColor(attr, color24);
                 foreColor = DetermineBackColor(attr, color24);
+                backColor = DetermineForeColor(attr, color24);
             }
             else {
                 foreColor = DetermineForeColor(attr, color24);

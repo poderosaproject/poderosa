@@ -1190,8 +1190,7 @@ namespace Poderosa.Document {
         /// Set cursor at the specified cell.
         /// </summary>
         /// <param name="index">cell index</param>
-        /// <param name="doInvert">whether the inversion is applied</param>
-        internal void SetCursor(int index, bool doInvert) {
+        internal void SetCursor(int index) {
             lock (this) {
                 if (index >= _displayLength) {
                     int prevLength = _displayLength;
@@ -1199,30 +1198,28 @@ namespace Poderosa.Document {
                     _displayLength = index + 1;
                 }
 
-                if (doInvert) {
-                    _cell[index].Attr += GAttrFlags.Cursor;
+                _cell[index].Attr += GAttrFlags.Cursor;
 
-                    if (_cell[index].Char.IsRightHalf) {
-                        if (index > 0 && _cell[index - 1].Char.IsLeftHalf) {
-                            _cell[index - 1].Attr += GAttrFlags.Cursor;
-                            UpdateSameToPreviousForCellsChanged(index - 1, index + 1);
-                        }
-                        else {
-                            UpdateSameToPreviousForCellsChanged(index, index + 1);
-                        }
-                    }
-                    else if (_cell[index].Char.IsLeftHalf) {
-                        if (index + 1 < _cell.Length && _cell[index + 1].Char.IsRightHalf) {
-                            _cell[index + 1].Attr += GAttrFlags.Cursor;
-                            UpdateSameToPreviousForCellsChanged(index, index + 2);
-                        }
-                        else {
-                            UpdateSameToPreviousForCellsChanged(index, index + 1);
-                        }
+                if (_cell[index].Char.IsRightHalf) {
+                    if (index > 0 && _cell[index - 1].Char.IsLeftHalf) {
+                        _cell[index - 1].Attr += GAttrFlags.Cursor;
+                        UpdateSameToPreviousForCellsChanged(index - 1, index + 1);
                     }
                     else {
                         UpdateSameToPreviousForCellsChanged(index, index + 1);
                     }
+                }
+                else if (_cell[index].Char.IsLeftHalf) {
+                    if (index + 1 < _cell.Length && _cell[index + 1].Char.IsRightHalf) {
+                        _cell[index + 1].Attr += GAttrFlags.Cursor;
+                        UpdateSameToPreviousForCellsChanged(index, index + 2);
+                    }
+                    else {
+                        UpdateSameToPreviousForCellsChanged(index, index + 1);
+                    }
+                }
+                else {
+                    UpdateSameToPreviousForCellsChanged(index, index + 1);
                 }
             }
         }

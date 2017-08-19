@@ -556,7 +556,7 @@ namespace Poderosa.View {
                 if (_caret.Style == CaretType.Box) {
                     int y = _caret.Y - param.LineFrom;
                     if (y >= 0 && y < _transientLines.Count) {
-                        _transientLines[y].SetCursor(_caret.X, _caret.IsActiveTick);
+                        _transientLines[y].SetCursor(_caret.X);
                     }
                 }
             }
