@@ -43,6 +43,7 @@ namespace Poderosa.View {
         private bool _errorRaisedInDrawing;
         private readonly List<GLine> _transientLines; //再描画するGLineを一時的に保管する
         private readonly List<GLine> _glinePool;
+        private bool _requiresPeriodicRedraw;
         private TextSelection _textSelection;
         private SplitMarkSupport _splitMark;
         private bool _enabled; //ドキュメントがアタッチされていないときを示す 変更するときはEnabledExプロパティで！
@@ -204,9 +205,18 @@ namespace Poderosa.View {
 
         //タイマーの受信
         private void CaretTick() {
-            if (_enabled && _caret.Blink) {
+            if (_enabled) {
+                // Note:
+                //  Currently, blinking status of the caret is used also for displaying "blink" characters.
+                //  So the blinking status of the caret have to be updated here even if the caret blinking was not enabled.
                 _caret.Tick();
-                _document.InvalidatedRegion.InvalidateLine(GetTopLine().ID + _caret.Y);
+                if (_requiresPeriodicRedraw) {
+                    _requiresPeriodicRedraw = false;
+                    _document.InvalidatedRegion.InvalidatedAll = true;
+                }
+                else {
+                    _document.InvalidatedRegion.InvalidateLine(GetTopLine().ID + _caret.Y);
+                }
                 InvalidateEx();
             }
         }
@@ -568,6 +578,9 @@ namespace Poderosa.View {
                     for (int i = 0; i < _transientLines.Count; i++) {
                         GLine line = _transientLines[i];
                         line.Render(hdc, prof, caret, baseBackColor, BORDER, (int)y);
+                        if (line.IsPeriodicRedrawRequired()) {
+                            _requiresPeriodicRedraw = true;
+                        }
                         y += prof.Pitch.Height + prof.LineSpacing;
                     }
                 }

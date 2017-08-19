@@ -1002,6 +1002,20 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
+        /// Returns whether this line requires periodic redraw.
+        /// </summary>
+        public bool IsPeriodicRedrawRequired() {
+            lock (this) {
+                for (int i = 0; i < _cell.Length; i++) {
+                    if (_cell[i].Attr.Has(GAttrFlags.Blink)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Render this line.
         /// </summary>
         /// <param name="hdc">handle of the device context</param>
