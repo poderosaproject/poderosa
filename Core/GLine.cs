@@ -1066,12 +1066,16 @@ namespace Poderosa.Document {
 
                     Color foreColor;
                     Color backColor;
-                    prof.DetermineColors(attr, color24, caret, out backColor, out foreColor);
-                    uint foreColorRef = DrawUtil.ToCOLORREF(foreColor);
-                    Win32.SetTextColor(hdc, foreColorRef);
+                    prof.DetermineColors(attr, color24, caret, baseBackColor, out backColor, out foreColor);
 
-                    bool isOpaque = (backColor.ToArgb() != defaultBackColorArgb);
-                    if (isOpaque) {
+                    bool isTextOpaque = foreColor.A != 0;
+                    uint foreColorRef = DrawUtil.ToCOLORREF(foreColor);
+                    if (isTextOpaque) {
+                        Win32.SetTextColor(hdc, foreColorRef);
+                    }
+
+                    bool isBackgroundOpaque = backColor.A != 0;
+                    if (isBackgroundOpaque) {
                         uint bkColorRef = DrawUtil.ToCOLORREF(backColor);
                         Win32.SetBkColor(hdc, bkColorRef);
                     }
@@ -1087,43 +1091,54 @@ namespace Poderosa.Document {
                         int cellIndex = cellStart;
                         float fx = fx1;
 
-                        if (isOpaque) {
+                        if (isBackgroundOpaque) {
                             // If background fill is required, we call ExtTextOut() with ETO_OPAQUE to draw the first character.
                             Win32.RECT rect = new Win32.RECT((int)fx1, y1, (int)fx2, y2);
-                            GChar ch = NulToSpace(_cell[cellIndex].Char);
-                            int len = ch.WriteTo(tmpCharBuf, 0);
-                            unsafe {
-                                fixed (char* p = tmpCharBuf) {
-                                    Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, p, len, null);
+                            if (isTextOpaque) {
+                                GChar ch = NulToSpace(_cell[cellIndex].Char);
+                                int len = ch.WriteTo(tmpCharBuf, 0);
+                                unsafe {
+                                    fixed (char* p = tmpCharBuf) {
+                                        Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, p, len, null);
+                                    }
+                                }
+
+                                if (ch.IsLeftHalf) {
+                                    cellIndex += 2;
+                                    fx = fx + pitch + pitch;
+                                }
+                                else {
+                                    cellIndex += 1;
+                                    fx = fx + pitch;
                                 }
                             }
-
-                            if (ch.IsLeftHalf) {
-                                cellIndex += 2;
-                                fx = fx + pitch + pitch;
-                            }
                             else {
-                                cellIndex += 1;
-                                fx = fx + pitch;
+                                unsafe {
+                                    fixed (char* p = tmpCharBuf) {
+                                        Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, p, 0, null);
+                                    }
+                                }
                             }
                         }
 
-                        while (cellIndex < cellEnd) {
-                            GChar ch = NulToSpace(_cell[cellIndex].Char);
-                            int len = ch.WriteTo(tmpCharBuf, 0);
-                            unsafe {
-                                fixed (char* p = tmpCharBuf) {
-                                    Win32.ExtTextOut(hdc, (int)fx, y1, 0, null, p, len, null);
+                        if (isTextOpaque) {
+                            while (cellIndex < cellEnd) {
+                                GChar ch = NulToSpace(_cell[cellIndex].Char);
+                                int len = ch.WriteTo(tmpCharBuf, 0);
+                                unsafe {
+                                    fixed (char* p = tmpCharBuf) {
+                                        Win32.ExtTextOut(hdc, (int)fx, y1, 0, null, p, len, null);
+                                    }
                                 }
-                            }
 
-                            if (ch.IsLeftHalf) {
-                                cellIndex += 2;
-                                fx = fx + pitch + pitch;
-                            }
-                            else {
-                                cellIndex += 1;
-                                fx = fx + pitch;
+                                if (ch.IsLeftHalf) {
+                                    cellIndex += 2;
+                                    fx = fx + pitch + pitch;
+                                }
+                                else {
+                                    cellIndex += 1;
+                                    fx = fx + pitch;
+                                }
                             }
                         }
                     }
@@ -1134,24 +1149,35 @@ namespace Poderosa.Document {
                             bufLen += NulToSpace(_cell[i].Char).WriteTo(tmpCharBuf, bufLen);
                         }
 
-                        if (isOpaque) {
+                        if (isBackgroundOpaque) {
                             Win32.RECT rect = new Win32.RECT((int)fx1, y1, (int)fx2, y2);
-                            unsafe {
-                                fixed (char* p = tmpCharBuf) {
-                                    Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, p, bufLen, null);
+                            if (isTextOpaque) {
+                                unsafe {
+                                    fixed (char* p = tmpCharBuf) {
+                                        Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, p, bufLen, null);
+                                    }
+                                }
+                            }
+                            else {
+                                unsafe {
+                                    fixed (char* p = tmpCharBuf) {
+                                        Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, p, 0, null);
+                                    }
                                 }
                             }
                         }
                         else {
-                            unsafe {
-                                fixed (char* p = tmpCharBuf) {
-                                    Win32.ExtTextOut(hdc, (int)fx1, y1, 0, null, p, bufLen, null);
+                            if (isTextOpaque) {
+                                unsafe {
+                                    fixed (char* p = tmpCharBuf) {
+                                        Win32.ExtTextOut(hdc, (int)fx1, y1, 0, null, p, bufLen, null);
+                                    }
                                 }
                             }
                         }
                     }
 
-                    if (attr.Has(GAttrFlags.Underlined)) {
+                    if (attr.Has(GAttrFlags.Underlined) && isTextOpaque) {
                         DrawUnderline(hdc, foreColorRef, (int)fx1, y2 - 1, (int)fx2 - (int)fx1);
                     }
 

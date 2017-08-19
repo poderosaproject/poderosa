@@ -693,7 +693,7 @@ namespace Poderosa.View {
             return false;
         }
 
-        internal void DetermineColors(GAttr attr, GColor24 color24, Caret caret, out Color backColor, out Color foreColor) {
+        internal void DetermineColors(GAttr attr, GColor24 color24, Caret caret, Color baseBackColor, out Color backColor, out Color foreColor) {
             if (_brush == null) {
                 CreateBrushes();
             }
@@ -705,30 +705,30 @@ namespace Poderosa.View {
             if (attr.Has(GAttrFlags.Cursor) && (!caret.Blink || blinkStatus)) {
                 if (inverted) {
                     // paint as normal
-                    backColor = caret.Color.IsEmpty ? DetermineBackColor(attr, color24) : caret.Color;
-                    foreColor = DetermineForeColor(attr, color24);
+                    backColor = DetermineActualBackColor(caret.Color.IsEmpty ? DetermineNormalBackColor(attr, color24) : caret.Color, baseBackColor);
+                    foreColor = DetermineNormalForeColor(attr, color24);
                 }
                 else {
                     // paint as inverted
-                    backColor = caret.Color.IsEmpty ? DetermineForeColor(attr, color24) : caret.Color;
-                    foreColor = DetermineBackColor(attr, color24);
+                    backColor = DetermineActualBackColor(caret.Color.IsEmpty ? DetermineNormalForeColor(attr, color24) : caret.Color, baseBackColor);
+                    foreColor = DetermineNormalBackColor(attr, color24);
                 }
             }
             else {
                 bool isHidden = attr.Has(GAttrFlags.Hidden) || (attr.Has(GAttrFlags.Blink) && !blinkStatus);
 
                 if (inverted) {
-                    backColor = DetermineForeColor(attr, color24);
-                    foreColor = isHidden ? backColor : DetermineBackColor(attr, color24);
+                    backColor = DetermineActualBackColor(DetermineNormalForeColor(attr, color24), baseBackColor);
+                    foreColor = isHidden ? Color.Transparent : DetermineNormalBackColor(attr, color24);
                 }
                 else {
-                    backColor = DetermineBackColor(attr, color24);
-                    foreColor = isHidden ? backColor : DetermineForeColor(attr, color24);
+                    backColor = DetermineActualBackColor(DetermineNormalBackColor(attr, color24), baseBackColor);
+                    foreColor = isHidden ? Color.Transparent : DetermineNormalForeColor(attr, color24);
                 }
             }
         }
 
-        private Color DetermineBackColor(GAttr attr, GColor24 color24) {
+        private Color DetermineNormalBackColor(GAttr attr, GColor24 color24) {
             if (attr.Has(GAttrFlags.Use8bitBackColor)) {
                 return GetESBackColor(attr.BackColor);
             }
@@ -738,7 +738,7 @@ namespace Poderosa.View {
             return this.BackColor;
         }
 
-        private Color DetermineForeColor(GAttr attr, GColor24 color24) {
+        private Color DetermineNormalForeColor(GAttr attr, GColor24 color24) {
             if (attr.Has(GAttrFlags.Use8bitForeColor)) {
                 return GetESForeColor(attr.ForeColor);
             }
@@ -747,6 +747,11 @@ namespace Poderosa.View {
             }
             return this.ForeColor;
         }
+
+        private Color DetermineActualBackColor(Color candidate, Color baseBackColor) {
+            return (candidate.ToArgb() == baseBackColor.ToArgb()) ? Color.Transparent : candidate;
+        }
+
 #endif
     }
 
