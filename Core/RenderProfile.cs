@@ -700,27 +700,31 @@ namespace Poderosa.View {
 
             bool inverted = attr.Has(GAttrFlags.Inverted) ^ attr.Has(GAttrFlags.Selected);
 
-            if (attr.Has(GAttrFlags.Cursor) && (!caret.Blink || caret.IsActiveTick)) {
+            bool blinkStatus = caret.IsActiveTick;
+
+            if (attr.Has(GAttrFlags.Cursor) && (!caret.Blink || blinkStatus)) {
                 if (inverted) {
                     // paint as normal
-                    foreColor = DetermineForeColor(attr, color24);
                     backColor = caret.Color.IsEmpty ? DetermineBackColor(attr, color24) : caret.Color;
+                    foreColor = DetermineForeColor(attr, color24);
                 }
                 else {
                     // paint as inverted
-                    foreColor = DetermineBackColor(attr, color24);
                     backColor = caret.Color.IsEmpty ? DetermineForeColor(attr, color24) : caret.Color;
+                    foreColor = DetermineBackColor(attr, color24);
                 }
-                return;
-            }
-
-            if (inverted) {
-                foreColor = DetermineBackColor(attr, color24);
-                backColor = DetermineForeColor(attr, color24);
             }
             else {
-                foreColor = DetermineForeColor(attr, color24);
-                backColor = DetermineBackColor(attr, color24);
+                bool isHidden = attr.Has(GAttrFlags.Hidden) || (attr.Has(GAttrFlags.Blink) && !blinkStatus);
+
+                if (inverted) {
+                    backColor = DetermineForeColor(attr, color24);
+                    foreColor = isHidden ? backColor : DetermineBackColor(attr, color24);
+                }
+                else {
+                    backColor = DetermineBackColor(attr, color24);
+                    foreColor = isHidden ? backColor : DetermineForeColor(attr, color24);
+                }
             }
         }
 

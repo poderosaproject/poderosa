@@ -133,12 +133,20 @@ namespace Poderosa.Document {
     public sealed class TextDecoration {
         private readonly ColorSpec _backColor;
         private readonly ColorSpec _foreColor;
-        private readonly bool _underline;
-        private readonly bool _bold;
-        private readonly bool _inverted;
+        private readonly Attributes _attrs;
+
+        [Flags]
+        internal enum Attributes {
+            None = 0,
+            Blink = 1 << 0,
+            Hidden = 1 << 1,
+            Underlined = 1 << 2,
+            Bold = 1 << 3,
+            Inverted = 1 << 4,
+        }
 
         private static readonly TextDecoration _default =
-            new TextDecoration(ColorSpec.Default, ColorSpec.Default, false, false, false);
+            new TextDecoration(ColorSpec.Default, ColorSpec.Default, Attributes.None);
 
         /// <summary>
         /// Get a default decoration.
@@ -152,12 +160,10 @@ namespace Poderosa.Document {
             }
         }
 
-        private TextDecoration(ColorSpec backColor, ColorSpec foreColor, bool underline, bool bold, bool inverted) {
+        private TextDecoration(ColorSpec backColor, ColorSpec foreColor, Attributes attrs) {
             _backColor = backColor;
             _foreColor = foreColor;
-            _underline = underline;
-            _bold = bold;
-            _inverted = inverted;
+            _attrs = attrs;
         }
 
         public ColorSpec ForeColor {
@@ -172,28 +178,47 @@ namespace Poderosa.Document {
             }
         }
 
+        public bool Blink {
+            get {
+                return (_attrs & Attributes.Blink) != 0;
+            }
+        }
+
+        public bool Hidden {
+            get {
+                return (_attrs & Attributes.Hidden) != 0;
+            }
+        }
+
         public bool Bold {
             get {
-                return _bold;
+                return (_attrs & Attributes.Bold) != 0;
             }
         }
 
         public bool Underline {
             get {
-                return _underline;
+                return (_attrs & Attributes.Underlined) != 0;
             }
         }
 
         public bool Inverted {
             get {
-                return _inverted;
+                return (_attrs & Attributes.Inverted) != 0;
+            }
+        }
+
+        internal Attributes Attribute {
+            get {
+                return _attrs;
             }
         }
 
         public bool IsDefault {
             get {
-                return !_underline && !_bold && !_inverted
-                    && _backColor.ColorType == ColorType.Default && _foreColor.ColorType == ColorType.Default;
+                return _attrs == Attributes.None
+                    && _backColor.ColorType == ColorType.Default
+                    && _foreColor.ColorType == ColorType.Default;
             }
         }
 
@@ -202,7 +227,7 @@ namespace Poderosa.Document {
         /// </summary>
         /// <returns>new instance</returns>
         public TextDecoration GetCopyWithInverted(bool inverted) {
-            return new TextDecoration(_backColor, _foreColor, _underline, _bold, inverted);
+            return new TextDecoration(_backColor, _foreColor, GetNewAttr(Attributes.Inverted, inverted));
         }
 
         /// <summary>
@@ -210,7 +235,7 @@ namespace Poderosa.Document {
         /// </summary>
         /// <returns>new instance</returns>
         public TextDecoration GetCopyWithForeColor(ColorSpec foreColor) {
-            return new TextDecoration(_backColor, foreColor, _underline, _bold, _inverted);
+            return new TextDecoration(_backColor, foreColor, _attrs);
         }
 
         /// <summary>
@@ -218,7 +243,7 @@ namespace Poderosa.Document {
         /// </summary>
         /// <returns>new instance</returns>
         public TextDecoration GetCopyWithBackColor(ColorSpec backColor) {
-            return new TextDecoration(backColor, _foreColor, _underline, _bold, _inverted);
+            return new TextDecoration(backColor, _foreColor, _attrs);
         }
 
         /// <summary>
@@ -227,7 +252,7 @@ namespace Poderosa.Document {
         /// <param name="underline">new underline status</param>
         /// <returns>new instance</returns>
         public TextDecoration GetCopyWithUnderline(bool underline) {
-            return new TextDecoration(_backColor, _foreColor, underline, _bold, _inverted);
+            return new TextDecoration(_backColor, _foreColor, GetNewAttr(Attributes.Underlined, underline));
         }
 
         /// <summary>
@@ -236,7 +261,29 @@ namespace Poderosa.Document {
         /// <param name="bold">new bold status</param>
         /// <returns>new instance</returns>
         public TextDecoration GetCopyWithBold(bool bold) {
-            return new TextDecoration(_backColor, _foreColor, _underline, bold, _inverted);
+            return new TextDecoration(_backColor, _foreColor, GetNewAttr(Attributes.Bold, bold));
+        }
+
+        /// <summary>
+        /// Get a new copy whose hidden status was set.
+        /// </summary>
+        /// <param name="hidden">new hidden status</param>
+        /// <returns>new instance</returns>
+        public TextDecoration GetCopyWithHidden(bool hidden) {
+            return new TextDecoration(_backColor, _foreColor, GetNewAttr(Attributes.Hidden, hidden));
+        }
+
+        /// <summary>
+        /// Get a new copy whose blink status was set.
+        /// </summary>
+        /// <param name="blink">new blink status</param>
+        /// <returns>new instance</returns>
+        public TextDecoration GetCopyWithBlink(bool blink) {
+            return new TextDecoration(_backColor, _foreColor, GetNewAttr(Attributes.Blink, blink));
+        }
+
+        private Attributes GetNewAttr(Attributes attr, bool set) {
+            return set ? (_attrs | attr) : (_attrs & ~attr);
         }
 
         public override string ToString() {
@@ -246,13 +293,13 @@ namespace Poderosa.Document {
                 .Append(",Fore=")
                 .Append(_foreColor.ToString());
 
-            if (_bold) {
+            if (this.Bold) {
                 s.Append(",Bold");
             }
-            if (_underline) {
+            if (this.Underline) {
                 s.Append(",Underlined");
             }
-            if (_inverted) {
+            if (this.Inverted) {
                 s.Append(",Inverted");
             }
 

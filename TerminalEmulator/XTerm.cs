@@ -677,6 +677,12 @@ namespace Poderosa.Terminal {
                 }
                 else {
                     switch (code) {
+                        case 8: // concealed characters (ECMA-48,VT300)
+                            dec = dec.GetCopyWithHidden(true);
+                            break;
+                        case 28: // revealed characters (ECMA-48)
+                            dec = dec.GetCopyWithHidden(false);
+                            break;
                         case 38: // Set foreground color (XTERM,ISO-8613-3)
                             state = 1;  // start reading subsequent values
                             target = 3; // set foreground color

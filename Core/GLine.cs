@@ -532,6 +532,14 @@ namespace Poderosa.Document {
                 flags |= GAttrFlags.Inverted;
             }
 
+            if (dec.Hidden) {
+                flags |= GAttrFlags.Hidden;
+            }
+
+            if (dec.Blink) {
+                flags |= GAttrFlags.Blink;
+            }
+
             int backColorCode = 0;
             int foreColorCode = 0;
             colors = new GColor24();

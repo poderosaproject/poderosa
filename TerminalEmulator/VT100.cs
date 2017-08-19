@@ -174,8 +174,7 @@ namespace Poderosa.Terminal {
                     break;
                 case 5: // slowly blinking (ECMA-48,VT100,VT220)
                 case 6: // rapidly blinking (ECMA-48)
-                    // use bold instead of blinking
-                    dec = dec.GetCopyWithBold(true);
+                    dec = dec.GetCopyWithBlink(true);
                     break;
                 case 7: // negative image (ECMA-48,VT100,VT220)
                     dec = dec.GetCopyWithInverted(true);
@@ -204,8 +203,7 @@ namespace Poderosa.Terminal {
                     dec = dec.GetCopyWithUnderline(false);
                     break;
                 case 25: // steady (not blinking) (ECMA-48,VT220,VT300)
-                    // disable bold instead of disabling blinking
-                    dec = dec.GetCopyWithBold(false);
+                    dec = dec.GetCopyWithBlink(false);
                     break;
                 case 26: // reserved (ECMA-48)
                     break;
