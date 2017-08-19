@@ -377,6 +377,49 @@ namespace Poderosa.Document {
     }
 
     /// <summary>
+    /// Extension methods for <see cref="GCell"/> array.
+    /// </summary>
+    internal static class GCellArrayMixin {
+
+        /// <summary>
+        /// Copy <see cref="GCell"/>s to another array.
+        /// </summary>
+        /// <param name="srcArray">source array</param>
+        /// <param name="dstArray">destination array</param>
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static void CopyTo(this GCell[] srcArray, GCell[] dstArray) {
+            if (srcArray.Length > dstArray.Length) {
+                throw new ArgumentException("the destination array is not long enough.");
+            }
+            unchecked {
+                for (int i = 0; i < srcArray.Length; i++) {
+                    dstArray[i] = srcArray[i];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Fill <see cref="GCell"/>s with the specified value.
+        /// </summary>
+        /// <param name="dstArray">destination array</param>
+        /// <param name="offsetStart">start offset of the range (inclusive)</param>
+        /// <param name="offsetEnd">end offset of the range (exclusive)</param>
+        /// <param name="fillChar"><see cref="GChar"/> value to fill</param>
+        /// <param name="fillAttr"><see cref="GAttr"/> value to fill</param>
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static void Fill(this GCell[] dstArray, int offsetStart, int offsetEnd, GChar fillChar, GAttr fillAttr) {
+            if (offsetEnd > dstArray.Length) {
+                throw new ArgumentException("the destination array is not long enough.");
+            }
+            unchecked {
+                for (int i = offsetStart; i < offsetEnd; i++) {
+                    dstArray[i].Set(fillChar, fillAttr);
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// 24 bit color information in <see cref="GLine"/>.
     /// </summary>
     internal struct GColor24 {
@@ -439,6 +482,48 @@ namespace Poderosa.Document {
 
         public override int GetHashCode() {
             return (int)(this._foreColor + this._backColor);
+        }
+    }
+
+    /// <summary>
+    /// Extension methods for <see cref="GColor24"/> array.
+    /// </summary>
+    internal static class GColor24ArrayMixin {
+
+        /// <summary>
+        /// Copy <see cref="GColor24"/>s to another array.
+        /// </summary>
+        /// <param name="srcArray">source array</param>
+        /// <param name="dstArray">destination array</param>
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static void CopyTo(this GColor24[] srcArray, GColor24[] dstArray) {
+            if (srcArray.Length > dstArray.Length) {
+                throw new ArgumentException("the destination array is not long enough.");
+            }
+            unchecked {
+                for (int i = 0; i < srcArray.Length; i++) {
+                    dstArray[i] = srcArray[i];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Fill <see cref="GColor24"/>s with the specified value.
+        /// </summary>
+        /// <param name="dstArray">destination array</param>
+        /// <param name="offsetStart">start offset of the range (inclusive)</param>
+        /// <param name="offsetEnd">end offset of the range (exclusive)</param>
+        /// <param name="fillValue"><see cref="GColor24"/> value to fill</param>
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static void Fill(this GColor24[] dstArray, int offsetStart, int offsetEnd, GColor24 fillValue) {
+            if (offsetEnd > dstArray.Length) {
+                throw new ArgumentException("the destination array is not long enough.");
+            }
+            unchecked {
+                for (int i = offsetStart; i < offsetEnd; i++) {
+                    dstArray[i] = fillValue;
+                }
+            }
         }
     }
 
@@ -656,7 +741,7 @@ namespace Poderosa.Document {
         internal void UpdateContent(GCell[] cell, GColor24[] color24, int displayLength, EOLType eolType) {
             lock (this) {
                 if (_cell.Length == cell.Length) {
-                    Array.Copy(cell, 0, _cell, 0, cell.Length);
+                    cell.CopyTo(_cell);
                 }
                 else {
                     _cell = (GCell[])cell.Clone();
@@ -666,7 +751,7 @@ namespace Poderosa.Document {
                     _color24 = null;
                 }
                 else if (_color24 != null && _color24.Length == color24.Length) {
-                    Array.Copy(color24, 0, _color24, 0, color24.Length);
+                    color24.CopyTo(_color24);
                 }
                 else {
                     _color24 = (GColor24[])color24.Clone();
@@ -734,7 +819,7 @@ namespace Poderosa.Document {
         /// </returns>
         private GCell[] DuplicateCells(GCell[] reusable) {
             if (reusable != null && reusable.Length == _cell.Length) {
-                Array.Copy(_cell, 0, reusable, 0, _cell.Length);
+                _cell.CopyTo(reusable);
                 return reusable;
             }
             else {
@@ -754,9 +839,7 @@ namespace Poderosa.Document {
             if (_color24 == null) {
                 if (reusable != null && reusable.Length == _cell.Length) {
                     // clear
-                    for (int i = 0; i < reusable.Length; i++) {
-                        reusable[i] = new GColor24();
-                    }
+                    reusable.Fill(0, reusable.Length, new GColor24());
                     return reusable;
                 }
                 else {
@@ -765,7 +848,7 @@ namespace Poderosa.Document {
             }
             else {
                 if (reusable != null && reusable.Length == _color24.Length) {
-                    Array.Copy(_color24, 0, reusable, 0, _color24.Length);
+                    _color24.CopyTo(reusable);
                     return reusable;
                 }
                 else {
@@ -924,13 +1007,13 @@ namespace Poderosa.Document {
 
                 GCell[] oldBuff = _cell;
                 GCell[] newBuff = new GCell[length];
-                Array.Copy(oldBuff, 0, newBuff, 0, oldBuff.Length);
+                oldBuff.CopyTo(newBuff);
                 _cell = newBuff;
 
                 if (_color24 != null) {
-                    GColor24[] oldColors = _color24;
                     GColor24[] newColors = new GColor24[length];
-                    Array.Copy(oldColors, 0, newColors, 0, oldColors.Length);
+                    _color24.CopyTo(newColors);
+                    _color24 = newColors;
                 }
 
                 Fill(oldBuff.Length, newBuff.Length, GChar.ASCII_NUL, GAttr.Default, new GColor24());
@@ -1415,19 +1498,17 @@ namespace Poderosa.Document {
         /// <param name="length">minimum buffer size.</param>
         public void ExpandBuffer(int length) {
             if (length > _cell.Length) {
-                GCell[] old = _cell;
-                _cell = new GCell[length];
-                Array.Copy(old, 0, _cell, 0, old.Length);
-
-                for (int i = old.Length; i < _cell.Length; i++) {
-                    _cell[i].Set(GChar.ASCII_NUL, GAttr.Default);
-                }
+                GCell[] oldBuff = _cell;
+                GCell[] newBuff = new GCell[length];
+                oldBuff.CopyTo(newBuff);
+                newBuff.Fill(oldBuff.Length, newBuff.Length, GChar.ASCII_NUL, GAttr.Default);
+                _cell = newBuff;
             }
 
             if (length > _color24.Length) {
-                GColor24[] old = _color24;
-                _color24 = new GColor24[length];
-                Array.Copy(old, 0, _color24, 0, old.Length);
+                GColor24[] newColors = new GColor24[length];
+                _color24.CopyTo(newColors);
+                _color24 = newColors;
             }
         }
 
