@@ -116,8 +116,7 @@ namespace Poderosa.View {
             }
         }
         public void Tick() {
-            if (++_tick == TICKER_LOOP_INTERVAL)
-                _tick = 0;
+            _tick = (_tick + 1) % TICKER_LOOP_INTERVAL;
         }
         public void KeepActiveUntilNextTick() {
             //TODO タイマーのリセットまでできるとよい
