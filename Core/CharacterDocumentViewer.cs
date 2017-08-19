@@ -411,7 +411,6 @@ namespace Poderosa.View {
                     Rectangle clip = e.ClipRectangle;
                     Graphics g = e.Graphics;
                     RenderProfile profile = GetRenderProfile();
-                    int paneheight = GetHeightInLines();
 
                     // determine background color of the view
                     Color backColor;
@@ -497,7 +496,7 @@ namespace Poderosa.View {
             GLine l = _document.FindLineOrNull(topline_id + param.LineFrom);
             if (l != null) {
                 int poolIndex = 0;
-                for (int i = param.LineFrom; i < param.LineFrom + param.LineCount; i++) {
+                for (int i = 0; i < param.LineCount; i++) {
                     GLine cloned;
                     if (poolIndex < _glinePool.Count) {
                         cloned = _glinePool[poolIndex];
@@ -561,7 +560,6 @@ namespace Poderosa.View {
                 }
             }
         }
-
 
         private void DrawLines(Graphics g, RenderParameter param, Color baseBackColor) {
             RenderProfile prof = GetRenderProfile();
