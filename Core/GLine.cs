@@ -388,13 +388,8 @@ namespace Poderosa.Document {
         /// <param name="dstArray">destination array</param>
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void CopyTo(this GCell[] srcArray, GCell[] dstArray) {
-            if (srcArray.Length > dstArray.Length) {
-                throw new ArgumentException("the destination array is not long enough.");
-            }
-            unchecked {
-                for (int i = 0; i < srcArray.Length; i++) {
-                    dstArray[i] = srcArray[i];
-                }
+            for (int i = 0; i < srcArray.Length; i++) {
+                dstArray[i] = srcArray[i];
             }
         }
 
@@ -408,13 +403,8 @@ namespace Poderosa.Document {
         /// <param name="fillAttr"><see cref="GAttr"/> value to fill</param>
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void Fill(this GCell[] dstArray, int offsetStart, int offsetEnd, GChar fillChar, GAttr fillAttr) {
-            if (offsetEnd > dstArray.Length) {
-                throw new ArgumentException("the destination array is not long enough.");
-            }
-            unchecked {
-                for (int i = offsetStart; i < offsetEnd; i++) {
-                    dstArray[i].Set(fillChar, fillAttr);
-                }
+            for (int i = offsetStart; i < offsetEnd; i++) {
+                dstArray[i].Set(fillChar, fillAttr);
             }
         }
     }
@@ -497,13 +487,8 @@ namespace Poderosa.Document {
         /// <param name="dstArray">destination array</param>
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void CopyTo(this GColor24[] srcArray, GColor24[] dstArray) {
-            if (srcArray.Length > dstArray.Length) {
-                throw new ArgumentException("the destination array is not long enough.");
-            }
-            unchecked {
-                for (int i = 0; i < srcArray.Length; i++) {
-                    dstArray[i] = srcArray[i];
-                }
+            for (int i = 0; i < srcArray.Length; i++) {
+                dstArray[i] = srcArray[i];
             }
         }
 
@@ -516,13 +501,8 @@ namespace Poderosa.Document {
         /// <param name="fillValue"><see cref="GColor24"/> value to fill</param>
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static void Fill(this GColor24[] dstArray, int offsetStart, int offsetEnd, GColor24 fillValue) {
-            if (offsetEnd > dstArray.Length) {
-                throw new ArgumentException("the destination array is not long enough.");
-            }
-            unchecked {
-                for (int i = offsetStart; i < offsetEnd; i++) {
-                    dstArray[i] = fillValue;
-                }
+            for (int i = offsetStart; i < offsetEnd; i++) {
+                dstArray[i] = fillValue;
             }
         }
     }
