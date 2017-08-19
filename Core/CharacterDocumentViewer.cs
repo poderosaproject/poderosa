@@ -10,20 +10,16 @@
 #define ONPAINT_TIME_MEASUREMENT
 #endif
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Diagnostics;
-using System.Text;
-using System.Windows.Forms;
-
-using Poderosa.Util;
+using Poderosa.Commands;
 using Poderosa.Document;
 using Poderosa.Forms;
-using Poderosa.UI;
 using Poderosa.Sessions;
-using Poderosa.Commands;
+using Poderosa.UI;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace Poderosa.View {
     /*
