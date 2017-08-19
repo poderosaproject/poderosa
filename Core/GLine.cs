@@ -1341,7 +1341,11 @@ namespace Poderosa.Document {
             char[] temp = GetInternalTemporaryBufferForCopy();
             int tempIndex = 0;
             for (int i = start; i < end && i <= lastNonNulIndex; i++) {
-                GChar ch = NulToSpace(_cell[i].Char);
+                GChar ch = _cell[i].Char;
+                if (ch.IsRightHalf) {
+                    continue;
+                }
+                ch = NulToSpace(ch);
                 tempIndex += ch.WriteTo(temp, tempIndex);
             }
 
