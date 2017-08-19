@@ -205,6 +205,7 @@ namespace Poderosa.View {
             if (_enableAutoScrollBarAdjustment)
                 AdjustScrollBar();
         }
+
         //タイマーの受信
         private void CaretTick() {
             if (_enabled && _caret.Blink) {
@@ -215,13 +216,12 @@ namespace Poderosa.View {
         }
         protected virtual void OnWindowManagerTimer() {
             //タイマーはTIMER_INTERVALごとにカウントされるので。
-            int q = WindowManagerPlugin.Instance.WindowPreference.OriginalPreference.CaretInterval / TIMER_INTERVAL;
-            if (q == 0)
-                q = 1;
-            if (++_tickCount % q == 0)
+            int q = Math.Max(1, WindowManagerPlugin.Instance.WindowPreference.OriginalPreference.CaretInterval / TIMER_INTERVAL);
+            _tickCount = (_tickCount + 1) % q;
+            if (_tickCount == 0) {
                 CaretTick();
+            }
         }
-
 
         //自己サイズからScrollBarを適切にいじる
         public void AdjustScrollBar() {
