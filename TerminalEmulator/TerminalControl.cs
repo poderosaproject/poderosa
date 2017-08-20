@@ -733,7 +733,7 @@ namespace Poderosa.Terminal {
 
             //フォントのセットは１回やればよいのか？
             Win32.LOGFONT lf = new Win32.LOGFONT();
-            prof.CalcFont(null, CharGroup.CJKZenkaku).ToLogFont(lf);
+            prof.GetIMECompositionFont().ToLogFont(lf);
             Win32.ImmSetCompositionFont(hIMC, lf);
 
             Win32.COMPOSITIONFORM form = new Win32.COMPOSITIONFORM();

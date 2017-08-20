@@ -1806,49 +1806,6 @@ namespace Poderosa.Document {
     }
 
     /// <summary>
-    /// <ja>文字がどのように表示されるかを示します。</ja>
-    /// <en>Represents how the characters will be displayed.</en>
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// "Hankaku" and "Zenkaku" are representing the width of the character.
-    /// A "Hankaku" character will be displayed using single column width,
-    /// and a "Zenkaku" character will be displayed using two column width.
-    /// </para>
-    /// </remarks>
-    public enum CharGroup {
-        /// <summary>
-        /// <ja>メインフォントで表示される半角文字。</ja>
-        /// <en>Hankaku characters to be displayed using main font.</en>
-        /// </summary>
-        LatinHankaku,
-        /// <summary>
-        /// <ja>CJKフォントで表示される半角文字。</ja>
-        /// <en>Hankaku characters to be displayed using CJK font.</en>
-        /// </summary>
-        CJKHankaku,
-        /// <summary>
-        /// <ja>CJKフォントで表示される全角文字。</ja>
-        /// <en>Zenkaku characters to be displayed using CJK font.</en>
-        /// </summary>
-        CJKZenkaku,
-    }
-
-    public static class CharGroupUtil {
-        public static int GetColumnsPerCharacter(CharGroup cg) {
-            if (cg == CharGroup.CJKZenkaku)
-                return 2;
-            else
-                return 1;
-        }
-
-        public static bool IsCJK(CharGroup cg) {
-            return (cg == CharGroup.CJKHankaku || cg == CharGroup.CJKZenkaku);
-        }
-    }
-
-
-    /// <summary>
     /// Word-break table for ASCII characters.
     /// </summary>
     public class ASCIIWordBreakTable {

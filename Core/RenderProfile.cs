@@ -624,18 +624,8 @@ namespace Poderosa.View {
                 return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dec"></param>
-        /// <param name="cg"></param>
-        /// <returns></returns>
-        /// <exclude/>
-        public Font CalcFont(TextDecoration dec, CharGroup cg) {
-            return CalcFontInternal(
-                    CharGroupUtil.IsCJK(cg),
-                    (dec != null) ? CalcBold(dec) : false,
-                    false).Font;
+        public Font GetIMECompositionFont() {
+            return CalcFontInternal(true, false, false).Font;
         }
 
         internal IntPtr CalcHFONT_NoUnderline(GAttr attr) {

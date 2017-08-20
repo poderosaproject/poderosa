@@ -142,20 +142,6 @@ namespace Poderosa.Document {
         public bool Has(UnicodeCharFlags flags) {
             return (this._bits & (uint)flags) == (uint)flags;
         }
-
-        /// <summary>
-        /// Get CharGroup.
-        /// </summary>
-        /// <returns>CharGroup</returns>
-        public CharGroup GetCharGroup() {
-            if (Has(UnicodeCharFlags.CJK | UnicodeCharFlags.WideWidth)) {
-                return CharGroup.CJKZenkaku;
-            }
-            if (Has(UnicodeCharFlags.CJK)) {
-                return CharGroup.CJKHankaku;
-            }
-            return CharGroup.LatinHankaku;
-        }
     }
 
     /// <summary>
