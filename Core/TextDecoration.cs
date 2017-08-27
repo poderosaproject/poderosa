@@ -131,22 +131,11 @@ namespace Poderosa.Document {
     /// </remarks>
     /// <exclude/>
     public sealed class TextDecoration {
-        private readonly ColorSpec _backColor;
-        private readonly ColorSpec _foreColor;
-        private readonly Attributes _attrs;
-
-        [Flags]
-        internal enum Attributes {
-            None = 0,
-            Blink = 1 << 0,
-            Hidden = 1 << 1,
-            Underlined = 1 << 2,
-            Bold = 1 << 3,
-            Inverted = 1 << 4,
-        }
+        private readonly GAttr _attr;
+        private readonly GColor24 _color24;
 
         private static readonly TextDecoration _default =
-            new TextDecoration(ColorSpec.Default, ColorSpec.Default, Attributes.None);
+            new TextDecoration(GAttr.Default, new GColor24());
 
         /// <summary>
         /// Get a default decoration.
@@ -160,66 +149,89 @@ namespace Poderosa.Document {
             }
         }
 
-        private TextDecoration(ColorSpec backColor, ColorSpec foreColor, Attributes attrs) {
-            _backColor = backColor;
-            _foreColor = foreColor;
-            _attrs = attrs;
-        }
-
-        public ColorSpec ForeColor {
+        internal GAttr Attr {
             get {
-                return _foreColor;
+                return _attr;
             }
         }
 
-        public ColorSpec BackColor {
+        internal GColor24 Color24 {
             get {
-                return _backColor;
+                return _color24;
             }
         }
 
         public bool Blink {
             get {
-                return (_attrs & Attributes.Blink) != 0;
+                return _attr.Has(GAttrFlags.Blink);
             }
         }
 
         public bool Hidden {
             get {
-                return (_attrs & Attributes.Hidden) != 0;
+                return _attr.Has(GAttrFlags.Hidden);
             }
         }
 
         public bool Bold {
             get {
-                return (_attrs & Attributes.Bold) != 0;
+                return _attr.Has(GAttrFlags.Bold);
             }
         }
 
         public bool Underline {
             get {
-                return (_attrs & Attributes.Underlined) != 0;
+                return _attr.Has(GAttrFlags.Underlined);
             }
         }
 
         public bool Inverted {
             get {
-                return (_attrs & Attributes.Inverted) != 0;
+                return _attr.Has(GAttrFlags.Inverted);
             }
         }
 
-        internal Attributes Attribute {
-            get {
-                return _attrs;
-            }
+        private TextDecoration(GAttr attr, GColor24 color24) {
+            _attr = attr;
+            _color24 = color24;
         }
 
+        /// <summary>
+        /// Determines this instance was the default decoration.
+        /// </summary>
         public bool IsDefault {
             get {
-                return _attrs == Attributes.None
-                    && _backColor.ColorType == ColorType.Default
-                    && _foreColor.ColorType == ColorType.Default;
+                return _attr == _default._attr
+                    && _color24 == _default._color24;
             }
+        }
+
+        /// <summary>
+        /// Gets <see cref="ColorSpec"/> of the fore color.
+        /// </summary>
+        /// <returns><see cref="ColorSpec"/> of the fore color</returns>
+        public ColorSpec GetForeColorSpec() {
+            if (_attr.Has(GAttrFlags.Use8bitForeColor)) {
+                return new ColorSpec(_attr.ForeColor);
+            }
+            if (_attr.Has(GAttrFlags.Use24bitForeColor)) {
+                return new ColorSpec(_color24.ForeColor);
+            }
+            return ColorSpec.Default;
+        }
+
+        /// <summary>
+        /// Gets <see cref="ColorSpec"/> of the background color.
+        /// </summary>
+        /// <returns><see cref="ColorSpec"/> of the background color</returns>
+        public ColorSpec GetBackColorSpec() {
+            if (_attr.Has(GAttrFlags.Use8bitBackColor)) {
+                return new ColorSpec(_attr.BackColor);
+            }
+            if (_attr.Has(GAttrFlags.Use24bitBackColor)) {
+                return new ColorSpec(_color24.BackColor);
+            }
+            return ColorSpec.Default;
         }
 
         /// <summary>
@@ -227,7 +239,7 @@ namespace Poderosa.Document {
         /// </summary>
         /// <returns>new instance</returns>
         public TextDecoration GetCopyWithInverted(bool inverted) {
-            return new TextDecoration(_backColor, _foreColor, GetNewAttr(Attributes.Inverted, inverted));
+            return new TextDecoration(_attr + GAttrFlags.Inverted, _color24);
         }
 
         /// <summary>
@@ -235,7 +247,24 @@ namespace Poderosa.Document {
         /// </summary>
         /// <returns>new instance</returns>
         public TextDecoration GetCopyWithForeColor(ColorSpec foreColor) {
-            return new TextDecoration(_backColor, foreColor, _attrs);
+            GAttr newAttr;
+            GColor24 newColor24 = new GColor24();
+            newColor24.BackColor = _color24.BackColor;
+
+            switch (foreColor.ColorType) {
+                case ColorType.Custom8bit:
+                    newAttr = _attr.CopyWith8bitForeColor(foreColor.ColorCode);
+                    break;
+                case ColorType.Custom24bit:
+                    newAttr = _attr.CopyWith24bitForeColor();
+                    newColor24.ForeColor = foreColor.Color;
+                    break;
+                default:
+                case ColorType.Default:
+                    newAttr = _attr.CopyWithDefaultForeColor();
+                    break;
+            }
+            return new TextDecoration(newAttr, newColor24);
         }
 
         /// <summary>
@@ -243,7 +272,24 @@ namespace Poderosa.Document {
         /// </summary>
         /// <returns>new instance</returns>
         public TextDecoration GetCopyWithBackColor(ColorSpec backColor) {
-            return new TextDecoration(backColor, _foreColor, _attrs);
+            GAttr newAttr;
+            GColor24 newColor24 = new GColor24();
+            newColor24.ForeColor = _color24.ForeColor;
+
+            switch (backColor.ColorType) {
+                case ColorType.Custom8bit:
+                    newAttr = _attr.CopyWith8bitBackColor(backColor.ColorCode);
+                    break;
+                case ColorType.Custom24bit:
+                    newAttr = _attr.CopyWith24bitBackColor();
+                    newColor24.BackColor = backColor.Color;
+                    break;
+                default:
+                case ColorType.Default:
+                    newAttr = _attr.CopyWithDefaultBackColor();
+                    break;
+            }
+            return new TextDecoration(newAttr, newColor24);
         }
 
         /// <summary>
@@ -252,7 +298,8 @@ namespace Poderosa.Document {
         /// <param name="underline">new underline status</param>
         /// <returns>new instance</returns>
         public TextDecoration GetCopyWithUnderline(bool underline) {
-            return new TextDecoration(_backColor, _foreColor, GetNewAttr(Attributes.Underlined, underline));
+            return new TextDecoration(
+                underline ? _attr + GAttrFlags.Underlined : _attr - GAttrFlags.Underlined, _color24);
         }
 
         /// <summary>
@@ -261,7 +308,8 @@ namespace Poderosa.Document {
         /// <param name="bold">new bold status</param>
         /// <returns>new instance</returns>
         public TextDecoration GetCopyWithBold(bool bold) {
-            return new TextDecoration(_backColor, _foreColor, GetNewAttr(Attributes.Bold, bold));
+            return new TextDecoration(
+                bold ? _attr + GAttrFlags.Bold : _attr - GAttrFlags.Bold, _color24);
         }
 
         /// <summary>
@@ -270,7 +318,8 @@ namespace Poderosa.Document {
         /// <param name="hidden">new hidden status</param>
         /// <returns>new instance</returns>
         public TextDecoration GetCopyWithHidden(bool hidden) {
-            return new TextDecoration(_backColor, _foreColor, GetNewAttr(Attributes.Hidden, hidden));
+            return new TextDecoration(
+                hidden ? _attr + GAttrFlags.Hidden : _attr - GAttrFlags.Hidden, _color24);
         }
 
         /// <summary>
@@ -279,28 +328,48 @@ namespace Poderosa.Document {
         /// <param name="blink">new blink status</param>
         /// <returns>new instance</returns>
         public TextDecoration GetCopyWithBlink(bool blink) {
-            return new TextDecoration(_backColor, _foreColor, GetNewAttr(Attributes.Blink, blink));
-        }
-
-        private Attributes GetNewAttr(Attributes attr, bool set) {
-            return set ? (_attrs | attr) : (_attrs & ~attr);
+            return new TextDecoration(
+                blink ? _attr + GAttrFlags.Blink : _attr - GAttrFlags.Blink, _color24);
         }
 
         public override string ToString() {
             StringBuilder s = new StringBuilder();
-            s.Append("{Back=")
-                .Append(_backColor.ToString())
-                .Append(",Fore=")
-                .Append(_foreColor.ToString());
+            s.Append("{Back=");
+            if (_attr.Has(GAttrFlags.Use8bitBackColor)) {
+                s.Append(_attr.BackColor.ToString());
+            }
+            else if (_attr.Has(GAttrFlags.Use24bitBackColor)) {
+                s.Append(_color24.BackColor.ToString());
+            }
+            else {
+                s.Append("default");
+            }
 
-            if (this.Bold) {
+            s.Append(",Fore=");
+            if (_attr.Has(GAttrFlags.Use8bitForeColor)) {
+                s.Append(_attr.ForeColor.ToString());
+            }
+            else if (_attr.Has(GAttrFlags.Use24bitForeColor)) {
+                s.Append(_color24.ForeColor.ToString());
+            }
+            else {
+                s.Append("default");
+            }
+
+            if (_attr.Has(GAttrFlags.Blink)) {
+                s.Append(",Blink");
+            }
+            if (_attr.Has(GAttrFlags.Bold)) {
                 s.Append(",Bold");
             }
-            if (this.Underline) {
+            if (_attr.Has(GAttrFlags.Underlined)) {
                 s.Append(",Underlined");
             }
-            if (this.Inverted) {
+            if (_attr.Has(GAttrFlags.Inverted)) {
                 s.Append(",Inverted");
+            }
+            if (_attr.Has(GAttrFlags.Hidden)) {
+                s.Append(",Hidden");
             }
 
             s.Append('}');

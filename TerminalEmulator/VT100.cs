@@ -402,7 +402,7 @@ namespace Poderosa.Terminal {
                 case 2: //erase all
                 ERASE_ALL: {
                         GetDocument().ApplicationModeBackColor =
-                            (_currentdecoration != null) ? _currentdecoration.BackColor : ColorSpec.Default;
+                            (_currentdecoration != null) ? _currentdecoration.GetBackColorSpec() : ColorSpec.Default;
 
                         doc.UpdateCurrentLine(_manipulator);
                         //if(_homePositionOnCSIJ2) { //SFUではこうなる

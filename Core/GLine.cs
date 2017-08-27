@@ -286,6 +286,66 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
+        /// Gets a new value that is specified to use default fore color.
+        /// </summary>
+        /// <returns>a new value</returns>
+        public GAttr CopyWithDefaultForeColor() {
+            return new GAttr(this._bits & ~(0xffu | (uint)GAttrFlags.Use8bitForeColor | (uint)GAttrFlags.Use24bitForeColor));
+        }
+
+        /// <summary>
+        /// Gets a new value that is specified to use 8 bit fore color.
+        /// </summary>
+        /// <param name="color">8 bit color code</param>
+        /// <returns>a new value</returns>
+        public GAttr CopyWith8bitForeColor(int color) {
+            return new GAttr(
+                        (this._bits & ~(0xffu | (uint)GAttrFlags.Use8bitForeColor | (uint)GAttrFlags.Use24bitForeColor))
+                        | (uint)(color & 0xff)
+                        | (uint)GAttrFlags.Use8bitForeColor);
+        }
+
+        /// <summary>
+        /// Gets a new value that is specified to use 24 bit fore color.
+        /// </summary>
+        /// <returns>a new value</returns>
+        public GAttr CopyWith24bitForeColor() {
+            return new GAttr(
+                        (this._bits & ~(0xffu | (uint)GAttrFlags.Use8bitForeColor | (uint)GAttrFlags.Use24bitForeColor))
+                        | (uint)GAttrFlags.Use24bitForeColor);
+        }
+
+        /// <summary>
+        /// Gets a new value that is specified to use default back color.
+        /// </summary>
+        /// <returns>a new value</returns>
+        public GAttr CopyWithDefaultBackColor() {
+            return new GAttr(this._bits & ~(0xff00u | (uint)GAttrFlags.Use8bitBackColor | (uint)GAttrFlags.Use24bitBackColor));
+        }
+
+        /// <summary>
+        /// Gets a new value that is specified to use 8 bit back color.
+        /// </summary>
+        /// <param name="color">8 bit color code</param>
+        /// <returns>a new value</returns>
+        public GAttr CopyWith8bitBackColor(int color) {
+            return new GAttr(
+                        (this._bits & ~(0xff00u | (uint)GAttrFlags.Use8bitBackColor | (uint)GAttrFlags.Use24bitBackColor))
+                        | ((uint)(color & 0xff) << 8)
+                        | (uint)GAttrFlags.Use8bitBackColor);
+        }
+
+        /// <summary>
+        /// Gets a new value that is specified to use 24 bit back color.
+        /// </summary>
+        /// <returns>a new value</returns>
+        public GAttr CopyWith24bitBackColor() {
+            return new GAttr(
+                        (this._bits & ~(0xff00u | (uint)GAttrFlags.Use8bitBackColor | (uint)GAttrFlags.Use24bitBackColor))
+                        | (uint)GAttrFlags.Use24bitBackColor);
+        }
+
+        /// <summary>
         /// Checks if one or more of the specified flags were set.
         /// </summary>
         /// <param name="flags"></param>
@@ -505,78 +565,6 @@ namespace Poderosa.Document {
                 dstArray[i] = fillValue;
             }
         }
-    }
-
-    /// <summary>
-    /// Converter that converts <see cref="TextDecoration"/> to <see cref="GAttr"/>.
-    /// </summary>
-    internal static class TextDecorationConverter {
-
-        public static void Convert(TextDecoration dec, out GAttr attr, out GColor24 colors) {
-            if (dec == null) {
-                attr = GAttr.Default;
-                colors = new GColor24();
-                return;
-            }
-
-            GAttrFlags flags = GAttrFlags.None;
-            if (dec.Underline) {
-                flags |= GAttrFlags.Underlined;
-            }
-
-            if (dec.Bold) {
-                flags |= GAttrFlags.Bold;
-            }
-
-            if (dec.Inverted) {
-                flags |= GAttrFlags.Inverted;
-            }
-
-            if (dec.Hidden) {
-                flags |= GAttrFlags.Hidden;
-            }
-
-            if (dec.Blink) {
-                flags |= GAttrFlags.Blink;
-            }
-
-            int backColorCode = 0;
-            int foreColorCode = 0;
-            colors = new GColor24();
-
-            ColorSpec decForeColor = dec.ForeColor;
-
-            switch (decForeColor.ColorType) {
-                case ColorType.Default:
-                    break;
-                case ColorType.Custom8bit:
-                    flags |= GAttrFlags.Use8bitForeColor;
-                    foreColorCode = decForeColor.ColorCode;
-                    break;
-                case ColorType.Custom24bit:
-                    flags |= GAttrFlags.Use24bitForeColor;
-                    colors.ForeColor = decForeColor.Color;
-                    break;
-            }
-
-            ColorSpec decBackColor = dec.BackColor;
-
-            switch (decBackColor.ColorType) {
-                case ColorType.Default:
-                    break;
-                case ColorType.Custom8bit:
-                    flags |= GAttrFlags.Use8bitBackColor;
-                    backColorCode = decBackColor.ColorCode;
-                    break;
-                case ColorType.Custom24bit:
-                    flags |= GAttrFlags.Use24bitBackColor;
-                    colors.BackColor = decBackColor.Color;
-                    break;
-            }
-
-            attr = new GAttr(backColorCode, foreColorCode, flags);
-        }
-
     }
 
     /// <summary>
@@ -847,9 +835,8 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="dec">text decoration for specifying the background color, or null for using default attributes.</param>
         public void Clear(TextDecoration dec) {
-            GAttr attr;
-            GColor24 color;
-            TextDecorationConverter.Convert(dec, out attr, out color);
+            GAttr attr = dec.Attr;
+            GColor24 color = dec.Color24;
 
             lock (this) {
                 Fill(0, _cell.Length, GChar.ASCII_NUL, attr, color);
@@ -1376,9 +1363,8 @@ namespace Poderosa.Document {
             GCell[] buff = new GCell[text.Length * 2];
             GColor24[] colorBuff = null;
             int offset = 0;
-            GAttr attr;
-            GColor24 colors;
-            TextDecorationConverter.Convert(dec, out attr, out colors);
+            GAttr attr = dec.Attr;
+            GColor24 colors = dec.Color24;
 
             if (attr.Uses24bitColor) {
                 colorBuff = new GColor24[buff.Length];
@@ -1543,13 +1529,12 @@ namespace Poderosa.Document {
         /// <summary>
         /// Write one character to the specified position.
         /// </summary>
-        /// <param name="ch">character to write.</en></param>
+        /// <param name="ch">character to write.</param>
         /// <param name="dec">text decoration of the character. (null indicates default setting)</param>
         public void PutChar(UnicodeChar ch, TextDecoration dec) {
             GChar newChar = new GChar(ch);
-            GAttr newAttr;
-            GColor24 newColor;
-            TextDecorationConverter.Convert(dec, out newAttr, out newColor);    // FIXME: the results should be cached
+            GAttr newAttr = dec.Attr;
+            GColor24 newColor = dec.Color24;
 
             if (newChar.IsCJK) {
                 newAttr += GAttrFlags.UseCjkFont;
@@ -1629,9 +1614,8 @@ namespace Poderosa.Document {
             from = Math.Max(0, from);
             to = Math.Min(_cell.Length, to);
 
-            GAttr fillAttr;
-            GColor24 fillColor;
-            TextDecorationConverter.Convert(dec, out fillAttr, out fillColor);  // FIXME: the results should be cached
+            GAttr fillAttr = dec.Attr;
+            GColor24 fillColor = dec.Color24;
 
             FixLeftHalfOfWideWidthCharacter(from - 1);
 
@@ -1655,9 +1639,8 @@ namespace Poderosa.Document {
                 return;
             }
 
-            GAttr fillAttr;
-            GColor24 fillColor;
-            TextDecorationConverter.Convert(dec, out fillAttr, out fillColor);  // FIXME: the results should be cached
+            GAttr fillAttr = dec.Attr;
+            GColor24 fillColor = dec.Color24;
 
             int dstIndex = (start >= 0) ? start : 0;
             int srcIndex = dstIndex + count;
@@ -1690,9 +1673,8 @@ namespace Poderosa.Document {
                 return;
             }
 
-            GAttr fillAttr;
-            GColor24 fillColor;
-            TextDecorationConverter.Convert(dec, out fillAttr, out fillColor);
+            GAttr fillAttr = dec.Attr;
+            GColor24 fillColor = dec.Color24;
 
             int limit = Math.Max(0, start);
             int dstIndex = _cell.Length - 1;
