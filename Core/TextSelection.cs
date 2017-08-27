@@ -309,55 +309,59 @@ namespace Poderosa.View {
         }
 
         public string GetSelectedText(TextFormatOption opt) {
-            //if(_owner==null || _disabledTemporary) return null;
-
             StringBuilder bld = new StringBuilder();
-            TextPoint a = HeadPoint;
-            TextPoint b = TailPoint;
+            TextPoint selStart = HeadPoint;
+            TextPoint selEnd = TailPoint;
 
-            GLine l = _owner.CharacterDocument.FindLineOrEdge(a.Line);
-            int pos = a.Column;
-            if (pos < 0)
+            GLine l = _owner.CharacterDocument.FindLineOrEdge(selStart.Line);
+            int pos = selStart.Column;
+            if (pos < 0) {
                 return "";
+            }
 
-            do {
-                bool eol_required = (opt == TextFormatOption.AsLook || l.EOLType != EOLType.Continue);
-                if (l.ID == b.Line) { //最終行
-                    //末尾にNULL文字が入るケースがあるようだ
-                    AppendTrim(bld, l, pos, b.Column - pos);
-                    if (_pivotType == RangeType.Line && eol_required)
+            while (true) {
+                bool eolRequired = (opt == TextFormatOption.AsLook || l.EOLType != EOLType.Continue);
+
+                if (l.ID == selEnd.Line) {  // the last line
+                    CopyGLineContent(l, bld, pos, selEnd.Column);
+                    if (eolRequired && _pivotType == RangeType.Line) {
                         bld.Append("\r\n");
+                    }
                     break;
                 }
-                else { //最終以外の行
-                    if (l.Length - pos > 0) { //l.CharLength==posとなるケースがあった。真の理由は納得していないが
-                        AppendTrim(bld, l, pos, l.Length - pos);
-                    }
-                    if (eol_required && bld.Length > 0) //bld.Length>0は行単位選択で余計な改行が入るのを避けるための処置
-                        bld.Append("\r\n"); //LFのみをクリップボードに持っていっても他のアプリの混乱があるだけなのでやめておく
-                    l = l.NextLine;
-                    if (l == null)
-                        break; //!!本来これはないはずだがクラッシュレポートのため回避
-                    pos = 0;
-                }
-            } while (true);
 
-            //Debug.WriteLine("Selected Text Len="+bld.Length);
+                CopyGLineContent(l, bld, pos, null);
+
+                if (eolRequired) {
+                    bld.Append("\r\n");
+                }
+
+                l = l.NextLine;
+                if (l == null) {
+                    // this should not be happened...
+                    break;
+                }
+                pos = 0;
+            }
 
             return bld.ToString();
         }
-        private void AppendTrim(StringBuilder bld, GLine line, int pos, int length) {
-            Debug.Assert(pos >= 0);
-            if (line.IsRightSideOfZenkaku(pos)) { //日本語文字の右端からのときは拡大する
-                pos--;
-                length++;
+
+        private void CopyGLineContent(GLine line, StringBuilder buff, int start, int? end) {
+            if (start > 0 && line.IsRightSideOfZenkaku(start)) {
+                start--;
             }
 
-            line.WriteTo(
-                delegate(char[] buff, int len) {
-                    bld.Append(buff, 0, len);
-                },
-                pos, pos + length);
+            if (end.HasValue) {
+                line.WriteTo(
+                    (data, len) => buff.Append(data, 0, len),
+                    start, end.Value);
+            }
+            else {
+                line.WriteTo(
+                    (data, len) => buff.Append(data, 0, len),
+                    start);
+            }
         }
 
         internal TextPoint HeadPoint {

@@ -626,16 +626,6 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
-        /// Length of this line. (includes spare columns)
-        /// </summary>
-        /// FIXME: should not be exposed public...
-        public int Length {
-            get {
-                return _cell.Length;
-            }
-        }
-
-        /// <summary>
         /// Length of the content in this line.
         /// </summary>
         public int DisplayLength {
@@ -1322,6 +1312,17 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="writer">writer</param>
         /// <param name="start">start cell index (inclusive)</param>
+        public void WriteTo(BufferWriter writer, int start) {
+            lock (this) {
+                WriteToInternal(writer, start, _cell.Length);
+            }
+        }
+
+        /// <summary>
+        /// Writes content with the specified writer.
+        /// </summary>
+        /// <param name="writer">writer</param>
+        /// <param name="start">start cell index (inclusive)</param>
         /// <param name="end">end cell index (exclusive)</param>
         private void WriteToInternal(BufferWriter writer, int start, int end) {
             if (writer == null) {
@@ -1335,11 +1336,11 @@ namespace Poderosa.Document {
             }
 
             start = Math.Max(0, start);
-            end = Math.Min(_cell.Length, end);
+            end = Math.Min(Math.Min(_cell.Length, lastNonNulIndex + 1), end);
 
             char[] temp = GetInternalTemporaryBufferForCopy();
             int tempIndex = 0;
-            for (int i = start; i < end && i <= lastNonNulIndex; i++) {
+            for (int i = start; i < end; i++) {
                 GChar ch = _cell[i].Char;
                 if (ch.IsRightHalf) {
                     continue;
