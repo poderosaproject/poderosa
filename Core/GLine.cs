@@ -1039,7 +1039,6 @@ namespace Poderosa.Document {
             int y2 = y1 + (int)prof.Pitch.Height;
 
             float pitch = prof.Pitch.Width;
-            int defaultBackColorArgb = baseBackColor.ToArgb();
 
             Win32.SetBkMode(hdc, Win32.TRANSPARENT);
 
