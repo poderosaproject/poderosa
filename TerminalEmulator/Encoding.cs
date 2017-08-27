@@ -47,9 +47,17 @@ namespace Poderosa.Terminal {
             /// <param name="b">the next byte</param>
             /// <returns>true if the next byte hould be processed with this decoder.</returns>
             public bool IsInterestingByte(byte b) {
-                // FIXME:
-                // "b>=33" is an adhoc check for the case that the escape sequence was interleaved.
-                return _bytes == 0 ? _profile.IsLeadByte(b) : b >= 33;
+                if (_bytes == 0) {
+                    return _profile.IsFirstByte(b);
+                }
+
+                if (b < 0x20) {
+                    // skips interleaved control caharacters.
+                    // 0x00-0x1F is not used as the trailing byte of the multibyte characters.
+                    return false;
+                }
+
+                return true;
             }
 
             /// <summary>
