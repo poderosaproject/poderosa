@@ -197,8 +197,8 @@ namespace Poderosa.Terminal {
             _encoding = enc;
         }
 
-        // Check if the byte is the first byte of a character which should be converted the character code.
-        protected abstract bool IsLeadByte(byte b);
+        // Check if the byte is the first byte of a character which should be converted to the character code.
+        protected abstract bool IsFirstByte(byte b);
 
         // Determine how long byte length of a character is.
         protected abstract int GetCharLength(byte b);
@@ -287,7 +287,7 @@ namespace Poderosa.Terminal {
             protected override int GetCharLength(byte b) {
                 return 1;
             }
-            protected override bool IsLeadByte(byte b) {
+            protected override bool IsFirstByte(byte b) {
                 return b >= 0xA0;
             }
             protected override bool IsIgnoreableChar(char[] charBuff, int len) {
@@ -306,8 +306,12 @@ namespace Poderosa.Terminal {
             protected override int GetCharLength(byte b) {
                 return (b >= 0xA1 && b <= 0xDF) ? 1 : 2;
             }
-            protected override bool IsLeadByte(byte b) {
-                return b >= 0x81 && b <= 0xFC;
+            protected override bool IsFirstByte(byte b) {
+                // JIS X0208 Annex 1
+                // 0x81 - 0x9F : 1st byte of the double-byte characters
+                // 0xA1 - 0xDF : half-width katakana
+                // 0xE0 - 0xEF : 1st byte of the double-byte characters
+                return b >= 0x81 && b <= 0xEF;
             }
             protected override bool IsIgnoreableChar(char[] charBuff, int len) {
                 return false;
@@ -325,7 +329,10 @@ namespace Poderosa.Terminal {
             protected override int GetCharLength(byte b) {
                 return b == 0x8F ? 3 : b >= 0x8E ? 2 : 1;
             }
-            protected override bool IsLeadByte(byte b) {
+            protected override bool IsFirstByte(byte b) {
+                // 0x8E : SS2
+                // 0x8F : SS3
+                // 0xA1 - 0xFE : byte of the character code
                 return b >= 0x8E && b <= 0xFE;
             }
             protected override bool IsIgnoreableChar(char[] charBuff, int len) {
@@ -371,7 +378,7 @@ namespace Poderosa.Terminal {
                 return 1;
             }
 
-            protected override bool IsLeadByte(byte b) {
+            protected override bool IsFirstByte(byte b) {
                 return b >= 0x80;
             }
 
@@ -444,7 +451,7 @@ namespace Poderosa.Terminal {
             protected override int GetCharLength(byte b) {
                 return 2;
             }
-            protected override bool IsLeadByte(byte b) {
+            protected override bool IsFirstByte(byte b) {
                 return b >= 0xA1 && b <= 0xF7;
             }
             protected override bool IsIgnoreableChar(char[] charBuff, int len) {
@@ -464,7 +471,7 @@ namespace Poderosa.Terminal {
             protected override int GetCharLength(byte b) {
                 return 2;
             }
-            protected override bool IsLeadByte(byte b) {
+            protected override bool IsFirstByte(byte b) {
                 return b >= 0x81 && b <= 0xFE;
             }
             protected override bool IsIgnoreableChar(char[] charBuff, int len) {
@@ -484,7 +491,7 @@ namespace Poderosa.Terminal {
             protected override int GetCharLength(byte b) {
                 return 2;
             }
-            protected override bool IsLeadByte(byte b) {
+            protected override bool IsFirstByte(byte b) {
                 return b >= 0xA1 && b <= 0xF7;
             }
             protected override bool IsIgnoreableChar(char[] charBuff, int len) {
@@ -504,7 +511,7 @@ namespace Poderosa.Terminal {
             protected override int GetCharLength(byte b) {
                 return 2;
             }
-            protected override bool IsLeadByte(byte b) {
+            protected override bool IsFirstByte(byte b) {
                 return b >= 0xA1 && b <= 0xFE;
             }
             protected override bool IsIgnoreableChar(char[] charBuff, int len) {
@@ -524,7 +531,7 @@ namespace Poderosa.Terminal {
             protected override int GetCharLength(byte b) {
                 return 1;
             }
-            protected override bool IsLeadByte(byte b) {
+            protected override bool IsFirstByte(byte b) {
                 return b >= 0x80;
             }
             protected override bool IsIgnoreableChar(char[] charBuff, int len) {
