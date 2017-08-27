@@ -1474,7 +1474,6 @@ namespace Poderosa.Document {
         /// </summary>
         public void CarriageReturn() {
             this.CaretColumn = 0;
-            _eolType = EOLType.CR;  // FIXME: should this be set ?
         }
 
         /// <summary>

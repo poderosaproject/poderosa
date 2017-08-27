@@ -666,19 +666,23 @@ namespace Poderosa.Terminal {
         protected virtual ProcessCharResult ProcessControlChar(char ch) {
             if (ch == ControlCode.LF || ch == ControlCode.VT) { //Vertical TabはLFと等しい
                 LineFeedRule rule = GetTerminalSettings().LineFeedRule;
-                if (rule == LineFeedRule.Normal || rule == LineFeedRule.LFOnly) {
-                    if (rule == LineFeedRule.LFOnly) //LFのみの動作であるとき
-                        DoCarriageReturn();
+                if (rule == LineFeedRule.Normal) {
+                    DoLineFeed();
+                }
+                else if (rule == LineFeedRule.LFOnly) {
+                    DoCarriageReturn();
                     DoLineFeed();
                 }
                 return ProcessCharResult.Processed;
             }
             else if (ch == ControlCode.CR) {
                 LineFeedRule rule = GetTerminalSettings().LineFeedRule;
-                if (rule == LineFeedRule.Normal || rule == LineFeedRule.CROnly) {
+                if (rule == LineFeedRule.Normal) {
                     DoCarriageReturn();
-                    if (rule == LineFeedRule.CROnly)
-                        DoLineFeed();
+                }
+                else if (rule == LineFeedRule.CROnly) {
+                    DoCarriageReturn();
+                    DoLineFeed();
                 }
                 return ProcessCharResult.Processed;
             }
@@ -739,6 +743,7 @@ namespace Poderosa.Terminal {
         }
         private void DoCarriageReturn() {
             _manipulator.CarriageReturn();
+            _manipulator.EOLType = EOLType.CR;  // will be changed to CRLF in DoLineFeed()
         }
 
         protected virtual int GetNextTabStop(int start) {
