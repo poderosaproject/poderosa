@@ -1,4 +1,4 @@
-﻿4.4.0-dev (still under development)
+﻿4.4.0
 ---------
     * Only .NET Framework >=4.5 is supported.
 
@@ -20,7 +20,7 @@
 
     * Accepts unicode text from clipboard on the paste action. (by kobake)
 
-　　　* Default value of the SSH window size was changed to 2097152.
+    * Default value of the SSH window size was changed to 2097152.
 
     * TCP_NODELAY socket option is used in SSH or TELNET connection.
 
@@ -34,6 +34,11 @@
 
     * ED25519 support on SSH2. (uses private key file for OpenSSH or PuTTY)
 
+    * Accepts surrogate pairs in UTF-8 encoding.
+
+    * New attribute management in the console buffer.
+      - change of the color settings affects entirely.
+      - supports Blink or Invisible(hidden) attributes.
 
 4.3.16
 ------
