@@ -29,6 +29,15 @@ namespace Poderosa {
     public class VersionInfo {
         /// <summary>
         /// <ja>
+        /// コピーライトの年部分。
+        /// </ja>
+        /// <en>
+        /// Year part of the copyright notice.
+        /// </en>
+        /// </summary>
+        public const string COPYRIGHT_YEARS = "2005-2017";
+        /// <summary>
+        /// <ja>
         /// バージョン番号です。
         /// </ja>
         /// <en>

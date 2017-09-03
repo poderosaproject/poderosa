@@ -18,6 +18,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Diagnostics;
+using System.Reflection;
 
 using Poderosa.Preferences;
 using Poderosa.Plugins;
@@ -57,7 +58,7 @@ namespace Poderosa.Forms {
         public static string[] GetVersionInfoContent() {
             string[] s = new string[6];
             s[0] = "Terminal Emulator <Poderosa>";
-            s[1] = "Copyright(c) 2005,2006 Poderosa Project,";
+            s[1] = "Copyright(c) " + VersionInfo.COPYRIGHT_YEARS + " " + VersionInfo.PROJECT_NAME + ",";
             s[2] = "All Rights Reserved.";
             s[3] = "";
             s[4] = " Version : " + VersionInfo.PODEROSA_VERSION;
