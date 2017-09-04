@@ -1,4 +1,8 @@
-﻿4.4.0
+﻿4.4.1
+---------
+    * Fixed SGR-positive (reset inverse).
+
+4.4.0
 ---------
     * Only .NET Framework >=4.5 is supported.
 
