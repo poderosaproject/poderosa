@@ -241,14 +241,6 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
-        /// Get a new copy whose inversion flag was set.
-        /// </summary>
-        /// <returns>new instance</returns>
-        public TextDecoration GetCopyWithInverted(bool inverted) {
-            return new TextDecoration(_attr + GAttrFlags.Inverted, _color24);
-        }
-
-        /// <summary>
         /// Get a new copy whose text color was set.
         /// </summary>
         /// <returns>new instance</returns>
@@ -297,6 +289,16 @@ namespace Poderosa.Document {
             }
             return new TextDecoration(newAttr, newColor24);
         }
+
+        /// <summary>
+        /// Get a new copy whose inversion flag was set.
+        /// </summary>
+        /// <returns>new instance</returns>
+        public TextDecoration GetCopyWithInverted(bool inverted) {
+            return new TextDecoration(
+                inverted ? _attr + GAttrFlags.Inverted : _attr - GAttrFlags.Inverted, _color24);
+        }
+
 
         /// <summary>
         /// Get a new copy whose underline status was set.
