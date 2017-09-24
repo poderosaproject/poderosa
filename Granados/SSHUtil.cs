@@ -308,7 +308,9 @@ namespace Granados {
     /// </summary>
     /// <exclude/>
     public enum MACAlgorithm {
-        HMACSHA1
+        HMACSHA1,
+        HMACSHA256,
+        HMACSHA512,
     }
 
     /// <summary>

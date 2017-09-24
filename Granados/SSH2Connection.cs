@@ -1077,7 +1077,8 @@ namespace Granados.SSH2 {
             SSH2Packet packetToSend;
             if (useEcdh) {
                 packetToSend = BuildKEX_ECDH_INITPacket(state);
-            } else {
+            }
+            else {
                 packetToSend = BuildKEXDHINITPacket(state);
             }
 
@@ -1142,17 +1143,21 @@ namespace Granados.SSH2 {
         /// <param name="traceMessage">trace message will be set</param>
         /// <returns>a packet object</returns>
         private SSH2Packet BuildKEXINITPacket(out string traceMessage) {
-            const string MAC_ALGORITHM = "hmac-sha1";
+
+            string kexAlgorithms = GetSupportedKexAlgorithms();
+            string hostKeyAlgorithmDescription = FormatHostKeyAlgorithmDescription();
+            string cipherAlgorithmDescription = FormatCipherAlgorithmDescription();
+            string macAlgorithmDescription = FormatMacAlgorithmDescription();
 
             SSH2Packet packet =
                 new SSH2Packet(SSH2PacketType.SSH_MSG_KEXINIT)
                     .WriteSecureRandomBytes(16) // cookie
-                    .WriteString(GetSupportedKexAlgorithms()) // kex_algorithms
-                    .WriteString(FormatHostKeyAlgorithmDescription()) // server_host_key_algorithms
-                    .WriteString(FormatCipherAlgorithmDescription()) // encryption_algorithms_client_to_server
-                    .WriteString(FormatCipherAlgorithmDescription()) // encryption_algorithms_server_to_client
-                    .WriteString(MAC_ALGORITHM) // mac_algorithms_client_to_server
-                    .WriteString(MAC_ALGORITHM) // mac_algorithms_server_to_client
+                    .WriteString(kexAlgorithms) // kex_algorithms
+                    .WriteString(hostKeyAlgorithmDescription) // server_host_key_algorithms
+                    .WriteString(cipherAlgorithmDescription) // encryption_algorithms_client_to_server
+                    .WriteString(cipherAlgorithmDescription) // encryption_algorithms_server_to_client
+                    .WriteString(macAlgorithmDescription) // mac_algorithms_client_to_server
+                    .WriteString(macAlgorithmDescription) // mac_algorithms_server_to_client
                     .WriteString("none") // compression_algorithms_client_to_server
                     .WriteString("none") // compression_algorithms_server_to_client
                     .WriteString("") // languages_client_to_server
@@ -1162,17 +1167,17 @@ namespace Granados.SSH2 {
 
             traceMessage = new StringBuilder()
                 .Append("kex_algorithm=")
-                .Append(GetSupportedKexAlgorithms())
+                .Append(kexAlgorithms)
                 .Append("; server_host_key_algorithms=")
-                .Append(FormatHostKeyAlgorithmDescription())
+                .Append(hostKeyAlgorithmDescription)
                 .Append("; encryption_algorithms_client_to_server=")
-                .Append(FormatCipherAlgorithmDescription())
+                .Append(cipherAlgorithmDescription)
                 .Append("; encryption_algorithms_server_to_client=")
-                .Append(FormatCipherAlgorithmDescription())
+                .Append(cipherAlgorithmDescription)
                 .Append("; mac_algorithms_client_to_server=")
-                .Append(MAC_ALGORITHM)
+                .Append(macAlgorithmDescription)
                 .Append("; mac_algorithms_server_to_client=")
-                .Append(MAC_ALGORITHM)
+                .Append(macAlgorithmDescription)
                 .ToString();
 
             return packet;
@@ -1207,10 +1212,12 @@ namespace Granados.SSH2 {
             _cInfo.IncomingPacketCipher = DecideCipherAlgorithm(enc_sc);
 
             string mac_cs = reader.ReadString();
-            CheckAlgorithmSupport("mac", mac_cs, "hmac-sha1");
+            _cInfo.SupportedMacAlgorithmsClientToServer = mac_cs;
+            _cInfo.OutgoingPacketMacAlgorithm = DecideMacAlgorithm(mac_cs);
 
             string mac_sc = reader.ReadString();
-            CheckAlgorithmSupport("mac", mac_sc, "hmac-sha1");
+            _cInfo.SupportedMacAlgorithmsServerToClient = mac_sc;
+            _cInfo.IncomingPacketMacAlgorithm = DecideMacAlgorithm(mac_sc);
 
             string comp_cs = reader.ReadString();
             CheckAlgorithmSupport("compression", comp_cs, "none");
@@ -1298,7 +1305,7 @@ namespace Granados.SSH2 {
         /// <returns>a packet object</returns>
         private SSH2Packet BuildKEX_ECDH_INITPacket(KexState state) {
             string curveName;
-            switch(_cInfo.KEXAlgorithm.Value) {
+            switch (_cInfo.KEXAlgorithm.Value) {
                 case KexAlgorithm.ECDH_SHA2_NISTP256:
                     curveName = "nistp256";
                     break;
@@ -1462,9 +1469,16 @@ namespace Granados.SSH2 {
                     DeriveKey(state.secret, state.hash, 'B', CipherFactory.GetBlockSize(_cInfo.IncomingPacketCipher.Value), state.hashAlgorithm)
                 );
 
-            MACAlgorithm ma = MACAlgorithm.HMACSHA1;
-            settings.macServer = MACFactory.CreateMAC(MACAlgorithm.HMACSHA1, DeriveKey(state.secret, state.hash, 'E', MACFactory.GetSize(ma), state.hashAlgorithm));
-            settings.macClient = MACFactory.CreateMAC(MACAlgorithm.HMACSHA1, DeriveKey(state.secret, state.hash, 'F', MACFactory.GetSize(ma), state.hashAlgorithm));
+            settings.macServer =
+                MACFactory.CreateMAC(
+                    _cInfo.OutgoingPacketMacAlgorithm.Value,
+                    DeriveKey(state.secret, state.hash, 'E', MACFactory.GetSize(_cInfo.OutgoingPacketMacAlgorithm.Value), state.hashAlgorithm)
+                );
+            settings.macClient =
+                MACFactory.CreateMAC(
+                    _cInfo.IncomingPacketMacAlgorithm.Value,
+                    DeriveKey(state.secret, state.hash, 'F', MACFactory.GetSize(_cInfo.IncomingPacketMacAlgorithm.Value), state.hashAlgorithm)
+                );
 
             return settings;
         }
@@ -1632,6 +1646,23 @@ namespace Granados.SSH2 {
         }
 
         /// <summary>
+        /// Decides MAC algorithm to use.
+        /// </summary>
+        /// <param name="candidates">candidate algorithms</param>
+        /// <returns>MAC algorithm to use</returns>
+        /// <exception cref="SSHException">no suitable algorithm was found</exception>
+        private MACAlgorithm DecideMacAlgorithm(string candidates) {
+            string[] candidateNames = candidates.Split(',');
+            foreach (MACAlgorithm pref in _param.PreferableMacAlgorithms) {
+                string prefName = MACFactory.AlgorithmToSSH2Name(pref);
+                if (candidateNames.Contains(prefName)) {
+                    return pref;
+                }
+            }
+            throw new SSHException(Strings.GetString("EncryptionAlgorithmNegotiationFailed"));
+        }
+
+        /// <summary>
         /// Makes kex_algorithms field for the SSH_MSG_KEXINIT
         /// </summary>
         /// <returns>name list</returns>
@@ -1658,11 +1689,24 @@ namespace Granados.SSH2 {
         /// <returns>name list</returns>
         private string FormatCipherAlgorithmDescription() {
             if (_param.PreferableCipherAlgorithms.Length == 0) {
-                throw new SSHException("CipherAlgorithm is not set");
+                throw new SSHException("preferable cipher algorithms were not set");
             }
             return string.Join(",",
                     _param.PreferableCipherAlgorithms
                         .Select(algorithm => CipherFactory.AlgorithmToSSH2Name(algorithm)));
+        }
+
+        /// <summary>
+        /// Makes mac_algorithms_client_to_server field for the SSH_MSG_KEXINIT
+        /// </summary>
+        /// <returns>name list</returns>
+        private string FormatMacAlgorithmDescription() {
+            if (_param.PreferableMacAlgorithms.Length == 0) {
+                throw new SSHException("preferable MAC algorithms were not set");
+            }
+            return string.Join(",",
+                    _param.PreferableMacAlgorithms
+                        .Select(algorithm => MACFactory.AlgorithmToSSH2Name(algorithm)));
         }
 
         /// <summary>

@@ -164,41 +164,96 @@ namespace Granados.Crypto {
 
     /**********        MAC        ***********/
 
+    /// <summary>
+    /// MAC calculator
+    /// </summary>
     interface MAC {
         byte[] ComputeHash(byte[] data, int offset, int length);
         int Size {
             get;
         }
     }
-    internal class MACSHA1 : MAC {
-        internal HMACSHA1 _algorithm;
-        public MACSHA1(byte[] key) {
-            _algorithm = new HMACSHA1(key);
-        }
 
-        public byte[] ComputeHash(byte[] data, int offset, int length) {
-            _algorithm.Initialize();
-            return _algorithm.ComputeHash(data, offset, length);
-        }
+    /// <summary>
+    /// Factory class creating a MAC calculator.
+    /// </summary>
+    internal class MACFactory {
 
-        public int Size {
-            get {
-                return 20;
+        /// <summary>
+        /// implementation class of the interface <see cref="MAC"/>.
+        /// </summary>
+        private class MACImpl : MAC {
+            private readonly HMAC _algorithm;
+
+            public MACImpl(HMAC algorithm) {
+                _algorithm = algorithm;
+            }
+
+            public byte[] ComputeHash(byte[] data, int offset, int length) {
+                _algorithm.Initialize();
+                return _algorithm.ComputeHash(data, offset, length);
+            }
+
+            public int Size {
+                get {
+                    return _algorithm.HashSize / 8;
+                }
             }
         }
-    }
-    internal class MACFactory {
+
+        /// <summary>
+        /// Creates a <see cref="MAC"/> object.
+        /// </summary>
+        /// <param name="algorithm">MAC algorithm</param>
+        /// <param name="key">key data</param>
+        /// <returns>new MAC object.</returns>
         public static MAC CreateMAC(MACAlgorithm algorithm, byte[] key) {
-            if (algorithm == MACAlgorithm.HMACSHA1)
-                return new MACSHA1(key);
-            else
-                throw new SSHException("unknown algorithm " + algorithm);
+            switch (algorithm) {
+                case MACAlgorithm.HMACSHA1:
+                    return new MACImpl(new HMACSHA1(key));
+                case MACAlgorithm.HMACSHA256:
+                    return new MACImpl(new HMACSHA256(key));
+                case MACAlgorithm.HMACSHA512:
+                    return new MACImpl(new HMACSHA512(key));
+                default:
+                    throw new SSHException("unknown algorithm " + algorithm);
+            }
         }
+
+        /// <summary>
+        /// Gets length of the MAC in bytes.
+        /// </summary>
+        /// <param name="algorithm">MAC algorithm</param>
+        /// <returns>length of the MAC</returns>
         public static int GetSize(MACAlgorithm algorithm) {
-            if (algorithm == MACAlgorithm.HMACSHA1)
-                return 20;
-            else
-                throw new SSHException("unknown algorithm " + algorithm);
+            switch (algorithm) {
+                case MACAlgorithm.HMACSHA1:
+                    return 20;
+                case MACAlgorithm.HMACSHA256:
+                    return 32;
+                case MACAlgorithm.HMACSHA512:
+                    return 64;
+                default:
+                    throw new SSHException("unknown algorithm " + algorithm);
+            }
+        }
+
+        /// <summary>
+        /// Gets name of a MAC algorithm for SSH2.
+        /// </summary>
+        /// <param name="algorithm">MAC algorithm</param>
+        /// <returns></returns>
+        public static string AlgorithmToSSH2Name(MACAlgorithm algorithm) {
+            switch (algorithm) {
+                case MACAlgorithm.HMACSHA1:
+                    return "hmac-sha1";
+                case MACAlgorithm.HMACSHA256:
+                    return "hmac-sha2-256";
+                case MACAlgorithm.HMACSHA512:
+                    return "hmac-sha2-512";
+                default:
+                    throw new SSHException("unknown algorithm " + algorithm);
+            }
         }
     }
 

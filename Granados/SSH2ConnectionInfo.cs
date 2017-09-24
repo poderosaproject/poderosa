@@ -101,6 +101,24 @@ namespace Granados.SSH2 {
         }
 
         /// <summary>
+        /// Server's supported MAC algorithms (client to server).
+        /// </summary>
+        /// <remarks>This property is null until the information is obtained from the server.</remarks>
+        public string SupportedMacAlgorithmsClientToServer {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Server's supported MAC algorithms (server to client).
+        /// </summary>
+        /// <remarks>This property is null until the information is obtained from the server.</remarks>
+        public string SupportedMacAlgorithmsServerToClient {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Host key algorithm determined to use for the verification of the server's host key.
         /// </summary>
         /// <remarks>This property is null until the algorithm is detemined.</remarks>
@@ -132,6 +150,24 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <remarks>This property is null until the algorithm is detemined.</remarks>
         public CipherAlgorithm? IncomingPacketCipher {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// MAC algorithm determined to use for the outgoing packet.
+        /// </summary>
+        /// <remarks>This property is null until the algorithm is detemined.</remarks>
+        public MACAlgorithm? OutgoingPacketMacAlgorithm {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// MAC algorithm determined to use for the incoming packet.
+        /// </summary>
+        /// <remarks>This property is null until the algorithm is detemined.</remarks>
+        public MACAlgorithm? IncomingPacketMacAlgorithm {
             get;
             set;
         }
