@@ -82,6 +82,10 @@ namespace Poderosa.Protocols {
             get;
             set;
         }
+        int SSHResponseTimeout {
+            get;
+            set;
+        }
 
         bool RetainsPassphrase {
             get;
@@ -151,6 +155,7 @@ namespace Poderosa.Protocols {
         private IStringPreferenceItem _hostKeyAlgorithmOrder;
         private IIntPreferenceItem _sshWindowSize;
         private IBoolPreferenceItem _sshCheckMAC;
+        private IIntPreferenceItem _sshResponseTimeout;
         private IStringPreferenceItem _hostKeyCheckerVerifierTypeName;
 
         //ソケット
@@ -188,6 +193,9 @@ namespace Poderosa.Protocols {
             _sshCheckMAC = builder.DefineBoolValue(_folder, "sshCheckMAC", true, null);
             _hostKeyCheckerVerifierTypeName = builder.DefineStringValue(_folder, "hostKeyCheckerVerifierTypeName", "Poderosa.Usability.SSHKnownHosts", null);
             _logSSHEvents = builder.DefineBoolValue(_folder, "logSSHEvents", false, null);
+            var defaultTimeouts = new Granados.SSHTimeouts();
+            _sshResponseTimeout = builder.DefineIntValue(_folder, "sshResponseTimeout", defaultTimeouts.ResponseTimeout, PreferenceValidatorUtil.PositiveIntegerValidator);
+
             _socketConnectTimeout = builder.DefineIntValue(_folder, "socketConnectTimeout", 3000, PreferenceValidatorUtil.PositiveIntegerValidator);
             _ipVersionPriority = new EnumPreferenceItem<IPVersionPriority>(builder.DefineStringValue(_folder, "ipVersionPriority", "Both", null), IPVersionPriority.Both);
 
@@ -219,6 +227,7 @@ namespace Poderosa.Protocols {
             _sshCheckMAC = ConvertItem(src._sshCheckMAC);
             _hostKeyCheckerVerifierTypeName = ConvertItem(src._hostKeyCheckerVerifierTypeName);
             _logSSHEvents = ConvertItem(src._logSSHEvents);
+            _sshResponseTimeout = ConvertItem(src._sshResponseTimeout);
 
             _socketConnectTimeout = ConvertItem(src._socketConnectTimeout);
             _ipVersionPriority = ConvertItem<IPVersionPriority>(src._ipVersionPriority);
@@ -271,6 +280,14 @@ namespace Poderosa.Protocols {
             }
             set {
                 _sshCheckMAC.Value = value;
+            }
+        }
+        public int SSHResponseTimeout {
+            get {
+                return _sshResponseTimeout.Value;
+            }
+            set {
+                _sshResponseTimeout.Value = value;
             }
         }
 

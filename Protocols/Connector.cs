@@ -66,6 +66,7 @@ namespace Poderosa.Protocols {
             con.TerminalHeight = term.InitialHeight;
             con.TerminalName = term.TerminalType;
             con.WindowSize = PEnv.Options.SSHWindowSize;
+            con.Timeouts.ResponseTimeout = PEnv.Options.SSHResponseTimeout;
             con.PreferableCipherAlgorithms =
                 LocalSSHUtil.AppendMissingCipherAlgorithm(
                     LocalSSHUtil.ParseCipherAlgorithm(PEnv.Options.CipherAlgorithmOrder));
