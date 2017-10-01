@@ -20,6 +20,7 @@ namespace Poderosa.SFTP {
 
     using Poderosa;
     using Poderosa.Plugins;
+    using Poderosa.Preferences;
 
     /// <summary>
     /// SFTP Plugin
@@ -37,6 +38,8 @@ namespace Poderosa.SFTP {
 
         private readonly StringResource _stringResource;
 
+        private readonly SFTPPreferences _sftpPreferences = new SFTPPreferences();
+        private readonly SCPPreferences _scpPreferences = new SCPPreferences();
 
         /// <summary>
         /// Get plugin instance
@@ -53,6 +56,24 @@ namespace Poderosa.SFTP {
         public StringResource StringResource {
             get {
                 return _stringResource;
+            }
+        }
+
+        /// <summary>
+        /// SFTP preferences
+        /// </summary>
+        public SFTPPreferences SFTPPreferences {
+            get {
+                return _sftpPreferences;
+            }
+        }
+
+        /// <summary>
+        /// SCP preferences
+        /// </summary>
+        public SCPPreferences SCPPreferences {
+            get {
+                return _scpPreferences;
             }
         }
 
@@ -77,6 +98,8 @@ namespace Poderosa.SFTP {
             
             ICoreServices coreServices = (ICoreServices)poderosa.GetAdapter(typeof(ICoreServices));
             coreServices.SessionManager.AddActiveDocumentChangeListener(toolbar);
+            coreServices.PreferenceExtensionPoint.RegisterExtension(_sftpPreferences);
+            coreServices.PreferenceExtensionPoint.RegisterExtension(_scpPreferences);
 
             poderosa.Culture.AddChangeListener(_stringResource);
         }
@@ -86,6 +109,74 @@ namespace Poderosa.SFTP {
         /// </summary>
         public override void TerminatePlugin() {
             base.TerminatePlugin();
+        }
+    }
+
+    /// <summary>
+    /// SFTP preferences
+    /// </summary>
+    internal class SFTPPreferences : IPreferenceSupplier {
+
+        private IIntPreferenceItem _protocolTimeout;
+
+        /// <summary>
+        /// Protocol timeout
+        /// </summary>
+        public int ProtocolTimeout {
+            get {
+                return _protocolTimeout.Value;
+            }
+        }
+
+        public string PreferenceID {
+            get {
+                return "org.poderosa.sftp";
+            }
+        }
+
+        public void InitializePreference(IPreferenceBuilder builder, IPreferenceFolder folder) {
+            _protocolTimeout = builder.DefineIntValue(folder, "protocolTimeout", 5000, PreferenceValidatorUtil.PositiveIntegerValidator);
+        }
+
+        public object QueryAdapter(IPreferenceFolder folder, Type type) {
+            return null;
+        }
+
+        public void ValidateFolder(IPreferenceFolder folder, IPreferenceValidationResult output) {
+        }
+    }
+
+    /// <summary>
+    /// SCP preferences
+    /// </summary>
+    internal class SCPPreferences : IPreferenceSupplier {
+
+        private IIntPreferenceItem _protocolTimeout;
+
+        /// <summary>
+        /// Protocol timeout
+        /// </summary>
+        public int ProtocolTimeout {
+            get {
+                return _protocolTimeout.Value;
+            }
+        }
+
+        public string PreferenceID {
+            get {
+                return "org.poderosa.scp";
+            }
+        }
+
+        public void InitializePreference(IPreferenceBuilder builder, IPreferenceFolder folder) {
+            _protocolTimeout = builder.DefineIntValue(folder, "protocolTimeout", 5000, PreferenceValidatorUtil.PositiveIntegerValidator);
+        }
+
+        public object QueryAdapter(IPreferenceFolder folder, Type type) {
+            return null;
+        }
+
+        public void ValidateFolder(IPreferenceFolder folder, IPreferenceValidationResult output) {
         }
     }
 }

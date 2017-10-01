@@ -342,6 +342,7 @@ namespace Poderosa.SFTP {
             SFTPClient sftp = null;
             try {
                 sftp = SFTPClient.OpenSFTPChannel(sshConnection);
+                sftp.ProtocolTimeout = SFTPPlugin.Instance.SFTPPreferences.ProtocolTimeout;
 
                 SFTPForm form = new SFTPForm(ownerForm, sftp, connectionName);
                 form.Show();    // Note: don't specify owner to avoid fixed z-order.
@@ -438,6 +439,7 @@ namespace Poderosa.SFTP {
             Form ownerForm = GetForm(target);
 
             SCPClient scp = new SCPClient(sshConnection);
+            scp.ProtocolTimeout = SFTPPlugin.Instance.SCPPreferences.ProtocolTimeout;
 
             SCPForm form = new SCPForm(ownerForm, scp, connectionName);
             form.Show();    // Note: don't specify owner to avoid fixed z-order.
