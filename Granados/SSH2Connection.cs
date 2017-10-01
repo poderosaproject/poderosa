@@ -30,13 +30,12 @@ namespace Granados.SSH2 {
     /// SSH2 connection
     /// </summary>
     internal class SSH2Connection : ISSHConnection, IDisposable {
-        private const int RESPONSE_TIMEOUT = 10000;
-
         private readonly IGranadosSocket _socket;
         private readonly ISSHConnectionEventHandler _eventHandler;
         private readonly SocketStatusReader _socketStatusReader;
 
         private readonly SSHConnectionParameter _param;
+        private readonly SSHTimeouts _timeouts;
         private readonly SSHProtocolEventManager _protocolEventManager;
 
         private readonly SSHChannelCollection _channelCollection;
@@ -90,6 +89,7 @@ namespace Granados.SSH2 {
 
             _socketStatusReader = new SocketStatusReader(socket);
             _param = param.Clone();
+            _timeouts = (_param.Timeouts != null) ? _param.Timeouts : new SSHTimeouts();
             _channelCollection = new SSHChannelCollection();
             _connectionInfo = new SSH2ConnectionInfo(param.HostName, param.PortNumber, serverVersion, clientVersion);
             IDataHandler adapter =
@@ -105,7 +105,7 @@ namespace Granados.SSH2 {
             _packetizer = new SSH2Packetizer(_syncHandler);
 
             _packetInterceptors = new SSHPacketInterceptorCollection();
-            _keyExchanger = new SSH2KeyExchanger(_syncHandler, param, _protocolEventManager, _connectionInfo, UpdateKey);
+            _keyExchanger = new SSH2KeyExchanger(_timeouts, _syncHandler, param, _protocolEventManager, _connectionInfo, UpdateKey);
             _packetInterceptors.Add(_keyExchanger);
 
             _x11ConnectionManager = (param.X11ForwardingParams != null) ? new X11ConnectionManager(_protocolEventManager) : null;
@@ -123,7 +123,7 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <returns>an instance of <see cref="SSH2RemotePortForwarding"/></returns>
         private SSH2RemotePortForwarding CreateRemotePortForwarding() {
-            var instance = new SSH2RemotePortForwarding(_syncHandler, _protocolEventManager);
+            var instance = new SSH2RemotePortForwarding(_timeouts, _syncHandler, _protocolEventManager);
             _packetInterceptors.Add(instance);
             return instance;
         }
@@ -144,6 +144,7 @@ namespace Granados.SSH2 {
                                     (remoteChannel, serverWindowSize, serverMaxPacketSize) => {
                                         uint localChannel = _channelCollection.GetNewChannelNumber();
                                         return new SSH2OpenSSHAgentForwardingChannel(
+                                                    _timeouts,
                                                     _syncHandler,
                                                     _param,
                                                     _protocolEventManager,
@@ -175,6 +176,7 @@ namespace Granados.SSH2 {
                                 (remoteChannel, serverWindowSize, serverMaxPacketSize) => {
                                     uint localChannel = _channelCollection.GetNewChannelNumber();
                                     return new SSH2X11ForwardingChannel(
+                                                _timeouts,
                                                 _syncHandler,
                                                 _param,
                                                 _protocolEventManager,
@@ -259,7 +261,7 @@ namespace Granados.SSH2 {
 
                 //user authentication
                 SSH2UserAuthentication userAuthentication =
-                    new SSH2UserAuthentication(this, _param, _protocolEventManager, _syncHandler, _sessionID);
+                    new SSH2UserAuthentication(this, _param, _protocolEventManager, _timeouts, _syncHandler, _sessionID);
                 if (_param.AuthenticationType == AuthenticationType.KeyboardInteractive) {
                     userAuthentication.KeyboardInteractiveAuthenticationFinished +=
                         result => {
@@ -350,7 +352,7 @@ namespace Granados.SSH2 {
                         channelCreator:
                             localChannel =>
                                 new SSH2ShellChannel(
-                                    _syncHandler, _param, _protocolEventManager, localChannel, _x11ConnectionManager)
+                                    _timeouts, _syncHandler, _param, _protocolEventManager, localChannel, _x11ConnectionManager)
                     );
         }
 
@@ -369,7 +371,7 @@ namespace Granados.SSH2 {
                             handlerCreator,
                         channelCreator:
                             localChannel =>
-                                new SSH2ExecChannel(_syncHandler, _param, _protocolEventManager, localChannel, command)
+                                new SSH2ExecChannel(_timeouts, _syncHandler, _param, _protocolEventManager, localChannel, command)
                     );
         }
 
@@ -389,7 +391,7 @@ namespace Granados.SSH2 {
                         channelCreator:
                             localChannel =>
                                 new SSH2SubsystemChannel(
-                                    _syncHandler, _param, _protocolEventManager, localChannel, subsystemName)
+                                    _timeouts, _syncHandler, _param, _protocolEventManager, localChannel, subsystemName)
                     );
         }
 
@@ -412,7 +414,7 @@ namespace Granados.SSH2 {
                         channelCreator:
                             localChannel =>
                                 new SSH2LocalPortForwardingChannel(
-                                    _syncHandler, _param, _protocolEventManager, localChannel,
+                                    _timeouts, _syncHandler, _param, _protocolEventManager, localChannel,
                                     remoteHost, remotePort, originatorIp, originatorPort)
                     );
         }
@@ -433,6 +435,7 @@ namespace Granados.SSH2 {
                             (requestInfo, remoteChannel, serverWindowSize, serverMaxPacketSize) => {
                                 uint localChannel = _channelCollection.GetNewChannelNumber();
                                 return new SSH2RemotePortForwardingChannel(
+                                            _timeouts,
                                             _syncHandler,
                                             _param,
                                             _protocolEventManager,
@@ -777,7 +780,6 @@ namespace Granados.SSH2 {
         #region SSH2KeyExchanger
 
         private const int PASSING_TIMEOUT = 1000;
-        private const int RESPONSE_TIMEOUT = 5000;
 
         private enum SequenceStatus {
             /// <summary>next key exchange can be started</summary>
@@ -844,6 +846,7 @@ namespace Granados.SSH2 {
         private readonly SSHProtocolEventManager _protocolEventManager;
         private readonly SSH2SynchronousPacketHandler _syncHandler;
         private readonly SSHConnectionParameter _param;
+        private readonly SSHTimeouts _timeouts;
         private readonly SSH2ConnectionInfo _cInfo;
 
         private byte[] _sessionID;
@@ -857,11 +860,13 @@ namespace Granados.SSH2 {
         /// Constructor
         /// </summary>
         public SSH2KeyExchanger(
+                    SSHTimeouts timeouts,
                     SSH2SynchronousPacketHandler syncHandler,
                     SSHConnectionParameter param,
                     SSHProtocolEventManager protocolEventManager,
                     SSH2ConnectionInfo info,
                     UpdateKeyDelegate updateKey) {
+            _timeouts = timeouts;
             _syncHandler = syncHandler;
             _param = param;
             _protocolEventManager = protocolEventManager;
@@ -1047,7 +1052,7 @@ namespace Granados.SSH2 {
             _protocolEventManager.Trace(traceMsg);
 
             DataFragment response = null;
-            if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+            if (!_receivedPacket.TryGet(ref response, _timeouts.ResponseTimeout)) {
                 throw new SSHException(Strings.GetString("ServerDoesntRespond"));
             }
 
@@ -1085,7 +1090,7 @@ namespace Granados.SSH2 {
             _syncHandler.Send(packetToSend);
 
             DataFragment response = null;
-            if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+            if (!_receivedPacket.TryGet(ref response, _timeouts.ResponseTimeout)) {
                 throw new SSHException(Strings.GetString("ServerDoesntRespond"));
             }
 
@@ -1126,7 +1131,7 @@ namespace Granados.SSH2 {
             _syncHandler.Send(packetToSend);
 
             DataFragment response = null;
-            if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+            if (!_receivedPacket.TryGet(ref response, _timeouts.ResponseTimeout)) {
                 throw new SSHException(Strings.GetString("ServerDoesntRespond"));
             }
 
@@ -1866,13 +1871,13 @@ namespace Granados.SSH2 {
         #region SSH2UserAuthentication
 
         private const int PASSING_TIMEOUT = 1000;
-        private const int RESPONSE_TIMEOUT = 5000;
 
         private readonly IKeyboardInteractiveAuthenticationHandler _kiHandler;
 
         private readonly SSHConnectionParameter _param;
         private readonly SSH2Connection _connection;
         private readonly SSHProtocolEventManager _protocolEventManager;
+        private readonly SSHTimeouts _timeouts;
         private readonly SSH2SynchronousPacketHandler _syncHandler;
         private readonly byte[] _sessionID;
 
@@ -1935,11 +1940,13 @@ namespace Granados.SSH2 {
                     SSH2Connection connection,
                     SSHConnectionParameter param,
                     SSHProtocolEventManager protocolEventManager,
+                    SSHTimeouts timeouts,
                     SSH2SynchronousPacketHandler syncHandler,
                     byte[] sessionID) {
             _connection = connection;
             _param = param;
             _protocolEventManager = protocolEventManager;
+            _timeouts = timeouts;
             _syncHandler = syncHandler;
             _sessionID = sessionID;
             _kiHandler =
@@ -2125,7 +2132,7 @@ namespace Granados.SSH2 {
             _protocolEventManager.Trace("SSH_MSG_SERVICE_REQUEST : serviceName={0}", serviceName);
 
             DataFragment response = null;
-            if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+            if (!_receivedPacket.TryGet(ref response, _timeouts.ResponseTimeout)) {
                 throw new SSHException(Strings.GetString("ServerDoesntRespond"));
             }
 
@@ -2251,7 +2258,7 @@ namespace Granados.SSH2 {
         private void DoKeyboardInteractiveUserAuthInput(string serviceName) {
             while (true) {
                 DataFragment response = null;
-                if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+                if (!_receivedPacket.TryGet(ref response, _timeouts.ResponseTimeout)) {
                     throw new SSHException(Strings.GetString("ServerDoesntRespond"));
                 }
 
@@ -2428,7 +2435,7 @@ namespace Granados.SSH2 {
 
             while (true) {
                 DataFragment response = null;
-                if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+                if (!_receivedPacket.TryGet(ref response, _timeouts.ResponseTimeout)) {
                     throw new SSHException(Strings.GetString("ServerDoesntRespond"));
                 }
 
@@ -2485,11 +2492,11 @@ namespace Granados.SSH2 {
         #region
 
         private const int PASSING_TIMEOUT = 1000;
-        private const int RESPONSE_TIMEOUT = 5000;
 
         public delegate SSH2RemotePortForwardingChannel CreateChannelFunc(RemotePortForwardingRequest requestInfo, uint remoteChannel, uint serverWindowSize, uint serverMaxPacketSize);
         public delegate void RegisterChannelFunc(SSH2RemotePortForwardingChannel channel, ISSHChannelEventHandler eventHandler);
 
+        private readonly SSHTimeouts _timeouts;
         private readonly SSH2SynchronousPacketHandler _syncHandler;
         private readonly SSHProtocolEventManager _protocolEventManager;
 
@@ -2533,7 +2540,8 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Constructor
         /// </summary>
-        public SSH2RemotePortForwarding(SSH2SynchronousPacketHandler syncHandler, SSHProtocolEventManager protocolEventManager) {
+        public SSH2RemotePortForwarding(SSHTimeouts timeouts, SSH2SynchronousPacketHandler syncHandler, SSHProtocolEventManager protocolEventManager) {
+            _timeouts = timeouts;
             _syncHandler = syncHandler;
             _protocolEventManager = protocolEventManager;
         }
@@ -2776,7 +2784,7 @@ namespace Granados.SSH2 {
 
             DataFragment response = null;
             bool accepted = false;
-            if (_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+            if (_receivedPacket.TryGet(ref response, _timeouts.ResponseTimeout)) {
                 lock (_sequenceLock) {
                     if (_sequenceStatus == SequenceStatus.TcpIpForwardSuccess) {
                         accepted = true;
@@ -2837,7 +2845,7 @@ namespace Granados.SSH2 {
 
             DataFragment response = null;
             bool accepted = false;
-            if (_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+            if (_receivedPacket.TryGet(ref response, _timeouts.ResponseTimeout)) {
                 lock (_sequenceLock) {
                     if (_sequenceStatus == SequenceStatus.CancelTcpIpForwardSuccess) {
                         accepted = true;
@@ -2878,7 +2886,6 @@ namespace Granados.SSH2 {
         #region
 
         private const int PASSING_TIMEOUT = 1000;
-        private const int RESPONSE_TIMEOUT = 5000;
 
         public delegate SSH2OpenSSHAgentForwardingChannel CreateChannelFunc(uint remoteChannel, uint serverWindowSize, uint serverMaxPacketSize);
         public delegate void RegisterChannelFunc(SSH2OpenSSHAgentForwardingChannel channel, ISSHChannelEventHandler eventHandler);
@@ -3001,7 +3008,6 @@ namespace Granados.SSH2 {
         #region
 
         private const int PASSING_TIMEOUT = 1000;
-        private const int RESPONSE_TIMEOUT = 5000;
 
         public delegate SSH2X11ForwardingChannel CreateChannelFunc(uint remoteChannel, uint serverWindowSize, uint serverMaxPacketSize);
         public delegate void RegisterChannelFunc(SSH2X11ForwardingChannel channel, ISSHChannelEventHandler eventHandler);

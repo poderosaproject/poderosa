@@ -38,6 +38,7 @@ namespace Granados.SSH1 {
 
         private readonly SSHConnectionParameter _param;
         private readonly SSHProtocolEventManager _protocolEventManager;
+        private readonly SSHTimeouts _timeouts;
 
         private readonly SSHChannelCollection _channelCollection;
         private SSH1InteractiveSession _interactiveSession;
@@ -90,6 +91,7 @@ namespace Granados.SSH1 {
 
             _socketStatusReader = new SocketStatusReader(socket);
             _param = param.Clone();
+            _timeouts = (_param.Timeouts != null) ? _param.Timeouts : new SSHTimeouts();
             _channelCollection = new SSHChannelCollection();
             _interactiveSession = null;
 
@@ -108,7 +110,7 @@ namespace Granados.SSH1 {
             _packetizer = new SSH1Packetizer(_syncHandler);
 
             _packetInterceptors = new SSHPacketInterceptorCollection();
-            _keyExchanger = new SSH1KeyExchanger(this, _syncHandler, _param, _connectionInfo, UpdateClientKey, UpdateServerKey);
+            _keyExchanger = new SSH1KeyExchanger(this, _timeouts, _syncHandler, _param, _connectionInfo, UpdateClientKey, UpdateServerKey);
             _packetInterceptors.Add(_keyExchanger);
 
             _remotePortForwarding = new Lazy<SSH1RemotePortForwarding>(CreateRemotePortForwarding);
@@ -124,7 +126,7 @@ namespace Granados.SSH1 {
         /// </summary>
         /// <returns>a new instance of <see cref="SSH1RemotePortForwarding"/></returns>
         private SSH1RemotePortForwarding CreateRemotePortForwarding() {
-            var instance = new SSH1RemotePortForwarding(_syncHandler, StartIdleInteractiveSession);
+            var instance = new SSH1RemotePortForwarding(_timeouts, _syncHandler, StartIdleInteractiveSession);
             _packetInterceptors.Add(instance);
             return instance;
         }
@@ -135,6 +137,8 @@ namespace Granados.SSH1 {
         /// <returns>a new instance of <see cref="SSH1AgentForwarding"/></returns>
         private SSH1AgentForwarding CreateAgentForwarding() {
             var instance = new SSH1AgentForwarding(
+                            timeouts:
+                                _timeouts,
                             syncHandler:
                                 _syncHandler,
                             authKeyProvider:
@@ -143,7 +147,7 @@ namespace Granados.SSH1 {
                                 remoteChannel => {
                                     uint localChannel = _channelCollection.GetNewChannelNumber();
                                     return new SSH1AgentForwardingChannel(
-                                                    _syncHandler, _protocolEventManager, localChannel, remoteChannel);
+                                                    _timeouts, _syncHandler, _protocolEventManager, localChannel, remoteChannel);
                                 },
                             registerChannel:
                                 RegisterChannel
@@ -158,6 +162,8 @@ namespace Granados.SSH1 {
         /// <returns>a new instance of <see cref="SSH1X11Forwarding"/></returns>
         private SSH1X11Forwarding CreateX11Forwarding() {
             var instance = new SSH1X11Forwarding(
+                            timeouts:
+                                _timeouts,
                             syncHandler:
                                 _syncHandler,
                             connectionInfo:
@@ -168,7 +174,7 @@ namespace Granados.SSH1 {
                                 remoteChannel => {
                                     uint localChannel = _channelCollection.GetNewChannelNumber();
                                     return new SSH1X11ForwardingChannel(
-                                                    _syncHandler, _protocolEventManager, localChannel, remoteChannel);
+                                                    _timeouts, _syncHandler, _protocolEventManager, localChannel, remoteChannel);
                                 },
                             registerChannel:
                                 RegisterChannel
@@ -245,7 +251,7 @@ namespace Granados.SSH1 {
                 _keyExchanger.ExecKeyExchange();
 
                 //user authentication
-                SSH1UserAuthentication userAuth = new SSH1UserAuthentication(this, _param, _syncHandler, _sessionID);
+                SSH1UserAuthentication userAuth = new SSH1UserAuthentication(this, _param, _timeouts, _syncHandler, _sessionID);
                 _packetInterceptors.Add(userAuth);
                 userAuth.ExecAuthentication();
 
@@ -339,7 +345,7 @@ namespace Granados.SSH1 {
                         channelCreator:
                             localChannel =>
                                 new SSH1InteractiveSession(
-                                    _syncHandler, _protocolEventManager, localChannel, ChannelType.Shell, "Shell"),
+                                    _timeouts, _syncHandler, _protocolEventManager, localChannel, ChannelType.Shell, "Shell"),
                         initiate:
                             channel => {
                                 _interactiveSession = channel;
@@ -367,7 +373,7 @@ namespace Granados.SSH1 {
                         channelCreator:
                             localChannel =>
                                 new SSH1InteractiveSession(
-                                    _syncHandler, _protocolEventManager, localChannel, ChannelType.ExecCommand, "ExecCommand"),
+                                    _timeouts, _syncHandler, _protocolEventManager, localChannel, ChannelType.ExecCommand, "ExecCommand"),
                         initiate:
                             channel => {
                                 _interactiveSession = channel;
@@ -409,7 +415,7 @@ namespace Granados.SSH1 {
                             handlerCreator,
                         channelCreator:
                             localChannel => new SSH1LocalPortForwardingChannel(
-                                                _syncHandler, _protocolEventManager, localChannel,
+                                                _timeouts, _syncHandler, _protocolEventManager, localChannel,
                                                 remoteHost, remotePort, originatorIp, originatorPort),
                         initiate:
                             channel => {
@@ -431,6 +437,7 @@ namespace Granados.SSH1 {
                 (requestInfo, remoteChannel) => {
                     uint localChannel = _channelCollection.GetNewChannelNumber();
                     return new SSH1RemotePortForwardingChannel(
+                                    _timeouts,
                                     _syncHandler,
                                     _protocolEventManager,
                                     localChannel,
@@ -788,7 +795,6 @@ namespace Granados.SSH1 {
         #region
 
         private const int PASSING_TIMEOUT = 1000;
-        private const int RESPONSE_TIMEOUT = 5000;
 
         private enum SequenceStatus {
             /// <summary>next key exchange can be started</summary>
@@ -816,6 +822,7 @@ namespace Granados.SSH1 {
         private readonly SSH1Connection _connection;
         private readonly SSH1SynchronousPacketHandler _syncHandler;
         private readonly SSHConnectionParameter _param;
+        private readonly SSHTimeouts _timeouts;
         private readonly SSH1ConnectionInfo _cInfo;
 
         private readonly object _sequenceLock = new object();
@@ -827,6 +834,7 @@ namespace Granados.SSH1 {
         /// Constructor
         /// </summary>
         /// <param name="connection"></param>
+        /// <param name="timeouts"></param>
         /// <param name="syncHandler"></param>
         /// <param name="param"></param>
         /// <param name="info"></param>
@@ -834,12 +842,14 @@ namespace Granados.SSH1 {
         /// <param name="updateServerKey"></param>
         public SSH1KeyExchanger(
                     SSH1Connection connection,
+                    SSHTimeouts timeouts,
                     SSH1SynchronousPacketHandler syncHandler,
                     SSHConnectionParameter param,
                     SSH1ConnectionInfo info,
                     UpdateClientKeyDelegate updateClientKey,
                     UpdateServerKeyDelegate updateServerKey) {
             _connection = connection;
+            _timeouts = timeouts;
             _syncHandler = syncHandler;
             _param = param;
             _cInfo = info;
@@ -958,7 +968,7 @@ namespace Granados.SSH1 {
             }
 
             DataFragment packet = null;
-            if (!_receivedPacket.TryGet(ref packet, RESPONSE_TIMEOUT)) {
+            if (!_receivedPacket.TryGet(ref packet, _timeouts.ResponseTimeout)) {
                 throw new SSHException(Strings.GetString("ServerDoesntRespond"));
             }
 
@@ -1100,7 +1110,7 @@ namespace Granados.SSH1 {
             _updateServerKey(sessionId, cipherServer);  // prepare encryption for the trailing packets
 
             DataFragment response = null;
-            if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+            if (!_receivedPacket.TryGet(ref response, _timeouts.ResponseTimeout)) {
                 throw new SSHException(Strings.GetString("ServerDoesntRespond"));
             }
 
@@ -1133,9 +1143,9 @@ namespace Granados.SSH1 {
         #region
 
         private const int PASSING_TIMEOUT = 1000;
-        private const int RESPONSE_TIMEOUT = 5000;
 
         private readonly SSHConnectionParameter _param;
+        private readonly SSHTimeouts _timeouts;
         private readonly SSH1Connection _connection;
         private readonly SSH1SynchronousPacketHandler _syncHandler;
         private readonly byte[] _sessionID;
@@ -1189,15 +1199,18 @@ namespace Granados.SSH1 {
         /// </summary>
         /// <param name="connection"></param>
         /// <param name="param"></param>
+        /// <param name="timeouts"></param>
         /// <param name="syncHandler"></param>
         /// <param name="sessionID"></param>
         public SSH1UserAuthentication(
                     SSH1Connection connection,
                     SSHConnectionParameter param,
+                    SSHTimeouts timeouts,
                     SSH1SynchronousPacketHandler syncHandler,
                     byte[] sessionID) {
             _connection = connection;
             _param = param;
+            _timeouts = timeouts;
             _syncHandler = syncHandler;
             _sessionID = sessionID;
         }
@@ -1362,7 +1375,7 @@ namespace Granados.SSH1 {
             _syncHandler.Send(packet);
 
             DataFragment response = null;
-            if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+            if (!_receivedPacket.TryGet(ref response, _timeouts.ResponseTimeout)) {
                 throw new SSHException(Strings.GetString("ServerDoesntRespond"));
             }
 
@@ -1401,7 +1414,7 @@ namespace Granados.SSH1 {
             _syncHandler.Send(packet);
 
             DataFragment response = null;
-            if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+            if (!_receivedPacket.TryGet(ref response, _timeouts.ResponseTimeout)) {
                 throw new SSHException(Strings.GetString("ServerDoesntRespond"));
             }
 
@@ -1449,7 +1462,7 @@ namespace Granados.SSH1 {
             _syncHandler.Send(packetRsa);
 
             DataFragment response = null;
-            if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+            if (!_receivedPacket.TryGet(ref response, _timeouts.ResponseTimeout)) {
                 throw new SSHException(Strings.GetString("ServerDoesntRespond"));
             }
 
@@ -1483,7 +1496,7 @@ namespace Granados.SSH1 {
             _syncHandler.Send(packetRes);
 
             response = null;
-            if (!_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+            if (!_receivedPacket.TryGet(ref response, _timeouts.ResponseTimeout)) {
                 throw new SSHException(Strings.GetString("ServerDoesntRespond"));
             }
 
@@ -1517,11 +1530,11 @@ namespace Granados.SSH1 {
         #region
 
         private const int PASSING_TIMEOUT = 1000;
-        private const int RESPONSE_TIMEOUT = 5000;
 
         public delegate SSH1RemotePortForwardingChannel CreateChannelFunc(RemotePortForwardingRequest requestInfo, uint remoteChannel);
         public delegate void RegisterChannelFunc(SSH1RemotePortForwardingChannel channel, ISSHChannelEventHandler eventHandler);
 
+        private readonly SSHTimeouts _timeouts;
         private readonly SSH1SynchronousPacketHandler _syncHandler;
 
         private readonly Action _startInteractiveSession;
@@ -1582,7 +1595,8 @@ namespace Granados.SSH1 {
         /// <summary>
         /// Constructor
         /// </summary>
-        public SSH1RemotePortForwarding(SSH1SynchronousPacketHandler syncHandler, Action startInteractiveSession) {
+        public SSH1RemotePortForwarding(SSHTimeouts timeous, SSH1SynchronousPacketHandler syncHandler, Action startInteractiveSession) {
+            _timeouts = timeous;
             _syncHandler = syncHandler;
             _startInteractiveSession = startInteractiveSession;
         }
@@ -1775,7 +1789,7 @@ namespace Granados.SSH1 {
 
             DataFragment response = null;
             bool accepted = false;
-            if (_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+            if (_receivedPacket.TryGet(ref response, _timeouts.ResponseTimeout)) {
                 lock (_sequenceLock) {
                     if (_sequenceStatus == SequenceStatus.PortForwardSuccess) {
                         accepted = true;
@@ -1806,11 +1820,11 @@ namespace Granados.SSH1 {
         #region
 
         private const int PASSING_TIMEOUT = 1000;
-        private const int RESPONSE_TIMEOUT = 5000;
 
         public delegate SSH1AgentForwardingChannel CreateChannelFunc(uint remoteChannel);
         public delegate void RegisterChannelFunc(SSH1AgentForwardingChannel channel, ISSHChannelEventHandler eventHandler);
 
+        private readonly SSHTimeouts _timeouts;
         private readonly SSH1SynchronousPacketHandler _syncHandler;
         private readonly CreateChannelFunc _createChannel;
         private readonly RegisterChannelFunc _registerChannel;
@@ -1838,10 +1852,12 @@ namespace Granados.SSH1 {
         /// Constructor
         /// </summary>
         public SSH1AgentForwarding(
+                SSHTimeouts timeouts,
                 SSH1SynchronousPacketHandler syncHandler,
                 IAgentForwardingAuthKeyProvider authKeyProvider,
                 CreateChannelFunc createChannel,
                 RegisterChannelFunc registerChannel) {
+            _timeouts = timeouts;
             _syncHandler = syncHandler;
             _createChannel = createChannel;
             _registerChannel = registerChannel;
@@ -1968,7 +1984,7 @@ namespace Granados.SSH1 {
 
             DataFragment response = null;
             bool accepted = false;
-            if (_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+            if (_receivedPacket.TryGet(ref response, _timeouts.ResponseTimeout)) {
                 lock (_sequenceLock) {
                     if (_sequenceStatus == SequenceStatus.AgentForwardingSuccess) {
                         accepted = true;
@@ -1995,7 +2011,6 @@ namespace Granados.SSH1 {
         #region
 
         private const int PASSING_TIMEOUT = 1000;
-        private const int RESPONSE_TIMEOUT = 5000;
 
         public delegate SSH1X11ForwardingChannel CreateChannelFunc(uint remoteChannel);
         public delegate void RegisterChannelFunc(SSH1X11ForwardingChannel channel, ISSHChannelEventHandler eventHandler);
@@ -2006,6 +2021,7 @@ namespace Granados.SSH1 {
         private readonly SSH1SynchronousPacketHandler _syncHandler;
         private readonly SSH1ConnectionInfo _connectionInfo;
         private readonly SSHProtocolEventManager _protocolEventManager;
+        private readonly SSHTimeouts _timeouts;
 
         private readonly object _sequenceLock = new object();
         private volatile SequenceStatus _sequenceStatus = SequenceStatus.Idle;
@@ -2031,11 +2047,13 @@ namespace Granados.SSH1 {
         /// Constructor
         /// </summary>
         public SSH1X11Forwarding(
+                    SSHTimeouts timeouts,
                     SSH1SynchronousPacketHandler syncHandler,
                     SSH1ConnectionInfo connectionInfo,
                     SSHProtocolEventManager protocolEventManager,
                     CreateChannelFunc createChannel,
                     RegisterChannelFunc registerChannel) {
+            _timeouts = timeouts;
             _syncHandler = syncHandler;
             _connectionInfo = connectionInfo;
             _x11ConnectionManager = new X11ConnectionManager(protocolEventManager);
@@ -2218,7 +2236,7 @@ namespace Granados.SSH1 {
 
             DataFragment response = null;
             bool accepted = false;
-            if (_receivedPacket.TryGet(ref response, RESPONSE_TIMEOUT)) {
+            if (_receivedPacket.TryGet(ref response, _timeouts.ResponseTimeout)) {
                 lock (_sequenceLock) {
                     if (_sequenceStatus == SequenceStatus.X11ForwardSuccess) {
                         accepted = true;

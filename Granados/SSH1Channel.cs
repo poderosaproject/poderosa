@@ -19,6 +19,7 @@ namespace Granados.SSH1 {
     internal abstract class SSH1ChannelBase : ISSHChannel {
         #region
 
+        private readonly SSHTimeouts _timeouts;
         private readonly IPacketSender<SSH1Packet> _packetSender;
         private readonly SSHProtocolEventManager _protocolEventManager;
 
@@ -33,6 +34,7 @@ namespace Granados.SSH1 {
         /// Constructor
         /// </summary>
         public SSH1ChannelBase(
+                SSHTimeouts timeouts,
                 IPacketSender<SSH1Packet> packetSender,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
@@ -40,6 +42,7 @@ namespace Granados.SSH1 {
                 ChannelType channelType,
                 string channelTypeString) {
 
+            _timeouts = timeouts;
             _packetSender = packetSender;
             _protocolEventManager = protocolEventManager;
             LocalChannel = localChannel;
@@ -190,6 +193,15 @@ namespace Granados.SSH1 {
         }
 
         /// <summary>
+        /// Timeout settings.
+        /// </summary>
+        protected SSHTimeouts Timeouts {
+            get {
+                return _timeouts;
+            }
+        }
+
+        /// <summary>
         /// Event handler object
         /// </summary>
         protected ISSHChannelEventHandler Handler {
@@ -234,7 +246,6 @@ namespace Granados.SSH1 {
         #region
 
         private const int PASSING_TIMEOUT = 1000;
-        private const int RESPONSE_TIMEOUT = 5000;
 
         protected enum State {
             /// <summary>initial state</summary>
@@ -275,12 +286,13 @@ namespace Granados.SSH1 {
         /// Constructor
         /// </summary>
         public SSH1InteractiveSession(
+                SSHTimeouts timeouts,
                 IPacketSender<SSH1Packet> packetSender,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 ChannelType channelType,
                 string channelTypeString)
-            : base(packetSender, protocolEventManager, localChannel, 0, channelType, channelTypeString) {
+            : base(timeouts, packetSender, protocolEventManager, localChannel, 0, channelType, channelTypeString) {
 
             _state = State.Initial;
         }
@@ -558,7 +570,7 @@ namespace Granados.SSH1 {
                 param.TerminalPixelWidth, param.TerminalPixelHeight);
 
             DataFragment packet = null;
-            if (!_receivedPacket.TryGet(ref packet, RESPONSE_TIMEOUT)) {
+            if (!_receivedPacket.TryGet(ref packet, Timeouts.ResponseTimeout)) {
                 RequestFailed();
                 return false;
             }
@@ -733,13 +745,14 @@ namespace Granados.SSH1 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH1SubChannelBase(
+                SSHTimeouts timeouts,
                 IPacketSender<SSH1Packet> packetSender,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 uint remoteChannel,
                 ChannelType channelType,
                 string channelTypeString)
-            : base(packetSender, protocolEventManager, localChannel, remoteChannel, channelType, channelTypeString) {
+            : base(timeouts, packetSender, protocolEventManager, localChannel, remoteChannel, channelType, channelTypeString) {
 
             _state = State.InitiatedByServer; // SendOpenConfirmation() will change state to "Opened"
         }
@@ -748,12 +761,13 @@ namespace Granados.SSH1 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH1SubChannelBase(
+                SSHTimeouts timeouts,
                 IPacketSender<SSH1Packet> packetSender,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 ChannelType channelType,
                 string channelTypeString)
-            : base(packetSender, protocolEventManager, localChannel, 0, channelType, channelTypeString) {
+            : base(timeouts, packetSender, protocolEventManager, localChannel, 0, channelType, channelTypeString) {
 
             _state = State.InitiatedByClient; // receiving SSH_MSG_CHANNEL_OPEN_CONFIRMATION will change state to "Opened"
         }
@@ -1161,6 +1175,7 @@ namespace Granados.SSH1 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH1LocalPortForwardingChannel(
+                SSHTimeouts timeouts,
                 IPacketSender<SSH1Packet> packetSender,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
@@ -1168,7 +1183,7 @@ namespace Granados.SSH1 {
                 uint remotePort,
                 string originatorIp,
                 uint originatorPort)
-            : base(packetSender, protocolEventManager, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(timeouts, packetSender, protocolEventManager, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
 
             _remoteHost = remoteHost;
             _remotePort = remotePort;
@@ -1215,11 +1230,12 @@ namespace Granados.SSH1 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH1RemotePortForwardingChannel(
+                SSHTimeouts timeouts,
                 IPacketSender<SSH1Packet> packetSender,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 uint remoteChannel)
-            : base(packetSender, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(timeouts, packetSender, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
         }
 
         /// <summary>
@@ -1246,11 +1262,12 @@ namespace Granados.SSH1 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH1AgentForwardingChannel(
+                SSHTimeouts timeouts,
                 IPacketSender<SSH1Packet> packetSender,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 uint remoteChannel)
-            : base(packetSender, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(timeouts, packetSender, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
         }
 
         /// <summary>
@@ -1277,11 +1294,12 @@ namespace Granados.SSH1 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH1X11ForwardingChannel(
+                SSHTimeouts timeouts,
                 IPacketSender<SSH1Packet> packetSender,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 uint remoteChannel)
-            : base(packetSender, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(timeouts, packetSender, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
         }
 
         /// <summary>

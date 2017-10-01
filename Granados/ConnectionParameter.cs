@@ -13,6 +13,34 @@ using System;
 namespace Granados {
 
     /// <summary>
+    /// SSH timeout settings.
+    /// </summary>
+    public class SSHTimeouts {
+        /// <summary>
+        /// General response timeout in milliseconds.
+        /// </summary>
+        public int ResponseTimeout {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public SSHTimeouts() {
+            ResponseTimeout = 10000;
+        }
+
+        /// <summary>
+        /// Clone this object.
+        /// </summary>
+        /// <returns>a new object.</returns>
+        public SSHTimeouts Clone() {
+            return (SSHTimeouts)MemberwiseClone();
+        }
+    }
+
+    /// <summary>
     /// SSH connection parameter.
     /// </summary>
     /// <remarks>
@@ -226,6 +254,13 @@ namespace Granados {
             set;
         }
 
+        /// <summary>
+        /// Timeout settings.
+        /// </summary>
+        public SSHTimeouts Timeouts {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Constructor
@@ -251,6 +286,7 @@ namespace Granados {
             MaxPacketSize = 0x10000;
             CheckMACError = true;
             VerifySSHHostKey = p => true;
+            Timeouts = new SSHTimeouts();
         }
 
         /// <summary>
@@ -264,6 +300,7 @@ namespace Granados {
             if (p.X11ForwardingParams != null) {
                 p.X11ForwardingParams = p.X11ForwardingParams.Clone();
             }
+            p.Timeouts = Timeouts.Clone();
             return p;
         }
     }

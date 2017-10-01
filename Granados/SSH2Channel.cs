@@ -64,6 +64,7 @@ namespace Granados.SSH2 {
         private const int MIN_DATAGRAM_SIZE = 512;
         private const int MAX_DATAGRAM_SIZE = 32768 - CHANNEL_DATA_INFO_SIZE;
 
+        private readonly SSHTimeouts _timeouts;
         private readonly IPacketSender<SSH2Packet> _packetSender;
         private readonly SSHProtocolEventManager _protocolEventManager;
         private readonly int _localMaxPacketSize;
@@ -92,6 +93,7 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH2ChannelBase(
+                SSHTimeouts timeouts,
                 IPacketSender<SSH2Packet> packetSender,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
@@ -102,7 +104,7 @@ namespace Granados.SSH2 {
                 uint serverWindowSize,
                 uint serverMaxPacketSize) {
 
-            _packetSender = packetSender;
+            _timeouts = timeouts;
             _protocolEventManager = protocolEventManager;
             LocalChannel = localChannel;
             RemoteChannel = remoteChannel;
@@ -121,6 +123,7 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH2ChannelBase(
+                SSHTimeouts timeouts,
                 IPacketSender<SSH2Packet> packetSender,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
@@ -128,6 +131,7 @@ namespace Granados.SSH2 {
                 ChannelType channelType,
                 string channelTypeString) {
 
+            _timeouts = timeouts;
             _packetSender = packetSender;
             _protocolEventManager = protocolEventManager;
             LocalChannel = localChannel;
@@ -195,10 +199,9 @@ namespace Granados.SSH2 {
         }
 
         private Task<ChannelRequestResult> WaitResponseAsync() {
-            const int RESPONSE_TIMEOUT = 10000;
             return Task<ChannelRequestResult>.Run(() => {
                 bool result = false;
-                if (_channelRequestResult.TryGet(ref result, RESPONSE_TIMEOUT)) {
+                if (_channelRequestResult.TryGet(ref result, _timeouts.ResponseTimeout)) {
                     return result ? ChannelRequestResult.Success : ChannelRequestResult.Failure;
                 }
                 else {
@@ -823,11 +826,12 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH2SessionChannel(
+                SSHTimeouts timeouts,
                 IPacketSender<SSH2Packet> packetSender,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel)
-            : base(packetSender, param, protocolEventManager, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(timeouts, packetSender, param, protocolEventManager, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
         }
 
         /// <summary>
@@ -892,12 +896,13 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH2ShellChannel(
+                SSHTimeouts timeouts,
                 IPacketSender<SSH2Packet> packetSender,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 X11ConnectionManager x11ConnectionManager)
-            : base(packetSender, param, protocolEventManager, localChannel) {
+            : base(timeouts, packetSender, param, protocolEventManager, localChannel) {
             _param = param;
             _x11ConnectionManager = x11ConnectionManager;
         }
@@ -1142,12 +1147,13 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH2ExecChannel(
+                SSHTimeouts timeouts,
                 IPacketSender<SSH2Packet> packetSender,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 string command)
-            : base(packetSender, param, protocolEventManager, localChannel) {
+            : base(timeouts, packetSender, param, protocolEventManager, localChannel) {
 
             _command = command;
         }
@@ -1234,12 +1240,13 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH2SubsystemChannel(
+                SSHTimeouts timeouts,
                 IPacketSender<SSH2Packet> packetSender,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 string subsystemName)
-            : base(packetSender, param, protocolEventManager, localChannel) {
+            : base(timeouts, packetSender, param, protocolEventManager, localChannel) {
 
             _subsystemName = subsystemName;
         }
@@ -1322,6 +1329,7 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by client)
         /// </summary>
         public SSH2LocalPortForwardingChannel(
+                SSHTimeouts timeouts,
                 IPacketSender<SSH2Packet> packetSender,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
@@ -1330,7 +1338,7 @@ namespace Granados.SSH2 {
                 uint remotePort,
                 string originatorIp,
                 uint originatorPort)
-            : base(packetSender, param, protocolEventManager, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
+            : base(timeouts, packetSender, param, protocolEventManager, localChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING) {
 
             _localWindowSize = param.WindowSize;
             _localMaxPacketSize = param.WindowSize;
@@ -1371,6 +1379,7 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH2RemotePortForwardingChannel(
+                SSHTimeouts timeouts, 
                 IPacketSender<SSH2Packet> packetSender,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
@@ -1378,7 +1387,7 @@ namespace Granados.SSH2 {
                 uint remoteChannel,
                 uint serverWindowSize,
                 uint serverMaxPacketSize)
-            : base(packetSender, param, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING, serverWindowSize, serverMaxPacketSize) {
+            : base(timeouts, packetSender, param, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING, serverWindowSize, serverMaxPacketSize) {
         }
 
         #endregion
@@ -1397,6 +1406,7 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH2OpenSSHAgentForwardingChannel(
+                SSHTimeouts timeouts,
                 IPacketSender<SSH2Packet> packetSender,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
@@ -1404,7 +1414,7 @@ namespace Granados.SSH2 {
                 uint remoteChannel,
                 uint serverWindowSize,
                 uint serverMaxPacketSize)
-            : base(packetSender, param, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING, serverWindowSize, serverMaxPacketSize) {
+            : base(timeouts, packetSender, param, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING, serverWindowSize, serverMaxPacketSize) {
         }
 
         #endregion
@@ -1423,6 +1433,7 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH2X11ForwardingChannel(
+                SSHTimeouts timeouts, 
                 IPacketSender<SSH2Packet> packetSender,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
@@ -1430,7 +1441,7 @@ namespace Granados.SSH2 {
                 uint remoteChannel,
                 uint serverWindowSize,
                 uint serverMaxPacketSize)
-            : base(packetSender, param, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING, serverWindowSize, serverMaxPacketSize) {
+            : base(timeouts, packetSender, param, protocolEventManager, localChannel, remoteChannel, CHANNEL_TYPE, CHANNEL_TYPE_STRING, serverWindowSize, serverMaxPacketSize) {
         }
 
         #endregion
