@@ -635,7 +635,7 @@ namespace Poderosa.Terminal {
                 _escapeSequence.Append(ch);
                 bool end_flag = false; //escape sequenceの終わりかどうかを示すフラグ
                 if (_escapeSequence.Length == 1) { //ESC+１文字である場合
-                    end_flag = ('0' <= ch && ch <= '9') || ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch == '>' || ch == '=' || ch == '|' || ch == '}' || ch == '~';
+                    end_flag = ('0' <= ch && ch <= '9') || ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z' && ch != 'P') || ch == '>' || ch == '=' || ch == '|' || ch == '}' || ch == '~';
                 }
                 else if (_escapeSequence[0] == ']') { //OSCの終端はBELかST(String Terminator)
                     end_flag = (ch == ControlCode.BEL) || (ch == ControlCode.ST);
@@ -643,6 +643,9 @@ namespace Poderosa.Terminal {
                 }
                 else if (this._escapeSequence[0] == '@') {
                     end_flag = (ch == '0') || (ch == '1');
+                }
+                else if (this._escapeSequence[0] == 'P') {  // DCS
+                    end_flag = (ch == ControlCode.ST);
                 }
                 else {
                     end_flag = ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch == '@' || ch == '~' || ch == '|' || ch == '{';
