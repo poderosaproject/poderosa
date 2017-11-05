@@ -202,20 +202,6 @@ namespace Poderosa.Forms {
                 RuntimeUtil.ReportException(ex);
             }
         }
-
-        protected override void WndProc(ref Message m) {
-            base.WndProc(ref m);
-            if (m.Msg == Win32.WM_COPYDATA) {
-                unsafe {
-                    Win32.COPYDATASTRUCT* p = (Win32.COPYDATASTRUCT*)m.LParam.ToPointer();
-                    if (p != null && p->dwData == Win32.PODEROSA_OPEN_FILE_REQUEST) {
-                        string fn = new String((char*)p->lpData);
-                        m.Result = new IntPtr(Win32.PODEROSA_OPEN_FILE_OK);
-                        WindowManagerPlugin.Instance.TurningOpenFile(this, fn);
-                    }
-                }
-            }
-        }
     }
 
     internal class TabBarManager : IDocumentTabFeature, TabBarTable.IUIHandler {

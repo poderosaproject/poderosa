@@ -21,6 +21,7 @@ using System.IO;
 using System.Reflection;
 
 using Poderosa.Plugins;
+using Poderosa.Plugin.Remoting;
 
 #if UNITTEST
 using NUnit.Framework;
@@ -82,8 +83,9 @@ namespace Poderosa.Boot {
                 }
             }
 
-            if (open_file != null && TryToSendOpenFileMessage(open_file))
-                return null; //別インスタンスに送信
+            if (open_file != null && TryToSendOpenFileMessage(open_file)) {
+                return null;    // exit this instance
+            }
 
             PoderosaStartupContext ctx = new PoderosaStartupContext(pm, home_directory, preference_home, args, open_file);
             return new InternalPoderosaWorld(ctx);
@@ -121,41 +123,18 @@ namespace Poderosa.Boot {
             return r;
         }
 
-        //別インスタンスへの送信を試みる。ショートカットを開いたときの多重起動に関するところで。
-        private static bool TryToSendOpenFileMessage(string filename) {
-            //ウィンドウを見つける
-            unsafe {
-                //find target
-                IntPtr hwnd = Win32.FindWindowEx(IntPtr.Zero, IntPtr.Zero, null, null);
-                char[] name = new char[256];
-                char[] mf = new char[256];
-                while (hwnd != IntPtr.Zero) {
-                    int len = Win32.GetWindowText(hwnd, name, 256);
-                    if (new string(name, 0, len).IndexOf("Poderosa") != -1) { //Window Classを確認するとか何とかすべきかも、だが
-                        if (TryToSendOpenFileMessage(hwnd, filename))
-                            return true;
-                    }
-                    hwnd = Win32.FindWindowEx(IntPtr.Zero, hwnd, null, null);
-                }
-
-                return false;
-            }
-        }
-        private unsafe static bool TryToSendOpenFileMessage(IntPtr hwnd, string filename) {
-            char[] data = filename.ToCharArray();
-            char* b = stackalloc char[data.Length + 1];
-            for (int i = 0; i < data.Length; i++)
-                b[i] = data[i];
-            b[data.Length] = '\0';
-
-            Win32.COPYDATASTRUCT cddata = new Win32.COPYDATASTRUCT();
-            cddata.dwData = Win32.PODEROSA_OPEN_FILE_REQUEST;
-            cddata.cbData = (uint)(sizeof(char) * (data.Length + 1));
-            cddata.lpData = b;
-
-            int lresult = Win32.SendMessage(hwnd, Win32.WM_COPYDATA, IntPtr.Zero, new IntPtr(&cddata));
-            Debug.WriteLine("TryToSend " + lresult);
-            return lresult == Win32.PODEROSA_OPEN_FILE_OK;
+        /// <summary>
+        /// Tries to open a shortcut file in another instance.
+        /// </summary>
+        /// <param name="filePath">path of a shortcut file</param>
+        /// <returns>true if a shortcut file was opened in another instance.</returns>
+        private static bool TryToSendOpenFileMessage(string filePath) {
+            bool succeeded = false;
+            PoderosaRemotingServiceClient.ForEachHost(service => {
+                succeeded = service.OpenShortcutFile(filePath);
+                return succeeded ? false : true;
+            });
+            return succeeded;
         }
     }
 

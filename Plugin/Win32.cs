@@ -24,15 +24,6 @@ namespace Poderosa {
     public class Win32 {
 
         //関数
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr FindWindowEx(
-            IntPtr hwndParent,      // handle to parent window
-            IntPtr hwndChildAfter,  // handle to child window
-            string lpszClass,    // class name
-            string lpszWindow    // window name
-            );
-        [DllImport("user32.dll", ExactSpelling = false, CharSet = CharSet.Auto)]
-        public static extern int GetWindowText(IntPtr hwnd, char[] buf, int size);
         [DllImport("user32.dll", ExactSpelling = false, CharSet = CharSet.Auto)]
         public static extern int GetWindowModuleFileName(IntPtr hwnd, char[] buf, int size);
         [DllImport("user32.dll")]
@@ -161,7 +152,6 @@ namespace Poderosa {
         }
 
         //定数
-        public const int WM_COPYDATA = 0x4A;
         public const int WM_NOTIFY = 0x4E;
         public const int WM_NCACTIVATE = 0x0086;
         public const int WM_CHAR = 0x0102;
@@ -219,41 +209,6 @@ namespace Poderosa {
 
         public const byte CLEARTYPE_QUALITY = 5;            // (_WIN32_WINNT >= 0x0500)
         public const byte CLEARTYPE_NATURAL_QUALITY = 6;    // (_WIN32_WINNT >= 0x0501)
-
-
-        /*
-        #define SW_HIDE             0
-        #define SW_SHOWNORMAL       1
-        #define SW_NORMAL           1
-        #define SW_SHOWMINIMIZED    2
-        #define SW_SHOWMAXIMIZED    3
-        #define SW_MAXIMIZE         3
-        #define SW_SHOWNOACTIVATE   4
-        #define SW_SHOW             5
-        #define SW_MINIMIZE         6
-        #define SW_SHOWMINNOACTIVE  7
-        #define SW_SHOWNA           8
-        #define SW_RESTORE          9
-        #define SW_SHOWDEFAULT      10
-        #define SW_FORCEMINIMIZE    11
-        #define SW_MAX              11
-        */
-
-        //構造体
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <exclude/>
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-        public unsafe struct COPYDATASTRUCT {
-            public uint dwData;
-            public uint cbData;
-            public void* lpData;
-        }
-
-        //WM_COPYDATAでファイルを開くときのメッセージ 数値自体に意味はない。別のアプリケーションと偶然かぶらないようにすることだけが目的
-        public const int PODEROSA_OPEN_FILE_REQUEST = 7964;
-        public const int PODEROSA_OPEN_FILE_OK = 485;
 
 
         /// <summary>

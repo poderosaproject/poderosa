@@ -27,6 +27,9 @@ using Poderosa.Sessions;
 using Poderosa.Preferences;
 using Poderosa.View;
 using Poderosa.Commands;
+using System.ServiceModel;
+using Poderosa.Plugin.Remoting;
+using System.Threading.Tasks;
 
 [assembly: PluginDeclaration(typeof(Poderosa.Forms.WindowManagerPlugin))]
 
@@ -53,6 +56,9 @@ namespace Poderosa.Forms {
         private SelectionService _selectionService;
 
         private bool _executingAllWindowClose;
+
+        private Task _chainedTask = Task.Delay(0);   // chained by ContinueWith()
+        private readonly object _chainedTaskSync = new object();
 
         private static WindowManagerPlugin _instance;
 
@@ -98,6 +104,8 @@ namespace Poderosa.Forms {
 
             CommandManagerPlugin.Instance.AddKeyBindChangeListener(this);
             poderosa.Culture.AddChangeListener(this);
+
+            PoderosaRemotingServiceHost.Start(new PoderosaRemotingService(this));
         }
 
         public void RunExtension() {
@@ -170,6 +178,9 @@ namespace Poderosa.Forms {
 
         public override void TerminatePlugin() {
             base.TerminatePlugin();
+
+            PoderosaRemotingServiceHost.Shutdown();
+
             if (_windows.Count > 0) {
                 CloseAllPopupWindows();
                 MainWindow[] t = _windows.ToArray(); //クローズイベント内で_windowsの要素が変化するのでローカルコピーが必要
@@ -314,17 +325,6 @@ namespace Poderosa.Forms {
                 }
             }
         }
-        //これはインタフェースメンバではない。MainWindowのWndProcがWM_COPYDATAを捕まえて呼ぶ。
-        public void TurningOpenFile(ICommandTarget ct, string filename) {
-            string[] filenames = new string[] { filename };
-            IFileDropHandler[] hs = (IFileDropHandler[])_poderosaWorld.PluginManager.FindExtensionPoint(WindowManagerConstants.FILEDROPHANDLER_ID).GetExtensions();
-            foreach (IFileDropHandler h in hs) {
-                if (h.CanAccept(ct, filenames)) {
-                    h.DoDropAction(ct, filenames);
-                    return;
-                }
-            }
-        }
         #endregion
 
         public void SetDraggingTabBar(TabKey value) {
@@ -366,6 +366,67 @@ namespace Poderosa.Forms {
             }
         }
 
+        /// <summary>
+        /// Opens specified shortcut file.
+        /// </summary>
+        /// <param name="path">path of a shortcut file</param>
+        /// <returns></returns>
+        private bool OpenShortcutFile(string path) {
+            if (_windows.Count == 0) {
+                return false;
+            }
+
+            // find available IFileDropHandler
+            string[] files = new string[] { path };
+            var target = _windows[0];
+
+            IFileDropHandler[] hs = (IFileDropHandler[])_poderosaWorld.PluginManager.FindExtensionPoint(WindowManagerConstants.FILEDROPHANDLER_ID).GetExtensions();
+            IFileDropHandler handler = null;
+            foreach (IFileDropHandler h in hs) {
+                if (h.CanAccept(target, files)) {
+                    handler = h;
+                    break;
+                }
+            }
+
+            if (handler == null) {
+                return false;
+            }
+
+            // call DoDropAction later
+            lock (_chainedTaskSync) {
+                _chainedTask = _chainedTask.ContinueWith(task => {
+                    target.Invoke((Action)(() => handler.DoDropAction(target, files)));
+                });
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// An implementation of the <see cref="IPoderosaRemotingService"/> interface.
+        /// </summary>
+        [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
+        private class PoderosaRemotingService : IPoderosaRemotingService {
+
+            private readonly WindowManagerPlugin _windowManagerPlugin;
+
+            /// <summary>
+            /// Constructor
+            /// </summary>
+            /// <param name="windowManagerPlugin"></param>
+            public PoderosaRemotingService(WindowManagerPlugin windowManagerPlugin) {
+                _windowManagerPlugin = windowManagerPlugin;
+            }
+
+            /// <summary>
+            /// Open shortcut file.
+            /// </summary>
+            /// <param name="path">path of the shortcut file</param>
+            /// <returns>true if opened. otherwise false.</returns>
+            public bool OpenShortcutFile(string path) {
+                return _windowManagerPlugin.OpenShortcutFile(path);
+            }
+        }
     }
 
     internal class TimerSite : ITimerSite {
