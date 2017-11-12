@@ -468,6 +468,21 @@
   <data name="Form.OptionDialog._startupOptionLabel">
     <value>Action with &amp;startup</value>
   </data>
+  <data name="Form.OptionDialog._fileAssociationGroup">
+    <value>File associations</value>
+  </data>
+  <data name="Form.OptionDialog._makeFileAssociationGts">
+    <value>Set file association for the shortcut (.gts) files</value>
+  </data>
+  <data name="Form.OptionDialog.MakeFileAssociationGtsConfirmation">
+    <value>Do you want to change the file association for .gts files?</value>
+  </data>
+  <data name="Form.OptionDialog.FileAssociationFailed">
+    <value>File association failed.</value>
+  </data>
+  <data name="Form.OptionDialog.FileAssociationChanged">
+    <value>The file association changed successfully.</value>
+  </data>
   <data name="Form.OptionDialog._tabBarGroup">
     <value>Alignment</value>
   </data>

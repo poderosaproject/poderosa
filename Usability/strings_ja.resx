@@ -466,6 +466,21 @@
   <data name="Form.OptionDialog._startupOptionLabel">
     <value>起動時の動作(&amp;S)</value>
   </data>
+  <data name="Form.OptionDialog._fileAssociationGroup">
+    <value>ファイルの関連付け</value>
+  </data>
+  <data name="Form.OptionDialog._makeFileAssociationGts">
+    <value>ショートカットファイル(.gts)の関連付けを設定する</value>
+  </data>
+  <data name="Form.OptionDialog.MakeFileAssociationGtsConfirmation">
+    <value>.gtsファイルの関連付けを変更してよろしいですか？</value>
+  </data>
+  <data name="Form.OptionDialog.FileAssociationFailed">
+    <value>ファイルの関連付けが失敗しました。</value>
+  </data>
+  <data name="Form.OptionDialog.FileAssociationChanged">
+    <value>ファイルの関連付けを変更しました。</value>
+  </data>
   <data name="Form.OptionDialog._tabBarGroup">
     <value>配置</value>
   </data>

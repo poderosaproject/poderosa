@@ -23,6 +23,8 @@ using Poderosa.Preferences;
 using Poderosa.UI;
 using Poderosa.Terminal;
 using Poderosa.Sessions;
+using Microsoft.Win32;
+using System.IO;
 
 namespace Poderosa.Forms {
     internal class GenericOptionPanel : UserControl {
@@ -34,6 +36,8 @@ namespace Poderosa.Forms {
         private CheckBox _showToolBar;
         private Label _startupOptionLabel;
         private ComboBox _startupOptionBox;
+        private GroupBox _fileAssociationGroup;
+        private Button _makeFileAssociationGts;
 
         public GenericOptionPanel() {
             InitializeComponent();
@@ -48,6 +52,8 @@ namespace Poderosa.Forms {
             this._languageBox = new ComboBox();
             this._startupOptionLabel = new Label();
             this._startupOptionBox = new ComboBox();
+            this._fileAssociationGroup = new GroupBox();
+            this._makeFileAssociationGts = new Button();
 
             this.Controls.AddRange(new System.Windows.Forms.Control[] {
                 this._MRUSizeLabel,
@@ -57,7 +63,8 @@ namespace Poderosa.Forms {
                 this._languageLabel,
                 this._languageBox,
                 this._startupOptionLabel,
-                this._startupOptionBox
+                this._startupOptionBox,
+                this._fileAssociationGroup,
             });
             // 
             // _languageLabel
@@ -125,6 +132,21 @@ namespace Poderosa.Forms {
             this._showToolBar.Size = new System.Drawing.Size(296, 23);
             this._showToolBar.TabIndex = 7;
 
+            this._fileAssociationGroup.Location = new System.Drawing.Point(16, 160);
+            this._fileAssociationGroup.Size = new System.Drawing.Size(408, 54);
+            this._fileAssociationGroup.FlatStyle = FlatStyle.System;
+            this._fileAssociationGroup.Name = "_fileAssociationGroup";
+            this._fileAssociationGroup.TabIndex = 8;
+
+            this._makeFileAssociationGts.Location = new System.Drawing.Point(8, 20);
+            this._makeFileAssociationGts.AutoSize = true;
+            this._makeFileAssociationGts.FlatStyle = FlatStyle.System;
+            this._makeFileAssociationGts.Name = "_makeFileAssociationGts";
+            this._makeFileAssociationGts.TabIndex = 0;
+            this._makeFileAssociationGts.Click += _makeFileAssociationGts_Click;
+
+            this._fileAssociationGroup.Controls.Add(this._makeFileAssociationGts);
+
             this.BackColor = SystemColors.Window;
         }
         private void FillText() {
@@ -134,6 +156,8 @@ namespace Poderosa.Forms {
             this._languageLabel.Text = sr.GetString("Form.OptionDialog._languageLabel");
             this._showToolBar.Text = sr.GetString("Form.OptionDialog._showToolBar");
             this._startupOptionLabel.Text = sr.GetString("Form.OptionDialog._startupOptionLabel");
+            this._fileAssociationGroup.Text = sr.GetString("Form.OptionDialog._fileAssociationGroup");
+            this._makeFileAssociationGts.Text = sr.GetString("Form.OptionDialog._makeFileAssociationGts");
 
             _languageBox.Items.AddRange(EnumListItem<Language>.GetListItems());
             _startupOptionBox.Items.AddRange(EnumListItem<StartupAction>.GetListItems());
@@ -169,7 +193,47 @@ namespace Poderosa.Forms {
             return successful;
         }
 
+        private void _makeFileAssociationGts_Click(object sender, EventArgs e) {
+            StringResource sr = OptionDialogPlugin.Instance.Strings;
+            if (GUtil.AskUserYesNo(this.ParentForm, sr.GetString("Form.OptionDialog.MakeFileAssociationGtsConfirmation")) != DialogResult.Yes) {
+                return;
+            }
 
+            try {
+                string exePath = Path.GetFullPath(Application.ExecutablePath);
+                if (exePath.ToLower().EndsWith(".vshost.exe")) {
+                    exePath = exePath.Substring(0, exePath.Length - 11) + ".exe";
+                }
+                if (!File.Exists(exePath)) {
+                    throw new Exception("Cannot determine the path of an executable file.");
+                }
+
+                const string APPID = "Poderosa";
+
+                // [HKEY_CURRENT_USER\Software\Classes\.gts]
+                Registry.CurrentUser
+                    .OpenSubKey(@"Software\Classes", true)
+                    .CreateSubKey(".gts")
+                    .SetValue("", APPID, RegistryValueKind.String);
+
+                // [HKEY_CURRENT_USER\Software\Classes\<APPID>\shell\open\command]
+                string command = "\"" + exePath + "\" -open \"%1\"";
+                Registry.CurrentUser
+                    .OpenSubKey(@"Software\Classes", true)
+                    .CreateSubKey(APPID + @"\shell\open\command")
+                    .SetValue("", command, RegistryValueKind.String);
+
+                MessageBox.Show(this.ParentForm,
+                    sr.GetString("Form.OptionDialog.FileAssociationChanged"),
+                    "Poderosa", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex) {
+                RuntimeUtil.SilentReportException(ex);
+                MessageBox.Show(this.ParentForm,
+                    sr.GetString("Form.OptionDialog.FileAssociationFailed"),
+                    "Poderosa", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
     }
 
 
