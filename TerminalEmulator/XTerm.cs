@@ -56,6 +56,11 @@ namespace Poderosa.Terminal {
         private readonly int[] _xtermSavedRow = new int[2];	// { main, alternate }
         private readonly int[] _xtermSavedCol = new int[2];	// { main, alternate }
 
+        private bool _bracketedPasteMode = false;
+        private readonly byte[] _bracketedPasteModeLeadingBytes = new byte[] { 0x1b, (byte)'[', (byte)'2', (byte)'0', (byte)'0', (byte)'~' };
+        private readonly byte[] _bracketedPasteModeTrailingBytes = new byte[] { 0x1b, (byte)'[', (byte)'2', (byte)'0', (byte)'1', (byte)'~' };
+        private readonly byte[] _bracketedPasteModeEmptyBytes = new byte[0];
+
         private MouseTrackingState _mouseTrackingState = MouseTrackingState.Off;
         private MouseTrackingProtocol _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
         private bool _focusReportingMode = false;
@@ -78,6 +83,14 @@ namespace Poderosa.Terminal {
 
         public override bool GetFocusReportingMode() {
             return _focusReportingMode;
+        }
+
+        internal override byte[] GetPasteLeadingBytes() {
+            return _bracketedPasteMode ? _bracketedPasteModeLeadingBytes : _bracketedPasteModeEmptyBytes;
+        }
+
+        internal override byte[] GetPasteTrailingBytes() {
+            return _bracketedPasteMode ? _bracketedPasteModeTrailingBytes : _bracketedPasteModeEmptyBytes;
         }
 
         public override void ProcessChar(char ch) {
@@ -813,6 +826,9 @@ namespace Poderosa.Terminal {
                     }
                     return ProcessCharResult.Processed;
                 case "1034":	// Input 8 bits
+                    return ProcessCharResult.Processed;
+                case "2004":    // Set/Reset bracketed paste mode
+                    _bracketedPasteMode = set;
                     return ProcessCharResult.Processed;
                 case "3":	//132 Column Mode
                     return ProcessCharResult.Processed;
