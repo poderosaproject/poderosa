@@ -39,7 +39,9 @@ namespace Poderosa.PortForwarding {
             //
             // TODO: InitializeComponent 呼び出しの後に、コンストラクタ コードを追加してください。
             //
-            _content.Text = "Poderosa SSH Portforwarding Gateway\r\n" + Env.VERSION_STRING + "\r\n\r\nCopyright(c) Poderosa Project.";
+            _content.Text = "Poderosa SSH Portforwarding Gateway" + Environment.NewLine
+                            + VersionInfo.PODEROSA_VERSION + Environment.NewLine + Environment.NewLine
+                            + "Copyright(c) " + VersionInfo.PROJECT_NAME;
             this._okButton.Text = Env.Strings.GetString("Common.OK");
             this.Text = Env.Strings.GetString("Form.AboutBox.Text");
         }

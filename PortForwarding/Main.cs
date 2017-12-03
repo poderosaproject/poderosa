@@ -27,8 +27,6 @@ using System.Drawing;
 namespace Poderosa.PortForwarding {
     internal class Env {
 
-        public const string VERSION_STRING = "Version 4.4.1";
-
         [STAThread]
         public static void Main(string[] args) {
             if (ActivateAnotherInstance())

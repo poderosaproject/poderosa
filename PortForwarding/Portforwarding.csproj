@@ -135,6 +135,7 @@
     <Compile Include="Util.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="VersionInfo.cs" />
     <EmbeddedResource Include="AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </EmbeddedResource>
