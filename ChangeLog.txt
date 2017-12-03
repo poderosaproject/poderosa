@@ -1,9 +1,28 @@
-﻿4.4.1
----------
+﻿4.4.2
+-----
+    * Added HMAC-SHA2 support in SSH2
+
+    * Some timeout parameters were made customizable.
+      The following parameters can be set in the "detailed preference editor."
+        "org.poderosa.protocols.sshResponseTimeout" - SSH response timeout
+        "org.poderosa.sftp.protocolTimeout" - SFTP protocol timeout
+        "org.poderosa.scp.protocolTimeout" - SCP protocol timeout
+
+    * Fixed DCS detection.
+      Note that DCS functions are still unsupported in Poderosa.
+
+    * Added WCF service for communicating between Poderosa instances.
+      Now the functionality that opens shortcut file works using WCF service.
+
+    * Added "Set file association" button in the "Generic" page
+      in the option settings dialog.
+
+4.4.1
+-----
     * Fixed SGR-positive (reset inverse).
 
 4.4.0
----------
+-----
     * Only .NET Framework >=4.5 is supported.
 
     * Granados (SSH library) has new interfaces and new internal design.
