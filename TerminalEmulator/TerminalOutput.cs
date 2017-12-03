@@ -212,7 +212,6 @@ namespace Poderosa.Terminal {
         /// </summary>
         /// <param name="reader"><ja>読み取るTextStream</ja><en>Read TextStream</en></param>
         /// <param name="send_linebreak_last"><ja>最後に改行を付けるかどうかを指定するフラグ。trueのとき、最後に改行が付与されます。</ja><en>Flag that specifies whether to put changing line at the end. Line feed is given at the end at true. </en></param>
-        /// <param name="paste"><ja>貼り付け動作を示すフラグ。</ja><en>Flag that indicates the "paste" action.</en></param>
         /// <remarks>
         /// <para>
         /// <ja>データは現在のエンコード設定により、エンコードされてから送信されます。</ja><en>After it is encoded by a present encode setting, data is transmitted. </en>
@@ -221,14 +220,7 @@ namespace Poderosa.Terminal {
         /// <ja><paramref name="reader"/>はデータの送信後に閉じられます（Closeメソッドが呼び出されます）。</ja><en>After data is transmitted, <paramref name="reader"/> is closed (The Close method is called). </en>
         /// </para>
         /// </remarks>
-        public void SendTextStream(TextReader reader, bool send_linebreak_last, bool paste) {
-            if (paste) {
-                byte[] leadingBytes = _host.GetPasteLeadingBytes();
-                if (leadingBytes != null && leadingBytes.Length > 0) {
-                    Transmit(leadingBytes);
-                }
-            }
-
+        public void SendTextStream(TextReader reader, bool send_linebreak_last) {
             string line = reader.ReadLine();
             while (line != null) {
                 SendString(line.ToCharArray());
@@ -243,13 +235,6 @@ namespace Poderosa.Terminal {
                 line = reader.ReadLine();
             }
             reader.Close();
-
-            if (paste) {
-                byte[] trailingBytes = _host.GetPasteTrailingBytes();
-                if (trailingBytes != null && trailingBytes.Length > 0) {
-                    Transmit(trailingBytes);
-                }
-            }
         }
 
         //復活

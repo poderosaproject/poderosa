@@ -75,7 +75,7 @@ namespace Poderosa.Commands {
 
             StringReader reader = new StringReader(data);
             TerminalTransmission output = session.TerminalTransmission;
-            output.SendTextStream(reader, data.Length > 0 && data[data.Length - 1] == '\n', true);
+            output.SendTextStream(reader, data.Length > 0 && data[data.Length - 1] == '\n');
             return CommandResult.Succeeded;
         }
 

@@ -310,7 +310,7 @@ namespace Poderosa.Terminal {
                     if (host == null)
                         return CommandResult.Failed;
                     r = new StreamReader(dlg.FileName, Encoding.Default);
-                    host.TerminalTransmission.SendTextStream(r, true, true);
+                    host.TerminalTransmission.SendTextStream(r, true);
                     return CommandResult.Succeeded;
                 }
                 catch (Exception ex) {

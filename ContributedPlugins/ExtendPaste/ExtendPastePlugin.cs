@@ -145,7 +145,7 @@ namespace Poderosa.ExtendPaste {
             // クリップボードデータ送信
             StringReader reader = new StringReader(data);
             TerminalTransmission output = session.TerminalTransmission;
-            output.SendTextStream(reader, data[data.Length - 1] == '\n', true);
+            output.SendTextStream(reader, data[data.Length - 1] == '\n');
             return CommandResult.Succeeded;
         }
 

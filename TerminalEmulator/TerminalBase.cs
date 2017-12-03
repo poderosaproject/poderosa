@@ -97,10 +97,6 @@ namespace Poderosa.Terminal {
 
         internal abstract byte[] SequenceKeyData(Keys modifier, Keys body);
 
-        internal abstract byte[] GetPasteLeadingBytes();
-
-        internal abstract byte[] GetPasteTrailingBytes();
-
         public AbstractTerminal(TerminalInitializeInfo info) {
             TerminalEmulatorPlugin.Instance.LaterInitialize();
 

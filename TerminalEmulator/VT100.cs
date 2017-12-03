@@ -48,13 +48,6 @@ namespace Poderosa.Terminal {
             _scrollRegionRelative = false;
         }
 
-        internal override byte[] GetPasteLeadingBytes() {
-            return new byte[0];
-        }
-
-        internal override byte[] GetPasteTrailingBytes() {
-            return new byte[0];
-        }
 
         protected override ProcessCharResult ProcessEscapeSequence(char code, char[] seq, int offset) {
             string param;
