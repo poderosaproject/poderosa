@@ -35,8 +35,7 @@ namespace Poderosa.Document {
     [Flags]
     internal enum GCharFlags : uint {
         None = 0u,
-        RightHalf = 1u << 29,
-        CJK = UnicodeCharFlags.CJK,
+        RightHalf = 1u << 30,
         WideWidth = UnicodeCharFlags.WideWidth,
     }
 
@@ -46,14 +45,13 @@ namespace Poderosa.Document {
     internal struct GChar {
         // bit 0..20 : Unicode Code Point (copied from UnicodeChar)
         //
-        // bit 29 : Right half of a wide-width character
-        // bit 30 : CJK (copied from UnicodeChar)
+        // bit 30 : Right half of a wide-width character
         // bit 31 : wide width (copied from UnicodeChar)
 
         private readonly uint _bits;
 
         private const uint CodePointMask = 0x1fffffu;
-        private const uint UnicodeCharMask = CodePointMask | (uint)(UnicodeCharFlags.WideWidth | UnicodeCharFlags.CJK);
+        private const uint UnicodeCharMask = CodePointMask | (uint)UnicodeCharFlags.WideWidth;
 
         /// <summary>
         /// An instance of SPACE (U+0020)
@@ -81,15 +79,6 @@ namespace Poderosa.Document {
         public uint CodePoint {
             get {
                 return _bits & CodePointMask;
-            }
-        }
-
-        /// <summary>
-        /// Whether this object represents a CJK character.
-        /// </summary>
-        public bool IsCJK {
-            get {
-                return (_bits & (uint)GCharFlags.CJK) != 0u;
             }
         }
 
@@ -1538,7 +1527,7 @@ namespace Poderosa.Document {
             GAttr newAttr = dec.Attr;
             GColor24 newColor = dec.Color24;
 
-            if (newChar.IsCJK) {
+            if (ch.IsCJK) {
                 newAttr += GAttrFlags.UseCjkFont;
             }
 
