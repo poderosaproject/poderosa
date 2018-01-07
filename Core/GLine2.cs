@@ -425,17 +425,17 @@ namespace Poderosa.Document {
         }
 
         public void Set(int index, GChar ch, GAttr attr) {
-            _attrs[index] = attr;
-
             if (!_chars.CanContain(ch)) {
                 GCharArrayType newArrayType = DetermineSuitableGCharArrayType(ch, _chars.Type);
                 _chars = CreateGCharArray(newArrayType, _chars);
             }
             _chars.Set(index, ch);
+            _attrs[index] = attr;
         }
 
-        public void Set(int index, GCell cell) {
-            Set(index, cell.Char, cell.Attr);
+        public void SetNul(int index, GAttr attr) {
+            _chars.Set(index, GChar.ASCII_NUL);
+            _attrs[index] = attr;
         }
 
         public void SetFlags(int index, GAttrFlags flags) {

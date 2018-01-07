@@ -825,29 +825,28 @@ namespace Poderosa.Document {
             GColor24 color = dec.Color24;
 
             lock (this) {
-                Fill(0, _cell.Length, GChar.ASCII_NUL, attr, color);
+                FillWithNul(0, _cell.Length, attr, color);
                 _displayLength = attr.IsDefault ? 0 : _cell.Length;
             }
         }
 
         /// <summary>
-        /// Fill range with the specified character and attributes.
+        /// Fill range with ASCII_NUL and the specified attributes.
         /// </summary>
         /// <param name="start">start index of the range (inclusive)</param>
         /// <param name="end">end index of the range (exclusive)</param>
-        /// <param name="ch">character to fill cells</param>
         /// <param name="attr">attributes to fill cells</param>
         /// <param name="color">24 bit colors to fill cells</param>
-        private void Fill(int start, int end, GChar ch, GAttr attr, GColor24 color) {
+        private void FillWithNul(int start, int end, GAttr attr, GColor24 color) {
             bool uses24bitColor = attr.Uses24bitColor;
             if (uses24bitColor && _color24 == null) {
                 _color24 = new GColor24[_cell.Length];
             }
 
-            GCell fillCell = new GCell(ch, attr + GAttrFlags.SameToPrevious);
+            GAttr fillAttr = attr + GAttrFlags.SameToPrevious;
 
             if (start < end) {
-                _cell.Set(start, fillCell);
+                _cell.SetNul(start, fillAttr);
                 if (uses24bitColor) {
                     _color24[start] = color;
                 }
@@ -855,7 +854,7 @@ namespace Poderosa.Document {
             }
 
             for (int i = start + 1; i < end; i++) {
-                _cell.Set(i, fillCell);
+                _cell.SetNul(i, fillAttr);
                 if (uses24bitColor) {
                     _color24[i] = color;
                 }
@@ -966,7 +965,7 @@ namespace Poderosa.Document {
                     _color24 = newColors;
                 }
 
-                Fill(oldLength, length, GChar.ASCII_NUL, GAttr.Default, new GColor24());
+                FillWithNul(oldLength, length, GAttr.Default, new GColor24());
                 // Note: _displayLength is not changed.
             }
         }
