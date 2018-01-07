@@ -37,6 +37,7 @@ namespace Poderosa.Document {
         None = 0u,
         RightHalf = 1u << 30,
         WideWidth = UnicodeCharFlags.WideWidth,
+        Mask = RightHalf | WideWidth,
     }
 
     /// <summary>
@@ -70,6 +71,15 @@ namespace Poderosa.Document {
             get {
                 // The cost of the constructor would be zero with JIT compiler enabling optimization.
                 return new GChar(UnicodeChar.ASCII_NUL);
+            }
+        }
+
+        /// <summary>
+        /// Flag bits
+        /// </summary>
+        internal GCharFlags Flags {
+            get {
+                return (GCharFlags)(_bits & (uint)GCharFlags.Mask);
             }
         }
 
@@ -117,6 +127,15 @@ namespace Poderosa.Document {
         /// <param name="ch">Unicode character</param>
         public GChar(UnicodeChar ch) {
             this._bits = ch.RawData & UnicodeCharMask;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="codePoint">Unicode code point</param>
+        /// <param name="flags">flags</param>
+        public GChar(uint codePoint, GCharFlags flags) {
+            this._bits = codePoint | (uint)flags;
         }
 
         /// <summary>
@@ -939,7 +958,7 @@ namespace Poderosa.Document {
 
                 int oldLength = _cell.Length;
 
-                _cell.Expand(length);
+                _cell.Expand(length, false);
 
                 if (_color24 != null) {
                     GColor24[] newColors = new GColor24[length];
