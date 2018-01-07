@@ -102,6 +102,7 @@
       <DependentUpon>ExtensionPointList.cs</DependentUpon>
     </Compile>
     <Compile Include="GenericsUtil.cs" />
+    <Compile Include="GLine2.cs" />
     <Compile Include="GLine.cs" />
     <Compile Include="ListenerList.cs" />
     <Compile Include="MacroEngineEx.cs" />

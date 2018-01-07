@@ -578,7 +578,7 @@ namespace Poderosa.Document {
         /// <param name="length">Number of characters to copy from buff.</param>
         public delegate void BufferWriter(char[] buff, int length);
 
-        private GCell[] _cell;
+        private readonly CompactGCellArray _cell;
         private GColor24[] _color24;    // can be null if 24 bit colors are not used
         private int _displayLength;
         private EOLType _eolType;
@@ -667,7 +667,7 @@ namespace Poderosa.Document {
         /// <param name="length"></param>
         public GLine(int length) {
             Debug.Assert(length > 0);
-            _cell = new GCell[length];  // no need to fill. (initialized as NULs with the default attribute)
+            _cell = new CompactGCellArray(length);
             _color24 = null;    // 24 bit colors are not used
             _displayLength = 0;
             _id = -1;
@@ -680,7 +680,7 @@ namespace Poderosa.Document {
         /// <param name="color24">24 bit colors</param>
         /// <param name="displayLength">length of the content</param>
         /// <param name="eolType">type of the line ending</param>
-        internal GLine(GCell[] cell, GColor24[] color24, int displayLength, EOLType eolType) {
+        internal GLine(CompactGCellArray cell, GColor24[] color24, int displayLength, EOLType eolType) {
             _cell = cell;
             _color24 = color24;
             _displayLength = displayLength;
@@ -691,18 +691,13 @@ namespace Poderosa.Document {
         /// <summary>
         /// Updates content in this line.
         /// </summary>
-        /// <param name="cell">cell data to be copied</param>
+        /// <param name="cells">cell data to be copied</param>
         /// <param name="color24">24 bit colors to be copied, or null</param>
         /// <param name="displayLength">length of the content</param>
         /// <param name="eolType">type of the line ending</param>
-        internal void UpdateContent(GCell[] cell, GColor24[] color24, int displayLength, EOLType eolType) {
+        internal void UpdateContent(IGCellArray cells, GColor24[] color24, int displayLength, EOLType eolType) {
             lock (this) {
-                if (_cell.Length == cell.Length) {
-                    cell.CopyTo(_cell);
-                }
-                else {
-                    _cell = (GCell[])cell.Clone();
-                }
+                _cell.Reset(cells);
 
                 if (color24 == null) {
                     _color24 = null;
@@ -737,7 +732,7 @@ namespace Poderosa.Document {
         public GLine Clone() {
             lock (this) {
                 GLine nl = new GLine(
-                            (GCell[])_cell.Clone(),
+                            _cell.Clone(),
                             (_color24 != null) ? (GColor24[])_color24.Clone() : null,
                             _displayLength,
                             _eolType);
@@ -749,9 +744,8 @@ namespace Poderosa.Document {
         /// <summary>
         /// Duplicates internal buffer.
         /// </summary>
-        /// <param name="reusableCellArray">reusable array, or null</param>
         /// <param name="reusableColorArray">reusable array, or null</param>
-        /// <param name="cellArray">
+        /// <param name="cells">
         /// if <paramref name="reusableCellArray"/> is available for storing cells, <paramref name="reusableCellArray"/> with copied cell data will be returned.
         /// otherwise, cloned cell data array will be returned.
         /// </param>
@@ -759,28 +753,10 @@ namespace Poderosa.Document {
         /// if <paramref name="reusableColorArray"/> is available for storing cells, <paramref name="reusableColorArray"/> with copied color data will be returned.
         /// otherwise, cloned color data array will be returned.
         /// </param>
-        internal void DuplicateBuffers(GCell[] reusableCellArray, GColor24[] reusableColorArray, out GCell[] cellArray, out GColor24[] colorArray) {
+        internal void DuplicateBuffers(IGCellArray cells, GColor24[] reusableColorArray, out GColor24[] colorArray) {
             lock (this) {
-                cellArray = DuplicateCells(reusableCellArray);
+                cells.Reset(_cell);
                 colorArray = Duplicate24bitColors(reusableColorArray);
-            }
-        }
-
-        /// <summary>
-        /// Duplicates internal cell data.
-        /// </summary>
-        /// <param name="reusable">reusable array, or null</param>
-        /// <returns>
-        /// if the reusable array is available for storing data, the reusable array with copied cell data will be returned.
-        /// otherwise, cloned cell data array will be returned.
-        /// </returns>
-        private GCell[] DuplicateCells(GCell[] reusable) {
-            if (reusable != null && reusable.Length == _cell.Length) {
-                _cell.CopyTo(reusable);
-                return reusable;
-            }
-            else {
-                return (GCell[])_cell.Clone();
             }
         }
 
@@ -852,7 +828,7 @@ namespace Poderosa.Document {
             GCell fillCell = new GCell(ch, attr + GAttrFlags.SameToPrevious);
 
             if (start < end) {
-                _cell[start] = fillCell;
+                _cell.Set(start, fillCell);
                 if (uses24bitColor) {
                     _color24[start] = color;
                 }
@@ -860,7 +836,7 @@ namespace Poderosa.Document {
             }
 
             for (int i = start + 1; i < end; i++) {
-                _cell[i] = fillCell;
+                _cell.Set(i, fillCell);
                 if (uses24bitColor) {
                     _color24[i] = color;
                 }
@@ -876,11 +852,11 @@ namespace Poderosa.Document {
         private void UpdateSameToPrevious(int index) {
             if (index > 0) {    // most common case
                 if (index < _cell.Length) {
-                    if (_cell[index - 1].Attr == _cell[index].Attr && (_color24 == null || _color24[index - 1] == _color24[index])) {
-                        _cell[index].Attr += GAttrFlags.SameToPrevious;
+                    if (_cell.AttrAt(index - 1) == _cell.AttrAt(index) && (_color24 == null || _color24[index - 1] == _color24[index])) {
+                        _cell.SetFlags(index, GAttrFlags.SameToPrevious);
                     }
                     else {
-                        _cell[index].Attr -= GAttrFlags.SameToPrevious;
+                        _cell.ClearFlags(index, GAttrFlags.SameToPrevious);
                     }
                 }
 
@@ -888,7 +864,7 @@ namespace Poderosa.Document {
             }
 
             if (index == 0 && _cell.Length > 0) {
-                _cell[index].Attr -= GAttrFlags.SameToPrevious;
+                _cell.ClearFlags(index, GAttrFlags.SameToPrevious);
             }
         }
 
@@ -918,16 +894,16 @@ namespace Poderosa.Document {
                     return;
                 }
 
-                byte v = ToCharTypeForWordBreak(_cell[pos].Char);
+                byte v = ToCharTypeForWordBreak(_cell.CharAt(pos));
 
                 int index = pos - 1;
-                while (index >= 0 && ToCharTypeForWordBreak(_cell[index].Char) == v) {
+                while (index >= 0 && ToCharTypeForWordBreak(_cell.CharAt(index)) == v) {
                     index--;
                 }
                 start = index + 1;
 
                 index = pos + 1;
-                while (index < _cell.Length && ToCharTypeForWordBreak(_cell[index].Char) == v) {
+                while (index < _cell.Length && ToCharTypeForWordBreak(_cell.CharAt(index)) == v) {
                     index++;
                 }
                 end = index;
@@ -961,10 +937,9 @@ namespace Poderosa.Document {
                     return;
                 }
 
-                GCell[] oldBuff = _cell;
-                GCell[] newBuff = new GCell[length];
-                oldBuff.CopyTo(newBuff);
-                _cell = newBuff;
+                int oldLength = _cell.Length;
+
+                _cell.Expand(length);
 
                 if (_color24 != null) {
                     GColor24[] newColors = new GColor24[length];
@@ -972,7 +947,7 @@ namespace Poderosa.Document {
                     _color24 = newColors;
                 }
 
-                Fill(oldBuff.Length, newBuff.Length, GChar.ASCII_NUL, GAttr.Default, new GColor24());
+                Fill(oldLength, length, GChar.ASCII_NUL, GAttr.Default, new GColor24());
                 // Note: _displayLength is not changed.
             }
         }
@@ -983,7 +958,7 @@ namespace Poderosa.Document {
         public bool IsPeriodicRedrawRequired() {
             lock (this) {
                 for (int i = 0; i < _cell.Length; i++) {
-                    if (_cell[i].Attr.Has(GAttrFlags.Blink)) {
+                    if (_cell.AttrAt(i).Has(GAttrFlags.Blink)) {
                         return true;
                     }
                 }
@@ -1021,11 +996,11 @@ namespace Poderosa.Document {
 
                 while (cellStart < _displayLength) {
                     int cellEnd = cellStart + 1;
-                    while (cellEnd < _displayLength && _cell[cellEnd].Attr.Has(GAttrFlags.SameToPrevious)) {
+                    while (cellEnd < _displayLength && _cell.AttrAt(cellEnd).Has(GAttrFlags.SameToPrevious)) {
                         cellEnd++;
                     }
 
-                    GAttr attr = _cell[cellStart].Attr;
+                    GAttr attr = _cell.AttrAt(cellStart);
                     GColor24 color24 = (_color24 != null) ? _color24[cellStart] : new GColor24();
 
                     IntPtr hFont = prof.CalcHFONT_NoUnderline(attr);
@@ -1062,7 +1037,7 @@ namespace Poderosa.Document {
                             // If background fill is required, we call ExtTextOut() with ETO_OPAQUE to draw the first character.
                             Win32.RECT rect = new Win32.RECT((int)fx1, y1, (int)fx2, y2);
                             if (isTextOpaque) {
-                                GChar ch = NulToSpace(_cell[cellIndex].Char);
+                                GChar ch = NulToSpace(_cell.CharAt(cellIndex));
                                 int len = ch.WriteTo(tmpCharBuf, 0);
                                 unsafe {
                                     fixed (char* p = tmpCharBuf) {
@@ -1090,7 +1065,7 @@ namespace Poderosa.Document {
 
                         if (isTextOpaque) {
                             while (cellIndex < cellEnd) {
-                                GChar ch = NulToSpace(_cell[cellIndex].Char);
+                                GChar ch = NulToSpace(_cell.CharAt(cellIndex));
                                 int len = ch.WriteTo(tmpCharBuf, 0);
                                 unsafe {
                                     fixed (char* p = tmpCharBuf) {
@@ -1113,7 +1088,7 @@ namespace Poderosa.Document {
                         char[] tmpCharBuf = GetInternalTemporaryCharBuffer((cellEnd - cellStart) * 2);
                         int bufLen = 0;
                         for (int i = cellStart; i < cellEnd; i++) {
-                            bufLen += NulToSpace(_cell[i].Char).WriteTo(tmpCharBuf, bufLen);
+                            bufLen += NulToSpace(_cell.CharAt(i)).WriteTo(tmpCharBuf, bufLen);
                         }
 
                         if (isBackgroundOpaque) {
@@ -1193,20 +1168,20 @@ namespace Poderosa.Document {
                     _displayLength = index + 1;
                 }
 
-                _cell[index].Attr += GAttrFlags.Cursor;
+                _cell.SetFlags(index, GAttrFlags.Cursor);
 
-                if (_cell[index].Char.IsRightHalf) {
-                    if (index > 0 && _cell[index - 1].Char.IsLeftHalf) {
-                        _cell[index - 1].Attr += GAttrFlags.Cursor;
+                if (_cell.CharAt(index).IsRightHalf) {
+                    if (index > 0 && _cell.CharAt(index - 1).IsLeftHalf) {
+                        _cell.SetFlags(index - 1, GAttrFlags.Cursor);
                         UpdateSameToPreviousForCellsChanged(index - 1, index + 1);
                     }
                     else {
                         UpdateSameToPreviousForCellsChanged(index, index + 1);
                     }
                 }
-                else if (_cell[index].Char.IsLeftHalf) {
-                    if (index + 1 < _cell.Length && _cell[index + 1].Char.IsRightHalf) {
-                        _cell[index + 1].Attr += GAttrFlags.Cursor;
+                else if (_cell.CharAt(index).IsLeftHalf) {
+                    if (index + 1 < _cell.Length && _cell.CharAt(index + 1).IsRightHalf) {
+                        _cell.SetFlags(index + 1, GAttrFlags.Cursor);
                         UpdateSameToPreviousForCellsChanged(index, index + 2);
                     }
                     else {
@@ -1228,11 +1203,11 @@ namespace Poderosa.Document {
             lock (this) {
                 ExpandBuffer(Math.Max(from + 1, to));
 
-                if (from >= 0 && from < _cell.Length && _cell[from].Char.IsRightHalf) {
+                if (from >= 0 && from < _cell.Length && _cell.CharAt(from).IsRightHalf) {
                     from--;
                 }
 
-                if (to >= 0 && to < _cell.Length && _cell[to].Char.IsRightHalf) {
+                if (to >= 0 && to < _cell.Length && _cell.CharAt(to).IsRightHalf) {
                     to++;
                 }
 
@@ -1245,7 +1220,7 @@ namespace Poderosa.Document {
                 }
 
                 for (int i = from; i < to; i++) {
-                    _cell[i].Attr += GAttrFlags.Selected;
+                    _cell.SetFlags(i, GAttrFlags.Selected);
                 }
 
                 UpdateSameToPreviousForCellsChanged(from, to);
@@ -1259,7 +1234,7 @@ namespace Poderosa.Document {
         /// <returns>true if the specified cell is a right-half of a wide-width character.</returns>
         public bool IsRightSideOfZenkaku(int index) {
             lock (this) {
-                return (index >= 0 && index < _cell.Length) ? _cell[index].Char.IsRightHalf : false;
+                return (index >= 0 && index < _cell.Length) ? _cell.CharAt(index).IsRightHalf : false;
             }
         }
 
@@ -1309,7 +1284,7 @@ namespace Poderosa.Document {
 
             // determine the length of contens
             int lastNonNulIndex = _displayLength - 1;
-            while (lastNonNulIndex >= 0 && _cell[lastNonNulIndex].Char.CodePoint == 0) {
+            while (lastNonNulIndex >= 0 && _cell.CodePointAt(lastNonNulIndex) == 0) {
                 lastNonNulIndex--;
             }
 
@@ -1319,7 +1294,7 @@ namespace Poderosa.Document {
             char[] temp = GetInternalTemporaryBufferForCopy();
             int tempIndex = 0;
             for (int i = start; i < end; i++) {
-                GChar ch = _cell[i].Char;
+                GChar ch = _cell.CharAt(i);
                 if (ch.IsRightHalf) {
                     continue;
                 }
@@ -1351,14 +1326,15 @@ namespace Poderosa.Document {
         /// <param name="dec"></param>
         /// <returns></returns>
         public static GLine CreateSimpleGLine(string text, TextDecoration dec) {
-            GCell[] buff = new GCell[text.Length * 2];
+            int columns = text.Length * 2;
+            CompactGCellArray cells = new CompactGCellArray(columns);
             GColor24[] colorBuff = null;
             int offset = 0;
             GAttr attr = dec.Attr;
             GColor24 colors = dec.Color24;
 
             if (attr.Uses24bitColor) {
-                colorBuff = new GColor24[buff.Length];
+                colorBuff = new GColor24[columns];
             }
 
             UnicodeCharConverter conv = new UnicodeCharConverter(true);
@@ -1370,7 +1346,7 @@ namespace Poderosa.Document {
                 }
 
                 GChar gchar = new GChar(unicodeChar);
-                buff[offset].Set(gchar, attr);
+                cells.Set(offset, gchar, attr);
                 if (colorBuff != null) {
                     colorBuff[offset] = colors;
                 }
@@ -1382,7 +1358,7 @@ namespace Poderosa.Document {
                 offset++;
 
                 if (gchar.IsWideWidth) {
-                    buff[offset].Set(gchar + GCharFlags.RightHalf, attr);
+                    cells.Set(offset, gchar + GCharFlags.RightHalf, attr);
                     if (colorBuff != null) {
                         colorBuff[offset] = colors;
                     }
@@ -1390,7 +1366,7 @@ namespace Poderosa.Document {
                 }
             }
 
-            return new GLine(buff, null, offset, EOLType.CRLF);
+            return new GLine(cells, null, offset, EOLType.CRLF);
         }
     }
 
@@ -1407,7 +1383,7 @@ namespace Poderosa.Document {
         //  GAttrFlags.SameToPrevious of each cell is not updated during the manipulation.
         //  The flag will be updated in Export(). 
 
-        private GCell[] _cell = new GCell[1];
+        private readonly GCellArray _cell = new GCellArray(1);
         private GColor24[] _color24 = new GColor24[1];  // always non-null
         private int _caretColumn = 0;
         private EOLType _eolType = EOLType.Continue;
@@ -1458,13 +1434,7 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="length">length of the internal buffer</param>
         public void Reset(int length) {
-            if (_cell == null || length != _cell.Length) {
-                _cell = new GCell[length];
-            }
-
-            for (int i = 0; i < _cell.Length; i++) {
-                _cell[i].Set(GChar.ASCII_NUL, GAttr.Default);
-            }
+            _cell.Clear(length);
 
             if (_color24 == null || length != _color24.Length) {
                 _color24 = new GColor24[length];
@@ -1491,7 +1461,7 @@ namespace Poderosa.Document {
                 Reset(80);
             }
             else {
-                line.DuplicateBuffers(_cell, _color24, out _cell, out _color24);
+                line.DuplicateBuffers(_cell, _color24, out _color24);
                 _eolType = line.EOLType;
             }
             this.CaretColumn = caretColumn;  // buffer may be expanded
@@ -1502,13 +1472,7 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="length">minimum buffer size.</param>
         public void ExpandBuffer(int length) {
-            if (length > _cell.Length) {
-                GCell[] oldBuff = _cell;
-                GCell[] newBuff = new GCell[length];
-                oldBuff.CopyTo(newBuff);
-                newBuff.Fill(oldBuff.Length, newBuff.Length, GChar.ASCII_NUL, GAttr.Default);
-                _cell = newBuff;
-            }
+            _cell.Expand(length);
 
             if (length > _color24.Length) {
                 GColor24[] newColors = new GColor24[length];
@@ -1534,7 +1498,7 @@ namespace Poderosa.Document {
             FixLeftHalfOfWideWidthCharacter(_caretColumn - 1);
 
             if (_caretColumn >= 0 && _caretColumn < _cell.Length) {
-                _cell[_caretColumn].Set(newChar, newAttr);
+                _cell.Set(_caretColumn, newChar, newAttr);
                 _color24[_caretColumn] = newColor;
             }
 
@@ -1542,7 +1506,7 @@ namespace Poderosa.Document {
 
             if (newChar.IsWideWidth) {
                 if (_caretColumn >= 0 && _caretColumn < _cell.Length) {
-                    _cell[_caretColumn].Set(newChar + GCharFlags.RightHalf, newAttr);
+                    _cell.Set(_caretColumn, newChar + GCharFlags.RightHalf, newAttr);
                     _color24[_caretColumn] = newColor;
                 }
                 _caretColumn++;
@@ -1561,8 +1525,8 @@ namespace Poderosa.Document {
         /// <param name="index"></param>
         private void FixLeftHalfOfWideWidthCharacter(int index) {
             if (index >= 0 && index < _cell.Length) {
-                if (_cell[index].Char.IsLeftHalf) {
-                    _cell[index].SetNul();
+                if (_cell.CharAt(index).IsLeftHalf) {
+                    _cell.SetNul(index);
                 }
             }
         }
@@ -1577,8 +1541,8 @@ namespace Poderosa.Document {
         /// <param name="index"></param>
         private void FixRightHalfOfWideWidthCharacter(int index) {
             if (index >= 0 && index < _cell.Length) {
-                if (_cell[index].Char.IsRightHalf) {
-                    _cell[index].SetNul();
+                if (_cell.CharAt(index).IsRightHalf) {
+                    _cell.SetNul(index);
                 }
             }
         }
@@ -1612,7 +1576,7 @@ namespace Poderosa.Document {
 
             for (int i = from; i < to; i++) {
                 // Note: uses ASCII_NUL instead of ASCII_SPACE for detecting correct length of the content
-                _cell[i].Set(GChar.ASCII_NUL, fillAttr);
+                _cell.Set(i, GChar.ASCII_NUL, fillAttr);
                 _color24[i] = fillColor;
             }
 
@@ -1636,7 +1600,7 @@ namespace Poderosa.Document {
             int dstIndex = (start >= 0) ? start : 0;
             int srcIndex = dstIndex + count;
             while (dstIndex < _cell.Length && srcIndex < _cell.Length) {
-                _cell[dstIndex] = _cell[srcIndex];
+                _cell.Copy(srcIndex, dstIndex);
                 _color24[dstIndex] = _color24[srcIndex];
                 dstIndex++;
                 srcIndex++;
@@ -1644,7 +1608,7 @@ namespace Poderosa.Document {
 
             while (dstIndex < _cell.Length) {
                 // Note: uses ASCII_NUL instead of ASCII_SPACE for detecting correct length of the content
-                _cell[dstIndex].Set(GChar.ASCII_NUL, fillAttr);
+                _cell.Set(dstIndex, GChar.ASCII_NUL, fillAttr);
                 _color24[dstIndex] = fillColor;
                 dstIndex++;
             }
@@ -1671,14 +1635,14 @@ namespace Poderosa.Document {
             int dstIndex = _cell.Length - 1;
             int srcIndex = dstIndex - count;
             while (srcIndex >= limit) {
-                _cell[dstIndex] = _cell[srcIndex];
+                _cell.Copy(srcIndex, dstIndex);
                 _color24[dstIndex] = _color24[srcIndex];
                 dstIndex--;
                 srcIndex--;
             }
 
             while (dstIndex >= limit) {
-                _cell[dstIndex].Set(GChar.ASCII_NUL, fillAttr);
+                _cell.Set(dstIndex, GChar.ASCII_NUL, fillAttr);
                 _color24[dstIndex] = fillColor;
                 dstIndex--;
             }
@@ -1698,7 +1662,7 @@ namespace Poderosa.Document {
             PrepareExport(out uses24bitColor, out displayLength);
 
             GLine line = new GLine(
-                            (GCell[])_cell.Clone(),
+                            new CompactGCellArray(_cell),
                             uses24bitColor ? (GColor24[])_color24.Clone() : null,
                             displayLength,
                             _eolType);
@@ -1726,23 +1690,27 @@ namespace Poderosa.Document {
             bool tempUses24bitColor = false;
             int lastCharIndex = -1;
             for (int i = 0; i < _cell.Length; i++) {
-                tempUses24bitColor |= _cell[i].Attr.Uses24bitColor;
-                if (!_cell[i].Attr.IsDefault || _cell[i].Char.CodePoint != 0u) {
+                var cell = _cell.At(i);
+                tempUses24bitColor |= cell.Attr.Uses24bitColor;
+                if (!cell.Attr.IsDefault || cell.Char.CodePoint != 0u) {
                     lastCharIndex = i;
                 }
             }
 
             // update "SameToPrevious" flags
 
-            _cell[0].Attr -= GAttrFlags.SameToPrevious;
+            _cell.ClearFlags(0, GAttrFlags.SameToPrevious);
 
+            var prevAttr = _cell.AttrAt(0);
             for (int i = 1; i < _cell.Length; i++) {
-                if (_cell[i - 1].Attr == _cell[i].Attr && (_color24 == null || _color24[i - 1] == _color24[i])) {
-                    _cell[i].Attr += GAttrFlags.SameToPrevious;
+                var curAttr = _cell.AttrAt(i);
+                if (prevAttr == curAttr && (_color24 == null || _color24[i - 1] == _color24[i])) {
+                    _cell.SetFlags(i, GAttrFlags.SameToPrevious);
                 }
                 else {
-                    _cell[i].Attr -= GAttrFlags.SameToPrevious;
+                    _cell.ClearFlags(i, GAttrFlags.SameToPrevious);
                 }
+                prevAttr = curAttr;
             }
 
             uses24bitColor = tempUses24bitColor;
