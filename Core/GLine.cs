@@ -711,7 +711,7 @@ namespace Poderosa.Document {
         /// <param name="color24">24 bit colors to be copied, or null</param>
         /// <param name="displayLength">length of the content</param>
         /// <param name="eolType">type of the line ending</param>
-        internal void UpdateContent(IGCellArray cells, GColor24[] color24, int displayLength, EOLType eolType) {
+        internal void UpdateContent(IGCellArraySource cells, GColor24[] color24, int displayLength, EOLType eolType) {
             lock (this) {
                 _cell.Reset(cells);
 
@@ -1398,7 +1398,7 @@ namespace Poderosa.Document {
         //  GAttrFlags.SameToPrevious of each cell is not updated during the manipulation.
         //  The flag will be updated in Export(). 
 
-        private readonly GCellArray _cell = new GCellArray(1);
+        private readonly SimpleGCellArray _cell = new SimpleGCellArray(1);
         private GColor24[] _color24 = new GColor24[1];  // always non-null
         private int _caretColumn = 0;
         private EOLType _eolType = EOLType.Continue;

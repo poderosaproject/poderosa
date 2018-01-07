@@ -18,64 +18,145 @@ using System.Runtime.InteropServices;
 
 namespace Poderosa.Document {
 
-    internal interface IGCellArray {
+    /// <summary>
+    /// Interface that provides contents of <see cref="GCell"/> array.
+    /// </summary>
+    internal interface IGCellArraySource {
+        /// <summary>
+        /// Length of GCell array.
+        /// </summary>
         int Length {
             get;
         }
 
+        /// <summary>
+        /// Gets Enumerable of GCells.
+        /// </summary>
+        /// <returns>Enumerable of GCells</returns>
         IEnumerable<GCell> AsEnumerable();
 
+        /// <summary>
+        /// Creates a new array that contains same values with internal array.
+        /// </summary>
+        /// <returns>new array</returns>
         GCell[] ToArray();
-
-        void Reset(IGCellArray cellArray);
     }
 
-    internal class GCellArray : IGCellArray {
+    /// <summary>
+    /// Common interface of the wrapper class that represents <see cref="GCell"/> array.
+    /// </summary>
+    internal interface IGCellArray {
+        /// <summary>
+        /// Resets internal array so that it contains same values with the specified array.
+        /// </summary>
+        /// <param name="source">source GCell array</param>
+        void Reset(IGCellArraySource source);
+    }
 
+    /// <summary>
+    /// Simple <see cref="GCell"/> array.
+    /// </summary>
+    internal class SimpleGCellArray : IGCellArray, IGCellArraySource {
+
+        /// <summary>
+        /// Internal array
+        /// </summary>
         private GCell[] _cells;
 
-        public int Length {
-            get {
-                return _cells.Length;
-            }
-        }
-
-        public GCellArray(int initialLength) {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="initialLength">initial array length</param>
+        public SimpleGCellArray(int initialLength) {
             _cells = new GCell[initialLength];
         }
 
+        /// <summary>
+        /// Gets <see cref="GCell"/> at the specified index.
+        /// </summary>
+        /// <param name="index">index of GCell array</param>
+        /// <returns>GCell value</returns>
         public GCell At(int index) {
             return _cells[index];
         }
 
+        /// <summary>
+        /// Gets <see cref="GAttr"/> of <see cref="GCell"/> at the specified index.
+        /// </summary>
+        /// <remarks>
+        /// This method provides optimal access to At(index).Attr.
+        /// </remarks>
+        /// <param name="index">index of GCell array</param>
+        /// <returns>GAttr value</returns>
         public GAttr AttrAt(int index) {
             return _cells[index].Attr;
         }
 
+        /// <summary>
+        /// Gets <see cref="GChar"/> of <see cref="GCell"/> at the specified index.
+        /// </summary>
+        /// <remarks>
+        /// This method provides optimal access to At(index).Char.
+        /// </remarks>
+        /// <param name="index">index of GCell array</param>
+        /// <returns>GChar value</returns>
         public GChar CharAt(int index) {
             return _cells[index].Char;
         }
 
+        /// <summary>
+        /// Sets <see cref="GCell"/> at the specified index.
+        /// </summary>
+        /// <remarks>
+        /// We use <c>Set(int, GChar, GAttr)</c> rather than <c>Set(int, GCell)</c>
+        /// because the first one will be optimized more efficiently by JIT.
+        /// </remarks>
+        /// <param name="index">index of GCell array</param>
+        /// <param name="ch">character data of GCell</param>
+        /// <param name="attr">attribute data of GCell</param>
         public void Set(int index, GChar ch, GAttr attr) {
             _cells[index].Set(ch, attr);
         }
 
+        /// <summary>
+        /// Sets ASCII_NULL at the specified index.
+        /// </summary>
+        /// <param name="index">index of GCell array</param>
         public void SetNul(int index) {
             _cells[index].SetNul();
         }
 
+        /// <summary>
+        /// Copy GCell in the internal array.
+        /// </summary>
+        /// <param name="srcIndex">source index</param>
+        /// <param name="dstIndex">destination index</param>
         public void Copy(int srcIndex, int dstIndex) {
             _cells[dstIndex] = _cells[srcIndex];
         }
 
+        /// <summary>
+        /// Sets attribute flags at the specified index.
+        /// </summary>
+        /// <param name="index">index of GCell array</param>
+        /// <param name="flags">flags to set</param>
         public void SetFlags(int index, GAttrFlags flags) {
             _cells[index].Attr += flags;
         }
 
+        /// <summary>
+        /// Clear attribute flags at the specified index.
+        /// </summary>
+        /// <param name="index">index of GCell array</param>
+        /// <param name="flags">flags to clear</param>
         public void ClearFlags(int index, GAttrFlags flags) {
             _cells[index].Attr -= flags;
         }
 
+        /// <summary>
+        /// Re-initialize internal array.
+        /// </summary>
+        /// <param name="newLength">new length of GCell array</param>
         public void Clear(int newLength) {
             if (_cells.Length != newLength) {
                 _cells = new GCell[newLength];
@@ -86,6 +167,10 @@ namespace Poderosa.Document {
             }
         }
 
+        /// <summary>
+        /// Expands array.
+        /// </summary>
+        /// <param name="newLength">new length of GCell array</param>
         public void Expand(int newLength) {
             if (newLength > _cells.Length) {
                 GCell[] oldBuff = _cells;
@@ -96,58 +181,148 @@ namespace Poderosa.Document {
             }
         }
 
+        #region IGCellArraySource
+
+        /// <summary>
+        /// Length of GCell array.
+        /// </summary>
+        public int Length {
+            get {
+                return _cells.Length;
+            }
+        }
+
+        /// <summary>
+        /// Gets Enumerable of GCells.
+        /// </summary>
+        /// <returns>Enumerable of GCells</returns>
         public IEnumerable<GCell> AsEnumerable() {
             return (IEnumerable<GCell>)_cells;
         }
 
+        /// <summary>
+        /// Creates a new array that contains same values with internal array.
+        /// </summary>
+        /// <returns>new array</returns>
         public GCell[] ToArray() {
             return (GCell[])_cells.Clone();
         }
 
-        public void Reset(IGCellArray cellArray) {
-            if (_cells.Length == cellArray.Length) {
+        #endregion
+
+        #region IGCellArray
+
+        /// <summary>
+        /// Resets internal array so that it contains same values with the specified array.
+        /// </summary>
+        /// <param name="source">source GCell array</param>
+        public void Reset(IGCellArraySource source) {
+            if (_cells.Length == source.Length) {
                 int i = 0;
-                foreach (var cell in cellArray.AsEnumerable()) {
+                foreach (var cell in source.AsEnumerable()) {
                     _cells[i++] = cell;
                 }
                 return;
             }
 
-            _cells = cellArray.ToArray();
+            _cells = source.ToArray();
         }
+
+        #endregion
     }
 
-    internal class CompactGCellArray : IGCellArray {
+    /// <summary>
+    /// Compact <see cref="GCell"/> array.
+    /// <para>
+    /// This class retains <see cref="GAttr"/> array and <see cref="GChar"/> array sepalately.
+    /// <see cref="GChar"/> array is retained as the compact form.
+    /// </para>
+    /// </summary>
+    internal class CompactGCellArray : IGCellArray, IGCellArraySource {
 
+        #region GChar arrays
+
+        /// <summary>
+        /// <see cref="GChar"/> array type
+        /// </summary>
         private enum GCharArrayType {
+            /// <summary>Uses <see cref="HalfWidthSingleByteGCharArray"/></summary>
             HalfWidthSingleByteGCharArray,
+            /// <summary>Uses <see cref="DoubleByteGCharArray"/></summary>
             DoubleByteGCharArray,
+            /// <summary>Uses <see cref="TripleByteGCharArray"/></summary>
             TripleByteGCharArray,
         }
 
+        /// <summary>
+        /// Common interface of <see cref="GChar"/> array class.
+        /// </summary>
         private interface IGCharArray {
+            /// <summary>
+            /// Array length
+            /// </summary>
             int Length {
                 get;
             }
 
+            /// <summary>
+            /// <see cref="GChar"/> array type
+            /// </summary>
             GCharArrayType Type {
                 get;
             }
 
+            /// <summary>
+            /// Gets <see cref="GChar"/> at the specified index.
+            /// </summary>
+            /// <param name="index">index of array</param>
+            /// <returns><see cref="GChar"/> value</returns>
             GChar CharAt(int index);
 
+            /// <summary>
+            /// Gets Unicode code point of <see cref="GChar"/> at the specified index.
+            /// </summary>
+            /// <remarks>
+            /// This method provides optimal access to CharAt(index).CodePoint.
+            /// </remarks>
+            /// <param name="index">index of array</param>
+            /// <returns>Unicode code point</returns>
             uint CodePointAt(int index);
 
+            /// <summary>
+            /// Sets <see cref="GChar"/> at the specified index.
+            /// </summary>
+            /// <param name="index">index of array</param>
+            /// <param name="ch">value to set</param>
             void Set(int index, GChar ch);
 
+            /// <summary>
+            /// Checks whether the <see cref="GChar"/> array implementation can contains the specified <see cref="GChar"/>.
+            /// </summary>
+            /// <param name="ch">value</param>
+            /// <returns>true if the <see cref="GChar"/> array implementation can contains the specified <see cref="GChar"/>.</returns>
             bool CanContain(GChar ch);
 
+            /// <summary>
+            /// Expands array.
+            /// </summary>
+            /// <param name="newLength">new length</param>
             void Expand(int newLength);
 
+            /// <summary>
+            /// Create a cloned <see cref="GChar"/> array.
+            /// </summary>
+            /// <returns></returns>
             IGCharArray Clone();
         }
 
+        /// <summary>
+        /// <see cref="IGCharArray"/> implementation that retains only half-width characters in U+0000..U+00FF.
+        /// <para>This implementation uses 1 byte per character.</para>
+        /// </summary>
         private class HalfWidthSingleByteGCharArray : IGCharArray {
+            // bit 0..7 : Unicode Code Point (U+0000 - U+00FF)
+            // all characters are half-width character implicitly.
 
             private byte[] _chars;
 
@@ -177,8 +352,9 @@ namespace Poderosa.Document {
                 }
             }
 
+            // constructor for Clone()
             private HalfWidthSingleByteGCharArray(HalfWidthSingleByteGCharArray orig) {
-                _chars = (byte[])orig._chars.Clone(); 
+                _chars = (byte[])orig._chars.Clone();
             }
 
             public GChar CharAt(int index) {
@@ -215,9 +391,12 @@ namespace Poderosa.Document {
             }
         }
 
+        /// <summary>
+        /// <see cref="IGCharArray"/> implementation that retains only characters in U+0000..U+3FFF.
+        /// <para>This implementation uses 2 bytes per character.</para>
+        /// </summary>
         private class DoubleByteGCharArray : IGCharArray {
             // bit 0..13 : Unicode Code Point (U+0000 - U+3FFF)
-            //
             // bit 14 : Right half of a wide-width character
             // bit 15 : wide width
 
@@ -252,6 +431,7 @@ namespace Poderosa.Document {
                 }
             }
 
+            // constructor for Clone()
             private DoubleByteGCharArray(DoubleByteGCharArray orig) {
                 _chars = (ushort[])orig._chars.Clone();
             }
@@ -294,15 +474,17 @@ namespace Poderosa.Document {
             }
         }
 
+        /// <summary>
+        /// <see cref="IGCharArray"/> implementation that retains any characters.
+        /// <para>This implementation uses 3 bytes per character.</para>
+        /// </summary>
         private class TripleByteGCharArray : IGCharArray {
             // bit 0..20 : Unicode Code Point (U+0000 - U+1FFFFF)
             //
             // bit 22 : Right half of a wide-width character
             // bit 23 : wide width
 
-            private int _length;
-
-            [StructLayout(LayoutKind.Sequential, Pack=1, Size=3)]
+            [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 3)]
             private struct UInt24 {
                 private readonly byte _b1;
                 private readonly byte _b2;
@@ -321,6 +503,7 @@ namespace Poderosa.Document {
                 }
             }
 
+            private int _length;
             private UInt24[] _chars;
 
             private const uint CodePointMask = 0x1fffffu;
@@ -352,6 +535,7 @@ namespace Poderosa.Document {
                 }
             }
 
+            // constructor for Clone()
             private TripleByteGCharArray(TripleByteGCharArray orig) {
                 _length = orig._length;
                 _chars = (UInt24[])orig._chars.Clone();
@@ -393,24 +577,34 @@ namespace Poderosa.Document {
             }
         }
 
+        #endregion
+
+        /// <summary>
+        /// Internal array
+        /// </summary>
         private GAttr[] _attrs;
+
+        /// <summary>
+        /// Internal array
+        /// </summary>
         private IGCharArray _chars;
 
-        public int Length {
-            get {
-                return _attrs.Length;
-            }
-        }
-
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="initialLength">initial array length</param>
         public CompactGCellArray(int initialLength) {
             _attrs = new GAttr[initialLength];
             _chars = new HalfWidthSingleByteGCharArray(initialLength);
         }
 
-        public CompactGCellArray(IGCellArray source) {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="source">source that contens are copied from</param>
+        public CompactGCellArray(IGCellArraySource source) {
             GCharArrayType type = DetermineSuitableGCharArrayType(source.AsEnumerable());
             _chars = CreateGCharArray(type, source.Length);
-
             _attrs = new GAttr[source.Length];
 
             int i = 0;
@@ -421,25 +615,69 @@ namespace Poderosa.Document {
             }
         }
 
+        /// <summary>
+        /// Constructor (for Clone())
+        /// </summary>
+        /// <param name="orig">original instance</param>
         private CompactGCellArray(CompactGCellArray orig) {
             _attrs = (GAttr[])orig._attrs.Clone();
             _chars = orig._chars.Clone();
         }
 
+        /* This method is not recommended. Use AttrAt(int) and CharAt(int).
+        /// <summary>
+        /// Gets <see cref="GCell"/> at the specified index.
+        /// </summary>
+        /// <param name="index">index of GCell array</param>
+        /// <returns>GCell value</returns>
+        public GCell At(int index) {
+            return new GCell(CharAt(index), AttrAt(index));
+        }
+         */
+
+        /// <summary>
+        /// Gets <see cref="GAttr"/> of <see cref="GCell"/> at the specified index.
+        /// </summary>
+        /// <param name="index">index of GCell array</param>
+        /// <returns>GAttr value</returns>
         public GAttr AttrAt(int index) {
             return _attrs[index];
         }
 
+        /// <summary>
+        /// Gets <see cref="GChar"/> of <see cref="GCell"/> at the specified index.
+        /// </summary>
+        /// <param name="index">index of GCell array</param>
+        /// <returns>GChar value</returns>
         public GChar CharAt(int index) {
             return _chars.CharAt(index);
         }
 
+        /// <summary>
+        /// Gets Unicode code point of <see cref="GChar"/> of <see cref="GCell"/> at the specified index.
+        /// </summary>
+        /// <remarks>
+        /// This method provides optimal access to CharAt(index).CodePoint.
+        /// </remarks>
+        /// <param name="index">index of GCell array</param>
+        /// <returns>Unicode code point</returns>
         public uint CodePointAt(int index) {
             return _chars.CodePointAt(index);
         }
 
+        /// <summary>
+        /// Sets <see cref="GCell"/> at the specified index.
+        /// </summary>
+        /// <remarks>
+        /// We use <c>Set(int, GChar, GAttr)</c> rather than <c>Set(int, GCell)</c>
+        /// because the first one will be optimized more efficiently by JIT.
+        /// </remarks>
+        /// <param name="index">index of GCell array</param>
+        /// <param name="ch">character data of GCell</param>
+        /// <param name="attr">attribute data of GCell</param>
         public void Set(int index, GChar ch, GAttr attr) {
             if (!_chars.CanContain(ch)) {
+                // convert to the suitable GChar array.
                 GCharArrayType newArrayType = DetermineSuitableGCharArrayType(ch, _chars.Type);
                 _chars = CreateGCharArray(newArrayType, _chars);
             }
@@ -447,27 +685,50 @@ namespace Poderosa.Document {
             _attrs[index] = attr;
         }
 
+        /// <summary>
+        /// Sets ASCII_NULL at the specified index.
+        /// </summary>
+        /// <param name="index">index of GCell array</param>
+        /// <param name="attr">attribute to set</param>
         public void SetNul(int index, GAttr attr) {
             _chars.Set(index, GChar.ASCII_NUL);
-            _attrs[index] = attr;
+            _attrs[index] = attr - GAttrFlags.UseCjkFont;
         }
 
+        /// <summary>
+        /// Sets attribute flags at the specified index.
+        /// </summary>
+        /// <param name="index">index of GCell array</param>
+        /// <param name="flags">flags to set</param>
         public void SetFlags(int index, GAttrFlags flags) {
             _attrs[index] += flags;
         }
 
+        /// <summary>
+        /// Clear attribute flags at the specified index.
+        /// </summary>
+        /// <param name="index">index of GCell array</param>
+        /// <param name="flags">flags to clear</param>
         public void ClearFlags(int index, GAttrFlags flags) {
             _attrs[index] -= flags;
         }
 
+        /// <summary>
+        /// Expands array.
+        /// </summary>
+        /// <param name="newLength">new length of GCell array</param>
+        /// <param name="fillWithNul">if true, expanded range is filled with ASCII_NUL and the default attribute</param>
         public void Expand(int newLength, bool fillWithNul) {
             if (newLength > _attrs.Length) {
                 int oldLength = _attrs.Length;
+
                 _chars.Expand(newLength);
+
                 GAttr[] oldAttrBuff = _attrs;
                 GAttr[] newAttrBuff = new GAttr[newLength];
                 oldAttrBuff.CopyTo(newAttrBuff, 0);
                 _attrs = newAttrBuff;
+
                 if (fillWithNul) {
                     for (int i = oldLength; i < newLength; i++) {
                         _chars.Set(i, GChar.ASCII_NUL);
@@ -477,12 +738,39 @@ namespace Poderosa.Document {
             }
         }
 
+        /// <summary>
+        /// Creates a cloned instance.
+        /// </summary>
+        /// <returns></returns>
+        public CompactGCellArray Clone() {
+            return new CompactGCellArray(this);
+        }
+
+        #region IGCellArraySource
+
+        /// <summary>
+        /// Length of GCell array.
+        /// </summary>
+        public int Length {
+            get {
+                return _attrs.Length;
+            }
+        }
+
+        /// <summary>
+        /// Gets Enumerable of GCells.
+        /// </summary>
+        /// <returns>Enumerable of GCells</returns>
         public IEnumerable<GCell> AsEnumerable() {
             for (int i = 0; i < _attrs.Length; i++) {
                 yield return new GCell(_chars.CharAt(i), _attrs[i]);
             }
         }
 
+        /// <summary>
+        /// Creates a new array that contains same values with internal array.
+        /// </summary>
+        /// <returns>new array</returns>
         public GCell[] ToArray() {
             GCell[] cells = new GCell[_attrs.Length];
             for (int i = 0; i < _attrs.Length; i++) {
@@ -491,27 +779,33 @@ namespace Poderosa.Document {
             return cells;
         }
 
-        public void Reset(IGCellArray cellArray) {
-            GCharArrayType type = DetermineSuitableGCharArrayType(cellArray.AsEnumerable());
-            if (_chars.Type != type || _chars.Length != cellArray.Length) {
-                _chars = CreateGCharArray(type, cellArray.Length);
+        #endregion
+
+        #region IGCellArray
+
+        /// <summary>
+        /// Resets internal array so that it contains same values with the specified array.
+        /// </summary>
+        /// <param name="source">source GCell array</param>
+        public void Reset(IGCellArraySource source) {
+            GCharArrayType type = DetermineSuitableGCharArrayType(source.AsEnumerable());
+            if (_chars.Type != type || _chars.Length != source.Length) {
+                _chars = CreateGCharArray(type, source.Length);
             }
 
-            if (_attrs.Length != cellArray.Length) {
-                _attrs = new GAttr[cellArray.Length];
+            if (_attrs.Length != source.Length) {
+                _attrs = new GAttr[source.Length];
             }
 
             int i = 0;
-            foreach (var cell in cellArray.AsEnumerable()) {
+            foreach (var cell in source.AsEnumerable()) {
                 _chars.Set(i, cell.Char);
                 _attrs[i] = cell.Attr;
                 i++;
             }
         }
 
-        public CompactGCellArray Clone() {
-            return new CompactGCellArray(this);
-        }
+        #endregion
 
         private static GCharArrayType DetermineSuitableGCharArrayType(IEnumerable<GCell> source) {
             GCharArrayType type = GCharArrayType.HalfWidthSingleByteGCharArray;
