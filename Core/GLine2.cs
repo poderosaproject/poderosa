@@ -14,8 +14,7 @@
 
 using System;
 using System.Collections.Generic;
-
-using System.Threading;
+using System.Runtime.InteropServices;
 
 namespace Poderosa.Document {
 
@@ -303,7 +302,26 @@ namespace Poderosa.Document {
 
             private int _length;
 
-            private byte[] _data;
+            [StructLayout(LayoutKind.Sequential, Pack=1, Size=3)]
+            private struct UInt24 {
+                private readonly byte _b1;
+                private readonly byte _b2;
+                private readonly byte _b3;
+
+                public UInt24(uint val) {
+                    _b1 = (byte)val;
+                    _b2 = (byte)(val >> 8);
+                    _b3 = (byte)(val >> 16);
+                }
+
+                public uint Value {
+                    get {
+                        return (uint)(_b1 | (_b2 << 8) | (_b3 << 16));
+                    }
+                }
+            }
+
+            private UInt24[] _chars;
 
             private const uint CodePointMask = 0x1fffffu;
             private const uint FlagsMask = 0xc00000u;
@@ -323,7 +341,7 @@ namespace Poderosa.Document {
 
             public TripleByteGCharArray(int length) {
                 _length = length;
-                _data = new byte[length * 3];  // no need to fill
+                _chars = new UInt24[length];  // no need to fill
             }
 
             public TripleByteGCharArray(IGCharArray source)
@@ -336,12 +354,11 @@ namespace Poderosa.Document {
 
             private TripleByteGCharArray(TripleByteGCharArray orig) {
                 _length = orig._length;
-                _data = (byte[])orig._data.Clone();
+                _chars = (UInt24[])orig._chars.Clone();
             }
 
             public GChar CharAt(int index) {
-                int dataIndex = index * 3;
-                uint d = ((uint)_data[dataIndex]) | ((uint)_data[dataIndex + 1] << 8) | ((uint)_data[dataIndex + 2] << 16);
+                uint d = _chars[index].Value;
                 uint cp = d & CodePointMask;
                 GCharFlags flags = (GCharFlags)((d & FlagsMask) << FlagsShift);
                 return new GChar(cp, flags);
@@ -349,17 +366,14 @@ namespace Poderosa.Document {
 
             public uint CodePointAt(int index) {
                 int dataIndex = index * 3;
-                uint d = ((uint)_data[dataIndex]) | ((uint)_data[dataIndex + 1] << 8) | ((uint)_data[dataIndex + 2] << 16);
+                uint d = _chars[index].Value;
                 uint cp = d & CodePointMask;
                 return cp;
             }
 
             public void Set(int index, GChar ch) {
                 uint d = (ch.CodePoint & CodePointMask) | ((uint)ch.Flags >> FlagsShift);
-                int dataIndex = index * 3;
-                _data[dataIndex] = (byte)d;
-                _data[dataIndex + 1] = (byte)(d >> 8);
-                _data[dataIndex + 2] = (byte)(d >> 16);
+                _chars[index] = new UInt24(d);
             }
 
             public bool CanContain(GChar ch) {
@@ -367,10 +381,10 @@ namespace Poderosa.Document {
             }
 
             public void Expand(int newLength) {
-                byte[] oldBuff = _data;
-                byte[] newBuff = new byte[newLength * 3];
-                Buffer.BlockCopy(oldBuff, 0, newBuff, 0, oldBuff.Length);
-                _data = newBuff;
+                UInt24[] oldBuff = _chars;
+                UInt24[] newBuff = new UInt24[newLength];
+                oldBuff.CopyTo(newBuff, 0);
+                _chars = newBuff;
                 _length = newLength;
             }
 
