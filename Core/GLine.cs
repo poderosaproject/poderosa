@@ -13,18 +13,15 @@
 // limitations under the License.
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Diagnostics;
-using System.Text;
+
 
 #if UNITTEST
 using NUnit.Framework;
 #endif
 
 using Poderosa.Util.Drawing;
-using Poderosa.Forms;
 using Poderosa.View;
 
 namespace Poderosa.Document {
