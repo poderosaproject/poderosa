@@ -102,7 +102,12 @@
       <DependentUpon>ExtensionPointList.cs</DependentUpon>
     </Compile>
     <Compile Include="GenericsUtil.cs" />
-    <Compile Include="GLine2.cs" />
+    <Compile Include="GAttr.cs" />
+    <Compile Include="GColor24.cs" />
+    <Compile Include="GLine.GCell.cs" />
+    <Compile Include="GLine.GChar.cs" />
+    <Compile Include="GLine.Mixins.cs" />
+    <Compile Include="GLine.GCellArray.cs" />
     <Compile Include="GLine.cs" />
     <Compile Include="ListenerList.cs" />
     <Compile Include="MacroEngineEx.cs" />

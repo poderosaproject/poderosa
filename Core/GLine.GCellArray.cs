@@ -1,4 +1,4 @@
-﻿// Copyright 2017 The Poderosa Project.
+﻿// Copyright 2004-2018 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Poderosa.Document.Internal.Mixins;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace Poderosa.Document {
+namespace Poderosa.Document.Internal {
 
     /// <summary>
     /// Interface that provides contents of <see cref="GCell"/> array.
@@ -173,10 +174,13 @@ namespace Poderosa.Document {
         /// <param name="newLength">new length of GCell array</param>
         public void Expand(int newLength) {
             if (newLength > _cells.Length) {
+                int oldLength = _cells.Length;
                 GCell[] oldBuff = _cells;
                 GCell[] newBuff = new GCell[newLength];
                 oldBuff.CopyTo(newBuff);
-                newBuff.Fill(oldBuff.Length, newBuff.Length, GChar.ASCII_NUL, GAttr.Default);
+                for (int i = oldLength; i < newLength; i++) {
+                    newBuff[i].Set(GChar.ASCII_NUL, GAttr.Default);
+                }
                 _cells = newBuff;
             }
         }
@@ -567,7 +571,7 @@ namespace Poderosa.Document {
             public void Expand(int newLength) {
                 UInt24[] oldBuff = _chars;
                 UInt24[] newBuff = new UInt24[newLength];
-                oldBuff.CopyTo(newBuff, 0);
+                oldBuff.CopyTo(newBuff);
                 _chars = newBuff;
                 _length = newLength;
             }
@@ -726,7 +730,7 @@ namespace Poderosa.Document {
 
                 GAttr[] oldAttrBuff = _attrs;
                 GAttr[] newAttrBuff = new GAttr[newLength];
-                oldAttrBuff.CopyTo(newAttrBuff, 0);
+                oldAttrBuff.CopyTo(newAttrBuff);
                 _attrs = newAttrBuff;
 
                 if (fillWithNul) {
@@ -865,7 +869,5 @@ namespace Poderosa.Document {
             }
         }
     }
-
-
 
 }
