@@ -34,23 +34,4 @@ namespace Poderosa.Document.Internal.Mixins {
         }
     }
 
-    /// <summary>
-    /// Extension methods for <see cref="GColor24"/> array.
-    /// </summary>
-    internal static class GColor24ArrayMixin {
-
-        /// <summary>
-        /// Fill <see cref="GColor24"/>s with the specified value.
-        /// </summary>
-        /// <param name="dstArray">destination array</param>
-        /// <param name="offsetStart">start offset of the range (inclusive)</param>
-        /// <param name="offsetEnd">end offset of the range (exclusive)</param>
-        /// <param name="fillValue"><see cref="GColor24"/> value to fill</param>
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static void Fill(this GColor24[] dstArray, int offsetStart, int offsetEnd, GColor24 fillValue) {
-            for (int i = offsetStart; i < offsetEnd; i++) {
-                dstArray[i] = fillValue;
-            }
-        }
-    }
 }
