@@ -20,22 +20,26 @@ namespace Poderosa.Document.Internal {
     internal struct GCell {
         public GChar Char;
         public GAttr Attr;
+        public GColor24 Color24;
 
-        public GCell(GChar ch, GAttr attr) {
+        public GCell(GChar ch, GAttr attr, GColor24 color24) {
             Char = ch;
             Attr = attr;
+            Color24 = color24;
         }
 
-        public void Set(GChar ch, GAttr attr) {
+        public void Set(GChar ch, GAttr attr, GColor24 color24) {
             // this method can assign members faster comparing to the following methods.
             // 1:
             //   array[i].Char = ch;
             //   array[i].Attr = attr;  // need realoding of the address of array[i]
+            //   array[i].Color24 = color24;  // need realoding of the address of array[i]
             // 2:
-            //   array[i] = new GCell(ch, attr); // need copying temporary 8 bytes.
+            //   array[i] = new GCell(ch, attr, color24); // need copying temporary GCell object.
 
             Char = ch;
             Attr = attr;
+            Color24 = color24;
         }
 
         public void SetNul() {

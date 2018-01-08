@@ -31,6 +31,13 @@ namespace Poderosa.Document.Internal {
         }
 
         /// <summary>
+        /// Whether 24 bit colors are used.
+        /// </summary>
+        bool IsColor24Used {
+            get;
+        }
+
+        /// <summary>
         /// Gets Enumerable of GCells.
         /// </summary>
         /// <returns>Enumerable of GCells</returns>
@@ -73,15 +80,6 @@ namespace Poderosa.Document.Internal {
         }
 
         /// <summary>
-        /// Gets <see cref="GCell"/> at the specified index.
-        /// </summary>
-        /// <param name="index">index of GCell array</param>
-        /// <returns>GCell value</returns>
-        public GCell At(int index) {
-            return _cells[index];
-        }
-
-        /// <summary>
         /// Gets <see cref="GAttr"/> of <see cref="GCell"/> at the specified index.
         /// </summary>
         /// <remarks>
@@ -106,6 +104,15 @@ namespace Poderosa.Document.Internal {
         }
 
         /// <summary>
+        /// Gets <see cref="GColor24"/> of <see cref="GCell"/> at the specified index.
+        /// </summary>
+        /// <param name="index">index of GCell array</param>
+        /// <returns>GColor24 value</returns>
+        public GColor24 Color24At(int index) {
+            return _cells[index].Color24;
+        }
+
+        /// <summary>
         /// Sets <see cref="GCell"/> at the specified index.
         /// </summary>
         /// <remarks>
@@ -115,8 +122,9 @@ namespace Poderosa.Document.Internal {
         /// <param name="index">index of GCell array</param>
         /// <param name="ch">character data of GCell</param>
         /// <param name="attr">attribute data of GCell</param>
-        public void Set(int index, GChar ch, GAttr attr) {
-            _cells[index].Set(ch, attr);
+        /// <param name="color24">24 bit color data of GCell</param>
+        public void Set(int index, GChar ch, GAttr attr, GColor24 color24) {
+            _cells[index].Set(ch, attr, color24);
         }
 
         /// <summary>
@@ -163,8 +171,9 @@ namespace Poderosa.Document.Internal {
                 _cells = new GCell[newLength];
             }
 
+            GCell fill = new GCell(GChar.ASCII_NUL, GAttr.Default, new GColor24());
             for (int i = 0; i < _cells.Length; i++) {
-                _cells[i].Set(GChar.ASCII_NUL, GAttr.Default);
+                _cells[i] = fill;
             }
         }
 
@@ -178,8 +187,9 @@ namespace Poderosa.Document.Internal {
                 GCell[] oldBuff = _cells;
                 GCell[] newBuff = new GCell[newLength];
                 oldBuff.CopyTo(newBuff);
+                GCell fill = new GCell(GChar.ASCII_NUL, GAttr.Default, new GColor24());
                 for (int i = oldLength; i < newLength; i++) {
-                    newBuff[i].Set(GChar.ASCII_NUL, GAttr.Default);
+                    newBuff[i] = fill;
                 }
                 _cells = newBuff;
             }
@@ -194,6 +204,14 @@ namespace Poderosa.Document.Internal {
             get {
                 return _cells.Length;
             }
+        }
+
+        /// <summary>
+        /// Whether 24 bit colors are used.
+        /// </summary>
+        public bool IsColor24Used {
+            get;
+            set;
         }
 
         /// <summary>
@@ -594,12 +612,19 @@ namespace Poderosa.Document.Internal {
         private IGCharArray _chars;
 
         /// <summary>
+        /// Internal array
+        /// </summary>
+        private GColor24[] _color24s; // this may be null
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="initialLength">initial array length</param>
-        public CompactGCellArray(int initialLength) {
+        /// <param name="useColor24">true if 24 bit colors are used</param>
+        public CompactGCellArray(int initialLength, bool useColor24) {
             _attrs = new GAttr[initialLength];
             _chars = new HalfWidthSingleByteGCharArray(initialLength);
+            _color24s = useColor24 ? new GColor24[initialLength] : null;
         }
 
         /// <summary>
@@ -610,11 +635,15 @@ namespace Poderosa.Document.Internal {
             GCharArrayType type = DetermineSuitableGCharArrayType(source.AsEnumerable());
             _chars = CreateGCharArray(type, source.Length);
             _attrs = new GAttr[source.Length];
+            _color24s = source.IsColor24Used ? new GColor24[source.Length] : null;
 
             int i = 0;
             foreach (var cell in source.AsEnumerable()) {
                 _chars.Set(i, cell.Char);
                 _attrs[i] = cell.Attr;
+                if (_color24s != null) {
+                    _color24s[i] = cell.Color24;
+                }
                 i++;
             }
         }
@@ -626,18 +655,8 @@ namespace Poderosa.Document.Internal {
         private CompactGCellArray(CompactGCellArray orig) {
             _attrs = (GAttr[])orig._attrs.Clone();
             _chars = orig._chars.Clone();
+            _color24s = (orig._color24s != null) ? (GColor24[])orig._color24s.Clone() : null;
         }
-
-        /* This method is not recommended. Use AttrAt(int) and CharAt(int).
-        /// <summary>
-        /// Gets <see cref="GCell"/> at the specified index.
-        /// </summary>
-        /// <param name="index">index of GCell array</param>
-        /// <returns>GCell value</returns>
-        public GCell At(int index) {
-            return new GCell(CharAt(index), AttrAt(index));
-        }
-         */
 
         /// <summary>
         /// Gets <see cref="GAttr"/> of <see cref="GCell"/> at the specified index.
@@ -670,6 +689,15 @@ namespace Poderosa.Document.Internal {
         }
 
         /// <summary>
+        /// Gets <see cref="GColor24"/> of <see cref="GCell"/> at the specified index.
+        /// </summary>
+        /// <param name="index">index of GCell array</param>
+        /// <returns>GColor24 value</returns>
+        public GColor24 Color24At(int index) {
+            return (_color24s != null) ? _color24s[index] : new GColor24();
+        }
+
+        /// <summary>
         /// Sets <see cref="GCell"/> at the specified index.
         /// </summary>
         /// <remarks>
@@ -679,7 +707,9 @@ namespace Poderosa.Document.Internal {
         /// <param name="index">index of GCell array</param>
         /// <param name="ch">character data of GCell</param>
         /// <param name="attr">attribute data of GCell</param>
-        public void Set(int index, GChar ch, GAttr attr) {
+        /// <param name="color24">24 bit color data of GCell (used if attr.Uses24bitColor was true)</param>
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void Set(int index, GChar ch, GAttr attr, GColor24 color24) {
             if (!_chars.CanContain(ch)) {
                 // convert to the suitable GChar array.
                 GCharArrayType newArrayType = DetermineSuitableGCharArrayType(ch, _chars.Type);
@@ -687,6 +717,22 @@ namespace Poderosa.Document.Internal {
             }
             _chars.Set(index, ch);
             _attrs[index] = attr;
+
+            SetColor24(attr.Uses24bitColor, index, color24);
+        }
+
+        private void SetColor24(bool useColor24, int index, GColor24 color24) {
+            if (useColor24) {
+                if (_color24s == null) {
+                    _color24s = new GColor24[_attrs.Length];
+                }
+                _color24s[index] = color24;
+            }
+            else {
+                if (_color24s != null) {
+                    _color24s[index] = new GColor24();
+                }
+            }
         }
 
         /// <summary>
@@ -694,9 +740,13 @@ namespace Poderosa.Document.Internal {
         /// </summary>
         /// <param name="index">index of GCell array</param>
         /// <param name="attr">attribute to set</param>
-        public void SetNul(int index, GAttr attr) {
+        /// <param name="color24">24 bit color data (used if attr.Uses24bitColor was true)</param>
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public void SetNul(int index, GAttr attr, GColor24 color24) {
             _chars.Set(index, GChar.ASCII_NUL);
             _attrs[index] = attr - GAttrFlags.UseCjkFont;
+
+            SetColor24(attr.Uses24bitColor, index, color24);
         }
 
         /// <summary>
@@ -739,6 +789,13 @@ namespace Poderosa.Document.Internal {
                         _attrs[i] = GAttr.Default;
                     }
                 }
+
+                if (_color24s != null) {
+                    GColor24[] oldColorBuff = _color24s;
+                    GColor24[] newColorBuff = new GColor24[newLength];
+                    oldColorBuff.CopyTo(newColorBuff);
+                    _color24s = newColorBuff;
+                }
             }
         }
 
@@ -762,12 +819,31 @@ namespace Poderosa.Document.Internal {
         }
 
         /// <summary>
+        /// Whether 24 bit colors are used.
+        /// </summary>
+        public bool IsColor24Used {
+            get {
+                return _color24s != null;
+            }
+        }
+
+        /// <summary>
         /// Gets Enumerable of GCells.
         /// </summary>
         /// <returns>Enumerable of GCells</returns>
         public IEnumerable<GCell> AsEnumerable() {
+            return (_color24s != null) ? AsEnumerableWithColor24() : AsEnumerableWithoutColor24();
+        }
+
+        private IEnumerable<GCell> AsEnumerableWithColor24() {
             for (int i = 0; i < _attrs.Length; i++) {
-                yield return new GCell(_chars.CharAt(i), _attrs[i]);
+                yield return new GCell(_chars.CharAt(i), _attrs[i], _color24s[i]);
+            }
+        }
+
+        private IEnumerable<GCell> AsEnumerableWithoutColor24() {
+            for (int i = 0; i < _attrs.Length; i++) {
+                yield return new GCell(_chars.CharAt(i), _attrs[i], new GColor24());
             }
         }
 
@@ -777,8 +853,16 @@ namespace Poderosa.Document.Internal {
         /// <returns>new array</returns>
         public GCell[] ToArray() {
             GCell[] cells = new GCell[_attrs.Length];
-            for (int i = 0; i < _attrs.Length; i++) {
-                cells[i] = new GCell(_chars.CharAt(i), _attrs[i]);
+
+            if (_color24s != null) {
+                for (int i = 0; i < _attrs.Length; i++) {
+                    cells[i].Set(_chars.CharAt(i), _attrs[i], _color24s[i]);
+                }
+            }
+            else {
+                for (int i = 0; i < _attrs.Length; i++) {
+                    cells[i].Set(_chars.CharAt(i), _attrs[i], new GColor24());
+                }
             }
             return cells;
         }
@@ -801,10 +885,22 @@ namespace Poderosa.Document.Internal {
                 _attrs = new GAttr[source.Length];
             }
 
+            if (source.IsColor24Used) {
+                if (_color24s == null || _color24s.Length != source.Length) {
+                    _color24s = new GColor24[source.Length];
+                }
+            }
+            else {
+                _color24s = null;
+            }
+
             int i = 0;
             foreach (var cell in source.AsEnumerable()) {
                 _chars.Set(i, cell.Char);
                 _attrs[i] = cell.Attr;
+                if (_color24s != null) {
+                    _color24s[i] = cell.Color24;
+                }
                 i++;
             }
         }

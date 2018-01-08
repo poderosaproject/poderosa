@@ -22,7 +22,6 @@ using NUnit.Framework;
 #endif
 
 using Poderosa.Document.Internal;
-using Poderosa.Document.Internal.Mixins;
 using Poderosa.Util.Drawing;
 using Poderosa.View;
 
@@ -33,9 +32,6 @@ namespace Poderosa.Document {
     /// </summary>
     public sealed class GLine {
 
-        // Note:
-        //  If 24 bit colors are not used in this line, GColor24 array can be null for reducing memory usage.
-        //
         // Note:
         //  GCell array may contains GChar.ASCII_NUL.
         //  In rendering or conversion to the text, trailing GChar.ASCII_NULs are ignored, and
@@ -49,7 +45,6 @@ namespace Poderosa.Document {
         public delegate void BufferWriter(char[] buff, int length);
 
         private readonly CompactGCellArray _cell;
-        private GColor24[] _color24;    // can be null if 24 bit colors are not used
         private int _displayLength;
         private EOLType _eolType;
         private int _id;
@@ -137,8 +132,7 @@ namespace Poderosa.Document {
         /// <param name="length"></param>
         public GLine(int length) {
             Debug.Assert(length > 0);
-            _cell = new CompactGCellArray(length);
-            _color24 = null;    // 24 bit colors are not used
+            _cell = new CompactGCellArray(length, false);
             _displayLength = 0;
             _id = -1;
         }
@@ -147,38 +141,35 @@ namespace Poderosa.Document {
         /// Constructor
         /// </summary>
         /// <param name="cell">cell data</param>
-        /// <param name="color24">24 bit colors</param>
         /// <param name="displayLength">length of the content</param>
         /// <param name="eolType">type of the line ending</param>
-        internal GLine(CompactGCellArray cell, GColor24[] color24, int displayLength, EOLType eolType) {
+        internal GLine(CompactGCellArray cell, int displayLength, EOLType eolType) {
             _cell = cell;
-            _color24 = color24;
             _displayLength = displayLength;
             _eolType = eolType;
             _id = -1;
         }
 
         /// <summary>
+        /// Constructor (for Clone())
+        /// </summary>
+        /// <param name="orig"></param>
+        private GLine(GLine orig) {
+            _cell = orig._cell.Clone();
+            _displayLength = orig._displayLength;
+            _eolType = orig._eolType;
+            _id = orig._id;
+        }
+
+        /// <summary>
         /// Updates content in this line.
         /// </summary>
         /// <param name="cells">cell data to be copied</param>
-        /// <param name="color24">24 bit colors to be copied, or null</param>
         /// <param name="displayLength">length of the content</param>
         /// <param name="eolType">type of the line ending</param>
-        internal void UpdateContent(IGCellArraySource cells, GColor24[] color24, int displayLength, EOLType eolType) {
+        internal void UpdateContent(IGCellArraySource cells, int displayLength, EOLType eolType) {
             lock (this) {
                 _cell.Reset(cells);
-
-                if (color24 == null) {
-                    _color24 = null;
-                }
-                else if (_color24 != null && _color24.Length == color24.Length) {
-                    color24.CopyTo(_color24);
-                }
-                else {
-                    _color24 = (GColor24[])color24.Clone();
-                }
-
                 _displayLength = displayLength;
                 _eolType = eolType;
             }
@@ -190,7 +181,7 @@ namespace Poderosa.Document {
         /// <param name="line">another instance</param>
         public void CopyFrom(GLine line) {
             lock (this) {
-                this.UpdateContent(line._cell, line._color24, line._displayLength, line._eolType);
+                this.UpdateContent(line._cell, line._displayLength, line._eolType);
                 this._id = line._id;
             }
         }
@@ -201,62 +192,16 @@ namespace Poderosa.Document {
         /// <returns>cloned instance</returns>
         public GLine Clone() {
             lock (this) {
-                GLine nl = new GLine(
-                            _cell.Clone(),
-                            (_color24 != null) ? (GColor24[])_color24.Clone() : null,
-                            _displayLength,
-                            _eolType);
-                nl._id = _id;
-                return nl;
+                return new GLine(this);
             }
         }
 
         /// <summary>
-        /// Duplicates internal buffer.
+        /// Reset the specified cell array with the content in this instance.
         /// </summary>
-        /// <param name="reusableColorArray">reusable array, or null</param>
-        /// <param name="cells">
-        /// if <paramref name="reusableCellArray"/> is available for storing cells, <paramref name="reusableCellArray"/> with copied cell data will be returned.
-        /// otherwise, cloned cell data array will be returned.
-        /// </param>
-        /// <param name="colorArray">
-        /// if <paramref name="reusableColorArray"/> is available for storing cells, <paramref name="reusableColorArray"/> with copied color data will be returned.
-        /// otherwise, cloned color data array will be returned.
-        /// </param>
-        internal void DuplicateBuffers(IGCellArray cells, GColor24[] reusableColorArray, out GColor24[] colorArray) {
+        internal void ResetGCellArray(IGCellArray cells) {
             lock (this) {
                 cells.Reset(_cell);
-                colorArray = Duplicate24bitColors(reusableColorArray);
-            }
-        }
-
-        /// <summary>
-        /// Duplicates internal 24 bit color data.
-        /// </summary>
-        /// <param name="reusable">reusable array, or null</param>
-        /// <returns>
-        /// if the reusable array is available for storing data, the reusable array with copied color data will be returned.
-        /// otherwise, cloned color data array will be returned.
-        /// </returns>
-        private GColor24[] Duplicate24bitColors(GColor24[] reusable) {
-            if (_color24 == null) {
-                if (reusable != null && reusable.Length == _cell.Length) {
-                    // clear
-                    reusable.Fill(0, reusable.Length, new GColor24());
-                    return reusable;
-                }
-                else {
-                    return new GColor24[_cell.Length];
-                }
-            }
-            else {
-                if (reusable != null && reusable.Length == _color24.Length) {
-                    _color24.CopyTo(reusable);
-                    return reusable;
-                }
-                else {
-                    return (GColor24[])_color24.Clone();
-                }
             }
         }
 
@@ -289,26 +234,15 @@ namespace Poderosa.Document {
         /// <param name="attr">attributes to fill cells</param>
         /// <param name="color">24 bit colors to fill cells</param>
         private void FillWithNul(int start, int end, GAttr attr, GColor24 color) {
-            bool uses24bitColor = attr.Uses24bitColor;
-            if (uses24bitColor && _color24 == null) {
-                _color24 = new GColor24[_cell.Length];
-            }
-
             GAttr fillAttr = attr + GAttrFlags.SameToPrevious;
 
             if (start < end) {
-                _cell.SetNul(start, fillAttr);
-                if (uses24bitColor) {
-                    _color24[start] = color;
-                }
+                _cell.SetNul(start, fillAttr, color);
                 UpdateSameToPrevious(start);
             }
 
             for (int i = start + 1; i < end; i++) {
-                _cell.SetNul(i, fillAttr);
-                if (uses24bitColor) {
-                    _color24[i] = color;
-                }
+                _cell.SetNul(i, fillAttr, color);
             }
 
             UpdateSameToPrevious(end);
@@ -321,7 +255,7 @@ namespace Poderosa.Document {
         private void UpdateSameToPrevious(int index) {
             if (index > 0) {    // most common case
                 if (index < _cell.Length) {
-                    if (_cell.AttrAt(index - 1) == _cell.AttrAt(index) && (_color24 == null || _color24[index - 1] == _color24[index])) {
+                    if (_cell.AttrAt(index - 1) == _cell.AttrAt(index) && (_cell.Color24At(index - 1) == _cell.Color24At(index))) {
                         _cell.SetFlags(index, GAttrFlags.SameToPrevious);
                     }
                     else {
@@ -410,12 +344,6 @@ namespace Poderosa.Document {
 
                 _cell.Expand(length, false);
 
-                if (_color24 != null) {
-                    GColor24[] newColors = new GColor24[length];
-                    _color24.CopyTo(newColors);
-                    _color24 = newColors;
-                }
-
                 FillWithNul(oldLength, length, GAttr.Default, new GColor24());
                 // Note: _displayLength is not changed.
             }
@@ -470,7 +398,7 @@ namespace Poderosa.Document {
                     }
 
                     GAttr attr = _cell.AttrAt(cellStart);
-                    GColor24 color24 = (_color24 != null) ? _color24[cellStart] : new GColor24();
+                    GColor24 color24 = _cell.Color24At(cellStart);
 
                     IntPtr hFont = prof.CalcHFONT_NoUnderline(attr);
                     Win32.SelectObject(hdc, hFont);
@@ -796,7 +724,7 @@ namespace Poderosa.Document {
         /// <returns></returns>
         public static GLine CreateSimpleGLine(string text, TextDecoration dec) {
             int columns = text.Length * 2;
-            CompactGCellArray cells = new CompactGCellArray(columns);
+            CompactGCellArray cells = new CompactGCellArray(columns, false);
             GColor24[] colorBuff = null;
             int offset = 0;
             GAttr attr = dec.Attr;
@@ -815,10 +743,7 @@ namespace Poderosa.Document {
                 }
 
                 GChar gchar = new GChar(unicodeChar);
-                cells.Set(offset, gchar, attr);
-                if (colorBuff != null) {
-                    colorBuff[offset] = colors;
-                }
+                cells.Set(offset, gchar, attr, colors);
 
                 if (offset == 0) {
                     // next cell has "SameToPrevious" flag
@@ -827,15 +752,12 @@ namespace Poderosa.Document {
                 offset++;
 
                 if (gchar.IsWideWidth) {
-                    cells.Set(offset, gchar + GCharFlags.RightHalf, attr);
-                    if (colorBuff != null) {
-                        colorBuff[offset] = colors;
-                    }
+                    cells.Set(offset, gchar + GCharFlags.RightHalf, attr, colors);
                     offset++;
                 }
             }
 
-            return new GLine(cells, null, offset, EOLType.CRLF);
+            return new GLine(cells, offset, EOLType.CRLF);
         }
     }
 
@@ -853,7 +775,6 @@ namespace Poderosa.Document {
         //  The flag will be updated in Export(). 
 
         private readonly SimpleGCellArray _cell = new SimpleGCellArray(1);
-        private GColor24[] _color24 = new GColor24[1];  // always non-null
         private int _caretColumn = 0;
         private EOLType _eolType = EOLType.Continue;
 
@@ -904,15 +825,6 @@ namespace Poderosa.Document {
         /// <param name="length">length of the internal buffer</param>
         public void Reset(int length) {
             _cell.Clear(length);
-
-            if (_color24 == null || length != _color24.Length) {
-                _color24 = new GColor24[length];
-            }
-
-            for (int i = 0; i < _color24.Length; i++) {
-                _color24[i] = new GColor24();
-            }
-
             _caretColumn = 0;
             _eolType = EOLType.Continue;
         }
@@ -930,7 +842,7 @@ namespace Poderosa.Document {
                 Reset(80);
             }
             else {
-                line.DuplicateBuffers(_cell, _color24, out _color24);
+                line.ResetGCellArray(_cell);
                 _eolType = line.EOLType;
             }
             this.CaretColumn = caretColumn;  // buffer may be expanded
@@ -942,12 +854,6 @@ namespace Poderosa.Document {
         /// <param name="length">minimum buffer size.</param>
         public void ExpandBuffer(int length) {
             _cell.Expand(length);
-
-            if (length > _color24.Length) {
-                GColor24[] newColors = new GColor24[length];
-                _color24.CopyTo(newColors);
-                _color24 = newColors;
-            }
         }
 
         /// <summary>
@@ -967,16 +873,14 @@ namespace Poderosa.Document {
             FixLeftHalfOfWideWidthCharacter(_caretColumn - 1);
 
             if (_caretColumn >= 0 && _caretColumn < _cell.Length) {
-                _cell.Set(_caretColumn, newChar, newAttr);
-                _color24[_caretColumn] = newColor;
+                _cell.Set(_caretColumn, newChar, newAttr, newColor);
             }
 
             _caretColumn++;
 
             if (newChar.IsWideWidth) {
                 if (_caretColumn >= 0 && _caretColumn < _cell.Length) {
-                    _cell.Set(_caretColumn, newChar + GCharFlags.RightHalf, newAttr);
-                    _color24[_caretColumn] = newColor;
+                    _cell.Set(_caretColumn, newChar + GCharFlags.RightHalf, newAttr, newColor);
                 }
                 _caretColumn++;
             }
@@ -1045,8 +949,7 @@ namespace Poderosa.Document {
 
             for (int i = from; i < to; i++) {
                 // Note: uses ASCII_NUL instead of ASCII_SPACE for detecting correct length of the content
-                _cell.Set(i, GChar.ASCII_NUL, fillAttr);
-                _color24[i] = fillColor;
+                _cell.Set(i, GChar.ASCII_NUL, fillAttr, fillColor);
             }
 
             FixRightHalfOfWideWidthCharacter(to);
@@ -1070,15 +973,13 @@ namespace Poderosa.Document {
             int srcIndex = dstIndex + count;
             while (dstIndex < _cell.Length && srcIndex < _cell.Length) {
                 _cell.Copy(srcIndex, dstIndex);
-                _color24[dstIndex] = _color24[srcIndex];
                 dstIndex++;
                 srcIndex++;
             }
 
             while (dstIndex < _cell.Length) {
                 // Note: uses ASCII_NUL instead of ASCII_SPACE for detecting correct length of the content
-                _cell.Set(dstIndex, GChar.ASCII_NUL, fillAttr);
-                _color24[dstIndex] = fillColor;
+                _cell.Set(dstIndex, GChar.ASCII_NUL, fillAttr, fillColor);
                 dstIndex++;
             }
 
@@ -1105,14 +1006,12 @@ namespace Poderosa.Document {
             int srcIndex = dstIndex - count;
             while (srcIndex >= limit) {
                 _cell.Copy(srcIndex, dstIndex);
-                _color24[dstIndex] = _color24[srcIndex];
                 dstIndex--;
                 srcIndex--;
             }
 
             while (dstIndex >= limit) {
-                _cell.Set(dstIndex, GChar.ASCII_NUL, fillAttr);
-                _color24[dstIndex] = fillColor;
+                _cell.Set(dstIndex, GChar.ASCII_NUL, fillAttr, fillColor);
                 dstIndex--;
             }
 
@@ -1126,15 +1025,10 @@ namespace Poderosa.Document {
         /// </summary>
         /// <returns>new <see cref="GLine"/> instance</returns>
         public GLine Export() {
-            bool uses24bitColor;
             int displayLength;
-            PrepareExport(out uses24bitColor, out displayLength);
+            PrepareExport(out displayLength);
 
-            GLine line = new GLine(
-                            new CompactGCellArray(_cell),
-                            uses24bitColor ? (GColor24[])_color24.Clone() : null,
-                            displayLength,
-                            _eolType);
+            GLine line = new GLine(new CompactGCellArray(_cell), displayLength, _eolType);
             return line;
         }
 
@@ -1143,46 +1037,50 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="line"><see cref="GLine"/> to export to</param>
         public void ExportTo(GLine line) {
-            bool uses24bitColor;
             int displayLength;
-            PrepareExport(out uses24bitColor, out displayLength);
+            PrepareExport(out displayLength);
 
-            line.UpdateContent(_cell, uses24bitColor ? _color24 : null, displayLength, _eolType);
+            line.UpdateContent(_cell, displayLength, _eolType);
         }
 
         /// <summary>
         /// Prepare export.
         /// </summary>
-        /// <param name="uses24bitColor">whether 24 bit colors are used</param>
         /// <param name="displayLength">displayLength of the <see cref="GLine"/></param>
-        private void PrepareExport(out bool uses24bitColor, out int displayLength) {
+        private void PrepareExport(out int displayLength) {
             bool tempUses24bitColor = false;
             int lastCharIndex = -1;
             for (int i = 0; i < _cell.Length; i++) {
-                var cell = _cell.At(i);
-                tempUses24bitColor |= cell.Attr.Uses24bitColor;
-                if (!cell.Attr.IsDefault || cell.Char.CodePoint != 0u) {
+                var curAttr = _cell.AttrAt(i);
+                var curChar = _cell.CharAt(i);
+                tempUses24bitColor |= curAttr.Uses24bitColor;
+                if (!curAttr.IsDefault || curChar.CodePoint != 0u) {
                     lastCharIndex = i;
                 }
             }
+
+            // update "IsColor24Used"
+            _cell.IsColor24Used = tempUses24bitColor;
 
             // update "SameToPrevious" flags
 
             _cell.ClearFlags(0, GAttrFlags.SameToPrevious);
 
             var prevAttr = _cell.AttrAt(0);
+            var prevColor24 = _cell.Color24At(0);
             for (int i = 1; i < _cell.Length; i++) {
                 var curAttr = _cell.AttrAt(i);
-                if (prevAttr == curAttr && (_color24 == null || _color24[i - 1] == _color24[i])) {
+                var curColor24 = _cell.Color24At(i);
+                if (prevAttr == curAttr && prevColor24 == curColor24) {
                     _cell.SetFlags(i, GAttrFlags.SameToPrevious);
                 }
                 else {
                     _cell.ClearFlags(i, GAttrFlags.SameToPrevious);
                 }
                 prevAttr = curAttr;
+                prevColor24 = curColor24;
             }
 
-            uses24bitColor = tempUses24bitColor;
             displayLength = lastCharIndex + 1;
         }
     }
