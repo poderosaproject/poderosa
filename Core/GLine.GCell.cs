@@ -29,6 +29,7 @@ namespace Poderosa.Document.Internal {
         }
 
         public void Set(GChar ch, GAttr attr, GColor24 color24) {
+            // In the case of assigning members of an array element,
             // this method can assign members faster comparing to the following methods.
             // 1:
             //   array[i].Char = ch;
