@@ -908,11 +908,27 @@ namespace Poderosa.Document.Internal {
         #endregion
 
         private static GCharArrayType DetermineSuitableGCharArrayType(IEnumerable<GCell> source) {
-            GCharArrayType type = GCharArrayType.HalfWidthSingleByteGCharArray;
-            foreach (var cell in source) {
-                type = DetermineSuitableGCharArrayType(cell.Char, type);
+            var cellIter = source.GetEnumerator();
+            if (!cellIter.MoveNext()) {
+                return GCharArrayType.HalfWidthSingleByteGCharArray;
             }
-            return type;
+            var ch = cellIter.Current.Char;
+
+            while (HalfWidthSingleByteGCharArray.IsSuitableFor(ch)) {
+                if (!cellIter.MoveNext()) {
+                    return GCharArrayType.HalfWidthSingleByteGCharArray;
+                }
+                ch = cellIter.Current.Char;
+            }
+
+            while (DoubleByteGCharArray.IsSuitableFor(ch)) {
+                if (!cellIter.MoveNext()) {
+                    return GCharArrayType.DoubleByteGCharArray;
+                }
+                ch = cellIter.Current.Char;
+            }
+
+            return GCharArrayType.TripleByteGCharArray;
         }
 
         private static GCharArrayType DetermineSuitableGCharArrayType(GChar ch, GCharArrayType oldType) {
