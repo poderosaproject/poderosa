@@ -77,6 +77,24 @@ namespace Poderosa.Benchmark {
         /// 256 colors.
         /// </summary>
         ASCII_KANJI_COLOR256,
+
+        /// <summary>
+        /// Only ASCII letter and digits.
+        /// 24 bit colors.
+        /// </summary>
+        ASCII_COLOR24,
+
+        /// <summary>
+        /// Only Japanese Kanji characters. (UTF-8)
+        /// 24 bit colors.
+        /// </summary>
+        KANJI_COLOR24,
+
+        /// <summary>
+        /// ASCII and KANJI alternately.
+        /// 24 bit colors.
+        /// </summary>
+        ASCII_KANJI_COLOR24,
     }
 
     /// <summary>
@@ -140,6 +158,8 @@ namespace Poderosa.Benchmark {
             try {
                 OnPaintTimeStatistics onPaintStats = new OnPaintTimeStatistics();
 
+                long mem1 = GC.GetTotalMemory(true);
+
                 _session.TerminalControl.SetOnPaintTimeObserver(
                     delegate(Stopwatch s) {
                         onPaintStats.Update(s);
@@ -184,6 +204,15 @@ namespace Poderosa.Benchmark {
                     case XTermBenchmarkPattern.ASCII_KANJI_COLOR256:
                         swTotal = BenchmarkAsciiKanjiColor256(DATA_CHUNK_SIZE, utcLimit);
                         break;
+                    case XTermBenchmarkPattern.ASCII_COLOR24:
+                        swTotal = BenchmarkAsciiColor24(DATA_CHUNK_SIZE, utcLimit);
+                        break;
+                    case XTermBenchmarkPattern.KANJI_COLOR24:
+                        swTotal = BenchmarkKanjiColor24(DATA_CHUNK_SIZE, utcLimit);
+                        break;
+                    case XTermBenchmarkPattern.ASCII_KANJI_COLOR24:
+                        swTotal = BenchmarkAsciiKanjiColor24(DATA_CHUNK_SIZE, utcLimit);
+                        break;
                     default:
                         swTotal = Stopwatch.StartNew();
                         swTotal.Stop();
@@ -194,6 +223,8 @@ namespace Poderosa.Benchmark {
                 SockWriteLine("End XTerm Benchmark.");
 
                 _session.TerminalControl.SetOnPaintTimeObserver(null);
+
+                long mem2 = GC.GetTotalMemory(true);
 
                 TerminalDocument doc = (TerminalDocument)_session.Terminal.IDocument.GetAdapter(typeof(TerminalDocument));
 
@@ -209,6 +240,9 @@ namespace Poderosa.Benchmark {
                 SockWriteLine(String.Format("        Avg  {0} msec", onPaintStats.GetAverageTimeMilliseconds()));
                 SockWriteLine("---------------------------------------");
                 ReportBenchmark("Total          ", swTotal);
+                SockWriteLine("---------------------------------------");
+
+                SockWriteLine(String.Format("Increase of Managed Memory : {0} bytes", mem2 - mem1));
                 SockWriteLine("---------------------------------------");
             }
             catch (MockSocketTimeoutException) {
@@ -406,15 +440,14 @@ namespace Poderosa.Benchmark {
             return sw;
         }
 
-        private Stopwatch BenchmarkAsciiColor256(int chunk, DateTime utcLimit) {
+        private Stopwatch BenchmarkColor256(int chunk, DateTime utcLimit, string charPattern) {
             byte[] palette = GetPalette256();
-            
-            string asciiPattern = GetAsciiPattern();
+
             StringBuilder pattern = new StringBuilder();
             for (int i = 16; i < 256; i++) {
                 pattern.Append("\u001b[48;5;").Append(i).Append('m')
                        .Append("\u001b[38;5;").Append(255 + 16 - i).Append('m')
-                       .Append(asciiPattern[i % asciiPattern.Length]);
+                       .Append(charPattern[i % charPattern.Length]);
             }
             byte[] source = Encoding.UTF8.GetBytes(pattern.ToString());
 
@@ -423,44 +456,96 @@ namespace Poderosa.Benchmark {
             _socket.FeedData(BenchmarkDataGenerator(chunk, utcLimit, source), TIMEOUT);
             sw.Stop();
             return sw;
+        }
+
+        private Stopwatch BenchmarkAsciiColor256(int chunk, DateTime utcLimit) {
+            string asciiPattern = GetAsciiPattern();
+            return BenchmarkColor256(chunk, utcLimit, asciiPattern);
         }
 
         private Stopwatch BenchmarkKanjiColor256(int chunk, DateTime utcLimit) {
-            byte[] palette = GetPalette256();
-
             string kanjiPattern = GetKanjiPattern();
-            StringBuilder pattern = new StringBuilder();
-            for (int i = 16; i < 256; i++) {
-                pattern.Append("\u001b[48;5;").Append(i).Append('m')
-                       .Append("\u001b[38;5;").Append(255 + 16 - i).Append('m')
-                       .Append(kanjiPattern[i % kanjiPattern.Length]);
-            }
-            byte[] source = Encoding.UTF8.GetBytes(pattern.ToString());
-
-            Stopwatch sw = Stopwatch.StartNew();
-            _socket.FeedData(new byte[][] { palette }, TIMEOUT);
-            _socket.FeedData(BenchmarkDataGenerator(chunk, utcLimit, source), TIMEOUT);
-            sw.Stop();
-            return sw;
+            return BenchmarkColor256(chunk, utcLimit, kanjiPattern);
         }
 
         private Stopwatch BenchmarkAsciiKanjiColor256(int chunk, DateTime utcLimit) {
-            byte[] palette = GetPalette256();
-
             string asciiKanjiPattern = GetAsciiKanjiPattern();
+            return BenchmarkColor256(chunk, utcLimit, asciiKanjiPattern);
+        }
+
+        private Stopwatch BenchmarkColor24(int chunk, DateTime utcLimit, string charPattern) {
             StringBuilder pattern = new StringBuilder();
-            for (int i = 16; i < 256; i++) {
-                pattern.Append("\u001b[48;5;").Append(i).Append('m')
-                       .Append("\u001b[38;5;").Append(255 + 16 - i).Append('m')
-                       .Append(asciiKanjiPattern[i % asciiKanjiPattern.Length]);
+            int letterIndex = 0;
+            for (int i = 0; i <= 256; i += 16) {
+                int r = Math.Min(i, 255);
+                int g = 0;
+                int b = 0;
+                pattern.Append("\u001b[48;2;").Append(r).Append(';').Append(g).Append(';').Append(b).Append('m')
+                       .Append("\u001b[97m") // white
+                       .Append(charPattern[letterIndex++ % charPattern.Length]);
+            }
+            for (int i = 0; i <= 256; i += 16) {
+                int r = 0;
+                int g = Math.Min(i, 255);
+                int b = 0;
+                pattern.Append("\u001b[48;2;").Append(r).Append(';').Append(g).Append(';').Append(b).Append('m')
+                       .Append("\u001b[95m") // Magenta
+                       .Append(charPattern[letterIndex++ % charPattern.Length]);
+            }
+            for (int i = 0; i <= 256; i += 16) {
+                int r = 0;
+                int g = 0;
+                int b = Math.Min(i, 255);
+                pattern.Append("\u001b[48;2;").Append(r).Append(';').Append(g).Append(';').Append(b).Append('m')
+                       .Append("\u001b[93m") // Yellow
+                       .Append(charPattern[letterIndex++ % charPattern.Length]);
+            }
+            for (int i = 0; i <= 256; i += 16) {
+                int r = Math.Min(i, 255);
+                int g = 0;
+                int b = 0;
+                pattern.Append("\u001b[107m") // white
+                       .Append("\u001b[38;2;").Append(r).Append(';').Append(g).Append(';').Append(b).Append('m')
+                       .Append(charPattern[letterIndex++ % charPattern.Length]);
+            }
+            for (int i = 0; i <= 256; i += 16) {
+                int r = 0;
+                int g = Math.Min(i, 255);
+                int b = 0;
+                pattern.Append("\u001b[105m") // Magenta
+                       .Append("\u001b[38;2;").Append(r).Append(';').Append(g).Append(';').Append(b).Append('m')
+                       .Append(charPattern[letterIndex++ % charPattern.Length]);
+            }
+            for (int i = 0; i <= 256; i += 16) {
+                int r = 0;
+                int g = 0;
+                int b = Math.Min(i, 255);
+                pattern.Append("\u001b[103m") // Yellow
+                       .Append("\u001b[38;2;").Append(r).Append(';').Append(g).Append(';').Append(b).Append('m')
+                       .Append(charPattern[letterIndex++ % charPattern.Length]);
             }
             byte[] source = Encoding.UTF8.GetBytes(pattern.ToString());
 
             Stopwatch sw = Stopwatch.StartNew();
-            _socket.FeedData(new byte[][] { palette }, TIMEOUT);
             _socket.FeedData(BenchmarkDataGenerator(chunk, utcLimit, source), TIMEOUT);
             sw.Stop();
             return sw;
         }
+
+        private Stopwatch BenchmarkAsciiColor24(int chunk, DateTime utcLimit) {
+            string asciiPattern = GetAsciiPattern();
+            return BenchmarkColor24(chunk, utcLimit, asciiPattern);
+        }
+
+        private Stopwatch BenchmarkKanjiColor24(int chunk, DateTime utcLimit) {
+            string kanjiPattern = GetKanjiPattern();
+            return BenchmarkColor24(chunk, utcLimit, kanjiPattern);
+        }
+
+        private Stopwatch BenchmarkAsciiKanjiColor24(int chunk, DateTime utcLimit) {
+            string asciiKanjiPattern = GetAsciiKanjiPattern();
+            return BenchmarkColor24(chunk, utcLimit, asciiKanjiPattern);
+        }
+
     }
 }
