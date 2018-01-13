@@ -525,7 +525,6 @@ namespace Poderosa.Document.Internal {
                 }
             }
 
-            private int _length;
             private UInt24[] _chars;
 
             private const uint CodePointMask = 0x1fffffu;
@@ -534,7 +533,7 @@ namespace Poderosa.Document.Internal {
 
             public int Length {
                 get {
-                    return _length;
+                    return _chars.Length;
                 }
             }
 
@@ -545,7 +544,6 @@ namespace Poderosa.Document.Internal {
             }
 
             public TripleByteGCharArray(int length) {
-                _length = length;
                 _chars = new UInt24[length];  // no need to fill
             }
 
@@ -559,7 +557,6 @@ namespace Poderosa.Document.Internal {
 
             // constructor for Clone()
             private TripleByteGCharArray(TripleByteGCharArray orig) {
-                _length = orig._length;
                 _chars = (UInt24[])orig._chars.Clone();
             }
 
@@ -591,7 +588,6 @@ namespace Poderosa.Document.Internal {
                 UInt24[] newBuff = new UInt24[newLength];
                 oldBuff.CopyTo(newBuff);
                 _chars = newBuff;
-                _length = newLength;
             }
 
             public IGCharArray Clone() {
