@@ -14,7 +14,7 @@ Supports:
  - Pipe (named pipe or a process)
 
 Home page:
-https://poderosa.sourceforge.net/
+http://poderosa.sourceforge.net/
 
 Download:
 https://sourceforge.net/projects/poderosa/files/
