@@ -590,6 +590,7 @@ namespace Granados.SSH2 {
                         bool alwaysDisplay = reader.ReadBool();
                         string message = reader.ReadUTF8String();
                         string languageTag = reader.ReadString();
+                        _protocolEventManager.Trace("SSH_MSG_DEBUG : \"{0}\" (alwaysDisplay={1}, languageTag=\"{2}\")", message, alwaysDisplay, languageTag);
                         _eventHandler.OnDebugMessage(alwaysDisplay, message);
                     }
                     return;
@@ -721,7 +722,6 @@ namespace Granados.SSH2 {
                 case SSH2PacketType.SSH_MSG_CHANNEL_DATA:
                 case SSH2PacketType.SSH_MSG_CHANNEL_EXTENDED_DATA:
                 case SSH2PacketType.SSH_MSG_IGNORE:
-                case SSH2PacketType.SSH_MSG_DEBUG:
                     return;
             }
 
@@ -742,7 +742,6 @@ namespace Granados.SSH2 {
                 case SSH2PacketType.SSH_MSG_CHANNEL_DATA:
                 case SSH2PacketType.SSH_MSG_CHANNEL_EXTENDED_DATA:
                 case SSH2PacketType.SSH_MSG_IGNORE:
-                case SSH2PacketType.SSH_MSG_DEBUG:
                     return;
             }
 

@@ -604,6 +604,7 @@ namespace Granados.SSH1 {
                     break;
                 case SSH1PacketType.SSH_MSG_DEBUG: {
                         string message = reader.ReadString();
+                        _protocolEventManager.Trace("SSH_MSG_DEBUG : \"{0}\"", message);
                         _eventHandler.OnDebugMessage(false, message);
                     }
                     break;
@@ -710,7 +711,6 @@ namespace Granados.SSH1 {
                 case SSH1PacketType.SSH_SMSG_STDERR_DATA:
                 case SSH1PacketType.SSH_MSG_CHANNEL_DATA:
                 case SSH1PacketType.SSH_MSG_IGNORE:
-                case SSH1PacketType.SSH_MSG_DEBUG:
                     return;
             }
 
@@ -733,7 +733,6 @@ namespace Granados.SSH1 {
                 case SSH1PacketType.SSH_SMSG_STDERR_DATA:
                 case SSH1PacketType.SSH_MSG_CHANNEL_DATA:
                 case SSH1PacketType.SSH_MSG_IGNORE:
-                case SSH1PacketType.SSH_MSG_DEBUG:
                     return;
             }
 
