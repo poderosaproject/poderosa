@@ -102,22 +102,19 @@ namespace Granados.SSH2 {
                 ChannelType channelType,
                 string channelTypeString,
                 uint serverWindowSize,
-                uint serverMaxPacketSize) {
-
-            _timeouts = timeouts;
-            _protocolEventManager = protocolEventManager;
-            LocalChannel = localChannel;
-            RemoteChannel = remoteChannel;
-            ChannelType = channelType;
-            ChannelTypeString = channelTypeString;
-
-            _localMaxPacketSize = param.MaxPacketSize;
-            _localWindowSize = _localWindowSizeLeft = param.WindowSize;
-            _serverMaxPacketSize = serverMaxPacketSize;
-            _serverWindowSizeLeft = serverWindowSize;
-
-            _state = State.InitiatedByServer; // SendOpenConfirmation() will change state to "Opened"
-        }
+                uint serverMaxPacketSize)
+            : this(
+                state: State.InitiatedByServer, // SendOpenConfirmation() will change state to "Opened"
+                timeouts: timeouts,
+                packetSender: packetSender,
+                param: param,
+                protocolEventManager: protocolEventManager,
+                localChannel: localChannel,
+                remoteChannel: remoteChannel,
+                channelType: channelType,
+                channelTypeString: channelTypeString,
+                serverWindowSize: serverWindowSize,
+                serverMaxPacketSize: serverMaxPacketSize) {}
 
         /// <summary>
         /// Constructor (initiated by client)
@@ -129,22 +126,50 @@ namespace Granados.SSH2 {
                 SSHProtocolEventManager protocolEventManager,
                 uint localChannel,
                 ChannelType channelType,
-                string channelTypeString) {
+                string channelTypeString)
+            : this(
+                state: State.InitiatedByClient, // receiving SSH_MSG_CHANNEL_OPEN_CONFIRMATION will change state to "Opened"
+                timeouts: timeouts,
+                packetSender: packetSender,
+                param: param,
+                protocolEventManager: protocolEventManager,
+                localChannel: localChannel,
+                remoteChannel: 0,
+                channelType: channelType,
+                channelTypeString: channelTypeString,
+                serverWindowSize: 0,
+                serverMaxPacketSize: 0) {}
+
+        /// <summary>
+        /// Internal Constructor
+        /// </summary>
+        private SSH2ChannelBase(
+                State state,
+                SSHTimeouts timeouts,
+                IPacketSender<SSH2Packet> packetSender,
+                SSHConnectionParameter param,
+                SSHProtocolEventManager protocolEventManager,
+                uint localChannel,
+                uint remoteChannel,
+                ChannelType channelType,
+                string channelTypeString,
+                uint serverWindowSize,
+                uint serverMaxPacketSize) {
 
             _timeouts = timeouts;
             _packetSender = packetSender;
             _protocolEventManager = protocolEventManager;
             LocalChannel = localChannel;
-            RemoteChannel = 0;
+            RemoteChannel = remoteChannel;
             ChannelType = channelType;
             ChannelTypeString = channelTypeString;
 
             _localMaxPacketSize = param.MaxPacketSize;
             _localWindowSize = _localWindowSizeLeft = param.WindowSize;
-            _serverMaxPacketSize = 0;
-            _serverWindowSizeLeft = 0;
+            _serverMaxPacketSize = serverMaxPacketSize;
+            _serverWindowSizeLeft = serverWindowSize;
 
-            _state = State.InitiatedByClient; // receiving SSH_MSG_CHANNEL_OPEN_CONFIRMATION will change state to "Opened"
+            _state = state;
         }
 
         /// <summary>
