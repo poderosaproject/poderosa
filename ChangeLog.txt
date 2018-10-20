@@ -1,4 +1,13 @@
-﻿4.4.2
+﻿4.4.3
+-----
+    * Fixed bad connectability of the remote-port-forwarding,
+      agent-forwarding and X11-forwarding.
+
+    * Added support of xterm's bracketed paste mode.
+
+    * Log SSH_MSG_DEBUG to the event log.
+
+4.4.2
 -----
     * Added HMAC-SHA2 support in SSH2
 
