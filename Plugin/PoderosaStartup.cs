@@ -23,10 +23,6 @@ using System.Reflection;
 using Poderosa.Plugins;
 using Poderosa.Plugin.Remoting;
 
-#if UNITTEST
-using NUnit.Framework;
-#endif
-
 namespace Poderosa.Boot {
 
     //ブート用のエントリポイント
@@ -371,97 +367,4 @@ namespace Poderosa.Boot {
         }
     }
 
-#if UNITTEST
-    [TestFixture]
-    public class PluginManifestTests {
-
-        private StringResource _stringResource;
-
-        [TestFixtureSetUp]
-        public void Init() {
-            //Core.dllあたりはこれをしとかないとロードできない
-            Assembly.LoadFrom(String.Format("{0}\\Plugin.dll", PoderosaAppDir()));
-            _stringResource = new StringResource("Plugin.strings", typeof(PluginManifest).Assembly);
-        }
-
-        [Test]
-        public void Test1_DLLList() {
-            PluginManifest pm = PluginManifest.CreateByFileSystem(PoderosaAppDir());
-            TextWriter strm = new StringWriter();
-            TextStructuredTextWriter wr = new TextStructuredTextWriter(strm);
-            wr.Write(pm.RawData);
-            strm.Close();
-            UnitTestUtil.Trace(strm.ToString());
-            //NOTE これはさすがに目視しかないか
-        }
-
-        [Test]
-        public void Test2_NormalLoad() {
-            ITracer tracer = CreateDefaultTracer();
-            PluginManifest pm = PluginManifest.CreateByText(String.Format("manifest {{\r\n  {0}\\Core\\Core.dll {{\r\n plugin=Poderosa.Preferences.PreferencePlugin\r\n}}\r\n}}\r\n", PoderosaAppDir()));
-            int count = 0;
-            foreach (StructuredText t in pm.Children) {
-                PluginManifest.AssemblyNode node = pm.LoadAssemblyNode(t);
-                node.TryToBind(tracer);
-                Assert.AreEqual(1, node.PluginTypes.Length); //これに失敗するときは型が見つからない
-                Assert.AreEqual("Poderosa.Preferences.PreferencePlugin", node.PluginTypes[0].FullName);
-                count++;
-            }
-            Assert.AreEqual(1, count); //アセンブリ指定は１個しかないので
-        }
-
-        [Test]
-        public void Test3_AssemblyLoadError() {
-            ITracer tracer = CreateDefaultTracer();
-            PluginManifest pm = PluginManifest.CreateByText(String.Format("manifest {{\r\n  {0}\\notexist.dll {{\r\n  }}\r\n}}\r\n", PoderosaAppDir()));
-            try {
-                foreach (StructuredText t in pm.Children) {
-                    PluginManifest.AssemblyNode node = pm.LoadAssemblyNode(t);
-                    Assert.Fail("we expect exception");
-                }
-            }
-            catch (Exception ex) {
-                tracer.Trace(ex);
-                Console.Out.WriteLine(ex.Message);
-            }
-        }
-
-        [Test]
-        public void Test4_TypeNotFound() {
-            ITracer tracer = CreateDefaultTracer();
-            PluginManifest pm = PluginManifest.CreateByText(String.Format("manifest {{\r\n  {0}\\Core\\Core.dll {{\r\n plugin=NotFoundPlugin\r\n}}\r\n}}\r\n", PoderosaAppDir()));
-            foreach (StructuredText t in pm.Children) {
-                PluginManifest.AssemblyNode node = pm.LoadAssemblyNode(t);
-                node.TryToBind(tracer);
-                Assert.AreEqual(0, node.PluginTypes.Length);
-                CheckOneErrorMessage(tracer.Document, String.Format(_stringResource.GetString("PluginManager.Messages.TypeLoadError"), node.Assembly.CodeBase, "NotFoundPlugin"));
-            }
-        }
-
-        //NOTE
-        // 本当はさらにplugin=...の記述を省略した形をテストするべきだが、そのままではPluginDeclarationAttributeをPoderosa.Monolithic.dllのものになっている
-        // それをテスト用にロードしたPlugin.dll内のものを参照するようにしないとテストが実行できず、これはかなりムズいので諦める。
-        // 分割ビルド状態でPoderosaがちゃんと起動できていればそこの機能はちゃんとしている、とみなす。
-
-        //なお、PluginManifetで行うのはTypeをロードするところまでで、それがちゃんとしたプラグインであるかどうかの検査はPluginManagerが行う。
-
-        private string PoderosaAppDir() {
-            return UnitTestUtil.GetUnitTestConfig("poderosa_installed_dir");
-        }
-
-        //PoderosaWorldを経由しないテストなのでこれで凌ぐ
-        private ITracer CreateDefaultTracer() {
-            return new DefaultTracer(_stringResource);
-        }
-
-        private void CheckOneErrorMessage(TraceDocument doc, string msg) {
-            string actual = doc.GetDataAt(0);
-            if (actual != msg) {
-                //しばしば長くなる。Debugに出さないとわかりづらい
-                Debug.WriteLine("actual=" + actual);
-            }
-            Assert.AreEqual(msg, actual);
-        }
-    }
-#endif
 }

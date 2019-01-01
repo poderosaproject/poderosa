@@ -11,16 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 #if UNITTEST
+using NUnit.Framework;
+using Poderosa.Boot;
 using System;
 using System.Diagnostics;
-using System.IO;
-
-using NUnit.Framework;
-
-using Poderosa.Preferences;
-using Poderosa.Boot;
+using System.Reflection;
 
 namespace Poderosa.Plugins {
     [TestFixture]
@@ -29,25 +25,45 @@ namespace Poderosa.Plugins {
         private IPoderosaWorld _poderosaWorld;
 
         private PluginManager Init(string pluginManifest) {
-            _poderosaApplication = PoderosaStartup.CreatePoderosaApplication(pluginManifest, new StructuredText("Poderosa"));
+            _poderosaApplication = PoderosaStartup.CreatePoderosaApplication(pluginManifest, new StructuredText("Poderosa"), new string[0]);
             _poderosaWorld = _poderosaApplication.Start();
             return (PluginManager)_poderosaWorld.PluginManager;
         }
 
         private string CreateManifest(string classname) {
-            return CreateManifest("Poderosa.Monolithic.dll", classname);
+            return CreateManifest(Assembly.GetExecutingAssembly().Location, classname);
         }
         private string CreateManifest(string asmname, string classname) {
-            return String.Format("Root {{\r\n  {0} {{\r\n  plugin=Poderosa.Plugins.{1}\r\n}}\r\n}}", asmname, classname);
+            return String.Format("manifest {{\r\n  {0} {{\r\n  plugin=Poderosa.Plugins.{1}\r\n}}\r\n}}", asmname, classname);
         }
 
 
         private string CreateManifest2(string classname1, string classname2) {
-            return String.Format("Root {{\r\n  Poderosa.Monolithic.dll {{\r\n  plugin=Poderosa.Plugins.{0}\r\n  plugin=Poderosa.Plugins.{1}\r\n}}\r\n}}", classname1, classname2);
+            return String.Format("manifest {{\r\n  {0} {{\r\n  plugin=Poderosa.Plugins.{1}\r\n  plugin=Poderosa.Plugins.{2}\r\n}}\r\n}}",
+                Assembly.GetExecutingAssembly().Location, classname1, classname2);
         }
 
         private StringResource GetStringResource() {
             return InternalPoderosaWorld.Strings;
+        }
+
+        private static void SetEntryAssembly() {
+            Assembly entryAssembly = Assembly.GetEntryAssembly();
+            if (entryAssembly == null) {
+                AppDomainManager manager = AppDomain.CurrentDomain.DomainManager;
+                if (manager == null) {
+                    manager = new AppDomainManager();
+                    FieldInfo domainManagerField = typeof(AppDomain).GetField("_domainManager", BindingFlags.Instance | BindingFlags.NonPublic);
+                    domainManagerField.SetValue(AppDomain.CurrentDomain, manager);
+                }
+
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                FieldInfo entryAssemblyfield = manager.GetType().GetField("m_entryAssembly", BindingFlags.Instance | BindingFlags.NonPublic);
+                entryAssemblyfield.SetValue(manager, assembly);
+
+                assembly = Assembly.GetEntryAssembly();
+                Debug.WriteLine(assembly);
+            }
         }
 
         //期待通りのエラーメッセージが出ていることを確認
@@ -75,6 +91,10 @@ namespace Poderosa.Plugins {
                 Assert.AreSame(actual[i].GetType(), expected[i]);
         }
 
+        [OneTimeSetUp]
+        public void SetupEntryAssembly() {
+            SetEntryAssembly();
+        }
 
         [Test]
         public void TestAssemblyNotFound() {
