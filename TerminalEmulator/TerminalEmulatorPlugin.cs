@@ -142,6 +142,18 @@ namespace Poderosa.Terminal {
             cs.PreferenceExtensionPoint.RegisterExtension(XTermPreferences.Instance);
         }
 
+#if UNITTEST
+        internal void InitializePluginForTest(IPoderosaWorld poderosa) {
+            _instance = this;
+            this._poderosaWorld = poderosa;
+            this._optionSupplier = new TerminalOptionsSupplier();
+            this._keepAlive = new KeepAlive();
+            this._customKeySettings = new CustomKeySettings();
+            this._shellSchemeCollection = new ShellSchemeCollection();
+            this._shellSchemeCollection.InitForTest();
+        }
+#endif
+
         #region ITerminalEmulatorPlugin
         public ITerminalEmulatorOptions TerminalEmulatorOptions {
             get {
