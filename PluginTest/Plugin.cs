@@ -14,6 +14,7 @@
 #if UNITTEST
 using NUnit.Framework;
 using Poderosa.Boot;
+using Poderosa.TestUtils;
 using System;
 using System.Diagnostics;
 using System.Reflection;
@@ -47,25 +48,6 @@ namespace Poderosa.Plugins {
             return InternalPoderosaWorld.Strings;
         }
 
-        private static void SetEntryAssembly() {
-            Assembly entryAssembly = Assembly.GetEntryAssembly();
-            if (entryAssembly == null) {
-                AppDomainManager manager = AppDomain.CurrentDomain.DomainManager;
-                if (manager == null) {
-                    manager = new AppDomainManager();
-                    FieldInfo domainManagerField = typeof(AppDomain).GetField("_domainManager", BindingFlags.Instance | BindingFlags.NonPublic);
-                    domainManagerField.SetValue(AppDomain.CurrentDomain, manager);
-                }
-
-                Assembly assembly = Assembly.GetExecutingAssembly();
-                FieldInfo entryAssemblyfield = manager.GetType().GetField("m_entryAssembly", BindingFlags.Instance | BindingFlags.NonPublic);
-                entryAssemblyfield.SetValue(manager, assembly);
-
-                assembly = Assembly.GetEntryAssembly();
-                Debug.WriteLine(assembly);
-            }
-        }
-
         //期待通りのエラーメッセージが出ていることを確認
         private void CheckErrorMessage(PluginManager pm, string string_id) {
             CheckOneErrorMessage(pm, GetStringResource().GetString(string_id));
@@ -93,7 +75,7 @@ namespace Poderosa.Plugins {
 
         [OneTimeSetUp]
         public void SetupEntryAssembly() {
-            SetEntryAssembly();
+            AssemblyUtil.SetEntryAssembly(typeof(PluginTests));
         }
 
         [Test]
