@@ -18,11 +18,6 @@ using System.Text;
 using System.Drawing;
 using System.Diagnostics;
 
-#if UNITTEST
-using System.IO;
-using NUnit.Framework;
-#endif
-
 using Poderosa.Serializing;
 
 namespace Poderosa.View {
@@ -84,52 +79,4 @@ namespace Poderosa.View {
         }
     }
 
-#if UNITTEST
-    [TestFixture]
-    public class RenderProfileSerializeTests {
-
-        private RenderProfileSerializer _renderProfileSerializer;
-
-        [TestFixtureSetUp]
-        public void Init() {
-            _renderProfileSerializer = new RenderProfileSerializer();
-        }
-
-        [Test]
-        public void Test1() {
-            RenderProfile prof1 = new RenderProfile();
-            prof1.FontName = "console";
-            prof1.JapaneseFontName = "ＭＳ ゴシック";
-            prof1.UseClearType = true;
-            prof1.FontSize = 12;
-            prof1.BackColor = Color.FromKnownColor(KnownColor.Yellow);
-            prof1.ForeColor = Color.FromKnownColor(KnownColor.White);
-            prof1.BackgroundImageFileName = "image-file";
-            prof1.ImageStyle = ImageStyle.Scaled;
-            prof1.ESColorSet = new EscapesequenceColorSet();
-            prof1.ESColorSet[1] = Color.Pink;
-
-            StructuredText storage = _renderProfileSerializer.Serialize(prof1);
-            //確認
-            StringWriter wr = new StringWriter();
-            new TextStructuredTextWriter(wr).Write(storage);
-            wr.Close();
-            Debug.WriteLine(wr.ToString());
-
-            RenderProfile prof2 = (RenderProfile)_renderProfileSerializer.Deserialize(storage);
-
-            Assert.AreEqual(prof1.FontName, prof2.FontName);
-            Assert.AreEqual(prof1.JapaneseFontName, prof2.JapaneseFontName);
-            Assert.AreEqual(prof1.UseClearType, prof2.UseClearType);
-            Assert.AreEqual(prof1.FontSize, prof2.FontSize);
-            Assert.AreEqual(prof1.BackColor.Name, prof2.BackColor.Name);
-            Assert.AreEqual(prof1.ForeColor.Name, prof2.ForeColor.Name);
-            Assert.AreEqual(prof1.BackgroundImageFileName, prof2.BackgroundImageFileName);
-            Assert.AreEqual(prof1.ImageStyle, prof2.ImageStyle);
-            Assert.AreEqual(prof1.ESColorSet.Format(), prof2.ESColorSet.Format());
-
-        }
-
-    }
-#endif
 }

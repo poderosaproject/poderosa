@@ -47,3 +47,7 @@ using System.Runtime.InteropServices;
 // 既定値にすることができます:
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+
+#if UNITTEST
+[assembly: InternalsVisibleTo("Poderosa.CoreTest")]
+#endif

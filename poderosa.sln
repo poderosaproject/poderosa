@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtocolsTest", "ProtocolsT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestUtils", "TestUtils\TestUtils.csproj", "{CDFD920E-47A1-4C20-9E29-6A1CC8C50840}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreTest", "CoreTest\CoreTest.csproj", "{EE1253BD-7DE0-459A-98F1-719FF0E86D8B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug(UIDesign)|Any CPU = Debug(UIDesign)|Any CPU
@@ -75,8 +77,8 @@ Global
 		{8A416F19-9031-44A1-B225-BCB31A6BC6A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A416F19-9031-44A1-B225-BCB31A6BC6A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A416F19-9031-44A1-B225-BCB31A6BC6A7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8A416F19-9031-44A1-B225-BCB31A6BC6A7}.UnitTest|Any CPU.ActiveCfg = Release|Any CPU
-		{8A416F19-9031-44A1-B225-BCB31A6BC6A7}.UnitTest|Any CPU.Build.0 = Release|Any CPU
+		{8A416F19-9031-44A1-B225-BCB31A6BC6A7}.UnitTest|Any CPU.ActiveCfg = UnitTest|Any CPU
+		{8A416F19-9031-44A1-B225-BCB31A6BC6A7}.UnitTest|Any CPU.Build.0 = UnitTest|Any CPU
 		{4554E83A-2A00-47E2-AB5B-14A228895C17}.Debug(UIDesign)|Any CPU.ActiveCfg = UIDesign|Any CPU
 		{4554E83A-2A00-47E2-AB5B-14A228895C17}.Debug(UIDesign)|Any CPU.Build.0 = UIDesign|Any CPU
 		{4554E83A-2A00-47E2-AB5B-14A228895C17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -209,6 +211,11 @@ Global
 		{CDFD920E-47A1-4C20-9E29-6A1CC8C50840}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CDFD920E-47A1-4C20-9E29-6A1CC8C50840}.UnitTest|Any CPU.ActiveCfg = UnitTest|Any CPU
 		{CDFD920E-47A1-4C20-9E29-6A1CC8C50840}.UnitTest|Any CPU.Build.0 = UnitTest|Any CPU
+		{EE1253BD-7DE0-459A-98F1-719FF0E86D8B}.Debug(UIDesign)|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE1253BD-7DE0-459A-98F1-719FF0E86D8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE1253BD-7DE0-459A-98F1-719FF0E86D8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE1253BD-7DE0-459A-98F1-719FF0E86D8B}.UnitTest|Any CPU.ActiveCfg = UnitTest|Any CPU
+		{EE1253BD-7DE0-459A-98F1-719FF0E86D8B}.UnitTest|Any CPU.Build.0 = UnitTest|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

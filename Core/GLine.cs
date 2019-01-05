@@ -19,10 +19,6 @@ using System.Drawing;
 using System.Diagnostics;
 using System.Text;
 
-#if UNITTEST
-using NUnit.Framework;
-#endif
-
 using Poderosa.Util.Drawing;
 using Poderosa.Forms;
 using Poderosa.View;

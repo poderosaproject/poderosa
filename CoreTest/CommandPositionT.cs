@@ -137,6 +137,5 @@ namespace Poderosa.Commands {
 
     }
 
-
 }
 #endif
