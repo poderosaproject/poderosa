@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #if UNITTEST
+
+#if false   // Old tests
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -27,13 +30,13 @@ using Poderosa.Boot;
 using Poderosa.Plugins;
 
 using NUnit.Framework;
+using Granados.KnownHosts;
 
 namespace Poderosa.Protocols {
     //主に接続の確立(IProtocolService内)についてのテスト。
     //TCP接続をつくるところまでについてはInterruptableconnector.cs内にテストケースがある
-
     [PluginInfo(ID = "org.poderosa.core.protocols.test", Dependencies = "org.poderosa.protocols")]
-    internal class ProtocolServiceTestPlugin : PluginBase, IConnectionResultEventHandler, ISSHHostKeyVerifier {
+    internal class ProtocolServiceTestPlugin : PluginBase, IConnectionResultEventHandler, ISSHHostKeyVerifier2 {
         public static ProtocolServiceTestPlugin Instance;
 
         private int _successCount;
@@ -73,7 +76,7 @@ namespace Poderosa.Protocols {
         }
 
         //ISSHHostKeyVerifier
-        public bool Verify(ISSHLoginParameter param, SSHConnectionInfo info) {
+        public bool Verify(ISSHHostKeyInformationProvider provider) {
             return _acceptsHostKey;
         }
 
@@ -148,7 +151,7 @@ namespace Poderosa.Protocols {
         }
 
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void Init() {
             try {
                 _poderosaApplication = PoderosaStartup.CreatePoderosaApplication(CreatePluginManifest(), new StructuredText("Poderosa"));
@@ -160,7 +163,7 @@ namespace Poderosa.Protocols {
             }
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void Terminate() {
             _poderosaApplication.Shutdown();
         }
@@ -327,4 +330,6 @@ namespace Poderosa.Protocols {
         }
     }
 }
+#endif
+
 #endif
