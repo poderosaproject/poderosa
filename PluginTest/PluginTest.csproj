@@ -46,6 +46,7 @@
     <Compile Include="Plugin.cs" />
     <Compile Include="PoderosaStartup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StructuredTextT.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>
