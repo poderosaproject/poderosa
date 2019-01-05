@@ -65,10 +65,6 @@
       <Project>{9d114b8b-e62c-4fbf-b281-0227755c8091}</Project>
       <Name>Granados</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PluginTest\PluginTest.csproj">
-      <Project>{43731dfb-47ce-4587-a27a-65bfe8a6855b}</Project>
-      <Name>PluginTest</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Plugin\Plugin.csproj">
       <Project>{d84b661b-503e-4c22-892b-7499b72c7e04}</Project>
       <Name>Plugin</Name>
@@ -76,6 +72,10 @@
     <ProjectReference Include="..\Protocols\Protocols.csproj">
       <Project>{04f18da5-bf47-48a3-9b8b-b6b93dcba875}</Project>
       <Name>Protocols</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TestUtils\TestUtils.csproj">
+      <Project>{cdfd920e-47a1-4c20-9e29-6a1cc8c50840}</Project>
+      <Name>TestUtils</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

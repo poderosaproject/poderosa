@@ -13,31 +13,9 @@
 // limitations under the License.
 #if UNITTEST
 using NUnit.Framework;
-using System;
-using System.Configuration;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 
 namespace Poderosa {
-
-    public static class UnitTestUtil {
-        public static void Trace(string text) {
-            Console.Out.WriteLine(text);
-            Debug.WriteLine(text);
-        }
-
-        public static void Trace(string fmt, params object[] args) {
-            Trace(String.Format(fmt, args));
-        }
-
-        public static string DumpStructuredText(StructuredText st) {
-            StringWriter wr = new StringWriter();
-            new TextStructuredTextWriter(wr).Write(st);
-            wr.Close();
-            return wr.ToString();
-        }
-    }
 
     [TestFixture]
     public class RuntimeUtilTests {
