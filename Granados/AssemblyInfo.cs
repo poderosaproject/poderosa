@@ -21,3 +21,8 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyDelaySign(false)]
 
 [assembly: CLSCompliant(false)]
+
+#if UNITTEST
+[assembly: InternalsVisibleTo("GranadosTest")]
+#endif
+

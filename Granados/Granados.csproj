@@ -154,7 +154,6 @@
     <Compile Include="Poderosa\KeyFormat\PuTTYPrivateKeyLoader.cs" />
     <Compile Include="Poderosa\KeyFormat\SSH1PrivateKeyLoader.cs" />
     <Compile Include="Poderosa\KeyFormat\SSHComPrivateKeyLoader.cs" />
-    <Compile Include="Poderosa\SCP\SCPChannelStreamTest.cs" />
     <Compile Include="Poderosa\SCP\SCPClientException.cs" />
     <Compile Include="Poderosa\SCP\SCPClient.cs" />
     <Compile Include="Poderosa\SCP\SCPChannelStream.cs" />

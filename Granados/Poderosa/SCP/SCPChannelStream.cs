@@ -91,34 +91,13 @@ namespace Granados.Poderosa.SCP {
 #if UNITTEST
         internal byte[] DataBuffer {
             get {
-                return _buffer;
-            }
-            set {
-                _buffer = value;
+                return _buffer.GetBytes();
             }
         }
 
-        internal int BufferOffset {
+        internal SCPClientChannelEventHandler ChannelEventHandler {
             get {
-                return _bufferOffset;
-            }
-            set {
-                _bufferOffset = value;
-            }
-        }
-
-        internal int BufferLength {
-            get {
-                return _bufferLength;
-            }
-            set {
-                _bufferLength = value;
-            }
-        }
-
-        internal SCPClientChannelEventReceiver ChannelReceiver {
-            get {
-                return _channelReceiver;
+                return _eventHandler;
             }
         }
 
@@ -173,23 +152,36 @@ namespace Granados.Poderosa.SCP {
         }
 
 #if UNITTEST
-        internal void OpenForTest(SSHChannel dummyChannel) {
+        internal void OpenForTest(ISSHChannel channel) {
             if (_status != StreamStatus.NotOpened)
                 throw new SCPClientInvalidStatusException();
 
-            SCPClientChannelEventReceiver channelReceiver =
-                new SCPClientChannelEventReceiver(
-                    new DataReceivedDelegate(OnDataReceived),
-                    new ChannelStatusChangedDelegate(OnChannelStatusChanged)
-                );
+            SCPClientChannelEventHandler eventHandler =
+                    new SCPClientChannelEventHandler(
+                        new DataReceivedDelegate(OnDataReceived),
+                        new ChannelStatusChangedDelegate(OnChannelStatusChanged)
+                    );
 
-            _channelReceiver = channelReceiver;
-            _channel = dummyChannel;
+            _eventHandler = eventHandler;
+            _channel = channel;
 
             lock (_statusSync) {
                 if (_status == StreamStatus.NotOpened) {
                     _status = StreamStatus.Opened;
                 }
+            }
+        }
+
+        internal void SetBuffer(int capacity) {
+            lock (_bufferSync) {
+                _buffer = new ByteBuffer(capacity, -1);
+            }
+        }
+
+        internal void SetBufferContent(byte[] bytes) {
+            lock (_bufferSync) {
+                _buffer.Clear();
+                _buffer.Append(bytes);
             }
         }
 #endif
