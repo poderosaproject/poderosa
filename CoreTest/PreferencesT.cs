@@ -23,6 +23,7 @@ using NUnit.Framework;
 using Poderosa.Preferences;
 using Poderosa.Plugins;
 using Poderosa.Boot;
+using Poderosa.TestUtils;
 
 namespace Poderosa.Preferences {
 
@@ -101,17 +102,22 @@ namespace Poderosa.Preferences {
             _testSupplier = s;
             _rootNote = expr == null ? CreateRoot() : CreateRoot(expr);
 
-            _poderosaApplication = PoderosaStartup.CreatePoderosaApplication(CreatePluginManifest(), new StructuredText(null, "Poderosa").AddChild(_rootNote));
+            _poderosaApplication = PoderosaStartup.CreatePoderosaApplication(
+                CreatePluginManifest(), new StructuredText("Poderosa").AddChild(_rootNote), new string[0]);
             _poderosaApplication.Start();
         }
 
         private string CreatePluginManifest() {
-            return String.Format("Root {{\r\n  {0} {{\r\n  plugin=Poderosa.Preferences.PreferenceTestPlugin\r\n  plugin=Poderosa.Preferences.PreferencePlugin\r\n}}\r\n}}", this.GetType().Assembly.CodeBase);
+            return String.Format("manifest {{\r\n  {0} {{\r\n  plugin={1}\r\n}}\r\n  {2} {{\r\n  plugin={3}\r\n}}\r\n}}",
+                Assembly.GetAssembly(typeof(PreferenceTestPlugin)).CodeBase,
+                "Poderosa.Preferences.PreferenceTestPlugin",
+                Assembly.GetAssembly(typeof(PreferencePlugin)).CodeBase,
+                "Poderosa.Preferences.PreferencePlugin");
         }
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void Init() {
-            //TODO PluginManifestのいくつかはここに入れることできそう
+            AssemblyUtil.SetEntryAssembly(typeof(PreferenceTests));
         }
 
         [Test]

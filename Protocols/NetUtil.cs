@@ -19,9 +19,6 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
-#if UNITTEST
-using NUnit.Framework;
-#endif
 
 namespace Poderosa.Protocols {
     //V4/V6それぞれ１つのアドレスを持ち、「両対応、ただし両方使えるときはV6優先」という性質をもつようにする
@@ -222,43 +219,4 @@ namespace Poderosa.Protocols {
         }
     }
 
-#if UNITTEST
-    [TestFixture]
-    public class NetUtilTests {
-        [Test]
-        public void TestTimeout() {
-            Exception e = null;
-            try {
-                Socket s = NetUtil.ConnectTCPSocket(new IPAddress46Pair(IPAddress.Parse("1.1.1.1")), 10); //接続できないはずのものをテスト
-            }
-            catch (Exception ex) {
-                e = ex;
-            }
-
-            Assert.IsTrue(e != null);
-            Assert.AreEqual("TIMEOUT", e.Message);
-        }
-
-        [Test]
-        public void TestSuccessful() {
-            Socket s = NetUtil.ConnectTCPSocket(new IPAddress46Pair(IPAddress.Loopback), 8888); //listenしてる適当なポートにつなぐ
-            Assert.IsTrue(s.Connected);
-        }
-
-        /*
-        [Test]
-        public void TestIPVersionPriority() {
-            IPAddress t1 = IPAddress46Pair.DetermineIPAddress(IPAddress.Loopback, IPAddress.IPv6Loopback, IPVersionPriority.PriorityV6);
-            Assert.IsTrue(t1.AddressFamily==AddressFamily.InterNetworkV6);
-            IPAddress t2 = IPAddress46Pair.DetermineIPAddress(IPAddress.Loopback, IPAddress.IPv6Loopback, IPVersionPriority.PriorityV4);
-            Assert.IsTrue(t2.AddressFamily==AddressFamily.InterNetwork);
-            //片方nullならそれは使わない
-            IPAddress t3 = IPAddress46Pair.DetermineIPAddress(null, IPAddress.IPv6Loopback, IPVersionPriority.PriorityV4);
-            Assert.IsTrue(t3.AddressFamily==AddressFamily.InterNetworkV6);
-            IPAddress t4 = IPAddress46Pair.DetermineIPAddress(IPAddress.Loopback, null, IPVersionPriority.PriorityV6);
-            Assert.IsTrue(t4.AddressFamily==AddressFamily.InterNetwork);
-        }
-        */
-    }
-#endif
 }

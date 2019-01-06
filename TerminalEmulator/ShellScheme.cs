@@ -20,10 +20,6 @@ using System.Diagnostics;
 using Poderosa.Preferences;
 using Poderosa.Util.Collections;
 
-#if UNITTEST
-using NUnit.Framework;
-#endif
-
 namespace Poderosa.Terminal {
 
     internal class ShellSchemeCollection : IShellSchemeCollection, IPreferenceSupplier {
@@ -150,6 +146,13 @@ namespace Poderosa.Terminal {
                 _data.Add(_defaultScheme);
             }
         }
+
+#if UNITTEST
+        internal void InitForTest() {
+            _defaultScheme = new GenericShellScheme(DEFAULT_SCHEME_NAME, GenericShellScheme.DEFAULT_PROMPT_REGEX);
+            _data.Add(_defaultScheme);
+        }
+#endif
 
         public void PreClose() {
             _preferenceFolderArray.Clear();
@@ -372,39 +375,5 @@ namespace Poderosa.Terminal {
             return TerminalEmulatorPlugin.Instance.PoderosaWorld.AdapterManager.GetAdapter(this, adapter);
         }
     }
-#if UNITTEST
-    [TestFixture]
-    public class ShellSchemeTests {
-        [Test]
-        public void ParseTests() {
-            GenericShellScheme g = new GenericShellScheme("generic", "");
-            Confirm(g.ParseCommandInput("a b c"), "a", "b", "c");
-            Confirm(g.ParseCommandInput(" a  b  c "), "a", "b", "c");
-            Confirm(g.ParseCommandInput("abc \"abc abc\""), "abc", "\"abc abc\"");
-            Confirm(g.ParseCommandInput(" abc \"abc abc "), "abc", "\"abc abc ");
-        }
-        private void Confirm(string[] actual, params string[] expected) {
-            Assert.AreEqual(expected.Length, actual.Length);
-            for (int i = 0; i < actual.Length; i++) {
-                Assert.AreEqual(expected[i], actual[i]);
-            }
-        }
-
-        [Test]
-        public void CommandListTests1() {
-            CommandListOne("a;b;c", "a", "b", "c");
-            CommandListOne("\\[a;b];b;c", "a;b", "b", "c");
-            CommandListOne("\\<a;[]b>;\\[a;b;c];c", "a;[]b", "a;b;c", "c");
-        }
-        private void CommandListOne(string input, params string[] expected) {
-            GenericShellScheme g = new GenericShellScheme("generic", "");
-            g.SetCommandList(input);
-            IntelliSenseItemCollection col = (IntelliSenseItemCollection)g.CommandHistory;
-            Confirm(col.ToStringArray(), expected);
-            Assert.AreEqual(input, g.FormatCommandList()); //再フォーマット
-        }
-
-    }
-#endif
 
 }

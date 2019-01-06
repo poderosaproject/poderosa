@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #if UNITTEST
+
+#if false   // Old tests
+
 using System;
 using System.Diagnostics;
 using System.Threading;
@@ -192,4 +195,6 @@ namespace Poderosa.Protocols {
         //TODO SOCKSサポート
     }
 }
+#endif
+
 #endif

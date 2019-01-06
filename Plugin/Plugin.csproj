@@ -70,7 +70,6 @@
     <Compile Include="ExtensionPoint.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="PluginEx.cs" />
-    <Compile Include="PluginT.cs" />
     <Compile Include="PoderosaLog.cs" />
     <Compile Include="PoderosaLogEx.cs" />
     <Compile Include="PoderosaStartup.cs" />

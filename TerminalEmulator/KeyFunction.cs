@@ -17,9 +17,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
 using System.Globalization;
-#if UNITTEST
-using NUnit.Framework;
-#endif
 
 using Poderosa.Util;
 
@@ -147,70 +144,5 @@ namespace Poderosa.Terminal {
             _datas = data;
         }
     }
-
-#if UNITTEST
-    [TestFixture]
-    public class KeyFunctionTests {
-        [Test]
-        public void SingleChar1() {
-            KeyFunction f = KeyFunction.Parse("C=0x03");
-            FixedStyleKeyFunction fs = f.ToFixedStyle();
-            Assert.AreEqual(1, fs._keys.Length);
-            Assert.AreEqual(1, fs._datas.Length);
-            Assert.AreEqual(Keys.C, fs._keys[0]);
-            Assert.AreEqual(1, fs._datas[0].Length);
-            Assert.AreEqual(3, (int)fs._datas[0][0]);
-        }
-
-        [Test]
-        public void SingleChar2() {
-            KeyFunction f = KeyFunction.Parse("Ctrl+6=0x1F");
-            FixedStyleKeyFunction fs = f.ToFixedStyle();
-            Assert.AreEqual(1, fs._keys.Length);
-            Assert.AreEqual(1, fs._datas.Length);
-            Assert.AreEqual(Keys.Control | Keys.D6, fs._keys[0]);
-            Assert.AreEqual(1, fs._datas[0].Length);
-            Assert.AreEqual(31, (int)fs._datas[0][0]);
-        }
-
-        [Test]
-        public void String1() {
-            KeyFunction f = KeyFunction.Parse("Ctrl+Question=0x010x020x1F0x7F");
-            FixedStyleKeyFunction fs = f.ToFixedStyle();
-            Assert.AreEqual(1, fs._keys.Length);
-            Assert.AreEqual(1, fs._datas.Length);
-            Assert.AreEqual(Keys.Control | Keys.OemQuestion, fs._keys[0]);
-            Assert.AreEqual(4, fs._datas[0].Length);
-            Assert.AreEqual(2, (int)fs._datas[0][1]);
-            Assert.AreEqual(127, (int)fs._datas[0][3]);
-
-            Assert.AreEqual("Ctrl+OemQuestion=0x010x020x1F0x7F", f.Format());
-        }
-        [Test]
-        public void String2() {
-            KeyFunction f = KeyFunction.Parse("Ctrl+Shift+L=ls -la");
-            FixedStyleKeyFunction fs = f.ToFixedStyle();
-            Assert.AreEqual(1, fs._keys.Length);
-            Assert.AreEqual(1, fs._datas.Length);
-            Assert.AreEqual(Keys.Control | Keys.Shift | Keys.L, fs._keys[0]);
-            Assert.AreEqual("ls -la", fs._datas[0]);
-
-            Assert.AreEqual("Ctrl+Shift+L=ls -la", f.Format());
-        }
-        [Test]
-        public void Multi1() {
-            KeyFunction f = KeyFunction.Parse("Ctrl+Shift+L=ls -la, Ctrl+Shift+F=find -name");
-            FixedStyleKeyFunction fs = f.ToFixedStyle();
-            Assert.AreEqual(2, fs._keys.Length);
-            Assert.AreEqual(2, fs._datas.Length);
-            Assert.AreEqual(Keys.Control | Keys.Shift | Keys.L, fs._keys[0]);
-            Assert.AreEqual(Keys.Control | Keys.Shift | Keys.F, fs._keys[1]);
-            Assert.AreEqual("ls -la", fs._datas[0]);
-            Assert.AreEqual("find -name", fs._datas[1]);
-
-            Assert.AreEqual("Ctrl+Shift+L=ls -la, Ctrl+Shift+F=find -name", f.Format());
-        }
-    }
-#endif
 
 }

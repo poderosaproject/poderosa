@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #if UNITTEST
+
+#if false   // Old tests
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -84,10 +87,10 @@ namespace Poderosa.Protocols
         }
 
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void Init() {
             try {
-                _poderosaApplication = PoderosaStartup.CreatePoderosaApplication(CreatePluginManifest(), new StructuredText("Poderosa"));
+                _poderosaApplication = PoderosaStartup.CreatePoderosaApplication(CreatePluginManifest(), new StructuredText("Poderosa"), new string[0]);
                 _poderosaWorld = _poderosaApplication.Start();
                 _protocolService = ProtocolsPlugin.Instance;
             }
@@ -96,7 +99,7 @@ namespace Poderosa.Protocols
             }
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void Terminate() {
             _poderosaApplication.Shutdown();
         }
@@ -214,4 +217,6 @@ namespace Poderosa.Protocols
         }
     }
 }
+#endif
+
 #endif

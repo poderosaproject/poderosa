@@ -18,10 +18,6 @@ using System.Text;
 using System.Diagnostics;
 
 using Granados;
-#if UNITTEST
-using System.IO;
-using NUnit.Framework;
-#endif
 
 using Poderosa.Serializing;
 using System.Globalization;
@@ -263,84 +259,4 @@ namespace Poderosa.Protocols {
 
     //TODO シリアルポート
 
-#if UNITTEST
-    [TestFixture]
-    public class TerminalParameterTests {
-
-        private TelnetParameterSerializer _telnetSerializer;
-        private SSHParameterSerializer _sshSerializer;
-        private LocalShellParameterSerializer _localShellSerializer;
-
-        [TestFixtureSetUp]
-        public void Init() {
-            _telnetSerializer = new TelnetParameterSerializer();
-            _sshSerializer = new SSHParameterSerializer();
-            _localShellSerializer = new LocalShellParameterSerializer();
-        }
-
-        [Test]
-        public void Telnet0() {
-            TelnetParameter p1 = new TelnetParameter();
-            StructuredText t = _telnetSerializer.Serialize(p1);
-            Assert.IsNull(t.Parent);
-            Assert.IsNull(t.Get("port"));
-            TelnetParameter p2 = (TelnetParameter)_telnetSerializer.Deserialize(t);
-            Assert.AreEqual(23, p2.Port);
-            Assert.AreEqual(TerminalParameter.DEFAULT_TERMINAL_TYPE, p2.TerminalType);
-        }
-        [Test]
-        public void Telnet1() {
-            TelnetParameter p1 = new TelnetParameter();
-            p1.SetTerminalName("TERMINAL");
-            p1.Port = 80;
-            p1.Destination = "DESTINATION";
-            StructuredText t = _telnetSerializer.Serialize(p1);
-            TelnetParameter p2 = (TelnetParameter)_telnetSerializer.Deserialize(t);
-            Assert.AreEqual(80, p2.Port);
-            Assert.AreEqual("TERMINAL", p2.TerminalType);
-            Assert.AreEqual("DESTINATION", p2.Destination);
-        }
-        [Test]
-        public void SSH0() {
-            SSHLoginParameter p1 = new SSHLoginParameter();
-            StructuredText t = _sshSerializer.Serialize(p1);
-            //確認
-            StringWriter wr = new StringWriter();
-            new TextStructuredTextWriter(wr).Write(t);
-            wr.Close();
-            Debug.WriteLine(wr.ToString());
-
-            Assert.IsNull(t.Get("port"));
-            Assert.IsNull(t.Get("method"));
-            Assert.IsNull(t.Get("authentication"));
-            Assert.IsNull(t.Get("identityFileName"));
-            SSHLoginParameter p2 = (SSHLoginParameter)_sshSerializer.Deserialize(t);
-            Assert.AreEqual(22, p2.Port);
-            Assert.AreEqual(SSHProtocol.SSH2, p2.Method);
-            Assert.AreEqual(AuthenticationType.Password, p2.AuthenticationType);
-            Assert.AreEqual("", p2.IdentityFileName);
-        }
-        [Test]
-        public void SSH1() {
-            SSHLoginParameter p1 = new SSHLoginParameter();
-            p1.Method = SSHProtocol.SSH1;
-            p1.Account = "account";
-            p1.IdentityFileName = "identity-file";
-            p1.AuthenticationType = AuthenticationType.PublicKey;
-
-            StructuredText t = _sshSerializer.Serialize(p1);
-            UnitTestUtil.DumpStructuredText(t);
-            //確認
-            Debug.WriteLine(UnitTestUtil.DumpStructuredText(t));
-
-            SSHLoginParameter p2 = (SSHLoginParameter)_sshSerializer.Deserialize(t);
-            Assert.AreEqual(SSHProtocol.SSH1, p2.Method);
-            Assert.AreEqual(AuthenticationType.PublicKey, p2.AuthenticationType);
-            Assert.AreEqual("identity-file", p2.IdentityFileName);
-            Assert.AreEqual("account", p2.Account);
-        }
-        //TODO CYGWIN
-        //TODO StructuredTextを手で作成し、本来ありえないデータが入っていてもちゃんと読めることをテスト
-    }
-#endif
 }
