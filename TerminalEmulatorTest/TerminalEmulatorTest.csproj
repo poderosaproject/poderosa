@@ -50,6 +50,9 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EscapeSequenceEngine\DfaTest.cs" />
+    <Compile Include="EscapeSequenceEngine\EscapeSequenceProcessorTest.cs" />
+    <Compile Include="EscapeSequenceEngine\PatternTest.cs" />
     <Compile Include="KeyFunction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShellScheme.cs" />

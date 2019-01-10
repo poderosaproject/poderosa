@@ -65,6 +65,14 @@
   </Target>
   -->
   <ItemGroup>
+    <Compile Include="EscapeSequenceEngine\DfaEngine.cs" />
+    <Compile Include="EscapeSequenceEngine\EscapeSequenceProcessor.cs" />
+    <Compile Include="EscapeSequenceEngine\DfaModels.cs" />
+    <Compile Include="EscapeSequenceEngine\EscapeSequenceContext.cs" />
+    <Compile Include="EscapeSequenceEngine\DfaEngineFactory.cs" />
+    <Compile Include="EscapeSequenceEngine\NfaManager.cs" />
+    <Compile Include="EscapeSequenceEngine\NfaModels.cs" />
+    <Compile Include="EscapeSequenceEngine\Pattern.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CharDecoder.cs" />
     <Compile Include="CommandResultEx.cs" />
