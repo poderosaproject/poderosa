@@ -30,6 +30,38 @@ namespace Poderosa.Terminal {
         }
     }
 
+    /// <summary>
+    /// Interface of a class that the <see cref="ICharDecoder"/> delegates
+    /// processing characters or errors to.
+    /// </summary>
+    internal interface ICharProcessor {
+
+        /// <summary>
+        /// Process a character
+        /// </summary>
+        /// <param name="ch">character</param>
+        void ProcessChar(char ch);
+
+        /// <summary>
+        /// Whether this instance want the immediately next character.
+        /// </summary>
+        bool NeedNextCharacter {
+            get;
+        }
+
+        /// <summary>
+        /// Called when unknown character set was specified in the escape-sequence.
+        /// </summary>
+        /// <param name="code">a character indicating the character set</param>
+        void UnsupportedCharSetDetected(char code);
+
+        /// <summary>
+        /// Called when the byte sequence was not able to decode in the current text encoding.
+        /// </summary>
+        /// <param name="data">byte sequence</param>
+        void InvalidCharDetected(byte[] data);
+    }
+
     internal class ISO2022CharDecoder : ICharDecoder {
 
         private class ByteProcessorBuffer {
@@ -304,7 +336,7 @@ namespace Poderosa.Terminal {
         }
 
         private void ProcessByte(byte b) {
-            if (_processor.State == ProcessCharResult.Escaping)
+            if (_processor.NeedNextCharacter)
                 _processor.ProcessChar((char)b);
             else {
                 if (_state == State.Normal && !IsControlChar(b) && _decoder.IsInterestingByte(b)) {
