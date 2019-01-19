@@ -267,7 +267,7 @@ namespace Poderosa.Terminal.EscapeSequenceEngine {
             /// <summary>
             /// Expected numerical parameters
             /// </summary>
-            public readonly int?[] ExpectedNumericalParams;
+            public readonly uint?[] ExpectedNumericalParams;
 
             /// <summary>
             /// Expected text parameter
@@ -275,10 +275,10 @@ namespace Poderosa.Terminal.EscapeSequenceEngine {
             public readonly string ExpectedTextParam;
 
             public DfaTestData()
-                : this(new byte[0], false, new int?[0], null) {
+                : this(new byte[0], false, new uint?[0], null) {
             }
 
-            private DfaTestData(byte[] bytes, bool isFailurePattern, int?[] expectedNumericalParams, string expectedTextParam) {
+            private DfaTestData(byte[] bytes, bool isFailurePattern, uint?[] expectedNumericalParams, string expectedTextParam) {
                 this.Bytes = bytes;
                 this.IsFailurePattern = isFailurePattern;
                 this.ExpectedNumericalParams = expectedNumericalParams;
@@ -301,7 +301,7 @@ namespace Poderosa.Terminal.EscapeSequenceEngine {
                     this.ExpectedTextParam);
             }
 
-            public DfaTestData AppendNumericalParams(int?[] paramValues, params byte[] bytes) {
+            public DfaTestData AppendNumericalParams(uint?[] paramValues, params byte[] bytes) {
                 return new DfaTestData(
                     ConcatArray(this.Bytes, bytes),
                     this.IsFailurePattern,
@@ -411,14 +411,14 @@ namespace Poderosa.Terminal.EscapeSequenceEngine {
                 //   1;<paramValue>;1
                 //   1;1;<paramValue>
                 foreach (string paramValue in validNumericalParamValues) {
-                    int? paramIntValue = (paramValue.Length == 0) ? (int?)null : Int32.Parse(paramValue);
+                    uint? paramIntValue = (paramValue.Length == 0) ? (uint?)null : UInt32.Parse(paramValue);
 
                     for (int i = 0; i < testParamNum; i++) {
                         string paramStr =
                         String.Join(";", Enumerable.Range(0, testParamNum).Select(index => (index == i) ? paramValue : "1"));
 
-                        int?[] expectedParamValues =
-                            Enumerable.Range(0, testParamNum).Select(index => (index == i) ? paramIntValue : 1).ToArray();
+                        uint?[] expectedParamValues =
+                            Enumerable.Range(0, testParamNum).Select(index => (index == i) ? paramIntValue : 1u).ToArray();
 
                         if (!expectedParamValues[expectedParamValues.Length - 1].HasValue) {
                             // last parameter will not be stored
@@ -437,7 +437,7 @@ namespace Poderosa.Terminal.EscapeSequenceEngine {
                     string paramStr = String.Concat(Enumerable.Repeat(";", testParamNum - 1));
 
                     // last parameter will not be stored
-                    int?[] expectedParamValues = Enumerable.Repeat((int?)null, testParamNum - 1).ToArray();
+                    uint?[] expectedParamValues = Enumerable.Repeat((uint?)null, testParamNum - 1).ToArray();
 
                     var newTestData = testData.AppendNumericalParams(expectedParamValues, Encoding.ASCII.GetBytes(paramStr));
                     foreach (var r in next(newTestData)) {
@@ -478,14 +478,14 @@ namespace Poderosa.Terminal.EscapeSequenceEngine {
                         continue;
                     }
 
-                    int? paramIntValue = (paramValue.Length == 0) ? (int?)null : Int32.Parse(paramValue);
+                    uint? paramIntValue = (paramValue.Length == 0) ? (uint?)null : UInt32.Parse(paramValue);
 
                     for (int i = 0; i < testParamNum; i++) {
 
                         string paramStr =
                             String.Join(";", Enumerable.Range(0, testParamNum).Select(index => (index == i) ? paramValue : "1"));
 
-                        int?[] expectedParamValues =
+                        uint?[] expectedParamValues =
                             Enumerable.Range(0, testParamNum).Select(index => (index == i) ? paramIntValue : 1).ToArray();
 
                         if (!expectedParamValues[expectedParamValues.Length - 1].HasValue) {
@@ -506,7 +506,7 @@ namespace Poderosa.Terminal.EscapeSequenceEngine {
                 string paramStr = String.Concat(Enumerable.Repeat(";", p.Number - 1));
 
                 // last parameter will not be stored
-                int?[] expectedParamValues = Enumerable.Repeat((int?)null, p.Number - 1).ToArray();
+                uint?[] expectedParamValues = Enumerable.Repeat((uint?)null, p.Number - 1).ToArray();
 
                 var newTestData = testData.AppendNumericalParams(expectedParamValues, Encoding.ASCII.GetBytes(paramStr));
                 foreach (var r in next(newTestData)) {

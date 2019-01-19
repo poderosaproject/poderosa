@@ -29,7 +29,7 @@ namespace Poderosa.Terminal.EscapeSequenceEngine {
     internal class NumericalParameter {
         private bool _isEmpty = true;
 
-        private int _value = 0;
+        private uint _value = 0;
 
         public bool IsEmpty {
             get {
@@ -37,15 +37,15 @@ namespace Poderosa.Terminal.EscapeSequenceEngine {
             }
         }
 
-        public int? Value {
+        public uint? Value {
             get {
-                return _isEmpty ? (int?)null : _value;
+                return _isEmpty ? (uint?)null : _value;
             }
         }
 
         public void AppendDigit(byte ch) {
             int n = ch - 0x30;
-            _value = _value * 10 + ((n >= 0 && n <= 9) ? n : 0);
+            _value = _value * 10u + ((n >= 0 && n <= 9) ? (uint)n : 0u);
             _isEmpty = false;
         }
     }
