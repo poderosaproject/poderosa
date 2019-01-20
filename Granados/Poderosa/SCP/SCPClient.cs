@@ -27,6 +27,7 @@ using Granados.IO;
 using Granados.IO.SSH2;
 using Granados.Util;
 using Granados.Poderosa.FileTransfer;
+using Granados.Poderosa.Util;
 
 namespace Granados.Poderosa.SCP {
 
@@ -117,6 +118,8 @@ namespace Granados.Poderosa.SCP {
         private int _defaultDirectoryPermissions = 0x1ed;   // 0755
 
         private int _protocolTimeout = 5000;
+
+        private readonly FilePathValidator _filePathValidator = new FilePathValidator();
 
         private static readonly byte[] ZERO = new byte[] { 0 };
         private static readonly DateTime EPOCH = new DateTime(1970, 1, 1, 0, 0, 0);
@@ -434,6 +437,8 @@ namespace Granados.Poderosa.SCP {
                 stream.Open(_connection, command, _protocolTimeout);
                 stream.Write(ZERO);
 
+                bool isFirstEntry = true;
+
                 while (true) {
                     byte[] lineBytes = stream.ReadUntil(LF, _protocolTimeout);
                     if (lineBytes[0] == 1 || lineBytes[0] == 2) {
@@ -450,6 +455,15 @@ namespace Granados.Poderosa.SCP {
                         catch (Exception e) {
                             SendError(stream, e.Message);
                             throw;
+                        }
+
+                        if (isFirstEntry) {
+                            // [CVE-2019-6109] [CVE-2019-6111]
+                            // first entry must match with the specified remote file name.
+                            if (!VerifyFileName(entry.Name, remotePath)) {
+                                throw new SCPClientException("Unexpected file name.");
+                            }
+                            isFirstEntry = false;
                         }
 
                         if (entry.IsDirectory) {
@@ -506,13 +520,25 @@ namespace Granados.Poderosa.SCP {
             if (localBasePath == null) {    // first creation
                 // use initialLocalPath
                 if (Directory.Exists(initialLocalPath))
-                    return Path.Combine(initialLocalPath, entry.Name);
+                    return Path.Combine(initialLocalPath, GetRelativePath(entry));
                 else
                     return initialLocalPath;
             }
             else {
-                return Path.Combine(localBasePath, entry.Name);
+                return Path.Combine(localBasePath, GetRelativePath(entry));
             }
+        }
+
+        private string GetRelativePath(SCPEntry entry) {
+            string relPath = entry.Name.Replace('/', '\\');
+            try {
+                // [CVE-2018-20685] [CVE-2019-6109] [CVE-2019-6111]
+                _filePathValidator.ValidateRelativePath(relPath, entry.IsDirectory);
+            }
+            catch (FilePathValidatorException e) {
+                throw new SCPClientException(e.Message, e);
+            }
+            return relPath;
         }
 
         private bool CreateDirectory(SCPChannelStream stream, string directoryPath, SCPModTime modTime,
@@ -712,6 +738,28 @@ namespace Granados.Poderosa.SCP {
 
         private string EscapeUnixPath(string path) {
             return Regex.Replace(path, @"[\\\][{}()<>|'"" ]", @"\$0");
+        }
+
+        /// <summary>
+        /// Verify file entry name.
+        /// </summary>
+        /// <param name="fileName">file name specified from the remote server.</param>
+        /// <param name="remotePath">file path specified to the remote server.</param>
+        /// <returns></returns>
+        private bool VerifyFileName(string fileName, string remotePath) {
+            // allow "./xxx" or ".\xxx"
+            string compFileName =
+                (fileName.StartsWith("./") || fileName.StartsWith(".\\")) ? fileName.Substring(2) : fileName;
+
+            // remotePath may end with "/" or "\"
+            string compRemotePath =
+                (remotePath.EndsWith("/") || remotePath.EndsWith("\\")) ?
+                    remotePath.Substring(0, remotePath.Length - 1) : remotePath;
+            int sep = compRemotePath.LastIndexOfAny(new char[] { '/', '\\' });
+            string compRemoteFileName =
+                (sep >= 0) ? compRemotePath.Substring(sep + 1) : compRemotePath;
+
+            return compFileName == compRemoteFileName;
         }
 
         private bool IsAscii(string s) {

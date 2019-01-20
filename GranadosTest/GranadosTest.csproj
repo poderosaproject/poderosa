@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Poderosa\KeyFormat\BERReader.cs" />
     <Compile Include="Poderosa\SCP\SCPChannelStreamTest.cs" />
+    <Compile Include="Poderosa\Util\FilePathValidatorTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
