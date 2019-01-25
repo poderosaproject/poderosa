@@ -530,14 +530,14 @@ namespace Granados.Poderosa.SCP {
         }
 
         private string GetRelativePath(SCPEntry entry) {
-            string relPath = entry.Name.Replace('/', '\\');
             try {
                 // [CVE-2018-20685] [CVE-2019-6109] [CVE-2019-6111]
-                _filePathValidator.ValidateRelativePath(relPath, entry.IsDirectory);
+                _filePathValidator.ValidateRelativeUnixPath(entry.Name, entry.IsDirectory);
             }
             catch (FilePathValidatorException e) {
                 throw new SCPClientException(e.Message, e);
             }
+            string relPath = entry.Name.Replace('/', '\\');
             return relPath;
         }
 
@@ -747,11 +747,11 @@ namespace Granados.Poderosa.SCP {
         /// <param name="remotePath">file path specified to the remote server.</param>
         /// <returns></returns>
         private bool VerifyFileName(string fileName, string remotePath) {
-            // allow "./xxx" or ".\xxx"
-            string compFileName =
-                (fileName.StartsWith("./") || fileName.StartsWith(".\\")) ? fileName.Substring(2) : fileName;
+            // allow "./xxx" for the file name
+            string compFileName = fileName.StartsWith("./") ? fileName.Substring(2) : fileName;
 
             // remotePath may end with "/" or "\"
+            // Note: remotePath can be Windows path if the remote server is running on Windows.
             string compRemotePath =
                 (remotePath.EndsWith("/") || remotePath.EndsWith("\\")) ?
                     remotePath.Substring(0, remotePath.Length - 1) : remotePath;

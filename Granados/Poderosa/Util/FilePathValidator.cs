@@ -37,13 +37,13 @@ namespace Granados.Poderosa.Util {
     internal class FilePathValidator {
 
         // assume windows environment
-        private readonly char[] _pathSeparators = { '/', '\\' };
-        private readonly Regex _inhibitedFileNameCharExceptSeparators = new Regex(@"[<>:""|?*\u0000-\u001f]");
+        private readonly char[] _pathSeparators = { '/' };
+        private readonly Regex _inhibitedFileNameCharExceptSeparators = new Regex(@"[\\<>:""|?*\u0000-\u001f]");
         private readonly Regex _inhibitedFileNameChar = new Regex(@"[/\\<>:""|?*\u0000-\u001f]");
         private readonly Regex _inhibitedFileName = new Regex(@"\A(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]|.*\u0020|.+\.|)\z", RegexOptions.IgnoreCase);
 
         /// <summary>
-        /// <para>Validate relative path.</para>
+        /// <para>Validate relative Unix path for using on Windows.</para>
         /// <para>
         /// The following paths are not allowed.
         /// <list type="bullet">
@@ -60,9 +60,9 @@ namespace Granados.Poderosa.Util {
         /// Single dot (".") is allowed as the directory name.
         /// </para>
         /// </summary>
-        /// <param name="path">file path or directory path</param>
+        /// <param name="path">file path or directory path.</param>
         /// <param name="isDirectory">true if the specified path was a directory path.</param>
-        public void ValidateRelativePath(string path, bool isDirectory) {
+        public void ValidateRelativeUnixPath(string path, bool isDirectory) {
             if (path == null) {
                 throw new FilePathValidatorException(path, isDirectory);
             }
@@ -82,7 +82,7 @@ namespace Granados.Poderosa.Util {
         }
 
         /// <summary>
-        /// <para>Validate file name.</para>
+        /// <para>Validate file name for using on Windows.</para>
         /// <para>
         /// The following file names are not allowed.
         /// <list type="bullet">

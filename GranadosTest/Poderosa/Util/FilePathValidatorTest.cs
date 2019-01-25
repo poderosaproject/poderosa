@@ -55,16 +55,16 @@ namespace Granados.Poderosa.Util {
         private readonly FilePathValidator validator = new FilePathValidator();
 
         //------------------------------------------------------
-        // ValidateRelativePath
+        // ValidateRelativeUnixPath
         //------------------------------------------------------
 
         [Test]
-        public void ValidateRelativePath_Null() {
+        public void ValidateRelativeUnixPath_Null() {
             Assert.Catch<FilePathValidatorException>(
-                () => validator.ValidateRelativePath(null, false)
+                () => validator.ValidateRelativeUnixPath(null, false)
             );
             Assert.Catch<FilePathValidatorException>(
-                () => validator.ValidateRelativePath(null, true)
+                () => validator.ValidateRelativeUnixPath(null, true)
             );
         }
 
@@ -103,101 +103,86 @@ namespace Granados.Poderosa.Util {
         [TestCase("a|b")]
         [TestCase("a?b")]
         [TestCase("a*b")]
-        public void ValidateRelativePath_InhibitedFileNames(string name) {
+        [TestCase("a\\b")]
+        public void ValidateRelativeUnixPath_InhibitedFileNames(string name) {
             Assert.Catch<FilePathValidatorException>(
-                () => validator.ValidateRelativePath(name, false)
+                () => validator.ValidateRelativeUnixPath(name, false)
             );
             Assert.Catch<FilePathValidatorException>(
-                () => validator.ValidateRelativePath(name, true)
+                () => validator.ValidateRelativeUnixPath(name, true)
             );
         }
 
         [TestCase(0)]
         [TestCase(1)]
         [TestCase(0x1f)]
-        public void ValidateRelativePath_InhibitedFileNames_Controls(int invalidCharCode) {
+        public void ValidateRelativeUnixPath_InhibitedFileNames_Controls(int invalidCharCode) {
             string name = "a" + Char.ToString((char)invalidCharCode) + "b";
             Assert.Catch<FilePathValidatorException>(
-                () => validator.ValidateRelativePath(name, false)
+                () => validator.ValidateRelativeUnixPath(name, false)
             );
             Assert.Catch<FilePathValidatorException>(
-                () => validator.ValidateRelativePath(name, true)
+                () => validator.ValidateRelativeUnixPath(name, true)
             );
         }
 
         [Test]
-        public void ValidateRelativePath_SingleDotAsFileName() {
+        public void ValidateRelativeUnixPath_SingleDotAsFileName() {
             Assert.Catch<FilePathValidatorException>(
-                () => validator.ValidateRelativePath(".", false)
+                () => validator.ValidateRelativeUnixPath(".", false)
             );
             Assert.Catch<FilePathValidatorException>(
-                () => validator.ValidateRelativePath("aaa/.", false)
+                () => validator.ValidateRelativeUnixPath("aaa/.", false)
             );
         }
 
         [Test]
-        public void ValidateRelativePath_SingleDotAsDirectoryName() {
-            validator.ValidateRelativePath(".", true);
-            validator.ValidateRelativePath("aaa/.", true);
-            validator.ValidateRelativePath("./aaa", false);
-            validator.ValidateRelativePath("./aaa", true);
+        public void ValidateRelativeUnixPath_SingleDotAsDirectoryName() {
+            validator.ValidateRelativeUnixPath(".", true);
+            validator.ValidateRelativeUnixPath("aaa/.", true);
+            validator.ValidateRelativeUnixPath("./aaa", false);
+            validator.ValidateRelativeUnixPath("./aaa", true);
             // no exception
         }
 
         [TestCase("/abc")]
-        [TestCase("\\abc")]
         [TestCase("abc/")]
-        [TestCase("abc\\")]
         [TestCase("abc//abc")]
-        [TestCase("abc\\\\abc")]
         [TestCase("../abc")]
-        [TestCase("..\\abc")]
         [TestCase("abc/..")]
-        [TestCase("abc\\..")]
         [TestCase("a./abc")]
-        [TestCase("a.\\abc")]
         [TestCase("abc/a.")]
-        [TestCase("abc\\a.")]
         [TestCase("abc /abc")]
-        [TestCase("abc \\abc")]
         [TestCase("abc/abc ")]
-        [TestCase("abc\\abc ")]
+        [TestCase("abc/a\\b")]
+        [TestCase("abc/a\\/b")]
+        [TestCase("abc/a\\..\\b")]
         [TestCase("NUL/abc")]
-        [TestCase("NUL\\abc")]
         [TestCase("abc/NUL")]
-        [TestCase("abc\\NUL")]
         [TestCase("a<b/abc")]
-        [TestCase("a<b\\abc")]
         [TestCase("abc/a<b")]
-        [TestCase("abc\\a<b")]
-        public void ValidateRelativePath_PathContainsInhibitedFileName(string name) {
+        public void ValidateRelativeUnixPath_PathContainsInhibitedFileName(string name) {
             Assert.Catch<FilePathValidatorException>(
-                () => validator.ValidateRelativePath(name, false)
+                () => validator.ValidateRelativeUnixPath(name, false)
             );
             Assert.Catch<FilePathValidatorException>(
-                () => validator.ValidateRelativePath(name, true)
+                () => validator.ValidateRelativeUnixPath(name, true)
             );
         }
 
         [TestCase("abc/a", 0, "b")]
         [TestCase("abc/a", 1, "b")]
         [TestCase("abc/a", 0x1f, "b")]
-        [TestCase("abc\\a", 0, "b")]
-        [TestCase("abc\\a", 1, "b")]
-        [TestCase("abc\\a", 0x1f, "b")]
         [TestCase("a", 0, "b/abc")]
         [TestCase("a", 1, "b/abc")]
         [TestCase("a", 0x1f, "b/abc")]
-        [TestCase("a", 0, "b\\abc")]
-        [TestCase("a", 1, "b\\abc")]
-        [TestCase("a", 0x1f, "b\\abc")]
-        public void ValidateRelativePath_PathContainsInhibitedFileName_Controls(string leading, int invalidCharCode, string trailing) {
+        public void ValidateRelativeUnixPath_PathContainsInhibitedFileName_Controls(string leading, int invalidCharCode, string trailing) {
             string s = leading + Char.ToString((char)invalidCharCode) + trailing;
             Assert.Catch<FilePathValidatorException>(
-                () => validator.ValidateRelativePath(s, false)
+                () => validator.ValidateRelativeUnixPath(s, false)
             );
             Assert.Catch<FilePathValidatorException>(
-                () => validator.ValidateRelativePath(s, true)
+                () => validator.ValidateRelativeUnixPath(s, true)
             );
         }
 
@@ -212,19 +197,17 @@ namespace Granados.Poderosa.Util {
         [TestCase("LPT")]
         [TestCase("LPT0")]
         [TestCase("LPT10")]
-        public void ValidateRelativePath_AllowedFileName(string name) {
-            validator.ValidateRelativePath(name, false);
-            validator.ValidateRelativePath(name, true);
+        public void ValidateRelativeUnixPath_AllowedFileName(string name) {
+            validator.ValidateRelativeUnixPath(name, false);
+            validator.ValidateRelativeUnixPath(name, true);
             // no exception
         }
 
         [TestCase("a/b/c")]
-        [TestCase("a\\b\\c")]
         [TestCase("a.b.c/a.b.c/a.b.c")]
-        [TestCase("a.b.c\\a.b.c\\a.b.c")]
-        public void ValidateRelativePath_AllowedPath(string path) {
-            validator.ValidateRelativePath(path, false);
-            validator.ValidateRelativePath(path, true);
+        public void ValidateRelativeUnixPath_AllowedPath(string path) {
+            validator.ValidateRelativeUnixPath(path, false);
+            validator.ValidateRelativeUnixPath(path, true);
             // no exception
         }
 
