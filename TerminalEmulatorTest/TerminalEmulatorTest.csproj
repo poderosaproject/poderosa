@@ -71,6 +71,10 @@
       <Project>{7f80731c-443a-4533-90d1-1643a5c1364e}</Project>
       <Name>TerminalEmulator</Name>
     </ProjectReference>
+    <ProjectReference Include="..\UI\UI.csproj">
+      <Project>{9568d8ac-7b55-42e0-acd7-204e397e7048}</Project>
+      <Name>UI</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
