@@ -12,19 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
-using Granados.Poderosa.SFTP;
 using Granados.Poderosa.FileTransfer;
-using Granados.SSH2;
-using System.Threading;
+using Granados.Poderosa.SFTP;
+using Granados.Poderosa.Util;
+using System;
 using System.Collections;
-using System.IO;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Text;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace Poderosa.SFTP {
 
@@ -532,9 +531,6 @@ namespace Poderosa.SFTP {
         }
 
         private bool SFTPDownload_DownloadRecursively(string remoteFilePath, string localDirectoryPath, ref bool overwite) {
-            string fileName = GetUnixPathFileName(remoteFilePath);
-            string localPath = Path.Combine(localDirectoryPath, fileName);  // local path to save
-
             SFTPFileAttributes fileAttr;
             try {
                 fileAttr = _sftp.GetFileInformations(remoteFilePath, false);
@@ -547,6 +543,11 @@ namespace Poderosa.SFTP {
                 Log("*** Warning: " + e.Message);
                 return true;    // skip
             }
+
+            string fileName = GetUnixPathFileName(remoteFilePath);
+            _sftp.ValidateLocalFileName(fileName, UnixPermissions.IsDirectory(fileAttr.Permissions));   // SFTPClientException may be thrown
+
+            string localPath = Path.Combine(localDirectoryPath, fileName);  // local path to save
 
             if (UnixPermissions.IsDirectory(fileAttr.Permissions)) {
                 if (!Directory.Exists(localPath))

@@ -109,6 +109,7 @@
     <Compile Include="EC.cs" />
     <Compile Include="ED.cs" />
     <Compile Include="KeyboardInteractive.cs" />
+    <Compile Include="Poderosa\Util\FilePathValidator.cs" />
     <Compile Include="X11Utils.cs" />
     <Compile Include="X11Socket.cs" />
     <Compile Include="X11Forwarding.cs" />
@@ -154,7 +155,6 @@
     <Compile Include="Poderosa\KeyFormat\PuTTYPrivateKeyLoader.cs" />
     <Compile Include="Poderosa\KeyFormat\SSH1PrivateKeyLoader.cs" />
     <Compile Include="Poderosa\KeyFormat\SSHComPrivateKeyLoader.cs" />
-    <Compile Include="Poderosa\SCP\SCPChannelStreamTest.cs" />
     <Compile Include="Poderosa\SCP\SCPClientException.cs" />
     <Compile Include="Poderosa\SCP\SCPClient.cs" />
     <Compile Include="Poderosa\SCP\SCPChannelStream.cs" />

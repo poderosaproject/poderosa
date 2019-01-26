@@ -17,11 +17,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 
-#if UNITTEST
-using System.IO;
-using NUnit.Framework;
-#endif
-
 using Poderosa.View;
 using Poderosa.Plugins;
 using Poderosa.ConnectionParam;
@@ -123,75 +118,4 @@ namespace Poderosa.Terminal {
 
     }
 
-#if UNITTEST
-    [TestFixture]
-    public class TerminalSettingsSerializeTests {
-
-        private TerminalSettingsSerializer _terminalSettingsSerializer;
-
-        [TestFixtureSetUp]
-        public void Init() {
-            _terminalSettingsSerializer = new TerminalSettingsSerializer();
-            EnumDescAttribute.AddResourceTable(typeof(EncodingType).Assembly, new StringResource("Poderosa.TerminalEmulator.strings", typeof(EncodingType).Assembly));
-        }
-
-        [Test]
-        public void Test0() {
-            TerminalSettings ts1 = new TerminalSettings();
-            StructuredText storage = _terminalSettingsSerializer.Serialize(ts1);
-            TerminalSettings ts2 = (TerminalSettings)_terminalSettingsSerializer.Deserialize(storage);
-
-            Assert.AreEqual(EncodingType.EUC_JP, ts1.Encoding);
-            Assert.AreEqual(false, ts1.LocalEcho);
-            Assert.AreEqual(NewLine.CR, ts1.TransmitNL);
-            Assert.AreEqual(LineFeedRule.Normal, ts1.LineFeedRule);
-            Assert.AreEqual(TerminalType.XTerm, ts1.TerminalType);
-
-            Assert.AreEqual(EncodingType.EUC_JP, ts2.Encoding);
-            Assert.AreEqual(false, ts2.LocalEcho);
-            Assert.AreEqual(NewLine.CR, ts2.TransmitNL);
-            Assert.AreEqual(LineFeedRule.Normal, ts2.LineFeedRule);
-            Assert.AreEqual(TerminalType.XTerm, ts2.TerminalType);
-        }
-
-        [Test]
-        public void Test1() {
-            TerminalSettings ts1 = new TerminalSettings();
-            ts1.BeginUpdate();
-            ts1.Encoding = EncodingType.SHIFT_JIS;
-            ts1.LocalEcho = true;
-            ts1.TransmitNL = NewLine.CRLF;
-            ts1.TerminalType = TerminalType.VT100;
-            ts1.EndUpdate();
-
-            StructuredText storage = _terminalSettingsSerializer.Serialize(ts1);
-            //確認
-            StringWriter wr = new StringWriter();
-            new TextStructuredTextWriter(wr).Write(storage);
-            wr.Close();
-            Debug.WriteLine(wr.ToString());
-
-            TerminalSettings ts2 = (TerminalSettings)_terminalSettingsSerializer.Deserialize(storage);
-
-            Assert.AreEqual(ts1.Encoding, ts2.Encoding);
-            Assert.AreEqual(ts1.LocalEcho, ts2.LocalEcho);
-            Assert.AreEqual(ts1.TransmitNL, ts2.TransmitNL);
-            Assert.AreEqual(ts1.LineFeedRule, ts2.LineFeedRule);
-            Assert.AreEqual(ts1.TerminalType, ts2.TerminalType);
-        }
-
-        [Test]
-        public void Test2() {
-            StringReader reader = new StringReader("Poderosa.Terminal.TerminalSettings {\r\n encoding=xxx\r\n localecho=xxx\r\n transmit-nl=xxx}");
-            StructuredText storage = new TextStructuredTextReader(reader).Read();
-
-            TerminalSettings ts = (TerminalSettings)_terminalSettingsSerializer.Deserialize(storage);
-            Assert.AreEqual(EncodingType.ISO8859_1, ts.Encoding);
-            Assert.AreEqual(false, ts.LocalEcho);
-            Assert.AreEqual(NewLine.CR, ts.TransmitNL);
-            Assert.AreEqual(LineFeedRule.Normal, ts.LineFeedRule);
-            Assert.AreEqual(TerminalType.XTerm, ts.TerminalType);
-        }
-    }
-#endif
 }

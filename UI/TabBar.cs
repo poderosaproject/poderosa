@@ -180,10 +180,7 @@ namespace Poderosa.Forms {
             _parentTable = parent;
             _buttons = new List<TabBarButton>();
             _tabToolTip = new ToolTip();
-            //例のAllowDrop問題で、NUnitのスレッドは[STAThread]してないらしいのでこれを回避
-#if !UNITTEST
             this.AllowDrop = true;
-#endif
             this.Height = UNITHEIGHT;
         }
         protected override void OnLoad(EventArgs e) {

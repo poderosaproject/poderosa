@@ -13,36 +13,43 @@
 // limitations under the License.
 
 #if UNITTEST
+using NUnit.Framework;
+using Poderosa.Boot;
+using Poderosa.Commands;
+using Poderosa.Plugins;
+using Poderosa.Preferences;
+using Poderosa.Sessions;
+using Poderosa.TestUtils;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics;
-using System.IO;
-using NUnit.Framework;
-
-using Poderosa;
-using Poderosa.Preferences;
-using Poderosa.Commands;
-using Poderosa.Forms;
-using Poderosa.UI;
-using Poderosa.Plugins;
-using Poderosa.Boot;
+using System.Reflection;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace Poderosa.Forms {
     [TestFixture]
+    [Apartment(ApartmentState.STA)]
     public class MainWindowMenuTests {
 
         private static IPoderosaApplication _poderosaApplication;
         private static IPoderosaWorld _poderosaWorld;
 
         private static string CreatePluginManifest() {
-            return String.Format("Root {{\r\n  {0} {{\r\n  plugin=Poderosa.Forms.MenuTestPlugin\r\n  plugin=Poderosa.Preferences.PreferencePlugin\r\n  plugin=Poderosa.Commands.CommandManagerPlugin\r\n  plugin=Poderosa.Forms.WindowManagerPlugin\r\n}}\r\n}}", "Poderosa.Monolithic.dll");
+            return String.Format("manifest {{\r\n  {0} {{\r\n  plugin={1}\r\n}}\r\n  {2} {{\r\n  plugin={3}\r\n  plugin={4}\r\n  plugin={5}\r\n}}\r\n}}",
+                Assembly.GetAssembly(typeof(MenuTestPlugin)).CodeBase,
+                "Poderosa.Forms.MenuTestPlugin",
+                Assembly.GetAssembly(typeof(PreferencePlugin)).CodeBase,
+                "Poderosa.Preferences.PreferencePlugin",
+                "Poderosa.Commands.CommandManagerPlugin",
+                "Poderosa.Forms.WindowManagerPlugin");
         }
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void Init() {
+            AssemblyUtil.SetEntryAssembly(typeof(MainWindowMenuTests));
             try {
-                _poderosaApplication = PoderosaStartup.CreatePoderosaApplication(CreatePluginManifest(), new StructuredText("Poderosa"));
+                _poderosaApplication = PoderosaStartup.CreatePoderosaApplication(CreatePluginManifest(), new StructuredText("Poderosa"), new string[0]);
                 _poderosaWorld = _poderosaApplication.Start();
             }
             catch (Exception ex) {
@@ -50,7 +57,7 @@ namespace Poderosa.Forms {
             }
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void Terminate() {
             _poderosaApplication.Shutdown();
         }
@@ -63,40 +70,45 @@ namespace Poderosa.Forms {
             //TODO 明示的にリロード強要はいやらしい
             wm.ReloadMenu();
 
-            GMainMenuItem fm = (GMainMenuItem)wm.MainWindows[0].AsForm().Menu.MenuItems[0];
-            Assert.AreEqual(3, fm.MenuItems.Count); //デリミタが入るので
-            Assert.AreEqual(caption, fm.MenuItems[0].Text);
-            Assert.AreEqual(caption, fm.MenuItems[2].Text);
+            Form form = wm.MainWindows[0].AsForm();
+            ToolStripDropDownItem fm = form.MainMenuStrip.Items[0] as ToolStripDropDownItem;
+            Assert.AreEqual(3, fm.DropDown.Items.Count); //デリミタが入るので
+            Assert.AreEqual(caption, fm.DropDown.Items[0].Text);
+            Assert.AreEqual(caption, fm.DropDown.Items[2].Text);
         }
 
         [Test]
         public void Test1_Enabled_checked() {
             string caption = "Init2";
-            MenuTestPlugin._instance.InitEnabledChecked(caption, false, true);
+            MenuTestPlugin._instance.InitEnabledChecked(caption, true, true);
             IWindowManager wm = (IWindowManager)_poderosaWorld.PluginManager.FindPlugin("org.poderosa.core.window", typeof(IWindowManager));
             wm.ReloadMenu();
 
-            GMainMenuItem fm = (GMainMenuItem)wm.MainWindows[0].AsForm().Menu.MenuItems[0];
-            Assert.AreEqual(caption, fm.MenuItems[0].Text);
-            Assert.IsTrue(fm.MenuItems[0].Checked);
-            Assert.IsFalse(fm.MenuItems[0].Enabled);
+            Form form = wm.MainWindows[0].AsForm();
+            ToolStripDropDownItem fm = form.MainMenuStrip.Items[0] as ToolStripDropDownItem;
+            Assert.AreEqual(caption, fm.DropDown.Items[0].Text);
+
+            fm.ShowDropDown();  // need for updating controls
+
+            Assert.IsTrue(((ToolStripMenuItem)fm.DropDown.Items[0]).Checked);
+            Assert.IsTrue(fm.DropDown.Items[0].Enabled);
         }
 
         [Test]
-        public void Test2_Popup() {
+        public void Test1_Disabled_checked() {
             string caption = "Init2";
             MenuTestPlugin._instance.InitEnabledChecked(caption, false, true);
             IWindowManager wm = (IWindowManager)_poderosaWorld.PluginManager.FindPlugin("org.poderosa.core.window", typeof(IWindowManager));
             wm.ReloadMenu();
 
-            GMainMenuItem fm = (GMainMenuItem)wm.MainWindows[0].AsForm().Menu.MenuItems[0];
-            Assert.IsTrue(fm.MenuItems[0].Checked);
-            Assert.IsFalse(fm.MenuItems[0].Enabled);
+            Form form = wm.MainWindows[0].AsForm();
+            ToolStripDropDownItem fm = form.MainMenuStrip.Items[0] as ToolStripDropDownItem;
+            Assert.AreEqual(caption, fm.DropDown.Items[0].Text);
 
-            MenuTestPlugin._instance.ResetEnabledChecked(true, false); //逆向き
-            fm.PerformPopup();
-            Assert.IsFalse(fm.MenuItems[0].Checked);
-            Assert.IsTrue(fm.MenuItems[0].Enabled);
+            fm.ShowDropDown();  // need for updating controls
+
+            Assert.IsFalse(((ToolStripMenuItem)fm.DropDown.Items[0]).Checked);
+            Assert.IsFalse(fm.DropDown.Items[0].Enabled);
         }
 
         [Test]
@@ -106,16 +118,18 @@ namespace Poderosa.Forms {
             IWindowManager wm = (IWindowManager)_poderosaWorld.PluginManager.FindPlugin("org.poderosa.core.window", typeof(IWindowManager));
             wm.ReloadMenu();
 
-            GMainMenuItem fm = (GMainMenuItem)wm.MainWindows[0].AsForm().Menu.MenuItems[0];
-            Assert.AreEqual(3, fm.MenuItems.Count);
+            Form form = wm.MainWindows[0].AsForm();
+            ToolStripDropDownItem fm = form.MainMenuStrip.Items[0] as ToolStripDropDownItem;
+            Assert.AreEqual(3, fm.DropDown.Items.Count);
 
             string caption2 = "Changed";
             MenuTestPlugin._instance.SetContent(caption2, 3);
-            fm.PerformPopup();
-            //VolatileなGroup2にのみ変更が反映されていることを確認
-            Assert.AreEqual(5, fm.MenuItems.Count);
-            Assert.AreEqual(caption, fm.MenuItems[0].Text);
-            Assert.AreEqual(caption2, fm.MenuItems[4].Text);
+
+            fm.ShowDropDown();  // need for updating controls
+
+            Assert.AreEqual(5, fm.DropDown.Items.Count);
+            Assert.AreEqual(caption2, fm.DropDown.Items[0].Text);
+            Assert.AreEqual(caption2, fm.DropDown.Items[4].Text);
         }
     }
 
@@ -251,6 +265,12 @@ namespace Poderosa.Forms {
             ep.RegisterExtension(_group1);
             ep.RegisterExtension(_group2);
             _instance = this;
+
+            foreach (IViewManagerFactory mf in
+                poderosa.PluginManager.FindExtensionPoint(WindowManagerConstants.MAINWINDOWCONTENT_ID).GetExtensions()) {
+
+                mf.DefaultViewFactory = new ViewFactoryForTest();
+            }
         }
 
         public void SetContent(string caption, int group2_item_count) {
@@ -267,6 +287,57 @@ namespace Poderosa.Forms {
             _group1.SetStatus(enabled, checked_);
         }
 
+        #region ViewFactoryForTest
+
+        private class ViewFactoryForTest : IViewFactory {
+
+            public IPoderosaView CreateNew(IPoderosaForm parent) {
+                return new PoderosaViewForTest();
+            }
+
+            public Type GetViewType() {
+                throw new NotImplementedException();
+            }
+
+            public Type GetDocumentType() {
+                throw new NotImplementedException();
+            }
+
+            public IAdaptable GetAdapter(Type adapter) {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class PoderosaViewForTest : Panel, IPoderosaView {
+
+            public IPoderosaDocument Document {
+                get {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public View.ISelection CurrentSelection {
+                get {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public IPoderosaForm ParentForm {
+                get {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public Control AsControl() {
+                return this;
+            }
+
+            public IAdaptable GetAdapter(Type adapter) {
+                return null;
+            }
+        }
+
+        #endregion
     }
 }
 #endif

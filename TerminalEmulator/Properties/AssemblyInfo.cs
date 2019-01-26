@@ -23,8 +23,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Core")]
-[assembly: AssemblyCopyright("Copyright (C) 2004-2017 Poderosa Project")]
+[assembly: AssemblyProduct("")]
+[assembly: AssemblyCopyright("Copyright (C) 2004-2019 Poderosa Project")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -39,3 +39,7 @@ using System.Runtime.InteropServices;
 // 既定値にすることができます:
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+
+#if UNITTEST
+[assembly: InternalsVisibleTo("Poderosa.TerminalEmulatorTest")]
+#endif
