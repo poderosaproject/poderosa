@@ -1,4 +1,12 @@
-﻿4.4.3
+﻿4.4.4
+-----
+    * Strict file name checks in SCP and SFTP for preventing attacks described in
+      https://sintonen.fi/advisories/scp-client-multiple-vulnerabilities.txt
+      (CVE-2018-20685, CVE-2019-6111, CVE-2019-6109)
+
+    * Code for unit testing were moved to the new test projects.
+
+4.4.3
 -----
     * Fixed bad connectability of the remote-port-forwarding,
       agent-forwarding and X11-forwarding.
