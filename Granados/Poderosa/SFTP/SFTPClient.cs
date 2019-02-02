@@ -15,19 +15,17 @@
 //#define DUMP_PACKET
 //#define TRACE_RECEIVER
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Diagnostics;
-using System.IO;
-
-using Granados.SSH2;
 using Granados.IO;
 using Granados.IO.SSH2;
-using Granados.Util;
 using Granados.Poderosa.FileTransfer;
-using Granados.SSH;
+using Granados.Poderosa.Util;
+using Granados.Util;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Granados.Poderosa.SFTP {
@@ -88,6 +86,8 @@ namespace Granados.Poderosa.SFTP {
         private uint _requestId = 0;
 
         private bool _closed = false;
+
+        private readonly FilePathValidator _filePathValidator = new FilePathValidator();
 
         #endregion
 
@@ -655,7 +655,8 @@ namespace Granados.Poderosa.SFTP {
                             int length = ReadFile(requestId, handle, transmitted, buffSize, df.Data);
                             if (length == 0) {
                                 df = null;  // end of file
-                            } else {
+                            }
+                            else {
                                 df.SetLength(0, length);
                             }
 
@@ -880,6 +881,29 @@ namespace Granados.Poderosa.SFTP {
 
             if (pendingException != null) {
                 throw new SFTPClientException(pendingException.Message, pendingException);
+            }
+        }
+
+        #endregion
+
+        #region Local File Path Utility
+
+        /// <summary>
+        /// Validate name of a local file to create.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="SFTPClient"/> doesn't manage the local file structure.
+        /// This method only provides validation which is used in the <see cref="SCPClient"/>.
+        /// </remarks>
+        /// <param name="name">file name or directory name</param>
+        /// <param name="isDirectory">true if the specified name was a directory name.</param>
+        /// <exception cref="SFTPClientException">Error.</exception>
+        public void ValidateLocalFileName(string name, bool isDirectory) {
+            try {
+                _filePathValidator.ValidateFileName(name, isDirectory);
+            }
+            catch (FilePathValidatorException e) {
+                throw new SFTPClientException(e.Message, e);
             }
         }
 
