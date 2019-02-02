@@ -45,8 +45,6 @@ namespace Poderosa.Terminal {
             Sgr,
         }
 
-        private int _savedRow;
-        private int _savedCol;
         protected bool _insertMode;
         protected bool _scrollRegionRelative;
 
