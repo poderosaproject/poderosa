@@ -366,8 +366,16 @@ namespace Poderosa.Terminal {
             return false;
         }
 
-        public virtual bool GetFocusReportingMode() {
-            return false;
+        /// <summary>
+        /// Handle focus-in event.
+        /// </summary>
+        public virtual void OnGotFocus() {
+        }
+
+        /// <summary>
+        /// Handle focus-out event.
+        /// </summary>
+        public virtual void OnLostFocus() {
         }
 
         #region IByteAsyncInputStream

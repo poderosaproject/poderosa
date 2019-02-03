@@ -31,20 +31,6 @@ using Poderosa.Preferences;
 namespace Poderosa.Terminal {
     internal class XTerm : AbstractTerminal {
 
-        private enum MouseTrackingState {
-            Off,
-            Normal,
-            Drag,
-            Any,
-        }
-
-        private enum MouseTrackingProtocol {
-            Normal,
-            Utf8,
-            Urxvt,
-            Sgr,
-        }
-
         private class ControlCode {
             public const char NUL = '\u0000';
             public const char BEL = '\u0007';
@@ -70,7 +56,7 @@ namespace Poderosa.Terminal {
         private bool _wrapAroundMode;
         private bool _reverseVideo;
         private bool[] _tabStops;
-        private readonly List<GLine>[] _savedScreen = new List<GLine>[2];	// { main, alternate } 別のバッファに移行したときにGLineを退避しておく
+        private readonly List<GLine>[] _savedScreen = new List<GLine>[2];	// { main, alternate }
         private bool _isAlternateBuffer;
         private bool _savedMode_isAlternateBuffer;
         private readonly int[] _xtermSavedRow = new int[2];	// { main, alternate }
@@ -81,16 +67,8 @@ namespace Poderosa.Terminal {
         private readonly byte[] _bracketedPasteModeTrailingBytes = new byte[] { 0x1b, (byte)'[', (byte)'2', (byte)'0', (byte)'1', (byte)'~' };
         private readonly byte[] _bracketedPasteModeEmptyBytes = new byte[0];
 
-        private MouseTrackingState _mouseTrackingState = MouseTrackingState.Off;
-        private MouseTrackingProtocol _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
-        private bool _focusReportingMode = false;
-        private int _prevMouseRow = -1;
-        private int _prevMouseCol = -1;
-        private MouseButtons _mouseButton = MouseButtons.None;
-
-        private const int MOUSE_POS_LIMIT = 255 - 32;       // mouse position limit
-        private const int MOUSE_POS_EXT_LIMIT = 2047 - 32;  // mouse position limit in extended mode
-        private const int MOUSE_POS_EXT_START = 127 - 32;   // mouse position to start using extended format
+        private readonly MouseTrackingManager _mouseTracking;
+        private readonly FocusReportingManager _focusReporting;
 
         public XTerm(TerminalInitializeInfo info)
             : base(info) {
@@ -105,6 +83,9 @@ namespace Poderosa.Terminal {
             _isAlternateBuffer = false;
             _savedMode_isAlternateBuffer = false;
             InitTabStops();
+
+            _mouseTracking = new MouseTrackingManager(this);
+            _focusReporting = new FocusReportingManager(this);
         }
 
         protected override void ResetInternal() {
@@ -112,10 +93,6 @@ namespace Poderosa.Terminal {
             _processCharResult = ProcessCharResult.Processed;
             _insertMode = false;
             _scrollRegionRelative = false;
-        }
-
-        public override bool GetFocusReportingMode() {
-            return _focusReportingMode;
         }
 
         internal override byte[] GetPasteLeadingBytes() {
@@ -249,222 +226,21 @@ namespace Poderosa.Terminal {
         }
 
         public override bool ProcessMouse(TerminalMouseAction action, MouseButtons button, Keys modKeys, int row, int col) {
-            MouseTrackingState currentState = _mouseTrackingState;  // copy value because _mouseTrackingState may be changed in another thread.
 
-            if (currentState == MouseTrackingState.Off) {
-                _prevMouseRow = -1;
-                _prevMouseCol = -1;
-                switch (action) {
-                    case TerminalMouseAction.ButtonUp:
-                    case TerminalMouseAction.ButtonDown:
-                        _mouseButton = MouseButtons.None;
-                        break;
-                }
-                return false;
-            }
+            return _mouseTracking.ProcessMouse(
+                        action: action,
+                        button: button,
+                        modKeys: modKeys,
+                        row: row,
+                        col: col);
+        }
 
-            // Note: from here, return value must be true even if nothing has been processed actually.
+        public override void OnGotFocus() {
+            _focusReporting.OnGotFocus();
+        }
 
-            MouseTrackingProtocol protocol = _mouseTrackingProtocol; // copy value because _mouseTrackingProtocol may be changed in another thread.
-
-            int posLimit = protocol == MouseTrackingProtocol.Normal ? MOUSE_POS_LIMIT : MOUSE_POS_EXT_LIMIT;
-
-            if (row < 0)
-                row = 0;
-            else if (row > posLimit)
-                row = posLimit;
-
-            if (col < 0)
-                col = 0;
-            else if (col > posLimit)
-                col = posLimit;
-
-            int statBits;
-            switch (action) {
-                case TerminalMouseAction.ButtonDown:
-                    if (_mouseButton != MouseButtons.None)
-                        return true;    // another button is already pressed
-
-                    switch (button) {
-                        case MouseButtons.Left:
-                            statBits = 0x00;
-                            break;
-                        case MouseButtons.Middle:
-                            statBits = 0x01;
-                            break;
-                        case MouseButtons.Right:
-                            statBits = 0x02;
-                            break;
-                        default:
-                            return true;    // unsupported button
-                    }
-
-                    _mouseButton = button;
-                    break;
-
-                case TerminalMouseAction.ButtonUp:
-                    if (button != _mouseButton)
-                        return true;    // ignore
-
-                    if (protocol == MouseTrackingProtocol.Sgr) {
-                        switch (button) {
-                            case MouseButtons.Left:
-                                statBits = 0x00;
-                                break;
-                            case MouseButtons.Middle:
-                                statBits = 0x01;
-                                break;
-                            case MouseButtons.Right:
-                                statBits = 0x02;
-                                break;
-                            default:
-                                return true;    // unsupported button
-                        }
-                    }
-                    else {
-                        statBits = 0x03;
-                    }
-
-                    _mouseButton = MouseButtons.None;
-                    break;
-
-                case TerminalMouseAction.WheelUp:
-                    statBits = 0x40;
-                    break;
-
-                case TerminalMouseAction.WheelDown:
-                    statBits = 0x41;
-                    break;
-
-                case TerminalMouseAction.MouseMove:
-                    if (currentState != MouseTrackingState.Any && currentState != MouseTrackingState.Drag)
-                        return true;    // no need to send
-
-                    if (currentState == MouseTrackingState.Drag && _mouseButton == MouseButtons.None)
-                        return true;    // no need to send
-
-                    if (row == _prevMouseRow && col == _prevMouseCol)
-                        return true;    // no need to send
-
-                    switch (_mouseButton) {
-                        case MouseButtons.Left:
-                            statBits = 0x20;
-                            break;
-                        case MouseButtons.Middle:
-                            statBits = 0x21;
-                            break;
-                        case MouseButtons.Right:
-                            statBits = 0x22;
-                            break;
-                        default:
-                            statBits = 0x20;
-                            break;
-                    }
-                    break;
-
-                default:
-                    return true;    // unknown action
-            }
-
-            if ((modKeys & Keys.Shift) != Keys.None)
-                statBits |= 0x04;
-
-            if ((modKeys & Keys.Alt) != Keys.None)
-                statBits |= 0x08;   // Meta key
-
-            if ((modKeys & Keys.Control) != Keys.None)
-                statBits |= 0x10;
-
-            if (protocol != MouseTrackingProtocol.Sgr)
-                statBits += 0x20;
-
-            _prevMouseRow = row;
-            _prevMouseCol = col;
-
-            byte[] data;
-            int dataLen;
-
-            switch (protocol) {
-
-                case MouseTrackingProtocol.Normal:
-                    data = new byte[] {
-                        (byte)27, // ESCAPE
-                        (byte)91, // [
-                        (byte)77, // M
-                        (byte)statBits,
-                        (col == posLimit) ?
-                            (byte)0 :                   // emulate xterm's bug
-                            (byte)(col + (1 + 0x20)),   // column 0 --> send as 1
-                        (row == posLimit) ?
-                            (byte)0 :                   // emulate xterm's bug
-                            (byte)(row + (1 + 0x20)),   // row 0 --> send as 1
-                    };
-                    dataLen = 6;
-                    break;
-
-                case MouseTrackingProtocol.Utf8:
-                    data = new byte[8] {
-                        (byte)27, // ESCAPE
-                        (byte)91, // [
-                        (byte)77, // M
-                        (byte)statBits,
-                        0,0,0,0,
-                    };
-
-                    dataLen = 4;
-
-                    if (col < MOUSE_POS_EXT_START)
-                        data[dataLen++] = (byte)(col + (1 + 0x20));     // column 0 --> send as 1
-                    else { // encode in UTF-8
-                        int val = col + 1 + 0x20;
-                        data[dataLen++] = (byte)(0xc0 + (val >> 6));
-                        data[dataLen++] = (byte)(0x80 + (val & 0x3f));
-                    }
-
-                    if (row < MOUSE_POS_EXT_START)
-                        data[dataLen++] = (byte)(row + (1 + 0x20));     // row 0 --> send as 1
-                    else { // encode in UTF-8
-                        int val = row + (1 + 0x20);
-                        data[dataLen++] = (byte)(0xc0 + (val >> 6));
-                        data[dataLen++] = (byte)(0x80 + (val & 0x3f));
-                    }
-                    break;
-
-                case MouseTrackingProtocol.Urxvt:
-                    data = Encoding.ASCII.GetBytes(
-                        new StringBuilder()
-                            .Append("\x1b[")
-                            .Append(statBits.ToString(NumberFormatInfo.InvariantInfo))
-                            .Append(';')
-                            .Append((col + 1).ToString(NumberFormatInfo.InvariantInfo))
-                            .Append(';')
-                            .Append((row + 1).ToString(NumberFormatInfo.InvariantInfo))
-                            .Append("M")
-                            .ToString());
-                    dataLen = data.Length;
-                    break;
-
-                case MouseTrackingProtocol.Sgr:
-                    data = Encoding.ASCII.GetBytes(
-                        new StringBuilder()
-                            .Append("\x1b[<")
-                            .Append(statBits.ToString(NumberFormatInfo.InvariantInfo))
-                            .Append(';')
-                            .Append((col + 1).ToString(NumberFormatInfo.InvariantInfo))
-                            .Append(';')
-                            .Append((row + 1).ToString(NumberFormatInfo.InvariantInfo))
-                            .Append(action == TerminalMouseAction.ButtonUp ? 'm' : 'M')
-                            .ToString());
-                    dataLen = data.Length;
-                    break;
-
-                default:
-                    return true;    // unknown protocol
-            }
-
-            TransmitDirect(data, 0, dataLen);
-
-            return true;
+        public override void OnLostFocus() {
+            _focusReporting.OnLostFocus();
         }
 
         protected ProcessCharResult ProcessNormalUnicodeChar(UnicodeChar ch) {
@@ -1442,44 +1218,41 @@ namespace Poderosa.Terminal {
                     }
                     return ProcessCharResult.Processed;
                 case "1000": // DEC VT200 compatible: Send button press and release event with mouse position.
-                    ResetMouseTracking((set) ? MouseTrackingState.Normal : MouseTrackingState.Off);
+                    ResetMouseTracking(set ?
+                        MouseTrackingManager.MouseTrackingState.Normal :
+                        MouseTrackingManager.MouseTrackingState.Off);
                     return ProcessCharResult.Processed;
                 case "1001": // DEC VT200 highlight tracking
                     // Not supported
-                    ResetMouseTracking(MouseTrackingState.Off);
+                    ResetMouseTracking(MouseTrackingManager.MouseTrackingState.Off);
                     return ProcessCharResult.Processed;
                 case "1002": // Button-event tracking: Send button press, release, and drag event.
-                    ResetMouseTracking((set) ? MouseTrackingState.Drag : MouseTrackingState.Off);
+                    ResetMouseTracking(set ?
+                        MouseTrackingManager.MouseTrackingState.Drag :
+                        MouseTrackingManager.MouseTrackingState.Off);
                     return ProcessCharResult.Processed;
                 case "1003": // Any-event tracking: Send button press, release, and motion.
-                    ResetMouseTracking((set) ? MouseTrackingState.Any : MouseTrackingState.Off);
+                    ResetMouseTracking(set ?
+                        MouseTrackingManager.MouseTrackingState.Any :
+                        MouseTrackingManager.MouseTrackingState.Off);
                     return ProcessCharResult.Processed;
                 case "1004": // Send FocusIn/FocusOut events
-                    _focusReportingMode = set;
+                    _focusReporting.SetFocusReportingMode(set);
                     return ProcessCharResult.Processed;
                 case "1005": // Enable UTF8 Mouse Mode
-                    if (set) {
-                        _mouseTrackingProtocol = MouseTrackingProtocol.Utf8;
-                    }
-                    else {
-                        _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
-                    }
+                    SetMouseTrackingProtocol(set ?
+                        MouseTrackingManager.MouseTrackingProtocol.Utf8 :
+                        MouseTrackingManager.MouseTrackingProtocol.Normal);
                     return ProcessCharResult.Processed;
                 case "1006": // Enable SGR Extended Mouse Mode
-                    if (set) {
-                        _mouseTrackingProtocol = MouseTrackingProtocol.Sgr;
-                    }
-                    else {
-                        _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
-                    }
+                    SetMouseTrackingProtocol(set ?
+                        MouseTrackingManager.MouseTrackingProtocol.Sgr :
+                        MouseTrackingManager.MouseTrackingProtocol.Normal);
                     return ProcessCharResult.Processed;
                 case "1015": // Enable UTF8 Extended Mouse Mode
-                    if (set) {
-                        _mouseTrackingProtocol = MouseTrackingProtocol.Urxvt;
-                    }
-                    else {
-                        _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
-                    }
+                    SetMouseTrackingProtocol(set ?
+                        MouseTrackingManager.MouseTrackingProtocol.Urxvt :
+                        MouseTrackingManager.MouseTrackingProtocol.Normal);
                     return ProcessCharResult.Processed;
                 case "1034":	// Input 8 bits
                     return ProcessCharResult.Processed;
@@ -1533,18 +1306,12 @@ namespace Poderosa.Terminal {
             return ProcessCharResult.Processed;
         }
 
-        private void ResetMouseTracking(MouseTrackingState newState) {
-            if (newState != MouseTrackingState.Off) {
-                if (_mouseTrackingState == MouseTrackingState.Off) {
-                    SetDocumentCursor(Cursors.Arrow);
-                }
-            }
-            else {
-                if (_mouseTrackingState != MouseTrackingState.Off) {
-                    ResetDocumentCursor();
-                }
-            }
-            _mouseTrackingState = newState;
+        private void ResetMouseTracking(MouseTrackingManager.MouseTrackingState newState) {
+            _mouseTracking.SetMouseTrackingState(newState);
+        }
+
+        private void SetMouseTrackingProtocol(MouseTrackingManager.MouseTrackingProtocol newProtocol) {
+            _mouseTracking.SetMouseTrackingProtocol(newProtocol);
         }
 
         private void ProcessLinePositionAbsolute(string param) {
@@ -2147,6 +1914,363 @@ namespace Poderosa.Terminal {
                 _settings.EndUpdate();
             }
         }
+
+        #region MouseTrackingManager
+
+        /// <summary>
+        /// Management of the mouse tracking.
+        /// </summary>
+        private class MouseTrackingManager {
+
+            public enum MouseTrackingState {
+                Off,
+                Normal,
+                Drag,
+                Any,
+            }
+
+            public enum MouseTrackingProtocol {
+                Normal,
+                Utf8,
+                Urxvt,
+                Sgr,
+            }
+
+            private readonly XTerm _term;
+
+            private MouseTrackingState _mouseTrackingState = MouseTrackingState.Off;
+            private MouseTrackingProtocol _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
+            private int _prevMouseRow = -1;
+            private int _prevMouseCol = -1;
+            private MouseButtons _mouseButton = MouseButtons.None;
+
+            private const int MOUSE_POS_LIMIT = 255 - 32;       // mouse position limit
+            private const int MOUSE_POS_EXT_LIMIT = 2047 - 32;  // mouse position limit in extended mode
+            private const int MOUSE_POS_EXT_START = 127 - 32;   // mouse position to start using extended format
+
+            public MouseTrackingManager(XTerm term) {
+                _term = term;
+            }
+
+            /// <summary>
+            /// Set mouse tracking state.
+            /// </summary>
+            /// <param name="newState">new state</param>
+            public void SetMouseTrackingState(MouseTrackingState newState) {
+                if (_mouseTrackingState == newState) {
+                    return;
+                }
+
+                _mouseTrackingState = newState;
+
+                if (newState == MouseTrackingManager.MouseTrackingState.Off) {
+                    _term.ResetDocumentCursor();
+                }
+                else {
+                    _term.SetDocumentCursor(Cursors.Arrow);
+                }
+            }
+
+            /// <summary>
+            /// Set mouse tracking protocol.
+            /// </summary>
+            /// <param name="newProtocol">new protocol</param>
+            public void SetMouseTrackingProtocol(MouseTrackingProtocol newProtocol) {
+                _mouseTrackingProtocol = newProtocol;
+            }
+
+            /// <summary>
+            /// Hande mouse action.
+            /// </summary>
+            /// <param name="action">Action type</param>
+            /// <param name="button">Which mouse button caused the event</param>
+            /// <param name="modKeys">Modifier keys (Shift, Ctrl or Alt) being pressed</param>
+            /// <param name="row">Row index (zero based)</param>
+            /// <param name="col">Column index (zero based)</param>
+            public bool ProcessMouse(TerminalMouseAction action, MouseButtons button, Keys modKeys, int row, int col) {
+
+                MouseTrackingState currentState = _mouseTrackingState;  // copy value because _mouseTrackingState may be changed in non-UI thread.
+
+                if (currentState == MouseTrackingState.Off) {
+                    _prevMouseRow = -1;
+                    _prevMouseCol = -1;
+                    switch (action) {
+                        case TerminalMouseAction.ButtonUp:
+                        case TerminalMouseAction.ButtonDown:
+                            _mouseButton = MouseButtons.None;
+                            break;
+                    }
+                    return false;
+                }
+
+                // Note: from here, mouse event is consumed even if nothing has been processed actually.
+
+                MouseTrackingProtocol protocol = _mouseTrackingProtocol; // copy value because _mouseTrackingProtocol may be changed in non-UI thread.
+
+                int posLimit = protocol == MouseTrackingProtocol.Normal ? MOUSE_POS_LIMIT : MOUSE_POS_EXT_LIMIT;
+
+                if (row < 0)
+                    row = 0;
+                else if (row > posLimit)
+                    row = posLimit;
+
+                if (col < 0)
+                    col = 0;
+                else if (col > posLimit)
+                    col = posLimit;
+
+                int statBits;
+                switch (action) {
+                    case TerminalMouseAction.ButtonDown:
+                        if (_mouseButton != MouseButtons.None) {
+                            return true;    // another button is already pressed
+                        }
+
+                        switch (button) {
+                            case MouseButtons.Left:
+                                statBits = 0x00;
+                                break;
+                            case MouseButtons.Middle:
+                                statBits = 0x01;
+                                break;
+                            case MouseButtons.Right:
+                                statBits = 0x02;
+                                break;
+                            default:
+                                return true;    // unsupported button
+                        }
+
+                        _mouseButton = button;
+                        break;
+
+                    case TerminalMouseAction.ButtonUp:
+                        if (button != _mouseButton) {
+                            return true;    // ignore
+                        }
+
+                        if (protocol == MouseTrackingProtocol.Sgr) {
+                            switch (button) {
+                                case MouseButtons.Left:
+                                    statBits = 0x00;
+                                    break;
+                                case MouseButtons.Middle:
+                                    statBits = 0x01;
+                                    break;
+                                case MouseButtons.Right:
+                                    statBits = 0x02;
+                                    break;
+                                default:
+                                    return true;    // unsupported button
+                            }
+                        }
+                        else {
+                            statBits = 0x03;
+                        }
+
+                        _mouseButton = MouseButtons.None;
+                        break;
+
+                    case TerminalMouseAction.WheelUp:
+                        statBits = 0x40;
+                        break;
+
+                    case TerminalMouseAction.WheelDown:
+                        statBits = 0x41;
+                        break;
+
+                    case TerminalMouseAction.MouseMove:
+                        if (currentState != MouseTrackingState.Any && currentState != MouseTrackingState.Drag) {
+                            return true;    // no need to send
+                        }
+
+                        if (currentState == MouseTrackingState.Drag && _mouseButton == MouseButtons.None) {
+                            return true;    // no need to send
+                        }
+
+                        if (row == _prevMouseRow && col == _prevMouseCol) {
+                            return true;    // no need to send
+                        }
+
+                        switch (_mouseButton) {
+                            case MouseButtons.Left:
+                                statBits = 0x20;
+                                break;
+                            case MouseButtons.Middle:
+                                statBits = 0x21;
+                                break;
+                            case MouseButtons.Right:
+                                statBits = 0x22;
+                                break;
+                            default:
+                                statBits = 0x20;
+                                break;
+                        }
+                        break;
+
+                    default:
+                        return true;    // unknown action
+                }
+
+                if ((modKeys & Keys.Shift) != Keys.None) {
+                    statBits |= 0x04;
+                }
+
+                if ((modKeys & Keys.Alt) != Keys.None) {
+                    statBits |= 0x08;   // Meta key
+                }
+
+                if ((modKeys & Keys.Control) != Keys.None) {
+                    statBits |= 0x10;
+                }
+
+                if (protocol != MouseTrackingProtocol.Sgr) {
+                    statBits += 0x20;
+                }
+
+                _prevMouseRow = row;
+                _prevMouseCol = col;
+
+                byte[] data;
+                int dataLen;
+
+                switch (protocol) {
+
+                    case MouseTrackingProtocol.Normal: {
+                            data = new byte[] {
+                                (byte)27, // ESCAPE
+                                (byte)91, // [
+                                (byte)77, // M
+                                (byte)statBits,
+                                (col == posLimit) ?
+                                    (byte)0 :                   // emulate xterm's bug
+                                    (byte)(col + (1 + 0x20)),   // column 0 --> send as 1
+                                (row == posLimit) ?
+                                    (byte)0 :                   // emulate xterm's bug
+                                    (byte)(row + (1 + 0x20)),   // row 0 --> send as 1
+                            };
+                            dataLen = data.Length;
+                        }
+                        break;
+
+                    case MouseTrackingProtocol.Utf8: {
+                            data = new byte[8] {
+                                (byte)27, // ESCAPE
+                                (byte)91, // [
+                                (byte)77, // M
+                                (byte)statBits,
+                                0,0,0,0,
+                            };
+
+                            dataLen = 4;
+
+                            if (col < MOUSE_POS_EXT_START) {
+                                data[dataLen++] = (byte)(col + (1 + 0x20));     // column 0 --> send as 1
+                            }
+                            else { // encode in UTF-8
+                                int val = col + 1 + 0x20;
+                                data[dataLen++] = (byte)(0xc0 + (val >> 6));
+                                data[dataLen++] = (byte)(0x80 + (val & 0x3f));
+                            }
+
+                            if (row < MOUSE_POS_EXT_START) {
+                                data[dataLen++] = (byte)(row + (1 + 0x20));     // row 0 --> send as 1
+                            }
+                            else { // encode in UTF-8
+                                int val = row + (1 + 0x20);
+                                data[dataLen++] = (byte)(0xc0 + (val >> 6));
+                                data[dataLen++] = (byte)(0x80 + (val & 0x3f));
+                            }
+                        }
+                        break;
+
+                    case MouseTrackingProtocol.Urxvt: {
+                            data = Encoding.ASCII.GetBytes(
+                                new StringBuilder()
+                                    .Append("\x1b[")
+                                    .Append(statBits.ToString(NumberFormatInfo.InvariantInfo))
+                                    .Append(';')
+                                    .Append((col + 1).ToString(NumberFormatInfo.InvariantInfo))
+                                    .Append(';')
+                                    .Append((row + 1).ToString(NumberFormatInfo.InvariantInfo))
+                                    .Append("M")
+                                    .ToString());
+                            dataLen = data.Length;
+                        }
+                        break;
+
+                    case MouseTrackingProtocol.Sgr: {
+                            data = Encoding.ASCII.GetBytes(
+                                new StringBuilder()
+                                    .Append("\x1b[<")
+                                    .Append(statBits.ToString(NumberFormatInfo.InvariantInfo))
+                                    .Append(';')
+                                    .Append((col + 1).ToString(NumberFormatInfo.InvariantInfo))
+                                    .Append(';')
+                                    .Append((row + 1).ToString(NumberFormatInfo.InvariantInfo))
+                                    .Append(action == TerminalMouseAction.ButtonUp ? 'm' : 'M')
+                                    .ToString());
+                            dataLen = data.Length;
+                        }
+                        break;
+
+                    default:
+                        return true;    // unknown protocol
+                }
+
+                _term.TransmitDirect(data, 0, dataLen);
+
+                return true;
+            }
+        }
+
+        #endregion
+
+        #region FocusReportingManager
+
+        /// <summary>
+        /// Management of the focus reporting.
+        /// </summary>
+        private class FocusReportingManager {
+
+            private readonly XTerm _term;
+
+            private bool _focusReportingMode = false;
+
+            private readonly byte[] _gotFocusBytes = new byte[] { 0x1b, 0x5b, 0x49 };
+            private readonly byte[] _lostFocusBytes = new byte[] { 0x1b, 0x5b, 0x4f };
+
+            public FocusReportingManager(XTerm term) {
+                _term = term;
+            }
+
+            /// <summary>
+            /// Sets focus reporting mode.
+            /// </summary>
+            /// <param name="sw">true if the focus reporting is enabled.</param>
+            public void SetFocusReportingMode(bool sw) {
+                _focusReportingMode = sw;
+            }
+
+            /// <summary>
+            /// Handles got-focus event.
+            /// </summary>
+            public void OnGotFocus() {
+                if (_focusReportingMode) {
+                    _term.TransmitDirect(_gotFocusBytes, 0, _gotFocusBytes.Length);
+                }
+            }
+
+            /// <summary>
+            /// Handles lost-focus event.
+            /// </summary>
+            public void OnLostFocus() {
+                if (_focusReportingMode) {
+                    _term.TransmitDirect(_lostFocusBytes, 0, _lostFocusBytes.Length);
+                }
+            }
+        }
+
+        #endregion
     }
 
     /// <summary>

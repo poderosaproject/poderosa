@@ -790,10 +790,8 @@ namespace Poderosa.Terminal {
             base.OnGotFocus(args);
             if (!this.EnabledEx)
                 return;
-            if (GetTerminal().GetFocusReportingMode()) {
-                byte[] data = new byte[] { 0x1b, 0x5b, 0x49 };
-                TransmitDirect(data, 0, data.Length);
-            }
+
+            GetTerminal().OnGotFocus();
 
             if (this.CharacterDocument != null) { //初期化過程のときは無視
 
@@ -807,10 +805,8 @@ namespace Poderosa.Terminal {
             base.OnLostFocus(args);
             if (!this.EnabledEx)
                 return;
-            if (GetTerminal().GetFocusReportingMode()) {
-                byte[] data = new byte[] { 0x1b, 0x5b, 0x4f };
-                TransmitDirect(data, 0, data.Length);
-            }
+
+            GetTerminal().OnLostFocus();
 
             if (_inIMEComposition)
                 ClearIMEComposition();
