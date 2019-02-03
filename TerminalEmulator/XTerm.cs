@@ -29,7 +29,7 @@ using Poderosa.View;
 using Poderosa.Preferences;
 
 namespace Poderosa.Terminal {
-    internal class XTerm : EscapeSequenceTerminal {
+    internal class XTerm : AbstractTerminal {
 
         private enum MouseTrackingState {
             Off,
@@ -44,6 +44,23 @@ namespace Poderosa.Terminal {
             Urxvt,
             Sgr,
         }
+
+        private class ControlCode {
+            public const char NUL = '\u0000';
+            public const char BEL = '\u0007';
+            public const char BS = '\u0008';
+            public const char HT = '\u0009';
+            public const char LF = '\u000a';
+            public const char VT = '\u000b';
+            public const char CR = '\u000d';
+            public const char SO = '\u000e';
+            public const char SI = '\u000f';
+            public const char ESC = '\u001b';
+            public const char ST = '\u009c';
+        }
+
+        private StringBuilder _escapeSequence;
+        private IModalCharacterTask _currentCharacterTask;
 
         protected bool _insertMode;
         protected bool _scrollRegionRelative;
@@ -77,6 +94,9 @@ namespace Poderosa.Terminal {
 
         public XTerm(TerminalInitializeInfo info)
             : base(info) {
+            _escapeSequence = new StringBuilder();
+            _processCharResult = ProcessCharResult.Processed;
+
             _insertMode = false;
             _scrollRegionRelative = false;
 
@@ -88,7 +108,8 @@ namespace Poderosa.Terminal {
         }
 
         protected override void ResetInternal() {
-            base.ResetInternal();
+            _escapeSequence = new StringBuilder();
+            _processCharResult = ProcessCharResult.Processed;
             _insertMode = false;
             _scrollRegionRelative = false;
         }
@@ -124,18 +145,101 @@ namespace Poderosa.Terminal {
                     //  for terminating the escape sequence.
                     //  After this conversion, we can consider ESC as the start
                     //  of the new escape sequence.
-                    base.ProcessChar(ControlCode.ST);
+                    ProcessChar2(ControlCode.ST);
                     return;
                 }
-                base.ProcessChar(ControlCode.ESC);
+                ProcessChar2(ControlCode.ESC);
             }
 
             if (ch == ControlCode.ESC) {
                 _gotEscape = true;
             }
             else {
-                base.ProcessChar(ch);
+                ProcessChar2(ch);
             }
+        }
+
+        private void ProcessChar2(char ch) {
+            if (_processCharResult != ProcessCharResult.Escaping) {
+                if (ch == ControlCode.ESC) {
+                    _processCharResult = ProcessCharResult.Escaping;
+                }
+                else {
+                    if (_currentCharacterTask != null) { //マクロなど、charを取るタイプ
+                        _currentCharacterTask.ProcessChar(ch);
+                    }
+
+                    this.LogService.XmlLogger.Write(ch);
+
+                    if (Unicode.IsControlCharacter(ch))
+                        _processCharResult = ProcessControlChar(ch);
+                    else
+                        _processCharResult = ProcessNormalChar(ch);
+                }
+            }
+            else {
+                if (ch == ControlCode.NUL)
+                    return; //シーケンス中にNULL文字が入っているケースが確認された なお今はXmlLoggerにもこのデータは行かない。
+
+                if (ch == ControlCode.ESC) {
+                    // escape sequence restarted ?
+                    // save log silently
+                    RuntimeUtil.SilentReportException(new UnknownEscapeSequenceException("Incomplete escape sequence: ESC " + _escapeSequence.ToString()));
+                    _escapeSequence.Remove(0, _escapeSequence.Length);
+                    return;
+                }
+
+                _escapeSequence.Append(ch);
+                bool end_flag = false; //escape sequenceの終わりかどうかを示すフラグ
+                if (_escapeSequence.Length == 1) { //ESC+１文字である場合
+                    end_flag = ('0' <= ch && ch <= '9') || ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z' && ch != 'P') || ch == '>' || ch == '=' || ch == '|' || ch == '}' || ch == '~';
+                }
+                else if (_escapeSequence[0] == ']') { //OSCの終端はBELかST(String Terminator)
+                    end_flag = (ch == ControlCode.BEL) || (ch == ControlCode.ST);
+                    // Note: The conversion from "ESC \" to ST would be done in XTerm.ProcessChar(char).
+                }
+                else if (this._escapeSequence[0] == '@') {
+                    end_flag = (ch == '0') || (ch == '1');
+                }
+                else if (this._escapeSequence[0] == 'P') {  // DCS
+                    end_flag = (ch == ControlCode.ST);
+                }
+                else {
+                    end_flag = ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch == '@' || ch == '~' || ch == '|' || ch == '{';
+                }
+
+                if (end_flag) { //シーケンスのおわり
+                    char[] seq = _escapeSequence.ToString().ToCharArray();
+
+                    this.LogService.XmlLogger.EscapeSequence(seq);
+
+                    try {
+                        char code = seq[0];
+                        _processCharResult = ProcessCharResult.Unsupported; //ProcessEscapeSequenceで例外が来た後で状態がEscapingはひどい結果を招くので
+                        _processCharResult = ProcessEscapeSequence(code, seq, 1);
+                        if (_processCharResult == ProcessCharResult.Unsupported)
+                            throw new UnknownEscapeSequenceException("Unknown escape sequence: ESC " + new string(seq));
+                    }
+                    catch (UnknownEscapeSequenceException ex) {
+                        CharDecodeError(GEnv.Strings.GetString("Message.EscapesequenceTerminal.UnsupportedSequence") + ex.Message);
+                        RuntimeUtil.SilentReportException(ex);
+                    }
+                    finally {
+                        _escapeSequence.Remove(0, _escapeSequence.Length);
+                    }
+                }
+                else
+                    _processCharResult = ProcessCharResult.Escaping;
+            }
+        }
+
+        protected ProcessCharResult ProcessNormalChar(char ch) {
+            UnicodeChar unicodeChar;
+            if (!base.UnicodeCharConverter.Feed(ch, out unicodeChar)) {
+                return ProcessCharResult.Processed;
+            }
+
+            return ProcessNormalUnicodeChar(unicodeChar);
         }
 
         public bool ReverseVideo {
@@ -363,39 +467,120 @@ namespace Poderosa.Terminal {
             return true;
         }
 
-        protected override ProcessCharResult ProcessNormalUnicodeChar(UnicodeChar ch) {
+        protected ProcessCharResult ProcessNormalUnicodeChar(UnicodeChar ch) {
             //WrapAroundがfalseで、キャレットが右端のときは何もしない
             if (!_wrapAroundMode && _manipulator.CaretColumn >= GetDocument().TerminalWidth - 1)
                 return ProcessCharResult.Processed;
 
             if (_insertMode)
                 _manipulator.InsertBlanks(_manipulator.CaretColumn, ch.IsWideWidth ? 2 : 1, _currentdecoration);
-            return base.ProcessNormalUnicodeChar(ch);
-        }
-        protected override ProcessCharResult ProcessControlChar(char ch) {
-            return base.ProcessControlChar(ch);
-            /* 文字コードが誤っているとこのあたりを不意に実行してしまうことがあり、よろしくない。
-            switch(ch) {
-                //単純な変換なら他にもできるが、サポートしているのはいまのところこれしかない
-                case (char)0x8D:
-                    base.ProcessChar((char)0x1B);
-                    base.ProcessChar('M');
-                    return ProcessCharResult.Processed;
-                case (char)0x9B:
-                    base.ProcessChar((char)0x1B);
-                    base.ProcessChar('[');
-                    return ProcessCharResult.Processed;
-                case (char)0x9D:
-                    base.ProcessChar((char)0x1B);
-                    base.ProcessChar(']');
-                    return ProcessCharResult.Processed;
-                default:
-                    return base.ProcessControlChar(ch);
+
+            //既に画面右端にキャレットがあるのに文字が来たら改行をする
+            int tw = GetDocument().TerminalWidth;
+            if (_manipulator.CaretColumn + (ch.IsWideWidth ? 2 : 1) > tw) {
+                _manipulator.EOLType = EOLType.Continue;
+                GLine lineUpdated = GetDocument().UpdateCurrentLine(_manipulator);
+                if (lineUpdated != null) {
+                    this.LogService.TextLogger.WriteLine(lineUpdated);
+                }
+                GetDocument().LineFeed();
+                _manipulator.Load(GetDocument().CurrentLine, 0);
             }
-            */
+
+            //画面のリサイズがあったときは、_manipulatorのバッファサイズが不足の可能性がある
+            if (tw > _manipulator.BufferSize)
+                _manipulator.ExpandBuffer(tw);
+
+            //通常文字の処理
+            _manipulator.PutChar(ch, _currentdecoration);
+
+            return ProcessCharResult.Processed;
         }
 
-        protected override ProcessCharResult ProcessEscapeSequence(char code, char[] seq, int offset) {
+        protected ProcessCharResult ProcessControlChar(char ch) {
+            if (ch == ControlCode.LF || ch == ControlCode.VT) { //Vertical TabはLFと等しい
+                LineFeedRule rule = GetTerminalSettings().LineFeedRule;
+                if (rule == LineFeedRule.Normal) {
+                    DoLineFeed();
+                }
+                else if (rule == LineFeedRule.LFOnly) {
+                    DoCarriageReturn();
+                    DoLineFeed();
+                }
+                return ProcessCharResult.Processed;
+            }
+            else if (ch == ControlCode.CR) {
+                LineFeedRule rule = GetTerminalSettings().LineFeedRule;
+                if (rule == LineFeedRule.Normal) {
+                    DoCarriageReturn();
+                }
+                else if (rule == LineFeedRule.CROnly) {
+                    DoCarriageReturn();
+                    DoLineFeed();
+                }
+                return ProcessCharResult.Processed;
+            }
+            else if (ch == ControlCode.BEL) {
+                this.IndicateBell();
+                return ProcessCharResult.Processed;
+            }
+            else if (ch == ControlCode.BS) {
+                //行頭で、直前行の末尾が継続であった場合行を戻す
+                if (_manipulator.CaretColumn == 0) {
+                    TerminalDocument doc = GetDocument();
+                    int line = doc.CurrentLineNumber - 1;
+                    if (line >= 0 && doc.FindLineOrEdge(line).EOLType == EOLType.Continue) {
+                        doc.InvalidatedRegion.InvalidateLine(doc.CurrentLineNumber);
+                        doc.CurrentLineNumber = line;
+                        if (doc.CurrentLine == null)
+                            _manipulator.Reset(doc.TerminalWidth);
+                        else
+                            _manipulator.Load(doc.CurrentLine, doc.CurrentLine.DisplayLength - 1); //NOTE ここはCharLengthだったが同じだと思って改名した
+                        doc.InvalidatedRegion.InvalidateLine(doc.CurrentLineNumber);
+                    }
+                }
+                else
+                    _manipulator.BackCaret();
+
+                return ProcessCharResult.Processed;
+            }
+            else if (ch == ControlCode.HT) {
+                _manipulator.CaretColumn = GetNextTabStop(_manipulator.CaretColumn);
+                return ProcessCharResult.Processed;
+            }
+            else if (ch == ControlCode.SO) {
+                return ProcessCharResult.Processed; //以下２つはCharDecoderの中で処理されているはずなので無視
+            }
+            else if (ch == ControlCode.SI) {
+                return ProcessCharResult.Processed;
+            }
+            else if (ch == ControlCode.NUL) {
+                return ProcessCharResult.Processed; //null charは無視 !!CR NULをCR LFとみなす仕様があるが、CR LF CR NULとくることもあって難しい
+            }
+            else {
+                //Debug.WriteLine("Unknown char " + (int)ch);
+                //適当なグラフィック表示ほしい
+                return ProcessCharResult.Unsupported;
+            }
+        }
+        private void DoLineFeed() {
+            _manipulator.EOLType = (_manipulator.EOLType == EOLType.CR || _manipulator.EOLType == EOLType.CRLF) ? EOLType.CRLF : EOLType.LF;
+            GLine lineUpdated = GetDocument().UpdateCurrentLine(_manipulator);
+            if (lineUpdated != null) {
+                this.LogService.TextLogger.WriteLine(lineUpdated);
+            }
+            GetDocument().LineFeed();
+
+            //カラム保持は必要。サンプル:linuxconf.log
+            int col = _manipulator.CaretColumn;
+            _manipulator.Load(GetDocument().CurrentLine, col);
+        }
+        private void DoCarriageReturn() {
+            _manipulator.CarriageReturn();
+            _manipulator.EOLType = EOLType.CR;  // will be changed to CRLF in DoLineFeed()
+        }
+
+        protected ProcessCharResult ProcessEscapeSequence(char code, char[] seq, int offset) {
             string param;
             switch (code) {
                 case '[':
@@ -1479,7 +1664,7 @@ namespace Poderosa.Terminal {
                 _tabStops[i] = false;
             }
         }
-        protected override int GetNextTabStop(int start) {
+        protected int GetNextTabStop(int start) {
             EnsureTabStops(Math.Max(start + 1, GetDocument().TerminalWidth));
 
             int index = start + 1;
@@ -1897,6 +2082,55 @@ namespace Poderosa.Terminal {
                 doc.CurrentLineNumber = doc.TopLineNumber + offset;
             }
             _manipulator.Load(doc.CurrentLine, caret_col);
+        }
+
+        //FormatExceptionのほかにOverflowExceptionの可能性もあるので
+        protected static int ParseInt(string param, int default_value) {
+            try {
+                if (param.Length > 0)
+                    return Int32.Parse(param);
+                else
+                    return default_value;
+            }
+            catch (Exception ex) {
+                throw new UnknownEscapeSequenceException(String.Format("bad number format [{0}] : {1}", param, ex.Message));
+            }
+        }
+
+        protected static IntPair ParseIntPair(string param, int default_first, int default_second) {
+            IntPair ret = new IntPair(default_first, default_second);
+
+            string[] s = param.Split(';');
+
+            if (s.Length >= 1 && s[0].Length > 0) {
+                try {
+                    ret.first = Int32.Parse(s[0]);
+                }
+                catch (Exception ex) {
+                    throw new UnknownEscapeSequenceException(String.Format("bad number format [{0}] : {1}", s[0], ex.Message));
+                }
+            }
+
+            if (s.Length >= 2 && s[1].Length > 0) {
+                try {
+                    ret.second = Int32.Parse(s[1]);
+                }
+                catch (Exception ex) {
+                    throw new UnknownEscapeSequenceException(String.Format("bad number format [{0}] : {1}", s[1], ex.Message));
+                }
+            }
+
+            return ret;
+        }
+
+        //ModalTaskのセットを見る
+        public override void StartModalTerminalTask(IModalTerminalTask task) {
+            base.StartModalTerminalTask(task);
+            _currentCharacterTask = (IModalCharacterTask)task.GetAdapter(typeof(IModalCharacterTask));
+        }
+        public override void EndModalTerminalTask() {
+            base.EndModalTerminalTask();
+            _currentCharacterTask = null;
         }
 
         //動的変更用
