@@ -60,29 +60,25 @@ namespace Poderosa.Terminal {
     /// </en>
     /// </remarks>
     public abstract class AbstractTerminal : ICharProcessor, IByteAsyncInputStream {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <exclude/>
-        public delegate void AfterExitLockDelegate();
 
-        private ScrollBarValues _scrollBarValues;
+        private readonly ScrollBarValues _scrollBarValues = new ScrollBarValues();
+        private readonly TerminalDocument _document;
+        private readonly IAbstractTerminalHost _session;
+        private readonly LogService _logService;
+        private readonly PromptRecognizer _promptRecognizer;
+        private readonly IntelliSense _intelliSense;
+        private readonly PopupStyleCommandResultRecognizer _commandResultRecognizer;
+        private IModalTerminalTask _modalTerminalTask;
+        private Cursor _documentCursor = null;
+
         private EncodingProfile _encodingProfile;
         private ICharDecoder _decoder;
         private UnicodeCharConverter _unicodeCharConverter;
-        private TerminalDocument _document;
-        private IAbstractTerminalHost _session;
-        private LogService _logService;
-        private IModalTerminalTask _modalTerminalTask;
-        private PromptRecognizer _promptRecognizer;
-        private IntelliSense _intelliSense;
-        private PopupStyleCommandResultRecognizer _commandResultRecognizer;
-        private Cursor _documentCursor = null;
 
         private bool _cleanup = false;
 
-        protected List<AfterExitLockDelegate> _afterExitLockActions;
-        protected GLineManipulator _manipulator;
+        protected readonly List<Action> _afterExitLockActions = new List<Action>();
+        protected readonly GLineManipulator _manipulator = new GLineManipulator();
         protected TextDecoration _currentdecoration;
         protected TerminalMode _terminalMode;
         protected TerminalMode _cursorKeyMode; //_terminalModeは別物。AIXでのviで、カーソルキーは不変という例が確認されている
@@ -115,15 +111,12 @@ namespace Poderosa.Terminal {
             //_invalidateParam = new InvalidateParam();
             _document = new TerminalDocument(info.InitialWidth, info.InitialHeight);
             _document.SetOwner(_session.ISession);
-            _afterExitLockActions = new List<AfterExitLockDelegate>();
 
             _encodingProfile = EncodingProfile.Create(info.Session.TerminalSettings.Encoding);
             _decoder = new ISO2022CharDecoder(this, _encodingProfile);
             _unicodeCharConverter = _encodingProfile.CreateUnicodeCharConverter();
             _terminalMode = TerminalMode.Normal;
             _currentdecoration = TextDecoration.Default;
-            _manipulator = new GLineManipulator();
-            _scrollBarValues = new ScrollBarValues();
             _logService = new LogService(info.TerminalParameter, _session.TerminalSettings);
             _promptRecognizer = new PromptRecognizer(this);
             _intelliSense = new IntelliSense(this);
@@ -428,7 +421,7 @@ namespace Poderosa.Terminal {
 
                     if (_afterExitLockActions.Count > 0) {
                         Control main = _session.OwnerWindow.AsControl();
-                        foreach (AfterExitLockDelegate action in _afterExitLockActions) {
+                        foreach (Action action in _afterExitLockActions) {
                             main.Invoke(action);
                         }
                         _afterExitLockActions.Clear();

@@ -1006,7 +1006,7 @@ namespace Poderosa.Terminal {
                 if (fmts.Length > 0) {
                     ITerminalSettings settings = GetTerminalSettings();
                     string title = fmts[0].FormatCaptionUsingWindowTitle(GetConnection().Destination, settings, pt);
-                    _afterExitLockActions.Add(new AfterExitLockDelegate(new CaptionChanger(GetTerminalSettings(), title).Do));
+                    _afterExitLockActions.Add(new CaptionChanger(GetTerminalSettings(), title).Do);
                 }
                 //Quick Test
                 //_afterExitLockActions.Add(new AfterExitLockDelegate(new CaptionChanger(GetTerminalSettings(), pt).Do));
@@ -2010,7 +2010,7 @@ namespace Poderosa.Terminal {
                     _insertMode = set; //hで始まってlで終わる
                     return ProcessCharResult.Processed;
                 case "12":	//local echo
-                    _afterExitLockActions.Add(new AfterExitLockDelegate(new LocalEchoChanger(GetTerminalSettings(), !set).Do));
+                    _afterExitLockActions.Add(new LocalEchoChanger(GetTerminalSettings(), !set).Do);
                     return ProcessCharResult.Processed;
                 case "20":
                     return ProcessCharResult.Processed; //!!WinXPのTelnetで確認した
