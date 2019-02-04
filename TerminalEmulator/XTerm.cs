@@ -56,12 +56,8 @@ namespace Poderosa.Terminal {
         private bool _wrapAroundMode;
         private bool _reverseVideo;
         private bool[] _tabStops;
-        private readonly List<GLine>[] _savedScreen = new List<GLine>[2];	// { main, alternate }
-        private bool _isAlternateBuffer;
-        private bool _savedMode_isAlternateBuffer;
-        private readonly int[] _xtermSavedRow = new int[2];	// { main, alternate }
-        private readonly int[] _xtermSavedCol = new int[2];	// { main, alternate }
 
+        private readonly ScreenBufferManager _screenBuffer;
         private readonly BracketedPasteModeManager _bracketedPasteMode;
         private readonly MouseTrackingManager _mouseTracking;
         private readonly FocusReportingManager _focusReporting;
@@ -76,10 +72,9 @@ namespace Poderosa.Terminal {
 
             _wrapAroundMode = true;
             _tabStops = new bool[GetDocument().TerminalWidth];
-            _isAlternateBuffer = false;
-            _savedMode_isAlternateBuffer = false;
             InitTabStops();
 
+            _screenBuffer = new ScreenBufferManager(this);
             _bracketedPasteMode = new BracketedPasteModeManager(this);
             _mouseTracking = new MouseTrackingManager(this);
             _focusReporting = new FocusReportingManager(this);
@@ -377,10 +372,10 @@ namespace Poderosa.Terminal {
                     Index();
                     return ProcessCharResult.Processed;
                 case '7':
-                    SaveCursor();
+                    _screenBuffer.SaveCursor();
                     return ProcessCharResult.Processed;
                 case '8':
-                    RestoreCursor();
+                    _screenBuffer.RestoreCursor();
                     return ProcessCharResult.Processed;
                 case 'c':
                     FullReset();
@@ -1178,32 +1173,32 @@ namespace Poderosa.Terminal {
             switch (param) {
                 case "1047":	//Alternate Buffer
                     if (set) {
-                        SwitchBuffer(true);
+                        _screenBuffer.SwitchBuffer(true);
                         // XTerm doesn't clear screen.
                     }
                     else {
                         ClearScreen();
-                        SwitchBuffer(false);
+                        _screenBuffer.SwitchBuffer(false);
                     }
                     return ProcessCharResult.Processed;
                 case "1048":	//Save/Restore Cursor
                     if (set)
-                        SaveCursor();
+                        _screenBuffer.SaveCursor();
                     else
-                        RestoreCursor();
+                        _screenBuffer.RestoreCursor();
                     return ProcessCharResult.Processed;
                 case "1049":	//Save/Restore Cursor and Alternate Buffer
                     if (set) {
-                        SaveCursor();
-                        SwitchBuffer(true);
+                        _screenBuffer.SaveCursor();
+                        _screenBuffer.SwitchBuffer(true);
                         ClearScreen();
                     }
                     else {
                         // XTerm doesn't clear screen for enabling copy/paste from the alternate buffer.
                         // But we need ClearScreen for emulating the buffer-switch.
                         ClearScreen();
-                        SwitchBuffer(false);
-                        RestoreCursor();
+                        _screenBuffer.SwitchBuffer(false);
+                        _screenBuffer.RestoreCursor();
                     }
                     return ProcessCharResult.Processed;
                 case "1000": // DEC VT200 compatible: Send button press and release event with mouse position.
@@ -1265,10 +1260,7 @@ namespace Poderosa.Terminal {
                     //一応報告あったので。SETMODEの12ならローカルエコーなんだがな
                     return ProcessCharResult.Processed;
                 case "47":
-                    if (set)
-                        SwitchBuffer(true);
-                    else
-                        SwitchBuffer(false);
+                    _screenBuffer.SwitchBuffer(set);
                     return ProcessCharResult.Processed;
                 default:
                     return ProcessCharResult.Unsupported;
@@ -1279,7 +1271,7 @@ namespace Poderosa.Terminal {
             switch (param) {
                 case "1047":
                 case "47":
-                    _savedMode_isAlternateBuffer = _isAlternateBuffer;
+                    _screenBuffer.SaveBufferMode();
                     break;
             }
             return ProcessCharResult.Processed;
@@ -1289,7 +1281,7 @@ namespace Poderosa.Terminal {
             switch (param) {
                 case "1047":
                 case "47":
-                    SwitchBuffer(_savedMode_isAlternateBuffer);
+                    _screenBuffer.RestoreBufferMode();
                     break;
             }
             return ProcessCharResult.Processed;
@@ -1444,62 +1436,8 @@ namespace Poderosa.Terminal {
             return 0;
         }
 
-        protected void SwitchBuffer(bool toAlternate) {
-            if (_isAlternateBuffer != toAlternate) {
-                SaveScreen(toAlternate ? 0 : 1);
-                RestoreScreen(toAlternate ? 1 : 0);
-                _isAlternateBuffer = toAlternate;
-            }
-        }
-
-        private void SaveScreen(int sw) {
-            List<GLine> lines = new List<GLine>();
-            GLine l = GetDocument().TopLine;
-            int m = l.ID + GetDocument().TerminalHeight;
-            while (l != null && l.ID < m) {
-                lines.Add(l.Clone());
-                l = l.NextLine;
-            }
-            _savedScreen[sw] = lines;
-        }
-
-        private void RestoreScreen(int sw) {
-            if (_savedScreen[sw] == null) {
-                ClearScreen();	// emulate new buffer
-                return;
-            }
-            TerminalDocument doc = GetDocument();
-            int w = doc.TerminalWidth;
-            int m = doc.TerminalHeight;
-            GLine t = doc.TopLine;
-            foreach (GLine l in _savedScreen[sw]) {
-                l.ExpandBuffer(w);
-                if (t == null)
-                    doc.AddLine(l);
-                else {
-                    doc.Replace(t, l);
-                    t = l.NextLine;
-                }
-                if (--m == 0)
-                    break;
-            }
-        }
-
         protected void ClearScreen() {
             ProcessEraseInDisplay("2");
-        }
-
-        protected void SaveCursor() {
-            int sw = _isAlternateBuffer ? 1 : 0;
-            _xtermSavedRow[sw] = GetDocument().CurrentLineNumber - GetDocument().TopLineNumber;
-            _xtermSavedCol[sw] = _manipulator.CaretColumn;
-        }
-
-        protected void RestoreCursor() {
-            int sw = _isAlternateBuffer ? 1 : 0;
-            GetDocument().UpdateCurrentLine(_manipulator);
-            GetDocument().CurrentLineNumber = GetDocument().TopLineNumber + _xtermSavedRow[sw];
-            _manipulator.Load(GetDocument().CurrentLine, _xtermSavedCol[sw]);
         }
 
         //画面の反転
@@ -1903,6 +1841,109 @@ namespace Poderosa.Terminal {
                 _settings.EndUpdate();
             }
         }
+
+        #region ScreenBufferManager
+
+        /// <summary>
+        /// Management of the screen buffer emulation.
+        /// </summary>
+        private class ScreenBufferManager {
+
+            private readonly XTerm _term;
+
+            private readonly List<GLine>[] _savedScreen = new List<GLine>[2];	// { main, alternate }
+            private bool _isAlternateBuffer = false;
+            private bool _saved_isAlternateBuffer = false;
+            private readonly int[] _xtermSavedRow = new int[2];	// { main, alternate }
+            private readonly int[] _xtermSavedCol = new int[2];	// { main, alternate }
+
+            public ScreenBufferManager(XTerm term) {
+                _term = term;
+            }
+
+            /// <summary>
+            /// Saves current buffer mode.
+            /// </summary>
+            public void SaveBufferMode() {
+                _saved_isAlternateBuffer = _isAlternateBuffer;
+            }
+
+            /// <summary>
+            /// Restores buffer mode.
+            /// </summary>
+            public void RestoreBufferMode() {
+                SwitchBuffer(_saved_isAlternateBuffer);
+            }
+
+            /// <summary>
+            /// Switches buffer.
+            /// </summary>
+            /// <param name="toAlternate">true if the alternate buffer is to be switched to.</param>
+            public void SwitchBuffer(bool toAlternate) {
+                if (_isAlternateBuffer != toAlternate) {
+                    SaveScreen(toAlternate ? 0 : 1);
+                    RestoreScreen(toAlternate ? 1 : 0);
+                    _isAlternateBuffer = toAlternate;
+                }
+            }
+
+            /// <summary>
+            /// Saves current cursor position.
+            /// </summary>
+            public void SaveCursor() {
+                int sw = _isAlternateBuffer ? 1 : 0;
+                TerminalDocument doc = _term.GetDocument();
+                _xtermSavedRow[sw] = doc.CurrentLineNumber - doc.TopLineNumber;
+                _xtermSavedCol[sw] = _term._manipulator.CaretColumn;
+            }
+
+            /// <summary>
+            /// Restores cursor position.
+            /// </summary>
+            public void RestoreCursor() {
+                int sw = _isAlternateBuffer ? 1 : 0;
+                TerminalDocument doc = _term.GetDocument();
+                doc.UpdateCurrentLine(_term._manipulator);
+                doc.CurrentLineNumber = doc.TopLineNumber + _xtermSavedRow[sw];
+                _term._manipulator.Load(doc.CurrentLine, _xtermSavedCol[sw]);
+            }
+
+            private void SaveScreen(int sw) {
+                List<GLine> lines = new List<GLine>();
+                TerminalDocument doc = _term.GetDocument();
+                GLine l = doc.TopLine;
+                int m = l.ID + doc.TerminalHeight;
+                while (l != null && l.ID < m) {
+                    lines.Add(l.Clone());
+                    l = l.NextLine;
+                }
+                _savedScreen[sw] = lines;
+            }
+
+            private void RestoreScreen(int sw) {
+                if (_savedScreen[sw] == null) {
+                    _term.ClearScreen();	// emulate new buffer
+                    return;
+                }
+                TerminalDocument doc = _term.GetDocument();
+                int w = doc.TerminalWidth;
+                int m = doc.TerminalHeight;
+                GLine t = doc.TopLine;
+                foreach (GLine l in _savedScreen[sw]) {
+                    l.ExpandBuffer(w);
+                    if (t == null)
+                        doc.AddLine(l);
+                    else {
+                        doc.Replace(t, l);
+                        t = l.NextLine;
+                    }
+                    if (--m == 0)
+                        break;
+                }
+            }
+        }
+
+        #endregion
 
         #region MouseTrackingManager
 
