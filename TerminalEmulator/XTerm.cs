@@ -62,11 +62,7 @@ namespace Poderosa.Terminal {
         private readonly int[] _xtermSavedRow = new int[2];	// { main, alternate }
         private readonly int[] _xtermSavedCol = new int[2];	// { main, alternate }
 
-        private bool _bracketedPasteMode = false;
-        private readonly byte[] _bracketedPasteModeLeadingBytes = new byte[] { 0x1b, (byte)'[', (byte)'2', (byte)'0', (byte)'0', (byte)'~' };
-        private readonly byte[] _bracketedPasteModeTrailingBytes = new byte[] { 0x1b, (byte)'[', (byte)'2', (byte)'0', (byte)'1', (byte)'~' };
-        private readonly byte[] _bracketedPasteModeEmptyBytes = new byte[0];
-
+        private readonly BracketedPasteModeManager _bracketedPasteMode;
         private readonly MouseTrackingManager _mouseTracking;
         private readonly FocusReportingManager _focusReporting;
 
@@ -84,6 +80,7 @@ namespace Poderosa.Terminal {
             _savedMode_isAlternateBuffer = false;
             InitTabStops();
 
+            _bracketedPasteMode = new BracketedPasteModeManager(this);
             _mouseTracking = new MouseTrackingManager(this);
             _focusReporting = new FocusReportingManager(this);
         }
@@ -96,19 +93,11 @@ namespace Poderosa.Terminal {
         }
 
         internal override byte[] GetPasteLeadingBytes() {
-            // TODO:
-            // if (VT100) {
-            //   return new byte[0];
-            // }
-            return _bracketedPasteMode ? _bracketedPasteModeLeadingBytes : _bracketedPasteModeEmptyBytes;
+            return _bracketedPasteMode.GetPasteLeadingBytes();
         }
 
         internal override byte[] GetPasteTrailingBytes() {
-            // TODO:
-            // if (VT100) {
-            //   return new byte[0];
-            // }
-            return _bracketedPasteMode ? _bracketedPasteModeTrailingBytes : _bracketedPasteModeEmptyBytes;
+            return _bracketedPasteMode.GetPasteTrailingBytes();
         }
 
         public override void ProcessChar(char ch) {
@@ -1257,7 +1246,7 @@ namespace Poderosa.Terminal {
                 case "1034":	// Input 8 bits
                     return ProcessCharResult.Processed;
                 case "2004":    // Set/Reset bracketed paste mode
-                    _bracketedPasteMode = set;
+                    _bracketedPasteMode.SetBracketedPasteMode(set);
                     return ProcessCharResult.Processed;
                 case "3":	//132 Column Mode
                     return ProcessCharResult.Processed;
@@ -2267,6 +2256,52 @@ namespace Poderosa.Terminal {
                 if (_focusReportingMode) {
                     _term.TransmitDirect(_lostFocusBytes, 0, _lostFocusBytes.Length);
                 }
+            }
+        }
+
+        #endregion
+
+        #region BracketedPasteModeManager
+
+        /// <summary>
+        /// Management of the bracketed paste mode.
+        /// </summary>
+        private class BracketedPasteModeManager {
+
+            private readonly XTerm _term;
+
+            private bool _bracketedPasteMode = false;
+
+            private readonly byte[] _bracketedPasteModeLeadingBytes = new byte[] { 0x1b, (byte)'[', (byte)'2', (byte)'0', (byte)'0', (byte)'~' };
+            private readonly byte[] _bracketedPasteModeTrailingBytes = new byte[] { 0x1b, (byte)'[', (byte)'2', (byte)'0', (byte)'1', (byte)'~' };
+            private readonly byte[] _bracketedPasteModeEmptyBytes = new byte[0];
+
+            public BracketedPasteModeManager(XTerm term) {
+                _term = term;
+            }
+
+            /// <summary>
+            /// Sets the bracketed paste mode.
+            /// </summary>
+            /// <param name="sw">true if the bracketed paste mode is enabled.</param>
+            public void SetBracketedPasteMode(bool sw) {
+                _bracketedPasteMode = sw;
+            }
+
+            /// <summary>
+            /// Gets leading bytes for the pasted data.
+            /// </summary>
+            /// <returns>leading bytes</returns>
+            public byte[] GetPasteLeadingBytes() {
+                return _bracketedPasteMode ? _bracketedPasteModeLeadingBytes : _bracketedPasteModeEmptyBytes;
+            }
+
+            /// <summary>
+            /// Gets trailing bytes for the pasted data.
+            /// </summary>
+            /// <returns>trailing bytes</returns>
+            public byte[] GetPasteTrailingBytes() {
+                return _bracketedPasteMode ? _bracketedPasteModeTrailingBytes : _bracketedPasteModeEmptyBytes;
             }
         }
 
