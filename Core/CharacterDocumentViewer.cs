@@ -425,23 +425,15 @@ namespace Poderosa.View {
                     RenderProfile profile = GetRenderProfile();
 
                     // determine background color of the view
-                    Color backColor;
-                    if (_document.IsApplicationMode) {
-                        backColor = profile.GetBackColor(_document.ApplicationModeBackColor);
-                    }
-                    else {
-                        backColor = profile.BackColor;
-                    }
+                    Color backColor = _document.DetermineBackgroundColor(profile);
 
                     if (this.BackColor != backColor)
                         this.BackColor = backColor; // set background color of the view
 
                     // draw background image if it is required.
-                    if (!_document.IsApplicationMode) {
-                        Image img = profile.GetImage();
-                        if (img != null) {
-                            DrawBackgroundImage(g, img, profile.ImageStyle, clip);
-                        }
+                    Image img = _document.DetermineBackgroundImage(profile);
+                    if (img != null) {
+                        DrawBackgroundImage(g, img, profile.ImageStyle, clip);
                     }
 
                     //描画用にテンポラリのGLineを作り、描画中にdocumentをロックしないようにする

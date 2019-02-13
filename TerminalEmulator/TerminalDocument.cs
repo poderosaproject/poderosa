@@ -19,6 +19,7 @@ using System.Diagnostics;
 
 using Poderosa.Document;
 using Poderosa.Commands;
+using Poderosa.View;
 
 namespace Poderosa.Terminal {
     /// <summary>
@@ -37,6 +38,9 @@ namespace Poderosa.Terminal {
         //画面に見えている幅と高さ
         private int _width;
         private int _height;
+
+        private bool _applicationMode = false;
+        protected ColorSpec _appModeBgColor = ColorSpec.Default;
 
         internal TerminalDocument(int width, int height) {
             Resize(width, height);
@@ -64,10 +68,42 @@ namespace Poderosa.Terminal {
             }
         }
 
+        public bool IsApplicationMode {
+            get {
+                return _applicationMode;
+            }
+            set {
+                _applicationMode = value;
+            }
+        }
+
+        public ColorSpec ApplicationModeBackColor {
+            get {
+                return _appModeBgColor;
+            }
+            set {
+                _appModeBgColor = value;
+            }
+        }
+
         public override IPoderosaMenuGroup[] ContextMenu {
             get {
                 return TerminalEmulatorPlugin.Instance.DocumentContextMenu;
             }
+        }
+
+        public override Color DetermineBackgroundColor(RenderProfile profile) {
+            if (_applicationMode) {
+                return profile.GetBackColor(_appModeBgColor);
+            }
+            return base.DetermineBackgroundColor(profile);
+        }
+
+        public override Image DetermineBackgroundImage(RenderProfile profile) {
+            if (_applicationMode) {
+                return null;
+            }
+            return base.DetermineBackgroundImage(profile);
         }
 
         public void SetScrollingRegion(int top_offset, int bottom_offset) {

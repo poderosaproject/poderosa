@@ -21,6 +21,7 @@ using System.IO;
 
 using Poderosa.Sessions;
 using Poderosa.Commands;
+using Poderosa.View;
 
 namespace Poderosa.Document {
     //文字ベースのドキュメント。画面表示のみ。
@@ -49,9 +50,6 @@ namespace Poderosa.Document {
         protected GLine _firstLine;
         protected GLine _lastLine;
         protected int _size; //サイズは_firstLine/lastLineから計算可能だがよく使うのでキャッシュ
-
-        protected ColorSpec _appModeBgColor = ColorSpec.Default;
-        protected bool _bApplicationMode;
 
         public InvalidatedRegion InvalidatedRegion {
             get {
@@ -84,25 +82,17 @@ namespace Poderosa.Document {
                 return _size;
             }
         }
-        public ColorSpec ApplicationModeBackColor {
-            get {
-                return _appModeBgColor;
-            }
-            set {
-                _appModeBgColor = value;
-            }
-        }
-        public bool IsApplicationMode {
-            get {
-                return _bApplicationMode;
-            }
-            set {
-                _bApplicationMode = value;
-            }
-        }
 
         public CharacterDocument() {
             _invalidatedRegion = new InvalidatedRegion();
+        }
+
+        public virtual Color DetermineBackgroundColor(RenderProfile profile) {
+            return profile.BackColor;
+        }
+
+        public virtual Image DetermineBackgroundImage(RenderProfile profile) {
+            return profile.GetImage();
         }
 
         public GLine FindLineOrNull(int index) {
