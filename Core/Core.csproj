@@ -102,6 +102,8 @@
     </Compile>
     <Compile Include="GenericsUtil.cs" />
     <Compile Include="GLine.cs" />
+    <Compile Include="GLineBuffer.cs" />
+    <Compile Include="GLineChunk.cs" />
     <Compile Include="ListenerList.cs" />
     <Compile Include="MacroEngineEx.cs" />
     <Compile Include="MainWindow.cs">
