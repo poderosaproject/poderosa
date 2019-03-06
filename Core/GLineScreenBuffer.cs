@@ -151,7 +151,7 @@ namespace Poderosa.Document {
         /// <summary>
         /// Gets index of the internal buffer from the row index.
         /// </summary>
-        /// <param name="rowIndex">
+        /// <param name="offset">
         /// row index towards the negative direction.
         /// a value "1" indicatess the previous row of the top row of the screen.
         /// </param>
@@ -352,7 +352,7 @@ namespace Poderosa.Document {
         /// Scroll-up rows in the specified region.
         /// </summary>
         /// <param name="startRowIndex">start row indedx of the scroll region (inclusive)</param>
-        /// <param name="startRowIndex">end row indedx of the scroll region (exclusive)</param>
+        /// <param name="endRowIndex">end row indedx of the scroll region (exclusive)</param>
         /// <param name="newRows">
         /// rows to insert at the bottom of the region.
         /// the length of the span is used as the number of rows to scroll.
@@ -382,7 +382,7 @@ namespace Poderosa.Document {
         /// Scroll-down rows in the specified region.
         /// </summary>
         /// <param name="startRowIndex">start row indedx of the scroll region (inclusive)</param>
-        /// <param name="startRowIndex">end row indedx of the scroll region (exclusive)</param>
+        /// <param name="endRowIndex">end row indedx of the scroll region (exclusive)</param>
         /// <param name="newRows">
         /// rows to insert at the top of the region.
         /// the length of the span is used as the number of rows to scroll.
