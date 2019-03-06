@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="CommandPositionT.cs" />
     <Compile Include="GLineBufferTest.cs" />
+    <Compile Include="GLineScreenBufferTest.cs" />
     <Compile Include="MainWindowMenuT.cs" />
     <Compile Include="PreferencesT.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
