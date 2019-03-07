@@ -63,30 +63,16 @@ namespace Poderosa.Document {
 
         [TestCase(40, 23, 64)]
         [TestCase(40, 24, 64)]
-        public void ConstructorWithSartIndex_NoWrapAround(int startIndex, int size, int expectedBufferSize) {
-            var buff = new GLineScreenBuffer(startIndex, size, (index) => _glines[index]);
-
-            Assert.AreEqual(size, buff.Size);
-            Assert.AreEqual(startIndex, buff.StartIndex);
-
-            CheckNullRows(buff);
-
-            var expectedScreenRows = GLines(0, size);
-            CollectionAssert.AreEqual(expectedScreenRows, GetScreenRows(buff));
-        }
-
         [TestCase(40, 25, 64)]
         [TestCase(40, 64, 64)]
-        public void ConstructorWithSartIndex_WrapAround(int startIndex, int size, int expectedBufferSize) {
+        [TestCase(0, 64, 64)]
+        public void ConstructorWithSartIndex(int startIndex, int size, int expectedBufferSize) {
             var buff = new GLineScreenBuffer(startIndex, size, (index) => _glines[index]);
 
             Assert.AreEqual(size, buff.Size);
             Assert.AreEqual(startIndex, buff.StartIndex);
 
             CheckNullRows(buff);
-
-            int expectedNonWrapAroundRows = expectedBufferSize - startIndex;
-            int expectedWrapAroundRows = size - expectedNonWrapAroundRows;
 
             var expectedScreenRows = GLines(0, size);
             CollectionAssert.AreEqual(expectedScreenRows, GetScreenRows(buff));
@@ -240,18 +226,20 @@ namespace Poderosa.Document {
             CollectionAssert.AreEqual(expectedBuffContent, buff.GetRawBuff());
         }
 
-        [TestCase(10, 20, 0)]
-        [TestCase(10, 20, 1)]
-        [TestCase(10, 20, 10)]
-        public void ExtendHead_NoWrapAround(int initialStartIndex, int initialSize, int extendSize) {
+        [TestCase(10, 20, 0, 10)]
+        [TestCase(10, 20, 1, 9)]
+        [TestCase(10, 20, 10, 0)]
+        [TestCase(10, 54, 10, 0)]   // use all spare rows in the buffer
+        [TestCase(10, 20, 11, 63)]
+        [TestCase(10, 20, 44, 30)]
+        [TestCase(0, 20, 1, 63)]
+        public void ExtendHead_NoReallocate(int initialStartIndex, int initialSize, int extendSize, int expectedNewStartIndex) {
             var buff = new GLineScreenBuffer(initialStartIndex, initialSize, (index) => _glines[index]);
             GLineChunk chunk = GetFilledGLineChunk(3 + extendSize + 3);
 
             buff.ExtendHead(chunk.Span(3, extendSize));
 
-            int expectedStartIndex = initialStartIndex - extendSize;
-
-            Assert.AreEqual(expectedStartIndex, buff.StartIndex);
+            Assert.AreEqual(expectedNewStartIndex, buff.StartIndex);
             Assert.AreEqual(initialSize + extendSize, buff.Size);
 
             CheckNullRows(buff);
@@ -265,33 +253,8 @@ namespace Poderosa.Document {
             CollectionAssert.AreEqual(expectedScreenRows, GetScreenRows(buff));
         }
 
-        [TestCase(10, 20, 11)]
-        [TestCase(0, 20, 1)]
-        [TestCase(10, 20, 44)]
-        public void ExtendHead_WrapAround(int initialStartIndex, int initialSize, int extendSize) {
-            var buff = new GLineScreenBuffer(initialStartIndex, initialSize, (index) => _glines[index]);
-            GLineChunk chunk = GetFilledGLineChunk(3 + extendSize + 3);
-
-            buff.ExtendHead(chunk.Span(3, extendSize));
-
-            int expectedStartIndex = 64 - (extendSize - initialStartIndex);
-
-            Assert.AreEqual(expectedStartIndex, buff.StartIndex);
-            Assert.AreEqual(initialSize + extendSize, buff.Size);
-
-            CheckNullRows(buff);
-
-            var expectedScreenRows =
-                GLineSequenceUtil.Concat(
-                    chunk.Array.Skip(3).Take(extendSize),
-                    GLines(0, initialSize)
-                );
-
-            CollectionAssert.AreEqual(expectedScreenRows, GetScreenRows(buff));
-        }
-
-        [TestCase(10, 20, 45, 128)]
-        [TestCase(54, 20, 45, 128)] // wrap-arounded
+        [TestCase(10, 20, 45, 96)]
+        [TestCase(54, 20, 45, 96)] // wrap-arounded
         public void ExtendHead_Reallocate(int initialStartIndex, int initialSize, int extendSize, int expectedBufferSize) {
             var buff = new GLineScreenBuffer(initialStartIndex, initialSize, (index) => _glines[index]);
 
@@ -303,6 +266,8 @@ namespace Poderosa.Document {
             Assert.AreEqual(extendSize + initialSize, buff.Size);
 
             CheckNullRows(buff);
+
+            Assert.AreEqual(expectedBufferSize, buff.GetRawBuff().Length);
 
             var expectedScreenRows =
                 GLineSequenceUtil.Concat(
@@ -316,31 +281,10 @@ namespace Poderosa.Document {
         [TestCase(34, 20, 0)]
         [TestCase(34, 20, 1)]
         [TestCase(34, 20, 10)]
-        public void ExtendTail_NoWrapAround(int initialStartIndex, int initialSize, int extendSize) {
-            var buff = new GLineScreenBuffer(initialStartIndex, initialSize, (index) => _glines[index]);
-
-            GLineChunk chunk = GetFilledGLineChunk(3 + extendSize + 3);
-
-            buff.ExtendTail(chunk.Span(3, extendSize));
-
-            Assert.AreEqual(initialStartIndex, buff.StartIndex);
-            Assert.AreEqual(initialSize + extendSize, buff.Size);
-
-            CheckNullRows(buff);
-
-            var expectedScreenRows =
-                GLineSequenceUtil.Concat(
-                    GLines(0, initialSize),
-                    chunk.Array.Skip(3).Take(extendSize)
-                );
-
-            CollectionAssert.AreEqual(expectedScreenRows, GetScreenRows(buff));
-        }
-
         [TestCase(34, 20, 11)]
-        [TestCase(44, 20, 1)]
         [TestCase(34, 20, 44)]
-        public void ExtendTail_WrapAround(int initialStartIndex, int initialSize, int extendSize) {
+        [TestCase(44, 20, 1)]
+        public void ExtendTail_NoReallocate(int initialStartIndex, int initialSize, int extendSize) {
             var buff = new GLineScreenBuffer(initialStartIndex, initialSize, (index) => _glines[index]);
 
             GLineChunk chunk = GetFilledGLineChunk(3 + extendSize + 3);
@@ -361,8 +305,8 @@ namespace Poderosa.Document {
             CollectionAssert.AreEqual(expectedScreenRows, GetScreenRows(buff));
         }
 
-        [TestCase(34, 20, 45, 128)]
-        [TestCase(54, 20, 45, 128)] // wrap-arounded
+        [TestCase(34, 20, 45, 96)]
+        [TestCase(54, 20, 45, 96)] // wrap-arounded
         public void ExtendTail_Reallocate(int initialStartIndex, int initialSize, int extendSize, int expectedBufferSize) {
             var buff = new GLineScreenBuffer(initialStartIndex, initialSize, (index) => _glines[index]);
 
@@ -375,6 +319,8 @@ namespace Poderosa.Document {
 
             CheckNullRows(buff);
 
+            Assert.AreEqual(expectedBufferSize, buff.GetRawBuff().Length);
+
             var expectedScreenRows =
                 GLineSequenceUtil.Concat(
                     GLines(0, initialSize),
@@ -384,33 +330,17 @@ namespace Poderosa.Document {
             CollectionAssert.AreEqual(expectedScreenRows, GetScreenRows(buff));
         }
 
-        [TestCase(10, 20, 5)]
-        [TestCase(44, 20, 19)]
-        public void ShrinkHead_NoWrapAround(int initialStartIndex, int initialSize, int shrinkSize) {
+        [TestCase(10, 20, 5, 15)]
+        [TestCase(44, 20, 19, 63)]
+        [TestCase(54, 20, 10, 0)]
+        [TestCase(54, 20, 11, 1)]
+        [TestCase(54, 64, 10, 0)]   // no spare rows in the buffer
+        public void ShrinkHead_Success(int initialStartIndex, int initialSize, int shrinkSize, int expectedNewStartIndex) {
             var buff = new GLineScreenBuffer(initialStartIndex, initialSize, (index) => _glines[index]);
 
             buff.ShrinkHead(shrinkSize);
 
-            Assert.AreEqual(initialStartIndex + shrinkSize, buff.StartIndex);
-            Assert.AreEqual(initialSize - shrinkSize, buff.Size);
-
-            CheckNullRows(buff);
-
-            var expectedScreenRows = GLines(shrinkSize, initialSize - shrinkSize);
-
-            CollectionAssert.AreEqual(expectedScreenRows, GetScreenRows(buff));
-        }
-
-        [TestCase(54, 20, 10)]
-        [TestCase(54, 20, 11)]
-        public void ShrinkHead_WrapAround(int initialStartIndex, int initialSize, int shrinkSize) {
-            var buff = new GLineScreenBuffer(initialStartIndex, initialSize, (index) => _glines[index]);
-
-            buff.ShrinkHead(shrinkSize);
-
-            int expectedStartIndex = shrinkSize - (64 - initialStartIndex);
-
-            Assert.AreEqual(expectedStartIndex, buff.StartIndex);
+            Assert.AreEqual(expectedNewStartIndex, buff.StartIndex);
             Assert.AreEqual(initialSize - shrinkSize, buff.Size);
 
             CheckNullRows(buff);
@@ -422,6 +352,7 @@ namespace Poderosa.Document {
 
         [TestCase(20, 20)]
         [TestCase(20, 21)]
+        [TestCase(20, -1)]
         public void ShrinkHead_InvalidParam(int initialSize, int shrinkSize) {
             var buff = new GLineScreenBuffer(0, initialSize, (index) => _glines[index]);
 
@@ -430,25 +361,11 @@ namespace Poderosa.Document {
 
         [TestCase(10, 20, 5)]
         [TestCase(0, 20, 19)]
-        public void ShrinkTail_NoWrapAround(int initialStartIndex, int initialSize, int shrinkSize) {
-            var buff = new GLineScreenBuffer(initialStartIndex, initialSize, (index) => _glines[index]);
-
-            buff.ShrinkTail(shrinkSize);
-
-            Assert.AreEqual(initialStartIndex, buff.StartIndex);
-            Assert.AreEqual(initialSize - shrinkSize, buff.Size);
-
-            CheckNullRows(buff);
-
-            var expectedScreenRows = GLines(0, initialSize - shrinkSize);
-
-            CollectionAssert.AreEqual(expectedScreenRows, GetScreenRows(buff));
-        }
-
         [TestCase(54, 20, 10)]
         [TestCase(54, 20, 11)]
         [TestCase(54, 20, 19)]
-        public void ShrinkTail_WrapAround(int initialStartIndex, int initialSize, int shrinkSize) {
+        [TestCase(54, 64, 1)]   // no spare rows in the buffer
+        public void ShrinkTail_Success(int initialStartIndex, int initialSize, int shrinkSize) {
             var buff = new GLineScreenBuffer(initialStartIndex, initialSize, (index) => _glines[index]);
 
             buff.ShrinkTail(shrinkSize);
@@ -465,6 +382,7 @@ namespace Poderosa.Document {
 
         [TestCase(20, 20)]
         [TestCase(20, 21)]
+        [TestCase(20, -1)]
         public void ShrinkTail_InvalidParam(int initialSize, int shrinkSize) {
             var buff = new GLineScreenBuffer(0, initialSize, (index) => _glines[index]);
 
@@ -479,17 +397,18 @@ namespace Poderosa.Document {
         [TestCase(54, 20, 0, 20)]   // splitted in 2 regions
         [TestCase(54, 20, 3, 10)]   // splitted in 2 regions
         [TestCase(54, 20, 20, 0)]   // splitted in 2 regions
+        [TestCase(54, 64, 0, 64)]   // no spare rows in the buffer
         public void GetRows_Success(int startIndex, int size, int rowIndex, int length) {
             var buff = new GLineScreenBuffer(startIndex, size, (index) => _glines[index]);
 
-            GLineChunk chunk = new GLineChunk(30);
+            GLineChunk chunk = new GLineChunk(3 + length + 3);
             buff.GetRows(rowIndex, chunk.Span(3, length));
 
             var expectedDest =
                 GLineSequenceUtil.Concat(
                     Nulls(3),
                     GLines(rowIndex, length),
-                    Nulls(30 - 3 - length)
+                    Nulls(3)
                 );
 
             CollectionAssert.AreEqual(expectedDest, chunk.Array);
@@ -515,6 +434,7 @@ namespace Poderosa.Document {
         [TestCase(54, 20, 0, 20)]   // splitted in 2 regions
         [TestCase(54, 20, 3, 10)]   // splitted in 2 regions
         [TestCase(54, 20, 20, 0)]   // splitted in 2 regions
+        [TestCase(54, 64, 0, 64)]   // no spare rows in the buffer
         public void SetRows_Success(int startIndex, int size, int rowIndex, int length) {
             var buff = new GLineScreenBuffer(startIndex, size, (index) => _glines[index]);
 
@@ -557,6 +477,7 @@ namespace Poderosa.Document {
         [TestCase(54, 20, 10, 0)]
         [TestCase(54, 20, 11, 1)]
         [TestCase(54, 20, 20, 10)]  // screen size
+        [TestCase(54, 64, 20, 10)]  // no spare rows in the buffer
         public void ScrollUp_NotExceedScreenSize(int startIndex, int size, int scrollRows, int expectedNextStartIndex) {
             var buff = new GLineScreenBuffer(startIndex, size, (index) => _glines[index]);
 
@@ -606,6 +527,7 @@ namespace Poderosa.Document {
         [TestCase(54, 20, 10, 44)]
         [TestCase(54, 20, 11, 43)]
         [TestCase(54, 20, 20, 34)]  // screen size
+        [TestCase(10, 64, 20, 54)]  // no spare rows in the buffer
         public void ScrollDown_NotExceedScreenSize(int startIndex, int size, int scrollRows, int expectedNextStartIndex) {
             var buff = new GLineScreenBuffer(startIndex, size, (index) => _glines[index]);
 
@@ -657,6 +579,7 @@ namespace Poderosa.Document {
         [TestCase(54, 20, 5, 21, 5, 20, 1)]
         [TestCase(54, 20, 0, 20, 0, 20, 1)]    // scroll entire of the screen
         [TestCase(54, 20, 0, 20, 0, 20, 20)]    // scroll entire of the screen
+        [TestCase(54, 64, 0, 64, 0, 64, 20)]    // no spare rows in the buffer
         public void ScrollUpRegion_NotExceedRegionSize(
             int startIndex, int size,
             int startRowIndex, int endRowIndex,
@@ -725,6 +648,7 @@ namespace Poderosa.Document {
         [TestCase(54, 20, 5, 21, 5, 20, 1)]
         [TestCase(54, 20, 0, 20, 0, 20, 1)]    // scroll entire of the screen
         [TestCase(54, 20, 0, 20, 0, 20, 20)]    // scroll entire of the screen
+        [TestCase(54, 64, 0, 64, 0, 64, 20)]    // no spare rows in the buffer
         public void ScrollDownRegion_NotExceedRegionSize(
             int startIndex, int size,
             int startRowIndex, int endRowIndex,
