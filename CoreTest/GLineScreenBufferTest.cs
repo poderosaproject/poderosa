@@ -39,11 +39,10 @@ namespace Poderosa.Document {
         }
 
         [TestCase(1, 64)]
-        [TestCase(63, 64)]
         [TestCase(64, 64)]
-        [TestCase(65, 128)]
-        [TestCase(128, 128)]
-        [TestCase(129, 256)]
+        [TestCase(65, 96)]
+        [TestCase(96, 96)]
+        [TestCase(97, 128)]
         public void Constructor_NormalSize(int size, int expectedBufferSize) {
             var buff = new GLineScreenBuffer(size, (index) => _glines[index]);
 

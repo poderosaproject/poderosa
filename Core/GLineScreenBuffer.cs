@@ -127,15 +127,8 @@ namespace Poderosa.Document {
         /// <param name="rows">number of visible rows</param>
         /// <returns>buffer size</returns>
         private static int CalcBufferSize(int rows) {
-            // round-up to power of 2
-            int bits = rows - 1;
-            bits |= bits >> 1;
-            bits |= bits >> 2;
-            bits |= bits >> 4;
-            bits |= bits >> 8;
-            bits |= bits >> 16;
-            bits |= 63; // allocate 64 rows at least
-            return bits + 1;
+            // round-up to multiply of 32. 64 at minimum.
+            return Math.Max((rows + 31) & ~31, 64);
         }
 
         /// <summary>
