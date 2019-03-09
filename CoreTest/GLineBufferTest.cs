@@ -39,8 +39,8 @@ namespace Poderosa.Document {
             Assert.AreEqual(true, page.IsEmpty);
 
             Assert.Throws<IndexOutOfRangeException>(() => {
-                var chunk = new GLineChunk(10);
-                page.CopyTo(0, chunk.Span(0, 10));
+                page.Apply(0, 10, s => {
+                });
             });
         }
 
@@ -354,94 +354,64 @@ namespace Poderosa.Document {
         }
 
         [Test]
-        public void GLinePage_CopyTo() {
+        public void GLinePage_Apply() {
             GLine[] lines = CreateLines(5);
             GLineBuffer.GLinePage page = SetupPage(lines);
 
             // note: "offset" and "length" are valid, so no exception should be thrown.
             {
-                var chunk = new GLineChunk(5);
-                page.CopyTo(0, chunk.Span(0, 0));
+                page.Apply(0, 0, s => {
+                });
             }
 
             // note: "offset" and "length" are valid, so no exception should be thrown.
             {
-                var chunk = new GLineChunk(5);
-                page.CopyTo(1, chunk.Span(0, 0));
+                page.Apply(1, 0, s => {
+                });
             }
 
             {
-                var chunk = new GLineChunk(5);
-                page.CopyTo(0, chunk.Span(0, 1));
+                List<GLine> copied = new List<GLine>();
+                page.Apply(0, 1, s => AddToList(copied, s));
                 CollectionAssert.AreEqual(new GLine[] {
-                    lines[0], null, null, null, null,
-                }, chunk.Array);
+                    lines[0],
+                }, copied);
             }
 
             {
-                var chunk = new GLineChunk(5);
-                page.CopyTo(0, chunk.Span(2, 1));
+                List<GLine> copied = new List<GLine>();
+                page.Apply(1, 2, s => AddToList(copied, s));
                 CollectionAssert.AreEqual(new GLine[] {
-                    null, null, lines[0], null, null,
-                }, chunk.Array);
+                    lines[1], lines[2],
+                }, copied);
             }
 
             {
-                var chunk = new GLineChunk(5);
-                page.CopyTo(1, chunk.Span(0, 2));
+                List<GLine> copied = new List<GLine>();
+                page.Apply(2, 3, s => AddToList(copied, s));
                 CollectionAssert.AreEqual(new GLine[] {
-                    lines[1], lines[2], null, null, null,
-                }, chunk.Array);
+                    lines[2], lines[3], lines[4],
+                }, copied);
             }
 
             {
-                var chunk = new GLineChunk(5);
-                page.CopyTo(1, chunk.Span(3, 2));
+                List<GLine> copied = new List<GLine>();
+                page.Apply(4, 1, s => AddToList(copied, s));
                 CollectionAssert.AreEqual(new GLine[] {
-                    null, null, null, lines[1], lines[2],
-                }, chunk.Array);
-            }
-
-            {
-                var chunk = new GLineChunk(5);
-                page.CopyTo(2, chunk.Span(0, 3));
-                CollectionAssert.AreEqual(new GLine[] {
-                    lines[2], lines[3], lines[4], null, null, 
-                }, chunk.Array);
-            }
-
-            {
-                var chunk = new GLineChunk(5);
-                page.CopyTo(2, chunk.Span(1, 3));
-                CollectionAssert.AreEqual(new GLine[] {
-                    null, lines[2], lines[3], lines[4], null,
-                }, chunk.Array);
-            }
-
-            {
-                var chunk = new GLineChunk(5);
-                page.CopyTo(4, chunk.Span(0, 1));
-                CollectionAssert.AreEqual(new GLine[] {
-                    lines[4], null, null, null, null, 
-                }, chunk.Array);
-            }
-
-            {
-                var chunk = new GLineChunk(5);
-                page.CopyTo(4, chunk.Span(4, 1));
-                CollectionAssert.AreEqual(new GLine[] {
-                    null, null, null, null, lines[4],
-                }, chunk.Array);
+                    lines[4],
+                }, copied);
             }
         }
 
         [Test]
-        public void GLinePage_Read_InvalidOffset() {
+        public void GLinePage_Apply_InvalidOffset() {
             GLine[] lines = CreateLines(5);
             GLineBuffer.GLinePage page = SetupPage(lines);
 
-            var chunk = new GLineChunk(5);
-            Assert.Throws<ArgumentException>(() => page.CopyTo(-1, chunk.Span(0, 1)));
+            Assert.Throws<ArgumentException>(() => {
+                page.Apply(-1, 1, s => {
+                });
+            });
         }
 
         [Test]
@@ -449,8 +419,10 @@ namespace Poderosa.Document {
             GLine[] lines = CreateLines(5);
             GLineBuffer.GLinePage page = SetupPage(lines);
 
-            var chunk = new GLineChunk(5);
-            Assert.Throws<IndexOutOfRangeException>(() => page.CopyTo(5, chunk.Span(0, 1)));
+            Assert.Throws<IndexOutOfRangeException>(() => {
+                page.Apply(5, 1, s => {
+                });
+            });
         }
 
         [Test]
@@ -458,8 +430,10 @@ namespace Poderosa.Document {
             GLine[] lines = CreateLines(5);
             GLineBuffer.GLinePage page = SetupPage(lines);
 
-            var chunk = new GLineChunk(5);
-            Assert.Throws<IndexOutOfRangeException>(() => page.CopyTo(2, chunk.Span(0, 4)));
+            Assert.Throws<IndexOutOfRangeException>(() => {
+                page.Apply(2, 4, s => {
+                });
+            });
         }
 
         private GLine[] CreateLines(int num) {
@@ -475,13 +449,19 @@ namespace Poderosa.Document {
         }
 
         private void CheckContent(GLineBuffer.GLinePage page, params GLine[] expectedStaringValues) {
-            var chunk = new GLineChunk(expectedStaringValues.Length);
-            page.CopyTo(0, chunk.Span(0, expectedStaringValues.Length));
-            CollectionAssert.AreEqual(expectedStaringValues, chunk.Array);
+            List<GLine> list = new List<GLine>();
+            page.Apply(0, expectedStaringValues.Length, s => AddToList(list, s));
+            CollectionAssert.AreEqual(expectedStaringValues, list);
         }
 
         private void CheckInternalContent(GLineBuffer.GLinePage page, params GLine[] expectedStaringValues) {
             CollectionAssert.AreEqual(expectedStaringValues, page.Peek(0, expectedStaringValues.Length));
+        }
+
+        private void AddToList(List<GLine> list, GLineChunkSpan span) {
+            for (int i = 0; i < span.Length; i++) {
+                list.Add(span.Array[span.Offset + i]);
+            }
         }
     }
 
@@ -914,7 +894,7 @@ namespace Poderosa.Document {
 
             public void Append(GLineBuffer buff, int lines) {
                 for (int i = 0; i < lines; i++) {
-                    GLine l = new GLine(1);
+                    GLine l = GLine.CreateSimpleGLine(i.ToString(), TextDecoration.Default);
                     _lines.Add(l);
                     buff.Append(l);
                 }
@@ -938,7 +918,7 @@ namespace Poderosa.Document {
             public void Append(GLineBuffer buff, int lines) {
                 GLine[] newLines = new GLine[lines];
                 for (int i = 0; i < lines; i++) {
-                    newLines[i] = new GLine(1);
+                    newLines[i] = GLine.CreateSimpleGLine(i.ToString(), TextDecoration.Default);
                 }
                 _lines.AddRange(newLines);
                 buff.Append(newLines);
@@ -1604,6 +1584,81 @@ namespace Poderosa.Document {
             }
         }
 
+        [Test]
+        public void GLineBuffer_CloneLinesByID() {
+            const int PAGE_SIZE = GLineBuffer.ROWS_PER_PAGE;
+
+            GLineBuffer buff = new GLineBuffer(PAGE_SIZE + 6);
+
+            ILineAppender appender = new LineAppender1();
+            appender.Append(buff, PAGE_SIZE * 2 + 3);
+
+            // Page status:
+            //
+            //   page[0]
+            //     null    x (PAGE_SIZE - 3)
+            //     GLine   x 3
+            //
+            //   page[1]
+            //     GLine   x (PAGE_SIZE)
+            //
+            //   page[2]
+            //     GLine   x 3
+            //     null    x (PAGE_SIZE - 3)
+
+            CheckPages(buff, appender, new int[] { 3, PAGE_SIZE, 3 });
+
+            // call GetLinesByID with some range patterns:
+            //   - starts before the page boundary
+            //   - starts at the page boundary
+            //   - starts after the page boundary
+            //   - ends before the page boundary
+            //   - ends at the page boundary
+            //   - ends after the page boundary
+
+            for (int start = 0; start < 6; start++) {
+                // start = 0 --> page[0][PAGE_SIZE - 3]  Row ID: PAGE_SIZE - 2
+                // start = 1 --> page[0][PAGE_SIZE - 2]  Row ID: PAGE_SIZE - 1
+                // start = 2 --> page[0][PAGE_SIZE - 1]  Row ID: PAGE_SIZE
+                // start = 3 --> page[1][0]              Row ID: PAGE_SIZE + 1
+                // start = 4 --> page[1][1]              Row ID: PAGE_SIZE + 2
+                // start = 5 --> page[1][2]              Row ID: PAGE_SIZE + 3
+
+                int startRowID = start + PAGE_SIZE - 2;
+
+                for (int end = 0; end < 6; end++) {
+                    // end = 0 --> page[1][PAGE_SIZE - 3]  Row ID: PAGE_SIZE * 2 - 2
+                    // end = 1 --> page[1][PAGE_SIZE - 2]  Row ID: PAGE_SIZE * 2 - 1
+                    // end = 2 --> page[1][PAGE_SIZE - 1]  Row ID: PAGE_SIZE * 2
+                    // end = 3 --> page[2][0]              Row ID: PAGE_SIZE * 2 + 1
+                    // end = 4 --> page[2][1]              Row ID: PAGE_SIZE * 2 + 2
+                    // end = 5 --> page[2][2]              Row ID: PAGE_SIZE * 2 + 3
+
+                    int endRowID = end + PAGE_SIZE * 2 - 2;
+
+                    int rowCount = endRowID - startRowID + 1;
+
+                    var chunk = new GLineChunk(rowCount + 5);
+                    GLine resusable = new GLine(1);
+                    if (chunk.Array.Length >= 8) {
+                        chunk.Array[7] = resusable;
+                    }
+                    buff.CloneLinesByID(startRowID, chunk.Span(5, rowCount), true);
+
+                    for (int i = 0; i < 5; i++) {
+                        Assert.IsNull(chunk.Array[i]);
+                    }
+                    String[] expectedContents = appender.Last(PAGE_SIZE + 6).Skip(start).Take(rowCount).Select(l => l.ToNormalString()).ToArray();
+                    String[] actualContents = chunk.Array.Skip(5).Select(l => l.ToNormalString()).ToArray();
+                    CollectionAssert.AreEqual(expectedContents, actualContents);
+
+                    if (chunk.Array.Length >= 8) {
+                        Assert.AreSame(resusable, chunk.Array[7]);
+                    }
+                }
+            }
+        }
+
         private GLine[] CreateLines(int num) {
             return Enumerable.Range(0, num).Select(_ => new GLine(1)).ToArray();
         }
@@ -1621,9 +1676,13 @@ namespace Poderosa.Document {
                 int expectedSize = pageSize[i];
                 Assert.AreEqual(expectedSize, pages[i].Size);
 
-                var chunk = new GLineChunk(expectedSize);
-                pages[i].CopyTo(0, chunk.Span(0, expectedSize));
-                CollectionAssert.AreEqual(lineSource.Skip(skipLines).Take(expectedSize), chunk.Array);
+                List<GLine> list = new List<GLine>();
+                pages[i].Apply(0, expectedSize, s => {
+                    for (int k = 0; k < s.Length; k++) {
+                        list.Add(s.Array[s.Offset + k]);
+                    }
+                });
+                CollectionAssert.AreEqual(lineSource.Skip(skipLines).Take(expectedSize), list);
                 skipLines += expectedSize;
             }
         }

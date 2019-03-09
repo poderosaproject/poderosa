@@ -78,18 +78,18 @@ namespace Poderosa.Document {
                 }
             }
 
-            public void CopyTo(int index, GLineChunkSpan span) {
+            public void Apply(int index, int length, Action<GLineChunkSpan> action) {
                 if (index < 0) {
                     throw new ArgumentException("invalid index");
                 }
 
                 int srcIndex = _startIndex + index;
-                int endIndex = srcIndex + span.Length;
+                int endIndex = srcIndex + length;
                 if (srcIndex >= _endIndex || endIndex > _endIndex) {
                     throw new IndexOutOfRangeException();
                 }
 
-                Array.Copy(_glines, srcIndex, span.Array, span.Offset, span.Length);
+                action(new GLineChunkSpan(_glines, srcIndex, length));
             }
 
             public IEnumerable<GLine> Peek(int offset, int length) {
@@ -394,6 +394,58 @@ namespace Poderosa.Document {
         /// the range specified by <paramref name="startRowID"/> and <paramref name="span"/> doesn't match with this buffer
         /// </exception>
         public void GetLinesByID(int startRowID, GLineChunkSpan span) {
+            int spanOffset = 0;
+            Apply(startRowID, span.Length, s => {
+                Array.Copy(s.Array, s.Offset, span.Array, span.Offset + spanOffset, s.Length);
+                spanOffset += s.Length;
+            });
+        }
+
+        /// <summary>
+        /// Clone lines starting with the specified row ID.
+        /// </summary>
+        /// <param name="startRowID">row ID of the first row</param>
+        /// <param name="span">
+        /// a span of the GLine array to store the copied rows.
+        /// the chunk length dictates the number of rows to copy.
+        /// </param>
+        /// <param name="reuse">true if reuse GLine object in the array of <paramref name="span"/>.</param>
+        /// <exception cref="InvalidOperationException">buffer is empty</exception>
+        /// <exception cref="ArgumentException">length is smaller than zero</exception>
+        /// <exception cref="IndexOutOfRangeException">
+        /// the range specified by <paramref name="startRowID"/> and <paramref name="span"/> doesn't match with this buffer
+        /// </exception>
+        public void CloneLinesByID(int startRowID, GLineChunkSpan span, bool reuse) {
+            int spanOffset = span.Offset;
+            Apply(startRowID, span.Length, s => {
+                for (int i = 0; i < s.Length; i++) {
+                    GLine src = s.Array[s.Offset + i];
+                    GLine dest = span.Array[spanOffset];
+                    if (reuse && dest != null) {
+                        dest.CopyFrom(src);
+                    }
+                    else {
+                        span.Array[spanOffset] = src.Clone();
+                    }
+                    spanOffset++;
+                }
+            });
+        }
+
+        /// <summary>
+        /// Calls action for the specified range.
+        /// </summary>
+        /// <param name="startRowID">row ID of the first row</param>
+        /// <param name="length">number of rows</param>
+        /// <param name="action">
+        /// action to be called for each span.
+        /// </param>
+        /// <exception cref="InvalidOperationException">buffer is empty</exception>
+        /// <exception cref="ArgumentException">length is smaller than zero</exception>
+        /// <exception cref="IndexOutOfRangeException">
+        /// the range specified by <paramref name="startRowID"/> and <paramref name="length"/> doesn't match with this buffer
+        /// </exception>
+        private void Apply(int startRowID, int length, Action<GLineChunkSpan> action) {
             lock (_syncRoot) {
                 if (_rowCount <= 0) {
                     throw new InvalidOperationException("no lines");
@@ -403,7 +455,7 @@ namespace Poderosa.Document {
                 int rowIndex = startRowID - _firstRowID;
 
                 // check range
-                if (rowIndex < 0 || rowIndex + span.Length > _rowCount) {
+                if (rowIndex < 0 || rowIndex + length > _rowCount) {
                     throw new IndexOutOfRangeException();
                 }
 
@@ -422,16 +474,14 @@ namespace Poderosa.Document {
                 }
 
                 // get lines
-                if (span.Length > 0) {
+                if (length > 0) {
                     int lineCount = 0;
-                    int subSpanOffset = 0;
                     for (; ; ) {
                         GLinePage page = _pageList[pageIndex];
-                        int rowsToRead = Math.Min(page.Size - pageRowIndex, span.Length - lineCount);
-                        page.CopyTo(pageRowIndex, span.Span(subSpanOffset, rowsToRead));
-                        subSpanOffset += rowsToRead;
+                        int rowsToRead = Math.Min(page.Size - pageRowIndex, length - lineCount);
+                        page.Apply(pageRowIndex, rowsToRead, action);
                         lineCount += rowsToRead;
-                        if (lineCount >= span.Length) {
+                        if (lineCount >= length) {
                             break;
                         }
                         pageIndex++;
