@@ -52,8 +52,11 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="capacity">minimum capacity</param>
         public void EnsureCapacity(int capacity) {
-            if (_array.Length < capacity) {
-                _array = new GLine[capacity];
+            GLine[] oldArray = _array;
+            if (oldArray.Length < capacity) {
+                GLine[] newArray = new GLine[capacity];
+                System.Array.Copy(oldArray, 0, newArray, 0, oldArray.Length);
+                _array = newArray;
             }
         }
 
