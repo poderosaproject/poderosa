@@ -120,6 +120,7 @@
     <Compile Include="PopupViewContainer.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="RowIDSpan.cs" />
     <Compile Include="Unicode.cs" />
     <Compile Include="RenderProfileSerialize.cs" />
     <Compile Include="Selection.cs" />

@@ -239,7 +239,7 @@ namespace Poderosa.Document {
         private int _rowCount = 0;
         private int _firstRowID = 1;  // Row ID of the first row
 
-        private readonly object _syncRoot = new object();
+        private readonly object _syncRoot;
 
         /// <summary>
         /// Object for synchronization of the buffer operations.
@@ -251,20 +251,13 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
-        /// Row ID of the first row in this buffer, or null if this buffer was empty.
+        /// Row ID span of this document.
         /// </summary>
-        public int? FirstRowID {
+        public RowIDSpan RowIDSpan {
             get {
-                return (_rowCount > 0) ? _firstRowID : (int?)null;
-            }
-        }
-
-        /// <summary>
-        /// Row ID of the last row in this buffer, or null if this buffer was empty.
-        /// </summary>
-        public int? LastRowID {
-            get {
-                return (_rowCount > 0) ? _firstRowID + _rowCount - 1 : (int?)null;
+                lock (_syncRoot) {
+                    return new RowIDSpan(_firstRowID, _rowCount);
+                }
             }
         }
 
@@ -272,14 +265,31 @@ namespace Poderosa.Document {
         /// Constructs an instance with the default capacity.
         /// </summary>
         public GLineBuffer()
-            : this(DEFAULT_CAPACITY) {
+            : this(null, DEFAULT_CAPACITY) {
+        }
+
+        /// <summary>
+        /// Constructs an instance with the default capacity.
+        /// </summary>
+        public GLineBuffer(object sync)
+            : this(sync, DEFAULT_CAPACITY) {
         }
 
         /// <summary>
         /// Constructs an instance with the specified capacity.
         /// </summary>
         /// <param name="capacity">capacity of this buffer in number of rows.</param>
-        public GLineBuffer(int capacity) {
+        public GLineBuffer(int capacity)
+            : this(null, capacity) {
+        }
+
+        /// <summary>
+        /// Constructs an instance with the specified capacity.
+        /// </summary>
+        /// <param name="sync">an object to be used for the synchronization</param>
+        /// <param name="capacity">capacity of this buffer in number of rows.</param>
+        public GLineBuffer(object sync, int capacity) {
+            _syncRoot = sync ?? new object();
             capacity = Math.Max(capacity, 1);
             _capacity = capacity;
             _pageList = new GLinePageList(capacity);
@@ -402,37 +412,6 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
-        /// Clone lines starting with the specified row ID.
-        /// </summary>
-        /// <param name="startRowID">row ID of the first row</param>
-        /// <param name="span">
-        /// a span of the GLine array to store the copied rows.
-        /// the chunk length dictates the number of rows to copy.
-        /// </param>
-        /// <param name="reuse">true if reuse GLine object in the array of <paramref name="span"/>.</param>
-        /// <exception cref="InvalidOperationException">buffer is empty</exception>
-        /// <exception cref="ArgumentException">length is smaller than zero</exception>
-        /// <exception cref="IndexOutOfRangeException">
-        /// the range specified by <paramref name="startRowID"/> and <paramref name="span"/> doesn't match with this buffer
-        /// </exception>
-        public void CloneLinesByID(int startRowID, GLineChunkSpan span, bool reuse) {
-            int spanOffset = span.Offset;
-            Apply(startRowID, span.Length, s => {
-                for (int i = 0; i < s.Length; i++) {
-                    GLine src = s.Array[s.Offset + i];
-                    GLine dest = span.Array[spanOffset];
-                    if (reuse && dest != null) {
-                        dest.CopyFrom(src);
-                    }
-                    else {
-                        span.Array[spanOffset] = src.Clone();
-                    }
-                    spanOffset++;
-                }
-            });
-        }
-
-        /// <summary>
         /// Calls action for the specified range.
         /// </summary>
         /// <param name="startRowID">row ID of the first row</param>
@@ -445,7 +424,7 @@ namespace Poderosa.Document {
         /// <exception cref="IndexOutOfRangeException">
         /// the range specified by <paramref name="startRowID"/> and <paramref name="length"/> doesn't match with this buffer
         /// </exception>
-        private void Apply(int startRowID, int length, Action<GLineChunkSpan> action) {
+        public void Apply(int startRowID, int length, Action<GLineChunkSpan> action) {
             lock (_syncRoot) {
                 if (_rowCount <= 0) {
                     throw new InvalidOperationException("no lines");

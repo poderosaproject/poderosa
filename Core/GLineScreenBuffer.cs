@@ -31,7 +31,7 @@ namespace Poderosa.Document {
         private int _startIndex;
         private int _size;
 
-        private readonly object _syncRoot = new object();
+        private readonly object _syncRoot;
 
         /// <summary>
         /// Synchronization object
@@ -87,10 +87,22 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="rows">number of visible rows</param>
         /// <param name="createLine">a function to get the initial GLine objects</param>
-        public GLineScreenBuffer(int rows, Func<int, GLine> createLine) {
+        public GLineScreenBuffer(int rows, Func<int, GLine> createLine)
+            : this(null, rows, createLine) {
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="sync">an object to be used for the synchronization</param>
+        /// <param name="rows">number of visible rows</param>
+        /// <param name="createLine">a function to get the initial GLine objects</param>
+        public GLineScreenBuffer(object sync, int rows, Func<int, GLine> createLine) {
             if (rows <= 0) {
                 throw new ArgumentException("invalid value", "rows");
             }
+
+            _syncRoot = sync ?? new object();
 
             _buff = new GLine[CalcBufferSize(rows)];
             _startIndex = 0;
@@ -111,6 +123,8 @@ namespace Poderosa.Document {
             if (rows <= 0) {
                 throw new ArgumentException("invalid value", "rows");
             }
+
+            _syncRoot = new object();
 
             _buff = new GLine[CalcBufferSize(rows)];
             _startIndex = startIndex;
@@ -398,6 +412,42 @@ namespace Poderosa.Document {
                     srcRowIndex--;
                 }
                 CopyToBuffer(newRows.Array, newRows.Offset, RowIndexToBuffIndex(startRowIndex), scrollSize);
+            }
+        }
+
+        /// <summary>
+        /// Calls action for the specified range.
+        /// </summary>
+        /// <param name="rowIndex">row index</param>
+        /// <param name="length">number of rows</param>
+        /// <param name="action">
+        /// action to be called for each span.
+        /// </param>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="IndexOutOfRangeException">
+        /// the range specified by <paramref name="rowIndex"/> and <paramref name="length"/> doesn't match with this buffer
+        /// </exception>
+        public void Apply(int rowIndex, int length, Action<GLineChunkSpan> action) {
+            lock (_syncRoot) {
+                if (length < 0) {
+                    throw new ArgumentException("invalid value", "length");
+                }
+
+                // check range
+                if (rowIndex < 0 || rowIndex + length > _size) {
+                    throw new IndexOutOfRangeException();
+                }
+
+                // determine buffer index
+                int buffIndex = RowIndexToBuffIndex(rowIndex);
+                int sizeToEnd = _buff.Length - buffIndex;
+                if (sizeToEnd >= length) {
+                    action(new GLineChunkSpan(_buff, buffIndex, length));
+                }
+                else {
+                    action(new GLineChunkSpan(_buff, buffIndex, sizeToEnd));
+                    action(new GLineChunkSpan(_buff, 0, length - sizeToEnd));
+                }
             }
         }
 

@@ -708,6 +708,58 @@ namespace Poderosa.Document {
             CollectionAssert.AreEqual(expectedScreenRows, GetScreenRows(buff));
         }
 
+        [TestCase(0, 20, 0, 0)]
+        [TestCase(0, 20, 0, 1)]
+        [TestCase(0, 20, 0, 20)]
+        [TestCase(0, 20, 5, 10)]
+        [TestCase(0, 20, 5, 15)]
+        [TestCase(54, 20, 0, 10)]
+        [TestCase(54, 20, 0, 11)]
+        [TestCase(54, 20, 0, 20)]
+        [TestCase(54, 20, 5, 10)]
+        [TestCase(54, 20, 5, 15)]
+        public void Apply_Success(int startIndex, int size, int rowIndex, int length) {
+
+            var buff = new GLineScreenBuffer(startIndex, size, (index) => _glines[index]);
+
+            List<GLine> list = new List<GLine>();
+
+            buff.Apply(rowIndex, length, s => {
+                for (int i = 0; i < s.Length; i++) {
+                    list.Add(s.Array[s.Offset + i]);
+                }
+            });
+
+            var expectedScreenRows = GLines(rowIndex, length);
+
+            CollectionAssert.AreEqual(expectedScreenRows, list);
+        }
+
+        [TestCase(0, 20, -1, 1)]
+        [TestCase(0, 20, 0, -1)]
+        [TestCase(0, 20, -1, 1)]
+        [TestCase(0, 20, 0, 21)]
+        [TestCase(0, 20, 5, 16)]
+        public void Apply_Error(int startIndex, int size, int rowIndex, int length) {
+
+            var buff = new GLineScreenBuffer(startIndex, size, (index) => _glines[index]);
+
+            List<GLine> list = new List<GLine>();
+
+            if (length < 0) {
+                Assert.Throws<ArgumentException>(() => {
+                    buff.Apply(rowIndex, length, s => {
+                    });
+                });
+            }
+            else {
+                Assert.Throws<IndexOutOfRangeException>(() => {
+                    buff.Apply(rowIndex, length, s => {
+                    });
+                });
+            }
+        }
+
         private GLineChunk GetFilledGLineChunk(int rows) {
             GLineChunk chunk = new GLineChunk(rows);
             for (int i = 0; i < chunk.Array.Length; i++) {

@@ -935,12 +935,16 @@ namespace Poderosa.Document {
             }
         }
 
+        private void AssertRowIDSpan(int expectedStart, int expectedLength, RowIDSpan span) {
+            Assert.AreEqual(expectedStart, span.Start);
+            Assert.AreEqual(expectedLength, span.Length);
+        }
+
         [Test]
         public void GLineBuffer_Initial() {
             GLineBuffer buff = new GLineBuffer(99999);
 
-            Assert.IsNull(buff.FirstRowID);
-            Assert.IsNull(buff.LastRowID);
+            AssertRowIDSpan(1, 0, buff.RowIDSpan);
 
             CollectionAssert.IsEmpty(buff.GetAllPages());
         }
@@ -960,15 +964,13 @@ namespace Poderosa.Document {
 
             GLineBuffer buff = new GLineBuffer(100);
 
-            Assert.IsNull(buff.FirstRowID);
-            Assert.IsNull(buff.LastRowID);
+            AssertRowIDSpan(1, 0, buff.RowIDSpan);
 
             //------------------------------------------
 
             appender.Append(buff, 100);
 
-            Assert.AreEqual(1, buff.FirstRowID);
-            Assert.AreEqual(100, buff.LastRowID);
+            AssertRowIDSpan(1, 100, buff.RowIDSpan);
 
             CheckBuffContent(buff, appender, 100);
             CheckPages(buff, appender, new int[] { 100 });
@@ -987,8 +989,7 @@ namespace Poderosa.Document {
 
                 // one oldest line was removed
 
-                Assert.AreEqual(expectedRowIDOffset + 2, buff.FirstRowID);
-                Assert.AreEqual(expectedRowIDOffset + 101, buff.LastRowID);
+                AssertRowIDSpan(expectedRowIDOffset + 2, 100, buff.RowIDSpan);
 
                 CheckBuffContent(buff, appender, 100);
                 CheckPages(buff, appender, new int[] { 100 });
@@ -998,8 +999,7 @@ namespace Poderosa.Document {
                 // fill the current page
                 appender.Append(buff, PAGE_SIZE - 101);
 
-                Assert.AreEqual(expectedRowIDOffset + PAGE_SIZE - 99, buff.FirstRowID);
-                Assert.AreEqual(expectedRowIDOffset + PAGE_SIZE, buff.LastRowID);
+                AssertRowIDSpan(expectedRowIDOffset + PAGE_SIZE - 99, 100, buff.RowIDSpan);
 
                 CheckBuffContent(buff, appender, 100);
                 CheckPages(buff, appender, new int[] { 100 });
@@ -1010,8 +1010,7 @@ namespace Poderosa.Document {
 
                 // a new page was added
 
-                Assert.AreEqual(expectedRowIDOffset + PAGE_SIZE - 98, buff.FirstRowID);
-                Assert.AreEqual(expectedRowIDOffset + PAGE_SIZE + 1, buff.LastRowID);
+                AssertRowIDSpan(expectedRowIDOffset + PAGE_SIZE - 98, 100, buff.RowIDSpan);
 
                 CheckBuffContent(buff, appender, 100);
                 CheckPages(buff, appender, new int[] { 99, 1 });
@@ -1020,8 +1019,7 @@ namespace Poderosa.Document {
 
                 appender.Append(buff, 98);
 
-                Assert.AreEqual(expectedRowIDOffset + PAGE_SIZE, buff.FirstRowID);
-                Assert.AreEqual(expectedRowIDOffset + PAGE_SIZE + 99, buff.LastRowID);
+                AssertRowIDSpan(expectedRowIDOffset + PAGE_SIZE, 100, buff.RowIDSpan);
 
                 CheckBuffContent(buff, appender, 100);
                 CheckPages(buff, appender, new int[] { 1, 99 });
@@ -1032,8 +1030,7 @@ namespace Poderosa.Document {
 
                 // oldest page was removed
 
-                Assert.AreEqual(expectedRowIDOffset + PAGE_SIZE + 1, buff.FirstRowID);
-                Assert.AreEqual(expectedRowIDOffset + PAGE_SIZE + 100, buff.LastRowID);
+                AssertRowIDSpan(expectedRowIDOffset + PAGE_SIZE + 1, 100, buff.RowIDSpan);
 
                 CheckBuffContent(buff, appender, 100);
                 CheckPages(buff, appender, new int[] { 100 });
@@ -1055,15 +1052,13 @@ namespace Poderosa.Document {
 
             GLineBuffer buff = new GLineBuffer(PAGE_SIZE);
 
-            Assert.IsNull(buff.FirstRowID);
-            Assert.IsNull(buff.LastRowID);
+            AssertRowIDSpan(1, 0, buff.RowIDSpan);
 
             //------------------------------------------
 
             appender.Append(buff, PAGE_SIZE);
 
-            Assert.AreEqual(1, buff.FirstRowID);
-            Assert.AreEqual(PAGE_SIZE, buff.LastRowID);
+            AssertRowIDSpan(1, PAGE_SIZE, buff.RowIDSpan);
 
             CheckBuffContent(buff, appender, PAGE_SIZE);
             CheckPages(buff, appender, new int[] { PAGE_SIZE });
@@ -1082,8 +1077,7 @@ namespace Poderosa.Document {
 
                 // a new page was added
 
-                Assert.AreEqual(expectedRowIDOffset + 2, buff.FirstRowID);
-                Assert.AreEqual(expectedRowIDOffset + PAGE_SIZE + 1, buff.LastRowID);
+                AssertRowIDSpan(expectedRowIDOffset + 2, PAGE_SIZE, buff.RowIDSpan);
 
                 CheckBuffContent(buff, appender, PAGE_SIZE);
                 CheckPages(buff, appender, new int[] { PAGE_SIZE - 1, 1 });
@@ -1092,8 +1086,7 @@ namespace Poderosa.Document {
 
                 appender.Append(buff, PAGE_SIZE - 2);
 
-                Assert.AreEqual(expectedRowIDOffset + PAGE_SIZE, buff.FirstRowID);
-                Assert.AreEqual(expectedRowIDOffset + PAGE_SIZE + PAGE_SIZE - 1, buff.LastRowID);
+                AssertRowIDSpan(expectedRowIDOffset + PAGE_SIZE, PAGE_SIZE, buff.RowIDSpan);
 
                 CheckBuffContent(buff, appender, PAGE_SIZE);
                 CheckPages(buff, appender, new int[] { 1, PAGE_SIZE - 1 });
@@ -1104,8 +1097,7 @@ namespace Poderosa.Document {
 
                 // oldest page was removed
 
-                Assert.AreEqual(expectedRowIDOffset + PAGE_SIZE + 1, buff.FirstRowID);
-                Assert.AreEqual(expectedRowIDOffset + PAGE_SIZE + PAGE_SIZE, buff.LastRowID);
+                AssertRowIDSpan(expectedRowIDOffset + PAGE_SIZE + 1, PAGE_SIZE, buff.RowIDSpan);
 
                 CheckBuffContent(buff, appender, PAGE_SIZE);
                 CheckPages(buff, appender, new int[] { PAGE_SIZE });
@@ -1128,15 +1120,13 @@ namespace Poderosa.Document {
 
             GLineBuffer buff = new GLineBuffer(CAPACITY);
 
-            Assert.IsNull(buff.FirstRowID);
-            Assert.IsNull(buff.LastRowID);
+            AssertRowIDSpan(1, 0, buff.RowIDSpan);
 
             //------------------------------------------
 
             appender.Append(buff, CAPACITY);
 
-            Assert.AreEqual(1, buff.FirstRowID);
-            Assert.AreEqual(CAPACITY, buff.LastRowID);
+            AssertRowIDSpan(1, CAPACITY, buff.RowIDSpan);
 
             CheckBuffContent(buff, appender, CAPACITY);
             CheckPages(buff, appender, new int[] { PAGE_SIZE, PAGE_SIZE, 500 });
@@ -1155,8 +1145,7 @@ namespace Poderosa.Document {
 
                 // one oldest line was removed
 
-                Assert.AreEqual(expectedRowIDOffset + 2, buff.FirstRowID);
-                Assert.AreEqual(expectedRowIDOffset + CAPACITY + 1, buff.LastRowID);
+                AssertRowIDSpan(expectedRowIDOffset + 2, CAPACITY, buff.RowIDSpan);
 
                 CheckBuffContent(buff, appender, CAPACITY);
                 CheckPages(buff, appender, new int[] { PAGE_SIZE - 1, PAGE_SIZE, 501 });
@@ -1166,8 +1155,7 @@ namespace Poderosa.Document {
                 // fill the last page
                 appender.Append(buff, PAGE_SIZE - 501);
 
-                Assert.AreEqual(expectedRowIDOffset + PAGE_SIZE - 499, buff.FirstRowID);
-                Assert.AreEqual(expectedRowIDOffset + CAPACITY + PAGE_SIZE - 500, buff.LastRowID);
+                AssertRowIDSpan(expectedRowIDOffset + PAGE_SIZE - 499, CAPACITY, buff.RowIDSpan);
 
                 CheckBuffContent(buff, appender, CAPACITY);
                 CheckPages(buff, appender, new int[] { 500, PAGE_SIZE, PAGE_SIZE });
@@ -1178,8 +1166,7 @@ namespace Poderosa.Document {
 
                 // a new page was added
 
-                Assert.AreEqual(expectedRowIDOffset + PAGE_SIZE - 498, buff.FirstRowID);
-                Assert.AreEqual(expectedRowIDOffset + CAPACITY + PAGE_SIZE - 499, buff.LastRowID);
+                AssertRowIDSpan(expectedRowIDOffset + PAGE_SIZE - 498, CAPACITY, buff.RowIDSpan);
 
                 CheckBuffContent(buff, appender, CAPACITY);
                 CheckPages(buff, appender, new int[] { 499, PAGE_SIZE, PAGE_SIZE, 1 });
@@ -1188,8 +1175,7 @@ namespace Poderosa.Document {
 
                 appender.Append(buff, 498);
 
-                Assert.AreEqual(expectedRowIDOffset + PAGE_SIZE, buff.FirstRowID);
-                Assert.AreEqual(expectedRowIDOffset + CAPACITY + PAGE_SIZE - 1, buff.LastRowID);
+                AssertRowIDSpan(expectedRowIDOffset + PAGE_SIZE, CAPACITY, buff.RowIDSpan);
 
                 CheckBuffContent(buff, appender, CAPACITY);
                 CheckPages(buff, appender, new int[] { 1, PAGE_SIZE, PAGE_SIZE, 499 });
@@ -1200,8 +1186,7 @@ namespace Poderosa.Document {
 
                 // oldest page was removed
 
-                Assert.AreEqual(expectedRowIDOffset + PAGE_SIZE + 1, buff.FirstRowID);
-                Assert.AreEqual(expectedRowIDOffset + CAPACITY + PAGE_SIZE, buff.LastRowID);
+                AssertRowIDSpan(expectedRowIDOffset + PAGE_SIZE + 1, CAPACITY, buff.RowIDSpan);
 
                 CheckBuffContent(buff, appender, CAPACITY);
                 CheckPages(buff, appender, new int[] { PAGE_SIZE, PAGE_SIZE, 500 });
@@ -1216,9 +1201,7 @@ namespace Poderosa.Document {
 
             appender.Append(buff, 30000); // call GLineBuffer.Append(IEnumerable<GLine>) once
 
-            Assert.AreEqual(10001, buff.FirstRowID);
-            Assert.AreEqual(30000, buff.LastRowID);
-
+            AssertRowIDSpan(10001, 20000, buff.RowIDSpan);
             CheckBuffContent(buff, appender, 20000);
         }
 
@@ -1230,15 +1213,13 @@ namespace Poderosa.Document {
             ILineAppender appender = new LineAppender1();
             appender.Append(buff, 300);
 
-            Assert.AreEqual(201, buff.FirstRowID);
-            Assert.AreEqual(300, buff.LastRowID);
+            AssertRowIDSpan(201, 100, buff.RowIDSpan);
             CheckBuffContent(buff, appender, 100);
 
             // add zero lines
             buff.Append(new GLine[0]);
 
-            Assert.AreEqual(201, buff.FirstRowID);
-            Assert.AreEqual(300, buff.LastRowID);
+            AssertRowIDSpan(201, 100, buff.RowIDSpan);
             CheckBuffContent(buff, appender, 100);
         }
 
@@ -1251,8 +1232,7 @@ namespace Poderosa.Document {
             ILineAppender appender = new LineAppender1();
             appender.Append(buff, PAGE_SIZE * 3 + 100);
 
-            Assert.AreEqual(1, buff.FirstRowID);
-            Assert.AreEqual(PAGE_SIZE * 3 + 100, buff.LastRowID);
+            AssertRowIDSpan(1, PAGE_SIZE * 3 + 100, buff.RowIDSpan);
 
             CheckBuffContent(buff, appender, PAGE_SIZE * 3 + 100);
             CheckPages(buff, appender, new int[] { PAGE_SIZE, PAGE_SIZE, PAGE_SIZE, 100 });
@@ -1271,8 +1251,7 @@ namespace Poderosa.Document {
                     ),
                     chunk.Array);
 
-                Assert.AreEqual(1, buff.FirstRowID);
-                Assert.AreEqual(PAGE_SIZE * 3 + 1, buff.LastRowID);
+                AssertRowIDSpan(1, PAGE_SIZE * 3 + 1, buff.RowIDSpan);
 
                 CheckBuffContent(buff, appender.Rows(), PAGE_SIZE * 3 + 1);
                 CheckPages(buff, appender.Rows(), new int[] { PAGE_SIZE, PAGE_SIZE, PAGE_SIZE, 1 });
@@ -1294,8 +1273,7 @@ namespace Poderosa.Document {
                     ),
                     chunk.Array);
 
-                Assert.AreEqual(1, buff.FirstRowID);
-                Assert.AreEqual(PAGE_SIZE * 3, buff.LastRowID);
+                AssertRowIDSpan(1, PAGE_SIZE * 3, buff.RowIDSpan);
 
                 CheckBuffContent(buff, appender.Rows(), PAGE_SIZE * 3);
                 CheckPages(buff, appender.Rows(), new int[] { PAGE_SIZE, PAGE_SIZE, PAGE_SIZE });
@@ -1317,8 +1295,7 @@ namespace Poderosa.Document {
                     ),
                     chunk.Array);
 
-                Assert.AreEqual(1, buff.FirstRowID);
-                Assert.AreEqual(PAGE_SIZE * 2, buff.LastRowID);
+                AssertRowIDSpan(1, PAGE_SIZE * 2, buff.RowIDSpan);
 
                 CheckBuffContent(buff, appender.Rows(), PAGE_SIZE * 2);
                 CheckPages(buff, appender.Rows(), new int[] { PAGE_SIZE, PAGE_SIZE });
@@ -1340,8 +1317,7 @@ namespace Poderosa.Document {
                     ),
                     chunk.Array);
 
-                Assert.AreEqual(1, buff.FirstRowID);
-                Assert.AreEqual(PAGE_SIZE - 1, buff.LastRowID);
+                AssertRowIDSpan(1, PAGE_SIZE - 1, buff.RowIDSpan);
 
                 CheckBuffContent(buff, appender.Rows(), PAGE_SIZE - 1);
                 CheckPages(buff, appender.Rows(), new int[] { PAGE_SIZE - 1 });
@@ -1354,8 +1330,7 @@ namespace Poderosa.Document {
 
                 appender.Append(buff, 2);
 
-                Assert.AreEqual(1, buff.FirstRowID);
-                Assert.AreEqual(PAGE_SIZE + 1, buff.LastRowID);
+                AssertRowIDSpan(1, PAGE_SIZE + 1, buff.RowIDSpan);
 
                 CheckBuffContent(buff,
                     GLineSequenceUtil.Concat(
@@ -1379,8 +1354,7 @@ namespace Poderosa.Document {
 
                 // no change
 
-                Assert.AreEqual(1, buff.FirstRowID);
-                Assert.AreEqual(PAGE_SIZE + 1, buff.LastRowID);
+                AssertRowIDSpan(1, PAGE_SIZE + 1, buff.RowIDSpan);
 
                 CheckBuffContent(buff,
                     GLineSequenceUtil.Concat(
@@ -1411,8 +1385,7 @@ namespace Poderosa.Document {
                     ),
                     chunk.Array);
 
-                Assert.IsNull(buff.FirstRowID);
-                Assert.IsNull(buff.LastRowID);
+                AssertRowIDSpan(1, 0, buff.RowIDSpan);
 
                 CollectionAssert.IsEmpty(buff.GetAllPages());
             }
@@ -1436,8 +1409,7 @@ namespace Poderosa.Document {
             GLineBuffer.GLinePage[] origPages = buff.GetAllPages();
             Assert.AreEqual(4, origPages.Length);    // confirm that the page list is full 
 
-            Assert.AreEqual(LINES_TO_ADD - BUFFER_CAPACITY + 1, buff.FirstRowID);
-            Assert.AreEqual(LINES_TO_ADD, buff.LastRowID);
+            AssertRowIDSpan(LINES_TO_ADD - BUFFER_CAPACITY + 1, BUFFER_CAPACITY, buff.RowIDSpan);
 
             CheckBuffContent(buff, appender, BUFFER_CAPACITY);
 
@@ -1449,8 +1421,7 @@ namespace Poderosa.Document {
 
             // all rows have been retained
 
-            Assert.AreEqual(LINES_TO_ADD - BUFFER_CAPACITY + 1, buff.FirstRowID);
-            Assert.AreEqual(LINES_TO_ADD, buff.LastRowID);
+            AssertRowIDSpan(LINES_TO_ADD - BUFFER_CAPACITY + 1, BUFFER_CAPACITY, buff.RowIDSpan);
 
             CheckBuffContent(buff, appender, BUFFER_CAPACITY);
 
@@ -1461,8 +1432,7 @@ namespace Poderosa.Document {
 
             appender.Append(buff, 10);
 
-            Assert.AreEqual(LINES_TO_ADD - BUFFER_CAPACITY + 1, buff.FirstRowID); // not change
-            Assert.AreEqual(LINES_TO_ADD + 10, buff.LastRowID);
+            AssertRowIDSpan(LINES_TO_ADD - BUFFER_CAPACITY + 1, BUFFER_CAPACITY + 10, buff.RowIDSpan);
 
             CheckBuffContent(buff, appender, BUFFER_CAPACITY + 10);
         }
@@ -1485,8 +1455,7 @@ namespace Poderosa.Document {
             GLineBuffer.GLinePage[] origPages = buff.GetAllPages();
             Assert.AreEqual(4, origPages.Length);    // confirm that the page list is full 
 
-            Assert.AreEqual(LINES_TO_ADD - BUFFER_CAPACITY + 1, buff.FirstRowID);
-            Assert.AreEqual(LINES_TO_ADD, buff.LastRowID);
+            AssertRowIDSpan(LINES_TO_ADD - BUFFER_CAPACITY + 1, BUFFER_CAPACITY, buff.RowIDSpan);
 
             CheckBuffContent(buff, appender, BUFFER_CAPACITY);
 
@@ -1498,8 +1467,7 @@ namespace Poderosa.Document {
 
             // only latest rows have been retained
 
-            Assert.AreEqual(LINES_TO_ADD - NEW_BUFFER_CAPACITY + 1, buff.FirstRowID);
-            Assert.AreEqual(LINES_TO_ADD, buff.LastRowID);
+            AssertRowIDSpan(LINES_TO_ADD - NEW_BUFFER_CAPACITY + 1, NEW_BUFFER_CAPACITY, buff.RowIDSpan);
 
             CheckBuffContent(buff, appender, NEW_BUFFER_CAPACITY);
 
@@ -1510,8 +1478,7 @@ namespace Poderosa.Document {
 
             appender.Append(buff, 10);
 
-            Assert.AreEqual(LINES_TO_ADD - NEW_BUFFER_CAPACITY + 11, buff.FirstRowID);
-            Assert.AreEqual(LINES_TO_ADD + 10, buff.LastRowID);
+            AssertRowIDSpan(LINES_TO_ADD - NEW_BUFFER_CAPACITY + 11, NEW_BUFFER_CAPACITY, buff.RowIDSpan);
 
             CheckBuffContent(buff, appender, NEW_BUFFER_CAPACITY);
         }
@@ -1584,81 +1551,6 @@ namespace Poderosa.Document {
             }
         }
 
-        [Test]
-        public void GLineBuffer_CloneLinesByID() {
-            const int PAGE_SIZE = GLineBuffer.ROWS_PER_PAGE;
-
-            GLineBuffer buff = new GLineBuffer(PAGE_SIZE + 6);
-
-            ILineAppender appender = new LineAppender1();
-            appender.Append(buff, PAGE_SIZE * 2 + 3);
-
-            // Page status:
-            //
-            //   page[0]
-            //     null    x (PAGE_SIZE - 3)
-            //     GLine   x 3
-            //
-            //   page[1]
-            //     GLine   x (PAGE_SIZE)
-            //
-            //   page[2]
-            //     GLine   x 3
-            //     null    x (PAGE_SIZE - 3)
-
-            CheckPages(buff, appender, new int[] { 3, PAGE_SIZE, 3 });
-
-            // call GetLinesByID with some range patterns:
-            //   - starts before the page boundary
-            //   - starts at the page boundary
-            //   - starts after the page boundary
-            //   - ends before the page boundary
-            //   - ends at the page boundary
-            //   - ends after the page boundary
-
-            for (int start = 0; start < 6; start++) {
-                // start = 0 --> page[0][PAGE_SIZE - 3]  Row ID: PAGE_SIZE - 2
-                // start = 1 --> page[0][PAGE_SIZE - 2]  Row ID: PAGE_SIZE - 1
-                // start = 2 --> page[0][PAGE_SIZE - 1]  Row ID: PAGE_SIZE
-                // start = 3 --> page[1][0]              Row ID: PAGE_SIZE + 1
-                // start = 4 --> page[1][1]              Row ID: PAGE_SIZE + 2
-                // start = 5 --> page[1][2]              Row ID: PAGE_SIZE + 3
-
-                int startRowID = start + PAGE_SIZE - 2;
-
-                for (int end = 0; end < 6; end++) {
-                    // end = 0 --> page[1][PAGE_SIZE - 3]  Row ID: PAGE_SIZE * 2 - 2
-                    // end = 1 --> page[1][PAGE_SIZE - 2]  Row ID: PAGE_SIZE * 2 - 1
-                    // end = 2 --> page[1][PAGE_SIZE - 1]  Row ID: PAGE_SIZE * 2
-                    // end = 3 --> page[2][0]              Row ID: PAGE_SIZE * 2 + 1
-                    // end = 4 --> page[2][1]              Row ID: PAGE_SIZE * 2 + 2
-                    // end = 5 --> page[2][2]              Row ID: PAGE_SIZE * 2 + 3
-
-                    int endRowID = end + PAGE_SIZE * 2 - 2;
-
-                    int rowCount = endRowID - startRowID + 1;
-
-                    var chunk = new GLineChunk(rowCount + 5);
-                    GLine resusable = new GLine(1);
-                    if (chunk.Array.Length >= 8) {
-                        chunk.Array[7] = resusable;
-                    }
-                    buff.CloneLinesByID(startRowID, chunk.Span(5, rowCount), true);
-
-                    for (int i = 0; i < 5; i++) {
-                        Assert.IsNull(chunk.Array[i]);
-                    }
-                    String[] expectedContents = appender.Last(PAGE_SIZE + 6).Skip(start).Take(rowCount).Select(l => l.ToNormalString()).ToArray();
-                    String[] actualContents = chunk.Array.Skip(5).Select(l => l.ToNormalString()).ToArray();
-                    CollectionAssert.AreEqual(expectedContents, actualContents);
-
-                    if (chunk.Array.Length >= 8) {
-                        Assert.AreSame(resusable, chunk.Array[7]);
-                    }
-                }
-            }
-        }
-
         private GLine[] CreateLines(int num) {
             return Enumerable.Range(0, num).Select(_ => new GLine(1)).ToArray();
         }
@@ -1693,7 +1585,7 @@ namespace Poderosa.Document {
 
         private void CheckBuffContent(GLineBuffer buff, IEnumerable<GLine> lineSource, int expectedSize) {
             var chunk = new GLineChunk(expectedSize);
-            buff.GetLinesByID(buff.FirstRowID.Value, chunk.Span(0, expectedSize));
+            buff.GetLinesByID(buff.RowIDSpan.Start, chunk.Span(0, expectedSize));
             CollectionAssert.AreEqual(lineSource.Take(expectedSize), chunk.Array);
         }
     }
