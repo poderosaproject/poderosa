@@ -81,8 +81,8 @@
     <Compile Include="BasicCommands.cs" />
     <Compile Include="BasicMenus.cs" />
     <Compile Include="Caret.cs" />
-    <Compile Include="CharacterDocument.cs" />
-    <Compile Include="CharacterDocumentViewer.cs">
+    <Compile Include="CharacterDocument_Old.cs" />
+    <Compile Include="CharacterDocumentViewer_Old.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="CommandEx.cs" />
@@ -128,7 +128,7 @@
     <Compile Include="Serialize.cs" />
     <Compile Include="SerializeEx.cs" />
     <Compile Include="SplittableView.cs" />
-    <Compile Include="TextSelection.cs" />
+    <Compile Include="TextSelection_Old.cs" />
     <Compile Include="ToolBar.cs">
       <SubType>Component</SubType>
     </Compile>

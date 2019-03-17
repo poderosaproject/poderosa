@@ -102,7 +102,7 @@ namespace Poderosa.LogViewer {
     }
 
     //ViewClass
-    internal class PoderosaLogViewControl : CharacterDocumentViewer, IPoderosaView, IGeneralViewCommands {
+    internal class PoderosaLogViewControl : CharacterDocumentViewer_Old, IPoderosaView, IGeneralViewCommands {
         private IPoderosaForm _form;
         private PoderosaLogViewerSession _session;
 
@@ -191,7 +191,7 @@ namespace Poderosa.LogViewer {
     }
 
     //DocClass
-    internal class PoderosaLogDocument : CharacterDocument, IPoderosaLogListener {
+    internal class PoderosaLogDocument : CharacterDocument_Old, IPoderosaLogListener {
         private PoderosaLogViewerSession _session;
 
         private bool _nextLineIsFirstLine;

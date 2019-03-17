@@ -26,7 +26,7 @@ namespace Poderosa.Terminal {
     /// 
     /// </summary>
     /// <exclude/>
-    public class TerminalDocument : CharacterDocument {
+    public class TerminalDocument : CharacterDocument_Old {
         private int _caretColumn;
         private int _scrollingTop;
         private int _scrollingBottom;

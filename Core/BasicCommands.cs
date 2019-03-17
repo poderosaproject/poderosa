@@ -756,7 +756,7 @@ namespace Poderosa.Commands {
         }
 
         public CommandResult InternalExecute(ICommandTarget target, params IAdaptable[] args) {
-            CharacterDocumentViewer control = (CharacterDocumentViewer)target.GetAdapter(typeof(CharacterDocumentViewer));
+            CharacterDocumentViewer_Old control = (CharacterDocumentViewer_Old)target.GetAdapter(typeof(CharacterDocumentViewer_Old));
             ITextSelection s = control.ITextSelection;
             if (s.IsEmpty || !control.EnabledEx)
                 return CommandResult.Ignored;
@@ -769,7 +769,7 @@ namespace Poderosa.Commands {
 
 
         public bool CanExecute(ICommandTarget target) {
-            CharacterDocumentViewer control = (CharacterDocumentViewer)target.GetAdapter(typeof(CharacterDocumentViewer));
+            CharacterDocumentViewer_Old control = (CharacterDocumentViewer_Old)target.GetAdapter(typeof(CharacterDocumentViewer_Old));
             return control.EnabledEx && !control.ITextSelection.IsEmpty;
         }
 

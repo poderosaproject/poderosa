@@ -40,17 +40,17 @@ namespace Poderosa.View {
     /// 
     /// </summary>
     /// <exclude/>
-    public class CharacterDocumentViewer : Control, IPoderosaControl, ISelectionListener, SplitMarkSupport.ISite {
+    public class CharacterDocumentViewer_Old : Control, IPoderosaControl, ISelectionListener, SplitMarkSupport.ISite {
 
         public const int BORDER = 2; //内側の枠線のサイズ
         internal const int TIMER_INTERVAL = 50; //再描画最適化とキャレット処理を行うタイマーの間隔
 
-        private CharacterDocument _document;
+        private CharacterDocument_Old _document;
         private bool _errorRaisedInDrawing;
         private readonly List<GLine> _transientLines; //再描画するGLineを一時的に保管する
         private readonly List<GLine> _glinePool;
         private bool _requiresPeriodicRedraw;
-        private TextSelection _textSelection;
+        private TextSelection_Old _textSelection;
         private SplitMarkSupport _splitMark;
         private bool _enabled; //ドキュメントがアタッチされていないときを示す 変更するときはEnabledExプロパティで！
 
@@ -69,7 +69,7 @@ namespace Poderosa.View {
         private OnPaintTimeObserver _onPaintTimeObserver = null;
 #endif
 
-        public CharacterDocumentViewer() {
+        public CharacterDocumentViewer_Old() {
             _enableAutoScrollBarAdjustment = true;
             _transientLines = new List<GLine>();
             _glinePool = new List<GLine>();
@@ -83,7 +83,7 @@ namespace Poderosa.View {
             p.DashStyle = System.Drawing.Drawing2D.DashStyle.Dot;
             _splitMark.Pen = p;
 
-            _textSelection = new TextSelection(this);
+            _textSelection = new TextSelection_Old(this);
             _textSelection.AddSelectionListener(this);
 
             _mouseHandlerManager = new MouseHandlerManager();
@@ -94,12 +94,12 @@ namespace Poderosa.View {
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
         }
 
-        public CharacterDocument CharacterDocument {
+        public CharacterDocument_Old CharacterDocument {
             get {
                 return _document;
             }
         }
-        internal TextSelection TextSelection {
+        internal TextSelection_Old TextSelection {
             get {
                 return _textSelection;
             }
@@ -192,7 +192,7 @@ namespace Poderosa.View {
         #endregion
 
         //派生型であることを強制することなどのためにoverrideすることを許す
-        public virtual void SetContent(CharacterDocument doc) {
+        public virtual void SetContent(CharacterDocument_Old doc) {
             RenderProfile prof = GetRenderProfile();
             this.BackColor = prof.BackColor;
             _document = doc;
@@ -284,14 +284,14 @@ namespace Poderosa.View {
 
         public void MousePosToTextPos(int mouseX, int mouseY, out int textX, out int textY) {
             SizeF pitch = GetRenderProfile().Pitch;
-            textX = RuntimeUtil.AdjustIntRange((int)Math.Floor((mouseX - CharacterDocumentViewer.BORDER) / pitch.Width), 0, Int32.MaxValue);
-            textY = RuntimeUtil.AdjustIntRange((int)Math.Floor((mouseY - CharacterDocumentViewer.BORDER) / (pitch.Height + GetRenderProfile().LineSpacing)), 0, Int32.MaxValue);
+            textX = RuntimeUtil.AdjustIntRange((int)Math.Floor((mouseX - CharacterDocumentViewer_Old.BORDER) / pitch.Width), 0, Int32.MaxValue);
+            textY = RuntimeUtil.AdjustIntRange((int)Math.Floor((mouseY - CharacterDocumentViewer_Old.BORDER) / (pitch.Height + GetRenderProfile().LineSpacing)), 0, Int32.MaxValue);
         }
 
         public void MousePosToTextPos_AllowNegative(int mouseX, int mouseY, out int textX, out int textY) {
             SizeF pitch = GetRenderProfile().Pitch;
-            textX = (int)Math.Floor((mouseX - CharacterDocumentViewer.BORDER) / pitch.Width);
-            textY = (int)Math.Floor((mouseY - CharacterDocumentViewer.BORDER) / (pitch.Height + GetRenderProfile().LineSpacing));
+            textX = (int)Math.Floor((mouseX - CharacterDocumentViewer_Old.BORDER) / pitch.Width);
+            textY = (int)Math.Floor((mouseY - CharacterDocumentViewer_Old.BORDER) / (pitch.Height + GetRenderProfile().LineSpacing));
         }
 
         //_VScrollBar.ValueChangedイベント
@@ -315,7 +315,7 @@ namespace Poderosa.View {
             if (_document != null) {
                 if (_document.InvalidatedRegion.IsEmpty)
                     return;
-                InvalidatedRegion rgn = _document.InvalidatedRegion.GetCopyAndReset();
+                InvalidatedRegion_Old rgn = _document.InvalidatedRegion.GetCopyAndReset();
                 if (rgn.IsEmpty)
                     return;
                 if (!rgn.InvalidatedAll) {
@@ -525,8 +525,8 @@ namespace Poderosa.View {
 
             //選択領域の描画
             if (!_textSelection.IsEmpty) {
-                TextSelection.TextPoint from = _textSelection.HeadPoint;
-                TextSelection.TextPoint to = _textSelection.TailPoint;
+                TextSelection_Old.TextPoint from = _textSelection.HeadPoint;
+                TextSelection_Old.TextPoint to = _textSelection.TailPoint;
                 l = _document.FindLineOrNull(from.Line);
                 GLine t = _document.FindLineOrNull(to.Line);
                 if (l != null && t != null) { //本当はlがnullではいけないはずだが、それを示唆するバグレポートがあったので念のため
@@ -782,184 +782,182 @@ namespace Poderosa.View {
         }
         #endregion
 
-    }
+        /*
+         * 何行目から何行目までを描画すべきかの情報を収録
+         */
+        private class RenderParameter {
+            private int _linefrom;
+            private int _linecount;
+            private Rectangle _targetRect;
 
-    /*
-     * 何行目から何行目までを描画すべきかの情報を収録
-     */
-    internal class RenderParameter {
-        private int _linefrom;
-        private int _linecount;
-        private Rectangle _targetRect;
-
-        public int LineFrom {
-            get {
-                return _linefrom;
-            }
-            set {
-                _linefrom = value;
-            }
-        }
-
-        public int LineCount {
-            get {
-                return _linecount;
-            }
-            set {
-                _linecount = value;
-            }
-        }
-        public Rectangle TargetRect {
-            get {
-                return _targetRect;
-            }
-            set {
-                _targetRect = value;
-            }
-        }
-    }
-
-    //テキスト選択のハンドラ
-    internal class TextSelectionUIHandler : DefaultMouseHandler {
-        private CharacterDocumentViewer _viewer;
-        public TextSelectionUIHandler(CharacterDocumentViewer v)
-            : base("textselection") {
-            _viewer = v;
-        }
-
-        public override UIHandleResult OnMouseDown(MouseEventArgs args) {
-            if (args.Button != MouseButtons.Left || !_viewer.EnabledEx)
-                return UIHandleResult.Pass;
-
-            //テキスト選択ではないのでちょっと柄悪いが。UserControl->Controlの置き換えに伴う
-            if (!_viewer.Focused)
-                _viewer.Focus();
-
-
-            CharacterDocument document = _viewer.CharacterDocument;
-            lock (document) {
-                int col, row;
-                _viewer.MousePosToTextPos(args.X, args.Y, out col, out row);
-                int target_id = _viewer.GetTopLine().ID + row;
-                TextSelection sel = _viewer.TextSelection;
-                if (sel.State == SelectionState.Fixed)
-                    sel.Clear(); //変なところでMouseDownしたとしてもClearだけはする
-                if (target_id <= document.LastLineNumber) {
-                    //if(InFreeSelectionMode) ExitFreeSelectionMode();
-                    //if(InAutoSelectionMode) ExitAutoSelectionMode();
-                    RangeType rt;
-                    //Debug.WriteLine(String.Format("MouseDown {0} {1}", sel.State, sel.PivotType));
-
-                    //同じ場所でポチポチと押すとChar->Word->Line->Charとモード変化する
-                    if (sel.StartX != args.X || sel.StartY != args.Y)
-                        rt = RangeType.Char;
-                    else
-                        rt = sel.PivotType == RangeType.Char ? RangeType.Word : sel.PivotType == RangeType.Word ? RangeType.Line : RangeType.Char;
-
-                    //マウスを動かしていなくても、MouseDownとともにMouseMoveが来てしまうようだ
-                    GLine tl = document.FindLine(target_id);
-                    sel.StartSelection(tl, col, rt, args.X, args.Y);
+            public int LineFrom {
+                get {
+                    return _linefrom;
+                }
+                set {
+                    _linefrom = value;
                 }
             }
-            _viewer.Invalidate(); //NOTE 選択状態に変化のあった行のみ更新すればなおよし
-            return UIHandleResult.Capture;
+
+            public int LineCount {
+                get {
+                    return _linecount;
+                }
+                set {
+                    _linecount = value;
+                }
+            }
+            public Rectangle TargetRect {
+                get {
+                    return _targetRect;
+                }
+                set {
+                    _targetRect = value;
+                }
+            }
         }
-        public override UIHandleResult OnMouseMove(MouseEventArgs args) {
-            if (args.Button != MouseButtons.Left)
-                return UIHandleResult.Pass;
-            TextSelection sel = _viewer.TextSelection;
-            if (sel.State == SelectionState.Fixed || sel.State == SelectionState.Empty)
-                return UIHandleResult.Pass;
-            //クリックだけでもなぜかMouseDownの直後にMouseMoveイベントが来るのでこのようにしてガード。でないと単発クリックでも選択状態になってしまう
-            if (sel.StartX == args.X && sel.StartY == args.Y)
-                return UIHandleResult.Capture;
 
-            CharacterDocument document = _viewer.CharacterDocument;
-            lock (document) {
-                int topline_id = _viewer.GetTopLine().ID;
-                SizeF pitch = _viewer.GetRenderProfile().Pitch;
-                int row, col;
-                _viewer.MousePosToTextPos_AllowNegative(args.X, args.Y, out col, out row);
-                int viewheight = (int)Math.Floor(_viewer.ClientSize.Height / pitch.Width);
-                int target_id = topline_id + row;
+        //テキスト選択のハンドラ
+        private class TextSelectionUIHandler : DefaultMouseHandler {
+            private CharacterDocumentViewer_Old _viewer;
+            public TextSelectionUIHandler(CharacterDocumentViewer_Old v)
+                : base("textselection") {
+                _viewer = v;
+            }
 
-                GLine target_line = document.FindLineOrEdge(target_id);
-                TextSelection.TextPoint point = sel.ConvertSelectionPosition(target_line, col);
+            public override UIHandleResult OnMouseDown(MouseEventArgs args) {
+                if (args.Button != MouseButtons.Left || !_viewer.EnabledEx)
+                    return UIHandleResult.Pass;
 
-                point.Line = RuntimeUtil.AdjustIntRange(point.Line, document.FirstLineNumber, document.LastLineNumber);
+                //テキスト選択ではないのでちょっと柄悪いが。UserControl->Controlの置き換えに伴う
+                if (!_viewer.Focused)
+                    _viewer.Focus();
 
-                if (_viewer.VScrollBar.Enabled) { //スクロール可能なときは
-                    VScrollBar vsc = _viewer.VScrollBar;
-                    if (target_id < topline_id) //前方スクロール
-                        vsc.Value = point.Line - document.FirstLineNumber;
-                    else if (point.Line >= topline_id + vsc.LargeChange) { //後方スクロール
-                        int newval = point.Line - document.FirstLineNumber - vsc.LargeChange + 1;
-                        if (newval < 0)
-                            newval = 0;
-                        if (newval > vsc.Maximum - vsc.LargeChange)
-                            newval = vsc.Maximum - vsc.LargeChange + 1;
-                        vsc.Value = newval;
+
+                CharacterDocument_Old document = _viewer.CharacterDocument;
+                lock (document) {
+                    int col, row;
+                    _viewer.MousePosToTextPos(args.X, args.Y, out col, out row);
+                    int target_id = _viewer.GetTopLine().ID + row;
+                    TextSelection_Old sel = _viewer.TextSelection;
+                    if (sel.State == TextSelection_Old.SelectionState.Fixed)
+                        sel.Clear(); //変なところでMouseDownしたとしてもClearだけはする
+                    if (target_id <= document.LastLineNumber) {
+                        //if(InFreeSelectionMode) ExitFreeSelectionMode();
+                        //if(InAutoSelectionMode) ExitAutoSelectionMode();
+                        TextSelection_Old.RangeType rt;
+                        //Debug.WriteLine(String.Format("MouseDown {0} {1}", sel.State, sel.PivotType));
+
+                        //同じ場所でポチポチと押すとChar->Word->Line->Charとモード変化する
+                        if (sel.StartX != args.X || sel.StartY != args.Y)
+                            rt = TextSelection_Old.RangeType.Char;
+                        else
+                            rt = sel.PivotType == TextSelection_Old.RangeType.Char ? TextSelection_Old.RangeType.Word : sel.PivotType == TextSelection_Old.RangeType.Word ? TextSelection_Old.RangeType.Line : TextSelection_Old.RangeType.Char;
+
+                        //マウスを動かしていなくても、MouseDownとともにMouseMoveが来てしまうようだ
+                        GLine tl = document.FindLine(target_id);
+                        sel.StartSelection(tl, col, rt, args.X, args.Y);
                     }
                 }
-                else { //スクロール不可能なときは見えている範囲で
-                    point.Line = RuntimeUtil.AdjustIntRange(point.Line, topline_id, topline_id + viewheight - 1);
-                } //ここさぼっている
-                //Debug.WriteLine(String.Format("MouseMove {0} {1} {2}", sel.State, sel.PivotType, args.X));
-                RangeType rt = sel.PivotType;
-                if ((Control.ModifierKeys & Keys.Control) != Keys.None)
-                    rt = RangeType.Word;
-                else if ((Control.ModifierKeys & Keys.Shift) != Keys.None)
-                    rt = RangeType.Line;
-
-                GLine tl = document.FindLine(point.Line);
-                sel.ExpandTo(tl, point.Column, rt);
+                _viewer.Invalidate(); //NOTE 選択状態に変化のあった行のみ更新すればなおよし
+                return UIHandleResult.Capture;
             }
-            _viewer.Invalidate(); //TODO 選択状態に変化のあった行のみ更新するようにすればなおよし
-            return UIHandleResult.Capture;
+            public override UIHandleResult OnMouseMove(MouseEventArgs args) {
+                if (args.Button != MouseButtons.Left)
+                    return UIHandleResult.Pass;
+                TextSelection_Old sel = _viewer.TextSelection;
+                if (sel.State == TextSelection_Old.SelectionState.Fixed || sel.State == TextSelection_Old.SelectionState.Empty)
+                    return UIHandleResult.Pass;
+                //クリックだけでもなぜかMouseDownの直後にMouseMoveイベントが来るのでこのようにしてガード。でないと単発クリックでも選択状態になってしまう
+                if (sel.StartX == args.X && sel.StartY == args.Y)
+                    return UIHandleResult.Capture;
 
-        }
-        public override UIHandleResult OnMouseUp(MouseEventArgs args) {
-            TextSelection sel = _viewer.TextSelection;
-            if (args.Button == MouseButtons.Left) {
-                if (sel.State == SelectionState.Expansion || sel.State == SelectionState.Pivot)
-                    sel.FixSelection();
-                else
-                    sel.Clear();
+                CharacterDocument_Old document = _viewer.CharacterDocument;
+                lock (document) {
+                    int topline_id = _viewer.GetTopLine().ID;
+                    SizeF pitch = _viewer.GetRenderProfile().Pitch;
+                    int row, col;
+                    _viewer.MousePosToTextPos_AllowNegative(args.X, args.Y, out col, out row);
+                    int viewheight = (int)Math.Floor(_viewer.ClientSize.Height / pitch.Width);
+                    int target_id = topline_id + row;
+
+                    GLine target_line = document.FindLineOrEdge(target_id);
+                    TextSelection_Old.TextPoint point = sel.ConvertSelectionPosition(target_line, col);
+
+                    point.Line = RuntimeUtil.AdjustIntRange(point.Line, document.FirstLineNumber, document.LastLineNumber);
+
+                    if (_viewer.VScrollBar.Enabled) { //スクロール可能なときは
+                        VScrollBar vsc = _viewer.VScrollBar;
+                        if (target_id < topline_id) //前方スクロール
+                            vsc.Value = point.Line - document.FirstLineNumber;
+                        else if (point.Line >= topline_id + vsc.LargeChange) { //後方スクロール
+                            int newval = point.Line - document.FirstLineNumber - vsc.LargeChange + 1;
+                            if (newval < 0)
+                                newval = 0;
+                            if (newval > vsc.Maximum - vsc.LargeChange)
+                                newval = vsc.Maximum - vsc.LargeChange + 1;
+                            vsc.Value = newval;
+                        }
+                    }
+                    else { //スクロール不可能なときは見えている範囲で
+                        point.Line = RuntimeUtil.AdjustIntRange(point.Line, topline_id, topline_id + viewheight - 1);
+                    } //ここさぼっている
+                    //Debug.WriteLine(String.Format("MouseMove {0} {1} {2}", sel.State, sel.PivotType, args.X));
+                    TextSelection_Old.RangeType rt = sel.PivotType;
+                    if ((Control.ModifierKeys & Keys.Control) != Keys.None)
+                        rt = TextSelection_Old.RangeType.Word;
+                    else if ((Control.ModifierKeys & Keys.Shift) != Keys.None)
+                        rt = TextSelection_Old.RangeType.Line;
+
+                    GLine tl = document.FindLine(point.Line);
+                    sel.ExpandTo(tl, point.Column, rt);
+                }
+                _viewer.Invalidate(); //TODO 選択状態に変化のあった行のみ更新するようにすればなおよし
+                return UIHandleResult.Capture;
+
             }
-            return _viewer.MouseHandlerManager.CapturingHandler == this ? UIHandleResult.EndCapture : UIHandleResult.Pass;
+            public override UIHandleResult OnMouseUp(MouseEventArgs args) {
+                TextSelection_Old sel = _viewer.TextSelection;
+                if (args.Button == MouseButtons.Left) {
+                    if (sel.State == TextSelection_Old.SelectionState.Expansion || sel.State == TextSelection_Old.SelectionState.Pivot)
+                        sel.FixSelection();
+                    else
+                        sel.Clear();
+                }
+                return _viewer.MouseHandlerManager.CapturingHandler == this ? UIHandleResult.EndCapture : UIHandleResult.Pass;
 
-        }
-    }
-
-    //スプリットマークのハンドラ
-    internal class SplitMarkUIHandler : DefaultMouseHandler {
-        private SplitMarkSupport _splitMark;
-        public SplitMarkUIHandler(SplitMarkSupport split)
-            : base("splitmark") {
-            _splitMark = split;
-        }
-
-        public override UIHandleResult OnMouseDown(MouseEventArgs args) {
-            return UIHandleResult.Pass;
-        }
-        public override UIHandleResult OnMouseMove(MouseEventArgs args) {
-            bool v = _splitMark.IsSplitMarkVisible;
-            if (v || WindowManagerPlugin.Instance.WindowPreference.OriginalPreference.ViewSplitModifier == Control.ModifierKeys)
-                _splitMark.OnMouseMove(args);
-            //直前にキャプチャーしていたらEndCapture
-            return _splitMark.IsSplitMarkVisible ? UIHandleResult.Capture : v ? UIHandleResult.EndCapture : UIHandleResult.Pass;
-        }
-        public override UIHandleResult OnMouseUp(MouseEventArgs args) {
-            bool visible = _splitMark.IsSplitMarkVisible;
-            if (visible) {
-                //例えば、マーク表示位置から選択したいような場合を考慮し、マーク上で右クリックすると選択が消えるようにする。
-                _splitMark.OnMouseUp(args);
-                return UIHandleResult.EndCapture;
             }
-            else
+        }
+
+        //スプリットマークのハンドラ
+        private class SplitMarkUIHandler : DefaultMouseHandler {
+            private SplitMarkSupport _splitMark;
+            public SplitMarkUIHandler(SplitMarkSupport split)
+                : base("splitmark") {
+                _splitMark = split;
+            }
+
+            public override UIHandleResult OnMouseDown(MouseEventArgs args) {
                 return UIHandleResult.Pass;
+            }
+            public override UIHandleResult OnMouseMove(MouseEventArgs args) {
+                bool v = _splitMark.IsSplitMarkVisible;
+                if (v || WindowManagerPlugin.Instance.WindowPreference.OriginalPreference.ViewSplitModifier == Control.ModifierKeys)
+                    _splitMark.OnMouseMove(args);
+                //直前にキャプチャーしていたらEndCapture
+                return _splitMark.IsSplitMarkVisible ? UIHandleResult.Capture : v ? UIHandleResult.EndCapture : UIHandleResult.Pass;
+            }
+            public override UIHandleResult OnMouseUp(MouseEventArgs args) {
+                bool visible = _splitMark.IsSplitMarkVisible;
+                if (visible) {
+                    //例えば、マーク表示位置から選択したいような場合を考慮し、マーク上で右クリックすると選択が消えるようにする。
+                    _splitMark.OnMouseUp(args);
+                    return UIHandleResult.EndCapture;
+                }
+                else
+                    return UIHandleResult.Pass;
+            }
         }
     }
-
 
 }

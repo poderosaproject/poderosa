@@ -23,20 +23,22 @@ using Poderosa.Forms;
 using Poderosa.Commands;
 
 namespace Poderosa.View {
-    internal enum RangeType {
-        Char,
-        Word,
-        Line
-    }
-    internal enum SelectionState {
-        Empty,     //無選択
-        Pivot,     //選択開始
-        Expansion, //選択中
-        Fixed      //選択領域確定
-    }
 
     //CharacterDocumentの一部を選択するための機能
-    internal class TextSelection : ITextSelection {
+    internal class TextSelection_Old : ITextSelection {
+
+        internal enum RangeType {
+            Char,
+            Word,
+            Line
+        }
+
+        internal enum SelectionState {
+            Empty,     //無選択
+            Pivot,     //選択開始
+            Expansion, //選択中
+            Fixed      //選択領域確定
+        }
 
         //端点
         internal class TextPoint : ICloneable {
@@ -83,7 +85,7 @@ namespace Poderosa.View {
 
         private List<ISelectionListener> _listeners;
 
-        private CharacterDocumentViewer _owner;
+        private CharacterDocumentViewer_Old _owner;
         //最初の選択点。単語や行を選択したときのために２つ(forward/backward)設ける。
         private TextPoint _forwardPivot;
         private TextPoint _backwardPivot;
@@ -101,7 +103,7 @@ namespace Poderosa.View {
         //ちょっと汚いフラグ
         //private bool _disabledTemporary;
 
-        public TextSelection(CharacterDocumentViewer owner) {
+        public TextSelection_Old(CharacterDocumentViewer_Old owner) {
             _owner = owner;
             _forwardPivot = new TextPoint();
             _backwardPivot = new TextPoint();

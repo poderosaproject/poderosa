@@ -88,12 +88,12 @@ namespace Poderosa.Terminal {
             else
                 return (TerminalControl)view.GetAdapter(typeof(TerminalControl));
         }
-        public static CharacterDocumentViewer AsCharacterDocumentViewer(ICommandTarget target) {
+        public static CharacterDocumentViewer_Old AsCharacterDocumentViewer(ICommandTarget target) {
             IPoderosaView view = AsViewOrLastActivatedView(target);
             if (view == null)
                 return null;
             else
-                return (CharacterDocumentViewer)view.GetAdapter(typeof(CharacterDocumentViewer));
+                return (CharacterDocumentViewer_Old)view.GetAdapter(typeof(CharacterDocumentViewer_Old));
         }
 
         internal static TerminalDocument AsTerminalDocument(ICommandTarget target) {
@@ -253,7 +253,7 @@ namespace Poderosa.Terminal {
             return CommandResult.Succeeded;
         }
         private static string GetSelectedText(ICommandTarget target, TextFormatOption opt) {
-            CharacterDocumentViewer c = TerminalCommandTarget.AsCharacterDocumentViewer(target);
+            CharacterDocumentViewer_Old c = TerminalCommandTarget.AsCharacterDocumentViewer(target);
             if (c == null)
                 return null;
             ITextSelection s = c.ITextSelection;
@@ -326,7 +326,7 @@ namespace Poderosa.Terminal {
         }
         private static CommandResult CmdSelectAll(ICommandTarget target) {
 
-            CharacterDocumentViewer tc = TerminalCommandTarget.AsCharacterDocumentViewer(target);
+            CharacterDocumentViewer_Old tc = TerminalCommandTarget.AsCharacterDocumentViewer(target);
             if (tc == null)
                 return CommandResult.Ignored;
             tc.ITextSelection.SelectAll();
@@ -484,7 +484,7 @@ namespace Poderosa.Terminal {
                 if (_doesExistCharacterDocumentViewer == null) {
                     _doesExistCharacterDocumentViewer = delegate(ICommandTarget target) {
                         IPoderosaView view = CommandTargetUtil.AsViewOrLastActivatedView(target);
-                        CharacterDocumentViewer control = view == null ? null : (CharacterDocumentViewer)view.GetAdapter(typeof(CharacterDocumentViewer));
+                        CharacterDocumentViewer_Old control = view == null ? null : (CharacterDocumentViewer_Old)view.GetAdapter(typeof(CharacterDocumentViewer_Old));
                         return control != null;
                     };
                 }

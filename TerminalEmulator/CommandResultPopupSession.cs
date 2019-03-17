@@ -150,7 +150,7 @@ namespace Poderosa.Terminal {
     }
 
     //ViewClass
-    internal class CommandResultViewerControl : CharacterDocumentViewer, IPoderosaView, IGeneralViewCommands {
+    internal class CommandResultViewerControl : CharacterDocumentViewer_Old, IPoderosaView, IGeneralViewCommands {
         private IPoderosaForm _form;
         private CommandResultSession _session;
 
@@ -212,7 +212,7 @@ namespace Poderosa.Terminal {
     }
 
     //DocClass
-    internal class CommandResultDocument : CharacterDocument {
+    internal class CommandResultDocument : CharacterDocument_Old {
 
         public CommandResultDocument(string title) {
             _caption = title;

@@ -41,17 +41,17 @@ namespace Poderosa.Document {
     /// This class has not explained yet. 
     /// </en>
     /// </remarks>
-    public class CharacterDocument : IPoderosaDocument, IPoderosaContextMenuPoint {
+    public class CharacterDocument_Old : IPoderosaDocument, IPoderosaContextMenuPoint {
         protected string _caption;
         protected Image _icon;
         protected ISession _owner;
 
-        protected InvalidatedRegion _invalidatedRegion;
+        protected InvalidatedRegion_Old _invalidatedRegion;
         protected GLine _firstLine;
         protected GLine _lastLine;
         protected int _size; //サイズは_firstLine/lastLineから計算可能だがよく使うのでキャッシュ
 
-        public InvalidatedRegion InvalidatedRegion {
+        public InvalidatedRegion_Old InvalidatedRegion {
             get {
                 return _invalidatedRegion;
             }
@@ -83,8 +83,8 @@ namespace Poderosa.Document {
             }
         }
 
-        public CharacterDocument() {
-            _invalidatedRegion = new InvalidatedRegion();
+        public CharacterDocument_Old() {
+            _invalidatedRegion = new InvalidatedRegion_Old();
         }
 
         public virtual Color DetermineBackgroundColor(RenderProfile profile) {
@@ -282,8 +282,8 @@ namespace Poderosa.Document {
             }
         }
         //単一行からの作成
-        public static CharacterDocument SingleLine(string content) {
-            CharacterDocument doc = new CharacterDocument();
+        public static CharacterDocument_Old SingleLine(string content) {
+            CharacterDocument_Old doc = new CharacterDocument_Old();
             doc.AddLine(GLine.CreateSimpleGLine(content, TextDecoration.Default));
             return doc;
         }
@@ -314,7 +314,7 @@ namespace Poderosa.Document {
 
     //描画の必要のあるIDの範囲
     /// <exclude/>
-    public class InvalidatedRegion {
+    public class InvalidatedRegion_Old {
         private const int NOT_SET = -1;
 
         private int _lineIDStart;
@@ -323,7 +323,7 @@ namespace Poderosa.Document {
 
         private bool _empty;
 
-        public InvalidatedRegion() {
+        public InvalidatedRegion_Old() {
             Reset();
         }
 
@@ -372,9 +372,9 @@ namespace Poderosa.Document {
             }
         }
 
-        public InvalidatedRegion GetCopyAndReset() {
+        public InvalidatedRegion_Old GetCopyAndReset() {
             lock (this) {
-                InvalidatedRegion copy = (InvalidatedRegion)MemberwiseClone();
+                InvalidatedRegion_Old copy = (InvalidatedRegion_Old)MemberwiseClone();
                 Reset();
                 return copy;
             }

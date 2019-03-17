@@ -44,7 +44,7 @@ namespace Poderosa.Terminal {
     /// </summary>
     /// <exclude/>
     /// 
-    public class TerminalControl : CharacterDocumentViewer {
+    public class TerminalControl : CharacterDocumentViewer_Old {
         //ID
         private int _instanceID;
         private static int _instanceCount = 1;
@@ -663,8 +663,8 @@ namespace Poderosa.Terminal {
         public Size CalcTerminalSize(RenderProfile prof) {
             SizeF charPitch = prof.Pitch;
             Win32.SystemMetrics sm = GEnv.SystemMetrics;
-            int width = (int)Math.Floor((float)(this.ClientSize.Width - sm.ScrollBarWidth - CharacterDocumentViewer.BORDER * 2) / charPitch.Width);
-            int height = (int)Math.Floor((float)(this.ClientSize.Height - CharacterDocumentViewer.BORDER * 2 + prof.LineSpacing) / (charPitch.Height + prof.LineSpacing));
+            int width = (int)Math.Floor((float)(this.ClientSize.Width - sm.ScrollBarWidth - CharacterDocumentViewer_Old.BORDER * 2) / charPitch.Width);
+            int height = (int)Math.Floor((float)(this.ClientSize.Height - CharacterDocumentViewer_Old.BORDER * 2 + prof.LineSpacing) / (charPitch.Height + prof.LineSpacing));
             if (width <= 0)
                 width = 1; //極端なリサイズをすると負の値になることがある
             if (height <= 0)
@@ -1290,7 +1290,7 @@ namespace Poderosa.Terminal {
         private static int _totalInvalidatedLineCount;
         private static int _invalidate1LineCount;
 
-        public static void MarkReceiveData(InvalidatedRegion region) {
+        public static void MarkReceiveData(InvalidatedRegion_Old region) {
             _receiveDataCount++;
             long now = DateTime.Now.Ticks;
             if (_lastReceivedTime != 0) {
