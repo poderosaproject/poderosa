@@ -32,7 +32,7 @@ namespace Poderosa.Document {
 #else
         private
 #endif
-        const int ROWS_PER_PAGE = 2048;
+ const int ROWS_PER_PAGE = 2048;
 
         public const int DEFAULT_CAPACITY = ROWS_PER_PAGE;
 
@@ -55,7 +55,7 @@ namespace Poderosa.Document {
 #else
         private
 #endif
-        class GLinePage {
+ class GLinePage {
             private readonly GLine[] _glines = new GLine[ROWS_PER_PAGE];
             private int _startIndex = 0;    // start index of the range (inclusive)
             private int _endIndex = 0;  // end index of the range (exclusive)
@@ -141,7 +141,7 @@ namespace Poderosa.Document {
 #else
         private
 #endif
-        class GLinePageList {
+ class GLinePageList {
             // circular buffer of the GLinePage
             private readonly int _capacity;
             private readonly GLinePage[] _pages;
@@ -257,6 +257,17 @@ namespace Poderosa.Document {
             get {
                 lock (_syncRoot) {
                     return new RowIDSpan(_firstRowID, _rowCount);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Next row ID
+        /// </summary>
+        public int NextRowID {
+            get {
+                lock (_syncRoot) {
+                    return _firstRowID + _rowCount;
                 }
             }
         }

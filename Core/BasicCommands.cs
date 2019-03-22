@@ -756,21 +756,46 @@ namespace Poderosa.Commands {
         }
 
         public CommandResult InternalExecute(ICommandTarget target, params IAdaptable[] args) {
-            CharacterDocumentViewer_Old control = (CharacterDocumentViewer_Old)target.GetAdapter(typeof(CharacterDocumentViewer_Old));
-            ITextSelection s = control.ITextSelection;
-            if (s.IsEmpty || !control.EnabledEx)
+            ITextSelection s;
+
+            CharacterDocumentViewer control = (CharacterDocumentViewer)target.GetAdapter(typeof(CharacterDocumentViewer));
+            if (control != null) {
+                s = control.Selection;
+            }
+            else {
+                CharacterDocumentViewer_Old controlOld = (CharacterDocumentViewer_Old)target.GetAdapter(typeof(CharacterDocumentViewer_Old));
+                if (controlOld != null) {
+                    s = controlOld.ITextSelection;
+                } else {
+                    return CommandResult.Ignored;
+                }
+            }
+
+            if (s.IsEmpty || !control.HasDocument) {
                 return CommandResult.Ignored;
+            }
 
             string t = s.GetSelectedText(TextFormatOption.Default);
-            if (t.Length > 0)
+            if (t.Length > 0) {
                 CopyToClipboard(t);
+            }
+
             return CommandResult.Succeeded;
         }
 
 
         public bool CanExecute(ICommandTarget target) {
-            CharacterDocumentViewer_Old control = (CharacterDocumentViewer_Old)target.GetAdapter(typeof(CharacterDocumentViewer_Old));
-            return control.EnabledEx && !control.ITextSelection.IsEmpty;
+            CharacterDocumentViewer control = (CharacterDocumentViewer)target.GetAdapter(typeof(CharacterDocumentViewer));
+            if (control != null) {
+                return control.HasDocument && !control.Selection.IsEmpty;
+            }
+
+            CharacterDocumentViewer_Old controlOld = (CharacterDocumentViewer_Old)target.GetAdapter(typeof(CharacterDocumentViewer_Old));
+            if (controlOld != null) {
+                return control.HasDocument && !control.Selection.IsEmpty;
+            }
+
+            return false;
         }
 
         public IAdaptable GetAdapter(Type adapter) {
