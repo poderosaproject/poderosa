@@ -102,21 +102,21 @@ namespace Poderosa.LogViewer {
     }
 
     //ViewClass
-    internal class PoderosaLogViewControl : CharacterDocumentViewer_Old, IPoderosaView, IGeneralViewCommands {
-        private IPoderosaForm _form;
+    internal class PoderosaLogViewControl : CharacterDocumentViewer, IPoderosaView, IGeneralViewCommands {
+        private readonly IPoderosaForm _form;
         private PoderosaLogViewerSession _session;
-
 
         public PoderosaLogViewControl(IPoderosaForm form) {
             _form = form;
-            _caret.Enabled = false;
-            _caret.Blink = false;
+            Caret.Enabled = false;
+            Caret.Blink = false;
         }
 
         public void SetParent(PoderosaLogViewerSession session) {
             _session = session;
-            this.SetPrivateRenderProfile(CreateLogRenderProfile());
-            this.SetContent(_session.Document);
+            SetDocument(_session.Document);
+            SetRenderProfile(CreateLogRenderProfile());
+            UpdateDocument();
         }
 
         public IPoderosaDocument Document {
@@ -127,7 +127,7 @@ namespace Poderosa.LogViewer {
 
         public ISelection CurrentSelection {
             get {
-                return this.ITextSelection;
+                return this.Selection;
             }
         }
 
@@ -137,26 +137,12 @@ namespace Poderosa.LogViewer {
             }
         }
 
-
-        //更新 最終行が見えるように
         public void UpdateDocument() {
-            PoderosaLogDocument doc = _session.Document;
-            int newtop = RuntimeUtil.AdjustIntRange(doc.Size - this.GetHeightInLines(), 0, doc.Size - 1);
-            AdjustScrollBar();
-            if (_VScrollBar.Enabled)
-                _VScrollBar.Value = newtop;
-            else
-                Invalidate();
-        }
-        //UpdateDocumentのInvoke実行
-        private delegate void UpdateDocumentDelegate_();
-        private UpdateDocumentDelegate_ _updateDocumentDelegate;
-        public Delegate UpdateDocumentDelegate {
-            get {
-                if (_updateDocumentDelegate == null)
-                    _updateDocumentDelegate = new UpdateDocumentDelegate_(UpdateDocument);
-                return _updateDocumentDelegate;
+            if (this.IsDisposed || this.Disposing) {
+                return;
             }
+
+            RefreshViewer(ScrollAction.ScrollToBottom);
         }
 
         //Command
@@ -188,20 +174,47 @@ namespace Poderosa.LogViewer {
             }
         }
 
+        protected override void OnCharacterDocumentChanged() {
+            // do nothing
+        }
+
+        protected override void OnViewportSizeChanged() {
+            // do nothing
+        }
     }
 
     //DocClass
-    internal class PoderosaLogDocument : CharacterDocument_Old, IPoderosaLogListener {
-        private PoderosaLogViewerSession _session;
+    internal class PoderosaLogDocument : AppendOnlyCharacterDocument, IPoderosaDocument, IPoderosaLogListener {
+        private readonly PoderosaLogViewerSession _session;
 
-        private bool _nextLineIsFirstLine;
+        #region IPoderosaDocument
+
+        public Image Icon {
+            get {
+                return null;
+            }
+        }
+
+        public string Caption {
+            get;
+            private set;
+        }
+
+        public ISession OwnerSession {
+            get {
+                return _session;
+            }
+        }
+
+        public IAdaptable GetAdapter(Type adapter) {
+            return PoderosaLogViewerPlugin.Instance.PoderosaWorld.AdapterManager.GetAdapter(this, adapter);
+        }
+
+        #endregion
 
         public PoderosaLogDocument(PoderosaLogViewerSession session) {
-            _caption = "Poderosa Event Log";
-            _session = session;
-            //１行はないとだめな制約があるので
-            this.AddLine(GLine.CreateSimpleGLine("", TextDecoration.Default));
-            _nextLineIsFirstLine = true;
+            this.Caption = "Poderosa Event Log";
+            this._session = session;
         }
 
         //初期状態の１行の文字数
@@ -228,23 +241,8 @@ namespace Poderosa.LogViewer {
 
             PoderosaLogViewControl vc = _session.CurrentView;
             if (vc != null) {
-                if (vc.InvokeRequired)
-                    vc.Invoke(vc.UpdateDocumentDelegate);
-                else
-                    vc.UpdateDocument();
+                vc.UpdateDocument();
             }
-        }
-
-        //ちょっと見苦しいが、行の追加
-        private void Append(GLine line) {
-            if (_nextLineIsFirstLine) {
-                _nextLineIsFirstLine = false;
-                _firstLine = line;
-                _lastLine = line;
-                line.ID = 0;
-            }
-            else
-                this.AddLine(line);
         }
     }
 
