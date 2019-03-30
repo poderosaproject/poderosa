@@ -317,35 +317,6 @@ namespace Poderosa.View {
         }
 
         /// <summary>
-        /// Scrolls until the specified row is visible.
-        /// </summary>
-        /// <param name="rowID">target row ID</param>
-        protected void ScrollToVisible(int rowID) {
-            if (this.InvokeRequired) {
-                this.BeginInvoke((Action)(() => ScrollToVisible(rowID)));
-                return;
-            }
-
-            if (_VScrollBar.Enabled) {
-                int newVal;
-                if (rowID < _topRowID) {
-                    newVal = rowID - _docFirstRowID;
-                }
-                else if (rowID - _topRowID >= _VScrollBar.LargeChange) {
-                    newVal = rowID - _docFirstRowID - _VScrollBar.LargeChange + 1;
-                }
-                else {
-                    return;
-                }
-
-                _VScrollBar.Value =
-                    Math.Min(
-                        Math.Max(newVal, 0),
-                        _VScrollBar.Maximum - _VScrollBar.LargeChange + 1);
-            }
-        }
-
-        /// <summary>
         /// Sets mouse pointer on the document.
         /// </summary>
         /// <param name="cursor"></param>
@@ -535,6 +506,11 @@ namespace Poderosa.View {
         /// </summary>
         /// <param name="rows">number of rows (increase of the row index. positive value causes scroll-up, negative value causes scroll-down.)</param>
         protected void ScrollDocument(int rows) {
+            if (this.InvokeRequired) {
+                this.BeginInvoke((Action)(() => ScrollDocument(rows)));
+                return;
+            }
+
             if (_VScrollBar.Visible && _VScrollBar.Enabled) {
                 _VScrollBar.Value =
                     Math.Min(
@@ -543,7 +519,33 @@ namespace Poderosa.View {
             }
         }
 
-        protected void ScrollDown(int rows) {
+        /// <summary>
+        /// Scrolls until the specified row is visible.
+        /// </summary>
+        /// <param name="rowID">target row ID</param>
+        protected void ScrollToVisible(int rowID) {
+            if (this.InvokeRequired) {
+                this.BeginInvoke((Action)(() => ScrollToVisible(rowID)));
+                return;
+            }
+
+            if (_VScrollBar.Visible && _VScrollBar.Enabled) {
+                int newVal;
+                if (rowID < _topRowID) {
+                    newVal = rowID - _docFirstRowID;
+                }
+                else if (rowID - _topRowID >= _VScrollBar.LargeChange) {
+                    newVal = rowID - _docFirstRowID - _VScrollBar.LargeChange + 1;
+                }
+                else {
+                    return;
+                }
+
+                _VScrollBar.Value =
+                    Math.Min(
+                        Math.Max(newVal, 0),
+                        _VScrollBar.Maximum - _VScrollBar.LargeChange + 1);
+            }
         }
 
         // Set scrollbar's placement.

@@ -30,12 +30,27 @@ namespace Poderosa.Document {
 
         private readonly GLineBuffer _buffer = new GLineBuffer();
 
+        /// <summary>
+        /// Constructor (default capacity)
+        /// </summary>
+        protected AppendOnlyCharacterDocument() {
+            _buffer = new GLineBuffer(_syncRoot);
+        }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public AppendOnlyCharacterDocument() {
-            _buffer = new GLineBuffer(_syncRoot);    // FIXME: set capacity
+        /// <param name="capacity">initial capacity in number of rows</param>
+        protected AppendOnlyCharacterDocument(int capacity) {
+            _buffer = new GLineBuffer(_syncRoot, capacity);
+        }
+
+        /// <summary>
+        /// Sets new capacity.
+        /// </summary>
+        /// <param name="newCapacity">new capacity in number of rows</param>
+        protected void SetCapacity(int newCapacity) {
+            _buffer.SetCapacity(Math.Max(newCapacity, 1));
         }
 
         /// <summary>
