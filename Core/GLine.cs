@@ -833,8 +833,9 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="dec">text decoration for specifying the background color, or null for using default attributes.</param>
         public void Clear(TextDecoration dec) {
-            GAttr attr = dec.Attr;
-            GColor24 color = dec.Color24;
+            TextDecoration d = dec ?? TextDecoration.Default;
+            GAttr attr = d.Attr;
+            GColor24 color = d.Color24;
 
             lock (this) {
                 Fill(0, _cell.Length, GChar.ASCII_NUL, attr, color);
