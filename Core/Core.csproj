@@ -127,6 +127,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="RowIDSpan.cs" />
+    <Compile Include="TerminalCharacterDocument.cs" />
     <Compile Include="TextSelection.cs" />
     <Compile Include="Unicode.cs" />
     <Compile Include="RenderProfileSerialize.cs" />

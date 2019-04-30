@@ -59,6 +59,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderProfileSerialize.cs" />
     <Compile Include="RowIDSpanTest.cs" />
+    <Compile Include="TerminalCharacterDocumentTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">

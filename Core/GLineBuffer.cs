@@ -438,6 +438,9 @@ namespace Poderosa.Document {
         public void Apply(int startRowID, int length, Action<GLineChunkSpan> action) {
             lock (_syncRoot) {
                 if (_rowCount <= 0) {
+                    if (length == 0) {
+                        return;
+                    }
                     throw new InvalidOperationException("no lines");
                 }
 
