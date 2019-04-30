@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 
 namespace Poderosa.Document {
 
@@ -128,6 +129,19 @@ namespace Poderosa.Document {
             }
 #endif
             return new GLineChunkSpan(this.Array, this.Offset + offset, length);
+        }
+
+        /// <summary>
+        /// Iterate GLines in this span.
+        /// </summary>
+        /// <returns>IEnumerable</returns>
+        public IEnumerable<GLine> GLines() {
+            var array = this.Array;
+            var offset = this.Offset;
+            var length = this.Length;
+            for (int i = 0; i < length; i++) {
+                yield return array[offset + i];
+            }
         }
     }
 

@@ -74,5 +74,14 @@ namespace Poderosa.Document {
             int intersectEnd = Math.Min(thisEnd, otherEnd);
             return new RowIDSpan(intersectStart, intersectEnd - intersectStart);
         }
+
+        /// <summary>
+        /// Returns whether this span includes a specified row ID.
+        /// </summary>
+        /// <param name="rowID"></param>
+        /// <returns>true if this span includes a specified row ID.</returns>
+        public bool Includes(int rowID) {
+            return rowID >= this._start && rowID < this._start + this._length;
+        }
     }
 }

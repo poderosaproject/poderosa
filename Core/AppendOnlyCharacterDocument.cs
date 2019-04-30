@@ -28,7 +28,7 @@ namespace Poderosa.Document {
 
         protected readonly InvalidatedRegion _invalidatedRegion = new InvalidatedRegion();
 
-        private readonly GLineBuffer _buffer = new GLineBuffer();
+        private readonly GLineBuffer _buffer;
 
         /// <summary>
         /// Constructor (default capacity)
@@ -66,9 +66,9 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
-        /// Append single lines.
+        /// Append lines.
         /// </summary>
-        /// <param name="lines">sequence of line objects</param>
+        /// <param name="lines">sequence of the line objects</param>
         protected void Append(IEnumerable<GLine> lines) {
             lock (_syncRoot) {
                 int rowIDStart = _buffer.NextRowID;
@@ -150,32 +150,26 @@ namespace Poderosa.Document {
                 RowIDSpan buffSpan = _buffer.RowIDSpan;
                 RowIDSpan iterSpan = buffSpan.Intersect(new RowIDSpan(startRowID, rows));
 
-                if (iterSpan.Length > 0) {
-                    int rowID = startRowID;
+                int rowID = startRowID;
 
+                if (iterSpan.Length > 0) {
                     while (rowID < iterSpan.Start) {
                         action(rowID, null);
                         rowID++;
                     }
 
                     _buffer.Apply(iterSpan.Start, iterSpan.Length, s => {
-                        for (int i = 0; i < s.Length; i++) {
-                            action(rowID, s.Array[s.Offset + i]);
+                        foreach (var line in s.GLines()) {
+                            action(rowID, line);
                             rowID++;
                         }
                     });
-
-                    int endRowID = startRowID + rows;
-                    while (rowID < endRowID) {
-                        action(rowID, null);
-                        rowID++;
-                    }
                 }
-                else {
-                    // all null
-                    for (int i = 0; i < rows; i++) {
-                        action(startRowID + i, null);
-                    }
+
+                int endRowID = startRowID + rows;
+                while (rowID < endRowID) {
+                    action(rowID, null);
+                    rowID++;
                 }
             }
         }
@@ -198,7 +192,7 @@ namespace Poderosa.Document {
             lock (_syncRoot) {
                 RowIDSpan buffSpan = _buffer.RowIDSpan;
 
-                if (rowID >= buffSpan.Start && rowID - buffSpan.Start < buffSpan.Length) {
+                if (buffSpan.Includes(rowID)) {
                     _buffer.Apply(rowID, 1, s => {
                         action(s.Array[s.Offset]);
                     });

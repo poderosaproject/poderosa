@@ -55,6 +55,16 @@ namespace Poderosa.Document {
             Assert.AreEqual(expectedLength, r.Length);
         }
 
+        [TestCase(10, 5, 9, false)]
+        [TestCase(10, 5, 10, true)]
+        [TestCase(10, 5, 11, true)]
+        [TestCase(10, 5, 12, true)]
+        [TestCase(10, 5, 13, true)]
+        [TestCase(10, 5, 14, true)]
+        [TestCase(10, 5, 15, false)]
+        public void TestIncludes(int start, int len, int testRowId, bool expected) {
+            Assert.AreEqual(expected, new RowIDSpan(start, len).Includes(testRowId));
+        }
     }
 }
 
