@@ -792,7 +792,7 @@ namespace Poderosa.Commands {
 
             CharacterDocumentViewer_Old controlOld = (CharacterDocumentViewer_Old)target.GetAdapter(typeof(CharacterDocumentViewer_Old));
             if (controlOld != null) {
-                return control.HasDocument && !control.Selection.IsEmpty;
+                return controlOld.EnabledEx && !controlOld.ITextSelection.IsEmpty;
             }
 
             return false;
