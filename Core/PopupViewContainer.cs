@@ -34,7 +34,6 @@ namespace Poderosa.Forms {
             InitializeComponent();
             _view = cp.ViewFactory.CreateNew(this);
             _view.AsControl().Dock = DockStyle.Fill;
-            _view.AsControl().Size = cp.InitialSize;
             this.Controls.Add(_view.AsControl());
             this.ClientSize = cp.InitialSize;
             this.ResumeLayout(false);
@@ -53,7 +52,7 @@ namespace Poderosa.Forms {
             // PopupViewContainer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Name = "PopupViewContainer";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

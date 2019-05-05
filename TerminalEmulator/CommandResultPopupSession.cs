@@ -28,16 +28,15 @@ using Poderosa.Commands;
 
 namespace Poderosa.Terminal {
     internal class CommandResultSession : ISession {
-        public delegate void StartDelegate(AbstractTerminal termianl, CommandResultDocument document);
 
         private CommandResultViewerControl _view;
         private CommandResultDocument _document;
         private RenderProfile _renderProfile;
         private ISessionHost _host;
-        private static StartDelegate _start = new StartDelegate(SessionEntryPoint);
 
         public CommandResultSession(CommandResultDocument doc, RenderProfile prof) {
             _document = doc;
+            doc.OwnerSession = this;
             _renderProfile = prof;
         }
 
@@ -108,23 +107,19 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //開始点
-        public static StartDelegate Start {
-            get {
-                return _start;
-            }
-        }
-
-        private static void SessionEntryPoint(AbstractTerminal terminal, CommandResultDocument document) {
+        public static void Start(AbstractTerminal terminal, CommandResultDocument document) {
             try {
                 TerminalControl tc = terminal.TerminalHost.TerminalControl;
                 Debug.Assert(tc != null);
                 RenderProfile rp = (RenderProfile)tc.GetRenderProfile().Clone();
-                CommandResultSession session = new CommandResultSession(document, rp); //現在のRenderProfileを使ってセッションを作る
+                CommandResultSession session = new CommandResultSession(document, rp);
                 TerminalDocument terminaldoc = terminal.GetDocument();
                 PopupViewCreationParam cp = new PopupViewCreationParam(_viewFactory);
-                //結果のサイズに合わせる。ただし高さは20行を上限とする
-                cp.InitialSize = new Size(tc.ClientSize.Width, (int)(RuntimeUtil.AdjustIntRange(document.Size, 0, 20) * rp.Pitch.Height) + 2);
+                Size initialViewSize =
+                    CharacterDocumentViewer.EstimateViewSize(
+                        rp, Math.Min(document.GetRowIDSpan().Length, 20), 100 /*dummy*/);
+                initialViewSize.Width = tc.ClientSize.Width;
+                cp.InitialSize = initialViewSize;
                 cp.OwnedByCommandTargetWindow = GEnv.Options.CommandPopupAlwaysOnTop;
                 cp.ShowInTaskBar = GEnv.Options.CommandPopupInTaskBar;
 
@@ -150,21 +145,35 @@ namespace Poderosa.Terminal {
     }
 
     //ViewClass
-    internal class CommandResultViewerControl : CharacterDocumentViewer_Old, IPoderosaView, IGeneralViewCommands {
-        private IPoderosaForm _form;
+    internal class CommandResultViewerControl : CharacterDocumentViewer, IPoderosaView, IGeneralViewCommands {
+        private readonly IPoderosaForm _form;
         private CommandResultSession _session;
 
         public CommandResultViewerControl(IPoderosaForm form) {
             _form = form;
-            _caret.Enabled = false;
-            _caret.Blink = false;
+            this.Caret.Enabled = false;
+            this.Caret.Blink = false;
         }
 
         public void SetParent(CommandResultSession session) {
             _session = session;
-            this.SetPrivateRenderProfile(session.RenderProfile);
-            this.SetContent(_session.Document);
+            this.SetRenderProfile(session.RenderProfile);
+            this.SetDocument(_session.Document);
         }
+
+        #region CharacterDocumentViewer
+
+        protected override void OnViewportSizeChanged() {
+            // do nothing
+        }
+
+        protected override void OnCharacterDocumentChanged() {
+            // do nothing
+        }
+
+        #endregion
+
+        #region IPoderosaView
 
         public IPoderosaDocument Document {
             get {
@@ -174,7 +183,7 @@ namespace Poderosa.Terminal {
 
         public ISelection CurrentSelection {
             get {
-                return this.ITextSelection;
+                return this.Selection;
             }
         }
 
@@ -183,6 +192,10 @@ namespace Poderosa.Terminal {
                 return this.FindForm() as IPoderosaForm;
             }
         }
+
+        #endregion
+
+        #region IGeneralViewCommands
 
         //Command
         public IPoderosaCommand Copy {
@@ -197,25 +210,48 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //ESCで閉じる
+        #endregion
+
+        // Close by ESC
         protected override bool ProcessDialogKey(Keys keyData) {
             if (keyData == Keys.Escape) {
                 this.FindForm().Close();
                 return true;
             }
-            else
-                return base.ProcessDialogKey(keyData);
+
+            return base.ProcessDialogKey(keyData);
         }
-
-
-
     }
 
     //DocClass
-    internal class CommandResultDocument : CharacterDocument_Old {
+    internal class CommandResultDocument : AppendOnlyCharacterDocument, IPoderosaDocument {
 
         public CommandResultDocument(string title) {
-            _caption = title;
+            this.Caption = title;
+        }
+
+        public Image Icon {
+            get {
+                return null;
+            }
+        }
+
+        public string Caption {
+            get;
+            private set;
+        }
+
+        public ISession OwnerSession {
+            get;
+            set;
+        }
+
+        public IAdaptable GetAdapter(Type adapter) {
+            return TerminalEmulatorPlugin.Instance.PoderosaWorld.AdapterManager.GetAdapter(this, adapter);
+        }
+
+        public void AppendLines(IEnumerable<GLine> lines) {
+            this.Append(lines);
         }
     }
 

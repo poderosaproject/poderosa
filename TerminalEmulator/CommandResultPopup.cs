@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.Windows.Forms;
@@ -95,8 +96,7 @@ namespace Poderosa.Terminal {
         }
         public override void EndCommand(List<GLine> command_result) {
             CommandResultDocument doc = new CommandResultDocument(_executingCommand);
-            foreach (GLine line in command_result)
-                doc.AddLine(line.Clone());
+            doc.AppendLines(command_result.Select(l => l.Clone()));
 
             TerminalControl tc = _terminal.TerminalHost.TerminalControl;
             if (tc == null)
@@ -104,7 +104,8 @@ namespace Poderosa.Terminal {
 
             Debug.Assert(tc.InvokeRequired);
 
-            IAsyncResult ar = tc.BeginInvoke(CommandResultSession.Start, _terminal, doc);
+            IAsyncResult ar = tc.BeginInvoke(
+                (Action<AbstractTerminal, CommandResultDocument>)CommandResultSession.Start, _terminal, doc);
             AsyncResultQuickHack(tc, ar);
         }
     }
