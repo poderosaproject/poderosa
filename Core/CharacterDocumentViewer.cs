@@ -42,7 +42,7 @@ namespace Poderosa.View {
         private const int TIMER_INTERVAL = 50;
 
         // vertical scrollbar
-        private VScrollBar _VScrollBar;
+        private VScrollBar _verticalScrollBar;
 
         // text-selection manager
         private readonly TextSelection _textSelection;
@@ -115,8 +115,6 @@ namespace Poderosa.View {
         protected CharacterDocumentViewer(IMouseHandler mouseHandler) {
             InitializeComponent();
 
-            AdjustScrollBarPosition();
-
             this.DoubleBuffered = true;
 
             _caret = new Caret();
@@ -152,23 +150,23 @@ namespace Poderosa.View {
 
         private void InitializeComponent() {
             this.SuspendLayout();
-            this._VScrollBar = new System.Windows.Forms.VScrollBar();
+            this._verticalScrollBar = new System.Windows.Forms.VScrollBar();
             // 
             // _VScrollBar
             // 
-            this._VScrollBar.Enabled = false;
-            this._VScrollBar.Anchor = AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
-            this._VScrollBar.LargeChange = 1;
-            this._VScrollBar.Minimum = 0;
-            this._VScrollBar.Value = 0;
-            this._VScrollBar.Maximum = 2;
-            this._VScrollBar.Name = "_VScrollBar";
-            this._VScrollBar.TabIndex = 0;
-            this._VScrollBar.TabStop = false;
-            this._VScrollBar.Cursor = Cursors.Default;
-            this._VScrollBar.Visible = false;
-            this._VScrollBar.ValueChanged += _VScrollBar_ValueChanged;
-            this.Controls.Add(_VScrollBar);
+            this._verticalScrollBar.Enabled = false;
+            this._verticalScrollBar.Dock = DockStyle.Right;
+            this._verticalScrollBar.LargeChange = 1;
+            this._verticalScrollBar.Minimum = 0;
+            this._verticalScrollBar.Value = 0;
+            this._verticalScrollBar.Maximum = 2;
+            this._verticalScrollBar.Name = "_verticalScrollBar";
+            this._verticalScrollBar.TabIndex = 0;
+            this._verticalScrollBar.TabStop = false;
+            this._verticalScrollBar.Cursor = Cursors.Default;
+            this._verticalScrollBar.Visible = false;
+            this._verticalScrollBar.ValueChanged += _verticalScrollBar_ValueChanged;
+            this.Controls.Add(_verticalScrollBar);
 
             this.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.ResumeLayout();
@@ -286,10 +284,10 @@ namespace Poderosa.View {
                 doc.InvalidatedRegion.InvalidatedAll = true;
                 RefreshViewer();
                 // make sacrolbar visible after UpdateScrollBar() was called
-                this._VScrollBar.Visible = true;
+                this._verticalScrollBar.Visible = true;
             }
             else {
-                this._VScrollBar.Visible = false;
+                this._verticalScrollBar.Visible = false;
                 this.InvalidateFull();
             }
         }
@@ -348,6 +346,25 @@ namespace Poderosa.View {
         private int GetRowID(int rowIndex) {
             return _topRowID + rowIndex;
         }
+
+        #region static utility
+
+        /// <summary>
+        /// Estimate view size.
+        /// </summary>
+        /// <param name="prof"><see cref="RenderProfile"/> to use</param>
+        /// <param name="rows">number of rows</param>
+        /// <param name="cols">number of columns</param>
+        /// <returns>estimated view size</returns>
+        public static Size EstimateViewSize(RenderProfile prof, int rows, int cols) {
+            int scrollBarWidth = SystemInformation.VerticalScrollBarWidth;
+            return new Size(
+                (int)Math.Ceiling(Math.Max(cols, 0) * prof.Pitch.Width) + BORDER * 2 + scrollBarWidth,
+                (int)Math.Ceiling(Math.Max(rows, 0) * prof.Pitch.Height + (Math.Max(rows - 1, 0) * prof.LineSpacing)) + BORDER * 2
+            );
+        }
+
+        #endregion
 
         #region IPoderosaControl
 
@@ -430,8 +447,8 @@ namespace Poderosa.View {
         private void UpdateScrollBar(ScrollAction scrollAction) {
             var doc = _document;
             if (doc == null) {
-                _VScrollBar.Enabled = false;
-                _VScrollBar.Visible = false;
+                _verticalScrollBar.Enabled = false;
+                _verticalScrollBar.Visible = false;
                 return;
             }
             UpdateScrollBar(doc.GetRowIDSpan(), scrollAction);
@@ -449,7 +466,7 @@ namespace Poderosa.View {
             if (docRowIDSpan.Length <= screenLines) {
                 _docFirstRowID = docRowIDSpan.Start;
                 _topRowID = docRowIDSpan.Start;
-                _VScrollBar.Enabled = false;
+                _verticalScrollBar.Enabled = false;
                 return;
             }
 
@@ -479,10 +496,10 @@ namespace Poderosa.View {
             }
             _docFirstRowID = docRowIDSpan.Start;
 
-            _VScrollBar.Enabled = true;
-            _VScrollBar.Maximum = docRowIDSpan.Length - 1;
-            _VScrollBar.LargeChange = screenLines;
-            _VScrollBar.Value = _topRowID - docRowIDSpan.Start;
+            _verticalScrollBar.Enabled = true;
+            _verticalScrollBar.Maximum = docRowIDSpan.Length - 1;
+            _verticalScrollBar.LargeChange = screenLines;
+            _verticalScrollBar.Value = _topRowID - docRowIDSpan.Start;
 
             if (_topRowID != oldTopRowID) {
                 // repaint all
@@ -495,8 +512,8 @@ namespace Poderosa.View {
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void _VScrollBar_ValueChanged(object sender, EventArgs e) {
-            _topRowID = _docFirstRowID + _VScrollBar.Value;
+        private void _verticalScrollBar_ValueChanged(object sender, EventArgs e) {
+            _topRowID = _docFirstRowID + _verticalScrollBar.Value;
             // repaint all
             InvalidateFull();
         }
@@ -511,11 +528,11 @@ namespace Poderosa.View {
                 return;
             }
 
-            if (_VScrollBar.Visible && _VScrollBar.Enabled) {
-                _VScrollBar.Value =
+            if (_verticalScrollBar.Visible && _verticalScrollBar.Enabled) {
+                _verticalScrollBar.Value =
                     Math.Min(
-                        Math.Max(_VScrollBar.Value + rows, 0),
-                        _VScrollBar.Maximum - _VScrollBar.LargeChange + 1);
+                        Math.Max(_verticalScrollBar.Value + rows, 0),
+                        _verticalScrollBar.Maximum - _verticalScrollBar.LargeChange + 1);
             }
         }
 
@@ -529,32 +546,23 @@ namespace Poderosa.View {
                 return;
             }
 
-            if (_VScrollBar.Visible && _VScrollBar.Enabled) {
+            if (_verticalScrollBar.Visible && _verticalScrollBar.Enabled) {
                 int newVal;
                 if (rowID < _topRowID) {
                     newVal = rowID - _docFirstRowID;
                 }
-                else if (rowID - _topRowID >= _VScrollBar.LargeChange) {
-                    newVal = rowID - _docFirstRowID - _VScrollBar.LargeChange + 1;
+                else if (rowID - _topRowID >= _verticalScrollBar.LargeChange) {
+                    newVal = rowID - _docFirstRowID - _verticalScrollBar.LargeChange + 1;
                 }
                 else {
                     return;
                 }
 
-                _VScrollBar.Value =
+                _verticalScrollBar.Value =
                     Math.Min(
                         Math.Max(newVal, 0),
-                        _VScrollBar.Maximum - _VScrollBar.LargeChange + 1);
+                        _verticalScrollBar.Maximum - _verticalScrollBar.LargeChange + 1);
             }
-        }
-
-        // Set scrollbar's placement.
-        // FIXME:
-        //  Old comment says: When this.Dock was DockStyle.Top or DockStyle.Left, the ScrollBar doesn't move automatically.
-        //  Is it true?
-        private void AdjustScrollBarPosition() {
-            _VScrollBar.Height = this.ClientSize.Height;
-            _VScrollBar.Left = this.ClientSize.Width - _VScrollBar.Width;
         }
 
         #endregion
@@ -619,8 +627,12 @@ namespace Poderosa.View {
         private void UpdateViewportSize() {
             RenderProfile prof = _renderProfile;
             SizeF pitch = prof.Pitch;
-            _viewportColumns = Math.Max((int)Math.Floor((this.ClientSize.Width - BORDER * 2) / pitch.Width), 0);
-            _viewportRows = Math.Max((int)Math.Floor((this.ClientSize.Height - BORDER * 2 + prof.LineSpacing) / (pitch.Height + prof.LineSpacing)), 0);
+            Size viewSize = this.ClientSize;
+            viewSize.Width = Math.Max(viewSize.Width - _verticalScrollBar.Width, 0);    // scrollbar is always visible during a document is set
+            _viewportColumns = Math.Max((int)Math.Floor((viewSize.Width - BORDER * 2) / pitch.Width), 0);
+            _viewportRows = Math.Max((int)Math.Floor((viewSize.Height - BORDER * 2 + prof.LineSpacing) / (pitch.Height + prof.LineSpacing)), 0);
+
+            Debug.WriteLine("Rows={0} Cols{1}", _viewportRows, _viewportColumns);
 
             ICharacterDocument doc = _document;
             if (doc != null) {
@@ -922,11 +934,11 @@ namespace Poderosa.View {
             SizeF drawSize;
 
             if (fitWidth && fitHeight) {
-                drawSize = new SizeF(clientSize.Width - _VScrollBar.Width, clientSize.Height);
+                drawSize = new SizeF(clientSize.Width - _verticalScrollBar.Width, clientSize.Height);
                 drawPoint = new PointF(0, 0);
             }
             else if (fitWidth) {
-                float drawWidth = clientSize.Width - _VScrollBar.Width;
+                float drawWidth = clientSize.Width - _verticalScrollBar.Width;
                 float drawHeight = drawWidth * img.Height / img.Width;
                 drawSize = new SizeF(drawWidth, drawHeight);
                 drawPoint = new PointF(0, (clientSize.Height - drawSize.Height) / 2f);
@@ -935,7 +947,7 @@ namespace Poderosa.View {
                 float drawHeight = clientSize.Height;
                 float drawWidth = drawHeight * img.Width / img.Height;
                 drawSize = new SizeF(drawWidth, drawHeight);
-                drawPoint = new PointF((clientSize.Width - _VScrollBar.Width - drawSize.Width) / 2f, 0);
+                drawPoint = new PointF((clientSize.Width - _verticalScrollBar.Width - drawSize.Width) / 2f, 0);
             }
 
             Region oldClip = g.Clip;
@@ -949,11 +961,11 @@ namespace Poderosa.View {
         private void DrawBackgroundImage_Normal(Graphics g, Image img, ImageStyle style, Rectangle clip) {
             int offset_x, offset_y;
             if (style == ImageStyle.Center) {
-                offset_x = (this.Width - _VScrollBar.Width - img.Width) / 2;
+                offset_x = (this.Width - _verticalScrollBar.Width - img.Width) / 2;
                 offset_y = (this.Height - img.Height) / 2;
             }
             else {
-                offset_x = (style == ImageStyle.TopLeft || style == ImageStyle.BottomLeft) ? 0 : (this.ClientSize.Width - _VScrollBar.Width - img.Width);
+                offset_x = (style == ImageStyle.TopLeft || style == ImageStyle.BottomLeft) ? 0 : (this.ClientSize.Width - _verticalScrollBar.Width - img.Width);
                 offset_y = (style == ImageStyle.TopLeft || style == ImageStyle.TopRight) ? 0 : (this.ClientSize.Height - img.Height);
             }
 
@@ -969,9 +981,6 @@ namespace Poderosa.View {
 
         protected override void OnResize(EventArgs e) {
             base.OnResize(e);
-            if (_VScrollBar.Visible) {
-                AdjustScrollBarPosition();
-            }
             UpdateViewportSize();
             UpdateScrollBar();
             // repaint whole viewport is needed for erasing padding area
@@ -999,7 +1008,7 @@ namespace Poderosa.View {
 
         public int SplitClientWidth {
             get {
-                return this.ClientSize.Width - (_VScrollBar.Visible ? _VScrollBar.Width : 0);
+                return this.ClientSize.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
             }
         }
 
