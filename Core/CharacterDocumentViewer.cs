@@ -84,6 +84,9 @@ namespace Poderosa.View {
         // Row ID of the first row in the document
         private int _docFirstRowID = 0;
 
+        // indicates whether OnResize event has been occurred
+        private bool _onResizeOccurred = false;
+
         // temporal copy of lines
         private readonly GLineChunk _linePool = new GLineChunk(0);
 
@@ -275,6 +278,9 @@ namespace Poderosa.View {
 
             // clear selection
             _textSelection.Clear();
+
+            // update viewport size
+            UpdateViewportSize();
 
             // do extra work
             OnCharacterDocumentChanged();
@@ -625,6 +631,25 @@ namespace Poderosa.View {
         /// Updates view port size
         /// </summary>
         private void UpdateViewportSize() {
+            // This method will be called:
+            // - when a new document was set, or was unset
+            // - when a new render-profile was set
+            // - every OnResize event
+            //
+            // The initial viewport size will be determined as the following:
+            //
+            //  Case 1: a document and a render-profile are set before this view was rendered first
+            //     The initial viewport size will be determined in the first OnResize event.
+            //
+            //  Case 2: a document is set after this view was rendered first
+            //     The initial viewport size will be determined when a new document was set.
+
+            if (_document == null || _renderProfile == null || !_onResizeOccurred) {
+                // cannot determine the size
+                _viewportRows = _viewportColumns = 0;
+                return;
+            }
+
             RenderProfile prof = _renderProfile;
             SizeF pitch = prof.Pitch;
             Size viewSize = this.ClientSize;
@@ -632,12 +657,9 @@ namespace Poderosa.View {
             _viewportColumns = Math.Max((int)Math.Floor((viewSize.Width - BORDER * 2) / pitch.Width), 0);
             _viewportRows = Math.Max((int)Math.Floor((viewSize.Height - BORDER * 2 + prof.LineSpacing) / (pitch.Height + prof.LineSpacing)), 0);
 
-            Debug.WriteLine("Rows={0} Cols{1}", _viewportRows, _viewportColumns);
+            //Debug.WriteLine("Rows={0} Cols={1}", _viewportRows, _viewportColumns);
 
-            ICharacterDocument doc = _document;
-            if (doc != null) {
-                doc.VisibleAreaSizeChanged(_viewportRows, _viewportColumns);
-            }
+            _document.VisibleAreaSizeChanged(_viewportRows, _viewportColumns);
             OnViewportSizeChanged();
         }
 
@@ -981,6 +1003,7 @@ namespace Poderosa.View {
 
         protected override void OnResize(EventArgs e) {
             base.OnResize(e);
+            _onResizeOccurred = true;
             UpdateViewportSize();
             UpdateScrollBar();
             // repaint whole viewport is needed for erasing padding area
