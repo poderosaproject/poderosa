@@ -178,6 +178,10 @@ namespace Poderosa.Terminal {
             return GEnv.DefaultRenderProfile;
         }
 
+        protected override bool DetermineScrollable() {
+            return true;
+        }
+
         #endregion
 
         #region IPoderosaView

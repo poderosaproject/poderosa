@@ -69,9 +69,6 @@ namespace Poderosa.View {
         // mouse pointer on the document (appears during a document is attached)
         private Cursor _documentCursor = Cursors.IBeam;
 
-        // whether this view is scrollable
-        private bool _scrollable = true;
-
         // size of the viewport
         private int _viewportRows = 0;
         private int _viewportColumns = 0;
@@ -106,6 +103,12 @@ namespace Poderosa.View {
         /// </summary>
         /// <returns>render-profile object. must not be null.</returns>
         protected abstract RenderProfile GetCurrentRenderProfile();
+
+        /// <summary>
+        /// Determines whether the viewer is scrollable.
+        /// </summary>
+        /// <returns>true if the viewer is scrollable.</returns>
+        protected abstract bool DetermineScrollable();
 
         /// <summary>
         /// Constructor
@@ -294,15 +297,6 @@ namespace Poderosa.View {
         }
 
         /// <summary>
-        /// Sets whether this view is scrollable
-        /// </summary>
-        /// <param name="scrollable">true if this view is scrollable</param>
-        protected void SetScrollable(bool scrollable) {
-            _scrollable = scrollable;
-            UpdateScrollBar();
-        }
-
-        /// <summary>
         /// Sets mouse pointer on the document.
         /// </summary>
         /// <param name="cursor"></param>
@@ -429,7 +423,9 @@ namespace Poderosa.View {
                 return;
             }
 
-            UpdateScrollBar(_scrollable ? ScrollAction.KeepRowID : ScrollAction.ScrollToBottom);
+            bool scrollable = DetermineScrollable();
+
+            UpdateScrollBar(scrollable ? ScrollAction.KeepRowID : ScrollAction.ScrollToBottom);
         }
 
         private void UpdateScrollBar(ScrollAction scrollAction) {

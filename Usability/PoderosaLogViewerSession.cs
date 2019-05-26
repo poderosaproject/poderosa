@@ -179,6 +179,10 @@ namespace Poderosa.LogViewer {
             return _renderProfile;
         }
 
+        protected override bool DetermineScrollable() {
+            return true;
+        }
+
         protected override void OnCharacterDocumentChanged() {
             // do nothing
         }
