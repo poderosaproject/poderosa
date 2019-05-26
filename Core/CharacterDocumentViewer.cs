@@ -110,15 +110,7 @@ namespace Poderosa.View {
         /// <summary>
         /// Constructor
         /// </summary>
-        protected CharacterDocumentViewer()
-            : this(mouseHandler: null) {
-        }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="mouseHandler">primary mouse-handler, or null</param>
-        protected CharacterDocumentViewer(IMouseHandler mouseHandler) {
+        protected CharacterDocumentViewer() {
             InitializeComponent();
 
             this.DoubleBuffered = true;
@@ -135,9 +127,6 @@ namespace Poderosa.View {
             _textSelection.AddSelectionListener(this);
 
             _mouseHandlerManager = new MouseHandlerManager();
-            if (mouseHandler != null) {
-                _mouseHandlerManager.AddLastHandler(mouseHandler);
-            }
             _mouseHandlerManager.AddLastHandler(new TextSelectionUIHandler(this));
             _mouseHandlerManager.AddLastHandler(new SplitMarkUIHandler(_splitMark));
             _mouseHandlerManager.AddLastHandler(new DefaultMouseWheelHandler(this));
@@ -168,6 +157,14 @@ namespace Poderosa.View {
 
             this.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.ResumeLayout();
+        }
+
+        protected void AddFirstMouseHandler(IMouseHandler handler) {
+            _mouseHandlerManager.AddFirstHandler(handler);
+        }
+
+        protected void AddLastMouseHandler(IMouseHandler handler) {
+            _mouseHandlerManager.AddLastHandler(handler);
         }
 
         protected override void Dispose(bool disposing) {
