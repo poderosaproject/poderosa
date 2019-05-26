@@ -103,19 +103,29 @@ namespace Poderosa.LogViewer {
 
     //ViewClass
     internal class PoderosaLogViewControl : CharacterDocumentViewer, IPoderosaView, IGeneralViewCommands {
+        private readonly RenderProfile _renderProfile;
         private readonly IPoderosaForm _form;
         private PoderosaLogViewerSession _session;
 
         public PoderosaLogViewControl(IPoderosaForm form) {
+            _renderProfile = CreateLogRenderProfile();
             _form = form;
             Caret.Enabled = false;
             Caret.Blink = false;
         }
 
+        private static RenderProfile CreateLogRenderProfile() {
+            return new RenderProfile() {
+                FontName = "Courier New",
+                FontSize = 9,
+                BackColor = SystemColors.Window,
+                ForeColor = SystemColors.WindowText,
+            };
+        }
+
         public void SetParent(PoderosaLogViewerSession session) {
             _session = session;
             SetDocument(_session.Document);
-            SetRenderProfile(CreateLogRenderProfile());
             UpdateDocument();
         }
 
@@ -158,20 +168,15 @@ namespace Poderosa.LogViewer {
             }
         }
 
-        private static RenderProfile CreateLogRenderProfile() {
-            RenderProfile rp = new RenderProfile();
-            rp.FontName = "Courier New";
-            rp.FontSize = 9;
-            rp.BackColor = SystemColors.Window;
-            rp.ForeColor = SystemColors.WindowText;
-            return rp;
-        }
-
         //標準幅
         public static int DefaultWidth {
             get {
                 return (int)(CreateLogRenderProfile().Pitch.Width * PoderosaLogDocument.DefaultWidth);
             }
+        }
+
+        protected override RenderProfile GetCurrentRenderProfile() {
+            return _renderProfile;
         }
 
         protected override void OnCharacterDocumentChanged() {

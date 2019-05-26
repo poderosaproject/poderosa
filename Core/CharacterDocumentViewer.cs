@@ -56,9 +56,6 @@ namespace Poderosa.View {
         // document
         private ICharacterDocument _document = null;
 
-        // render-profile
-        private RenderProfile _renderProfile;
-
         // timer for the periodic redraw
         private ITimerSite _timer = null;
         // timer tick counter for the periodic redraw
@@ -105,6 +102,12 @@ namespace Poderosa.View {
         protected abstract void OnCharacterDocumentChanged();
 
         /// <summary>
+        /// Obtains a current render-profile.
+        /// </summary>
+        /// <returns>render-profile object. must not be null.</returns>
+        protected abstract RenderProfile GetCurrentRenderProfile();
+
+        /// <summary>
         /// Constructor
         /// </summary>
         protected CharacterDocumentViewer()
@@ -139,14 +142,6 @@ namespace Poderosa.View {
             _mouseHandlerManager.AddLastHandler(new SplitMarkUIHandler(_splitMark));
             _mouseHandlerManager.AddLastHandler(new DefaultMouseWheelHandler(this));
             _mouseHandlerManager.AttachControl(this);
-
-            // interim profile until SetRenderProfile() was called
-            _renderProfile = new RenderProfile() {
-                FontName = "Courier New",
-                FontSize = 9,
-                BackColor = SystemColors.Window,
-                ForeColor = SystemColors.WindowText,
-            };
 
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
         }
@@ -296,19 +291,6 @@ namespace Poderosa.View {
                 this._verticalScrollBar.Visible = false;
                 this.InvalidateFull();
             }
-        }
-
-        /// <summary>
-        /// Sets a render profile
-        /// </summary>
-        /// <param name="prof">profile to set</param>
-        public void SetRenderProfile(RenderProfile prof) {
-            if (prof == null) {
-                return;
-            }
-            _renderProfile = (RenderProfile)prof.Clone();
-            UpdateViewportSize();
-            RefreshViewerFull();
         }
 
         /// <summary>
@@ -644,13 +626,13 @@ namespace Poderosa.View {
             //  Case 2: a document is set after this view was rendered first
             //     The initial viewport size will be determined when a new document was set.
 
-            if (_document == null || _renderProfile == null || !_onResizeOccurred) {
+            if (_document == null || !_onResizeOccurred) {
                 // cannot determine the size
                 _viewportRows = _viewportColumns = 0;
                 return;
             }
 
-            RenderProfile prof = _renderProfile;
+            RenderProfile prof = GetCurrentRenderProfile();
             SizeF pitch = prof.Pitch;
             Size viewSize = this.ClientSize;
             viewSize.Width = Math.Max(viewSize.Width - _verticalScrollBar.Width, 0);    // scrollbar is always visible during a document is set
@@ -676,7 +658,7 @@ namespace Poderosa.View {
         /// <param name="colIndex">character position column index (may be negative value)</param>
         /// <param name="rowIndex">character position row index (may be negative value)</param>
         protected void ClientPosToTextPos(int px, int py, out int colIndex, out int rowIndex) {
-            RenderProfile prof = _renderProfile;
+            RenderProfile prof = GetCurrentRenderProfile();
             SizeF pitch = prof.Pitch;
             colIndex = (int)Math.Floor((px - CharacterDocumentViewer.BORDER) / pitch.Width);
             rowIndex = (int)Math.Floor((py - CharacterDocumentViewer.BORDER) / (pitch.Height + prof.LineSpacing));
@@ -717,7 +699,7 @@ namespace Poderosa.View {
                     int topRowID = _topRowID;
                     int y1 = rgn.StartRowID - topRowID;
                     int y2 = rgn.EndRowID - topRowID;
-                    RenderProfile prof = _renderProfile;
+                    RenderProfile prof = GetCurrentRenderProfile();
                     r.Y = BORDER + (int)(y1 * (prof.Pitch.Height + prof.LineSpacing));
                     r.Height = (int)((y2 - y1) * (prof.Pitch.Height + prof.LineSpacing)) + 1;
                 }
@@ -772,7 +754,7 @@ namespace Poderosa.View {
                 if (!this.DesignMode) {
                     Rectangle clip = e.ClipRectangle;
                     Graphics g = e.Graphics;
-                    RenderProfile profile = _renderProfile;
+                    RenderProfile profile = GetCurrentRenderProfile();
 
                     // determine background color of the view
                     Color backColor = (doc != null) ? doc.DetermineBackgroundColor(profile) : profile.BackColor;
@@ -892,7 +874,7 @@ namespace Poderosa.View {
         }
 
         private void DrawLines(Graphics g, RenderParameter param, Color baseBackColor) {
-            RenderProfile prof = _renderProfile;
+            RenderProfile prof = GetCurrentRenderProfile();
             Caret caret = _caret;
             //Rendering Core
             IntPtr hdc = g.GetHdc();
@@ -914,7 +896,7 @@ namespace Poderosa.View {
         }
 
         private void DrawBarCaret(Graphics g, int x, int y) {
-            RenderProfile profile = _renderProfile;
+            RenderProfile profile = GetCurrentRenderProfile();
             PointF pt1 = new PointF(profile.Pitch.Width * x + BORDER, (profile.Pitch.Height + profile.LineSpacing) * y + BORDER + 2);
             PointF pt2 = new PointF(pt1.X, pt1.Y + profile.Pitch.Height - 2);
             Pen p = _caret.ToPen(profile);
@@ -925,7 +907,7 @@ namespace Poderosa.View {
         }
 
         private void DrawUnderLineCaret(Graphics g, int x, int y) {
-            RenderProfile profile = _renderProfile;
+            RenderProfile profile = GetCurrentRenderProfile();
             PointF pt1 = new PointF(profile.Pitch.Width * x + BORDER + 2, (profile.Pitch.Height + profile.LineSpacing) * y + BORDER + profile.Pitch.Height);
             PointF pt2 = new PointF(pt1.X + profile.Pitch.Width - 2, pt1.Y);
             Pen p = _caret.ToPen(profile);

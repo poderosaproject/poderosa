@@ -157,7 +157,6 @@ namespace Poderosa.Terminal {
 
         public void SetParent(CommandResultSession session) {
             _session = session;
-            this.SetRenderProfile(session.RenderProfile);
             this.SetDocument(_session.Document);
         }
 
@@ -169,6 +168,14 @@ namespace Poderosa.Terminal {
 
         protected override void OnCharacterDocumentChanged() {
             // do nothing
+        }
+
+        protected override RenderProfile GetCurrentRenderProfile() {
+            if (_session != null) {
+                return _session.RenderProfile ?? GEnv.DefaultRenderProfile;
+            }
+
+            return GEnv.DefaultRenderProfile;
         }
 
         #endregion
