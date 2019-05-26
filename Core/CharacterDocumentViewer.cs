@@ -268,6 +268,9 @@ namespace Poderosa.View {
                 _tickCount = 0;
             }
 
+            // reset mouse handlers
+            _mouseHandlerManager.ResetAll();
+
             // clear selection
             _textSelection.Clear();
 
@@ -1138,6 +1141,9 @@ namespace Poderosa.View {
 
                 return UIHandleResult.Stop;
             }
+
+            public override void Reset() {
+            }
         }
 
         #endregion
@@ -1282,6 +1288,13 @@ namespace Poderosa.View {
                 return _viewer._mouseHandlerManager.CapturingHandler == this ?
                         UIHandleResult.EndCapture : UIHandleResult.Pass;
             }
+
+            public override void Reset() {
+                TextSelection sel = _viewer._textSelection;
+                if (sel != null) {
+                    sel.Clear();
+                }
+            }
         }
 
         #endregion
@@ -1319,6 +1332,10 @@ namespace Poderosa.View {
                     return UIHandleResult.EndCapture;
                 }
                 return UIHandleResult.Pass;
+            }
+
+            public override void Reset() {
+                _splitMark.ClearMark();
             }
         }
 

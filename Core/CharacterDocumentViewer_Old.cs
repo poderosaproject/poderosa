@@ -927,6 +927,8 @@ namespace Poderosa.View {
                 return _viewer.MouseHandlerManager.CapturingHandler == this ? UIHandleResult.EndCapture : UIHandleResult.Pass;
 
             }
+            public override void Reset() {
+            }
         }
 
         //スプリットマークのハンドラ
@@ -956,6 +958,8 @@ namespace Poderosa.View {
                 }
                 else
                     return UIHandleResult.Pass;
+            }
+            public override void Reset() {
             }
         }
     }

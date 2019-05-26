@@ -51,6 +51,7 @@ namespace Poderosa.View {
         UIHandleResult OnMouseMove(MouseEventArgs args);
         UIHandleResult OnMouseUp(MouseEventArgs args);
         UIHandleResult OnMouseWheel(MouseEventArgs args);
+        void Reset();
     }
 
     //ProcessCmdKey/ProcessDialogKeyの周辺に関しての処理を行う
@@ -93,6 +94,8 @@ namespace Poderosa.View {
         public virtual UIHandleResult OnMouseWheel(MouseEventArgs args) {
             return UIHandleResult.Pass;
         }
+
+        abstract public void Reset();
     }
 
     /// <summary>
@@ -102,14 +105,9 @@ namespace Poderosa.View {
     /// <typeparam name="ARG"></typeparam>
     /// <exclude/>
     public abstract class UIHandlerManager<HANDLER, ARG> where HANDLER : class, IUIHandler {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="handler"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        /// <exclude/>
+
         public delegate UIHandleResult HandlerDelegate(HANDLER handler, ARG args);
+        public delegate void ResetDelegate(HANDLER handler);
 
         private List<HANDLER> _handlers; //先頭が最高優先度
         private HANDLER _capturingHandler; //イベントをキャプチャしているハンドラ。存在しないときはnull
@@ -178,6 +176,18 @@ namespace Poderosa.View {
 
             return UIHandleResult.Pass;
         }
+
+        protected void Reset(ResetDelegate reset) {
+            try {
+                foreach (HANDLER h in _handlers) {
+                    reset(h);
+                }
+                _capturingHandler = null;
+            }
+            catch (Exception ex) {
+                RuntimeUtil.ReportException(ex);
+            }
+        }
     }
 
     //ハンドラのマネージャ
@@ -204,6 +214,10 @@ namespace Poderosa.View {
             delegate(IMouseHandler handler, MouseEventArgs args) {
                 return handler.OnMouseWheel(args);
             };
+        private static ResetDelegate _resetDelegate =
+            delegate(IMouseHandler handler) {
+                handler.Reset();
+            };
 
         public override void AttachControl(Control c) {
             c.MouseDown += new MouseEventHandler(RootMouseDown);
@@ -212,7 +226,11 @@ namespace Poderosa.View {
             c.MouseWheel += new MouseEventHandler(RootMouseWheel);
         }
 
-        //WinFormsのイベントハンドラ
+        public void ResetAll() {
+            Reset(_resetDelegate);
+        }
+
+        // WinForms event handlers
         private void RootMouseDown(object sender, MouseEventArgs args) {
             Process(_mouseDownDelegate, args);
         }
@@ -225,7 +243,6 @@ namespace Poderosa.View {
         private void RootMouseWheel(object sender, MouseEventArgs args) {
             Process(_mouseWheelDelegate, args);
         }
-
     }
 
     /// <summary>

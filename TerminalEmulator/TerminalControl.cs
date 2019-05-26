@@ -977,6 +977,9 @@ namespace Poderosa.Terminal {
 
             return UIHandleResult.Stop;
         }
+
+        public override void Reset() {
+        }
     }
 
     /// <summary>
@@ -1229,6 +1232,10 @@ namespace Poderosa.Terminal {
                 return UIHandleResult.Pass;
             }
         }
+
+        public override void Reset() {
+            _pressedButtons = MouseButtons.None;
+        }
     }
 
     internal class TerminalEmulatorMouseHandler : DefaultMouseHandler {
@@ -1268,6 +1275,9 @@ namespace Poderosa.Terminal {
             }
 
             return UIHandleResult.Pass;
+        }
+
+        public override void Reset() {
         }
 
         public void ShowContextMenu(Point pt) {
