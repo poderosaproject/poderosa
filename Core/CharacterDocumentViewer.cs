@@ -258,6 +258,15 @@ namespace Poderosa.View {
                 this.BackColor = SystemColors.ControlDark;
             }
 
+            // reset internal state
+            _viewportRows = 0;
+            _viewportColumns = 0;
+            _topRowID = 0;
+            _docFirstRowID = 0;
+            _errorRaisedInDrawing = false;
+            _requiresPeriodicRedraw = false;
+
+            // set document (can be null)
             _document = doc;
 
             // setup timer
