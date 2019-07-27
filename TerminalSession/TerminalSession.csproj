@@ -108,9 +108,6 @@
     </Compile>
     <Compile Include="StartCommands.cs" />
     <Compile Include="StoragePerWindow.cs" />
-    <Compile Include="TelnetSSHLoginDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="TelnetSSHPlugin.cs" />
     <Compile Include="TerminalSession.cs" />
     <Compile Include="TerminalSessionEx.cs" />
@@ -184,10 +181,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="strings_ja.resx">
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TelnetSSHLoginDialog.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>TelnetSSHLoginDialog.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
