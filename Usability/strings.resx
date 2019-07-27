@@ -394,9 +394,6 @@
   <data name="Form.OptionDialog._sshMiscGroup">
     <value>Miscellaneous</value>
   </data>
-  <data name="Form.OptionDialog._retainsPassphrase">
-    <value>&amp;Memorize passphrase until the application is terminated</value>
-  </data>
   <data name="Form.OptionDialog._sshCheckMAC">
     <value>&amp;Check MAC
 (if you turn this off, the performance gains slightly at the risk of security.)</value>

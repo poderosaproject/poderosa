@@ -392,9 +392,6 @@
   <data name="Form.OptionDialog._sshMiscGroup">
     <value>その他</value>
   </data>
-  <data name="Form.OptionDialog._retainsPassphrase">
-    <value>終了までは一度入力したパスフレーズを記憶(&amp;M)</value>
-  </data>
   <data name="Form.OptionDialog._sshCheckMAC">
     <value>MACチェックを行う(&amp;C)
 (チェックを外すとと若干高速化するかわりセキュリティが低下します)</value>

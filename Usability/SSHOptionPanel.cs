@@ -37,7 +37,6 @@ namespace Poderosa.Forms {
         private System.Windows.Forms.Label _windowSizeLabel;
         private TextBox _windowSizeBox;
         private System.Windows.Forms.GroupBox _sshMiscGroup;
-        private CheckBox _retainsPassphrase;
         private CheckBox _sshCheckMAC;
         private ListBox _hostKeyAlgorithmOrderList;
         private Button _hostKeyAlgorithmOrderUp;
@@ -62,7 +61,6 @@ namespace Poderosa.Forms {
             this._windowSizeBox = new System.Windows.Forms.TextBox();
             this._sshMiscGroup = new System.Windows.Forms.GroupBox();
             this._sshCheckMAC = new System.Windows.Forms.CheckBox();
-            this._retainsPassphrase = new System.Windows.Forms.CheckBox();
             this._sshEventLog = new System.Windows.Forms.CheckBox();
             this._cipherOrderGroup.SuspendLayout();
             this._ssh2OptionGroup.SuspendLayout();
@@ -176,35 +174,26 @@ namespace Poderosa.Forms {
             // _sshMiscGroup
             // 
             this._sshMiscGroup.Controls.Add(this._sshCheckMAC);
-            this._sshMiscGroup.Controls.Add(this._retainsPassphrase);
             this._sshMiscGroup.Controls.Add(this._sshEventLog);
             this._sshMiscGroup.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this._sshMiscGroup.Location = new System.Drawing.Point(8, 243);
             this._sshMiscGroup.Name = "_sshMiscGroup";
-            this._sshMiscGroup.Size = new System.Drawing.Size(416, 105);
+            this._sshMiscGroup.Size = new System.Drawing.Size(416, 83);
             this._sshMiscGroup.TabIndex = 9;
             this._sshMiscGroup.TabStop = false;
             // 
             // _sshCheckMAC
             // 
             this._sshCheckMAC.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this._sshCheckMAC.Location = new System.Drawing.Point(8, 34);
+            this._sshCheckMAC.Location = new System.Drawing.Point(8, 12);
             this._sshCheckMAC.Name = "_sshCheckMAC";
             this._sshCheckMAC.Size = new System.Drawing.Size(400, 37);
             this._sshCheckMAC.TabIndex = 12;
             // 
-            // _retainsPassphrase
-            // 
-            this._retainsPassphrase.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this._retainsPassphrase.Location = new System.Drawing.Point(8, 12);
-            this._retainsPassphrase.Name = "_retainsPassphrase";
-            this._retainsPassphrase.Size = new System.Drawing.Size(400, 23);
-            this._retainsPassphrase.TabIndex = 11;
-            // 
             // _sshEventLog
             // 
             this._sshEventLog.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this._sshEventLog.Location = new System.Drawing.Point(8, 70);
+            this._sshEventLog.Location = new System.Drawing.Point(8, 48);
             this._sshEventLog.Name = "_sshEventLog";
             this._sshEventLog.Size = new System.Drawing.Size(400, 23);
             this._sshEventLog.TabIndex = 13;
@@ -269,7 +258,6 @@ namespace Poderosa.Forms {
             this._hostKeyAlgorithmOrderDown.Text = sr.GetString("Form.OptionDialog._hostKeyAlgorithmOrderDown");
             this._windowSizeLabel.Text = sr.GetString("Form.OptionDialog._windowSizeLabel");
             this._sshMiscGroup.Text = sr.GetString("Form.OptionDialog._sshMiscGroup");
-            this._retainsPassphrase.Text = sr.GetString("Form.OptionDialog._retainsPassphrase");
             this._sshCheckMAC.Text = sr.GetString("Form.OptionDialog._sshCheckMAC");
             this._sshEventLog.Text = sr.GetString("Form.OptionDialog._sshEventLog");
         }
@@ -279,7 +267,6 @@ namespace Poderosa.Forms {
             _hostKeyAlgorithmOrderList.Items.Clear();
             _hostKeyAlgorithmOrderList.Items.AddRange(ToPublicKeyAlgorithmListItems(options.HostKeyAlgorithmOrder));
             _windowSizeBox.Text = options.SSHWindowSize.ToString();
-            _retainsPassphrase.Checked = options.RetainsPassphrase;
             _sshCheckMAC.Checked = options.SSHCheckMAC;
             _sshEventLog.Checked = options.LogSSHEvents;
         }
@@ -320,7 +307,6 @@ namespace Poderosa.Forms {
                     return false;
                 }
 
-                options.RetainsPassphrase = _retainsPassphrase.Checked;
                 options.SSHCheckMAC = _sshCheckMAC.Checked;
                 options.CipherAlgorithmOrder = GetCipherAlgorithmOrder();
                 options.LogSSHEvents = _sshEventLog.Checked;
