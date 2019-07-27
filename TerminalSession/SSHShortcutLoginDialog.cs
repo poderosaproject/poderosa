@@ -464,11 +464,7 @@ namespace Poderosa.Sessions {
                 _passphraseBox.Enabled = false;
             }
 
-            _passphraseBox.Text = "";
-            if (_sshParam.PasswordOrPassphrase.Length == 0 && TerminalSessionsPlugin.Instance.ProtocolService.ProtocolOptions.RetainsPassphrase) {
-                string p = TerminalSessionsPlugin.Instance.ProtocolService.PassphraseCache.GetOrEmpty(tcp.Destination, _sshParam.Account);
-                _passphraseBox.Text = p;
-            }
+            _passphraseBox.Text = _sshParam.PasswordOrPassphrase;
 
             IAutoExecMacroParameter autoExecParams = _sshParam.GetAdapter(typeof(IAutoExecMacroParameter)) as IAutoExecMacroParameter;
             if (autoExecParams != null && TelnetSSHPlugin.Instance.MacroEngine != null) {

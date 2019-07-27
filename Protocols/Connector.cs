@@ -94,10 +94,13 @@ namespace Poderosa.Protocols {
             var connection = SSHConnection.Connect(_socket, con,
                                 sshconn => terminalConnection.ConnectionEventReceiver,
                                 sshconn => protocolEventLogger);
-            if (PEnv.Options.RetainsPassphrase && _destination.AuthenticationType != AuthenticationType.KeyboardInteractive) {
-                ProtocolsPlugin.Instance.PassphraseCache.Add(tcp.Destination, _destination.Account, _destination.PasswordOrPassphrase); //接続成功時のみセット
-            }
-            //_destination.PasswordOrPassphrase = ""; 接続の複製のためにここで消さずに残しておく
+
+            // Note: password must not be cleared here. it will be required when duplicating connection later.
+
+            // The login settings was accepted.
+            // No need to ask a password on the new attempt to login from the shortcut functionality.
+            _destination.LetUserInputPassword = false;
+
             terminalConnection.AttachTransmissionSide(connection, connection.AuthenticationStatus);
             _result = terminalConnection;
         }
