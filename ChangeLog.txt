@@ -1,4 +1,17 @@
-﻿4.4.4
+﻿4.4.5
+-----
+    * Fixed: opening a new SSH connection from MRU list works.
+      The previously succeeded passphrase is used silently.
+      If no passphrase was available, a new passphrase is asked.
+
+    * A SSH option "Memorize passphrase until the application is terminated"
+      (org.poderosa.protocols.retainPassphrase) was removed.
+      Currently, this functionality is enabled by default for the consistency
+      across some methods to open a new connection.
+
+    * Fixed: skip MAC verification in SSH2 works.
+
+4.4.4
 -----
     * Strict file name checks in SCP and SFTP for preventing attacks described in
       https://sintonen.fi/advisories/scp-client-multiple-vulnerabilities.txt
