@@ -182,32 +182,6 @@ namespace Poderosa.Sessions {
                 if (window == null)
                     return CommandResult.Ignored;
 
-#if OLD_LOGIN_DIALOG
-                TelnetSSHLoginDialog dlg = new TelnetSSHLoginDialog(window);
-
-                dlg.ApplyParam();
-
-                CommandResult res = CommandResult.Cancelled;
-                if (dlg.ShowDialog() == DialogResult.OK) {
-                    ITerminalConnection con = dlg.Result;
-                    if (con != null) {
-                        ISessionManager sm = (ISessionManager)TelnetSSHPlugin.Instance.PoderosaWorld.PluginManager.FindPlugin("org.poderosa.core.sessions", typeof(ISessionManager));
-                        TerminalSession ts = new TerminalSession(con, dlg.TerminalSettings);
-                        sm.StartNewSession(ts, (IPoderosaView)dlg.TargetView.GetAdapter(typeof(IPoderosaView)));
-                        sm.ActivateDocument(ts.Terminal.IDocument, ActivateReason.InternalAction);
-
-                        IAutoExecMacroParameter autoExecParam = con.Destination.GetAdapter(typeof(IAutoExecMacroParameter)) as IAutoExecMacroParameter;
-                        if (autoExecParam != null && autoExecParam.AutoExecMacroPath != null && TelnetSSHPlugin.Instance.MacroEngine != null) {
-                            TelnetSSHPlugin.Instance.MacroEngine.RunMacro(autoExecParam.AutoExecMacroPath, ts);
-                        }
-
-                        return CommandResult.Succeeded;
-                    }
-                }
-                dlg.Dispose();
-
-                return res;
-#else
                 using (OpenSessionDialog dlg = new OpenSessionDialog(window)) {
                     if (dlg.ShowDialog() == DialogResult.OK) {
                         IContentReplaceableView view = (IContentReplaceableView)window.ViewManager.GetCandidateViewForNewDocument().GetAdapter(typeof(IContentReplaceableView));
@@ -226,7 +200,6 @@ namespace Poderosa.Sessions {
                     }
                     return CommandResult.Cancelled;
                 }
-#endif
             }
 
             public string CommandID {

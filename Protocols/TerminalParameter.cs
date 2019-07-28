@@ -244,6 +244,10 @@ namespace Poderosa.Protocols {
             }
         }
         public string PasswordOrPassphrase {
+            // Note:
+            //  An instance of SSHLoginParameter will be shared with the session, MRU, cache, etc.
+            //  So the clearing of this property affects reproducing the connection.
+            //  To "forget" password, just ignore this property and ask a new password to the user.
             get {
                 return _passwordOrPassphrase;
             }

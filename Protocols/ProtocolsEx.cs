@@ -371,23 +371,6 @@ namespace Poderosa.Protocols {
         IProtocolOptions ProtocolOptions {
             get;
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <exclude/>
-        IPassphraseCache PassphraseCache {
-            get;
-        }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <exclude/>
-    public interface IPassphraseCache {
-        void Add(string host, string account, string passphrase);
-        string GetOrEmpty(string host, string account);
     }
 
     /// <summary>

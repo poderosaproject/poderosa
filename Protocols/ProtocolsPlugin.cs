@@ -32,7 +32,6 @@ namespace Poderosa.Protocols {
         private static ProtocolsPlugin _instance;
         private IExtensionPoint _connectionResultEventHandler;
         private ProtocolOptionsSupplier _protocolOptionsSupplier;
-        private PassphraseCache _passphraseCache;
         private IPoderosaLog _poderosaLog;
         private PoderosaLogCategoryImpl _netCategory;
 
@@ -47,7 +46,6 @@ namespace Poderosa.Protocols {
             _instance = this;
 
             _protocolOptionsSupplier = new ProtocolOptionsSupplier();
-            _passphraseCache = new PassphraseCache();
             _poderosaLog = ((IPoderosaApplication)poderosa.GetAdapter(typeof(IPoderosaApplication))).PoderosaLog;
             _netCategory = new PoderosaLogCategoryImpl("Network");
 
@@ -93,11 +91,6 @@ namespace Poderosa.Protocols {
         public IProtocolOptions ProtocolOptions {
             get {
                 return _protocolOptionsSupplier.OriginalOptions;
-            }
-        }
-        public IPassphraseCache PassphraseCache {
-            get {
-                return _passphraseCache;
             }
         }
 
@@ -188,23 +181,5 @@ namespace Poderosa.Protocols {
     public static class ProtocolsPluginConstants {
         public const string HOSTKEYCHECKER_EXTENSION = "org.poderosa.protocols.sshHostKeyChecker";
         public const string RESULTEVENTHANDLER_EXTENSION = "org.poderosa.protocols.resultEventHandler";
-    }
-
-
-    //メモリにのみ保持
-    internal class PassphraseCache : IPassphraseCache {
-        private TypedHashtable<string, string> _data;
-
-        public PassphraseCache() {
-            _data = new TypedHashtable<string, string>();
-        }
-        public void Add(string host, string account, string passphrase) {
-            _data.Add(String.Format("{0}@{1}", account, host), passphrase);
-        }
-
-        public string GetOrEmpty(string host, string account) {
-            string t = _data[String.Format("{0}@{1}", account, host)];
-            return t == null ? String.Empty : t;
-        }
     }
 }

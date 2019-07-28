@@ -548,10 +548,6 @@ namespace Poderosa.Usability {
             //しかしSettingを接続後に変更したらそれは保存するMRUに反映したい。
             //結果として、同じMRUItemを複数回インスタンシエートしたら、最後に開いた接続のTerminalSettingsがMRUデータとして保存される。
             item.IsolateSettings();
-            ISSHLoginParameter ssh = (ISSHLoginParameter)item.TerminalParameter.GetAdapter(typeof(ISSHLoginParameter));
-            if (ssh != null)
-                ssh.PasswordOrPassphrase = ""; //MRUからのSSH起動はパスワード入力は外せない。オプションで省略化にしてもいいが
-
             ITerminalSession ts = MRUPlugin.Instance.TerminalSessionsService.TerminalSessionStartCommand.StartTerminalSession(target, item.TerminalParameter, item.TerminalSettings);
             return ts != null ? CommandResult.Succeeded : CommandResult.Failed;
         }

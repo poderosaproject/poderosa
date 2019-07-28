@@ -87,10 +87,6 @@ namespace Poderosa.Protocols {
             set;
         }
 
-        bool RetainsPassphrase {
-            get;
-            set;
-        }
         int SocketConnectTimeout {
             get;
             set;
@@ -150,7 +146,6 @@ namespace Poderosa.Protocols {
     internal class ProtocolOptions : SnapshotAwarePreferenceBase, IProtocolOptions {
 
         //SSH
-        private IBoolPreferenceItem _retainsPassphrase;
         private IStringPreferenceItem _cipherAlgorithmOrder;
         private IStringPreferenceItem _hostKeyAlgorithmOrder;
         private IIntPreferenceItem _sshWindowSize;
@@ -183,7 +178,6 @@ namespace Poderosa.Protocols {
 
         public override void DefineItems(IPreferenceBuilder builder) {
             //SSH関係
-            _retainsPassphrase = builder.DefineBoolValue(_folder, "retainPassphrase", false, null);
             //Note: Validator Required
             _cipherAlgorithmOrder = builder.DefineStringValue(_folder, "cipherAlgorithmOrder", "", null);
             FixCipherAlgorithms(_cipherAlgorithmOrder);
@@ -217,8 +211,6 @@ namespace Poderosa.Protocols {
             Debug.Assert(src._folder.Id == _folder.Id);
 
             //SSH関係
-            _retainsPassphrase = ConvertItem(src._retainsPassphrase);
-
             _cipherAlgorithmOrder = ConvertItem(src._cipherAlgorithmOrder);
             FixCipherAlgorithms(_cipherAlgorithmOrder);
             _hostKeyAlgorithmOrder = ConvertItem(src._hostKeyAlgorithmOrder);
@@ -291,14 +283,6 @@ namespace Poderosa.Protocols {
             }
         }
 
-        public bool RetainsPassphrase {
-            get {
-                return _retainsPassphrase.Value;
-            }
-            set {
-                _retainsPassphrase.Value = value;
-            }
-        }
         public int SocketConnectTimeout {
             get {
                 return _socketConnectTimeout.Value;

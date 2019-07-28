@@ -347,6 +347,7 @@ namespace Granados.SSH2 {
         private Cipher _cipher;
         private readonly object _cipherSync = new object();
         private MAC _mac;
+        private bool _checkMAC;
         private int _macLength;
 
         private bool _hasError = false;
@@ -360,6 +361,7 @@ namespace Granados.SSH2 {
             _sequence = 0;
             _cipher = null;
             _mac = null;
+            _checkMAC = false;
             _macLength = 0;
             _packetLength = -1;
         }
@@ -369,11 +371,13 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <param name="cipher">cipher algorithm, or null if not specified.</param>
         /// <param name="mac">MAC algorithm, or null if not specified.</param>
-        public void SetCipher(Cipher cipher, MAC mac) {
+        /// <param name="checkMAC">specifies whether MAC check is performed.</param>
+        public void SetCipher(Cipher cipher, MAC mac, bool checkMAC) {
             lock (_cipherSync) {
                 _cipher = cipher;
                 _mac = mac;
-                _macLength = (_mac != null) ? _mac.Size : 0;
+                _macLength = (mac != null) ? mac.Size : 0;
+                _checkMAC = (mac != null) ? checkMAC : false;
             }
         }
 
@@ -501,7 +505,7 @@ namespace Granados.SSH2 {
 
                 int payloadLength = _packetLength - PADDING_LENGTH_FIELD_LEN - paddingLength;
 
-                if (_mac != null) {
+                if (_checkMAC && _mac != null) {
                     int contentLen = SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN + _packetLength;
                     byte[] result = _mac.ComputeHash(_packetImage.RawBuffer, _packetImage.RawBufferOffset, contentLen);
 
