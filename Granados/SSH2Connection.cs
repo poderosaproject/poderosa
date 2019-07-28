@@ -650,7 +650,7 @@ namespace Granados.SSH2 {
         private void UpdateKey(byte[] sessionID, Cipher cipherServer, Cipher cipherClient, MAC macServer, MAC macClient) {
             _sessionID = sessionID;
             _syncHandler.SetCipher(cipherServer, macServer);
-            _packetizer.SetCipher(cipherClient, _param.CheckMACError ? macClient : null);
+            _packetizer.SetCipher(cipherClient, macClient, _param.CheckMACError);
         }
     }
 
