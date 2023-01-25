@@ -417,6 +417,21 @@ namespace Granados.Poderosa.KeyFormat {
                         cipherKeySize = 32;
                         cipherIVSize = 16;  // use block size
                         break;
+                    case "aes128-ctr":
+                        cipherAlgorithm = CipherAlgorithm.AES128CTR;
+                        cipherKeySize = 16;
+                        cipherIVSize = 16;  // use block size
+                        break;
+                    case "aes192-ctr":
+                        cipherAlgorithm = CipherAlgorithm.AES192CTR;
+                        cipherKeySize = 24;
+                        cipherIVSize = 16;  // use block size
+                        break;
+                    case "aes256-ctr":
+                        cipherAlgorithm = CipherAlgorithm.AES256CTR;
+                        cipherKeySize = 32;
+                        cipherIVSize = 16;  // use block size
+                        break;
                     default:
                         throw new SSHException(Strings.GetString("NotValidPrivateKeyFile") + " (unsupported cipher)");
                 }
