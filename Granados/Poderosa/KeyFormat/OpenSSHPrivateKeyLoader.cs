@@ -530,6 +530,47 @@ namespace Granados.Poderosa.KeyFormat {
                         }
 
                         switch (privateKeyType) {
+                            case "ssh-rsa": {
+                                    byte[] data_n = ReadBytes(privateKeysStream);
+                                    if (data_n == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    byte[] data_e = ReadBytes(privateKeysStream);
+                                    if (data_e == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    byte[] data_d = ReadBytes(privateKeysStream);
+                                    if (data_d == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    byte[] data_iqmp = ReadBytes(privateKeysStream);
+                                    if (data_iqmp == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    byte[] data_p = ReadBytes(privateKeysStream);
+                                    if (data_p == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    byte[] data_q = ReadBytes(privateKeysStream);
+                                    if (data_q == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    string cmnt = ReadString(privateKeysStream);   // comment
+                                    if (cmnt == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+
+                                    BigInteger e = new BigInteger(data_e);
+                                    BigInteger d = new BigInteger(data_d);
+                                    BigInteger n = new BigInteger(data_n);
+                                    BigInteger p = new BigInteger(data_p);
+                                    BigInteger q = new BigInteger(data_q);
+                                    BigInteger u = p.ModInverse(q);	// inverse of p mod q
+                                    keyPair = new RSAKeyPair(e, d, n, u, p, q);
+                                    comment = cmnt;
+                                }
+                                return;
+                            
                             case "ssh-ed25519": {
                                     byte[] pk = ReadBytes(privateKeysStream);
                                     if (pk == null) {
