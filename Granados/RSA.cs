@@ -69,22 +69,6 @@ namespace Granados.PKI {
             _publickey.Verify(data, expected);
         }
 
-        public byte[] SignWithSHA1(byte[] data) {
-            byte[] hash = new SHA1CryptoServiceProvider().ComputeHash(data);
-
-            byte[] buf = new byte[hash.Length + PKIUtil.SHA1_ASN_ID.Length];
-            Array.Copy(PKIUtil.SHA1_ASN_ID, 0, buf, 0, PKIUtil.SHA1_ASN_ID.Length);
-            Array.Copy(hash, 0, buf, PKIUtil.SHA1_ASN_ID.Length, hash.Length);
-
-            BigInteger x = new BigInteger(buf);
-            //Debug.WriteLine(x.ToString(16));
-            int padLen = (_publickey._n.BitCount() + 7) / 8;
-
-            BigInteger xx = RSAUtil.PKCS1PadType1(x.GetBytes(), padLen);
-            byte[] result = Sign(xx.GetBytes());
-            return result;
-        }
-
         private BigInteger SignCore(BigInteger input, BigInteger pe, BigInteger qe) {
             BigInteger p2 = (input % _p).ModPow(pe, _p);
             BigInteger q2 = (input % _q).ModPow(qe, _q);
@@ -106,6 +90,54 @@ namespace Granados.PKI {
             BigInteger result = k * _p + p2;
 
             return result;
+        }
+
+        public byte[] SignWithSHA(byte[] data, SignatureAlgorithmVariant variant) {
+            // RFC8017 RSASSA-PKCS1-v1_5
+
+            HashAlgorithm hashAlgo;
+            byte[] algoId;
+            switch (variant) {
+                case SignatureAlgorithmVariant.RSA_SHA2_256:
+                    hashAlgo = new SHA256CryptoServiceProvider();
+                    algoId = PKIUtil.SHA256_ASN_ID;
+                    break;
+                case SignatureAlgorithmVariant.RSA_SHA2_512:
+                    hashAlgo = new SHA512CryptoServiceProvider();
+                    algoId = PKIUtil.SHA512_ASN_ID;
+                    break;
+                default:
+                    hashAlgo = new SHA1CryptoServiceProvider();
+                    algoId = PKIUtil.SHA1_ASN_ID;
+                    break;
+            }
+
+            // EMSA-PKCS1-V1_5-ENCODE
+            byte[] hash;
+            using (hashAlgo) {
+                hash = hashAlgo.ComputeHash(data);
+            }
+            byte[] buf = new byte[algoId.Length + hash.Length];
+            Array.Copy(algoId, 0, buf, 0, algoId.Length);
+            Array.Copy(hash, 0, buf, algoId.Length, hash.Length);
+            int emLen = (_publickey._n.BitCount() + 7) / 8;
+            byte[] em = RSAUtil.PKCS1PadType1(buf, emLen);
+
+            // RSASP1
+            BigInteger m = new BigInteger(em);
+            if (m >= _publickey._n) {
+                throw new ArgumentException("message representative out of range");
+            }
+            BigInteger s = m.ModPow(_d, _publickey._n);
+
+            byte[] x = s.GetBytes();
+            if (x.Length > em.Length) {
+                throw new ArgumentException("integer too large");
+            }
+            byte[] signature = new byte[emLen];
+            Array.Copy(x, 0, signature, emLen - x.Length, x.Length);
+
+            return signature;
         }
 
         public override PublicKey PublicKey {
@@ -304,7 +336,7 @@ namespace Granados.PKI {
         /// <param name="input">input bytes</param>
         /// <param name="len">total byte length of the result</param>
         /// <returns>new bits</returns>
-        public static BigInteger PKCS1PadType1(byte[] input, int len) {
+        public static byte[] PKCS1PadType1(byte[] input, int len) {
             // |00|01|<----- PS ----->|00|<-------- input -------->|
             // |<---------------------- len ---------------------->|
 
@@ -320,7 +352,7 @@ namespace Granados.PKI {
             }
             Buffer.BlockCopy(input, 0, buf, padLen + 3, input.Length);
 
-            return new BigInteger(buf);
+            return buf;
         }
 
         /// <summary>
