@@ -305,7 +305,7 @@ namespace Granados.PKI {
         /// <param name="len">total byte length of the result</param>
         /// <param name="rng">random number generator</param>
         /// <returns>new bits</returns>
-        public static BigInteger PKCS1PadType2(byte[] input, int len, Rng rng) {
+        public static byte[] PKCS1PadType2(byte[] input, int len, Rng rng) {
             // |00|02|<----- PS ----->|00|<-------- input -------->|
             // |<---------------------- len ---------------------->|
 
@@ -327,7 +327,7 @@ namespace Granados.PKI {
             Buffer.BlockCopy(pad, 0, buf, 2, pad.Length);
             Buffer.BlockCopy(input, 0, buf, padLen + 3, input.Length);
 
-            return new BigInteger(buf);
+            return buf;
         }
 
         /// <summary>

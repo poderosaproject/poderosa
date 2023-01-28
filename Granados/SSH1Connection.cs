@@ -1072,8 +1072,8 @@ namespace Granados.SSH1 {
             }
 
             Rng rng = RngManager.GetSecureRng();
-            BigInteger firstResult = RSAUtil.PKCS1PadType2(sessionKeyXor, firstKeyByteLen, rng).ModPow(firstEncryption.Exponent, firstEncryption.Modulus);
-            BigInteger secondResult = RSAUtil.PKCS1PadType2(firstResult.GetBytes(), secondKeyByteLen, rng).ModPow(secondEncryption.Exponent, secondEncryption.Modulus);
+            BigInteger firstResult = new BigInteger(RSAUtil.PKCS1PadType2(sessionKeyXor, firstKeyByteLen, rng)).ModPow(firstEncryption.Exponent, firstEncryption.Modulus);
+            BigInteger secondResult = new BigInteger(RSAUtil.PKCS1PadType2(firstResult.GetBytes(), secondKeyByteLen, rng)).ModPow(secondEncryption.Exponent, secondEncryption.Modulus);
 
             return new SSH1Packet(SSH1PacketType.SSH_CMSG_SESSION_KEY)
                     .WriteByte((byte)_cInfo.OutgoingPacketCipher.Value)
