@@ -115,6 +115,9 @@ namespace Granados.AgentForwarding {
 
         private const uint SSH_AGENT_OLD_SIGNATURE = 1;
 
+        private const uint SSH_AGENT_RSA_SHA2_256 = 2;
+        private const uint SSH_AGENT_RSA_SHA2_512 = 4;
+
         private readonly ISSHChannel _channel;
         private readonly IAgentForwardingAuthKeyProvider _authKeyProvider;
 
@@ -294,9 +297,11 @@ namespace Granados.AgentForwarding {
                 return;
             }
 
+            SignatureAlgorithmVariant sigVariant = DecideSignatureAlgorithmVariant(flags);
+
             SSH2PayloadImageBuilder image = new SSH2PayloadImageBuilder();
-            image.WriteString(key.Algorithm.GetAlgorithmName());
-            image.WriteAsString(key.Sign(data));
+            image.WriteString(sigVariant.GetActualSignatureAlgorithmName(key.Algorithm));
+            image.WriteAsString(key.Sign(data, sigVariant));
             byte[] signatureBlob = image.GetBytes();
 
             Send(
@@ -304,6 +309,18 @@ namespace Granados.AgentForwarding {
                     .WriteAsString(signatureBlob)
             );
         }
+
+        private SignatureAlgorithmVariant DecideSignatureAlgorithmVariant(uint flags) {
+            SignatureAlgorithmVariant sigVariant = SignatureAlgorithmVariant.Default;
+            if ((flags & SSH_AGENT_RSA_SHA2_512) != 0 && SignatureAlgorithmVariant.RSA_SHA2_512.GetDefaultPriority() > sigVariant.GetDefaultPriority()) {
+                sigVariant = SignatureAlgorithmVariant.RSA_SHA2_512;
+            }
+            if ((flags & SSH_AGENT_RSA_SHA2_256) != 0 && SignatureAlgorithmVariant.RSA_SHA2_256.GetDefaultPriority() > sigVariant.GetDefaultPriority()) {
+                sigVariant = SignatureAlgorithmVariant.RSA_SHA2_256;
+            }
+            return sigVariant;
+        }
+
 
         /// <summary>
         /// Find a SSH2 key
