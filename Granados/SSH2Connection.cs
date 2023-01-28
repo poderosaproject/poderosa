@@ -261,7 +261,7 @@ namespace Granados.SSH2 {
 
                 //user authentication
                 SSH2UserAuthentication userAuthentication =
-                    new SSH2UserAuthentication(this, _param, _protocolEventManager, _timeouts, _syncHandler, _sessionID);
+                    new SSH2UserAuthentication(this, _connectionInfo, _param, _protocolEventManager, _timeouts, _syncHandler, _sessionID);
                 if (_param.AuthenticationType == AuthenticationType.KeyboardInteractive) {
                     userAuthentication.KeyboardInteractiveAuthenticationFinished +=
                         result => {
@@ -1205,7 +1205,8 @@ namespace Granados.SSH2 {
 
             string host_key = reader.ReadString();
             _cInfo.SupportedHostKeyAlgorithms = host_key;
-            _cInfo.HostKeyAlgorithm = DecideHostKeyAlgorithm(host_key);
+            _cInfo.SupportedHostKeyAlgorithmsArray = host_key.Split(',');
+            _cInfo.HostKeyAlgorithm = DecideHostKeyAlgorithm(_cInfo.SupportedHostKeyAlgorithmsArray);
 
             string enc_cs = reader.ReadString();
             _cInfo.SupportedEncryptionAlgorithmsClientToServer = enc_cs;
@@ -1621,11 +1622,10 @@ namespace Granados.SSH2 {
         /// <param name="candidates">candidate algorithms</param>
         /// <returns>host key algorithm to use</returns>
         /// <exception cref="SSHException">no suitable algorithm was found</exception>
-        private PublicKeyAlgorithm DecideHostKeyAlgorithm(string candidates) {
-            string[] candidateNames = candidates.Split(',');
+        private PublicKeyAlgorithm DecideHostKeyAlgorithm(string[] candidates) {
             foreach (PublicKeyAlgorithm pref in _param.PreferableHostKeyAlgorithms) {
                 string prefName = pref.GetAlgorithmName();
-                if (candidateNames.Contains(prefName)) {
+                if (candidates.Contains(prefName)) {
                     return pref;
                 }
             }
@@ -1875,6 +1875,7 @@ namespace Granados.SSH2 {
 
         private readonly SSHConnectionParameter _param;
         private readonly SSH2Connection _connection;
+        private readonly SSH2ConnectionInfo _connectionInfo;
         private readonly SSHProtocolEventManager _protocolEventManager;
         private readonly SSHTimeouts _timeouts;
         private readonly SSH2SynchronousPacketHandler _syncHandler;
@@ -1937,12 +1938,14 @@ namespace Granados.SSH2 {
         /// </summary>
         public SSH2UserAuthentication(
                     SSH2Connection connection,
+                    SSH2ConnectionInfo connectionInfo,
                     SSHConnectionParameter param,
                     SSHProtocolEventManager protocolEventManager,
                     SSHTimeouts timeouts,
                     SSH2SynchronousPacketHandler syncHandler,
                     byte[] sessionID) {
             _connection = connection;
+            _connectionInfo = connectionInfo;
             _param = param;
             _protocolEventManager = protocolEventManager;
             _timeouts = timeouts;
@@ -2349,7 +2352,8 @@ namespace Granados.SSH2 {
         private SSH2Packet BuildPublickeyAuthRequestPacket(string serviceName) {
             //public key authentication
             SSH2UserAuthKey kp = SSH2UserAuthKey.FromSECSHStyleFile(_param.IdentityFile, _param.Password);
-            string algorithmName = kp.Algorithm.GetAlgorithmName();
+            SignatureAlgorithmVariant sigVariant = DecideSignatureAlgorithmVariant(kp.Algorithm);
+            string signatureAlgorithmName = sigVariant.GetActualSignatureAlgorithmName(kp.Algorithm);
 
             // construct a packet except signature
             SSH2Packet packet =
@@ -2358,7 +2362,7 @@ namespace Granados.SSH2 {
                     .WriteString(serviceName)
                     .WriteString("publickey")
                     .WriteBool(true)    // has signature
-                    .WriteString(algorithmName)
+                    .WriteString(signatureAlgorithmName)
                     .WriteAsString(kp.GetPublicKeyBlob());
 
             // take payload image for the signature
@@ -2371,13 +2375,13 @@ namespace Granados.SSH2 {
                     .Write(payloadImage);
 
             // take a signature blob
-            byte[] signatureBlob = kp.Sign(workPayload.GetBytes());
+            byte[] signatureBlob = kp.Sign(workPayload.GetBytes(), sigVariant);
 
             // encode signature (RFC4253)
             workPayload.Clear();
             byte[] signature =
                 workPayload
-                    .WriteString(algorithmName)
+                    .WriteString(signatureAlgorithmName)
                     .WriteAsString(signatureBlob)
                     .GetBytes();
 
@@ -2385,6 +2389,17 @@ namespace Granados.SSH2 {
             packet.WriteAsString(signature);
 
             return packet;
+        }
+
+        private SignatureAlgorithmVariant DecideSignatureAlgorithmVariant(PublicKeyAlgorithm keyAlgorithm) {
+            string[] supportedAlgorithm = _connectionInfo.SupportedHostKeyAlgorithmsArray;
+            foreach (SignatureAlgorithmVariant variant in AlgorithmSpecUtil<SignatureAlgorithmVariant>.GetAlgorithmsByPriorityOrder()) {
+                if (variant.IsRelatedTo(keyAlgorithm)
+                    && supportedAlgorithm.Contains(variant.GetSignatureAlgorithmName())) {
+                        return variant;
+                }
+            }
+            return SignatureAlgorithmVariant.Default;
         }
 
         /// <summary>

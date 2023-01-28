@@ -83,6 +83,15 @@ namespace Granados.SSH2 {
         }
 
         /// <summary>
+        /// Server's supported host key algorithms (splitted)
+        /// </summary>
+        /// <remarks>This property is null until the information is obtained from the server.</remarks>
+        public string[] SupportedHostKeyAlgorithmsArray {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Server's supported encryption algorithms (client to server).
         /// </summary>
         /// <remarks>This property is null until the information is obtained from the server.</remarks>
