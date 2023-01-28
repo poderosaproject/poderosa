@@ -68,6 +68,63 @@ namespace Granados.PKI {
     }
 
     /// <summary>
+    /// Attribute to define the algorithm name and a related public key algorithm.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
+    public class SignatureAlgorithmSpecAttribute : AlgorithmSpecAttribute {
+        /// <summary>
+        /// Public key algorithm to which this signature algorithm is related
+        /// </summary>
+        public PublicKeyAlgorithm PublicKeyAlgorithm {
+            get;
+            set;
+        }
+    }
+
+    /// <summary>
+    /// Signature algorithm variant
+    /// </summary>
+    public enum SignatureAlgorithmVariant {
+        /// <summary>
+        /// Use the default signature algorithm.
+        /// </summary>
+        [AlgorithmSpec(AlgorithmName = "", DefaultPriority = 1)]
+        Default,
+
+        [SignatureAlgorithmSpecAttribute(PublicKeyAlgorithm = PublicKeyAlgorithm.RSA, AlgorithmName = "rsa-sha2-256", DefaultPriority = 2)]
+        RSA_SHA2_256,
+        [SignatureAlgorithmSpecAttribute(PublicKeyAlgorithm = PublicKeyAlgorithm.RSA, AlgorithmName = "rsa-sha2-512", DefaultPriority = 3)]
+        RSA_SHA2_512,
+    }
+
+    /// <summary>
+    /// Extension methods for <see cref="SignatureAlgorithmVariant"/>
+    /// </summary>
+    public static class SignatureAlgorithmVariantMixin {
+
+        public static string GetSignatureAlgorithmName(this SignatureAlgorithmVariant value) {
+            return AlgorithmSpecUtil<SignatureAlgorithmVariant>.GetAlgorithmName(value);
+        }
+
+        public static int GetDefaultPriority(this SignatureAlgorithmVariant value) {
+            return AlgorithmSpecUtil<SignatureAlgorithmVariant>.GetDefaultPriority(value);
+        }
+
+        public static string GetActualSignatureAlgorithmName(this SignatureAlgorithmVariant value, PublicKeyAlgorithm publicKeyAlgorithm) {
+            return (value != SignatureAlgorithmVariant.Default)
+                    ? AlgorithmSpecUtil<SignatureAlgorithmVariant>.GetAlgorithmName(value)
+                    : publicKeyAlgorithm.GetAlgorithmName();
+        }
+
+        public static bool IsRelatedTo(this SignatureAlgorithmVariant value, PublicKeyAlgorithm algorithm) {
+            AlgorithmSpecAttribute spec =
+                AlgorithmSpecUtil<SignatureAlgorithmVariant>.GetAlgorithmSpec(value);
+            SignatureAlgorithmSpecAttribute sigSpec = spec as SignatureAlgorithmSpecAttribute;
+            return sigSpec != null && sigSpec.PublicKeyAlgorithm == algorithm;
+        }
+    }
+
+    /// <summary>
     /// 
     /// </summary>
     /// <exclude/>

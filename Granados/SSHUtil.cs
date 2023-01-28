@@ -101,6 +101,19 @@ namespace Granados {
         }
 
         /// <summary>
+        /// Get <see cref="AlgorithmSpecAttribute"/> of the specified enum value.
+        /// </summary>
+        /// <param name="enumValue">enum value</param>
+        /// <returns>AlgorithmSpecAttribute instance, or null if not found</returns>
+        public static AlgorithmSpecAttribute GetAlgorithmSpec(TEnum enumValue) {
+            AlgorithmSpecAttribute spec;
+            if (_enumToSpec.TryGetValue(enumValue, out spec)) {
+                return spec;
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Get all algorithm names about <typeparamref name="TEnum"/> in priority order.
         /// </summary>
         /// <returns>algorithm names sorted by the default priority (high priority first)</returns>
