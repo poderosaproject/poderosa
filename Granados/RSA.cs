@@ -122,8 +122,8 @@ namespace Granados.PKI {
                 hash = hashAlgo.ComputeHash(data);
             }
             byte[] buf = new byte[algoId.Length + hash.Length];
-            Array.Copy(algoId, 0, buf, 0, algoId.Length);
-            Array.Copy(hash, 0, buf, algoId.Length, hash.Length);
+            Buffer.BlockCopy(algoId, 0, buf, 0, algoId.Length);
+            Buffer.BlockCopy(hash, 0, buf, algoId.Length, hash.Length);
             int emLen = (_publickey._n.BitCount() + 7) / 8;
             byte[] em = RSAUtil.PKCS1PadType1(buf, emLen);
 
@@ -139,7 +139,7 @@ namespace Granados.PKI {
                 throw new ArgumentException("integer too large");
             }
             byte[] signature = new byte[emLen];
-            Array.Copy(x, 0, signature, emLen - x.Length, x.Length);
+            Buffer.BlockCopy(x, 0, signature, emLen - x.Length, x.Length);
 
             return signature;
         }
@@ -276,8 +276,8 @@ namespace Granados.PKI {
                 throw new VerifyException("result is too short");
             else {
                 byte[] r = new byte[finaldata.Length];
-                Array.Copy(PKIUtil.SHA1_ASN_ID, 0, r, 0, PKIUtil.SHA1_ASN_ID.Length);
-                Array.Copy(expected, 0, r, PKIUtil.SHA1_ASN_ID.Length, expected.Length);
+                Buffer.BlockCopy(PKIUtil.SHA1_ASN_ID, 0, r, 0, PKIUtil.SHA1_ASN_ID.Length);
+                Buffer.BlockCopy(expected, 0, r, PKIUtil.SHA1_ASN_ID.Length, expected.Length);
                 if (!SSHUtil.ByteArrayEqual(r, finaldata)) {
                     throw new VerifyException("failed to verify");
                 }
