@@ -1505,14 +1505,24 @@ namespace Granados.SSH2 {
 
             SSH2DataReader sigReader = new SSH2DataReader(signature);
             string sigAlgorithm = sigReader.ReadString();
-            if (sigAlgorithm != algorithm) {
-                throw new SSHException(Strings.GetString("HostKeyAlgorithmMismatch"));
+            SignatureAlgorithmVariant sigVariant = GetSignatureAlgorithmVariantFromName(sigAlgorithm);
+
+            if (sigVariant == SignatureAlgorithmVariant.Default) {
+                if (sigAlgorithm != algorithm) {
+                    throw new SSHException(Strings.GetString("HostKeyAlgorithmMismatch"));
+                }
             }
+            else {
+                if (!sigVariant.IsRelatedTo(_cInfo.HostKeyAlgorithm.Value)) {
+                    throw new SSHException(Strings.GetString("HostKeyAlgorithmMismatch"));
+                }
+            }
+
             byte[] signatureBlob = sigReader.ReadByteString();
 
             if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.RSA) {
                 RSAPublicKey pk = RSAPublicKey.ReadFrom(ksReader);
-                pk.VerifyWithSHA1(signatureBlob, new SHA1CryptoServiceProvider().ComputeHash(hash));
+                pk.VerifyWithSHA(signatureBlob, hash, sigVariant);
                 _cInfo.HostKey = pk;
             }
             else if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.DSA) {
@@ -1543,6 +1553,15 @@ namespace Granados.SSH2 {
             }
 
             return true;
+        }
+
+        private SignatureAlgorithmVariant GetSignatureAlgorithmVariantFromName(string signatureAlgorithm) {
+            foreach (SignatureAlgorithmVariant variant in Enum.GetValues(typeof(SignatureAlgorithmVariant))) {
+                if (variant.GetSignatureAlgorithmName() == signatureAlgorithm) {
+                    return variant;
+                }
+            }
+            return SignatureAlgorithmVariant.Default;
         }
 
         /// <summary>

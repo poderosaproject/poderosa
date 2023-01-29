@@ -5,6 +5,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Security.Cryptography;
 
 using Granados.Util;
@@ -239,8 +240,9 @@ namespace Granados.PKI {
         private BigInteger VerifyBI(byte[] data) {
             return new BigInteger(data).ModPow(_e, _n);
         }
-        public void VerifyWithSHA1(byte[] data, byte[] expected) {
-            BigInteger result = VerifyBI(data);
+
+        public void VerifyWithSHA1(byte[] signature, byte[] expected) {
+            BigInteger result = VerifyBI(signature);
             byte[] finaldata = RSAUtil.StripPKCS1Pad(result, 1).GetBytes();
 
             if (finaldata.Length != PKIUtil.SHA1_ASN_ID.Length + expected.Length)
@@ -252,6 +254,32 @@ namespace Granados.PKI {
                 if (!SSHUtil.ByteArrayEqual(r, finaldata)) {
                     throw new VerifyException("failed to verify");
                 }
+            }
+        }
+
+        public void VerifyWithSHA(byte[] signature, byte[] data, SignatureAlgorithmVariant variant) {
+            // RFC8017 RSASSA-PKCS1-v1_5
+
+            int k = (_n.BitCount() + 7) / 8;
+            if (signature.Length != k) {
+                throw new VerifyException("invalid signature");
+            }
+
+            BigInteger s = new BigInteger(signature);
+
+            // RSAVP1
+            if (s >= _n) {
+                throw new ArgumentException("signature representative out of range");
+            }
+            BigInteger m = s.ModPow(_e, _n);
+
+            byte[] em = RSAUtil.I2OSP(m, k);
+
+            // EMSA-PKCS1-V1_5-ENCODE
+            byte[] em2 = RSAUtil.EMSA_PKCS1_V1_5_Encode(data, k, variant);
+
+            if (!em.SequenceEqual(em2)) {
+                throw new VerifyException("invalid signature");
             }
         }
 
