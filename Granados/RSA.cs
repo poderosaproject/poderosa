@@ -92,6 +92,10 @@ namespace Granados.PKI {
             return result;
         }
 
+        public byte[] SignWithSHA1(byte[] data) {
+            return SignWithSHA(data, SignatureAlgorithmVariant.Default);
+        }
+
         public byte[] SignWithSHA(byte[] data, SignatureAlgorithmVariant variant) {
             // RFC8017 RSASSA-PKCS1-v1_5
 
