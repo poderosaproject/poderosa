@@ -131,7 +131,7 @@ namespace Granados.SSH2 {
         /// Host key algorithm determined to use for the verification of the server's host key.
         /// </summary>
         /// <remarks>This property is null until the algorithm is detemined.</remarks>
-        public PublicKeyAlgorithm? HostKeyAlgorithm {
+        public PublicKeySignatureAlgorithm HostKeyAlgorithm {
             get;
             set;
         }

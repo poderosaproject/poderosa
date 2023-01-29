@@ -6,6 +6,9 @@
 using Granados.Mono.Math;
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 
 namespace Granados.PKI {
@@ -121,6 +124,68 @@ namespace Granados.PKI {
                 AlgorithmSpecUtil<SignatureAlgorithmVariant>.GetAlgorithmSpec(value);
             SignatureAlgorithmSpecAttribute sigSpec = spec as SignatureAlgorithmSpecAttribute;
             return sigSpec != null && sigSpec.PublicKeyAlgorithm == algorithm;
+        }
+    }
+
+    /// <summary>
+    /// Combination of PublicKeyAlgorithm and SignatureAlgorithmVariant
+    /// </summary>
+    public class PublicKeySignatureAlgorithm {
+        public readonly PublicKeyAlgorithm PublicKeyAlgorithm;
+        public readonly SignatureAlgorithmVariant SignatureAlgorithmVariant;
+        public readonly string PublicKeyAlgorithmName;
+        public readonly string SignatureAlgorithmName;
+
+        private PublicKeySignatureAlgorithm(PublicKeyAlgorithm publicKeyAlgorithm, SignatureAlgorithmVariant signatureAlgorithmVariant) {
+            this.PublicKeyAlgorithm = publicKeyAlgorithm;
+            this.SignatureAlgorithmVariant = signatureAlgorithmVariant;
+            this.PublicKeyAlgorithmName = publicKeyAlgorithm.GetAlgorithmName();
+            this.SignatureAlgorithmName = (signatureAlgorithmVariant != SignatureAlgorithmVariant.Default)
+                    ? signatureAlgorithmVariant.GetSignatureAlgorithmName()
+                    : this.PublicKeyAlgorithmName;
+        }
+
+        /// <summary>
+        /// Supported PublicKeyAndSignatureAlgorithm.
+        /// </summary>
+        /// <remarks>items are already sorted by the priority (higher priority first)</remarks>
+        public static readonly IEnumerable<PublicKeySignatureAlgorithm> Supported;
+
+        /// <summary>
+        /// Mapping of PublicKeyAlgorithm and its related PublicKeyAndSignatureAlgorithm
+        /// </summary>
+        /// <remarks>items in PublicKeyAndSignatureAlgorithm[] is already sorted by the priority (higher priority first)</remarks>
+        public static readonly IReadOnlyDictionary<PublicKeyAlgorithm, IEnumerable<PublicKeySignatureAlgorithm>> VariantsMap;
+
+        static PublicKeySignatureAlgorithm() {
+            List<PublicKeySignatureAlgorithm> pubAndSig = new List<PublicKeySignatureAlgorithm>();
+            foreach (PublicKeyAlgorithm pub in Enum.GetValues(typeof(PublicKeyAlgorithm))) {
+                pubAndSig.Add(new PublicKeySignatureAlgorithm(pub, SignatureAlgorithmVariant.Default));
+                foreach (SignatureAlgorithmVariant sig in Enum.GetValues(typeof(SignatureAlgorithmVariant))) {
+                    if (sig.IsRelatedTo(pub)) {
+                        pubAndSig.Add(new PublicKeySignatureAlgorithm(pub, sig));
+                    }
+                }
+            }
+            pubAndSig.Sort((a, b) => {
+                if (a.PublicKeyAlgorithm == b.PublicKeyAlgorithm) {
+                    // priority order (descending order of the number)
+                    return b.SignatureAlgorithmVariant.GetDefaultPriority() - a.SignatureAlgorithmVariant.GetDefaultPriority();
+                }
+                else {
+                    // priority order (descending order of the number)
+                    return b.PublicKeyAlgorithm.GetDefaultPriority() - a.PublicKeyAlgorithm.GetDefaultPriority();
+                }
+            });
+            Supported = pubAndSig.ToArray();
+
+            var map = new Dictionary<PublicKeyAlgorithm, IEnumerable<PublicKeySignatureAlgorithm>>();
+            foreach (PublicKeyAlgorithm pub in Enum.GetValues(typeof(PublicKeyAlgorithm))) {
+                PublicKeySignatureAlgorithm[] variants =
+                    pubAndSig.Where(v => v.PublicKeyAlgorithm == pub).ToArray();
+                map.Add(pub, variants);
+            }
+            VariantsMap = new ReadOnlyDictionary<PublicKeyAlgorithm, IEnumerable<PublicKeySignatureAlgorithm>>(map);
         }
     }
 

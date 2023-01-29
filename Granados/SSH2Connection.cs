@@ -16,6 +16,7 @@ using Granados.Util;
 using Granados.X11;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -1499,47 +1500,41 @@ namespace Granados.SSH2 {
         private bool VerifyHostKey(byte[] ks, byte[] signature, byte[] hash, bool verifyExternally) {
             SSH2DataReader ksReader = new SSH2DataReader(ks);
             string algorithm = ksReader.ReadString();
-            if (algorithm != _cInfo.HostKeyAlgorithm.Value.GetAlgorithmName()) {
+            if (algorithm != _cInfo.HostKeyAlgorithm.PublicKeyAlgorithmName) {
                 throw new SSHException(Strings.GetString("HostKeyAlgorithmMismatch"));
             }
 
             SSH2DataReader sigReader = new SSH2DataReader(signature);
             string sigAlgorithm = sigReader.ReadString();
-            SignatureAlgorithmVariant sigVariant = GetSignatureAlgorithmVariantFromName(sigAlgorithm);
-
-            if (sigVariant == SignatureAlgorithmVariant.Default) {
-                if (sigAlgorithm != algorithm) {
-                    throw new SSHException(Strings.GetString("HostKeyAlgorithmMismatch"));
-                }
-            }
-            else {
-                if (!sigVariant.IsRelatedTo(_cInfo.HostKeyAlgorithm.Value)) {
-                    throw new SSHException(Strings.GetString("HostKeyAlgorithmMismatch"));
-                }
+            if (sigAlgorithm != _cInfo.HostKeyAlgorithm.SignatureAlgorithmName) {
+                throw new SSHException(Strings.GetString("HostKeyAlgorithmMismatch"));
             }
 
             byte[] signatureBlob = sigReader.ReadByteString();
 
-            if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.RSA) {
+            PublicKeyAlgorithm publicKeyAlgorithm = _cInfo.HostKeyAlgorithm.PublicKeyAlgorithm;
+            SignatureAlgorithmVariant signatureAlgorithmVariant = _cInfo.HostKeyAlgorithm.SignatureAlgorithmVariant;
+
+            if (publicKeyAlgorithm == PublicKeyAlgorithm.RSA) {
                 RSAPublicKey pk = RSAPublicKey.ReadFrom(ksReader);
-                pk.VerifyWithSHA(signatureBlob, hash, sigVariant);
+                pk.VerifyWithSHA(signatureBlob, hash, signatureAlgorithmVariant);
                 _cInfo.HostKey = pk;
             }
-            else if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.DSA) {
+            else if (publicKeyAlgorithm == PublicKeyAlgorithm.DSA) {
                 DSAPublicKey pk = DSAPublicKey.ReadFrom(ksReader);
                 pk.Verify(signatureBlob, new SHA1CryptoServiceProvider().ComputeHash(hash));
                 _cInfo.HostKey = pk;
             }
-            else if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.ECDSA_SHA2_NISTP256
-                    || _cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.ECDSA_SHA2_NISTP384
-                    || _cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.ECDSA_SHA2_NISTP521) {
+            else if (publicKeyAlgorithm == PublicKeyAlgorithm.ECDSA_SHA2_NISTP256
+                    || publicKeyAlgorithm == PublicKeyAlgorithm.ECDSA_SHA2_NISTP384
+                    || publicKeyAlgorithm == PublicKeyAlgorithm.ECDSA_SHA2_NISTP521) {
 
                 ECDSAPublicKey pk = ECDSAPublicKey.ReadFrom(ksReader);
                 pk.Verify(signatureBlob, hash);
                 _cInfo.HostKey = pk;
             }
-            else if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.ED25519) {
-                EDDSAPublicKey pk = EDDSAPublicKey.ReadFrom(_cInfo.HostKeyAlgorithm.Value, ksReader);
+            else if (publicKeyAlgorithm == PublicKeyAlgorithm.ED25519) {
+                EDDSAPublicKey pk = EDDSAPublicKey.ReadFrom(publicKeyAlgorithm, ksReader);
                 pk.Verify(signatureBlob, hash);
                 _cInfo.HostKey = pk;
             }
@@ -1553,15 +1548,6 @@ namespace Granados.SSH2 {
             }
 
             return true;
-        }
-
-        private SignatureAlgorithmVariant GetSignatureAlgorithmVariantFromName(string signatureAlgorithm) {
-            foreach (SignatureAlgorithmVariant variant in Enum.GetValues(typeof(SignatureAlgorithmVariant))) {
-                if (variant.GetSignatureAlgorithmName() == signatureAlgorithm) {
-                    return variant;
-                }
-            }
-            return SignatureAlgorithmVariant.Default;
         }
 
         /// <summary>
@@ -1641,10 +1627,9 @@ namespace Granados.SSH2 {
         /// <param name="candidates">candidate algorithms</param>
         /// <returns>host key algorithm to use</returns>
         /// <exception cref="SSHException">no suitable algorithm was found</exception>
-        private PublicKeyAlgorithm DecideHostKeyAlgorithm(string[] candidates) {
-            foreach (PublicKeyAlgorithm pref in _param.PreferableHostKeyAlgorithms) {
-                string prefName = pref.GetAlgorithmName();
-                if (candidates.Contains(prefName)) {
+        private PublicKeySignatureAlgorithm DecideHostKeyAlgorithm(string[] candidates) {
+            foreach (PublicKeySignatureAlgorithm pref in _param.PreferableHostKeySignatureAlgorithms) {
+                if (candidates.Contains(pref.SignatureAlgorithmName)) {
                     return pref;
                 }
             }
@@ -1698,12 +1683,13 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <returns>name list</returns>
         private string FormatHostKeyAlgorithmDescription() {
-            if (_param.PreferableHostKeyAlgorithms.Length == 0) {
+            if (_param.PreferableHostKeySignatureAlgorithms.Length == 0) {
                 throw new SSHException("HostKeyAlgorithm is not set");
             }
+
             return string.Join(",",
-                    _param.PreferableHostKeyAlgorithms
-                        .Select(algorithm => algorithm.GetAlgorithmName()));
+                    _param.PreferableHostKeySignatureAlgorithms
+                        .Select(algorithm => algorithm.SignatureAlgorithmName));
         }
 
         /// <summary>

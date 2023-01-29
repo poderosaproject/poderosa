@@ -70,9 +70,14 @@ namespace Poderosa.Protocols {
             con.PreferableCipherAlgorithms =
                 LocalSSHUtil.AppendMissingCipherAlgorithm(
                     LocalSSHUtil.ParseCipherAlgorithm(PEnv.Options.CipherAlgorithmOrder));
+
             con.PreferableHostKeyAlgorithms =
-                LocalSSHUtil.AppendMissingPublicKeyAlgorithm(
-                    LocalSSHUtil.ParsePublicKeyAlgorithm(PEnv.Options.HostKeyAlgorithmOrder));
+                    LocalSSHUtil.ParsePublicKeyAlgorithm(PEnv.Options.HostKeyAlgorithmOrder);
+            // Property "PreferableHostKeySignatureAlgorithms" is automatically determined from this property
+            // and is used in the connection process.
+            // There is no need to call LocalSSHUtil.AppendMissingPublicKeyAlgorithm() because
+            // the missing algorithms are added to PreferableHostKeySignatureAlgorithms.
+
             con.AgentForwardingAuthKeyProvider = _destination.AgentForwardingAuthKeyProvider;
             con.X11ForwardingParams = _destination.X11Forwarding;
             if (_keycheck != null) {
