@@ -5,6 +5,7 @@
 
 using Granados.AgentForwarding;
 using Granados.Crypto;
+using Granados.ECDH;
 using Granados.IO;
 using Granados.IO.SSH2;
 using Granados.KeyboardInteractive;
@@ -814,9 +815,7 @@ namespace Granados.SSH2 {
             public BigInteger k;   // f^x mod p
 
             // values for Elliptic Curve Diffie-Hellman
-            public EllipticCurve ecdhCurve;
-            public byte[] ecdhPublicKey;        // public key octet string
-            public BigInteger ecdhPrivateKey;   // private key
+            public EllipticCurveDiffieHellman ecdh;
 
             // Hashing algorithm
             public HashAlgorithm hashAlgorithm;
@@ -1310,36 +1309,19 @@ namespace Granados.SSH2 {
         /// <param name="state">informations about current key exchange</param>
         /// <returns>a packet object</returns>
         private SSH2Packet BuildKEX_ECDH_INITPacket(KexState state) {
-            string curveName;
-            switch (_cInfo.KEXAlgorithm.Value) {
-                case KexAlgorithm.ECDH_SHA2_NISTP256:
-                    curveName = "nistp256";
-                    break;
-                case KexAlgorithm.ECDH_SHA2_NISTP384:
-                    curveName = "nistp384";
-                    break;
-                case KexAlgorithm.ECDH_SHA2_NISTP521:
-                    curveName = "nistp521";
-                    break;
-                default:
-                    throw new SSHException("Cannot determine elliptic curve : " + _cInfo.KEXAlgorithm.Value.ToString());
+            try {
+                state.ecdh = EllipticCurveDiffieHellmanFactory.GetInstance(_cInfo.KEXAlgorithm.Value);
+            }
+            catch (EllipticCurveDiffieHellmanException e) {
+                throw new SSHException(e.Message, e);
             }
 
-            state.ecdhCurve = EllipticCurve.FindByName(curveName);
-            if (state.ecdhCurve == null) {
-                throw new SSHException("Unknown elliptic curve : " + curveName);
-            }
-
-            ECDSAKeyPair keyPair = state.ecdhCurve.GenerateKeyPair();
-            state.ecdhPublicKey = state.ecdhCurve.ConvertPointToOctetString(keyPair.PublicKeyPoint);
-            state.ecdhPrivateKey = keyPair.PrivateKey;
-
-            state.hashAlgorithm = ECDSAHashAlgorithmChooser.Choose(state.ecdhCurve);
+            state.hashAlgorithm = ECDSAHashAlgorithmChooser.Choose(state.ecdh.GetCurveSize());
 
             // the message number of SSH_MSG_KEX_ECDH_INIT is identical to the message number of SSH_MSG_KEXDH_INIT.
             SSH2Packet packet =
                 new SSH2Packet(SSH2PacketType.SSH_MSG_KEXDH_INIT)
-                    .WriteAsString(state.ecdhPublicKey);
+                    .WriteAsString(state.ecdh.GetEphemeralPublicKey());
 
             return packet;
         }
@@ -1392,20 +1374,12 @@ namespace Granados.SSH2 {
             Debug.Assert(reader.RemainingDataLength == 0);
 
             // get shared secret
-            ECPoint serverPublicKeyPoint;
-            if (!ECPoint.Parse(serverPublicKey, state.ecdhCurve, out serverPublicKeyPoint)
-                    || !state.ecdhCurve.ValidatePoint(serverPublicKeyPoint)) {
-                _protocolEventManager.Trace("Server's ephemeral public key is invalid");
-                return false;
+            try {
+                state.secret = state.ecdh.CalcSharedSecret(serverPublicKey);
             }
-
-            ECPoint p = state.ecdhCurve.PointMul(state.ecdhCurve.Cofactor, state.ecdhPrivateKey, serverPublicKeyPoint, true);
-            if (p == null) {
-                _protocolEventManager.Trace("Failed to get a shared secret");
-                return false;
+            catch (EllipticCurveDiffieHellmanException e) {
+                throw new SSHException(e.Message, e);
             }
-
-            state.secret = p.X;
 
             // get hash
             SSH2DataWriter wr = new SSH2DataWriter();
@@ -1414,7 +1388,7 @@ namespace Granados.SSH2 {
             wr.WriteAsString(state.clientKEXINITPayload);
             wr.WriteAsString(state.serverKEXINITPayload);
             wr.WriteAsString(serverHostKey);
-            wr.WriteAsString(state.ecdhPublicKey);
+            wr.WriteAsString(state.ecdh.GetEphemeralPublicKey());
             wr.WriteAsString(serverPublicKey);
             wr.WriteBigInteger(state.secret);
             state.hash = state.hashAlgorithm.ComputeHash(wr.ToByteArray());

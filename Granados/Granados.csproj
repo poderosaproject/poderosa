@@ -107,6 +107,7 @@
     </Compile>
     <Compile Include="DataHandler.cs" />
     <Compile Include="EC.cs" />
+    <Compile Include="ECDH.cs" />
     <Compile Include="ED.cs" />
     <Compile Include="KeyboardInteractive.cs" />
     <Compile Include="Poderosa\Util\FilePathValidator.cs" />

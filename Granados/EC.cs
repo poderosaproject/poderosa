@@ -1682,12 +1682,22 @@ namespace Granados.PKI {
         /// <param name="curve">elliptic curve</param>
         /// <returns>new instance of the hashing algorithm</returns>
         public static HashAlgorithm Choose(EllipticCurve curve) {
-            int orderBits = curve.Order.BitCount();
+            return Choose(curve.Order.BitCount());
+        }
 
-            if (orderBits <= 256) {
+        /// <summary>
+        /// Chooses a hashing algorithm.
+        /// </summary>
+        /// <remarks>
+        /// Hashing algorithm is determined according to the curve size as described in RFC5656.
+        /// </remarks>
+        /// <param name="curveSize">curve size</param>
+        /// <returns>new instance of the hashing algorithm</returns>
+        public static HashAlgorithm Choose(int curveSize) {
+            if (curveSize <= 256) {
                 return new SHA256CryptoServiceProvider();
             }
-            else if (orderBits <= 384) {
+            else if (curveSize <= 384) {
                 return new SHA384CryptoServiceProvider();
             }
             else {
