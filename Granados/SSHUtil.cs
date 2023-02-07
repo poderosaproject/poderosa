@@ -356,6 +356,12 @@ namespace Granados {
         /// <summary>ecdh-sha2-nistp521 described in RFC5656</summary>
         [KexAlgorithmSpec(AlgorithmName = "ecdh-sha2-nistp521", ECDH = true, DefaultPriority = 6)]
         ECDH_SHA2_NISTP521,
+        /// <summary>curve25519-sha256 described in RFC8731</summary>
+        [KexAlgorithmSpec(AlgorithmName = "curve25519-sha256", ECDH=true, DefaultPriority = 10)]
+        CURVE25519_SHA256,
+        /// <summary>curve448-sha512 described in RFC8731</summary>
+        [KexAlgorithmSpec(AlgorithmName = "curve448-sha512", ECDH = true, DefaultPriority = 9)]
+        CURVE448_SHA512,
     }
 
     [AttributeUsage(AttributeTargets.Field)]
