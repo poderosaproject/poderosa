@@ -333,29 +333,40 @@ namespace Granados {
     /// <exclude/>
     public enum KexAlgorithm {
         /// <summary>diffie-hellman-group1-sha1 described in RFC4253</summary>
-        [AlgorithmSpec(AlgorithmName = "diffie-hellman-group1-sha1", DefaultPriority = 1)]
+        [KexAlgorithmSpec(AlgorithmName = "diffie-hellman-group1-sha1", DefaultPriority = 1)]
         DH_G1_SHA1,
         /// <summary>diffie-hellman-group14-sha1 described in RFC4253</summary>
-        [AlgorithmSpec(AlgorithmName = "diffie-hellman-group14-sha1", DefaultPriority = 2)]
+        [KexAlgorithmSpec(AlgorithmName = "diffie-hellman-group14-sha1", DefaultPriority = 2)]
         DH_G14_SHA1,
         /// <summary>diffie-hellman-group14-sha256 described in draft-ietf-curdle-ssh-kex-sha2</summary>
-        [AlgorithmSpec(AlgorithmName = "diffie-hellman-group14-sha256", DefaultPriority = 3)]
+        [KexAlgorithmSpec(AlgorithmName = "diffie-hellman-group14-sha256", DefaultPriority = 3)]
         DH_G14_SHA256,
         /// <summary>diffie-hellman-group16-sha512 described in draft-ietf-curdle-ssh-kex-sha2</summary>
-        [AlgorithmSpec(AlgorithmName = "diffie-hellman-group16-sha512", DefaultPriority = 5)]
+        [KexAlgorithmSpec(AlgorithmName = "diffie-hellman-group16-sha512", DefaultPriority = 5)]
         DH_G16_SHA512,
         /// <summary>diffie-hellman-group18-sha512 described in draft-ietf-curdle-ssh-kex-sha2</summary>
-        [AlgorithmSpec(AlgorithmName = "diffie-hellman-group18-sha512", DefaultPriority = 4)]
+        [KexAlgorithmSpec(AlgorithmName = "diffie-hellman-group18-sha512", DefaultPriority = 4)]
         DH_G18_SHA512,
         /// <summary>ecdh-sha2-nistp256 described in RFC5656</summary>
-        [AlgorithmSpec(AlgorithmName = "ecdh-sha2-nistp256", DefaultPriority = 8)]
+        [KexAlgorithmSpec(AlgorithmName = "ecdh-sha2-nistp256", ECDH = true, DefaultPriority = 8)]
         ECDH_SHA2_NISTP256,
         /// <summary>ecdh-sha2-nistp384 described in RFC5656</summary>
-        [AlgorithmSpec(AlgorithmName = "ecdh-sha2-nistp384", DefaultPriority = 7)]
+        [KexAlgorithmSpec(AlgorithmName = "ecdh-sha2-nistp384", ECDH = true, DefaultPriority = 7)]
         ECDH_SHA2_NISTP384,
         /// <summary>ecdh-sha2-nistp521 described in RFC5656</summary>
-        [AlgorithmSpec(AlgorithmName = "ecdh-sha2-nistp521", DefaultPriority = 6)]
+        [KexAlgorithmSpec(AlgorithmName = "ecdh-sha2-nistp521", ECDH = true, DefaultPriority = 6)]
         ECDH_SHA2_NISTP521,
+    }
+
+    [AttributeUsage(AttributeTargets.Field)]
+    public class KexAlgorithmSpecAttribute : AlgorithmSpecAttribute {
+        /// <summary>
+        /// This algorithm must be processed with ECDH KEX (SSH_MSG_KEX_ECDH_XXXXX)
+        /// </summary>
+        public bool ECDH {
+            get;
+            set;
+        }
     }
 
     /// <summary>
@@ -372,11 +383,8 @@ namespace Granados {
         }
 
         public static bool IsECDH(this KexAlgorithm value) {
-            string algorithmName = GetAlgorithmName(value);
-            if (algorithmName != null && algorithmName.StartsWith("ecdh-")) {
-                return true;
-            }
-            return false;
+            KexAlgorithmSpecAttribute spec = AlgorithmSpecUtil<KexAlgorithm>.GetAlgorithmSpec(value) as KexAlgorithmSpecAttribute;
+            return (spec != null) ? spec.ECDH : false;
         }
     }
 
