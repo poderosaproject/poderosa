@@ -137,23 +137,33 @@ namespace Granados.PKI {
         public CurveEd25519() {
             _curveName = "edwards25519";
             _publicKeyAlgorithm = PublicKeyAlgorithm.ED25519;
-            _p = new BigInteger(BigIntegerConverter.ParseHex(
+            _p = new BigInteger(new uint[] {
                     // 2^255 - 19
-                    "7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed"
-                ));
-            _d = BigInteger.Parse(
-                    "37095705934669439343138083508754565189542113879843219016388785533085940283555"
-                );
-            _bx = BigInteger.Parse(
-                    "15112221349535400772501151409588531511454012693041857206046113283949847762202"
-                );
-            _by = BigInteger.Parse(
-                    "46316835694926478169428394003475163141307993866256225615783033603165251855960"
-                );
-            _l = new BigInteger(BigIntegerConverter.ParseHex(
+                    // 7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed
+                    0x7fffffffu, 0xffffffffu, 0xffffffffu, 0xffffffffu,
+                    0xffffffffu, 0xffffffffu, 0xffffffffu, 0xffffffedu,
+            });
+            _d = new BigInteger(new uint[] {
+                    // (decimal) 37095705934669439343138083508754565189542113879843219016388785533085940283555
+                    0x52036ceeu, 0x2b6ffe73u, 0x8cc74079u, 0x7779e898u,
+                    0x00700a4du, 0x4141d8abu, 0x75eb4dcau, 0x135978a3u,
+            });
+            _bx = new BigInteger(new uint[] {
+                    // (decimal) 15112221349535400772501151409588531511454012693041857206046113283949847762202
+                    0x216936d3u, 0xcd6e53feu, 0xc0a4e231u, 0xfdd6dc5cu,
+                    0x692cc760u, 0x9525a7b2u, 0xc9562d60u, 0x8f25d51au,
+            });
+            _by = new BigInteger(new uint[] {
+                    // (decimal) 46316835694926478169428394003475163141307993866256225615783033603165251855960
+                    0x66666666u, 0x66666666u, 0x66666666u, 0x66666666u,
+                    0x66666666u, 0x66666666u, 0x66666666u, 0x66666658u,
+            });
+            _l = new BigInteger(new uint[] {
                     // 2^252 + 0x14def9dea2f79cd65812631a5cf5d3ed
-                    "1000000000000000000000000000000014def9dea2f79cd65812631a5cf5d3ed"
-                ));
+                    // 1000000000000000000000000000000014def9dea2f79cd65812631a5cf5d3ed
+                    0x10000000u, 0x00000000u, 0x00000000u, 0x00000000u,
+                    0x14def9deu, 0xa2f79cd6u, 0x5812631au, 0x5cf5d3edu,
+            });
         }
 
         /// <summary>
