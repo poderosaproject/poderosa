@@ -105,6 +105,7 @@
     <Compile Include="CipherUtil.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DH.cs" />
     <Compile Include="DataHandler.cs" />
     <Compile Include="EC.cs" />
     <Compile Include="ECDH.cs" />
