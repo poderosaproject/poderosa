@@ -12,7 +12,7 @@
     <AssemblyName>Poderosa</AssemblyName>
     <StartupObject>Poderosa.Executable.Root</StartupObject>
     <ApplicationIcon>poderosa.ico</ApplicationIcon>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
