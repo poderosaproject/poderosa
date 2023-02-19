@@ -29,6 +29,8 @@ namespace Poderosa.Document {
     [Flags]
     public enum UnicodeCharFlags : uint {
         None = 0u,
+        /// <summary>Zero-width character (should not be displayed)</summary>
+        ZeroWidth = 1u << 29,
         /// <summary>CJK character (should be displayed with the CJK font)</summary>
         CJK = 1u << 30,
         /// <summary>Wide-width character (should be displayed with two columns)</summary>
@@ -42,6 +44,7 @@ namespace Poderosa.Document {
 
         // bit 0..20 : Unicode Code Point
         //
+        // bit 29 : zero width
         // bit 30 : CJK
         // bit 31 : wide width
 
@@ -88,11 +91,20 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
+        /// Whether this character is a zero-width character.
+        /// </summary>
+        public bool IsZeroWidth {
+            get {
+                return (_bits & (uint)UnicodeCharFlags.ZeroWidth) != 0u;
+            }
+        }
+
+        /// <summary>
         /// Whether this character is a wide-width character.
         /// </summary>
         public bool IsWideWidth {
             get {
-                return Has(UnicodeCharFlags.WideWidth);
+                return (_bits & (uint)UnicodeCharFlags.WideWidth) != 0u;
             }
         }
 
@@ -101,7 +113,7 @@ namespace Poderosa.Document {
         /// </summary>
         public bool IsCJK {
             get {
-                return Has(UnicodeCharFlags.CJK);
+                return (_bits & (uint)UnicodeCharFlags.CJK) != 0u;
             }
         }
 
@@ -110,10 +122,8 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="ch">a character</param>
         /// <param name="cjk">allow cjk mode</param>
-        public UnicodeChar(char ch, bool cjk) {
-            uint codePoint = (uint)ch;
-            UnicodeCharFlags flags = Unicode.DetermineUnicodeCharFlags(codePoint, cjk);
-            _bits = codePoint | (uint)flags;
+        public UnicodeChar(char ch, bool cjk)
+            : this((uint)ch, cjk) {
         }
 
         /// <summary>
@@ -122,10 +132,45 @@ namespace Poderosa.Document {
         /// <param name="highSurrogate">high surrogate code</param>
         /// <param name="lowSurrogate">low surrogate code</param>
         /// <param name="cjk">allow cjk mode</param>
-        public UnicodeChar(char highSurrogate, char lowSurrogate, bool cjk) {
-            uint codePoint = Unicode.SurrogatePairToCodePoint(highSurrogate, lowSurrogate);
-            UnicodeCharFlags flags = Unicode.DetermineUnicodeCharFlags(codePoint, cjk);
-            _bits = codePoint | (uint)flags;
+        public UnicodeChar(char highSurrogate, char lowSurrogate, bool cjk)
+            : this(Unicode.SurrogatePairToCodePoint(highSurrogate, lowSurrogate), cjk) {
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="codePoint">Unicode code point</param>
+        /// <param name="cjk">allow cjk mode</param>
+        private UnicodeChar(uint codePoint, bool cjk)
+            : this(codePoint, Unicode.DetermineWidthAndFontType(codePoint, cjk)) {
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="codePoint">Unicode code point</param>
+        /// <param name="widthAndFontType">character width and font-type</param>
+        private UnicodeChar(uint codePoint, Unicode.WidthAndFontType widthAndFontType)
+            : this(codePoint, ToUnicodeCharFlags(widthAndFontType)) {
+        }
+
+        private static UnicodeCharFlags ToUnicodeCharFlags(Unicode.WidthAndFontType widthAndFontType) {
+            UnicodeCharFlags f;
+            switch (widthAndFontType.Width) {
+                case 0:
+                    f = UnicodeCharFlags.ZeroWidth;
+                    break;
+                case 2:
+                    f = UnicodeCharFlags.WideWidth;
+                    break;
+                default:
+                    f = UnicodeCharFlags.None;
+                    break;
+            }
+            if (widthAndFontType.UseCJKFont) {
+                f |= UnicodeCharFlags.CJK;
+            }
+            return f;
         }
 
         /// <summary>
@@ -145,15 +190,6 @@ namespace Poderosa.Document {
         /// <returns>char count written</returns>
         public int WriteTo(char[] seq, int index) {
             return Unicode.WriteCodePointTo(this._bits & CodePointMask, seq, index);
-        }
-
-        /// <summary>
-        /// Checks if the specified flags were set.
-        /// </summary>
-        /// <param name="flags"></param>
-        /// <returns>true if all of the specified flags were set.</returns>
-        public bool Has(UnicodeCharFlags flags) {
-            return (this._bits & (uint)flags) == (uint)flags;
         }
     }
 
@@ -209,6 +245,23 @@ namespace Poderosa.Document {
     /// </summary>
     public static class Unicode {
 
+        public struct WidthAndFontType {
+            /// <summary>
+            /// Character width (0, 1 or 2)
+            /// </summary>
+            public readonly int Width;
+
+            /// <summary>
+            /// Whether the character should be displayed using CJK font
+            /// </summary>
+            public readonly bool UseCJKFont;
+
+            internal WidthAndFontType(int width, bool useCJKFont) {
+                Width = width;
+                UseCJKFont = useCJKFont;
+            }
+        }
+
         private static readonly UnicodeWidthAndFontTypeTable _table = new UnicodeWidthAndFontTypeTable();
 
         /// <summary>
@@ -223,21 +276,9 @@ namespace Poderosa.Document {
         /// Gets <see cref="UnicodeCharFlags"/> for a Unicode code point.
         /// </summary>
         /// <param name="codePoint">Unicode code point</param>
-        /// <param name="cjk">allow cjk mode</param>
-        /// <returns></returns>
-        public static UnicodeCharFlags DetermineUnicodeCharFlags(uint codePoint, bool cjk) {
-            int charWidth;
-            bool useCjkFont;
-            _table.GetWidthAndFontType(codePoint, cjk, out charWidth, out useCjkFont);
-
-            UnicodeCharFlags f = UnicodeCharFlags.None;
-            if (charWidth >= 2) {
-                f |= UnicodeCharFlags.WideWidth;
-            }
-            if (useCjkFont) {
-                f |= UnicodeCharFlags.CJK;
-            }
-            return f;
+        /// <param name="cjk">returns values for the CJK mode</param>
+        public static WidthAndFontType DetermineWidthAndFontType(uint codePoint, bool cjk) {
+            return _table.GetWidthAndFontType(codePoint, cjk);
         }
 
         /// <summary>
@@ -380,11 +421,10 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="codePoint">code point</param>
         /// <param name="cjk">returns values for the CJK mode</param>
-        /// <param name="charWidth">returns character width; 0 (invisible), 1 (narrow), or 2 (wide)</param>
-        /// <param name="useCjkFont">returns whether the character should be displayed using CJK font.</param>
-        public void GetWidthAndFontType(uint codePoint, bool cjk, out int charWidth, out bool useCjkFont) {
+        public Unicode.WidthAndFontType GetWidthAndFontType(uint codePoint, bool cjk) {
             uint tableIndex = codePoint / SUB_TABLE_CHARS;
 
+            int charWidth;
             if (tableIndex < _charWidthTables.Length) {
                 int w = _charWidthTables[tableIndex].GetValue(codePoint);
                 charWidth = (w <= 2) ? w : (cjk ? 2 : 1);
@@ -393,13 +433,16 @@ namespace Poderosa.Document {
                 charWidth = 1; // default width
             }
 
+            bool useCjkFont;
             if (tableIndex < _fontTypeTables.Length) {
-                int w = _fontTypeTables[tableIndex].GetValue(codePoint);
-                useCjkFont = w == 2 || (w > 2 && cjk);
+                int t = _fontTypeTables[tableIndex].GetValue(codePoint);
+                useCjkFont = t == 2 || (t > 2 && cjk);
             }
             else {
                 useCjkFont = false; // default
             }
+
+            return new Unicode.WidthAndFontType(charWidth, useCjkFont);
         }
 
         /// <summary>

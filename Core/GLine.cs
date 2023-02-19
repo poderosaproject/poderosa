@@ -1376,6 +1376,9 @@ namespace Poderosa.Document {
                 if (!conv.Feed(originalChar, out unicodeChar)) {
                     continue;
                 }
+                if (unicodeChar.IsZeroWidth) {
+                    continue; // drop
+                }
 
                 GChar gchar = new GChar(unicodeChar);
                 buff[offset].Set(gchar, attr);
