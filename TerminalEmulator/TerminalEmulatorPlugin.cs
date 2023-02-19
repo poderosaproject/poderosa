@@ -140,6 +140,9 @@ namespace Poderosa.Terminal {
 
             // Preferences for XTerm
             cs.PreferenceExtensionPoint.RegisterExtension(XTermPreferences.Instance);
+
+            // Initialize Unicode table
+            Poderosa.Document.Unicode.Initialize();
         }
 
 #if UNITTEST
