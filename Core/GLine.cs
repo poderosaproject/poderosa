@@ -595,6 +595,8 @@ namespace Poderosa.Document {
 
         [ThreadStatic]
         private static char[] _copyTempBuff;
+        [ThreadStatic]
+        private static int[] _copyDxBuff;
 
         // Returns thread-local temporary buffer for internal use.
         private char[] GetInternalTemporaryCharBuffer(int minLen) {
@@ -609,6 +611,15 @@ namespace Poderosa.Document {
         // for copying characters in _text.
         private char[] GetInternalTemporaryBufferForCopy() {
             return GetInternalTemporaryCharBuffer(_cell.Length * 2);
+        }
+
+        // Returns thread-local temporary buffer for internal use.
+        private int[] GetInternalTemporaryDxBuffer(int minLen) {
+            int[] buff = _copyDxBuff;
+            if (buff == null || buff.Length < minLen) {
+                buff = _copyDxBuff = new int[minLen];
+            }
+            return buff;
         }
 
         /// <summary>
@@ -1010,7 +1021,6 @@ namespace Poderosa.Document {
         /// <param name="y">top coordinate to paint the line</param>
         internal void Render(IntPtr hdc, RenderProfile prof, Caret caret, Color baseBackColor, int x, int y) {
             float fx0 = (float)x;
-            float fx1 = fx0;
             int y1 = y;
             int y2 = y1 + (int)prof.Pitch.Height;
 
@@ -1019,6 +1029,7 @@ namespace Poderosa.Document {
             Win32.SetBkMode(hdc, Win32.TRANSPARENT);
 
             int cellStart = 0;
+            float fx1 = fx0;
 
             lock (this) {
                 // Note:
@@ -1055,110 +1066,72 @@ namespace Poderosa.Document {
                         Win32.SetBkColor(hdc, bkColorRef);
                     }
 
+                    // If background fill is required, we call ExtTextOut() with ETO_OPAQUE to draw the first character.
                     float fx2 = fx0 + pitch * cellEnd;
+                    Win32.RECT rect = new Win32.RECT((int)fx1, y1, (int)fx2, y2);
 
-                    if (prof.DetermineBold(attr) || attr.Has(GAttrFlags.UseCjkFont)) {
-                        // It is not always true that width of a character in the CJK font is twice of a character in the ASCII font.
-                        // Characters are drawn one by one to adjust pitch.
+                    char[] tmpCharBuf = GetInternalTemporaryCharBuffer((cellEnd - cellStart) * 2);
+                    int tmpCharBufLen = 0;
 
-                        char[] tmpCharBuf = GetInternalTemporaryCharBuffer(2);
+                    if (isTextOpaque) {
+                        int[] dxBuf = GetInternalTemporaryDxBuffer((cellEnd - cellStart) * 2);
+                        int dxBufIndex = 0;
 
+                        float curPosF = fx1;
+                        int prevPos = (int)curPosF;
                         int cellIndex = cellStart;
-                        float fx = fx1;
-
-                        if (isBackgroundOpaque) {
-                            // If background fill is required, we call ExtTextOut() with ETO_OPAQUE to draw the first character.
-                            Win32.RECT rect = new Win32.RECT((int)fx1, y1, (int)fx2, y2);
-                            if (isTextOpaque) {
-                                GChar ch = NulToSpace(_cell[cellIndex].Char);
-                                int len = ch.WriteTo(tmpCharBuf, 0);
-                                unsafe {
-                                    fixed (char* p = tmpCharBuf) {
-                                        Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, p, len, null);
-                                    }
-                                }
-
+                        while (cellIndex < cellEnd) {
+                            GChar ch = NulToSpace(_cell[cellIndex].Char);
+                            int addedChars = ch.WriteTo(tmpCharBuf, tmpCharBufLen);
+                            tmpCharBufLen += addedChars;
+                            if (ch.IsWideWidth) {
                                 if (ch.IsLeftHalf) {
                                     cellIndex += 2;
-                                    fx = fx + pitch + pitch;
+                                    curPosF = curPosF + pitch + pitch;
                                 }
                                 else {
-                                    cellIndex += 1;
-                                    fx = fx + pitch;
+                                    cellIndex++;
+                                    curPosF += pitch;
                                 }
                             }
                             else {
-                                unsafe {
-                                    fixed (char* p = tmpCharBuf) {
-                                        Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, p, 0, null);
-                                    }
-                                }
+                                cellIndex++;
+                                curPosF += pitch;
                             }
+                            int nextPos = (int)curPosF;
+                            dxBuf[dxBufIndex++] = nextPos - prevPos;
+                            while (--addedChars > 0) {
+                                dxBuf[dxBufIndex++] = 0;
+                            }
+                            prevPos = nextPos;
                         }
 
-                        if (isTextOpaque) {
-                            while (cellIndex < cellEnd) {
-                                GChar ch = NulToSpace(_cell[cellIndex].Char);
-                                int len = ch.WriteTo(tmpCharBuf, 0);
-                                unsafe {
-                                    fixed (char* p = tmpCharBuf) {
-                                        Win32.ExtTextOut(hdc, (int)fx, y1, 0, null, p, len, null);
-                                    }
-                                }
-
-                                if (ch.IsLeftHalf) {
-                                    cellIndex += 2;
-                                    fx = fx + pitch + pitch;
+                        unsafe {
+                            fixed (int* pDx = dxBuf)
+                            fixed (char* p = tmpCharBuf) {
+                                if (isBackgroundOpaque) {
+                                    Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, p, tmpCharBufLen, pDx);
                                 }
                                 else {
-                                    cellIndex += 1;
-                                    fx = fx + pitch;
+                                    Win32.ExtTextOut(hdc, rect.left, rect.top, 0, null, p, tmpCharBufLen, pDx);
                                 }
+                            }
+                        }
+
+                        if (attr.Has(GAttrFlags.Underlined)) {
+                            DrawUnderline(hdc, foreColorRef, (int)fx1, y2 - 1, (int)fx2 - (int)fx1);
+                        }
+                    }
+                    else if (isBackgroundOpaque) {
+                        unsafe {
+                            fixed (char* p = tmpCharBuf) {
+                                Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, p, 0, null);
                             }
                         }
                     }
-                    else {
-                        char[] tmpCharBuf = GetInternalTemporaryCharBuffer((cellEnd - cellStart) * 2);
-                        int bufLen = 0;
-                        for (int i = cellStart; i < cellEnd; i++) {
-                            bufLen += NulToSpace(_cell[i].Char).WriteTo(tmpCharBuf, bufLen);
-                        }
-
-                        if (isBackgroundOpaque) {
-                            Win32.RECT rect = new Win32.RECT((int)fx1, y1, (int)fx2, y2);
-                            if (isTextOpaque) {
-                                unsafe {
-                                    fixed (char* p = tmpCharBuf) {
-                                        Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, p, bufLen, null);
-                                    }
-                                }
-                            }
-                            else {
-                                unsafe {
-                                    fixed (char* p = tmpCharBuf) {
-                                        Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, p, 0, null);
-                                    }
-                                }
-                            }
-                        }
-                        else {
-                            if (isTextOpaque) {
-                                unsafe {
-                                    fixed (char* p = tmpCharBuf) {
-                                        Win32.ExtTextOut(hdc, (int)fx1, y1, 0, null, p, bufLen, null);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (attr.Has(GAttrFlags.Underlined) && isTextOpaque) {
-                        DrawUnderline(hdc, foreColorRef, (int)fx1, y2 - 1, (int)fx2 - (int)fx1);
-                    }
-
-                    fx1 = fx2;
 
                     cellStart = cellEnd;
+                    fx1 = fx2;
                 }
             }
         }
