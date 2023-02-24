@@ -206,41 +206,41 @@ namespace Poderosa.Sessions {
             // _passphraseLabel
             // 
             this._passphraseLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this._passphraseLabel.Location = new System.Drawing.Point(3, 137);
+            this._passphraseLabel.Location = new System.Drawing.Point(3, 161);
             this._passphraseLabel.Name = "_passphraseLabel";
             this._passphraseLabel.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this._passphraseLabel.Size = new System.Drawing.Size(80, 16);
-            this._passphraseLabel.TabIndex = 9;
+            this._passphraseLabel.TabIndex = 12;
             this._passphraseLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // _passphraseBox
             // 
             this._passphraseBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this._passphraseBox.Location = new System.Drawing.Point(89, 136);
+            this._passphraseBox.Location = new System.Drawing.Point(89, 160);
             this._passphraseBox.Name = "_passphraseBox";
             this._passphraseBox.PasswordChar = '*';
             this._passphraseBox.Size = new System.Drawing.Size(232, 19);
-            this._passphraseBox.TabIndex = 10;
+            this._passphraseBox.TabIndex = 13;
             // 
             // _privateKeyLabel
             // 
             this._privateKeyLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this._privateKeyLabel.Location = new System.Drawing.Point(3, 161);
+            this._privateKeyLabel.Location = new System.Drawing.Point(3, 137);
             this._privateKeyLabel.Name = "_privateKeyLabel";
             this._privateKeyLabel.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this._privateKeyLabel.Size = new System.Drawing.Size(80, 16);
-            this._privateKeyLabel.TabIndex = 11;
+            this._privateKeyLabel.TabIndex = 9;
             this._privateKeyLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // _privateKeyFile
             // 
             this._privateKeyFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this._privateKeyFile.Location = new System.Drawing.Point(89, 160);
+            this._privateKeyFile.Location = new System.Drawing.Point(89, 136);
             this._privateKeyFile.Name = "_privateKeyFile";
             this._privateKeyFile.Size = new System.Drawing.Size(212, 19);
-            this._privateKeyFile.TabIndex = 12;
+            this._privateKeyFile.TabIndex = 10;
             // 
             // _privateKeySelect
             // 
@@ -248,11 +248,11 @@ namespace Poderosa.Sessions {
             this._privateKeySelect.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this._privateKeySelect.ImageIndex = 0;
             this._privateKeySelect.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this._privateKeySelect.Location = new System.Drawing.Point(301, 160);
+            this._privateKeySelect.Location = new System.Drawing.Point(301, 136);
             this._privateKeySelect.Name = "_privateKeySelect";
             this._privateKeySelect.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this._privateKeySelect.Size = new System.Drawing.Size(20, 19);
-            this._privateKeySelect.TabIndex = 13;
+            this._privateKeySelect.TabIndex = 11;
             this._privateKeySelect.Text = "...";
             this._privateKeySelect.Click += new System.EventHandler(this._privateKeySelect_Click);
             // 
