@@ -176,7 +176,7 @@
     <value>utf-8 (cjk)</value>
   </data>
   <data name="Command.Encoding.UTF8_Latin">
-    <value>utf-8 (latin)</value>
+    <value>utf-8</value>
   </data>
   <data name="Command.Encoding.EUC_JP">
     <value>euc-jp</value>
@@ -305,7 +305,7 @@
     <value>utf-8 (cjk)</value>
   </data>
   <data name="Enum.EncodingType.UTF8_Latin">
-    <value>utf-8 (latin)</value>
+    <value>utf-8</value>
   </data>
   <data name="Enum.EncodingType.EUC_JP">
     <value>euc-jp</value>

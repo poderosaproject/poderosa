@@ -248,7 +248,7 @@ namespace Poderosa.Sessions {
         public ITerminalSettings CreateDefaultCygwinTerminalSettings() {
             ITerminalSettings settings = TerminalSessionsPlugin.Instance.TerminalEmulatorService.CreateDefaultTerminalSettings("", Poderosa.TerminalSession.Properties.Resources.Cygwin16x16);
             settings.BeginUpdate();
-            settings.Encoding = EncodingType.UTF8;
+            settings.Encoding = EncodingType.UTF8_Latin;
             settings.EndUpdate();
             return settings;
         }

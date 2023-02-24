@@ -54,7 +54,7 @@ namespace Poderosa.Terminal {
         public TerminalSettings() {
             IPoderosaCulture culture = TerminalEmulatorPlugin.Instance.PoderosaWorld.Culture;
             if (culture.IsJapaneseOS || culture.IsSimplifiedChineseOS || culture.IsTraditionalChineseOS || culture.IsKoreanOS)
-                _encoding = EncodingType.UTF8;
+                _encoding = EncodingType.UTF8_Latin;
             else
                 _encoding = EncodingType.ISO8859_1;
 

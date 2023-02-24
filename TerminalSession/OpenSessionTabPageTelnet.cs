@@ -190,7 +190,7 @@ namespace Poderosa.Sessions {
             this._portBox.Text = DEFAULT_TELNET_PORT;
             this._logTypeBox.SelectedItem = LogType.None;
             this._terminalTypeBox.SelectedItem = TerminalType.XTerm;
-            this._encodingBox.SelectedItem = EncodingType.UTF8;
+            this._encodingBox.SelectedItem = EncodingType.UTF8_Latin;
             this._newLineBox.SelectedItem = NewLine.CR;
             this._localEchoBox.SelectedItem = false;
 

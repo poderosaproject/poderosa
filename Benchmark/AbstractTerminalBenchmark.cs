@@ -70,7 +70,7 @@ namespace Poderosa.Benchmark {
 
             ITerminalSettings settings = emulatorService.CreateDefaultTerminalSettings(GetTerminalCaption(), null);
             settings.BeginUpdate();
-            settings.Encoding = Poderosa.ConnectionParam.EncodingType.UTF8;
+            settings.Encoding = Poderosa.ConnectionParam.EncodingType.UTF8_Latin;
             settings.EndUpdate();
             ITerminalConnection connection = GetTerminalConnection();
             ITerminalSessionStartCommand startCommand = sessionService.TerminalSessionStartCommand;
