@@ -9,6 +9,8 @@ using Granados.KnownHosts;
 using Granados.PKI;
 using Granados.X11Forwarding;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Granados {
 
@@ -47,6 +49,9 @@ namespace Granados {
     /// Fill the properties of ConnectionParameter object before you start the connection.
     /// </remarks>
     public class SSHConnectionParameter {
+
+        private PublicKeyAlgorithm[] _preferableHostKeyAlgorithms;
+        private PublicKeySignatureAlgorithm[] _preferableHostKeySignatureAlgorithms;
 
         /// <summary>
         /// Host name.
@@ -92,8 +97,28 @@ namespace Granados {
         /// Preferable host key algorithms.
         /// </summary>
         public PublicKeyAlgorithm[] PreferableHostKeyAlgorithms {
-            get;
-            set;
+            get {
+                return _preferableHostKeyAlgorithms;
+            }
+            set {
+                _preferableHostKeyAlgorithms = value;
+                _preferableHostKeySignatureAlgorithms = null;
+            }
+        }
+
+        /// <summary>
+        /// Preferable host key algorithms and signature algorithm variants. (readonly)
+        /// <para>
+        /// The items are determined from <see name="PreferableHostKeyAlgorithms"/> automatically.
+        /// </para>
+        /// </summary>
+        public PublicKeySignatureAlgorithm[] PreferableHostKeySignatureAlgorithms {
+            get {
+                if (_preferableHostKeySignatureAlgorithms == null) {
+                    _preferableHostKeySignatureAlgorithms = MakePublicKeySignatureAlgorithmList(_preferableHostKeyAlgorithms);
+                }
+                return _preferableHostKeySignatureAlgorithms;
+            }
         }
 
         /// <summary>
@@ -295,13 +320,43 @@ namespace Granados {
         /// <returns>a new object.</returns>
         public SSHConnectionParameter Clone() {
             SSHConnectionParameter p = (SSHConnectionParameter)MemberwiseClone();
-            p.PreferableCipherAlgorithms = (CipherAlgorithm[])p.PreferableCipherAlgorithms.Clone();
-            p.PreferableHostKeyAlgorithms = (PublicKeyAlgorithm[])p.PreferableHostKeyAlgorithms.Clone();
+            if (p.PreferableCipherAlgorithms != null) {
+                p.PreferableCipherAlgorithms = (CipherAlgorithm[])p.PreferableCipherAlgorithms.Clone();
+            }
+            if (p._preferableHostKeyAlgorithms != null) {
+                p._preferableHostKeyAlgorithms = (PublicKeyAlgorithm[])p._preferableHostKeyAlgorithms.Clone();
+            }
+            if (p._preferableHostKeySignatureAlgorithms != null) {
+                p._preferableHostKeySignatureAlgorithms = (PublicKeySignatureAlgorithm[])p._preferableHostKeySignatureAlgorithms.Clone();
+            }
             if (p.X11ForwardingParams != null) {
                 p.X11ForwardingParams = p.X11ForwardingParams.Clone();
             }
             p.Timeouts = Timeouts.Clone();
             return p;
+        }
+
+        /// <summary>
+        /// Make a list of PublicKeyAndSignatureAlgorithm from a list of PublicKeyAlgorithm
+        /// </summary>
+        /// <param name="algorithms"></param>
+        /// <returns></returns>
+        private PublicKeySignatureAlgorithm[] MakePublicKeySignatureAlgorithmList(PublicKeyAlgorithm[] algorithms) {
+            var list = new List<PublicKeySignatureAlgorithm>();
+            foreach (PublicKeyAlgorithm a in algorithms) {
+                IEnumerable<PublicKeySignatureAlgorithm> variants;
+                if (PublicKeySignatureAlgorithm.VariantsMap.TryGetValue(a, out variants)) {
+                    list.AddRange(variants);
+                }
+            }
+
+            // add missing algorithms/variants
+            var names = new HashSet<string>(list.Select(v => v.SignatureAlgorithmName));
+            list.AddRange(
+                PublicKeySignatureAlgorithm.Supported
+                    .Where(v => !names.Contains(v.SignatureAlgorithmName))
+            );
+            return list.ToArray();
         }
     }
 }

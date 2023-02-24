@@ -56,10 +56,10 @@ namespace Granados.SSH2 {
             }
         }
 
-        public byte[] Sign(byte[] data) {
+        public byte[] Sign(byte[] data, SignatureAlgorithmVariant variant) {
             switch (_keypair.Algorithm) {
                 case PublicKeyAlgorithm.RSA:
-                    return ((RSAKeyPair)_keypair).SignWithSHA1(data);
+                    return ((RSAKeyPair)_keypair).SignWithSHA(data, variant);
                 case PublicKeyAlgorithm.DSA:
                     return ((DSAKeyPair)_keypair).Sign(new SHA1CryptoServiceProvider().ComputeHash(data));
                 case PublicKeyAlgorithm.ECDSA_SHA2_NISTP256:

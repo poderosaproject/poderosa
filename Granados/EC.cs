@@ -354,27 +354,37 @@ namespace Granados.PKI {
                     curve = new EllipticCurveFp(
                         algorithm: PublicKeyAlgorithm.ECDSA_SHA2_NISTP256,
                         curveName: "nistp256",
-                        p: new BigInteger(BigIntegerConverter.ParseHex(
-                                "FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFF" +
-                                "FFFFFFFF"
-                            )),
-                        a: new BigInteger(BigIntegerConverter.ParseHex(
-                                "FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFF" +
-                                "FFFFFFFC"
-                            )),
-                        b: new BigInteger(BigIntegerConverter.ParseHex(
-                                "5AC635D8AA3A93E7B3EBBD55769886BC651D06B0CC53B0F63BCE3C3E" +
-                                "27D2604B"
-                            )),
-                        G: ECPoint.ParseUncompressed(BigIntegerConverter.ParseHex(
-                                "046B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0" +
-                                "F4A13945D898C2964FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE3357" +
-                                "6B315ECECBB6406837BF51F5"
-                            )),
-                        n: new BigInteger(BigIntegerConverter.ParseHex(
-                                "FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2" +
-                                "FC632551"
-                            )),
+                        p: new BigInteger(new uint[] {
+                                // FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF
+                                0xffffffffu, 0x00000001u, 0x00000000u, 0x00000000u,
+                                0x00000000u, 0xffffffffu, 0xffffffffu, 0xffffffffu,
+                        }),
+                        a: new BigInteger(new uint[] {
+                                // FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFC
+                                0xffffffffu, 0x00000001u, 0x00000000u, 0x00000000u,
+                                0x00000000u, 0xffffffffu, 0xffffffffu, 0xfffffffcu,
+                        }),
+                        b: new BigInteger(new uint[] {
+                                // 5AC635D8AA3A93E7B3EBBD55769886BC651D06B0CC53B0F63BCE3C3E27D2604B
+                                0x5ac635d8u, 0xaa3a93e7u, 0xb3ebbd55u, 0x769886bcu,
+                                0x651d06b0u, 0xcc53b0f6u, 0x3bce3c3eu, 0x27d2604bu,
+                        }),
+                        G: ECPoint.ParseUncompressed(new byte[] {
+                                // 046B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0
+                                // F4A13945D898C2964FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE3357
+                                // 6B315ECECBB6406837BF51F5
+                                0x04, 0x6b, 0x17, 0xd1, 0xf2, 0xe1, 0x2c, 0x42, 0x47, 0xf8, 0xbc, 0xe6, 0xe5, 0x63, 0xa4, 0x40,
+                                0xf2, 0x77, 0x03, 0x7d, 0x81, 0x2d, 0xeb, 0x33, 0xa0, 0xf4, 0xa1, 0x39, 0x45, 0xd8, 0x98, 0xc2,
+                                0x96, 0x4f, 0xe3, 0x42, 0xe2, 0xfe, 0x1a, 0x7f, 0x9b, 0x8e, 0xe7, 0xeb, 0x4a, 0x7c, 0x0f, 0x9e,
+                                0x16, 0x2b, 0xce, 0x33, 0x57, 0x6b, 0x31, 0x5e, 0xce, 0xcb, 0xb6, 0x40, 0x68, 0x37, 0xbf, 0x51,
+                                0xf5,
+                        }),
+                        n: new BigInteger(new uint[] {
+                                // FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2
+                                // FC632551
+                                0xffffffffu, 0x00000000u, 0xffffffffu, 0xffffffffu,
+                                0xbce6faadu, 0xa7179e84u, 0xf3b9cac2u, 0xfc632551u,
+                        }),
                         h: new BigInteger(0x01)
                     );
                     break;
@@ -383,28 +393,47 @@ namespace Granados.PKI {
                     curve = new EllipticCurveFp(
                         algorithm: PublicKeyAlgorithm.ECDSA_SHA2_NISTP384,
                         curveName: "nistp384",
-                        p: new BigInteger(BigIntegerConverter.ParseHex(
-                                "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF" +
-                                "FFFFFFFEFFFFFFFF0000000000000000FFFFFFFF"
-                            )),
-                        a: new BigInteger(BigIntegerConverter.ParseHex(
-                                "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF" +
-                                "FFFFFFFEFFFFFFFF0000000000000000FFFFFFFC"
-                            )),
-                        b: new BigInteger(BigIntegerConverter.ParseHex(
-                                "B3312FA7E23EE7E4988E056BE3F82D19181D9C6EFE8141120314088F" +
-                                "5013875AC656398D8A2ED19D2A85C8EDD3EC2AEF"
-                            )),
-                        G: ECPoint.ParseUncompressed(BigIntegerConverter.ParseHex(
-                                "04AA87CA22BE8B05378EB1C71EF320AD746E1D3B628BA79B98" +
-                                "59F741E082542A385502F25DBF55296C3A545E3872760AB73617DE4A" +
-                                "96262C6F5D9E98BF9292DC29F8F41DBD289A147CE9DA3113B5F0B8C0" +
-                                "0A60B1CE1D7E819D7A431D7C90EA0E5F"
-                            )),
-                        n: new BigInteger(BigIntegerConverter.ParseHex(
-                                "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC7634D81" +
-                                "F4372DDF581A0DB248B0A77AECEC196ACCC52973"
-                            )),
+                        p: new BigInteger(new uint[] {
+                                // FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+                                // FFFFFFFEFFFFFFFF0000000000000000FFFFFFFF
+                                0xffffffffu, 0xffffffffu, 0xffffffffu, 0xffffffffu,
+                                0xffffffffu, 0xffffffffu, 0xffffffffu, 0xfffffffeu,
+                                0xffffffffu, 0x00000000u, 0x00000000u, 0xffffffffu,
+                        }),
+                        a: new BigInteger(new uint[] {
+                                // FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+                                // FFFFFFFEFFFFFFFF0000000000000000FFFFFFFC
+                                0xffffffffu, 0xffffffffu, 0xffffffffu, 0xffffffffu,
+                                0xffffffffu, 0xffffffffu, 0xffffffffu, 0xfffffffeu,
+                                0xffffffffu, 0x00000000u, 0x00000000u, 0xfffffffcu,
+                        }),
+                        b: new BigInteger(new uint[] {
+                                // B3312FA7E23EE7E4988E056BE3F82D19181D9C6EFE8141120314088F
+                                // 5013875AC656398D8A2ED19D2A85C8EDD3EC2AEF
+                                0xb3312fa7u, 0xe23ee7e4u, 0x988e056bu, 0xe3f82d19u,
+                                0x181d9c6eu, 0xfe814112u, 0x0314088fu, 0x5013875au,
+                                0xc656398du, 0x8a2ed19du, 0x2a85c8edu, 0xd3ec2aefu,
+                        }),
+                        G: ECPoint.ParseUncompressed(new byte[] {
+                                // 04AA87CA22BE8B05378EB1C71EF320AD746E1D3B628BA79B98
+                                // 59F741E082542A385502F25DBF55296C3A545E3872760AB73617DE4A
+                                // 96262C6F5D9E98BF9292DC29F8F41DBD289A147CE9DA3113B5F0B8C0
+                                // 0A60B1CE1D7E819D7A431D7C90EA0E5F
+                                0x04, 0xaa, 0x87, 0xca, 0x22, 0xbe, 0x8b, 0x05, 0x37, 0x8e, 0xb1, 0xc7, 0x1e, 0xf3, 0x20, 0xad,
+                                0x74, 0x6e, 0x1d, 0x3b, 0x62, 0x8b, 0xa7, 0x9b, 0x98, 0x59, 0xf7, 0x41, 0xe0, 0x82, 0x54, 0x2a,
+                                0x38, 0x55, 0x02, 0xf2, 0x5d, 0xbf, 0x55, 0x29, 0x6c, 0x3a, 0x54, 0x5e, 0x38, 0x72, 0x76, 0x0a,
+                                0xb7, 0x36, 0x17, 0xde, 0x4a, 0x96, 0x26, 0x2c, 0x6f, 0x5d, 0x9e, 0x98, 0xbf, 0x92, 0x92, 0xdc,
+                                0x29, 0xf8, 0xf4, 0x1d, 0xbd, 0x28, 0x9a, 0x14, 0x7c, 0xe9, 0xda, 0x31, 0x13, 0xb5, 0xf0, 0xb8,
+                                0xc0, 0x0a, 0x60, 0xb1, 0xce, 0x1d, 0x7e, 0x81, 0x9d, 0x7a, 0x43, 0x1d, 0x7c, 0x90, 0xea, 0x0e,
+                                0x5f,
+                        }),
+                        n: new BigInteger(new uint[] {
+                                // FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC7634D81
+                                // F4372DDF581A0DB248B0A77AECEC196ACCC52973
+                                0xffffffffu, 0xffffffffu, 0xffffffffu, 0xffffffffu,
+                                0xffffffffu, 0xffffffffu, 0xc7634d81u, 0xf4372ddfu,
+                                0x581a0db2u, 0x48b0a77au, 0xecec196au, 0xccc52973u,
+                        }),
                         h: new BigInteger(0x01)
                     );
                     break;
@@ -413,33 +442,62 @@ namespace Granados.PKI {
                     curve = new EllipticCurveFp(
                         algorithm: PublicKeyAlgorithm.ECDSA_SHA2_NISTP521,
                         curveName: "nistp521",
-                        p: new BigInteger(BigIntegerConverter.ParseHex(
-                                "01FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF" +
-                                "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF" +
-                                "FFFFFFFFFFFFFFFFFFFFFFFF"
-                            )),
-                        a: new BigInteger(BigIntegerConverter.ParseHex(
-                                "01FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF" +
-                                "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF" +
-                                "FFFFFFFFFFFFFFFFFFFFFFFC"
-                            )),
-                        b: new BigInteger(BigIntegerConverter.ParseHex(
-                                "0051953EB9618E1C9A1F929A21A0B68540EEA2DA725B99B315F3" +
-                                "B8B489918EF109E156193951EC7E937B1652C0BD3BB1BF073573DF88" +
-                                "3D2C34F1EF451FD46B503F00"
-                            )),
-                        G: ECPoint.ParseUncompressed(BigIntegerConverter.ParseHex(
-                                "0400C6858E06B70404E9CD9E3ECB662395B4429C648139053F" +
-                                "B521F828AF606B4D3DBAA14B5E77EFE75928FE1DC127A2FFA8DE3348" +
-                                "B3C1856A429BF97E7E31C2E5BD66011839296A789A3BC0045C8A5FB4" +
-                                "2C7D1BD998F54449579B446817AFBD17273E662C97EE72995EF42640" +
-                                "C550B9013FAD0761353C7086A272C24088BE94769FD16650"
-                            )),
-                        n: new BigInteger(BigIntegerConverter.ParseHex(
-                                "01FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF" +
-                                "FFFFFFFFFFFFFFFA51868783BF2F966B7FCC0148F709A5D03BB5C9B8" +
-                                "899C47AEBB6FB71E91386409"
-                            )),
+                        p: new BigInteger(new uint[] {
+                                // 01FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+                                // FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+                                // FFFFFFFFFFFFFFFFFFFFFFFF
+                                0x000001ffu, 0xffffffffu, 0xffffffffu, 0xffffffffu,
+                                0xffffffffu, 0xffffffffu, 0xffffffffu, 0xffffffffu,
+                                0xffffffffu, 0xffffffffu, 0xffffffffu, 0xffffffffu,
+                                0xffffffffu, 0xffffffffu, 0xffffffffu, 0xffffffffu,
+                                0xffffffffu,
+                        }),
+                        a: new BigInteger(new uint[] {
+                                // 01FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+                                // FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+                                // FFFFFFFFFFFFFFFFFFFFFFFC
+                                0x000001ffu, 0xffffffffu, 0xffffffffu, 0xffffffffu,
+                                0xffffffffu, 0xffffffffu, 0xffffffffu, 0xffffffffu,
+                                0xffffffffu, 0xffffffffu, 0xffffffffu, 0xffffffffu,
+                                0xffffffffu, 0xffffffffu, 0xffffffffu, 0xffffffffu,
+                                0xfffffffcu,
+                        }),
+                        b: new BigInteger(new uint[] {
+                                // 0051953EB9618E1C9A1F929A21A0B68540EEA2DA725B99B315F3
+                                // B8B489918EF109E156193951EC7E937B1652C0BD3BB1BF073573DF88
+                                // 3D2C34F1EF451FD46B503F00
+                                0x00000051u, 0x953eb961u, 0x8e1c9a1fu, 0x929a21a0u,
+                                0xb68540eeu, 0xa2da725bu, 0x99b315f3u, 0xb8b48991u,
+                                0x8ef109e1u, 0x56193951u, 0xec7e937bu, 0x1652c0bdu,
+                                0x3bb1bf07u, 0x3573df88u, 0x3d2c34f1u, 0xef451fd4u,
+                                0x6b503f00u,
+                        }),
+                        G: ECPoint.ParseUncompressed(new byte[] {
+                                // 0400C6858E06B70404E9CD9E3ECB662395B4429C648139053F
+                                // B521F828AF606B4D3DBAA14B5E77EFE75928FE1DC127A2FFA8DE3348
+                                // B3C1856A429BF97E7E31C2E5BD66011839296A789A3BC0045C8A5FB4
+                                // 2C7D1BD998F54449579B446817AFBD17273E662C97EE72995EF42640
+                                // C550B9013FAD0761353C7086A272C24088BE94769FD16650
+                                0x04, 0x00, 0xc6, 0x85, 0x8e, 0x06, 0xb7, 0x04, 0x04, 0xe9, 0xcd, 0x9e, 0x3e, 0xcb, 0x66, 0x23,
+                                0x95, 0xb4, 0x42, 0x9c, 0x64, 0x81, 0x39, 0x05, 0x3f, 0xb5, 0x21, 0xf8, 0x28, 0xaf, 0x60, 0x6b,
+                                0x4d, 0x3d, 0xba, 0xa1, 0x4b, 0x5e, 0x77, 0xef, 0xe7, 0x59, 0x28, 0xfe, 0x1d, 0xc1, 0x27, 0xa2,
+                                0xff, 0xa8, 0xde, 0x33, 0x48, 0xb3, 0xc1, 0x85, 0x6a, 0x42, 0x9b, 0xf9, 0x7e, 0x7e, 0x31, 0xc2,
+                                0xe5, 0xbd, 0x66, 0x01, 0x18, 0x39, 0x29, 0x6a, 0x78, 0x9a, 0x3b, 0xc0, 0x04, 0x5c, 0x8a, 0x5f,
+                                0xb4, 0x2c, 0x7d, 0x1b, 0xd9, 0x98, 0xf5, 0x44, 0x49, 0x57, 0x9b, 0x44, 0x68, 0x17, 0xaf, 0xbd,
+                                0x17, 0x27, 0x3e, 0x66, 0x2c, 0x97, 0xee, 0x72, 0x99, 0x5e, 0xf4, 0x26, 0x40, 0xc5, 0x50, 0xb9,
+                                0x01, 0x3f, 0xad, 0x07, 0x61, 0x35, 0x3c, 0x70, 0x86, 0xa2, 0x72, 0xc2, 0x40, 0x88, 0xbe, 0x94,
+                                0x76, 0x9f, 0xd1, 0x66, 0x50,
+                        }),
+                        n: new BigInteger(new uint[] {
+                                // 01FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+                                // FFFFFFFFFFFFFFFA51868783BF2F966B7FCC0148F709A5D03BB5C9B8
+                                // 899C47AEBB6FB71E91386409
+                                0x000001ffu, 0xffffffffu, 0xffffffffu, 0xffffffffu,
+                                0xffffffffu, 0xffffffffu, 0xffffffffu, 0xffffffffu,
+                                0xfffffffau, 0x51868783u, 0xbf2f966bu, 0x7fcc0148u,
+                                0xf709a5d0u, 0x3bb5c9b8u, 0x899c47aeu, 0xbb6fb71eu,
+                                0x91386409u,
+                        }),
                         h: new BigInteger(0x01)
                     );
                     break;
@@ -1682,12 +1740,22 @@ namespace Granados.PKI {
         /// <param name="curve">elliptic curve</param>
         /// <returns>new instance of the hashing algorithm</returns>
         public static HashAlgorithm Choose(EllipticCurve curve) {
-            int orderBits = curve.Order.BitCount();
+            return Choose(curve.Order.BitCount());
+        }
 
-            if (orderBits <= 256) {
+        /// <summary>
+        /// Chooses a hashing algorithm.
+        /// </summary>
+        /// <remarks>
+        /// Hashing algorithm is determined according to the curve size as described in RFC5656.
+        /// </remarks>
+        /// <param name="curveSize">curve size</param>
+        /// <returns>new instance of the hashing algorithm</returns>
+        public static HashAlgorithm Choose(int curveSize) {
+            if (curveSize <= 256) {
                 return new SHA256CryptoServiceProvider();
             }
-            else if (orderBits <= 384) {
+            else if (curveSize <= 384) {
                 return new SHA384CryptoServiceProvider();
             }
             else {

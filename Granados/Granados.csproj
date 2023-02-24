@@ -27,7 +27,7 @@
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <OldToolsVersion>2.0</OldToolsVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -105,8 +105,10 @@
     <Compile Include="CipherUtil.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DH.cs" />
     <Compile Include="DataHandler.cs" />
     <Compile Include="EC.cs" />
+    <Compile Include="ECDH.cs" />
     <Compile Include="ED.cs" />
     <Compile Include="KeyboardInteractive.cs" />
     <Compile Include="Poderosa\Util\FilePathValidator.cs" />

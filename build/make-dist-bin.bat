@@ -30,6 +30,9 @@ for %%P in (Core Macro PortForwardingCommand Protocols SerialPort TerminalEmulat
   copy "%BINDIR%\Poderosa.%%P.pdb" "%DIST%\%%P"
 )
 
+copy "%BINDIR%\charwidth" "%DIST%\Core"
+copy "%BINDIR%\charfont" "%DIST%\Core"
+
 MD "%DIST%\Protocols\Cygterm"
 copy "%PROJDIR%\Misc\CygTerm\*.*" "%DIST%\Protocols\Cygterm"
 

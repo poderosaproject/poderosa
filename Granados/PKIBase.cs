@@ -6,6 +6,9 @@
 using Granados.Mono.Math;
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 
 namespace Granados.PKI {
@@ -68,6 +71,125 @@ namespace Granados.PKI {
     }
 
     /// <summary>
+    /// Attribute to define the algorithm name and a related public key algorithm.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
+    public class SignatureAlgorithmSpecAttribute : AlgorithmSpecAttribute {
+        /// <summary>
+        /// Public key algorithm to which this signature algorithm is related
+        /// </summary>
+        public PublicKeyAlgorithm PublicKeyAlgorithm {
+            get;
+            set;
+        }
+    }
+
+    /// <summary>
+    /// Signature algorithm variant
+    /// </summary>
+    public enum SignatureAlgorithmVariant {
+        /// <summary>
+        /// Use the default signature algorithm.
+        /// </summary>
+        [AlgorithmSpec(AlgorithmName = "", DefaultPriority = 1)]
+        Default,
+
+        [SignatureAlgorithmSpecAttribute(PublicKeyAlgorithm = PublicKeyAlgorithm.RSA, AlgorithmName = "rsa-sha2-256", DefaultPriority = 2)]
+        RSA_SHA2_256,
+        [SignatureAlgorithmSpecAttribute(PublicKeyAlgorithm = PublicKeyAlgorithm.RSA, AlgorithmName = "rsa-sha2-512", DefaultPriority = 3)]
+        RSA_SHA2_512,
+    }
+
+    /// <summary>
+    /// Extension methods for <see cref="SignatureAlgorithmVariant"/>
+    /// </summary>
+    public static class SignatureAlgorithmVariantMixin {
+
+        public static string GetSignatureAlgorithmName(this SignatureAlgorithmVariant value) {
+            return AlgorithmSpecUtil<SignatureAlgorithmVariant>.GetAlgorithmName(value);
+        }
+
+        public static int GetDefaultPriority(this SignatureAlgorithmVariant value) {
+            return AlgorithmSpecUtil<SignatureAlgorithmVariant>.GetDefaultPriority(value);
+        }
+
+        public static string GetActualSignatureAlgorithmName(this SignatureAlgorithmVariant value, PublicKeyAlgorithm publicKeyAlgorithm) {
+            return (value != SignatureAlgorithmVariant.Default)
+                    ? AlgorithmSpecUtil<SignatureAlgorithmVariant>.GetAlgorithmName(value)
+                    : publicKeyAlgorithm.GetAlgorithmName();
+        }
+
+        public static bool IsRelatedTo(this SignatureAlgorithmVariant value, PublicKeyAlgorithm algorithm) {
+            AlgorithmSpecAttribute spec =
+                AlgorithmSpecUtil<SignatureAlgorithmVariant>.GetAlgorithmSpec(value);
+            SignatureAlgorithmSpecAttribute sigSpec = spec as SignatureAlgorithmSpecAttribute;
+            return sigSpec != null && sigSpec.PublicKeyAlgorithm == algorithm;
+        }
+    }
+
+    /// <summary>
+    /// Combination of PublicKeyAlgorithm and SignatureAlgorithmVariant
+    /// </summary>
+    public class PublicKeySignatureAlgorithm {
+        public readonly PublicKeyAlgorithm PublicKeyAlgorithm;
+        public readonly SignatureAlgorithmVariant SignatureAlgorithmVariant;
+        public readonly string PublicKeyAlgorithmName;
+        public readonly string SignatureAlgorithmName;
+
+        private PublicKeySignatureAlgorithm(PublicKeyAlgorithm publicKeyAlgorithm, SignatureAlgorithmVariant signatureAlgorithmVariant) {
+            this.PublicKeyAlgorithm = publicKeyAlgorithm;
+            this.SignatureAlgorithmVariant = signatureAlgorithmVariant;
+            this.PublicKeyAlgorithmName = publicKeyAlgorithm.GetAlgorithmName();
+            this.SignatureAlgorithmName = (signatureAlgorithmVariant != SignatureAlgorithmVariant.Default)
+                    ? signatureAlgorithmVariant.GetSignatureAlgorithmName()
+                    : this.PublicKeyAlgorithmName;
+        }
+
+        /// <summary>
+        /// Supported PublicKeyAndSignatureAlgorithm.
+        /// </summary>
+        /// <remarks>items are already sorted by the priority (higher priority first)</remarks>
+        public static readonly IEnumerable<PublicKeySignatureAlgorithm> Supported;
+
+        /// <summary>
+        /// Mapping of PublicKeyAlgorithm and its related PublicKeyAndSignatureAlgorithm
+        /// </summary>
+        /// <remarks>items in PublicKeyAndSignatureAlgorithm[] is already sorted by the priority (higher priority first)</remarks>
+        public static readonly IReadOnlyDictionary<PublicKeyAlgorithm, IEnumerable<PublicKeySignatureAlgorithm>> VariantsMap;
+
+        static PublicKeySignatureAlgorithm() {
+            List<PublicKeySignatureAlgorithm> pubAndSig = new List<PublicKeySignatureAlgorithm>();
+            foreach (PublicKeyAlgorithm pub in Enum.GetValues(typeof(PublicKeyAlgorithm))) {
+                pubAndSig.Add(new PublicKeySignatureAlgorithm(pub, SignatureAlgorithmVariant.Default));
+                foreach (SignatureAlgorithmVariant sig in Enum.GetValues(typeof(SignatureAlgorithmVariant))) {
+                    if (sig.IsRelatedTo(pub)) {
+                        pubAndSig.Add(new PublicKeySignatureAlgorithm(pub, sig));
+                    }
+                }
+            }
+            pubAndSig.Sort((a, b) => {
+                if (a.PublicKeyAlgorithm == b.PublicKeyAlgorithm) {
+                    // priority order (descending order of the number)
+                    return b.SignatureAlgorithmVariant.GetDefaultPriority() - a.SignatureAlgorithmVariant.GetDefaultPriority();
+                }
+                else {
+                    // priority order (descending order of the number)
+                    return b.PublicKeyAlgorithm.GetDefaultPriority() - a.PublicKeyAlgorithm.GetDefaultPriority();
+                }
+            });
+            Supported = pubAndSig.ToArray();
+
+            var map = new Dictionary<PublicKeyAlgorithm, IEnumerable<PublicKeySignatureAlgorithm>>();
+            foreach (PublicKeyAlgorithm pub in Enum.GetValues(typeof(PublicKeyAlgorithm))) {
+                PublicKeySignatureAlgorithm[] variants =
+                    pubAndSig.Where(v => v.PublicKeyAlgorithm == pub).ToArray();
+                map.Add(pub, variants);
+            }
+            VariantsMap = new ReadOnlyDictionary<PublicKeyAlgorithm, IEnumerable<PublicKeySignatureAlgorithm>>(map);
+        }
+    }
+
+    /// <summary>
     /// 
     /// </summary>
     /// <exclude/>
@@ -100,6 +222,8 @@ namespace Granados.PKI {
         // OID { 1.3.14.3.2.26 }
         // iso(1) identified-org(3) OIW(14) secsig(3) alg(2) sha1(26)
         public static readonly byte[] SHA1_ASN_ID = new byte[] { 0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x0e, 0x03, 0x02, 0x1a, 0x05, 0x00, 0x04, 0x14 };
+        public static readonly byte[] SHA256_ASN_ID = new byte[] { 0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20 };
+        public static readonly byte[] SHA512_ASN_ID = new byte[] { 0x30, 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03, 0x05, 0x00, 0x04, 0x40 };
     }
 
     /// <summary>

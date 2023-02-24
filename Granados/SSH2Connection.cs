@@ -5,6 +5,8 @@
 
 using Granados.AgentForwarding;
 using Granados.Crypto;
+using Granados.DH;
+using Granados.ECDH;
 using Granados.IO;
 using Granados.IO.SSH2;
 using Granados.KeyboardInteractive;
@@ -16,6 +18,7 @@ using Granados.Util;
 using Granados.X11;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -261,7 +264,7 @@ namespace Granados.SSH2 {
 
                 //user authentication
                 SSH2UserAuthentication userAuthentication =
-                    new SSH2UserAuthentication(this, _param, _protocolEventManager, _timeouts, _syncHandler, _sessionID);
+                    new SSH2UserAuthentication(this, _connectionInfo, _param, _protocolEventManager, _timeouts, _syncHandler, _sessionID);
                 if (_param.AuthenticationType == AuthenticationType.KeyboardInteractive) {
                     userAuthentication.KeyboardInteractiveAuthenticationFinished +=
                         result => {
@@ -807,15 +810,10 @@ namespace Granados.SSH2 {
             public byte[] clientKEXINITPayload;
 
             // values for Diffie-Hellman
-            public BigInteger p;   // prime number
-            public BigInteger x;   // random number
-            public BigInteger e;   // g^x mod p
-            public BigInteger k;   // f^x mod p
+            public DiffieHellman dh;
 
             // values for Elliptic Curve Diffie-Hellman
-            public EllipticCurve ecdhCurve;
-            public byte[] ecdhPublicKey;        // public key octet string
-            public BigInteger ecdhPrivateKey;   // private key
+            public EllipticCurveDiffieHellman ecdh;
 
             // Hashing algorithm
             public HashAlgorithm hashAlgorithm;
@@ -1205,7 +1203,8 @@ namespace Granados.SSH2 {
 
             string host_key = reader.ReadString();
             _cInfo.SupportedHostKeyAlgorithms = host_key;
-            _cInfo.HostKeyAlgorithm = DecideHostKeyAlgorithm(host_key);
+            _cInfo.SupportedHostKeyAlgorithmsArray = host_key.Split(',');
+            _cInfo.HostKeyAlgorithm = DecideHostKeyAlgorithm(_cInfo.SupportedHostKeyAlgorithmsArray);
 
             string enc_cs = reader.ReadString();
             _cInfo.SupportedEncryptionAlgorithmsClientToServer = enc_cs;
@@ -1266,18 +1265,12 @@ namespace Granados.SSH2 {
         /// <returns>a packet object</returns>
         private SSH2Packet BuildKEXDHINITPacket(KexState state) {
             //Round1 computes and sends [e]
-            state.p = GetDiffieHellmanPrime(_cInfo.KEXAlgorithm.Value);
-            //Generate x : 1 < x < (p-1)/2
-            int xBytes = (state.p.BitCount() - 2) / 8;
-            BigInteger x;
-            Rng rng = RngManager.GetSecureRng();
-            do {
-                byte[] sx = new byte[xBytes];
-                rng.GetBytes(sx);
-                x = new BigInteger(sx);
-            } while (x <= 1);
-            state.x = x;
-            state.e = new BigInteger(2).ModPow(x, state.p);
+            try {
+                state.dh = new DiffieHellman(_cInfo.KEXAlgorithm.Value);
+            }
+            catch (DiffieHellmanException e) {
+                throw new SSHException(e.Message, e);
+            }
 
             switch (_cInfo.KEXAlgorithm.Value) {
                 case KexAlgorithm.DH_G1_SHA1:
@@ -1297,7 +1290,7 @@ namespace Granados.SSH2 {
 
             SSH2Packet packet =
                 new SSH2Packet(SSH2PacketType.SSH_MSG_KEXDH_INIT)
-                    .WriteBigInteger(state.e);
+                    .WriteBigInteger(state.dh.GPowXModP);
 
             return packet;
         }
@@ -1308,36 +1301,19 @@ namespace Granados.SSH2 {
         /// <param name="state">informations about current key exchange</param>
         /// <returns>a packet object</returns>
         private SSH2Packet BuildKEX_ECDH_INITPacket(KexState state) {
-            string curveName;
-            switch (_cInfo.KEXAlgorithm.Value) {
-                case KexAlgorithm.ECDH_SHA2_NISTP256:
-                    curveName = "nistp256";
-                    break;
-                case KexAlgorithm.ECDH_SHA2_NISTP384:
-                    curveName = "nistp384";
-                    break;
-                case KexAlgorithm.ECDH_SHA2_NISTP521:
-                    curveName = "nistp521";
-                    break;
-                default:
-                    throw new SSHException("Cannot determine elliptic curve : " + _cInfo.KEXAlgorithm.Value.ToString());
+            try {
+                state.ecdh = EllipticCurveDiffieHellmanFactory.GetInstance(_cInfo.KEXAlgorithm.Value);
+            }
+            catch (EllipticCurveDiffieHellmanException e) {
+                throw new SSHException(e.Message, e);
             }
 
-            state.ecdhCurve = EllipticCurve.FindByName(curveName);
-            if (state.ecdhCurve == null) {
-                throw new SSHException("Unknown elliptic curve : " + curveName);
-            }
-
-            ECDSAKeyPair keyPair = state.ecdhCurve.GenerateKeyPair();
-            state.ecdhPublicKey = state.ecdhCurve.ConvertPointToOctetString(keyPair.PublicKeyPoint);
-            state.ecdhPrivateKey = keyPair.PrivateKey;
-
-            state.hashAlgorithm = ECDSAHashAlgorithmChooser.Choose(state.ecdhCurve);
+            state.hashAlgorithm = ECDSAHashAlgorithmChooser.Choose(state.ecdh.GetCurveSize());
 
             // the message number of SSH_MSG_KEX_ECDH_INIT is identical to the message number of SSH_MSG_KEXDH_INIT.
             SSH2Packet packet =
                 new SSH2Packet(SSH2PacketType.SSH_MSG_KEXDH_INIT)
-                    .WriteAsString(state.ecdhPublicKey);
+                    .WriteAsString(state.ecdh.GetEphemeralPublicKey());
 
             return packet;
         }
@@ -1359,16 +1335,16 @@ namespace Granados.SSH2 {
             Debug.Assert(reader.RemainingDataLength == 0);
 
             //Round3 calc hash H
-            state.secret = state.k = f.ModPow(state.x, state.p);
+            state.secret = state.dh.CalculateSecret(f);
             SSH2DataWriter wr = new SSH2DataWriter();
             wr.WriteString(_cInfo.ClientVersionString);
             wr.WriteString(_cInfo.ServerVersionString);
             wr.WriteAsString(state.clientKEXINITPayload);
             wr.WriteAsString(state.serverKEXINITPayload);
             wr.WriteAsString(key_and_cert);
-            wr.WriteBigInteger(state.e);
+            wr.WriteBigInteger(state.dh.GPowXModP);
             wr.WriteBigInteger(f);
-            wr.WriteBigInteger(state.k);
+            wr.WriteBigInteger(state.secret);
             state.hash = state.hashAlgorithm.ComputeHash(wr.ToByteArray());
 
             return VerifyHostKeyAndUpdateSessionID(key_and_cert, signature, state.hash);
@@ -1390,20 +1366,12 @@ namespace Granados.SSH2 {
             Debug.Assert(reader.RemainingDataLength == 0);
 
             // get shared secret
-            ECPoint serverPublicKeyPoint;
-            if (!ECPoint.Parse(serverPublicKey, state.ecdhCurve, out serverPublicKeyPoint)
-                    || !state.ecdhCurve.ValidatePoint(serverPublicKeyPoint)) {
-                _protocolEventManager.Trace("Server's ephemeral public key is invalid");
-                return false;
+            try {
+                state.secret = state.ecdh.CalcSharedSecret(serverPublicKey);
             }
-
-            ECPoint p = state.ecdhCurve.PointMul(state.ecdhCurve.Cofactor, state.ecdhPrivateKey, serverPublicKeyPoint, true);
-            if (p == null) {
-                _protocolEventManager.Trace("Failed to get a shared secret");
-                return false;
+            catch (EllipticCurveDiffieHellmanException e) {
+                throw new SSHException(e.Message, e);
             }
-
-            state.secret = p.X;
 
             // get hash
             SSH2DataWriter wr = new SSH2DataWriter();
@@ -1412,7 +1380,7 @@ namespace Granados.SSH2 {
             wr.WriteAsString(state.clientKEXINITPayload);
             wr.WriteAsString(state.serverKEXINITPayload);
             wr.WriteAsString(serverHostKey);
-            wr.WriteAsString(state.ecdhPublicKey);
+            wr.WriteAsString(state.ecdh.GetEphemeralPublicKey());
             wr.WriteAsString(serverPublicKey);
             wr.WriteBigInteger(state.secret);
             state.hash = state.hashAlgorithm.ComputeHash(wr.ToByteArray());
@@ -1498,37 +1466,41 @@ namespace Granados.SSH2 {
         private bool VerifyHostKey(byte[] ks, byte[] signature, byte[] hash, bool verifyExternally) {
             SSH2DataReader ksReader = new SSH2DataReader(ks);
             string algorithm = ksReader.ReadString();
-            if (algorithm != _cInfo.HostKeyAlgorithm.Value.GetAlgorithmName()) {
+            if (algorithm != _cInfo.HostKeyAlgorithm.PublicKeyAlgorithmName) {
                 throw new SSHException(Strings.GetString("HostKeyAlgorithmMismatch"));
             }
 
             SSH2DataReader sigReader = new SSH2DataReader(signature);
             string sigAlgorithm = sigReader.ReadString();
-            if (sigAlgorithm != algorithm) {
+            if (sigAlgorithm != _cInfo.HostKeyAlgorithm.SignatureAlgorithmName) {
                 throw new SSHException(Strings.GetString("HostKeyAlgorithmMismatch"));
             }
+
             byte[] signatureBlob = sigReader.ReadByteString();
 
-            if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.RSA) {
+            PublicKeyAlgorithm publicKeyAlgorithm = _cInfo.HostKeyAlgorithm.PublicKeyAlgorithm;
+            SignatureAlgorithmVariant signatureAlgorithmVariant = _cInfo.HostKeyAlgorithm.SignatureAlgorithmVariant;
+
+            if (publicKeyAlgorithm == PublicKeyAlgorithm.RSA) {
                 RSAPublicKey pk = RSAPublicKey.ReadFrom(ksReader);
-                pk.VerifyWithSHA1(signatureBlob, new SHA1CryptoServiceProvider().ComputeHash(hash));
+                pk.VerifyWithSHA(signatureBlob, hash, signatureAlgorithmVariant);
                 _cInfo.HostKey = pk;
             }
-            else if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.DSA) {
+            else if (publicKeyAlgorithm == PublicKeyAlgorithm.DSA) {
                 DSAPublicKey pk = DSAPublicKey.ReadFrom(ksReader);
                 pk.Verify(signatureBlob, new SHA1CryptoServiceProvider().ComputeHash(hash));
                 _cInfo.HostKey = pk;
             }
-            else if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.ECDSA_SHA2_NISTP256
-                    || _cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.ECDSA_SHA2_NISTP384
-                    || _cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.ECDSA_SHA2_NISTP521) {
+            else if (publicKeyAlgorithm == PublicKeyAlgorithm.ECDSA_SHA2_NISTP256
+                    || publicKeyAlgorithm == PublicKeyAlgorithm.ECDSA_SHA2_NISTP384
+                    || publicKeyAlgorithm == PublicKeyAlgorithm.ECDSA_SHA2_NISTP521) {
 
                 ECDSAPublicKey pk = ECDSAPublicKey.ReadFrom(ksReader);
                 pk.Verify(signatureBlob, hash);
                 _cInfo.HostKey = pk;
             }
-            else if (_cInfo.HostKeyAlgorithm == PublicKeyAlgorithm.ED25519) {
-                EDDSAPublicKey pk = EDDSAPublicKey.ReadFrom(_cInfo.HostKeyAlgorithm.Value, ksReader);
+            else if (publicKeyAlgorithm == PublicKeyAlgorithm.ED25519) {
+                EDDSAPublicKey pk = EDDSAPublicKey.ReadFrom(publicKeyAlgorithm, ksReader);
                 pk.Verify(signatureBlob, hash);
                 _cInfo.HostKey = pk;
             }
@@ -1621,11 +1593,9 @@ namespace Granados.SSH2 {
         /// <param name="candidates">candidate algorithms</param>
         /// <returns>host key algorithm to use</returns>
         /// <exception cref="SSHException">no suitable algorithm was found</exception>
-        private PublicKeyAlgorithm DecideHostKeyAlgorithm(string candidates) {
-            string[] candidateNames = candidates.Split(',');
-            foreach (PublicKeyAlgorithm pref in _param.PreferableHostKeyAlgorithms) {
-                string prefName = pref.GetAlgorithmName();
-                if (candidateNames.Contains(prefName)) {
+        private PublicKeySignatureAlgorithm DecideHostKeyAlgorithm(string[] candidates) {
+            foreach (PublicKeySignatureAlgorithm pref in _param.PreferableHostKeySignatureAlgorithms) {
+                if (candidates.Contains(pref.SignatureAlgorithmName)) {
                     return pref;
                 }
             }
@@ -1679,12 +1649,13 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <returns>name list</returns>
         private string FormatHostKeyAlgorithmDescription() {
-            if (_param.PreferableHostKeyAlgorithms.Length == 0) {
+            if (_param.PreferableHostKeySignatureAlgorithms.Length == 0) {
                 throw new SSHException("HostKeyAlgorithm is not set");
             }
+
             return string.Join(",",
-                    _param.PreferableHostKeyAlgorithms
-                        .Select(algorithm => algorithm.GetAlgorithmName()));
+                    _param.PreferableHostKeySignatureAlgorithms
+                        .Select(algorithm => algorithm.SignatureAlgorithmName));
         }
 
         /// <summary>
@@ -1724,142 +1695,6 @@ namespace Granados.SSH2 {
             }
         }
 
-        private static BigInteger _dh_g1_prime = null;
-        private static BigInteger _dh_g14_prime = null;
-        private static BigInteger _dh_g16_prime = null;
-        private static BigInteger _dh_g18_prime = null;
-
-        /// <summary>
-        /// Gets a prime number for the Diffie-Hellman key exchange.
-        /// </summary>
-        /// <param name="algorithm">key exchange algorithm</param>
-        /// <returns>a prime number</returns>
-        private BigInteger GetDiffieHellmanPrime(KexAlgorithm algorithm) {
-            switch (algorithm) {
-                case KexAlgorithm.DH_G1_SHA1:
-                    if (_dh_g1_prime == null) {
-                        _dh_g1_prime = new BigInteger(ToBytes(
-                            // RFC2409 1024-bit MODP Group 2
-                            "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1" +
-                            "29024E088A67CC74020BBEA63B139B22514A08798E3404DD" +
-                            "EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245" +
-                            "E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED" +
-                            "EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381" +
-                            "FFFFFFFFFFFFFFFF"
-                            ));
-                    }
-                    return _dh_g1_prime;
-
-                case KexAlgorithm.DH_G14_SHA1:
-                case KexAlgorithm.DH_G14_SHA256:
-                    if (_dh_g14_prime == null) {
-                        _dh_g14_prime = new BigInteger(ToBytes(
-                            // RFC3526 2048-bit MODP Group 14
-                            "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1" +
-                            "29024E088A67CC74020BBEA63B139B22514A08798E3404DD" +
-                            "EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245" +
-                            "E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED" +
-                            "EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D" +
-                            "C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F" +
-                            "83655D23DCA3AD961C62F356208552BB9ED529077096966D" +
-                            "670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B" +
-                            "E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9" +
-                            "DE2BCBF6955817183995497CEA956AE515D2261898FA0510" +
-                            "15728E5A8AACAA68FFFFFFFFFFFFFFFF"
-                            ));
-                    }
-                    return _dh_g14_prime;
-
-                case KexAlgorithm.DH_G16_SHA512:
-                    if (_dh_g16_prime == null) {
-                        _dh_g16_prime = new BigInteger(ToBytes(
-                            // RFC3526 4096-bit MODP Group 16
-                            "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1" +
-                            "29024E088A67CC74020BBEA63B139B22514A08798E3404DD" +
-                            "EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245" +
-                            "E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED" +
-                            "EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D" +
-                            "C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F" +
-                            "83655D23DCA3AD961C62F356208552BB9ED529077096966D" +
-                            "670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B" +
-                            "E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9" +
-                            "DE2BCBF6955817183995497CEA956AE515D2261898FA0510" +
-                            "15728E5A8AAAC42DAD33170D04507A33A85521ABDF1CBA64" +
-                            "ECFB850458DBEF0A8AEA71575D060C7DB3970F85A6E1E4C7" +
-                            "ABF5AE8CDB0933D71E8C94E04A25619DCEE3D2261AD2EE6B" +
-                            "F12FFA06D98A0864D87602733EC86A64521F2B18177B200C" +
-                            "BBE117577A615D6C770988C0BAD946E208E24FA074E5AB31" +
-                            "43DB5BFCE0FD108E4B82D120A92108011A723C12A787E6D7" +
-                            "88719A10BDBA5B2699C327186AF4E23C1A946834B6150BDA" +
-                            "2583E9CA2AD44CE8DBBBC2DB04DE8EF92E8EFC141FBECAA6" +
-                            "287C59474E6BC05D99B2964FA090C3A2233BA186515BE7ED" +
-                            "1F612970CEE2D7AFB81BDD762170481CD0069127D5B05AA9" +
-                            "93B4EA988D8FDDC186FFB7DC90A6C08F4DF435C934063199" +
-                            "FFFFFFFFFFFFFFFF"
-                            ));
-                    }
-                    return _dh_g16_prime;
-
-                case KexAlgorithm.DH_G18_SHA512:
-                    if (_dh_g18_prime == null) {
-                        _dh_g18_prime = new BigInteger(ToBytes(
-                            // RFC3526 8192-bit MODP Group 18
-                            "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1" +
-                            "29024E088A67CC74020BBEA63B139B22514A08798E3404DD" +
-                            "EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245" +
-                            "E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED" +
-                            "EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D" +
-                            "C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F" +
-                            "83655D23DCA3AD961C62F356208552BB9ED529077096966D" +
-                            "670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B" +
-                            "E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9" +
-                            "DE2BCBF6955817183995497CEA956AE515D2261898FA0510" +
-                            "15728E5A8AAAC42DAD33170D04507A33A85521ABDF1CBA64" +
-                            "ECFB850458DBEF0A8AEA71575D060C7DB3970F85A6E1E4C7" +
-                            "ABF5AE8CDB0933D71E8C94E04A25619DCEE3D2261AD2EE6B" +
-                            "F12FFA06D98A0864D87602733EC86A64521F2B18177B200C" +
-                            "BBE117577A615D6C770988C0BAD946E208E24FA074E5AB31" +
-                            "43DB5BFCE0FD108E4B82D120A92108011A723C12A787E6D7" +
-                            "88719A10BDBA5B2699C327186AF4E23C1A946834B6150BDA" +
-                            "2583E9CA2AD44CE8DBBBC2DB04DE8EF92E8EFC141FBECAA6" +
-                            "287C59474E6BC05D99B2964FA090C3A2233BA186515BE7ED" +
-                            "1F612970CEE2D7AFB81BDD762170481CD0069127D5B05AA9" +
-                            "93B4EA988D8FDDC186FFB7DC90A6C08F4DF435C934028492" +
-                            "36C3FAB4D27C7026C1D4DCB2602646DEC9751E763DBA37BD" +
-                            "F8FF9406AD9E530EE5DB382F413001AEB06A53ED9027D831" +
-                            "179727B0865A8918DA3EDBEBCF9B14ED44CE6CBACED4BB1B" +
-                            "DB7F1447E6CC254B332051512BD7AF426FB8F401378CD2BF" +
-                            "5983CA01C64B92ECF032EA15D1721D03F482D7CE6E74FEF6" +
-                            "D55E702F46980C82B5A84031900B1C9E59E7C97FBEC7E8F3" +
-                            "23A97A7E36CC88BE0F1D45B7FF585AC54BD407B22B4154AA" +
-                            "CC8F6D7EBF48E1D814CC5ED20F8037E0A79715EEF29BE328" +
-                            "06A1D58BB7C5DA76F550AA3D8A1FBFF0EB19CCB1A313D55C" +
-                            "DA56C9EC2EF29632387FE8D76E3C0468043E8F663F4860EE" +
-                            "12BF2D5B0B7474D6E694F91E6DBE115974A3926F12FEE5E4" +
-                            "38777CB6A932DF8CD8BEC4D073B931BA3BC832B68D9DD300" +
-                            "741FA7BF8AFC47ED2576F6936BA424663AAB639C5AE4F568" +
-                            "3423B4742BF1C978238F16CBE39D652DE3FDB8BEFC848AD9" +
-                            "22222E04A4037C0713EB57A81A23F0C73473FC646CEA306B" +
-                            "4BCBC8862F8385DDFA9D4B7FA2C087E879683303ED5BDD3A" +
-                            "062B3CF5B3A278A66D2A13F83F44F82DDF310EE074AB6A36" +
-                            "4597E899A0255DC164F31CC50846851DF9AB48195DED7EA1" +
-                            "B1D510BD7EE74D73FAF36BC31ECFA268359046F4EB879F92" +
-                            "4009438B481C6CD7889A002ED5EE382BC9190DA6FC026E47" +
-                            "9558E4475677E9AA9E3050E2765694DFC81F56E880B96E71" +
-                            "60C980DD98EDD3DFFFFFFFFFFFFFFFFF"
-                            ));
-                    }
-                    return _dh_g18_prime;
-
-                default:
-                    throw new SSHException("KexAlgorithm is not set");
-            }
-        }
-
-        private static byte[] ToBytes(string hexnum) {
-            return BigIntegerConverter.ParseHex(hexnum);
-        }
-
         #endregion  // SSH2KeyExchanger
     }
 
@@ -1875,6 +1710,7 @@ namespace Granados.SSH2 {
 
         private readonly SSHConnectionParameter _param;
         private readonly SSH2Connection _connection;
+        private readonly SSH2ConnectionInfo _connectionInfo;
         private readonly SSHProtocolEventManager _protocolEventManager;
         private readonly SSHTimeouts _timeouts;
         private readonly SSH2SynchronousPacketHandler _syncHandler;
@@ -1937,12 +1773,14 @@ namespace Granados.SSH2 {
         /// </summary>
         public SSH2UserAuthentication(
                     SSH2Connection connection,
+                    SSH2ConnectionInfo connectionInfo,
                     SSHConnectionParameter param,
                     SSHProtocolEventManager protocolEventManager,
                     SSHTimeouts timeouts,
                     SSH2SynchronousPacketHandler syncHandler,
                     byte[] sessionID) {
             _connection = connection;
+            _connectionInfo = connectionInfo;
             _param = param;
             _protocolEventManager = protocolEventManager;
             _timeouts = timeouts;
@@ -2349,7 +2187,8 @@ namespace Granados.SSH2 {
         private SSH2Packet BuildPublickeyAuthRequestPacket(string serviceName) {
             //public key authentication
             SSH2UserAuthKey kp = SSH2UserAuthKey.FromSECSHStyleFile(_param.IdentityFile, _param.Password);
-            string algorithmName = kp.Algorithm.GetAlgorithmName();
+            SignatureAlgorithmVariant sigVariant = DecideSignatureAlgorithmVariant(kp.Algorithm);
+            string signatureAlgorithmName = sigVariant.GetActualSignatureAlgorithmName(kp.Algorithm);
 
             // construct a packet except signature
             SSH2Packet packet =
@@ -2358,7 +2197,7 @@ namespace Granados.SSH2 {
                     .WriteString(serviceName)
                     .WriteString("publickey")
                     .WriteBool(true)    // has signature
-                    .WriteString(algorithmName)
+                    .WriteString(signatureAlgorithmName)
                     .WriteAsString(kp.GetPublicKeyBlob());
 
             // take payload image for the signature
@@ -2371,13 +2210,13 @@ namespace Granados.SSH2 {
                     .Write(payloadImage);
 
             // take a signature blob
-            byte[] signatureBlob = kp.Sign(workPayload.GetBytes());
+            byte[] signatureBlob = kp.Sign(workPayload.GetBytes(), sigVariant);
 
             // encode signature (RFC4253)
             workPayload.Clear();
             byte[] signature =
                 workPayload
-                    .WriteString(algorithmName)
+                    .WriteString(signatureAlgorithmName)
                     .WriteAsString(signatureBlob)
                     .GetBytes();
 
@@ -2385,6 +2224,17 @@ namespace Granados.SSH2 {
             packet.WriteAsString(signature);
 
             return packet;
+        }
+
+        private SignatureAlgorithmVariant DecideSignatureAlgorithmVariant(PublicKeyAlgorithm keyAlgorithm) {
+            string[] supportedAlgorithm = _connectionInfo.SupportedHostKeyAlgorithmsArray;
+            foreach (SignatureAlgorithmVariant variant in AlgorithmSpecUtil<SignatureAlgorithmVariant>.GetAlgorithmsByPriorityOrder()) {
+                if (variant.IsRelatedTo(keyAlgorithm)
+                    && supportedAlgorithm.Contains(variant.GetSignatureAlgorithmName())) {
+                        return variant;
+                }
+            }
+            return SignatureAlgorithmVariant.Default;
         }
 
         /// <summary>

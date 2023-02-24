@@ -5,6 +5,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Security.Cryptography;
 
 using Granados.Util;
@@ -69,22 +70,6 @@ namespace Granados.PKI {
             _publickey.Verify(data, expected);
         }
 
-        public byte[] SignWithSHA1(byte[] data) {
-            byte[] hash = new SHA1CryptoServiceProvider().ComputeHash(data);
-
-            byte[] buf = new byte[hash.Length + PKIUtil.SHA1_ASN_ID.Length];
-            Array.Copy(PKIUtil.SHA1_ASN_ID, 0, buf, 0, PKIUtil.SHA1_ASN_ID.Length);
-            Array.Copy(hash, 0, buf, PKIUtil.SHA1_ASN_ID.Length, hash.Length);
-
-            BigInteger x = new BigInteger(buf);
-            //Debug.WriteLine(x.ToString(16));
-            int padLen = (_publickey._n.BitCount() + 7) / 8;
-
-            BigInteger xx = RSAUtil.PKCS1PadType1(x.GetBytes(), padLen);
-            byte[] result = Sign(xx.GetBytes());
-            return result;
-        }
-
         private BigInteger SignCore(BigInteger input, BigInteger pe, BigInteger qe) {
             BigInteger p2 = (input % _p).ModPow(pe, _p);
             BigInteger q2 = (input % _q).ModPow(qe, _q);
@@ -106,6 +91,29 @@ namespace Granados.PKI {
             BigInteger result = k * _p + p2;
 
             return result;
+        }
+
+        public byte[] SignWithSHA1(byte[] data) {
+            return SignWithSHA(data, SignatureAlgorithmVariant.Default);
+        }
+
+        public byte[] SignWithSHA(byte[] data, SignatureAlgorithmVariant variant) {
+            // RFC8017 RSASSA-PKCS1-v1_5
+
+            // EMSA-PKCS1-V1_5-ENCODE
+            int k = (_publickey._n.BitCount() + 7) / 8;
+            byte[] em = RSAUtil.EMSA_PKCS1_V1_5_Encode(data, k, variant);
+
+            // RSASP1
+            BigInteger m = new BigInteger(em);
+            if (m >= _publickey._n) {
+                throw new ArgumentException("message representative out of range");
+            }
+            BigInteger s = m.ModPow(_d, _publickey._n);
+
+            byte[] signature = RSAUtil.I2OSP(s, k);
+
+            return signature;
         }
 
         public override PublicKey PublicKey {
@@ -232,19 +240,46 @@ namespace Granados.PKI {
         private BigInteger VerifyBI(byte[] data) {
             return new BigInteger(data).ModPow(_e, _n);
         }
-        public void VerifyWithSHA1(byte[] data, byte[] expected) {
-            BigInteger result = VerifyBI(data);
+
+        public void VerifyWithSHA1(byte[] signature, byte[] expected) {
+            BigInteger result = VerifyBI(signature);
             byte[] finaldata = RSAUtil.StripPKCS1Pad(result, 1).GetBytes();
 
             if (finaldata.Length != PKIUtil.SHA1_ASN_ID.Length + expected.Length)
                 throw new VerifyException("result is too short");
             else {
                 byte[] r = new byte[finaldata.Length];
-                Array.Copy(PKIUtil.SHA1_ASN_ID, 0, r, 0, PKIUtil.SHA1_ASN_ID.Length);
-                Array.Copy(expected, 0, r, PKIUtil.SHA1_ASN_ID.Length, expected.Length);
+                Buffer.BlockCopy(PKIUtil.SHA1_ASN_ID, 0, r, 0, PKIUtil.SHA1_ASN_ID.Length);
+                Buffer.BlockCopy(expected, 0, r, PKIUtil.SHA1_ASN_ID.Length, expected.Length);
                 if (!SSHUtil.ByteArrayEqual(r, finaldata)) {
                     throw new VerifyException("failed to verify");
                 }
+            }
+        }
+
+        public void VerifyWithSHA(byte[] signature, byte[] data, SignatureAlgorithmVariant variant) {
+            // RFC8017 RSASSA-PKCS1-v1_5
+
+            int k = (_n.BitCount() + 7) / 8;
+            if (signature.Length != k) {
+                throw new VerifyException("invalid signature");
+            }
+
+            BigInteger s = new BigInteger(signature);
+
+            // RSAVP1
+            if (s >= _n) {
+                throw new ArgumentException("signature representative out of range");
+            }
+            BigInteger m = s.ModPow(_e, _n);
+
+            byte[] em = RSAUtil.I2OSP(m, k);
+
+            // EMSA-PKCS1-V1_5-ENCODE
+            byte[] em2 = RSAUtil.EMSA_PKCS1_V1_5_Encode(data, k, variant);
+
+            if (!em.SequenceEqual(em2)) {
+                throw new VerifyException("invalid signature");
             }
         }
 
@@ -274,6 +309,17 @@ namespace Granados.PKI {
         /// <param name="rng">random number generator</param>
         /// <returns>new bits</returns>
         public static BigInteger PKCS1PadType2(byte[] input, int len, Rng rng) {
+            return new BigInteger(PKCS1PadType2Raw(input, len, rng));
+        }
+
+        /// <summary>
+        /// Make encoded message (EM) as described in PKCS#1
+        /// </summary>
+        /// <param name="input">input bytes</param>
+        /// <param name="len">total byte length of the result</param>
+        /// <param name="rng">random number generator</param>
+        /// <returns>new bits</returns>
+        public static byte[] PKCS1PadType2Raw(byte[] input, int len, Rng rng) {
             // |00|02|<----- PS ----->|00|<-------- input -------->|
             // |<---------------------- len ---------------------->|
 
@@ -295,7 +341,7 @@ namespace Granados.PKI {
             Buffer.BlockCopy(pad, 0, buf, 2, pad.Length);
             Buffer.BlockCopy(input, 0, buf, padLen + 3, input.Length);
 
-            return new BigInteger(buf);
+            return buf;
         }
 
         /// <summary>
@@ -305,6 +351,16 @@ namespace Granados.PKI {
         /// <param name="len">total byte length of the result</param>
         /// <returns>new bits</returns>
         public static BigInteger PKCS1PadType1(byte[] input, int len) {
+            return new BigInteger(PKCS1PadType1Raw(input, len));
+        }
+
+        /// <summary>
+        /// Make encoded message (EM) as described in PKCS#1
+        /// </summary>
+        /// <param name="input">input bytes</param>
+        /// <param name="len">total byte length of the result</param>
+        /// <returns>new bits</returns>
+        public static byte[] PKCS1PadType1Raw(byte[] input, int len) {
             // |00|01|<----- PS ----->|00|<-------- input -------->|
             // |<---------------------- len ---------------------->|
 
@@ -320,7 +376,7 @@ namespace Granados.PKI {
             }
             Buffer.BlockCopy(input, 0, buf, padLen + 3, input.Length);
 
-            return new BigInteger(buf);
+            return buf;
         }
 
         /// <summary>
@@ -377,6 +433,55 @@ namespace Granados.PKI {
             byte[] val = new byte[stripLen - i];
             Buffer.BlockCopy(strip, i, val, 0, val.Length);
             return new BigInteger(val);
+        }
+
+        /// <summary>
+        /// RFC8017 EMSA-PKCS1-V1_5-ENCODE
+        /// </summary>
+        /// <param name="m">message to be encoded</param>
+        /// <param name="emLen">intended length in octets of the encoded message</param>
+        /// <param name="variant">signature algorithm variant</param>
+        internal static byte[] EMSA_PKCS1_V1_5_Encode(byte[] m, int emLen, SignatureAlgorithmVariant variant) {
+            HashAlgorithm hashAlgo;
+            byte[] algoId;
+            switch (variant) {
+                case SignatureAlgorithmVariant.RSA_SHA2_256:
+                    hashAlgo = new SHA256CryptoServiceProvider();
+                    algoId = PKIUtil.SHA256_ASN_ID;
+                    break;
+                case SignatureAlgorithmVariant.RSA_SHA2_512:
+                    hashAlgo = new SHA512CryptoServiceProvider();
+                    algoId = PKIUtil.SHA512_ASN_ID;
+                    break;
+                default:
+                    hashAlgo = new SHA1CryptoServiceProvider();
+                    algoId = PKIUtil.SHA1_ASN_ID;
+                    break;
+            }
+
+            byte[] hash;
+            using (hashAlgo) {
+                hash = hashAlgo.ComputeHash(m);
+            }
+            byte[] buf = new byte[algoId.Length + hash.Length];
+            Buffer.BlockCopy(algoId, 0, buf, 0, algoId.Length);
+            Buffer.BlockCopy(hash, 0, buf, algoId.Length, hash.Length);
+            return PKCS1PadType1Raw(buf, emLen);
+        }
+
+        /// <summary>
+        /// RFC8017 I2OSP
+        /// </summary>
+        /// <param name="n">nonnegative integer to be converted</param>
+        /// <param name="len">intended length of the resulting octet string</param>
+        internal static byte[] I2OSP(BigInteger n, int len) {
+            byte[] x = n.GetBytes();
+            if (x.Length > len) {
+                throw new ArgumentException("integer too large");
+            }
+            byte[] m = new byte[len];
+            Buffer.BlockCopy(x, 0, m, len - x.Length, x.Length);
+            return m;
         }
     }
 }

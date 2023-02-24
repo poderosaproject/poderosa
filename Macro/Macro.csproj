@@ -12,7 +12,7 @@
     <AssemblyName>Poderosa.Macro</AssemblyName>
     <StartupObject>
     </StartupObject>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>

@@ -417,6 +417,21 @@ namespace Granados.Poderosa.KeyFormat {
                         cipherKeySize = 32;
                         cipherIVSize = 16;  // use block size
                         break;
+                    case "aes128-ctr":
+                        cipherAlgorithm = CipherAlgorithm.AES128CTR;
+                        cipherKeySize = 16;
+                        cipherIVSize = 16;  // use block size
+                        break;
+                    case "aes192-ctr":
+                        cipherAlgorithm = CipherAlgorithm.AES192CTR;
+                        cipherKeySize = 24;
+                        cipherIVSize = 16;  // use block size
+                        break;
+                    case "aes256-ctr":
+                        cipherAlgorithm = CipherAlgorithm.AES256CTR;
+                        cipherKeySize = 32;
+                        cipherIVSize = 16;  // use block size
+                        break;
                     default:
                         throw new SSHException(Strings.GetString("NotValidPrivateKeyFile") + " (unsupported cipher)");
                 }
@@ -515,6 +530,125 @@ namespace Granados.Poderosa.KeyFormat {
                         }
 
                         switch (privateKeyType) {
+                            case "ssh-dss": {
+                                    byte[] data_p = ReadBytes(privateKeysStream);
+                                    if (data_p == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    byte[] data_q = ReadBytes(privateKeysStream);
+                                    if (data_q == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    byte[] data_g = ReadBytes(privateKeysStream);
+                                    if (data_g == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    byte[] data_y = ReadBytes(privateKeysStream);
+                                    if (data_y == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    byte[] data_x = ReadBytes(privateKeysStream);
+                                    if (data_x == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    string cmnt = ReadString(privateKeysStream);   // comment
+                                    if (cmnt == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+
+                                    BigInteger p = new BigInteger(data_p);
+                                    BigInteger q = new BigInteger(data_q);
+                                    BigInteger g = new BigInteger(data_g);
+                                    BigInteger y = new BigInteger(data_y);
+                                    BigInteger x = new BigInteger(data_x);
+
+                                    keyPair = new DSAKeyPair(p, g, q, y, x);
+                                    comment = cmnt;
+                                }
+                                return;
+
+                            case "ssh-rsa": {
+                                    byte[] data_n = ReadBytes(privateKeysStream);
+                                    if (data_n == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    byte[] data_e = ReadBytes(privateKeysStream);
+                                    if (data_e == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    byte[] data_d = ReadBytes(privateKeysStream);
+                                    if (data_d == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    byte[] data_iqmp = ReadBytes(privateKeysStream);
+                                    if (data_iqmp == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    byte[] data_p = ReadBytes(privateKeysStream);
+                                    if (data_p == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    byte[] data_q = ReadBytes(privateKeysStream);
+                                    if (data_q == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    string cmnt = ReadString(privateKeysStream);   // comment
+                                    if (cmnt == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+
+                                    BigInteger e = new BigInteger(data_e);
+                                    BigInteger d = new BigInteger(data_d);
+                                    BigInteger n = new BigInteger(data_n);
+                                    BigInteger p = new BigInteger(data_p);
+                                    BigInteger q = new BigInteger(data_q);
+                                    BigInteger u = p.ModInverse(q);	// inverse of p mod q
+                                    keyPair = new RSAKeyPair(e, d, n, u, p, q);
+                                    comment = cmnt;
+                                }
+                                return;
+
+                            case "ecdsa-sha2-nistp256":
+                            case "ecdsa-sha2-nistp384":
+                            case "ecdsa-sha2-nistp521": {
+                                    string curve_name = ReadString(privateKeysStream);
+                                    if (curve_name == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+
+                                    EllipticCurve curve = EllipticCurve.FindByName(curve_name);
+                                    if (curve == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+
+                                    byte[] data_point = ReadBytes(privateKeysStream);
+                                    if (data_point == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+                                    ECPoint point = ECPoint.ParseUncompressed(data_point);
+                                    if (point == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+
+                                    ECDSAPublicKey pubKey = new ECDSAPublicKey(curve, point);
+
+                                    byte[] data_priv = ReadBytes(privateKeysStream);
+                                    if (data_priv == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+
+                                    BigInteger privKey = new BigInteger(data_priv);
+
+                                    string cmnt = ReadString(privateKeysStream);   // comment
+                                    if (cmnt == null) {
+                                        throw new SSHException(Strings.GetString("NotValidPrivateKeyFile"));
+                                    }
+
+                                    keyPair = new ECDSAKeyPair(curve, pubKey, privKey);
+                                    comment = cmnt;
+                                }
+                                return;
+
                             case "ssh-ed25519": {
                                     byte[] pk = ReadBytes(privateKeysStream);
                                     if (pk == null) {

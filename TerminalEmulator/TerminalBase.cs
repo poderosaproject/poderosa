@@ -773,6 +773,9 @@ namespace Poderosa.Terminal {
             if (!base.UnicodeCharConverter.Feed(ch, out unicodeChar)) {
                 return ProcessCharResult.Processed;
             }
+            if (unicodeChar.IsZeroWidth) {
+                return ProcessCharResult.Processed; // drop
+            }
 
             return ProcessNormalUnicodeChar(unicodeChar);
         }
