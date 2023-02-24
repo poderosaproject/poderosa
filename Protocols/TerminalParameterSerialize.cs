@@ -118,17 +118,6 @@ namespace Poderosa.Protocols {
             node.Set("account", tp.Account);
             if (tp.IdentityFileName.Length > 0)
                 node.Set("identityFileName", tp.IdentityFileName);
-            if (tp.PasswordOrPassphrase != null) {
-                if (ProtocolsPlugin.Instance.ProtocolOptions.SavePlainTextPassword) {
-                    node.Set("passphrase", tp.PasswordOrPassphrase);
-                }
-                else if (ProtocolsPlugin.Instance.ProtocolOptions.SavePassword) {
-                    string pw = new SimpleStringEncrypt().EncryptString(tp.PasswordOrPassphrase);
-                    if (pw != null) {
-                        node.Set("password", pw);
-                    }
-                }
-            }
 
             node.Set("enableAgentForwarding", tp.EnableAgentForwarding.ToString());
 
@@ -154,23 +143,6 @@ namespace Poderosa.Protocols {
             tp.AuthenticationType = ParseUtil.ParseEnum<AuthenticationType>(node.Get("authentication", ""), AuthenticationType.Password);
             tp.Account = node.Get("account", "");
             tp.IdentityFileName = node.Get("identityFileName", "");
-            if (ProtocolsPlugin.Instance.ProtocolOptions.ReadSerializedPassword) {
-                string pw = node.Get("passphrase", null);
-                if (pw != null) {
-                    tp.PasswordOrPassphrase = pw;
-                    tp.LetUserInputPassword = false;
-                }
-                else {
-                    pw = node.Get("password", null);
-                    if (pw != null) {
-                        pw = new SimpleStringEncrypt().DecryptString(pw);
-                        if (pw != null) {
-                            tp.PasswordOrPassphrase = pw;
-                            tp.LetUserInputPassword = false;
-                        }
-                    }
-                }
-            }
 
             tp.EnableAgentForwarding = GetBoolValue(node, "enableAgentForwarding", false);
 
