@@ -133,14 +133,10 @@ namespace Poderosa.Util {
         [Test]
         public void SaveAndReadKeyFilePassword() {
             string keyFilePath = Path.GetTempFileName();
-            string keyFilePath2 = Path.GetTempFileName();
             try {
                 byte[] keyFileContent = new byte[500];
                 random.NextBytes(keyFileContent);
                 File.WriteAllBytes(keyFilePath, keyFileContent);
-
-                random.NextBytes(keyFileContent);
-                File.WriteAllBytes(keyFilePath2, keyFileContent);
 
                 string time = DateTime.Now.ToString("yyyyMMddHHmmss", DateTimeFormatInfo.InvariantInfo);
                 string rand = new Random().Next(0x10000).ToString("x4", NumberFormatInfo.InvariantInfo);
@@ -151,8 +147,7 @@ namespace Poderosa.Util {
                 // add new entry
                 //
 
-                string keyFileHash;
-                bool saved = WinCred.SaveKeyFilePassword(protocol, keyFilePath, password, out keyFileHash);
+                bool saved = WinCred.SaveKeyFilePassword(protocol, keyFilePath, password);
                 Assert.IsTrue(saved);
                 Assert.IsNotNull(keyFilePath);
 
@@ -161,14 +156,6 @@ namespace Poderosa.Util {
                     bool read = WinCred.ReadKeyFilePassword(protocol, keyFilePath, out passwordRead);
                     Assert.IsTrue(read);
                     Assert.AreEqual(password, passwordRead);
-                }
-
-                // hash doesn't match
-                {
-                    string passwordRead;
-                    bool read = WinCred.ReadKeyFilePassword(protocol, keyFilePath2 /* another existing key file */, out passwordRead);
-                    Assert.IsFalse(read);
-                    Assert.IsNull(passwordRead);
                 }
 
                 // key file doesn't exist
@@ -185,10 +172,8 @@ namespace Poderosa.Util {
 
                 string newPassword = "new password " + time + rand;
 
-                string newKeyFileHash;
-                saved = WinCred.SaveKeyFilePassword(protocol, keyFilePath, newPassword, out newKeyFileHash);
+                saved = WinCred.SaveKeyFilePassword(protocol, keyFilePath, newPassword);
                 Assert.IsTrue(saved);
-                Assert.AreEqual(keyFileHash, newKeyFileHash);
 
                 {
                     string passwordRead;
@@ -201,7 +186,7 @@ namespace Poderosa.Util {
                 // delete entry
                 //
 
-                WinCred.DeleteKeyFilePassword(protocol, keyFileHash);
+                WinCred.DeleteKeyFilePassword(protocol, keyFilePath);
 
                 {
                     string passwordRead;
@@ -212,7 +197,6 @@ namespace Poderosa.Util {
             }
             finally {
                 File.Delete(keyFilePath);
-                File.Delete(keyFilePath2);
             }
         }
     }

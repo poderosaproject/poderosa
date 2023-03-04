@@ -75,12 +75,8 @@ namespace Poderosa.Util {
         /// <param name="password">password if it was found, otherwise null.</param>
         /// <returns>true if the password was found. otherwise false.</returns>
         public static bool ReadKeyFilePassword(string protocol, string keyFilePath, out string password) {
-            string hash;
-            if (!GetKeyFileHash(keyFilePath, out hash)) {
-                password = null;
-                return false;
-            }
-            string targetName = BuildKeyFilePasswordTargetName(protocol, hash);
+            keyFilePath = Path.GetFullPath(keyFilePath);
+            string targetName = BuildKeyFilePasswordTargetName(protocol, keyFilePath);
             return ReadPassword(targetName, out password);
         }
 
@@ -90,30 +86,21 @@ namespace Poderosa.Util {
         /// <param name="protocol">protocol name (e.g. "ssh")</param>
         /// <param name="keyFilePath">path of the key file</param>
         /// <param name="password">password</param>
-        /// <param name="keyFileHash">hash of the key file if password was saved, otherwise null.</param>
         /// <returns>true if the password was saved. otherwise false.</returns>
-        public static bool SaveKeyFilePassword(string protocol, string keyFilePath, string password, out string keyFileHash) {
-            string hash;
-            if (!GetKeyFileHash(keyFilePath, out hash)) {
-                keyFileHash = null;
-                return false;
-            }
-            string targetName = BuildKeyFilePasswordTargetName(protocol, hash);
-            if (SavePassword(targetName, "Password for a Key File", password)) {
-                keyFileHash = hash;
-                return true;
-            }
-            keyFileHash = null;
-            return false;
+        public static bool SaveKeyFilePassword(string protocol, string keyFilePath, string password) {
+            keyFilePath = Path.GetFullPath(keyFilePath);
+            string targetName = BuildKeyFilePasswordTargetName(protocol, keyFilePath);
+            return SavePassword(targetName, "Password for a Key File", password);
         }
 
         /// <summary>
         /// Deletes key file password from the Windows Credential Manager
         /// </summary>
         /// <param name="protocol">protocol name (e.g. "ssh")</param>
-        /// <param name="keyFileHash">hash of the key file.</param>
-        public static void DeleteKeyFilePassword(string protocol, string keyFileHash) {
-            string targetName = BuildKeyFilePasswordTargetName(protocol, keyFileHash);
+        /// <param name="keyFilePath">path of the key file</param>
+        public static void DeleteKeyFilePassword(string protocol, string keyFilePath) {
+            keyFilePath = Path.GetFullPath(keyFilePath);
+            string targetName = BuildKeyFilePasswordTargetName(protocol, keyFilePath);
             DeletePassword(targetName);
         }
 
@@ -221,40 +208,15 @@ namespace Poderosa.Util {
         }
 
         private static string BuildUserPasswordTargetName(string protocol, string host, int? port, string user) {
-            string n = "Poderosa-" + protocol + "://" + user + "@" + host;
+            string n = "Poderosa-" + protocol + " " + user + "@" + host;
             if (port.HasValue) {
                 n += ":" + port.Value.ToString(NumberFormatInfo.InvariantInfo);
             }
             return n;
         }
 
-        private static string BuildKeyFilePasswordTargetName(string protocol, string hash) {
-            return "Poderosa-" + protocol + "://keyfile-" + hash;
-        }
-
-        private static bool GetKeyFileHash(string keyFilePath, out string hash) {
-            try {
-                if (!File.Exists(keyFilePath)) {
-                    hash = null;
-                    return false;
-                }
-
-                byte[] hashBytes;
-                using (FileStream fs = File.OpenRead(keyFilePath)) {
-                    using (var sha256 = SHA256CryptoServiceProvider.Create()) {
-                        sha256.Initialize();
-                        hashBytes = sha256.ComputeHash(fs);
-                    }
-                }
-                hash = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
-                return true;
-            }
-            catch (Exception e) {
-                Debug.WriteLine(e.Message);
-                Debug.WriteLine(e.StackTrace);
-                hash = null;
-                return false;
-            }
+        private static string BuildKeyFilePasswordTargetName(string protocol, string keyFilePath) {
+            return "Poderosa-" + protocol + " key file (" + keyFilePath + ")";
         }
 
         #region WIN32API
