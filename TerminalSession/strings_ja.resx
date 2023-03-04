@@ -116,6 +116,12 @@
   <data name="Form.LoginDialog._passphraseLabel">
     <value>パスフレーズ(&amp;P)</value>
   </data>
+  <data name="Form.LoginDialog._rememberPassphraseCheckBox">
+    <value>パスフレーズを記憶(&amp;R)</value>
+  </data>
+  <data name="Form.LoginDialog._rememberPassphraseCheckBox_ToolTip">
+    <value>パスフレーズをWindows資格情報マネージャーに保存し、次回以降は自動入力します。</value>
+  </data>
   <data name="Form.LoginDialog._usernameLabel">
     <value>アカウント(&amp;A)</value>
   </data>

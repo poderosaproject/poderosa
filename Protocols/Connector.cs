@@ -108,7 +108,28 @@ namespace Poderosa.Protocols {
 
             terminalConnection.AttachTransmissionSide(connection, connection.AuthenticationStatus);
             _result = terminalConnection;
+
+            SavePassword(_destination, tcp);
         }
+
+        private void SavePassword(ISSHLoginParameter loginParam, ITCPParameter tcpParam) {
+            if (!loginParam.SavePasswordOrPassphrase) {
+                return;
+            }
+
+            if (loginParam.AuthenticationType == AuthenticationType.Password) {
+                string host = tcpParam.Destination;
+                string user = loginParam.Account;
+                string password = loginParam.PasswordOrPassphrase;
+                WinCred.SaveUserPassword("ssh", host, null, user, password);
+            }
+            else if (loginParam.AuthenticationType == AuthenticationType.PublicKey) {
+                string keyFilePath = loginParam.IdentityFileName;
+                string password = loginParam.PasswordOrPassphrase;
+                WinCred.SaveKeyFilePassword("ssh", keyFilePath, password);
+            }
+        }
+
         internal override TerminalConnection Result {
             get {
                 return _result;

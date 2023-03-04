@@ -300,6 +300,13 @@ namespace Poderosa.Protocols {
             get;
             set;
         }
+        /// <summary>
+        /// Save the password or passphrase if the connection has been established successfully.
+        /// </summary>
+        bool SavePasswordOrPassphrase {
+            get;
+            set;
+        }
         //ユーザにパスワードを入力させるかどうか。trueのときはPasswordOrPassphraseは使用しない
         /// <summary>
         /// <ja>

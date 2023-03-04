@@ -85,6 +85,7 @@ namespace Poderosa.Sessions {
             this._selectAutoExecMacroButton = new System.Windows.Forms.Button();
             this._toolTip = new System.Windows.Forms.ToolTip(this.components);
             this._portBox = new System.Windows.Forms.ComboBox();
+            this._rememberPassphraseCheckBox = new System.Windows.Forms.CheckBox();
             this._sshTypePanel.SuspendLayout();
             this._optionsTab.SuspendLayout();
             this._terminalTabPage.SuspendLayout();
@@ -267,11 +268,11 @@ namespace Poderosa.Sessions {
             this._optionsTab.Controls.Add(this._macroTabPage);
             this._optionsTab.ImageList = this._icons;
             this._optionsTab.ItemSize = new System.Drawing.Size(30, 18);
-            this._optionsTab.Location = new System.Drawing.Point(6, 188);
+            this._optionsTab.Location = new System.Drawing.Point(6, 208);
             this._optionsTab.Name = "_optionsTab";
             this._optionsTab.SelectedIndex = 0;
             this._optionsTab.Size = new System.Drawing.Size(312, 225);
-            this._optionsTab.TabIndex = 14;
+            this._optionsTab.TabIndex = 15;
             // 
             // _terminalTabPage
             // 
@@ -679,10 +680,21 @@ namespace Poderosa.Sessions {
             this._portBox.Size = new System.Drawing.Size(84, 20);
             this._portBox.TabIndex = 4;
             // 
+            // _rememberPassphraseCheckBox
+            // 
+            this._rememberPassphraseCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._rememberPassphraseCheckBox.AutoSize = true;
+            this._rememberPassphraseCheckBox.Location = new System.Drawing.Point(306, 182);
+            this._rememberPassphraseCheckBox.Name = "_rememberPassphraseCheckBox";
+            this._rememberPassphraseCheckBox.Size = new System.Drawing.Size(15, 14);
+            this._rememberPassphraseCheckBox.TabIndex = 14;
+            this._rememberPassphraseCheckBox.UseVisualStyleBackColor = true;
+            // 
             // OpenSessionTabPageSSH
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this._rememberPassphraseCheckBox);
             this.Controls.Add(this._optionsTab);
             this.Controls.Add(this._usernameLabel);
             this.Controls.Add(this._portBox);
@@ -699,7 +711,7 @@ namespace Poderosa.Sessions {
             this.Controls.Add(this._hostLabel);
             this.Controls.Add(this._sshTypePanel);
             this.Name = "OpenSessionTabPageSSH";
-            this.Size = new System.Drawing.Size(324, 416);
+            this.Size = new System.Drawing.Size(324, 436);
             this._sshTypePanel.ResumeLayout(false);
             this._sshTypePanel.PerformLayout();
             this._optionsTab.ResumeLayout(false);
@@ -777,5 +789,6 @@ namespace Poderosa.Sessions {
         private System.Windows.Forms.Label _x11CygwinX11UnixFolderExampleLabel;
         private System.Windows.Forms.ImageList _icons;
         private System.Windows.Forms.Label _x11DisplayNote;
+        private System.Windows.Forms.CheckBox _rememberPassphraseCheckBox;
     }
 }

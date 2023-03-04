@@ -181,6 +181,7 @@ namespace Poderosa.Protocols {
         private string _account;
         private string _identityFile;
         private string _passwordOrPassphrase;
+        private bool _savePasswordOrPassphrase;
         private bool _letUserInputPassword;
         private bool _enableAgentForwarding;
         private IAgentForwardingAuthKeyProvider _authKeyProvider;
@@ -191,6 +192,7 @@ namespace Poderosa.Protocols {
             _method = SSHProtocol.SSH2;
             _authType = AuthenticationType.Password;
             _passwordOrPassphrase = "";
+            _savePasswordOrPassphrase = false;
             _identityFile = "";
             _letUserInputPassword = true;
             this.Port = 22;
@@ -202,6 +204,7 @@ namespace Poderosa.Protocols {
             _account = src._account;
             _identityFile = src._identityFile;
             _passwordOrPassphrase = src._passwordOrPassphrase;
+            _savePasswordOrPassphrase = src._savePasswordOrPassphrase;
             _letUserInputPassword = src._letUserInputPassword;
             _authKeyProvider = src._authKeyProvider;
         }
@@ -255,6 +258,16 @@ namespace Poderosa.Protocols {
                 _passwordOrPassphrase = value;
             }
         }
+
+        public bool SavePasswordOrPassphrase {
+            get {
+                return _savePasswordOrPassphrase;
+            }
+            set {
+                _savePasswordOrPassphrase = value;
+            }
+        }
+
         public bool LetUserInputPassword {
             get {
                 return _letUserInputPassword;

@@ -116,6 +116,12 @@
   <data name="Form.LoginDialog._passphraseLabel">
     <value>&amp;Passphrase</value>
   </data>
+  <data name="Form.LoginDialog._rememberPassphraseCheckBox">
+    <value>&amp;Remember Passphrase</value>
+  </data>
+  <data name="Form.LoginDialog._rememberPassphraseCheckBox_ToolTip">
+    <value>Save the passphrase in Windows Credential Manager and auto-fill it next time.</value>
+  </data>
   <data name="Form.LoginDialog._usernameLabel">
     <value>&amp;Account</value>
   </data>

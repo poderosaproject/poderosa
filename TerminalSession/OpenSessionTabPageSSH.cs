@@ -43,6 +43,8 @@ namespace Poderosa.Sessions {
         private IPoderosaMainWindow _mainWindow;
         private bool _preventUpdateControlStatus;
 
+        private string _autofilledPassphrase = null;
+
         /// <summary>
         /// Wrapper class for items in the host combobox.
         /// </summary>
@@ -170,6 +172,8 @@ namespace Poderosa.Sessions {
             this._privateKeyLabel.Text = TEnv.Strings.GetString("Form.LoginDialog._privateKeyLabel");
             this._authenticationLabel.Text = TEnv.Strings.GetString("Form.LoginDialog._authenticationLabel");
             this._passphraseLabel.Text = TEnv.Strings.GetString("Form.LoginDialog._passphraseLabel");
+            this._rememberPassphraseCheckBox.Text = TEnv.Strings.GetString("Form.LoginDialog._rememberPassphraseCheckBox");
+            this._toolTip.SetToolTip(this._rememberPassphraseCheckBox, TEnv.Strings.GetString("Form.LoginDialog._rememberPassphraseCheckBox_ToolTip"));
             this._usernameLabel.Text = TEnv.Strings.GetString("Form.LoginDialog._usernameLabel");
             this._autoExecMacroPathLabel.Text = TEnv.Strings.GetString("Form.LoginDialog._autoExecMacroPathLabel");
             this._localEchoLabel.Text = TEnv.Strings.GetString("Form.LoginDialog._localEchoLabel");
@@ -315,6 +319,10 @@ namespace Poderosa.Sessions {
             _useAgentForwardingCheckBox.Checked = item.SSHParameter.EnableAgentForwarding;
 
             UpdateControlStatus();
+
+            if (_passphraseBox.Text == String.Empty) {
+                AutofillPassphrase();
+            }
         }
 
         private void UpdateUserNameCandidates(ParameterItem currentItem) {
@@ -356,7 +364,8 @@ namespace Poderosa.Sessions {
             bool usePublicKey = SelectedItemEquals(_authOptions, AuthType.PublicKey);
 
             _passphraseLabel.Enabled =
-                _passphraseBox.Enabled = (usePassword || usePublicKey);
+                _passphraseBox.Enabled =
+                _rememberPassphraseCheckBox.Enabled = (usePassword || usePublicKey);
 
             _privateKeyLabel.Enabled =
                 _privateKeyFile.Enabled =
@@ -379,6 +388,41 @@ namespace Poderosa.Sessions {
                 _x11CygwinX11UnixFolderExampleLabel.Enabled = _x11UseCygwinDomainSocketCheckBox.Checked;
 
             _agentForwardingConfigButton.Enabled = _useAgentForwardingCheckBox.Checked;
+        }
+
+        private void AutofillPassphrase() {
+            AuthType authType = ((EnumListItem<AuthType>)_authOptions.SelectedItem).Value;
+            if (authType == AuthType.Password) {
+                string host = _hostBox.Text;
+                string user = _userNameBox.Text;
+                if (host.Length > 0 && user.Length > 0) {
+                    string password;
+                    bool found = WinCred.ReadUserPassword("ssh", host, null, user, out password);
+                    if (found) {
+                        _autofilledPassphrase = password;
+                        _passphraseBox.Text = password;
+                        _rememberPassphraseCheckBox.Checked = false;
+                        return;
+                    }
+                }
+            }
+            else if (authType == AuthType.PublicKey) {
+                string keyFilePath = _privateKeyFile.Text;
+                if (keyFilePath.Length > 0) {
+                    string password;
+                    bool found = WinCred.ReadKeyFilePassword("ssh", keyFilePath, out password);
+                    if (found) {
+                        _autofilledPassphrase = password;
+                        _passphraseBox.Text = password;
+                        _rememberPassphraseCheckBox.Checked = false;
+                        return;
+                    }
+                }
+            }
+
+            _autofilledPassphrase = String.Empty;
+            _passphraseBox.Text = String.Empty;
+            _rememberPassphraseCheckBox.Checked = false;
         }
 
         /// <summary>
@@ -473,6 +517,10 @@ namespace Poderosa.Sessions {
 
             if (ssh.AuthenticationType == AuthenticationType.Password || ssh.AuthenticationType == AuthenticationType.PublicKey) {
                 ssh.PasswordOrPassphrase = _passphraseBox.Text;
+
+                ssh.SavePasswordOrPassphrase =
+                    _rememberPassphraseCheckBox.Checked &&
+                    ssh.PasswordOrPassphrase != _autofilledPassphrase;
             }
 
             //--- Log settings
@@ -604,6 +652,7 @@ namespace Poderosa.Sessions {
 
         private void _authOptions_SelectedIndexChanged(object sender, EventArgs e) {
             UpdateControlStatus();
+            AutofillPassphrase();
         }
 
         private void _hostBox_SelectedIndexChanged(object sender, EventArgs e) {
@@ -655,6 +704,7 @@ namespace Poderosa.Sessions {
             string fn = TerminalUtil.SelectPrivateKeyFileByDialog(this.ParentForm);
             if (fn != null) {
                 _privateKeyFile.Text = fn;
+                AutofillPassphrase();
             }
         }
 
