@@ -92,6 +92,9 @@ namespace Poderosa {
     /// </summary>
     /// <exclude/>
     public static class RuntimeUtil {
+
+        private static readonly object _errorFileSync = new object();
+        
         public static void ReportException(Exception ex) {
             Debug.WriteLine(ex.Message);
             Debug.WriteLine(ex.StackTrace);
@@ -110,44 +113,55 @@ namespace Poderosa {
                 Debug.WriteLine(ex2.StackTrace);
             }
         }
+
         public static void SilentReportException(Exception ex) {
             Debug.WriteLine(ex.Message);
             Debug.WriteLine(ex.StackTrace);
             ReportExceptionToFile(ex);
         }
+
         public static void DebuggerReportException(Exception ex) {
             Debug.WriteLine(ex.Message);
             Debug.WriteLine(ex.StackTrace);
         }
-        //ファイル名を返す
+
         private static string ReportExceptionToFile(Exception ex) {
-            string errorfile = null;
-            //エラーファイルに追記
-            StreamWriter sw = null;
-            try {
-                sw = GetErrorLog(ref errorfile);
-                ReportExceptionToStream(ex, sw);
-            }
-            finally {
-                if (sw != null)
-                    sw.Close();
+            string errorfile;
+            lock (_errorFileSync) {
+                using (var sw = GetErrorLog(out errorfile)) {
+                    sw.WriteLine(DateTime.Now.ToString());
+                    sw.WriteLine(ex.Message);
+                    sw.WriteLine(ex.StackTrace);
+                    //inner exceptionを順次
+                    Exception i = ex.InnerException;
+                    while (i != null) {
+                        sw.WriteLine("[inner] " + i.Message);
+                        sw.WriteLine(i.StackTrace);
+                        i = i.InnerException;
+                    }
+                }
             }
             return errorfile;
         }
-        private static void ReportExceptionToStream(Exception ex, StreamWriter sw) {
-            sw.WriteLine(DateTime.Now.ToString());
-            sw.WriteLine(ex.Message);
-            sw.WriteLine(ex.StackTrace);
-            //inner exceptionを順次
-            Exception i = ex.InnerException;
-            while (i != null) {
-                sw.WriteLine("[inner] " + i.Message);
-                sw.WriteLine(i.StackTrace);
-                i = i.InnerException;
-            }
+
+        public static void SilentReportError(string message) {
+            Debug.WriteLine(message);
+            ReportErrorToFile(message);
         }
-        private static StreamWriter GetErrorLog(ref string errorfile) {
-            errorfile = PoderosaStartupContext.Instance.ProfileHomeDirectory + "error.log";
+
+        private static string ReportErrorToFile(string message) {
+            string errorfile;
+            lock (_errorFileSync) {
+                using (var sw = GetErrorLog(out errorfile)) {
+                    sw.WriteLine(DateTime.Now.ToString());
+                    sw.WriteLine(message);
+                }
+            }
+            return errorfile;
+        }
+
+        private static StreamWriter GetErrorLog(out string errorfile) {
+            errorfile = Path.Combine(PoderosaStartupContext.Instance.ProfileHomeDirectory, "error.log");
             return new StreamWriter(errorfile, true/*append!*/, Encoding.Default);
         }
 

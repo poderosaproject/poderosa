@@ -27,6 +27,8 @@ namespace Poderosa.Util {
     /// </summary>
     public static class WinCred {
 
+        private static bool noEntryPoint = false;
+
         /// <summary>
         /// Reads user password from the Windows Credential Manager
         /// </summary>
@@ -105,7 +107,13 @@ namespace Poderosa.Util {
         }
 
         private static bool ReadPassword(string targetName, out string password) {
+            if (noEntryPoint) {
+                password = null;
+                return false;
+            }
+
             if (targetName.Length > CRED_MAX_GENERIC_TARGET_NAME_LENGTH) {
+                RuntimeUtil.SilentReportError("WinCred: failed to read password. too long target name.");
                 password = null;
                 return false;
             }
@@ -124,14 +132,19 @@ namespace Poderosa.Util {
                     return true;
                 }
                 else {
-                    Debug.WriteLine("LastError = {0}", Win32.GetLastError());
+                    int err = Win32.GetLastError();
+                    if (err != ERROR_NOT_FOUND) {
+                        RuntimeUtil.SilentReportError("WinCred: CredRead failed. error=" + err.ToString(NumberFormatInfo.InvariantInfo));
+                    }
                     password = null;
                     return false;
                 }
             }
             catch (Exception e) {
-                Debug.WriteLine(e.Message);
-                Debug.WriteLine(e.StackTrace);
+                if ((e as System.EntryPointNotFoundException) != null) {
+                    noEntryPoint = true;
+                }
+                RuntimeUtil.SilentReportException(e);
                 password = null;
                 return false;
             }
@@ -141,18 +154,24 @@ namespace Poderosa.Util {
                         CredFree(credential);
                     }
                     catch (Exception e) {
-                        Debug.WriteLine(e.Message);
-                        Debug.WriteLine(e.StackTrace);
+                        RuntimeUtil.SilentReportException(e);
                     }
                 }
             }
         }
 
         private static bool SavePassword(string targetName, string description, string password) {
+            if (noEntryPoint) {
+                RuntimeUtil.SilentReportError("WinCred: failed to save password. no entry point.");
+                return false;
+            }
+
             if (targetName.Length > CRED_MAX_GENERIC_TARGET_NAME_LENGTH) {
+                RuntimeUtil.SilentReportError("WinCred: failed to save password. too long target name.");
                 return false;
             }
             if (description.Length > CRED_MAX_STRING_LENGTH) {
+                RuntimeUtil.SilentReportError("WinCred: failed to save password. too long description.");
                 return false;
             }
 
@@ -160,9 +179,11 @@ namespace Poderosa.Util {
             // Store password in the same manner.
             byte[] blob = Encoding.Unicode.GetBytes(password);
             if (blob.Length > CRED_MAX_CREDENTIAL_BLOB_SIZE) {
+                RuntimeUtil.SilentReportError("WinCred: failed to save password. too long blob.");
                 return false;
             }
             try {
+                bool r;
                 unsafe {
                     fixed (byte* pBlob = blob) {
                         Credential credential = new Credential() {
@@ -181,28 +202,48 @@ namespace Poderosa.Util {
                             // To avoid confusion, a description string is used for UserName.
                             UserName = description,
                         };
-                        return CredWrite(ref credential, CredPreserve.CRED_PRESERVE_NONE);
+                        r = CredWrite(ref credential, CredPreserve.CRED_PRESERVE_NONE);
                     }
                 }
+                if (!r) {
+                    int err = Win32.GetLastError();
+                    RuntimeUtil.SilentReportError("WinCred: CredWrite failed. error=" + err.ToString(NumberFormatInfo.InvariantInfo));
+                }
+                return r;
             }
             catch (Exception e) {
-                Debug.WriteLine(e.Message);
-                Debug.WriteLine(e.StackTrace);
+                if ((e as System.EntryPointNotFoundException) != null) {
+                    noEntryPoint = true;
+                }
+                RuntimeUtil.SilentReportException(e);
                 return false;
             }
         }
 
         private static bool DeletePassword(string targetName) {
+            if (noEntryPoint) {
+                RuntimeUtil.SilentReportError("WinCred: failed to delete password. no entry point.");
+                return false;
+            }
+
             if (targetName.Length > CRED_MAX_GENERIC_TARGET_NAME_LENGTH) {
+                RuntimeUtil.SilentReportError("WinCred: failed to delete password. too long target name.");
                 return false;
             }
 
             try {
-                return CredDelete(targetName, CredType.CRED_TYPE_GENERIC, 0);
+                bool r = CredDelete(targetName, CredType.CRED_TYPE_GENERIC, 0);
+                if (!r) {
+                    int err = Win32.GetLastError();
+                    RuntimeUtil.SilentReportError("WinCred: CredDelete failed. error=" + err.ToString(NumberFormatInfo.InvariantInfo));
+                }
+                return r;
             }
             catch (Exception e) {
-                Debug.WriteLine(e.Message);
-                Debug.WriteLine(e.StackTrace);
+                if ((e as System.EntryPointNotFoundException) != null) {
+                    noEntryPoint = true;
+                }
+                RuntimeUtil.SilentReportException(e);
                 return false;
             }
         }
@@ -291,6 +332,8 @@ namespace Poderosa.Util {
         private const int CRED_MAX_GENERIC_TARGET_NAME_LENGTH = 32767;
         private const int CRED_MAX_STRING_LENGTH = 256;
         private const int CRED_MAX_CREDENTIAL_BLOB_SIZE = 5 * 512;
+
+        private const int ERROR_NOT_FOUND = 1168;
 
         #endregion
     }
