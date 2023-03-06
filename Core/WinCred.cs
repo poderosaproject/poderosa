@@ -141,7 +141,7 @@ namespace Poderosa.Util {
                 }
             }
             catch (Exception e) {
-                if ((e as System.EntryPointNotFoundException) != null) {
+                if (e is System.EntryPointNotFoundException) {
                     noEntryPoint = true;
                 }
                 RuntimeUtil.SilentReportException(e);
@@ -212,7 +212,7 @@ namespace Poderosa.Util {
                 return r;
             }
             catch (Exception e) {
-                if ((e as System.EntryPointNotFoundException) != null) {
+                if (e is System.EntryPointNotFoundException) {
                     noEntryPoint = true;
                 }
                 RuntimeUtil.SilentReportException(e);
@@ -240,7 +240,7 @@ namespace Poderosa.Util {
                 return r;
             }
             catch (Exception e) {
-                if ((e as System.EntryPointNotFoundException) != null) {
+                if (e is System.EntryPointNotFoundException) {
                     noEntryPoint = true;
                 }
                 RuntimeUtil.SilentReportException(e);
