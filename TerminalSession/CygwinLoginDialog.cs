@@ -501,6 +501,7 @@ namespace Poderosa.Sessions {
                 autoExecMacroPath = _autoExecMacroPathBox.Text;
 
             _param.CygwinArchitecture = _cygwin32Check.Checked ? CygwinArchitecture.X86 : CygwinArchitecture.X86_64;
+            _param.UseUTF8 = settings.Encoding == EncodingType.UTF8_Latin || settings.Encoding == EncodingType.UTF8;
 
             IAutoExecMacroParameter autoExecParams = _param.GetAdapter(typeof(IAutoExecMacroParameter)) as IAutoExecMacroParameter;
             if (autoExecParams != null)

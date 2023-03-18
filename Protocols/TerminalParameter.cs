@@ -329,12 +329,14 @@ namespace Poderosa.Protocols {
         private string _shellName;
         private string _cygwinDir;
         private CygwinArchitecture _cygwinArchitecture;
+        private bool _useUtf8;
 
         public LocalShellParameter() {
             _home = CygwinUtil.DefaultHome;
             _shellName = CygwinUtil.DefaultShell;
             _cygwinDir = CygwinUtil.DefaultCygwinDir;
             _cygwinArchitecture = CygwinUtil.DefaultCygwinArchitecture;
+            _useUtf8 = true;
         }
         public LocalShellParameter(LocalShellParameter src)
             : base(src) {
@@ -342,6 +344,7 @@ namespace Poderosa.Protocols {
             _shellName = src._shellName;
             _cygwinDir = src._cygwinDir;
             _cygwinArchitecture = src._cygwinArchitecture;
+            _useUtf8 = src._useUtf8;
         }
 
         [MacroConnectionParameter]
@@ -390,6 +393,16 @@ namespace Poderosa.Protocols {
             }
             set {
                 _cygwinArchitecture = value;
+            }
+        }
+
+        [MacroConnectionParameter]
+        public bool UseUTF8 {
+            get {
+                return _useUtf8;
+            }
+            set {
+                _useUtf8 = value;
             }
         }
 

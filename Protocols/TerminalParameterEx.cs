@@ -453,6 +453,14 @@ namespace Poderosa.Protocols {
             get;
             set;
         }
+
+        /// <summary>
+        /// Use UTF8
+        /// </summary>
+        bool UseUTF8 {
+            get;
+            set;
+        }
     }
 
     /// <summary>

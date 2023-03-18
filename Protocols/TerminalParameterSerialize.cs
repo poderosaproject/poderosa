@@ -211,6 +211,7 @@ namespace Poderosa.Protocols {
                 node.Set("cygwin-directory", tp.CygwinDir);
             if (CygwinUtil.DefaultCygwinArchitecture != tp.CygwinArchitecture)
                 node.Set("cygwin-architecture", tp.CygwinArchitecture.ToString());
+            node.Set("useUtf8", tp.UseUTF8 ? "true" : "false");
         }
         public void Deserialize(LocalShellParameter tp, StructuredText node) {
             base.Deserialize(tp, node);
@@ -231,6 +232,8 @@ namespace Poderosa.Protocols {
                     tp.CygwinArchitecture = CygwinUtil.DefaultCygwinArchitecture;
                 }
             }
+
+            tp.UseUTF8 = node.Get("useUtf8", "true") == "true";
         }
         public override StructuredText Serialize(object obj) {
             StructuredText t = new StructuredText(this.ConcreteType.FullName);
