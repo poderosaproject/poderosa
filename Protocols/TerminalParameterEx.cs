@@ -359,6 +359,14 @@ namespace Poderosa.Protocols {
     }
 
     /// <summary>
+    /// Target Cygwin architecture
+    /// </summary>
+    public enum CygwinArchitecture {
+        X86,
+        X86_64,
+    }
+
+    /// <summary>
     /// <ja>
     /// Cygwin接続するときに使われるパラメータを示すインターフェイスです。
     /// </ja>
@@ -434,6 +442,14 @@ namespace Poderosa.Protocols {
         /// </en>
         /// </summary>
         string CygwinDir {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Target Cygwin architecture
+        /// </summary>
+        CygwinArchitecture CygwinArchitecture {
             get;
             set;
         }

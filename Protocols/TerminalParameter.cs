@@ -328,17 +328,20 @@ namespace Poderosa.Protocols {
         private string _home;
         private string _shellName;
         private string _cygwinDir;
+        private CygwinArchitecture _cygwinArchitecture;
 
         public LocalShellParameter() {
             _home = CygwinUtil.DefaultHome;
             _shellName = CygwinUtil.DefaultShell;
             _cygwinDir = CygwinUtil.DefaultCygwinDir;
+            _cygwinArchitecture = CygwinUtil.DefaultCygwinArchitecture;
         }
         public LocalShellParameter(LocalShellParameter src)
             : base(src) {
             _home = src._home;
             _shellName = src._shellName;
             _cygwinDir = src._cygwinDir;
+            _cygwinArchitecture = src._cygwinArchitecture;
         }
 
         [MacroConnectionParameter]
@@ -380,6 +383,15 @@ namespace Poderosa.Protocols {
             }
         }
 
+        [MacroConnectionParameter]
+        public CygwinArchitecture CygwinArchitecture {
+            get {
+                return _cygwinArchitecture;
+            }
+            set {
+                _cygwinArchitecture = value;
+            }
+        }
 
         public override bool UIEquals(ITerminalParameter param) {
             return param is LocalShellParameter; //Cygwinは全部同一視

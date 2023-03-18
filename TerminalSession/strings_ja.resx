@@ -80,6 +80,9 @@
   <data name="Form.CygwinLoginDialog._autoExecMacroPathLabel">
     <value>自動開始マクロ</value>
   </data>
+  <data name="Form.CygwinLoginDialog._cygwin32Check">
+    <value>32 bit Cygwin</value>
+  </data>
   <data name="Message.CygwinLoginDialog.EmptyHomeDirectory">
     <value>ホームディレクトリが入力されていません。</value>
   </data>

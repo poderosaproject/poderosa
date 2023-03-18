@@ -55,6 +55,7 @@ namespace Poderosa.Sessions {
         private Label _autoExecMacroPathLabel;
         private TextBox _autoExecMacroPathBox;
         private Button _selectAutoExecMacroButton;
+        private CheckBox _cygwin32Check;
         /// <summary>
         /// 必要なデザイナ変数です。
         /// </summary>
@@ -82,6 +83,7 @@ namespace Poderosa.Sessions {
             this._terminalTypeLabel.Text = TEnv.Strings.GetString("Form.CygwinLoginDialog._terminalTypeLabel");
             this._cygwinDirLabel.Text = TEnv.Strings.GetString("Form.CygwinLoginDialog._cygwinDirLabel");
             this._autoExecMacroPathLabel.Text = TEnv.Strings.GetString("Form.CygwinLoginDialog._autoExecMacroPathLabel");
+            this._cygwin32Check.Text = TEnv.Strings.GetString("Form.CygwinLoginDialog._cygwin32Check");
 
             this._logTypeBox.Items.AddRange(EnumListItem<LogType>.GetListItems());
             this._encodingBox.Items.AddRange(EnumListItem<EncodingType>.GetListItems());
@@ -128,18 +130,19 @@ namespace Poderosa.Sessions {
             this._autoExecMacroPathLabel = new System.Windows.Forms.Label();
             this._autoExecMacroPathBox = new System.Windows.Forms.TextBox();
             this._selectAutoExecMacroButton = new System.Windows.Forms.Button();
+            this._cygwin32Check = new System.Windows.Forms.CheckBox();
             this._advancedOptionGroup.SuspendLayout();
             this.SuspendLayout();
             // 
             // _loginButton
             // 
             this._loginButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._loginButton.Location = new System.Drawing.Point(144, 311);
+            this._loginButton.Location = new System.Drawing.Point(144, 339);
             // 
             // _cancelButton
             // 
             this._cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._cancelButton.Location = new System.Drawing.Point(232, 311);
+            this._cancelButton.Location = new System.Drawing.Point(232, 339);
             // 
             // _logTypeBox
             // 
@@ -206,28 +209,28 @@ namespace Poderosa.Sessions {
             // 
             // _cygwinDirLabel
             // 
-            this._cygwinDirLabel.Location = new System.Drawing.Point(8, 108);
+            this._cygwinDirLabel.Location = new System.Drawing.Point(8, 136);
             this._cygwinDirLabel.Name = "_cygwinDirLabel";
             this._cygwinDirLabel.Size = new System.Drawing.Size(256, 16);
-            this._cygwinDirLabel.TabIndex = 11;
+            this._cygwinDirLabel.TabIndex = 12;
             // 
             // _cygwinDirBox
             // 
-            this._cygwinDirBox.Location = new System.Drawing.Point(8, 127);
+            this._cygwinDirBox.Location = new System.Drawing.Point(8, 155);
             this._cygwinDirBox.Name = "_cygwinDirBox";
             this._cygwinDirBox.Size = new System.Drawing.Size(273, 19);
-            this._cygwinDirBox.TabIndex = 12;
+            this._cygwinDirBox.TabIndex = 13;
             // 
             // _selectCygwinDirButton
             // 
             this._selectCygwinDirButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this._selectCygwinDirButton.ImageIndex = 0;
             this._selectCygwinDirButton.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this._selectCygwinDirButton.Location = new System.Drawing.Point(287, 127);
+            this._selectCygwinDirButton.Location = new System.Drawing.Point(287, 155);
             this._selectCygwinDirButton.Name = "_selectCygwinDirButton";
             this._selectCygwinDirButton.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this._selectCygwinDirButton.Size = new System.Drawing.Size(19, 19);
-            this._selectCygwinDirButton.TabIndex = 13;
+            this._selectCygwinDirButton.TabIndex = 14;
             this._selectCygwinDirButton.Text = "...";
             this._selectCygwinDirButton.Click += new System.EventHandler(this.SelectCygwinDir);
             // 
@@ -235,16 +238,16 @@ namespace Poderosa.Sessions {
             // 
             this._advancedOptionCheck.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this._advancedOptionCheck.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this._advancedOptionCheck.Location = new System.Drawing.Point(20, 191);
+            this._advancedOptionCheck.Location = new System.Drawing.Point(20, 219);
             this._advancedOptionCheck.Name = "_advancedOptionCheck";
             this._advancedOptionCheck.Size = new System.Drawing.Size(152, 20);
-            this._advancedOptionCheck.TabIndex = 17;
+            this._advancedOptionCheck.TabIndex = 18;
             this._advancedOptionCheck.CheckedChanged += new System.EventHandler(this.OnAdvancedOptionCheckedChanged);
             // 
             // _advancedOptionGroup
             // 
-            this._advancedOptionGroup.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this._advancedOptionGroup.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this._advancedOptionGroup.Controls.Add(this._lMessage);
             this._advancedOptionGroup.Controls.Add(this._shellBox);
             this._advancedOptionGroup.Controls.Add(this._shellLabel);
@@ -252,10 +255,10 @@ namespace Poderosa.Sessions {
             this._advancedOptionGroup.Controls.Add(this._homeDirectoryLabel);
             this._advancedOptionGroup.Enabled = false;
             this._advancedOptionGroup.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this._advancedOptionGroup.Location = new System.Drawing.Point(8, 193);
+            this._advancedOptionGroup.Location = new System.Drawing.Point(8, 221);
             this._advancedOptionGroup.Name = "_advancedOptionGroup";
             this._advancedOptionGroup.Size = new System.Drawing.Size(300, 110);
-            this._advancedOptionGroup.TabIndex = 18;
+            this._advancedOptionGroup.TabIndex = 19;
             this._advancedOptionGroup.TabStop = false;
             // 
             // _lMessage
@@ -317,39 +320,49 @@ namespace Poderosa.Sessions {
             // _autoExecMacroPathLabel
             // 
             this._autoExecMacroPathLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this._autoExecMacroPathLabel.Location = new System.Drawing.Point(8, 158);
+            this._autoExecMacroPathLabel.Location = new System.Drawing.Point(8, 186);
             this._autoExecMacroPathLabel.Name = "_autoExecMacroPathLabel";
             this._autoExecMacroPathLabel.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this._autoExecMacroPathLabel.Size = new System.Drawing.Size(100, 16);
-            this._autoExecMacroPathLabel.TabIndex = 14;
+            this._autoExecMacroPathLabel.TabIndex = 15;
             this._autoExecMacroPathLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // _autoExecMacroPathBox
             // 
-            this._autoExecMacroPathBox.Location = new System.Drawing.Point(112, 157);
+            this._autoExecMacroPathBox.Location = new System.Drawing.Point(112, 185);
             this._autoExecMacroPathBox.Name = "_autoExecMacroPathBox";
             this._autoExecMacroPathBox.Size = new System.Drawing.Size(169, 19);
-            this._autoExecMacroPathBox.TabIndex = 15;
+            this._autoExecMacroPathBox.TabIndex = 16;
             // 
             // _selectAutoExecMacroButton
             // 
             this._selectAutoExecMacroButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this._selectAutoExecMacroButton.ImageIndex = 0;
             this._selectAutoExecMacroButton.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this._selectAutoExecMacroButton.Location = new System.Drawing.Point(287, 157);
+            this._selectAutoExecMacroButton.Location = new System.Drawing.Point(287, 185);
             this._selectAutoExecMacroButton.Name = "_selectAutoExecMacroButton";
             this._selectAutoExecMacroButton.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this._selectAutoExecMacroButton.Size = new System.Drawing.Size(19, 19);
-            this._selectAutoExecMacroButton.TabIndex = 16;
+            this._selectAutoExecMacroButton.TabIndex = 17;
             this._selectAutoExecMacroButton.Text = "...";
             this._selectAutoExecMacroButton.Click += new System.EventHandler(this._selectAutoExecMacroButton_Click);
+            // 
+            // _cygwin32Check
+            // 
+            this._cygwin32Check.AutoSize = true;
+            this._cygwin32Check.Location = new System.Drawing.Point(9, 111);
+            this._cygwin32Check.Name = "_cygwin32Check";
+            this._cygwin32Check.Size = new System.Drawing.Size(15, 14);
+            this._cygwin32Check.TabIndex = 11;
+            this._cygwin32Check.UseVisualStyleBackColor = true;
             // 
             // LocalShellLoginDialog
             // 
             this.AcceptButton = this._loginButton;
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 12);
             this.CancelButton = this._cancelButton;
-            this.ClientSize = new System.Drawing.Size(314, 343);
+            this.ClientSize = new System.Drawing.Size(314, 371);
+            this.Controls.Add(this._cygwin32Check);
             this.Controls.Add(this._autoExecMacroPathLabel);
             this.Controls.Add(this._autoExecMacroPathBox);
             this.Controls.Add(this._selectAutoExecMacroButton);
@@ -392,6 +405,7 @@ namespace Poderosa.Sessions {
             this.Controls.SetChildIndex(this._selectAutoExecMacroButton, 0);
             this.Controls.SetChildIndex(this._autoExecMacroPathBox, 0);
             this.Controls.SetChildIndex(this._autoExecMacroPathLabel, 0);
+            this.Controls.SetChildIndex(this._cygwin32Check, 0);
             this._advancedOptionGroup.ResumeLayout(false);
             this._advancedOptionGroup.PerformLayout();
             this.ResumeLayout(false);
@@ -448,6 +462,7 @@ namespace Poderosa.Sessions {
             _encodingBox.SelectedItem = this.TerminalSettings.Encoding;         // select EnumListItem<T> by T
             _terminalTypeBox.SelectedItem = this.TerminalSettings.TerminalType; // select EnumListItem<T> by T
             _cygwinDirBox.Text = _param.CygwinDir;
+            _cygwin32Check.Checked = _param.CygwinArchitecture == CygwinArchitecture.X86;
 
             AdjustUI();
         }
@@ -484,6 +499,8 @@ namespace Poderosa.Sessions {
             string autoExecMacroPath = null;
             if (_autoExecMacroPathBox.Text.Length != 0)
                 autoExecMacroPath = _autoExecMacroPathBox.Text;
+
+            _param.CygwinArchitecture = _cygwin32Check.Checked ? CygwinArchitecture.X86 : CygwinArchitecture.X86_64;
 
             IAutoExecMacroParameter autoExecParams = _param.GetAdapter(typeof(IAutoExecMacroParameter)) as IAutoExecMacroParameter;
             if (autoExecParams != null)

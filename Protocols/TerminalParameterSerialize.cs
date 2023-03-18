@@ -209,12 +209,28 @@ namespace Poderosa.Protocols {
                 node.Set("shellName", tp.ShellName);
             if (CygwinUtil.DefaultCygwinDir != tp.CygwinDir)
                 node.Set("cygwin-directory", tp.CygwinDir);
+            if (CygwinUtil.DefaultCygwinArchitecture != tp.CygwinArchitecture)
+                node.Set("cygwin-architecture", tp.CygwinArchitecture.ToString());
         }
         public void Deserialize(LocalShellParameter tp, StructuredText node) {
             base.Deserialize(tp, node);
             tp.Home = node.Get("home", CygwinUtil.DefaultHome);
             tp.ShellName = node.Get("shellName", CygwinUtil.DefaultShell);
             tp.CygwinDir = node.Get("cygwin-directory", CygwinUtil.DefaultCygwinDir);
+
+            string cygwinArch = node.Get("cygwin-architecture", null);
+            if (cygwinArch == null) {
+                tp.CygwinArchitecture = CygwinUtil.DefaultCygwinArchitecture;
+            }
+            else {
+                CygwinArchitecture cygwinArchVal;
+                if (Enum.TryParse(cygwinArch, out cygwinArchVal)) {
+                    tp.CygwinArchitecture = cygwinArchVal;
+                }
+                else {
+                    tp.CygwinArchitecture = CygwinUtil.DefaultCygwinArchitecture;
+                }
+            }
         }
         public override StructuredText Serialize(object obj) {
             StructuredText t = new StructuredText(this.ConcreteType.FullName);

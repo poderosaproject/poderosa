@@ -80,6 +80,9 @@
   <data name="Form.CygwinLoginDialog._autoExecMacroPathLabel">
     <value>Auto Exec Macro</value>
   </data>
+  <data name="Form.CygwinLoginDialog._cygwin32Check">
+    <value>32 bit Cygwin</value>
+  </data>
   <data name="Message.CygwinLoginDialog.EmptyHomeDirectory">
     <value>The home directory is empty.</value>
   </data>
