@@ -20,45 +20,6 @@
   <data name="Message.SSHConnector.Cancelled">
     <value>Abort the connection.</value>
   </data>
-  <data name="Form.CygwinLoginDialog._homeDirectoryLabel">
-    <value>&amp;Home directory</value>
-  </data>
-  <data name="Form.CygwinLoginDialog._lMessage">
-    <value>If you cannot start the shell, please re-compile CygTerm.</value>
-  </data>
-  <data name="Form.CygwinLoginDialog._advancedOptionCheck">
-    <value>&amp;Advanced configuration</value>
-  </data>
-  <data name="Form.CygwinLoginDialog._shellLabel">
-    <value>&amp;Shell</value>
-  </data>
-  <data name="Form.CygwinLoginDialog.TextCygwin">
-    <value>Connection to cygwin</value>
-  </data>
-  <data name="Form.CygwinLoginDialog.TextSFU">
-    <value>Connection to SFU</value>
-  </data>
-  <data name="Form.CygwinLoginDialog._logTypeLabel">
-    <value>Log &amp;type</value>
-  </data>
-  <data name="Form.CygwinLoginDialog._logFileLabel">
-    <value>&amp;Log file</value>
-  </data>
-  <data name="Message.CygwinLoginDialog.EmptyHomeDirectory">
-    <value>The home directory is empty.</value>
-  </data>
-  <data name="Message.CygwinLoginDialog.EmptyShell">
-    <value>The shell is empty.</value>
-  </data>
-  <data name="Caption.CygwinLoginDialog.ConnectingCygwin">
-    <value>Connection to cygwin - Connecting... (Ctrl+C to Stop)</value>
-  </data>
-  <data name="Caption.CygwinLoginDialog.ConnectingSFU">
-    <value>Connection to SFU - Connecting... (Ctrl+C to Stop)</value>
-  </data>
-  <data name="Message.CygwinLoginDialog.ConnectionError">
-    <value>Connection error</value>
-  </data>
   <data name="Message.AddressNotResolved">
     <value>The IP address of the host {0} was not obtained.</value>
   </data>

@@ -20,45 +20,6 @@
   <data name="Message.SSHConnector.Cancelled">
     <value>接続を中止しました。</value>
   </data>
-  <data name="Form.CygwinLoginDialog._homeDirectoryLabel">
-    <value>ホームディレクトリ(&amp;H)</value>
-  </data>
-  <data name="Form.CygwinLoginDialog._lMessage">
-    <value>シェルがうまく起動できないときはCygTermをコンパイルしなおしてください。</value>
-  </data>
-  <data name="Form.CygwinLoginDialog._advancedOptionCheck">
-    <value>高度な設定(&amp;A)</value>
-  </data>
-  <data name="Form.CygwinLoginDialog._shellLabel">
-    <value>シェル(&amp;S)</value>
-  </data>
-  <data name="Form.CygwinLoginDialog.TextCygwin">
-    <value>cygwinへの接続</value>
-  </data>
-  <data name="Form.CygwinLoginDialog.TextSFU">
-    <value>SFUへの接続</value>
-  </data>
-  <data name="Form.CygwinLoginDialog._logTypeLabel">
-    <value>ログの種別(&amp;T)</value>
-  </data>
-  <data name="Form.CygwinLoginDialog._logFileLabel">
-    <value>ログの保存先(&amp;L)</value>
-  </data>
-  <data name="Message.CygwinLoginDialog.EmptyHomeDirectory">
-    <value>ホームディレクトリが入力されていません。</value>
-  </data>
-  <data name="Message.CygwinLoginDialog.EmptyShell">
-    <value>シェルが入力されていません。</value>
-  </data>
-  <data name="Caption.CygwinLoginDialog.ConnectingCygwin">
-    <value>cygwinへの接続 - 接続中 (Ctrl+Cで中止します)</value>
-  </data>
-  <data name="Caption.CygwinLoginDialog.ConnectingSFU">
-    <value>SFUへの接続 - 接続中 (Ctrl+Cで中止します)</value>
-  </data>
-  <data name="Message.CygwinLoginDialog.ConnectionError">
-    <value>接続エラー</value>
-  </data>
   <data name="Message.AddressNotResolved">
     <value>ホスト名 {0} のIPアドレスが取得できませんでした。</value>
   </data>
