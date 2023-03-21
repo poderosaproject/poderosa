@@ -483,7 +483,18 @@ namespace Poderosa.Sessions {
             settings.BeginUpdate();
             if (logsettings != null)
                 settings.LogSettings.Reset(logsettings);
-            settings.Caption = _param.ShellBody;
+            if (!String.IsNullOrEmpty(_param.Home)) {
+                settings.Caption = _param.Home;
+            }
+            else {
+                string shell = _param.ShellBody;
+                if (!String.IsNullOrEmpty(shell)) {
+                    settings.Caption = shell;
+                }
+                else {
+                    settings.Caption = "Cygwin";
+                }
+            }
             settings.Icon = Poderosa.TerminalSession.Properties.Resources.Cygwin16x16;
             settings.Encoding = ((EnumListItem<EncodingType>)_encodingBox.SelectedItem).Value;
             settings.TerminalType = ((EnumListItem<TerminalType>)_terminalTypeBox.SelectedItem).Value;
