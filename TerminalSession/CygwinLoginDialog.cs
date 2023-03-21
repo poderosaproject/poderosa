@@ -43,13 +43,11 @@ namespace Poderosa.Sessions {
         private TextBox _cygwinDirBox;
         private Button _selectCygwinDirButton;
         private Button _selectlogButton;
-        private CheckBox _advancedOptionCheck;
         private GroupBox _advancedOptionGroup;
         private Label _homeDirectoryLabel;
         private Label _shellLabel;
         private TextBox _homeDirectoryBox;
         private TextBox _shellBox;
-        private Label _lMessage;
         private Label _encodingLabel;
         private ComboBox _encodingBox;
         private Label _autoExecMacroPathLabel;
@@ -74,8 +72,7 @@ namespace Poderosa.Sessions {
             this._loginButton.Text = TEnv.Strings.GetString("Common.OK");
             this._cancelButton.Text = TEnv.Strings.GetString("Common.Cancel");
             this._homeDirectoryLabel.Text = TEnv.Strings.GetString("Form.CygwinLoginDialog._homeDirectoryLabel");
-            this._lMessage.Text = TEnv.Strings.GetString("Form.CygwinLoginDialog._lMessage");
-            this._advancedOptionCheck.Text = TEnv.Strings.GetString("Form.CygwinLoginDialog._advancedOptionCheck");
+            this._advancedOptionGroup.Text = TEnv.Strings.GetString("Form.CygwinLoginDialog._advancedOptionGroup");
             this._shellLabel.Text = TEnv.Strings.GetString("Form.CygwinLoginDialog._shellLabel");
             this._logFileLabel.Text = TEnv.Strings.GetString("Form.CygwinLoginDialog._logFileLabel");
             this._logTypeLabel.Text = TEnv.Strings.GetString("Form.CygwinLoginDialog._logTypeLabel");
@@ -118,9 +115,7 @@ namespace Poderosa.Sessions {
             this._cygwinDirLabel = new System.Windows.Forms.Label();
             this._cygwinDirBox = new System.Windows.Forms.TextBox();
             this._selectCygwinDirButton = new System.Windows.Forms.Button();
-            this._advancedOptionCheck = new System.Windows.Forms.CheckBox();
             this._advancedOptionGroup = new System.Windows.Forms.GroupBox();
-            this._lMessage = new System.Windows.Forms.Label();
             this._shellBox = new System.Windows.Forms.TextBox();
             this._shellLabel = new System.Windows.Forms.Label();
             this._homeDirectoryBox = new System.Windows.Forms.TextBox();
@@ -137,12 +132,12 @@ namespace Poderosa.Sessions {
             // _loginButton
             // 
             this._loginButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._loginButton.Location = new System.Drawing.Point(144, 339);
+            this._loginButton.Location = new System.Drawing.Point(144, 307);
             // 
             // _cancelButton
             // 
             this._cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._cancelButton.Location = new System.Drawing.Point(232, 339);
+            this._cancelButton.Location = new System.Drawing.Point(232, 307);
             // 
             // _logTypeBox
             // 
@@ -234,66 +229,47 @@ namespace Poderosa.Sessions {
             this._selectCygwinDirButton.Text = "...";
             this._selectCygwinDirButton.Click += new System.EventHandler(this.SelectCygwinDir);
             // 
-            // _advancedOptionCheck
-            // 
-            this._advancedOptionCheck.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this._advancedOptionCheck.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this._advancedOptionCheck.Location = new System.Drawing.Point(20, 219);
-            this._advancedOptionCheck.Name = "_advancedOptionCheck";
-            this._advancedOptionCheck.Size = new System.Drawing.Size(152, 20);
-            this._advancedOptionCheck.TabIndex = 18;
-            this._advancedOptionCheck.CheckedChanged += new System.EventHandler(this.OnAdvancedOptionCheckedChanged);
-            // 
             // _advancedOptionGroup
             // 
             this._advancedOptionGroup.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this._advancedOptionGroup.Controls.Add(this._lMessage);
             this._advancedOptionGroup.Controls.Add(this._shellBox);
             this._advancedOptionGroup.Controls.Add(this._shellLabel);
             this._advancedOptionGroup.Controls.Add(this._homeDirectoryBox);
             this._advancedOptionGroup.Controls.Add(this._homeDirectoryLabel);
-            this._advancedOptionGroup.Enabled = false;
+            this._advancedOptionGroup.Enabled = true;
             this._advancedOptionGroup.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this._advancedOptionGroup.Location = new System.Drawing.Point(8, 221);
             this._advancedOptionGroup.Name = "_advancedOptionGroup";
-            this._advancedOptionGroup.Size = new System.Drawing.Size(300, 110);
+            this._advancedOptionGroup.Size = new System.Drawing.Size(300, 78);
             this._advancedOptionGroup.TabIndex = 19;
             this._advancedOptionGroup.TabStop = false;
             // 
-            // _lMessage
-            // 
-            this._lMessage.Location = new System.Drawing.Point(8, 72);
-            this._lMessage.Name = "_lMessage";
-            this._lMessage.Size = new System.Drawing.Size(288, 32);
-            this._lMessage.TabIndex = 4;
-            this._lMessage.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
             // _shellBox
             // 
-            this._shellBox.Location = new System.Drawing.Point(120, 48);
+            this._shellBox.Location = new System.Drawing.Point(120, 44);
             this._shellBox.Name = "_shellBox";
             this._shellBox.Size = new System.Drawing.Size(172, 19);
             this._shellBox.TabIndex = 3;
             // 
             // _shellLabel
             // 
-            this._shellLabel.Location = new System.Drawing.Point(8, 48);
+            this._shellLabel.Location = new System.Drawing.Point(8, 44);
             this._shellLabel.Name = "_shellLabel";
-            this._shellLabel.Size = new System.Drawing.Size(100, 23);
+            this._shellLabel.Size = new System.Drawing.Size(112, 23);
             this._shellLabel.TabIndex = 2;
             this._shellLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // _homeDirectoryBox
             // 
-            this._homeDirectoryBox.Location = new System.Drawing.Point(120, 24);
+            this._homeDirectoryBox.Location = new System.Drawing.Point(120, 20);
             this._homeDirectoryBox.Name = "_homeDirectoryBox";
             this._homeDirectoryBox.Size = new System.Drawing.Size(172, 19);
             this._homeDirectoryBox.TabIndex = 1;
             // 
             // _homeDirectoryLabel
             // 
-            this._homeDirectoryLabel.Location = new System.Drawing.Point(8, 24);
+            this._homeDirectoryLabel.Location = new System.Drawing.Point(8, 20);
             this._homeDirectoryLabel.Name = "_homeDirectoryLabel";
             this._homeDirectoryLabel.Size = new System.Drawing.Size(112, 23);
             this._homeDirectoryLabel.TabIndex = 0;
@@ -361,7 +337,7 @@ namespace Poderosa.Sessions {
             this.AcceptButton = this._loginButton;
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 12);
             this.CancelButton = this._cancelButton;
-            this.ClientSize = new System.Drawing.Size(314, 371);
+            this.ClientSize = new System.Drawing.Size(314, 339);
             this.Controls.Add(this._cygwin32Check);
             this.Controls.Add(this._autoExecMacroPathLabel);
             this.Controls.Add(this._autoExecMacroPathBox);
@@ -373,7 +349,6 @@ namespace Poderosa.Sessions {
             this.Controls.Add(this._logFileLabel);
             this.Controls.Add(this._logFileBox);
             this.Controls.Add(this._selectlogButton);
-            this.Controls.Add(this._advancedOptionCheck);
             this.Controls.Add(this._advancedOptionGroup);
             this.Controls.Add(this._cygwinDirLabel);
             this.Controls.Add(this._terminalTypeLabel);
@@ -392,7 +367,6 @@ namespace Poderosa.Sessions {
             this.Controls.SetChildIndex(this._terminalTypeLabel, 0);
             this.Controls.SetChildIndex(this._cygwinDirLabel, 0);
             this.Controls.SetChildIndex(this._advancedOptionGroup, 0);
-            this.Controls.SetChildIndex(this._advancedOptionCheck, 0);
             this.Controls.SetChildIndex(this._selectlogButton, 0);
             this.Controls.SetChildIndex(this._logFileBox, 0);
             this.Controls.SetChildIndex(this._logFileLabel, 0);
@@ -515,13 +489,10 @@ namespace Poderosa.Sessions {
                 ClearConnectingState();
         }
 
-
-        private void OnAdvancedOptionCheckedChanged(object sender, EventArgs args) {
-            _advancedOptionGroup.Enabled = _advancedOptionCheck.Checked;
-        }
         private void OnLogTypeChanged(object sender, System.EventArgs args) {
             AdjustUI();
         }
+
         private void AdjustUI() {
             bool e = ((EnumListItem<LogType>)_logTypeBox.SelectedItem).Value != LogType.None;
             _logFileBox.Enabled = e;

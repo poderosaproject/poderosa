@@ -44,11 +44,8 @@
   <data name="Form.CygwinLoginDialog._homeDirectoryLabel">
     <value>ホームディレクトリ(&amp;H)</value>
   </data>
-  <data name="Form.CygwinLoginDialog._lMessage">
-    <value>シェルがうまく起動できないときはCygTermをコンパイルしなおしてください。</value>
-  </data>
-  <data name="Form.CygwinLoginDialog._advancedOptionCheck">
-    <value>高度な設定(&amp;A)</value>
+  <data name="Form.CygwinLoginDialog._advancedOptionGroup">
+    <value>高度な設定 (オプション)</value>
   </data>
   <data name="Form.CygwinLoginDialog._shellLabel">
     <value>シェル(&amp;S)</value>
@@ -81,7 +78,7 @@
     <value>自動開始マクロ</value>
   </data>
   <data name="Form.CygwinLoginDialog._cygwin32Check">
-    <value>32 bit Cygwin</value>
+    <value>32-bit Cygwin</value>
   </data>
   <data name="Message.CygwinLoginDialog.EmptyHomeDirectory">
     <value>ホームディレクトリが入力されていません。</value>
