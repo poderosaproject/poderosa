@@ -44,11 +44,17 @@
   <data name="Form.CygwinLoginDialog._homeDirectoryLabel">
     <value>ホームディレクトリ(&amp;H)</value>
   </data>
+  <data name="Form.CygwinLoginDialog._homeDirectoryExampleLabel">
+    <value>例 {0}</value>
+  </data>
   <data name="Form.CygwinLoginDialog._advancedOptionGroup">
     <value>高度な設定 (オプション)</value>
   </data>
   <data name="Form.CygwinLoginDialog._shellLabel">
     <value>シェル(&amp;S)</value>
+  </data>
+  <data name="Form.CygwinLoginDialog._shellExampleLabel">
+    <value>例 {0}</value>
   </data>
   <data name="Form.CygwinLoginDialog.TextCygwin">
     <value>cygwinへの接続</value>

@@ -44,11 +44,17 @@
   <data name="Form.CygwinLoginDialog._homeDirectoryLabel">
     <value>&amp;Home directory</value>
   </data>
+  <data name="Form.CygwinLoginDialog._homeDirectoryExampleLabel">
+    <value>e.g. {0}</value>
+  </data>
   <data name="Form.CygwinLoginDialog._advancedOptionGroup">
     <value>Advanced Settings (optional)</value>
   </data>
   <data name="Form.CygwinLoginDialog._shellLabel">
     <value>&amp;Shell</value>
+  </data>
+  <data name="Form.CygwinLoginDialog._shellExampleLabel">
+    <value>e.g. {0}</value>
   </data>
   <data name="Form.CygwinLoginDialog.TextCygwin">
     <value>Connection to Cygwin</value>

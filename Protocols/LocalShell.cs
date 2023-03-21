@@ -292,17 +292,9 @@ namespace Poderosa.Protocols {
         /// Return the default home directory.
         /// </en>
         /// </summary>
-        /// <remarks>
-        /// <ja>
-        /// このプロパティは、「"/home/"+Environment.UserName」の値を返します。
-        /// </ja>
-        /// <en>
-        /// This property returns a value of ["/home/"+Environment.UserName].
-        /// </en>
-        /// </remarks>
         public static string DefaultHome {
             get {
-                return "/home/" + Environment.UserName;
+                return String.Empty;
             }
         }
         /// <summary>
@@ -313,17 +305,9 @@ namespace Poderosa.Protocols {
         /// Return the default shell.
         /// </en>
         /// </summary>
-        /// <remarks>
-        /// <ja>
-        /// このプロパティは、「/bin/bash -i -l」という文字列を返します。
-        /// </ja>
-        /// <en>
-        /// This property returns the string "/bin/bash -i -l".
-        /// </en>
-        /// </remarks>
         public static string DefaultShell {
             get {
-                return "/bin/bash -i -l";
+                return String.Empty;
             }
         }
 
