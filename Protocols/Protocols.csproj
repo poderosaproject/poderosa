@@ -118,4 +118,18 @@
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="CygwinBridge\cygwin-bridge32.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>cygwin-bridge32.exe</TargetPath>
+    </None>
+    <None Include="CygwinBridge\cygwin-bridge64.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>cygwin-bridge64.exe</TargetPath>
+    </None>
+    <None Include="CygwinBridge\README-CygwinBridge.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>README-CygwinBridge.txt</TargetPath>
+    </None>
+  </ItemGroup>
 </Project>

@@ -38,11 +38,22 @@
   <data name="Message.SFUUtil.KeyNotFound">
     <value>The registry key {0} is not found. Services for Unix may be not installed correctly.</value>
   </data>
-  <data name="Message.CygwinUtil.CygtermExeNotFound">
-    <value>cygterm.exe cannot be found.</value>
+  <data name="Message.CygwinUtil.CygwinBridgeExeNotFound">
+    <value>{0} not found.</value>
   </data>
-  <data name="Message.CygwinUtil.FailedToRunCygterm">
-    <value>Failed to run cygterm</value>
+  <data name="Message.CygwinUtil.FailedToRunCygwinBridge">
+    <value>Failed to run:
+{0}
+
+{1}
+
+{2}</value>
+  </data>
+  <data name="Message.CygwinUtil.CheckCygwin1DLL">
+    <value>- Cygwin1.dll is required to run; specify the Cygwin installation directory in the "Cygwin Directory" option or add the location of cygwin1.dll to the PATH environment variable in advance.</value>
+  </data>
+  <data name="Message.CygwinUtil.CheckCygwinArchitecture">
+    <value>- Check the "32-bit Cygwin" checkbox if you use the 32-bit version of cygwin1.dll, and uncheck the checkbox if you use the 64-bit version of cygwin1.dll.</value>
   </data>
   <data name="Message.CygwinUtil.FailedToConnect">
     <value>An error occurred while connecting to cygwin.

@@ -38,11 +38,22 @@
   <data name="Message.SFUUtil.KeyNotFound">
     <value>レジストリキー{0}がみつかりません。Services for Unixが正しくインストールされていないと思われます。</value>
   </data>
-  <data name="Message.CygwinUtil.CygtermExeNotFound">
-    <value>cygterm.exeが見つかりません</value>
+  <data name="Message.CygwinUtil.CygwinBridgeExeNotFound">
+    <value>{0} が見つかりません</value>
   </data>
-  <data name="Message.CygwinUtil.FailedToRunCygterm">
-    <value>cygtermの実行に失敗しました</value>
+  <data name="Message.CygwinUtil.FailedToRunCygwinBridge">
+    <value>実行に失敗しました:
+{0}
+
+{1}
+
+{2}</value>
+  </data>
+  <data name="Message.CygwinUtil.CheckCygwin1DLL">
+    <value>- 実行には cygwin1.dll が必要です。 Cygwinのインストール先を「Cygwinディレクトリ」に指定するか、cygwin1.dll がある場所をPATH環境変数に追加しておいてください。</value>
+  </data>
+  <data name="Message.CygwinUtil.CheckCygwinArchitecture">
+    <value>- 32-bit版の cygwin1.dll を使用する場合は「32-bit Cygwin」にチェックを入れ、64-bit版の cygwin1.dll を使用する場合はチェックを外してください。</value>
   </data>
   <data name="Message.CygwinUtil.FailedToConnect">
     <value>cygwinとの接続中にエラーが発生しました。

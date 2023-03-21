@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -29,12 +30,6 @@ using Poderosa.Plugins;
 namespace Poderosa.Protocols {
     internal abstract class LocalShellUtil {
 
-        //接続用ソケットのサポート
-        protected static Socket _listener;
-        protected static int _localPort;
-        //同期
-        protected static object _lockObject = new object();
-
         //接続先のSocketを準備して返す。失敗すればparentを親にしてエラーを表示し、nullを返す。
         internal static ITerminalConnection PrepareSocket(IPoderosaForm parent, ICygwinParameter param) {
             try {
@@ -47,12 +42,12 @@ namespace Poderosa.Protocols {
                 return null;
             }
         }
+
         public static Connector AsyncPrepareSocket(IInterruptableConnectorClient client, ICygwinParameter param) {
             Connector c = new Connector(param, client);
             new Thread(new ThreadStart(c.AsyncConnect)).Start();
             return c;
         }
-
 
         /// <summary>
         /// Exception from LocalShellUtil
@@ -72,6 +67,9 @@ namespace Poderosa.Protocols {
         /// </summary>
         /// <exclude/>
         public class Connector : IInterruptable {
+            const string CYGBRIDGE_X86_EXE = "cygwin-bridge32.exe";
+            const string CYGBRIDGE_X86_64_EXE = "cygwin-bridge64.exe";
+
             private ICygwinParameter _param;
             private Process _process;
             private IInterruptableConnectorClient _client;
@@ -81,6 +79,7 @@ namespace Poderosa.Protocols {
             public Connector(ICygwinParameter param) {
                 _param = param;
             }
+
             public Connector(ICygwinParameter param, IInterruptableConnectorClient client) {
                 _param = param;
                 _client = client;
@@ -108,8 +107,13 @@ namespace Poderosa.Protocols {
                     }
                 }
                 finally {
-                    if (!success && _process != null && !_process.HasExited)
-                        _process.Kill();
+                    if (!success && _process != null) {
+                        if (!_process.HasExited) {
+                            _process.Kill();
+                        }
+                        _process.Dispose();
+                        _process = null;
+                    }
                 }
             }
             public void Interrupt() {
@@ -117,101 +121,107 @@ namespace Poderosa.Protocols {
             }
 
             public ITerminalConnection Connect() {
-                lock (_lockObject) {
-                    if (_localPort == 0)
-                        PrepareListener();
-                }
+                string exeName =
+                    (_param.CygwinArchitecture == CygwinArchitecture.X86) ? CYGBRIDGE_X86_EXE : CYGBRIDGE_X86_64_EXE;
+                string cygwinBridgePath = GetCygwinBridgePath(exeName);
+                if (cygwinBridgePath == null)
+                    throw new LocalShellUtilException(
+                        String.Format(PEnv.Strings.GetString("Message.CygwinUtil.CygwinBridgeExeNotFound"), exeName));
 
-                string cygtermPath = GetCygtermPath();
-                if (cygtermPath == null)
-                    throw new LocalShellUtilException(PEnv.Strings.GetString("Message.CygwinUtil.CygtermExeNotFound"));
+                using (Socket listener = new Socket(SocketType.Stream, ProtocolType.Tcp)) {
+                    listener.Bind(new IPEndPoint(new IPAddress(new byte[] { 127, 0, 0, 1 }), 0));
+                    int localPort = (listener.LocalEndPoint as IPEndPoint).Port;
+                    listener.Listen(1);
 
-                ITerminalParameter term = (ITerminalParameter)_param.GetAdapter(typeof(ITerminalParameter));
+                    ITerminalParameter term = (ITerminalParameter)_param.GetAdapter(typeof(ITerminalParameter));
 
-                string args = String.Format("-p {0} -v HOME=\"{1}\" -v TERM=\"{2}\" -s \"{3}\"", _localPort, _param.Home, term.TerminalType, _param.ShellName);
-                ProcessStartInfo psi = new ProcessStartInfo(cygtermPath, args);
-                PrepareEnv(psi, _param);
-                psi.CreateNoWindow = true;
-                psi.ErrorDialog = true;
-                psi.UseShellExecute = false;
-                psi.WindowStyle = ProcessWindowStyle.Hidden;
+                    string args = "-p " + localPort.ToString(NumberFormatInfo.InvariantInfo);
+                    args += String.Format(NumberFormatInfo.InvariantInfo, " -z {0}x{1}", term.InitialWidth, term.InitialHeight);
+                    args += " -e";
+                    if (_param.UseUTF8) {
+                        args += " -u";
+                    }
+                    if (!String.IsNullOrEmpty(_param.Home)) {
+                        args += " -v \"HOME=" + _param.Home + "\"";
+                    }
+                    if (!String.IsNullOrEmpty(term.TerminalType)) {
+                        args += " -v \"TERM=" + term.TerminalType + "\"";
+                    }
+                    if (!String.IsNullOrEmpty(_param.ShellName)) {
+                        args += " -- " + _param.ShellName;
+                    }
+                    ProcessStartInfo psi = new ProcessStartInfo(cygwinBridgePath, args);
+                    PrepareEnv(psi, _param);
+                    psi.CreateNoWindow = true;
+                    psi.ErrorDialog = false;
+                    psi.UseShellExecute = false;
+                    psi.WindowStyle = ProcessWindowStyle.Hidden;
 
-                try {
-                    _process = Process.Start(psi);
-                }
-                catch (System.ComponentModel.Win32Exception ex) {
-                    throw new LocalShellUtilException(PEnv.Strings.GetString("Message.CygwinUtil.FailedToRunCygterm") + ": " + cygtermPath, ex);
-                }
-                while (true) {
-                    List<Socket> chk = new List<Socket>();
-                    chk.Add(_listener);
-                    Socket.Select(chk, null, null, 100);
-                    if (_interrupted)
+                    try {
+                        _process = Process.Start(psi);
+                    }
+                    catch (System.ComponentModel.Win32Exception ex) {
+                        throw StartingError(cygwinBridgePath, ex);
+                    }
+
+                    Socket sock;
+                    using (ManualResetEventSlim acceptEvent = new ManualResetEventSlim())
+                    using (SocketAsyncEventArgs listenArgs = new SocketAsyncEventArgs()) {
+                        listenArgs.Completed += (e, a) => acceptEvent.Set();
+                        listener.AcceptAsync(listenArgs);
+                        if (!acceptEvent.Wait(5000)) {
+                            throw StartingError(cygwinBridgePath, null);
+                        }
+                        sock = listenArgs.AcceptSocket;
+                    }
+
+                    if (_interrupted) {
+                        sock.Close();
                         return null;
-                    if (chk.Count > 0)
-                        break;
-                }
-                Socket sock = _listener.Accept();
-                if (_interrupted)
-                    return null;
+                    }
 
-                TelnetNegotiator neg = new TelnetNegotiator(term.TerminalType, term.InitialWidth, term.InitialHeight);
-                TelnetParameter shellparam = new TelnetParameter();
-                shellparam.Destination = "localhost";
-                shellparam.SetTerminalName(term.TerminalType);
-                shellparam.SetTerminalSize(term.InitialWidth, term.InitialHeight);
-                TelnetTerminalConnection r = new TelnetTerminalConnection(shellparam, neg, new PlainPoderosaSocket(sock));
-                r.Destination = (ITerminalParameter)_param.GetAdapter(typeof(ITerminalParameter)); //TelnetでなくオリジナルのCygwinParamで上書き
-                return r;
+                    return new CygwinTerminalConnection(term, sock);
+                }
             }
 
-            private static string GetCygtermPath() {
-                const string CYGTERM_DIR = "cygterm";
-                const string CYGTERM_EXE = "cygterm.exe";
+            private LocalShellUtilException StartingError(string cygwinBridgePath, Exception ex) {
+                string guide1 = PEnv.Strings.GetString("Message.CygwinUtil.CheckCygwin1DLL");
+                string guide2 = PEnv.Strings.GetString("Message.CygwinUtil.CheckCygwinArchitecture");
+                return new LocalShellUtilException(
+                    String.Format(PEnv.Strings.GetString("Message.CygwinUtil.FailedToRunCygwinBridge"), cygwinBridgePath, guide1, guide2), ex);
+            }
 
-                // 1st candidate: <assembly's location>/Cygterm/cygterm.exe
-                string assyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                string path = Path.Combine(Path.Combine(assyDir, CYGTERM_DIR), CYGTERM_EXE);
-                if (File.Exists(path))
-                    return path;
+            private string GetCygwinBridgePath(string exeName) {
+                foreach (string path in EnumerateCygwinBridgePath(exeName)) {
+                    if (File.Exists(path)) {
+                        return path;
+                    }
+                }
+                return null;
+            }
+
+            private IEnumerable<string> EnumerateCygwinBridgePath(string exeName) {
+                foreach (string basePath in EnumerateCygwinBridgeParentPath()) {
+                    // 1st candidate: <base>/CygwinBridge/cygwin-bridge.exe
+                    yield return Path.Combine(basePath, "cygwinbridge", exeName);
+
+                    // 2nd candidate: <base>/cygwin-bridge.exe
+                    yield return Path.Combine(basePath, exeName);
+                }
+            }
+
+            private IEnumerable<string> EnumerateCygwinBridgeParentPath() {
+                // 1st candidate: <assembly's location>
+                yield return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
                 IPoderosaApplication app = (IPoderosaApplication)ProtocolsPlugin.Instance.PoderosaWorld.GetAdapter(typeof(IPoderosaApplication));
 
-                // 2nd candidate: <HomeDirectory>/Protocols/Cygterm/cygterm.exe
-                // Previous default for the release version.
-                path = Path.Combine(Path.Combine(Path.Combine(app.HomeDirectory, "protocols"), CYGTERM_DIR), CYGTERM_EXE);
-                if (File.Exists(path))
-                    return path;
+                // 2nd candidate: <HomeDirectory>/Protocols
+                yield return Path.Combine(app.HomeDirectory, "protocols");
 
-                // 3rd candidate: <HomeDirectory>/Cygterm/cygterm.exe
-                // Previous default for the monolithic version.
-                path = Path.Combine(Path.Combine(app.HomeDirectory, CYGTERM_DIR), CYGTERM_EXE);
-                if (File.Exists(path))
-                    return path;
-
-                // 4th candidate: <HomeDirectory>/cygterm.exe
-                path = Path.Combine(app.HomeDirectory, CYGTERM_EXE);
-                if (File.Exists(path))
-                    return path;
-
-                return null;
+                // 3rd candidate: <HomeDirectory>
+                yield return app.HomeDirectory;
             }
-        }
-
-        protected static void PrepareListener() {
-            _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _localPort = 20345;
-            do {
-                try {
-                    _listener.Bind(new IPEndPoint(IPAddress.Loopback, _localPort));
-                    _listener.Listen(1);
-                    break;
-                }
-                catch (Exception) {
-                    if (_localPort++ == 20360)
-                        throw new Exception("port overflow!!"); //さすがにこれはめったにないはず
-                }
-            } while (true);
 
         }
 
@@ -230,8 +240,6 @@ namespace Poderosa.Protocols {
         }
 
         public static void Terminate() {
-            if (_listener != null)
-                _listener.Close();
         }
 
         private static bool IsCygwin(LocalShellParameter tp) {
@@ -326,6 +334,15 @@ namespace Poderosa.Protocols {
         }
 
         /// <summary>
+        /// Default Cygwin architecture
+        /// </summary>
+        public static CygwinArchitecture DefaultCygwinArchitecture {
+            get {
+                return CygwinArchitecture.X86_64;
+            }
+        }
+
+        /// <summary>
         /// <ja>
         /// デフォルトの端末タイプを返します。
         /// </ja>
@@ -390,6 +407,114 @@ namespace Poderosa.Protocols {
             }
 
             return null;
+        }
+    }
+
+    /// <summary>
+    /// Implementation of ITerminalConnection
+    /// </summary>
+    internal class CygwinTerminalConnection : TerminalConnection, ITerminalConnection {
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="terminalParameter">Terminal parameter</param>
+        /// <param name="socket">Socket object</param>
+        public CygwinTerminalConnection(ITerminalParameter terminalParameter, Socket socket)
+            : base(terminalParameter) {
+            _destination = terminalParameter;
+            CygwinSocket s = new CygwinSocket(socket, this);
+            _socket = s;
+            _terminalOutput = s;
+        }
+    }
+
+    internal class CygwinSocket : IPoderosaSocket, ITerminalOutput {
+        private readonly PlainPoderosaSocket _inner;
+        private readonly TelnetOptionWriter _telnetOptionWriter = new TelnetOptionWriter();
+        private readonly object _telnetOptionWriterSync = new object();
+        private byte[] _buff = new byte[0];
+        private readonly object _buffSync = new object();
+
+        public CygwinSocket(Socket socket, TerminalConnection conn) {
+            _inner = new PlainPoderosaSocket(socket);
+            _inner.SetOwnerConnection(conn);
+        }
+
+        public void Transmit(ByteDataFragment data) {
+            Transmit(data.Buffer, data.Offset, data.Length);
+        }
+
+        public void Transmit(byte[] data, int offset, int length) {
+            // Outbound data must be encoded to the TELNET-like stream.
+
+            for (int i = offset; i < offset + length; i++) {
+                if (data[i] == (byte)TelnetCode.IAC) {
+                    goto encode;
+                }
+            }
+            _inner.Transmit(data, offset, length);
+            return;
+
+        encode:
+            lock (_buffSync) {
+                byte[] buff = _buff;
+                if (buff.Length < length * 2) {
+                    buff = _buff = new byte[length * 2];
+                }
+                int buffLength = 0;
+                for (int i = offset; i < offset + length; i++) {
+                    byte t = data[i];
+                    buff[buffLength++] = t;
+                    if (t == (byte)TelnetCode.IAC) {
+                        buff[buffLength++] = t;
+                    }
+                }
+                _inner.Transmit(buff, 0, buffLength);
+            }
+        }
+
+        public void Close() {
+            _inner.Close();
+        }
+
+        public void RepeatAsyncRead(IByteAsyncInputStream receiver) {
+            _inner.RepeatAsyncRead(receiver);
+        }
+
+        public bool Available {
+            get {
+                return _inner.Available;
+            }
+        }
+
+        public void ForceDisposed() {
+            _inner.ForceDisposed();
+        }
+
+        public void SendBreak() {
+            // do nothing
+        }
+
+        public void SendKeepAliveData() {
+            // do nothing
+        }
+
+        public void AreYouThere() {
+            // do nothing
+        }
+
+        public void Resize(int width, int height) {
+            lock (_telnetOptionWriterSync) {
+                _telnetOptionWriter.Clear();
+                _telnetOptionWriter.WriteTerminalSize(width, height);
+                try {
+                    _telnetOptionWriter.WriteTo(_inner);
+                }
+                catch (Exception) {
+                    // ignore
+                }
+            }
         }
     }
 }
