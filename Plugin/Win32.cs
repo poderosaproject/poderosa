@@ -75,6 +75,8 @@ namespace Poderosa {
         public static extern int SetEnvironmentVariable(string name, string value);
         [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
         public static extern int GetEnvironmentVariable(string name, char[] buf, int len);
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern uint GetFileAttributes(string fileName);
 
 
 
@@ -209,6 +211,8 @@ namespace Poderosa {
 
         public const byte CLEARTYPE_QUALITY = 5;            // (_WIN32_WINNT >= 0x0500)
         public const byte CLEARTYPE_NATURAL_QUALITY = 6;    // (_WIN32_WINNT >= 0x0501)
+
+        public const uint INVALID_FILE_ATTRIBUTES = 0xffffffffu;
 
 
         /// <summary>

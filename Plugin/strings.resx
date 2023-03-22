@@ -24,7 +24,16 @@
     <value>Failed to load a type {0} because PluginInfoAttribute is not provided.</value>
   </data>
   <data name="PluginManager.Messages.AssemblyLoadError">
-    <value>Assembly {0} was not able to be loaded.</value>
+    <value>Assembly
+{0}
+could not be loaded.</value>
+  </data>
+  <data name="PluginManager.Messages.AssemblyLoadErrorNeedUnblock">
+    <value>Assembly
+{0}
+could not be loaded.
+
+Check the file properties and unblock the file.</value>
   </data>
   <data name="PluginManager.Messages.BootWithoutThisPlugin">
     <value>Poderosa starts ignoring plug-in {0}. </value>

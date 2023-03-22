@@ -24,7 +24,16 @@
     <value>型 {0} は PluginInfoAttribute を備えていないためロードできません。</value>
   </data>
   <data name="PluginManager.Messages.AssemblyLoadError">
-    <value>アセンブリ {0} をロードできませんでした。</value>
+    <value>アセンブリ
+{0}
+をロードできませんでした。</value>
+  </data>
+  <data name="PluginManager.Messages.AssemblyLoadErrorNeedUnblock">
+    <value>アセンブリ
+{0}
+をロードできませんでした。
+
+ファイルのプロパティを確認し、ブロックを解除してください。</value>
   </data>
   <data name="PluginManager.Messages.BootWithoutThisPlugin">
     <value>プラグイン {0} を無視してPoderosaを起動します。</value>

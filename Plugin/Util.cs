@@ -312,4 +312,16 @@ namespace Poderosa {
         }
     }
 
+    public static class BlockedFileUtil {
+
+        /// <summary>
+        /// Check if the file is blocked
+        /// </summary>
+        /// <param name="path">file path</param>
+        /// <returns>treu if the file is blocked</returns>
+        public static bool IsFileBlocked(string path) {
+            return Win32.GetFileAttributes("\\\\?\\" + path + ":Zone.Identifier") != Win32.INVALID_FILE_ATTRIBUTES;
+        }
+
+    }
 }

@@ -258,7 +258,12 @@ namespace Poderosa.Plugins {
                     assembly = Assembly.LoadFrom(entry.AssemblyName);
                 }
                 catch (Exception) {
-                    _tracer.Trace("PluginManager.Messages.AssemblyLoadError", entry.AssemblyName);
+                    if (BlockedFileUtil.IsFileBlocked(entry.AssemblyName)) {
+                        _tracer.Trace("PluginManager.Messages.AssemblyLoadErrorNeedUnblock", entry.AssemblyName);
+                    }
+                    else {
+                        _tracer.Trace("PluginManager.Messages.AssemblyLoadError", entry.AssemblyName);
+                    }
                     continue;
                 }
 
