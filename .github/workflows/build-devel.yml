@@ -13,10 +13,14 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.sha }}
-      - run: cmd.exe /c .github\workflows\buildall.bat Release
+      - run: cmd.exe /c build\buildall.bat Release GA
       - run: dir; dir bin; dir bin\Release
       - run: Compress-Archive "bin\Release\*" "bin\Poderosa-snapshot-${{ github.ref_name }}.zip"
       - run: dir bin
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-logs
+          path: build/*.log
       - uses: softprops/action-gh-release@v1
         with:
           target_commitish: devel

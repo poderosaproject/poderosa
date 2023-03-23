@@ -67,5 +67,3 @@ for %%P in ( ExtendPaste ) do (
     copy "%BINDIR%\%%P\README*.txt" "%DISTCONTRIB%\%%P"
   )
 )
-
-pause
