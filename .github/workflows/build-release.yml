@@ -1,12 +1,8 @@
 name: build release
 on:
   push:
-    branches:
-      - master
-      - workflow-test
     tags:
       - v*
-      - pre-v*
 jobs:
   build-devel:
     if: startsWith(github.ref, 'refs/tags/')

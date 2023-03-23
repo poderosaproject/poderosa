@@ -1,8 +1,6 @@
 name: build devel branch
 on:
   push:
-    branches:
-      - devel
     tags:
       - dev-*
 jobs:
