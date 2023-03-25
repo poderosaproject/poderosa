@@ -33,8 +33,5 @@ for /F skip^=2^ delims^=^"^ tokens^=2 %%T in ('FIND "PODEROSA_VERSION" "%DISTBAS
 RD /S /Q "%DISTBASE%\Poderosa-%PODEROSA_VERSION%"
 REN "%DISTBASE%\Poderosa-X.X.X" "Poderosa-%PODEROSA_VERSION%"
 
-pause
-
-
 
 

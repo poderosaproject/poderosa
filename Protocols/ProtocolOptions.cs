@@ -132,15 +132,6 @@ namespace Poderosa.Protocols {
         int SocketBufferSize {
             get;
         }
-        bool ReadSerializedPassword {
-            get;
-        }
-        bool SavePassword {
-            get;
-        }
-        bool SavePlainTextPassword {
-            get;
-        }
     }
 
     internal class ProtocolOptions : SnapshotAwarePreferenceBase, IProtocolOptions {
@@ -168,9 +159,6 @@ namespace Poderosa.Protocols {
 
         //PreferenceEditorのみ
         private IIntPreferenceItem _socketBufferSize;
-        private IBoolPreferenceItem _readSerializedPassword;
-        private IBoolPreferenceItem _savePassword;
-        private IBoolPreferenceItem _savePlainTextPassword;
 
         public ProtocolOptions(IPreferenceFolder folder)
             : base(folder) {
@@ -203,9 +191,6 @@ namespace Poderosa.Protocols {
 
             //PreferenceEditorのみ
             _socketBufferSize = builder.DefineIntValue(_folder, "socketBufferSize", 0x1000, PreferenceValidatorUtil.PositiveIntegerValidator);
-            _readSerializedPassword = builder.DefineBoolValue(_folder, "readSerializedPassword", false, null);
-            _savePassword = builder.DefineBoolValue(_folder, "savePassword", false, null);
-            _savePlainTextPassword = builder.DefineBoolValue(_folder, "savePlainTextPassword", false, null);
         }
         public ProtocolOptions Import(ProtocolOptions src) {
             Debug.Assert(src._folder.Id == _folder.Id);
@@ -233,9 +218,6 @@ namespace Poderosa.Protocols {
             _socksNANetworks = ConvertItem(src._socksNANetworks);
 
             _socketBufferSize = ConvertItem(src._socketBufferSize);
-            _readSerializedPassword = ConvertItem(src._readSerializedPassword);
-            _savePassword = ConvertItem(src._savePassword);
-            _savePlainTextPassword = ConvertItem(src._savePlainTextPassword);
 
             return this;
         }
@@ -368,21 +350,6 @@ namespace Poderosa.Protocols {
         public int SocketBufferSize {
             get {
                 return _socketBufferSize.Value;
-            }
-        }
-        public bool ReadSerializedPassword {
-            get {
-                return _readSerializedPassword.Value;
-            }
-        }
-        public bool SavePassword {
-            get {
-                return _savePassword.Value;
-            }
-        }
-        public bool SavePlainTextPassword {
-            get {
-                return _savePlainTextPassword.Value;
             }
         }
 

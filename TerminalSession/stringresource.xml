@@ -52,17 +52,21 @@ $Id: stringresource.xml,v 1.7 2012/03/14 16:33:38 kzmi Exp $
   <ja>ホームディレクトリ(&amp;H)</ja>
   <en>&amp;Home directory</en>
 </record>
-<record name="Form.CygwinLoginDialog._lMessage">
-  <ja>シェルがうまく起動できないときはCygTermをコンパイルしなおしてください。</ja>
-  <en>If you cannot start the shell, please re-compile CygTerm.</en>
+<record name="Form.CygwinLoginDialog._homeDirectoryExampleLabel">
+  <ja>例 {0}</ja>
+  <en>e.g. {0}</en>
 </record>
-<record name="Form.CygwinLoginDialog._advancedOptionCheck">
-  <ja>高度な設定(&amp;A)</ja>
-  <en>&amp;Advanced configuration</en>
+<record name="Form.CygwinLoginDialog._advancedOptionGroup">
+  <ja>高度な設定 (オプション)</ja>
+  <en>Advanced Settings (optional)</en>
 </record>
 <record name="Form.CygwinLoginDialog._shellLabel">
   <ja>シェル(&amp;S)</ja>
   <en>&amp;Shell</en>
+</record>
+<record name="Form.CygwinLoginDialog._shellExampleLabel">
+  <ja>例 {0}</ja>
+  <en>e.g. {0}</en>
 </record>
 <record name="Form.CygwinLoginDialog.TextCygwin">
   <ja>cygwinへの接続</ja>
@@ -99,6 +103,10 @@ $Id: stringresource.xml,v 1.7 2012/03/14 16:33:38 kzmi Exp $
 <record name="Form.CygwinLoginDialog._autoExecMacroPathLabel">
   <ja>自動開始マクロ</ja>
   <en>Auto Exec Macro</en>
+</record>
+<record name="Form.CygwinLoginDialog._cygwin32Check">
+  <ja>32-bit Cygwin</ja>
+  <en>32-bit Cygwin</en>
 </record>
 <record name="Message.CygwinLoginDialog.EmptyHomeDirectory">
   <ja>ホームディレクトリが入力されていません。</ja>
@@ -149,6 +157,14 @@ $Id: stringresource.xml,v 1.7 2012/03/14 16:33:38 kzmi Exp $
 <record name="Form.LoginDialog._passphraseLabel">
   <ja>パスフレーズ(&amp;P)</ja>
   <en>&amp;Passphrase</en>
+</record>
+<record name="Form.LoginDialog._rememberPassphraseCheckBox">
+  <ja>パスフレーズを記憶(&amp;R)</ja>
+  <en>&amp;Remember Passphrase</en>
+</record>
+<record name="Form.LoginDialog._rememberPassphraseCheckBox_ToolTip">
+  <ja>パスフレーズをWindows資格情報マネージャーに保存し、次回以降は自動入力します。</ja>
+  <en>Save the passphrase in Windows Credential Manager and auto-fill it next time.</en>
 </record>
 <record name="Form.LoginDialog._usernameLabel">
   <ja>アカウント(&amp;A)</ja>

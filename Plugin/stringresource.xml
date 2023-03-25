@@ -28,8 +28,19 @@ $Id: stringresource.xml,v 1.2 2011/12/23 04:34:51 kzmi Exp $
 </record>
 
 <record name="PluginManager.Messages.AssemblyLoadError">
-  <ja>アセンブリ {0} をロードできませんでした。</ja>
-  <en>Assembly {0} was not able to be loaded.</en>
+  <ja>アセンブリをロードできませんでした:
+{0}</ja>
+  <en>Assembly could not be loaded:
+{0}</en>
+</record>
+
+<record name="PluginManager.Messages.AssemblyLoadErrorNeedUnblock">
+  <ja>アセンブリをロードできませんでした:
+{0}
+ファイルのプロパティを確認し、許可してください。</ja>
+  <en>Assembly could not be loaded:
+{0}
+Check the file properties and unblock the file.</en>
 </record>
 
 <record name="PluginManager.Messages.BootWithoutThisPlugin">

@@ -19,60 +19,6 @@ $Id: stringresource.xml,v 1.6 2011/12/23 07:18:44 kzmi Exp $
   <en>Abort the connection.</en>
 </record>
 
-<!-- CygwinLoginDialog.cs -->
-<record name="Form.CygwinLoginDialog._homeDirectoryLabel">
-  <ja>ホームディレクトリ(&amp;H)</ja>
-  <en>&amp;Home directory</en>
-</record>
-<record name="Form.CygwinLoginDialog._lMessage">
-  <ja>シェルがうまく起動できないときはCygTermをコンパイルしなおしてください。</ja>
-  <en>If you cannot start the shell, please re-compile CygTerm.</en>
-</record>
-<record name="Form.CygwinLoginDialog._advancedOptionCheck">
-  <ja>高度な設定(&amp;A)</ja>
-  <en>&amp;Advanced configuration</en>
-</record>
-<record name="Form.CygwinLoginDialog._shellLabel">
-  <ja>シェル(&amp;S)</ja>
-  <en>&amp;Shell</en>
-</record>
-<record name="Form.CygwinLoginDialog.TextCygwin">
-  <ja>cygwinへの接続</ja>
-  <en>Connection to cygwin</en>
-</record>
-<record name="Form.CygwinLoginDialog.TextSFU">
-  <ja>SFUへの接続</ja>
-  <en>Connection to SFU</en>
-</record>
-<record name="Form.CygwinLoginDialog._logTypeLabel">
-  <ja>ログの種別(&amp;T)</ja>
-  <en>Log &amp;type</en>
-</record>
-<record name="Form.CygwinLoginDialog._logFileLabel">
-  <ja>ログの保存先(&amp;L)</ja>
-  <en>&amp;Log file</en>
-</record>
-<record name="Message.CygwinLoginDialog.EmptyHomeDirectory">
-  <ja>ホームディレクトリが入力されていません。</ja>
-  <en>The home directory is empty.</en>
-</record>
-<record name="Message.CygwinLoginDialog.EmptyShell">
-  <ja>シェルが入力されていません。</ja>
-  <en>The shell is empty.</en>
-</record>
-<record name="Caption.CygwinLoginDialog.ConnectingCygwin">
-  <ja>cygwinへの接続 - 接続中 (Ctrl+Cで中止します)</ja>
-  <en>Connection to cygwin - Connecting... (Ctrl+C to Stop)</en>
-</record>
-<record name="Caption.CygwinLoginDialog.ConnectingSFU">
-  <ja>SFUへの接続 - 接続中 (Ctrl+Cで中止します)</ja>
-  <en>Connection to SFU - Connecting... (Ctrl+C to Stop)</en>
-</record>
-<record name="Message.CygwinLoginDialog.ConnectionError">
-  <ja>接続エラー</ja>
-  <en>Connection error</en>
-</record>
-
 <!-- InterruptableConnector.cs -->
 <record name="Message.AddressNotResolved">
   <ja>ホスト名 {0} のIPアドレスが取得できませんでした。</ja>
@@ -100,13 +46,31 @@ $Id: stringresource.xml,v 1.6 2011/12/23 07:18:44 kzmi Exp $
   <ja>レジストリキー{0}がみつかりません。Services for Unixが正しくインストールされていないと思われます。</ja>
   <en>The registry key {0} is not found. Services for Unix may be not installed correctly.</en>
 </record>
-<record name="Message.CygwinUtil.CygtermExeNotFound">
-  <ja>cygterm.exeが見つかりません</ja>
-  <en>cygterm.exe cannot be found.</en>
+<record name="Message.CygwinUtil.CygwinBridgeExeNotFound">
+  <ja>{0} が見つかりません</ja>
+  <en>{0} not found.</en>
 </record>
-<record name="Message.CygwinUtil.FailedToRunCygterm">
-  <ja>cygtermの実行に失敗しました</ja>
-  <en>Failed to run cygterm</en>
+<record name="Message.CygwinUtil.FailedToRunCygwinBridge">
+  <ja>実行に失敗しました:
+{0}
+
+{1}
+
+{2}</ja>
+  <en>Failed to run:
+{0}
+
+{1}
+
+{2}</en>
+</record>
+<record name="Message.CygwinUtil.CheckCygwin1DLL">
+  <ja>- 実行には cygwin1.dll が必要です。 Cygwinのインストール先を「Cygwinディレクトリ」に指定するか、cygwin1.dll がある場所をPATH環境変数に追加しておいてください。</ja>
+  <en>- Cygwin1.dll is required to run; specify the Cygwin installation directory in the "Cygwin Directory" option or add the location of cygwin1.dll to the PATH environment variable in advance.</en>
+</record>
+<record name="Message.CygwinUtil.CheckCygwinArchitecture">
+  <ja>- 32-bit版の cygwin1.dll を使用する場合は「32-bit Cygwin」にチェックを入れ、64-bit版の cygwin1.dll を使用する場合はチェックを外してください。</ja>
+  <en>- Check the "32-bit Cygwin" checkbox if you use the 32-bit version of cygwin1.dll, and uncheck the checkbox if you use the 64-bit version of cygwin1.dll.</en>
 </record>
 <record name="Message.CygwinUtil.FailedToConnect">
   <ja>cygwinとの接続中にエラーが発生しました。

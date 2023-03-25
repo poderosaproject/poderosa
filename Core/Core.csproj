@@ -130,6 +130,7 @@
     </Compile>
     <Compile Include="ToolBarEx.cs" />
     <Compile Include="UIEventHandler.cs" />
+    <Compile Include="WinCred.cs" />
     <Compile Include="WindowManagerEx.cs" />
     <Compile Include="MainWindowMenu.cs" />
     <Compile Include="Preferences.cs" />

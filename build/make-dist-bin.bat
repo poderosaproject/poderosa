@@ -33,8 +33,8 @@ for %%P in (Core Macro PortForwardingCommand Protocols SerialPort TerminalEmulat
 copy "%BINDIR%\charwidth" "%DIST%\Core"
 copy "%BINDIR%\charfont" "%DIST%\Core"
 
-MD "%DIST%\Protocols\Cygterm"
-copy "%PROJDIR%\Misc\CygTerm\*.*" "%DIST%\Protocols\Cygterm"
+MD "%DIST%\CygwinBridge"
+copy "%BINDIR%\CygwinBridge\*" "%DIST%\CygwinBridge"
 
 MD "%DIST%\Macro\Sample"
 copy "%PROJDIR%\Misc\Macro\Sample\*.js" "%DIST%\Macro\Sample"
@@ -67,5 +67,3 @@ for %%P in ( ExtendPaste ) do (
     copy "%BINDIR%\%%P\README*.txt" "%DISTCONTRIB%\%%P"
   )
 )
-
-pause

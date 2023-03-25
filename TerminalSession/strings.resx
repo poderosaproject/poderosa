@@ -44,14 +44,17 @@
   <data name="Form.CygwinLoginDialog._homeDirectoryLabel">
     <value>&amp;Home directory</value>
   </data>
-  <data name="Form.CygwinLoginDialog._lMessage">
-    <value>If you cannot start the shell, please re-compile CygTerm.</value>
+  <data name="Form.CygwinLoginDialog._homeDirectoryExampleLabel">
+    <value>e.g. {0}</value>
   </data>
-  <data name="Form.CygwinLoginDialog._advancedOptionCheck">
-    <value>&amp;Advanced configuration</value>
+  <data name="Form.CygwinLoginDialog._advancedOptionGroup">
+    <value>Advanced Settings (optional)</value>
   </data>
   <data name="Form.CygwinLoginDialog._shellLabel">
     <value>&amp;Shell</value>
+  </data>
+  <data name="Form.CygwinLoginDialog._shellExampleLabel">
+    <value>e.g. {0}</value>
   </data>
   <data name="Form.CygwinLoginDialog.TextCygwin">
     <value>Connection to Cygwin</value>
@@ -79,6 +82,9 @@
   </data>
   <data name="Form.CygwinLoginDialog._autoExecMacroPathLabel">
     <value>Auto Exec Macro</value>
+  </data>
+  <data name="Form.CygwinLoginDialog._cygwin32Check">
+    <value>32-bit Cygwin</value>
   </data>
   <data name="Message.CygwinLoginDialog.EmptyHomeDirectory">
     <value>The home directory is empty.</value>
@@ -115,6 +121,12 @@
   </data>
   <data name="Form.LoginDialog._passphraseLabel">
     <value>&amp;Passphrase</value>
+  </data>
+  <data name="Form.LoginDialog._rememberPassphraseCheckBox">
+    <value>&amp;Remember Passphrase</value>
+  </data>
+  <data name="Form.LoginDialog._rememberPassphraseCheckBox_ToolTip">
+    <value>Save the passphrase in Windows Credential Manager and auto-fill it next time.</value>
   </data>
   <data name="Form.LoginDialog._usernameLabel">
     <value>&amp;Account</value>

@@ -300,6 +300,13 @@ namespace Poderosa.Protocols {
             get;
             set;
         }
+        /// <summary>
+        /// Save the password or passphrase if the connection has been established successfully.
+        /// </summary>
+        bool SavePasswordOrPassphrase {
+            get;
+            set;
+        }
         //ユーザにパスワードを入力させるかどうか。trueのときはPasswordOrPassphraseは使用しない
         /// <summary>
         /// <ja>
@@ -349,6 +356,14 @@ namespace Poderosa.Protocols {
             get;
             set;
         }
+    }
+
+    /// <summary>
+    /// Target Cygwin architecture
+    /// </summary>
+    public enum CygwinArchitecture {
+        X86,
+        X86_64,
     }
 
     /// <summary>
@@ -427,6 +442,22 @@ namespace Poderosa.Protocols {
         /// </en>
         /// </summary>
         string CygwinDir {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Target Cygwin architecture
+        /// </summary>
+        CygwinArchitecture CygwinArchitecture {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Use UTF8
+        /// </summary>
+        bool UseUTF8 {
             get;
             set;
         }

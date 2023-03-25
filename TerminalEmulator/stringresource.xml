@@ -236,8 +236,8 @@ $Id: stringresource.xml,v 1.7 2012/03/18 01:26:33 kzmi Exp $
   <en>utf-8 (cjk)</en>
 </record>
 <record name="Command.Encoding.UTF8_Latin">
-  <ja>utf-8 (latin)</ja>
-  <en>utf-8 (latin)</en>
+  <ja>utf-8</ja>
+  <en>utf-8</en>
 </record>
 <record name="Command.Encoding.EUC_JP">
   <ja>euc-jp</ja>
@@ -424,8 +424,8 @@ $Id: stringresource.xml,v 1.7 2012/03/18 01:26:33 kzmi Exp $
   <en>utf-8 (cjk)</en>
 </record>
 <record name="Enum.EncodingType.UTF8_Latin">
-  <ja>utf-8 (latin)</ja>
-  <en>utf-8 (latin)</en>
+  <ja>utf-8</ja>
+  <en>utf-8</en>
 </record>
 <record name="Enum.EncodingType.EUC_JP">
   <ja>euc-jp</ja>

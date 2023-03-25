@@ -153,16 +153,6 @@ namespace Poderosa.ConnectionParam {
         [EnumValue(Description = "Enum.EncodingType.ISO8859_1")]
         ISO8859_1 = 0,
         /// <summary>
-        /// <ja>UTF-8 (CJKテキスト表示用)</ja>
-        /// <en>UTF-8 (for displaying CJK text)</en>
-        /// </summary>
-        /// <remarks>
-        /// <ja>CJKキャラクタセットに含まれる記号、罫線、欧文文字等は、CJKフォントで全角表示されます。</ja>
-        /// <en>Characters like symbols, box-drawing characters or european characters that are contained in CJK character sets are displayed in zenkaku using CJK font.</en>
-        /// </remarks>
-        [EnumValue(Description = "Enum.EncodingType.UTF8")]
-        UTF8 = 1,
-        /// <summary>
         /// <ja>UTF-8 (欧文表示用)</ja>
         /// <en>UTF-8 (for displaying american or european text)</en>
         /// </summary>
@@ -174,6 +164,16 @@ namespace Poderosa.ConnectionParam {
         /// </remarks>
         [EnumValue(Description = "Enum.EncodingType.UTF8_Latin")]
         UTF8_Latin = 8,
+        /// <summary>
+        /// <ja>UTF-8 (CJKテキスト表示用)</ja>
+        /// <en>UTF-8 (for displaying CJK text)</en>
+        /// </summary>
+        /// <remarks>
+        /// <ja>CJKキャラクタセットに含まれる記号、罫線、欧文文字等は、CJKフォントで全角表示されます。</ja>
+        /// <en>Characters like symbols, box-drawing characters or european characters that are contained in CJK character sets are displayed in zenkaku using CJK font.</en>
+        /// </remarks>
+        [EnumValue(Description = "Enum.EncodingType.UTF8")]
+        UTF8 = 1,
         /// <summary>
         /// <ja>EUC JP (主に日本語の文字で使用)</ja>
         /// <en>EUC JP (This encoding is primarily used with Japanese characters.)</en>

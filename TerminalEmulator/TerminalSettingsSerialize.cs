@@ -74,7 +74,7 @@ namespace Poderosa.Terminal {
             TerminalSettings ts = new TerminalSettings();
             ts.BeginUpdate();
 
-            ts.Encoding = ParseEncodingType(node.Get("encoding", ""), EncodingType.ISO8859_1);
+            ts.Encoding = ParseEncodingType(node.Get("encoding", ""), EncodingType.UTF8_Latin);
             ts.TerminalType = ParseUtil.ParseEnum<TerminalType>(node.Get("terminal-type"), TerminalType.XTerm);
             ts.LocalEcho = ParseUtil.ParseBool(node.Get("localecho"), false);
             ts.LineFeedRule = ParseUtil.ParseEnum<LineFeedRule>(node.Get("linefeedrule"), LineFeedRule.Normal);

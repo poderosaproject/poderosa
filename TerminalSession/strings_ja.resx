@@ -44,14 +44,17 @@
   <data name="Form.CygwinLoginDialog._homeDirectoryLabel">
     <value>ホームディレクトリ(&amp;H)</value>
   </data>
-  <data name="Form.CygwinLoginDialog._lMessage">
-    <value>シェルがうまく起動できないときはCygTermをコンパイルしなおしてください。</value>
+  <data name="Form.CygwinLoginDialog._homeDirectoryExampleLabel">
+    <value>例 {0}</value>
   </data>
-  <data name="Form.CygwinLoginDialog._advancedOptionCheck">
-    <value>高度な設定(&amp;A)</value>
+  <data name="Form.CygwinLoginDialog._advancedOptionGroup">
+    <value>高度な設定 (オプション)</value>
   </data>
   <data name="Form.CygwinLoginDialog._shellLabel">
     <value>シェル(&amp;S)</value>
+  </data>
+  <data name="Form.CygwinLoginDialog._shellExampleLabel">
+    <value>例 {0}</value>
   </data>
   <data name="Form.CygwinLoginDialog.TextCygwin">
     <value>cygwinへの接続</value>
@@ -79,6 +82,9 @@
   </data>
   <data name="Form.CygwinLoginDialog._autoExecMacroPathLabel">
     <value>自動開始マクロ</value>
+  </data>
+  <data name="Form.CygwinLoginDialog._cygwin32Check">
+    <value>32-bit Cygwin</value>
   </data>
   <data name="Message.CygwinLoginDialog.EmptyHomeDirectory">
     <value>ホームディレクトリが入力されていません。</value>
@@ -115,6 +121,12 @@
   </data>
   <data name="Form.LoginDialog._passphraseLabel">
     <value>パスフレーズ(&amp;P)</value>
+  </data>
+  <data name="Form.LoginDialog._rememberPassphraseCheckBox">
+    <value>パスフレーズを記憶(&amp;R)</value>
+  </data>
+  <data name="Form.LoginDialog._rememberPassphraseCheckBox_ToolTip">
+    <value>パスフレーズをWindows資格情報マネージャーに保存し、次回以降は自動入力します。</value>
   </data>
   <data name="Form.LoginDialog._usernameLabel">
     <value>アカウント(&amp;A)</value>

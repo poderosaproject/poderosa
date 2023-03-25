@@ -20,45 +20,6 @@
   <data name="Message.SSHConnector.Cancelled">
     <value>接続を中止しました。</value>
   </data>
-  <data name="Form.CygwinLoginDialog._homeDirectoryLabel">
-    <value>ホームディレクトリ(&amp;H)</value>
-  </data>
-  <data name="Form.CygwinLoginDialog._lMessage">
-    <value>シェルがうまく起動できないときはCygTermをコンパイルしなおしてください。</value>
-  </data>
-  <data name="Form.CygwinLoginDialog._advancedOptionCheck">
-    <value>高度な設定(&amp;A)</value>
-  </data>
-  <data name="Form.CygwinLoginDialog._shellLabel">
-    <value>シェル(&amp;S)</value>
-  </data>
-  <data name="Form.CygwinLoginDialog.TextCygwin">
-    <value>cygwinへの接続</value>
-  </data>
-  <data name="Form.CygwinLoginDialog.TextSFU">
-    <value>SFUへの接続</value>
-  </data>
-  <data name="Form.CygwinLoginDialog._logTypeLabel">
-    <value>ログの種別(&amp;T)</value>
-  </data>
-  <data name="Form.CygwinLoginDialog._logFileLabel">
-    <value>ログの保存先(&amp;L)</value>
-  </data>
-  <data name="Message.CygwinLoginDialog.EmptyHomeDirectory">
-    <value>ホームディレクトリが入力されていません。</value>
-  </data>
-  <data name="Message.CygwinLoginDialog.EmptyShell">
-    <value>シェルが入力されていません。</value>
-  </data>
-  <data name="Caption.CygwinLoginDialog.ConnectingCygwin">
-    <value>cygwinへの接続 - 接続中 (Ctrl+Cで中止します)</value>
-  </data>
-  <data name="Caption.CygwinLoginDialog.ConnectingSFU">
-    <value>SFUへの接続 - 接続中 (Ctrl+Cで中止します)</value>
-  </data>
-  <data name="Message.CygwinLoginDialog.ConnectionError">
-    <value>接続エラー</value>
-  </data>
   <data name="Message.AddressNotResolved">
     <value>ホスト名 {0} のIPアドレスが取得できませんでした。</value>
   </data>
@@ -77,11 +38,22 @@
   <data name="Message.SFUUtil.KeyNotFound">
     <value>レジストリキー{0}がみつかりません。Services for Unixが正しくインストールされていないと思われます。</value>
   </data>
-  <data name="Message.CygwinUtil.CygtermExeNotFound">
-    <value>cygterm.exeが見つかりません</value>
+  <data name="Message.CygwinUtil.CygwinBridgeExeNotFound">
+    <value>{0} が見つかりません</value>
   </data>
-  <data name="Message.CygwinUtil.FailedToRunCygterm">
-    <value>cygtermの実行に失敗しました</value>
+  <data name="Message.CygwinUtil.FailedToRunCygwinBridge">
+    <value>実行に失敗しました:
+{0}
+
+{1}
+
+{2}</value>
+  </data>
+  <data name="Message.CygwinUtil.CheckCygwin1DLL">
+    <value>- 実行には cygwin1.dll が必要です。 Cygwinのインストール先を「Cygwinディレクトリ」に指定するか、cygwin1.dll がある場所をPATH環境変数に追加しておいてください。</value>
+  </data>
+  <data name="Message.CygwinUtil.CheckCygwinArchitecture">
+    <value>- 32-bit版の cygwin1.dll を使用する場合は「32-bit Cygwin」にチェックを入れ、64-bit版の cygwin1.dll を使用する場合はチェックを外してください。</value>
   </data>
   <data name="Message.CygwinUtil.FailedToConnect">
     <value>cygwinとの接続中にエラーが発生しました。

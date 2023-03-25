@@ -181,6 +181,7 @@ namespace Poderosa.Protocols {
         private string _account;
         private string _identityFile;
         private string _passwordOrPassphrase;
+        private bool _savePasswordOrPassphrase;
         private bool _letUserInputPassword;
         private bool _enableAgentForwarding;
         private IAgentForwardingAuthKeyProvider _authKeyProvider;
@@ -191,6 +192,7 @@ namespace Poderosa.Protocols {
             _method = SSHProtocol.SSH2;
             _authType = AuthenticationType.Password;
             _passwordOrPassphrase = "";
+            _savePasswordOrPassphrase = false;
             _identityFile = "";
             _letUserInputPassword = true;
             this.Port = 22;
@@ -202,6 +204,7 @@ namespace Poderosa.Protocols {
             _account = src._account;
             _identityFile = src._identityFile;
             _passwordOrPassphrase = src._passwordOrPassphrase;
+            _savePasswordOrPassphrase = src._savePasswordOrPassphrase;
             _letUserInputPassword = src._letUserInputPassword;
             _authKeyProvider = src._authKeyProvider;
         }
@@ -255,6 +258,16 @@ namespace Poderosa.Protocols {
                 _passwordOrPassphrase = value;
             }
         }
+
+        public bool SavePasswordOrPassphrase {
+            get {
+                return _savePasswordOrPassphrase;
+            }
+            set {
+                _savePasswordOrPassphrase = value;
+            }
+        }
+
         public bool LetUserInputPassword {
             get {
                 return _letUserInputPassword;
@@ -315,17 +328,23 @@ namespace Poderosa.Protocols {
         private string _home;
         private string _shellName;
         private string _cygwinDir;
+        private CygwinArchitecture _cygwinArchitecture;
+        private bool _useUtf8;
 
         public LocalShellParameter() {
             _home = CygwinUtil.DefaultHome;
             _shellName = CygwinUtil.DefaultShell;
             _cygwinDir = CygwinUtil.DefaultCygwinDir;
+            _cygwinArchitecture = CygwinUtil.DefaultCygwinArchitecture;
+            _useUtf8 = true;
         }
         public LocalShellParameter(LocalShellParameter src)
             : base(src) {
             _home = src._home;
             _shellName = src._shellName;
             _cygwinDir = src._cygwinDir;
+            _cygwinArchitecture = src._cygwinArchitecture;
+            _useUtf8 = src._useUtf8;
         }
 
         [MacroConnectionParameter]
@@ -367,6 +386,25 @@ namespace Poderosa.Protocols {
             }
         }
 
+        [MacroConnectionParameter]
+        public CygwinArchitecture CygwinArchitecture {
+            get {
+                return _cygwinArchitecture;
+            }
+            set {
+                _cygwinArchitecture = value;
+            }
+        }
+
+        [MacroConnectionParameter]
+        public bool UseUTF8 {
+            get {
+                return _useUtf8;
+            }
+            set {
+                _useUtf8 = value;
+            }
+        }
 
         public override bool UIEquals(ITerminalParameter param) {
             return param is LocalShellParameter; //Cygwinは全部同一視
