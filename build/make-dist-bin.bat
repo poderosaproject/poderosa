@@ -34,7 +34,7 @@ copy "%BINDIR%\charwidth" "%DIST%\Core"
 copy "%BINDIR%\charfont" "%DIST%\Core"
 
 MD "%DIST%\CygwinBridge"
-copy "%BINDIR%\CygwinBridge\*" "%DIST%\CygwinBridge"
+copy "%PROJDIR%\Protocols\CygwinBridge\*" "%DIST%\CygwinBridge"
 
 MD "%DIST%\Macro\Sample"
 copy "%PROJDIR%\Misc\Macro\Sample\*.js" "%DIST%\Macro\Sample"
