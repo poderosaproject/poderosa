@@ -24,15 +24,12 @@
     <value>Failed to load a type {0} because PluginInfoAttribute is not provided.</value>
   </data>
   <data name="PluginManager.Messages.AssemblyLoadError">
-    <value>Assembly
-{0}
-could not be loaded.</value>
+    <value>Assembly could not be loaded:
+{0}</value>
   </data>
   <data name="PluginManager.Messages.AssemblyLoadErrorNeedUnblock">
-    <value>Assembly
+    <value>Assembly could not be loaded:
 {0}
-could not be loaded.
-
 Check the file properties and unblock the file.</value>
   </data>
   <data name="PluginManager.Messages.BootWithoutThisPlugin">
