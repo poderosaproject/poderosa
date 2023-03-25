@@ -1,4 +1,36 @@
-﻿4.4.5
+﻿4.5.0
+-----
+    * Support "rsa-sha2-512" or "rsa-sha2-256" for the public key algorithm
+      and the host key algorithm. (RFC8332, draft-miller-ssh-agent-04)
+
+    * Support "curve25519-sha256" or "curve448-sha512" for the key-exchange
+      algorithm and use them as the preferred algorithms. (RFC5656)
+
+    * Support OpenSSH key file encrypted with AES128/192/256-CTR.
+
+    * Support DSA, RSA and ECDSA keys in the OpenSSH key format.
+
+    * Encoding "utf-8 (latin)" was renamed to "utf-8".
+      Full-width characters are now displayed properly.
+      Character widths are determined to be the same as the value returned
+      by Glibc's wcwidth(3).
+
+    * Add "Remember Passphrase" feature to the SSH connection dialog.
+      The passphrases are stored in the Windows Credential Manager and not in
+      options.conf.
+      The "readSerializedPassword" and "savePlainTextPassword" in the
+      "Detailed preferences" were removed. 
+
+    * Use the new Cygwin bridge instead of CygTerm for the Cygwin connection.
+      Both 64-bit Cygwin and 32-bit Cygwin are supported.
+      See "CygwinBridge" folder.
+
+    * Show a message to unblock the plugin DLLs if they are blocked at startup.
+
+    * The target .NET Framework was changed from 4.5 to 4.5.2 to ensure
+      availability of the build environment.
+
+4.4.5
 -----
     * Fixed: opening a new SSH connection from MRU list works.
       The previously succeeded passphrase is used silently.
