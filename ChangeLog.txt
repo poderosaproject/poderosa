@@ -1,4 +1,8 @@
-﻿4.5.0
+﻿4.5.1
+-----
+    * Fix: Proper discovery of public key algorithms (RFC8332 3.3)
+
+4.5.0
 -----
     * Support "rsa-sha2-512" or "rsa-sha2-256" for the public key algorithm
       and the host key algorithm. (RFC8332, draft-miller-ssh-agent-04)
