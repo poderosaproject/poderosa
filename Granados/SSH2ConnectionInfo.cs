@@ -92,6 +92,24 @@ namespace Granados.SSH2 {
         }
 
         /// <summary>
+        /// Server's supported public key algorithms
+        /// </summary>
+        /// <remarks>This property is null if the server does not provide this information with SSH_MSG_EXT_INFO.</remarks>
+        public string SupportedPublicKeyAlgorithms {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Server's supported public key algorithms (splitted)
+        /// </summary>
+        /// <remarks>This property is null if the server does not provide this information with SSH_MSG_EXT_INFO.</remarks>
+        public string[] SupportedPublicKeyAlgorithmsArray {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Server's supported encryption algorithms (client to server).
         /// </summary>
         /// <remarks>This property is null until the information is obtained from the server.</remarks>

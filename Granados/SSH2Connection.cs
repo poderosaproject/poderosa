@@ -108,6 +108,9 @@ namespace Granados.SSH2 {
             _packetizer = new SSH2Packetizer(_syncHandler);
 
             _packetInterceptors = new SSHPacketInterceptorCollection();
+
+            _packetInterceptors.Add(new SSH2ExtInfo(_protocolEventManager, _connectionInfo));
+
             _keyExchanger = new SSH2KeyExchanger(_timeouts, _syncHandler, param, _protocolEventManager, _connectionInfo, UpdateKey);
             _packetInterceptors.Add(_keyExchanger);
 
@@ -773,6 +776,79 @@ namespace Granados.SSH2 {
                 return "?";
             }
         }
+    }
+
+    /// <summary>
+    /// Class for supporting SSH_MSG_EXT_INFO.
+    /// </summary>
+    internal class SSH2ExtInfo : ISSHPacketInterceptor {
+        #region SSH2ExtInfo
+
+        private readonly SSHProtocolEventManager _protocolEventManager;
+        private readonly SSH2ConnectionInfo _cInfo;
+
+        private bool _serverSigAlgs = false;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public SSH2ExtInfo(
+                    SSHProtocolEventManager protocolEventManager,
+                    SSH2ConnectionInfo info) {
+            _protocolEventManager = protocolEventManager;
+            _cInfo = info;
+        }
+
+        public SSHPacketInterceptorResult InterceptPacket(DataFragment packet) {
+            SSH2PacketType packetType = (SSH2PacketType)packet[0];
+
+            switch (packetType) {
+                case SSH2PacketType.SSH_MSG_EXT_INFO:
+                    ProcessEXTINFO(packet);
+                    return SSHPacketInterceptorResult.Consumed;
+
+                case SSH2PacketType.SSH_MSG_USERAUTH_SUCCESS:
+                case SSH2PacketType.SSH_MSG_USERAUTH_FAILURE:
+                case SSH2PacketType.SSH_MSG_REQUEST_FAILURE:
+                    return SSHPacketInterceptorResult.Finished;
+
+                default:
+                    return SSHPacketInterceptorResult.PassThrough;
+            }
+        }
+
+        /// <summary>
+        /// Reads a received SSH_MSG_EXT_INFO packet.
+        /// </summary>
+        /// <param name="packet">a received packet image</param>
+        private void ProcessEXTINFO(DataFragment packet) {
+
+            SSH2DataReader reader = new SSH2DataReader(packet);
+            SSH2PacketType packetType = (SSH2PacketType)reader.ReadByte();
+            uint extensions = reader.ReadUInt32();
+            for (uint i = 0; i < extensions; i++) {
+                string extensionName = reader.ReadString();
+
+                if (extensionName == "server-sig-algs" && !_serverSigAlgs) {
+                    _serverSigAlgs = true;
+
+                    string algorithmNames = reader.ReadString();
+                    _cInfo.SupportedPublicKeyAlgorithms = algorithmNames;
+                    _cInfo.SupportedPublicKeyAlgorithmsArray = algorithmNames.Split(',');
+
+                    _protocolEventManager.Trace("SSH_MSG_EXT_INFO [{0}] : {1}={2}", i + 1, extensionName, algorithmNames);
+                }
+                else {
+                    reader.ReadByteString();
+                    _protocolEventManager.Trace("SSH_MSG_EXT_INFO [{0}] : {1} (ignored)", i + 1, extensionName);
+                }
+            }
+        }
+
+        public void OnConnectionClosed() {
+        }
+
+        #endregion
     }
 
     /// <summary>
@@ -1641,7 +1717,10 @@ namespace Granados.SSH2 {
         /// </summary>
         /// <returns>name list</returns>
         private string GetSupportedKexAlgorithms() {
-            return string.Join(",", AlgorithmSpecUtil<KexAlgorithm>.GetAlgorithmNamesByPriorityOrder());
+            return string.Join(",", Enumerable.Concat(
+                AlgorithmSpecUtil<KexAlgorithm>.GetAlgorithmNamesByPriorityOrder(),
+                new string[] { "ext-info-c" } // RFC 8308 Extension Negotiation
+            ));
         }
 
         /// <summary>
@@ -2227,11 +2306,14 @@ namespace Granados.SSH2 {
         }
 
         private SignatureAlgorithmVariant DecideSignatureAlgorithmVariant(PublicKeyAlgorithm keyAlgorithm) {
-            string[] supportedAlgorithm = _connectionInfo.SupportedHostKeyAlgorithmsArray;
+            string[] supportedAlgorithm =
+                (_connectionInfo.SupportedPublicKeyAlgorithmsArray != null)
+                    ? _connectionInfo.SupportedPublicKeyAlgorithmsArray
+                    : _connectionInfo.SupportedHostKeyAlgorithmsArray;
             foreach (SignatureAlgorithmVariant variant in AlgorithmSpecUtil<SignatureAlgorithmVariant>.GetAlgorithmsByPriorityOrder()) {
                 if (variant.IsRelatedTo(keyAlgorithm)
                     && supportedAlgorithm.Contains(variant.GetSignatureAlgorithmName())) {
-                        return variant;
+                    return variant;
                 }
             }
             return SignatureAlgorithmVariant.Default;
