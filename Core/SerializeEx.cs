@@ -17,13 +17,44 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace Poderosa.Serializing {
+
+    /// <summary>
+    /// Type of password serialization
+    /// </summary>
+    public enum PasswordSerialization {
+        /// <summary>Don't serialize passwords</summary>
+        None,
+        /// <summary>Serialize passwords as plaintext</summary>
+        Plaintext,
+        /// <summary>Serialize passwords using simple encryption</summary>
+        Encrypted,
+    }
+
+    /// <summary>
+    /// Serialization options
+    /// </summary>
+    public class SerializationOptions {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="passwordSerialization">Type of password serialization</param>
+        public SerializationOptions(PasswordSerialization passwordSerialization = PasswordSerialization.None) {
+            PasswordSerialization = passwordSerialization;
+        }
+
+        public PasswordSerialization PasswordSerialization {
+            get;
+            private set;
+        }
+    }
+    
     /// <summary>
     /// 
     /// </summary>
     /// <exclude/>
     public interface ISerializeService {
-        StructuredText Serialize(object obj);
-        StructuredText Serialize(Type type, object obj); //型を明示
+        StructuredText Serialize(object obj, SerializationOptions options);
+        StructuredText Serialize(Type type, object obj, SerializationOptions options);
         object Deserialize(StructuredText node);
     }
 
@@ -41,7 +72,7 @@ namespace Poderosa.Serializing {
         Type ConcreteType {
             get;
         }
-        StructuredText Serialize(object obj);
+        StructuredText Serialize(object obj, SerializationOptions options);
         object Deserialize(StructuredText node);
     }
 }

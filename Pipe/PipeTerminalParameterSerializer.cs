@@ -32,7 +32,7 @@ namespace Poderosa.Pipe {
             }
         }
 
-        public StructuredText Serialize(object obj) {
+        public StructuredText Serialize(object obj, SerializationOptions options) {
             PipeTerminalParameter tp = obj as PipeTerminalParameter;
             Debug.Assert(tp != null);
 

@@ -31,12 +31,12 @@ namespace Poderosa.Pipe {
             }
         }
 
-        public StructuredText Serialize(object obj) {
+        public StructuredText Serialize(object obj, SerializationOptions options) {
             PipeTerminalSettings ts = obj as PipeTerminalSettings;
             Debug.Assert(ts != null);
 
             StructuredText node = new StructuredText(this.ConcreteType.FullName);
-            node.AddChild(PipePlugin.Instance.SerializeService.Serialize(typeof(TerminalSettings), obj));
+            node.AddChild(PipePlugin.Instance.SerializeService.Serialize(typeof(TerminalSettings), obj, options));
 
             return node;
         }

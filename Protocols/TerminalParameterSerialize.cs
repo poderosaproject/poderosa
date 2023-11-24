@@ -50,7 +50,7 @@ namespace Poderosa.Protocols {
             }
         }
 
-        public abstract StructuredText Serialize(object obj);
+        public abstract StructuredText Serialize(object obj, SerializationOptions options);
         public abstract object Deserialize(StructuredText node);
     }
 
@@ -84,7 +84,7 @@ namespace Poderosa.Protocols {
             : base(typeof(TelnetParameter), 23) {
         }
 
-        public override StructuredText Serialize(object obj) {
+        public override StructuredText Serialize(object obj, SerializationOptions options) {
             StructuredText node = new StructuredText(this.ConcreteType.FullName);
             SerializeTCPParameter((TCPParameter)obj, node);
             node.Set("telnetNewLine", ((TelnetParameter)obj).TelnetNewLine.ToString());
@@ -111,7 +111,7 @@ namespace Poderosa.Protocols {
             : base(t, 22) {
         }
 
-        protected void SerializeSSHLoginParameter(SSHLoginParameter tp, StructuredText node) {
+        protected void SerializeSSHLoginParameter(SSHLoginParameter tp, StructuredText node, SerializationOptions options) {
             SerializeTCPParameter(tp, node);
             if (tp.Method != SSHProtocol.SSH2)
                 node.Set("method", tp.Method.ToString());
@@ -120,6 +120,17 @@ namespace Poderosa.Protocols {
             node.Set("account", tp.Account);
             if (tp.IdentityFileName.Length > 0)
                 node.Set("identityFileName", tp.IdentityFileName);
+            if (tp.PasswordOrPassphrase != null) {
+                if (options.PasswordSerialization == PasswordSerialization.Plaintext) {
+                    node.Set("passphrase", tp.PasswordOrPassphrase);
+                }
+                else if (options.PasswordSerialization == PasswordSerialization.Encrypted) {
+                    string pw = new SimpleStringEncrypt().EncryptString(tp.PasswordOrPassphrase);
+                    if (pw != null) {
+                        node.Set("password", pw);
+                    }
+                }
+            }
 
             node.Set("enableAgentForwarding", tp.EnableAgentForwarding.ToString());
 
@@ -146,6 +157,21 @@ namespace Poderosa.Protocols {
             tp.AuthenticationType = ParseUtil.ParseEnum<AuthenticationType>(node.Get("authentication", ""), AuthenticationType.Password);
             tp.Account = node.Get("account", "");
             tp.IdentityFileName = node.Get("identityFileName", "");
+            string pw = node.Get("passphrase", null);
+            if (pw != null) {
+                tp.PasswordOrPassphrase = pw;
+                tp.LetUserInputPassword = false;
+            }
+            else {
+                pw = node.Get("password", null);
+                if (pw != null) {
+                    pw = new SimpleStringEncrypt().DecryptString(pw);
+                    if (pw != null) {
+                        tp.PasswordOrPassphrase = pw;
+                        tp.LetUserInputPassword = false;
+                    }
+                }
+            }
 
             tp.EnableAgentForwarding = GetBoolValue(node, "enableAgentForwarding", false);
 
@@ -164,9 +190,9 @@ namespace Poderosa.Protocols {
             }
         }
 
-        public override StructuredText Serialize(object obj) {
+        public override StructuredText Serialize(object obj, SerializationOptions options) {
             StructuredText t = new StructuredText(this.ConcreteType.FullName);
-            SerializeSSHLoginParameter((SSHLoginParameter)obj, t);
+            SerializeSSHLoginParameter((SSHLoginParameter)obj, t, options);
             return t;
         }
 
@@ -239,7 +265,8 @@ namespace Poderosa.Protocols {
 
             tp.UseUTF8 = node.Get("useUtf8", "true") == "true";
         }
-        public override StructuredText Serialize(object obj) {
+
+        public override StructuredText Serialize(object obj, SerializationOptions options) {
             StructuredText t = new StructuredText(this.ConcreteType.FullName);
             SerializeLocalShellParameter((LocalShellParameter)obj, t);
             return t;
