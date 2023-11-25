@@ -26,6 +26,7 @@ using Poderosa.Protocols;
 using Poderosa.Commands;
 using Poderosa.Terminal;
 using Poderosa.View;
+using Poderosa.Serializing;
 
 [assembly: PluginDeclaration(typeof(Poderosa.Sessions.ShortcutFilePlugin))]
 
@@ -193,24 +194,43 @@ namespace Poderosa.Sessions {
             if (t == null)
                 return CommandResult.Failed;
 
-            SaveFileDialog dlg = new SaveFileDialog();
-            dlg.Title = TEnv.Strings.GetString("Caption.SaveShortcutFile");
-            dlg.DefaultExt = "gts";
-            dlg.AddExtension = true;
-            dlg.Filter = "Terminal Shortcut(*.gts)|*.gts";
+            ITerminalSettings settingsToSave = t.TerminalSettings;
+            ITerminalParameter paramToSave = t.TerminalConnection.Destination;
 
-            if (dlg.ShowDialog() == DialogResult.OK) {
-                try {
-                    new ShortcutFileContent(t.TerminalSettings, t.TerminalConnection.Destination).SaveToXML(dlg.FileName);
-                    return CommandResult.Succeeded;
-                }
-                catch (Exception ex) {
-                    RuntimeUtil.ReportException(ex);
-                    return CommandResult.Failed;
+            PasswordSerialization passwordSerialization;
+            // currently, only SSHLoginParameter supports PasswordSerialization
+            if (paramToSave.GetType().Name == "SSHLoginParameter") {
+                using (ShortcutFileOptionsDialog dialog = new ShortcutFileOptionsDialog()) {
+                    DialogResult r = dialog.ShowDialog();
+                    if (r != DialogResult.OK) {
+                        return CommandResult.Cancelled;
+                    }
+                    passwordSerialization = dialog.PasswordSerialization;
                 }
             }
-            else
-                return CommandResult.Cancelled;
+            else {
+                passwordSerialization = PasswordSerialization.None;
+            }
+
+            using (SaveFileDialog dlg = new SaveFileDialog()) {
+                dlg.Title = TEnv.Strings.GetString("Caption.SaveShortcutFile");
+                dlg.DefaultExt = "gts";
+                dlg.AddExtension = true;
+                dlg.Filter = "Terminal Shortcut(*.gts)|*.gts";
+
+                if (dlg.ShowDialog() == DialogResult.OK) {
+                    try {
+                        new ShortcutFileContent(settingsToSave, paramToSave).SaveToXML(dlg.FileName, passwordSerialization);
+                        return CommandResult.Succeeded;
+                    }
+                    catch (Exception ex) {
+                        RuntimeUtil.ReportException(ex);
+                        return CommandResult.Failed;
+                    }
+                }
+                else
+                    return CommandResult.Cancelled;
+            }
         }
 
     }

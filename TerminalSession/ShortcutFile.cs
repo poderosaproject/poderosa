@@ -45,8 +45,8 @@ namespace Poderosa.Sessions {
             }
         }
 
-        public void SaveToXML(string filename) {
-            SerializationOptions options = new SerializationOptions();
+        public void SaveToXML(string filename, PasswordSerialization passwordSerialization) {
+            SerializationOptions options = new SerializationOptions(passwordSerialization: passwordSerialization);
             ISerializeService ss = TerminalSessionsPlugin.Instance.SerializeService;
             StructuredText settings_text = ss.Serialize(_settings, options);
             StructuredText parameter_text = ss.Serialize(_param, options);
