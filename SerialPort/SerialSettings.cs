@@ -279,7 +279,7 @@ namespace Poderosa.SerialPort {
         }
 
 
-        public StructuredText Serialize(object obj) {
+        public StructuredText Serialize(object obj, SerializationOptions options) {
             SerialTerminalParam tp = obj as SerialTerminalParam;
             Debug.Assert(tp != null);
 
@@ -313,12 +313,12 @@ namespace Poderosa.SerialPort {
         }
 
 
-        public StructuredText Serialize(object obj) {
+        public StructuredText Serialize(object obj, SerializationOptions options) {
             SerialTerminalSettings ts = obj as SerialTerminalSettings;
             Debug.Assert(ts != null);
 
             StructuredText node = new StructuredText(this.ConcreteType.FullName);
-            node.AddChild(SerialPortPlugin.Instance.SerializeService.Serialize(typeof(TerminalSettings), ts));
+            node.AddChild(SerialPortPlugin.Instance.SerializeService.Serialize(typeof(TerminalSettings), ts, options));
 
             node.Set("baud-rate", ts.BaudRate.ToString());
             if (ts.ByteSize != 8)

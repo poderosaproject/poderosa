@@ -478,4 +478,26 @@ $Id: stringresource.xml,v 1.7 2012/03/14 16:33:38 kzmi Exp $
   <en>Clipboard data contains a new-line character. Do you want to paste it ?</en>
 </record>
 
+<!-- ShortcutFileOptionsDialog.cs -->
+<record name="Form.ShortcutFileOptionsDialog.Caption">
+  <ja>ショートカットの設定</ja>
+  <en>Shortcut Settings</en>
+</record>
+<record name="Form.ShortcutFileOptionsDialog._savePasswordCheckBox">
+  <ja>パスワードまたはパスフレーズを含める (安全ではありません)</ja>
+  <en>Include password or passphrase (not secure)</en>
+</record>
+<record name="Form.ShortcutFileOptionsDialog._encryptPasswordRadioButton">
+  <ja>簡単な暗号化を行う</ja>
+  <en>with basic encryption</en>
+</record>
+<record name="Form.ShortcutFileOptionsDialog._plaintextPasswordRadioButton">
+  <ja>暗号化しない (プレーンテキスト)</ja>
+  <en>without encryption (plaintext)</en>
+</record>
+<record name="Form.ShortcutFileOptionsDialog._saveButton">
+  <ja>保存...</ja>
+  <en>Save...</en>
+</record>
+
 </string-resource>

@@ -229,11 +229,11 @@ namespace Poderosa.Usability {
         }
 
 
-        public StructuredText Serialize(object obj) {
+        public StructuredText Serialize(object obj, SerializationOptions options) {
             MRUItem item = (MRUItem)obj;
             StructuredText t = new StructuredText(this.ConcreteType.FullName);
-            t.AddChild(_serializeService.Serialize(item.TerminalParameter));
-            t.AddChild(_serializeService.Serialize(item.TerminalSettings));
+            t.AddChild(_serializeService.Serialize(item.TerminalParameter, options));
+            t.AddChild(_serializeService.Serialize(item.TerminalSettings, options));
             return t;
         }
 
@@ -319,9 +319,10 @@ namespace Poderosa.Usability {
         }
 
         public void SaveTo(StructuredText node) {
+            SerializationOptions options = new SerializationOptions();
             foreach (MRUItem tp in _data) {
                 try {
-                    node.AddChild(_serializer.Serialize(tp));
+                    node.AddChild(_serializer.Serialize(tp, options));
                 }
                 catch (Exception ex) {
                     RuntimeUtil.ReportException(ex);

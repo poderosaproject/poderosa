@@ -32,13 +32,14 @@ namespace Poderosa.Protocols {
             _concreteType = concreteType;
         }
 
-        public void Serialize(TerminalParameter tp, StructuredText node) {
+        protected void SerializeTerminalParameter(TerminalParameter tp, StructuredText node) {
             if (tp.TerminalType != TerminalParameter.DEFAULT_TERMINAL_TYPE)
                 node.Set("terminal-type", tp.TerminalType);
             if (tp.AutoExecMacroPath != null)
                 node.Set("autoexec-macro", tp.AutoExecMacroPath);
         }
-        public void Deserialize(TerminalParameter tp, StructuredText node) {
+
+        protected void DeserializeTerminalParameter(TerminalParameter tp, StructuredText node) {
             tp.SetTerminalName(node.Get("terminal-type", TerminalParameter.DEFAULT_TERMINAL_TYPE));
             tp.AutoExecMacroPath = node.Get("autoexec-macro", null);
         }
@@ -49,7 +50,7 @@ namespace Poderosa.Protocols {
             }
         }
 
-        public abstract StructuredText Serialize(object obj);
+        public abstract StructuredText Serialize(object obj, SerializationOptions options);
         public abstract object Deserialize(StructuredText node);
     }
 
@@ -62,14 +63,15 @@ namespace Poderosa.Protocols {
         }
 
 
-        public void Serialize(TCPParameter tp, StructuredText node) {
-            base.Serialize(tp, node);
+        protected void SerializeTCPParameter(TCPParameter tp, StructuredText node) {
+            SerializeTerminalParameter(tp, node);
             node.Set("destination", tp.Destination);
             if (tp.Port != _defaultPort)
                 node.Set("port", tp.Port.ToString());
         }
-        public void Deserialize(TCPParameter tp, StructuredText node) {
-            base.Deserialize(tp, node);
+
+        protected void DeserializeTCPParameter(TCPParameter tp, StructuredText node) {
+            DeserializeTerminalParameter(tp, node);
             tp.Destination = node.Get("destination", "");
             Debug.Assert(tp.Destination != null);
             tp.Port = ParseUtil.ParseInt(node.Get("port"), _defaultPort);
@@ -82,16 +84,16 @@ namespace Poderosa.Protocols {
             : base(typeof(TelnetParameter), 23) {
         }
 
-        public override StructuredText Serialize(object obj) {
+        public override StructuredText Serialize(object obj, SerializationOptions options) {
             StructuredText node = new StructuredText(this.ConcreteType.FullName);
-            base.Serialize((TCPParameter)obj, node);
+            SerializeTCPParameter((TCPParameter)obj, node);
             node.Set("telnetNewLine", ((TelnetParameter)obj).TelnetNewLine.ToString());
             return node;
         }
 
         public override object Deserialize(StructuredText node) {
             TelnetParameter t = new TelnetParameter();
-            base.Deserialize(t, node);
+            DeserializeTCPParameter(t, node);
             // Note:
             //   for the backward compatibility, TelnetNewLine becomes false
             //   if parameter "telnetNewLine" doesn't exist.
@@ -109,8 +111,8 @@ namespace Poderosa.Protocols {
             : base(t, 22) {
         }
 
-        public void Serialize(SSHLoginParameter tp, StructuredText node) {
-            base.Serialize(tp, node);
+        protected void SerializeSSHLoginParameter(SSHLoginParameter tp, StructuredText node, SerializationOptions options) {
+            SerializeTCPParameter(tp, node);
             if (tp.Method != SSHProtocol.SSH2)
                 node.Set("method", tp.Method.ToString());
             if (tp.AuthenticationType != AuthenticationType.Password)
@@ -118,6 +120,17 @@ namespace Poderosa.Protocols {
             node.Set("account", tp.Account);
             if (tp.IdentityFileName.Length > 0)
                 node.Set("identityFileName", tp.IdentityFileName);
+            if (tp.PasswordOrPassphrase != null) {
+                if (options.PasswordSerialization == PasswordSerialization.Plaintext) {
+                    node.Set("passphrase", tp.PasswordOrPassphrase);
+                }
+                else if (options.PasswordSerialization == PasswordSerialization.Encrypted) {
+                    string pw = new SimpleStringEncrypt().EncryptString(tp.PasswordOrPassphrase);
+                    if (pw != null) {
+                        node.Set("password", pw);
+                    }
+                }
+            }
 
             node.Set("enableAgentForwarding", tp.EnableAgentForwarding.ToString());
 
@@ -137,12 +150,28 @@ namespace Poderosa.Protocols {
                 }
             }
         }
-        public void Deserialize(SSHLoginParameter tp, StructuredText node) {
-            base.Deserialize(tp, node);
+
+        protected void DeserializeSSHLoginParameter(SSHLoginParameter tp, StructuredText node) {
+            DeserializeTCPParameter(tp, node);
             tp.Method = "SSH1".Equals(node.Get("method")) ? SSHProtocol.SSH1 : SSHProtocol.SSH2;
             tp.AuthenticationType = ParseUtil.ParseEnum<AuthenticationType>(node.Get("authentication", ""), AuthenticationType.Password);
             tp.Account = node.Get("account", "");
             tp.IdentityFileName = node.Get("identityFileName", "");
+            string pw = node.Get("passphrase", null);
+            if (pw != null) {
+                tp.PasswordOrPassphrase = pw;
+                tp.LetUserInputPassword = false;
+            }
+            else {
+                pw = node.Get("password", null);
+                if (pw != null) {
+                    pw = new SimpleStringEncrypt().DecryptString(pw);
+                    if (pw != null) {
+                        tp.PasswordOrPassphrase = pw;
+                        tp.LetUserInputPassword = false;
+                    }
+                }
+            }
 
             tp.EnableAgentForwarding = GetBoolValue(node, "enableAgentForwarding", false);
 
@@ -161,15 +190,15 @@ namespace Poderosa.Protocols {
             }
         }
 
-        public override StructuredText Serialize(object obj) {
+        public override StructuredText Serialize(object obj, SerializationOptions options) {
             StructuredText t = new StructuredText(this.ConcreteType.FullName);
-            Serialize((SSHLoginParameter)obj, t);
+            SerializeSSHLoginParameter((SSHLoginParameter)obj, t, options);
             return t;
         }
 
         public override object Deserialize(StructuredText node) {
             SSHLoginParameter t = new SSHLoginParameter();
-            Deserialize(t, node);
+            DeserializeSSHLoginParameter(t, node);
             return t;
         }
 
@@ -201,8 +230,8 @@ namespace Poderosa.Protocols {
             : base(typeof(LocalShellParameter)) {
         }
 
-        public void Serialize(LocalShellParameter tp, StructuredText node) {
-            base.Serialize(tp, node);
+        protected void SerializeLocalShellParameter(LocalShellParameter tp, StructuredText node) {
+            SerializeTerminalParameter(tp, node);
             if (CygwinUtil.DefaultHome != tp.Home)
                 node.Set("home", tp.Home);
             if (CygwinUtil.DefaultShell != tp.ShellName)
@@ -213,8 +242,9 @@ namespace Poderosa.Protocols {
                 node.Set("cygwin-architecture", tp.CygwinArchitecture.ToString());
             node.Set("useUtf8", tp.UseUTF8 ? "true" : "false");
         }
-        public void Deserialize(LocalShellParameter tp, StructuredText node) {
-            base.Deserialize(tp, node);
+
+        protected void DeserializeLocalShellParameter(LocalShellParameter tp, StructuredText node) {
+            DeserializeTerminalParameter(tp, node);
             tp.Home = node.Get("home", CygwinUtil.DefaultHome);
             tp.ShellName = node.Get("shellName", CygwinUtil.DefaultShell);
             tp.CygwinDir = node.Get("cygwin-directory", CygwinUtil.DefaultCygwinDir);
@@ -235,15 +265,16 @@ namespace Poderosa.Protocols {
 
             tp.UseUTF8 = node.Get("useUtf8", "true") == "true";
         }
-        public override StructuredText Serialize(object obj) {
+
+        public override StructuredText Serialize(object obj, SerializationOptions options) {
             StructuredText t = new StructuredText(this.ConcreteType.FullName);
-            Serialize((LocalShellParameter)obj, t);
+            SerializeLocalShellParameter((LocalShellParameter)obj, t);
             return t;
         }
 
         public override object Deserialize(StructuredText node) {
             LocalShellParameter t = new LocalShellParameter();
-            Deserialize(t, node);
+            DeserializeLocalShellParameter(t, node);
             return t;
         }
     }

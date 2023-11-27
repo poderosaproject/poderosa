@@ -75,6 +75,7 @@
     <Compile Include="ProtocolOptions.cs" />
     <Compile Include="ProtocolsEx.cs" />
     <Compile Include="ProtocolsPlugin.cs" />
+    <Compile Include="SimpleStringEncrypt.cs" />
     <Compile Include="socks.cs" />
     <Compile Include="SSH.cs" />
     <Compile Include="SSHSocket.cs" />
