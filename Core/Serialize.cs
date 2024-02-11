@@ -39,16 +39,16 @@ namespace Poderosa.Serializing {
             _serviceElements.RegisterExtension(new RenderProfileSerializer());
         }
 
-        public StructuredText Serialize(object obj) {
-            return Serialize(obj.GetType(), obj);
+        public StructuredText Serialize(object obj, SerializationOptions options) {
+            return Serialize(obj.GetType(), obj, options);
         }
-        public StructuredText Serialize(Type type, object obj) {
+        public StructuredText Serialize(Type type, object obj, SerializationOptions options) {
             ISerializeServiceElement se = FindServiceElement(type.FullName
                 );
             if (se == null)
                 throw new ArgumentException("ISerializeServiceElement is not found for the class " + obj.GetType().FullName);
 
-            StructuredText t = se.Serialize(obj);
+            StructuredText t = se.Serialize(obj, options);
             return t;
         }
 

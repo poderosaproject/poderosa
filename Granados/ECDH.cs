@@ -65,6 +65,7 @@ namespace Granados.ECDH {
                 case KexAlgorithm.ECDH_SHA2_NISTP521:
                     return GetEllipticCurveDiffieHellmanImpl("nistp521");
                 case KexAlgorithm.CURVE25519_SHA256:
+                case KexAlgorithm.CURVE25519_SHA256_LIBSSH:
                     return new MontgomeryCurveDiffieHellman(new MontgomeryCurve(MontgomeryCurveType.Curve25519));
                 case KexAlgorithm.CURVE448_SHA512:
                     return new MontgomeryCurveDiffieHellman(new MontgomeryCurve(MontgomeryCurveType.Curve448));

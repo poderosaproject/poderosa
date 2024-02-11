@@ -28,7 +28,7 @@ namespace Poderosa.View {
             }
         }
 
-        public StructuredText Serialize(object obj) {
+        public StructuredText Serialize(object obj, SerializationOptions options) {
             StructuredText storage = new StructuredText(typeof(RenderProfile).FullName);
             RenderProfile prof = (RenderProfile)obj;
             storage.Set("font-name", prof.FontName);

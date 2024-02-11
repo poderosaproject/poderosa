@@ -220,7 +220,9 @@ namespace Granados.SSH2 {
             loader.LoadSSH2PrivateKey(passphrase, out keyPair, out comment);
             return new SSH2UserAuthKey(keyPair, comment);
 #else
-            return FromSECSHStyleStream(new FileStream(filename, FileMode.Open, FileAccess.Read), passphrase);
+            using (FileStream s = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                return FromSECSHStyleStream(s, passphrase);
+            }
 #endif
         }
 

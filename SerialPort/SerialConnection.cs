@@ -563,8 +563,6 @@ namespace Poderosa.SerialPort {
 
     internal class SerialPortUtil {
         public static SerialTerminalConnection CreateNewSerialConnection(IPoderosaMainWindow window, SerialTerminalParam param, SerialTerminalSettings settings) {
-            bool successful = false;
-            FileStream strm = null;
             try {
                 StringResource sr = SerialPortPlugin.Instance.Strings;
                 //Debug.WriteLine("OPENING COM"+param.Port);
@@ -598,7 +596,6 @@ namespace Poderosa.SerialPort {
                 timeouts.WriteTotalTimeoutConstant = 100;
                 timeouts.WriteTotalTimeoutMultiplier = 100;
                 Win32Serial.SetCommTimeouts(ptr, ref timeouts);
-                successful = true;
                 SerialTerminalConnection r = new SerialTerminalConnection(param, settings, ptr);
                 return r;
             }
@@ -609,10 +606,6 @@ namespace Poderosa.SerialPort {
                 else
                     GUtil.Warning(Form.ActiveForm, ex.Message); //TODO 苦しい逃げ。IPoderosaFormを実装したベースクラスをCoreにでも持っていたほうがいいのか
                 return null;
-            }
-            finally {
-                if (!successful && strm != null)
-                    strm.Close();
             }
         }
         public static bool FillDCB(IntPtr handle, ref Win32Serial.DCB dcb) {

@@ -348,4 +348,19 @@ New Line</value>
   <data name="Message.AskPasteNewLineChar">
     <value>クリップボードのデータに改行が含まれています。貼り付けますか？</value>
   </data>
+  <data name="Form.ShortcutFileOptionsDialog.Caption">
+    <value>ショートカットの設定</value>
+  </data>
+  <data name="Form.ShortcutFileOptionsDialog._savePasswordCheckBox">
+    <value>パスワードまたはパスフレーズを含める (安全ではありません)</value>
+  </data>
+  <data name="Form.ShortcutFileOptionsDialog._encryptPasswordRadioButton">
+    <value>簡単な暗号化を行う</value>
+  </data>
+  <data name="Form.ShortcutFileOptionsDialog._plaintextPasswordRadioButton">
+    <value>暗号化しない (プレーンテキスト)</value>
+  </data>
+  <data name="Form.ShortcutFileOptionsDialog._saveButton">
+    <value>保存...</value>
+  </data>
 </root>

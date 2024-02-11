@@ -356,8 +356,11 @@ namespace Granados {
         /// <summary>ecdh-sha2-nistp521 described in RFC5656</summary>
         [KexAlgorithmSpec(AlgorithmName = "ecdh-sha2-nistp521", ECDH = true, DefaultPriority = 6)]
         ECDH_SHA2_NISTP521,
+        /// <summary>curve25519-sha256@libssh.org introduced by libssh (equivalent to curve25519-sha256)</summary>
+        [KexAlgorithmSpec(AlgorithmName = "curve25519-sha256@libssh.org", ECDH = true, DefaultPriority = 10)]
+        CURVE25519_SHA256_LIBSSH,
         /// <summary>curve25519-sha256 described in RFC8731</summary>
-        [KexAlgorithmSpec(AlgorithmName = "curve25519-sha256", ECDH=true, DefaultPriority = 10)]
+        [KexAlgorithmSpec(AlgorithmName = "curve25519-sha256", ECDH = true, DefaultPriority = 11)]
         CURVE25519_SHA256,
         /// <summary>curve448-sha512 described in RFC8731</summary>
         [KexAlgorithmSpec(AlgorithmName = "curve448-sha512", ECDH = true, DefaultPriority = 9)]

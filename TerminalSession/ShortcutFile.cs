@@ -45,10 +45,11 @@ namespace Poderosa.Sessions {
             }
         }
 
-        public void SaveToXML(string filename) {
+        public void SaveToXML(string filename, PasswordSerialization passwordSerialization) {
+            SerializationOptions options = new SerializationOptions(passwordSerialization: passwordSerialization);
             ISerializeService ss = TerminalSessionsPlugin.Instance.SerializeService;
-            StructuredText settings_text = ss.Serialize(_settings);
-            StructuredText parameter_text = ss.Serialize(_param);
+            StructuredText settings_text = ss.Serialize(_settings, options);
+            StructuredText parameter_text = ss.Serialize(_param, options);
             //新形式で
             StructuredText root = new StructuredText("poderosa-shortcut");
             root.Set("version", "4.0");

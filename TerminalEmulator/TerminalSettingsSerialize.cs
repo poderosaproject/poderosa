@@ -43,7 +43,7 @@ namespace Poderosa.Terminal {
         }
 
 
-        public StructuredText Serialize(object obj) {
+        public StructuredText Serialize(object obj, SerializationOptions options) {
             StructuredText storage = new StructuredText(this.ConcreteType.FullName);
             TerminalSettings ts = (TerminalSettings)obj;
 
@@ -64,7 +64,7 @@ namespace Poderosa.Terminal {
 #if !UNITTEST
             //現在テストではRenderProfileは対象外
             if (!ts.UsingDefaultRenderProfile)
-                storage.AddChild(_serializeService.Serialize(ts.RenderProfile));
+                storage.AddChild(_serializeService.Serialize(ts.RenderProfile, options));
 #endif
             //アイコンはシリアライズしない
             return storage;

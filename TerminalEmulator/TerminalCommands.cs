@@ -280,46 +280,37 @@ namespace Poderosa.Terminal {
             //dlg.InitialDirectory = GApp.Options.DefaultFileDir;
             dlg.Title = GEnv.Strings.GetString("Util.DestinationToSave");
             dlg.Filter = "All Files(*.*)|*.*";
-            if (dlg.ShowDialog(window.AsForm()) == DialogResult.OK) {
-                StreamWriter wr = null;
-                try {
-                    wr = new StreamWriter(new FileStream(dlg.FileName, FileMode.Create), Encoding.Default);
+            if (dlg.ShowDialog(window.AsForm()) != DialogResult.OK) {
+                return CommandResult.Cancelled;
+            }
+            try {
+                using (StreamWriter wr = new StreamWriter(dlg.FileName, false, Encoding.Default)) {
                     wr.Write(text);
                     return CommandResult.Succeeded;
                 }
-                catch (Exception ex) {
-                    window.Warning(ex.Message);
-                    return CommandResult.Failed;
-                }
-                finally {
-                    if (wr != null)
-                        wr.Close();
-                }
             }
-            else
-                return CommandResult.Cancelled;
+            catch (Exception ex) {
+                window.Warning(ex.Message);
+                return CommandResult.Failed;
+            }
         }
         private static CommandResult CmdPasteFromFile(ICommandTarget target) {
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.Title = GEnv.Strings.GetString("Caption.SelectPasteFile");
             dlg.Filter = "All Files(*.*)|*.*";
             if (dlg.ShowDialog() == DialogResult.OK) {
-                StreamReader r = null;
                 try {
                     ITerminalControlHost host = TerminalCommandTarget.AsOpenTerminal(target);
                     if (host == null)
                         return CommandResult.Failed;
-                    r = new StreamReader(dlg.FileName, Encoding.Default);
-                    host.TerminalTransmission.SendTextStream(r, true, true);
+                    using (StreamReader r = new StreamReader(dlg.FileName, Encoding.Default)) {
+                        host.TerminalTransmission.SendTextStream(r, true, true);
+                    }
                     return CommandResult.Succeeded;
                 }
                 catch (Exception ex) {
                     RuntimeUtil.ReportException(ex);
                     return CommandResult.Failed;
-                }
-                finally {
-                    if (r != null)
-                        r.Close();
                 }
             }
             return CommandResult.Cancelled;

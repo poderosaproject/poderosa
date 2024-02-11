@@ -8,19 +8,18 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
       - run: cmd.exe /c build\buildall.bat Release GA
       - run: dir; dir bin; dir bin\Release
       - run: Compress-Archive "bin\Release\*" "bin\Poderosa-snapshot-${{ github.ref_name }}.zip"
       - run: dir bin
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: build-logs
           path: build/*.log
-      - uses: softprops/action-gh-release@v1
+      - uses: ncipollo/release-action@v1
         with:
-          target_commitish: devel
           prerelease: true
-          files: bin/*.zip
+          artifacts: bin/*.zip

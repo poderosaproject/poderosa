@@ -123,9 +123,7 @@ namespace Poderosa.Usability {
             if (!File.Exists(filename))
                 return;
 
-            StreamReader r = null;
-            try {
-                r = new StreamReader(File.Open(filename, FileMode.Open, FileAccess.Read));
+            using (StreamReader r = new StreamReader(filename, Encoding.Default)) {
                 string line = r.ReadLine();
                 while (line != null) {
                     int sp = line.IndexOf(' ');
@@ -140,10 +138,6 @@ namespace Poderosa.Usability {
 
                     line = r.ReadLine();
                 }
-            }
-            finally {
-                if (r != null)
-                    r.Close();
             }
         }
 
@@ -161,9 +155,7 @@ namespace Poderosa.Usability {
 
         public void Flush() {
             Debug.Assert(_loaded);
-            StreamWriter w = null;
-            try {
-                w = new StreamWriter(File.Open(GetKnownHostsFileName(), FileMode.Create));
+            using (StreamWriter w = new StreamWriter(GetKnownHostsFileName(), false, Encoding.Default)) {
                 IDictionaryEnumerator ie = _dataForSSH1.GetEnumerator();
                 while (ie.MoveNext())
                     WriteEntry(w, (string)ie.Key, (string)ie.Value);
@@ -173,10 +165,6 @@ namespace Poderosa.Usability {
                     WriteEntry(w, (string)ie.Key, (string)ie.Value);
 
                 _modified = false;
-            }
-            finally {
-                if (w != null)
-                    w.Close();
             }
         }
 

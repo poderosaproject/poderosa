@@ -348,4 +348,19 @@ New Line</value>
   <data name="Message.AskPasteNewLineChar">
     <value>Clipboard data contains a new-line character. Do you want to paste it ?</value>
   </data>
+  <data name="Form.ShortcutFileOptionsDialog.Caption">
+    <value>Shortcut Settings</value>
+  </data>
+  <data name="Form.ShortcutFileOptionsDialog._savePasswordCheckBox">
+    <value>Include password or passphrase (not secure)</value>
+  </data>
+  <data name="Form.ShortcutFileOptionsDialog._encryptPasswordRadioButton">
+    <value>with basic encryption</value>
+  </data>
+  <data name="Form.ShortcutFileOptionsDialog._plaintextPasswordRadioButton">
+    <value>without encryption (plaintext)</value>
+  </data>
+  <data name="Form.ShortcutFileOptionsDialog._saveButton">
+    <value>Save...</value>
+  </data>
 </root>
