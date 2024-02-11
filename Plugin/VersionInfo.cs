@@ -35,7 +35,7 @@ namespace Poderosa {
         /// Year part of the copyright notice.
         /// </en>
         /// </summary>
-        public const string COPYRIGHT_YEARS = "2005-2023";
+        public const string COPYRIGHT_YEARS = "2005-2024";
         /// <summary>
         /// <ja>
         /// バージョン番号です。
@@ -44,7 +44,7 @@ namespace Poderosa {
         /// Version number.
         /// </en>
         /// </summary>
-        public const string PODEROSA_VERSION = "4.5.1";
+        public const string PODEROSA_VERSION = "4.6.0";
         /// <summary>
         /// <ja>
         /// プロジェクト名です。
