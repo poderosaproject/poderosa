@@ -110,18 +110,18 @@ namespace Poderosa {
             Debug.WriteLine(ex.StackTrace);
 
             //エラーファイルに追記
-            string dir = null;
-            StreamWriter sw = GetDebugLog(ref dir);
-            sw.WriteLine(DateTime.Now.ToString() + remark + ex.Message);
-            sw.WriteLine(ex.StackTrace);
-            //inner exceptionを順次
-            Exception i = ex.InnerException;
-            while (i != null) {
-                sw.WriteLine("[inner] " + i.Message);
-                sw.WriteLine(i.StackTrace);
-                i = i.InnerException;
+            string dir;
+            using (StreamWriter sw = GetDebugLog(out dir)) {
+                sw.WriteLine(DateTime.Now.ToString() + remark + ex.Message);
+                sw.WriteLine(ex.StackTrace);
+                //inner exceptionを順次
+                Exception i = ex.InnerException;
+                while (i != null) {
+                    sw.WriteLine("[inner] " + i.Message);
+                    sw.WriteLine(i.StackTrace);
+                    i = i.InnerException;
+                }
             }
-            sw.Close();
 
             //メッセージボックスで通知。
             //だがこの中で例外が発生することがSP1ではあるらしい。しかもそうなるとアプリが強制終了だ。
@@ -136,24 +136,26 @@ namespace Poderosa {
                 Debug.WriteLine(ex2.StackTrace);
             }
         }
-        private static StreamWriter GetDebugLog(ref string dir) {
+
+        private static StreamWriter GetDebugLog(out string dir) {
             try {
                 dir = AppDomain.CurrentDomain.BaseDirectory;
-                return new StreamWriter(dir + "\\error.log", true, Encoding.Default);
+                return new StreamWriter(Path.Combine(dir, "error.log"), true, Encoding.Default);
             }
             catch (Exception) {
-                dir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Poderosa";
-                if (!Directory.Exists(dir))
-                    Directory.CreateDirectory(dir);
-                return new StreamWriter(dir + "\\error.log", true, Encoding.Default);
             }
+
+            dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Poderosa");
+            Directory.CreateDirectory(dir);
+            return new StreamWriter(Path.Combine(dir, "error.log"), true, Encoding.Default);
         }
 
         private static StreamWriter _debugLog = null;
         public static void WriteDebugLog(string data) {
-            string dir = null;
-            if (_debugLog == null)
-                _debugLog = GetDebugLog(ref dir);
+            if (_debugLog == null) {
+                string dir;
+                _debugLog = GetDebugLog(out dir);
+            }
             _debugLog.WriteLine(data);
             _debugLog.Flush();
         }
