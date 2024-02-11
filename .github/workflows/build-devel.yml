@@ -21,7 +21,5 @@ jobs:
           path: build/*.log
       - uses: ncipollo/release-action@v1
         with:
-          draft: true
-          generateReleaseNotes: true
           prerelease: true
           artifacts: bin/*.zip
