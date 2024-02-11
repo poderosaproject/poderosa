@@ -40,7 +40,7 @@ namespace Granados.Poderosa.KeyFormat {
         /// <exception cref="SSHException">failed to read the key file</exception>
         public PrivateKeyLoader(string path) {
             byte[] data;
-            using (FileStream fin = new FileStream(path, FileMode.Open)) {
+            using (FileStream fin = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
                 long readLen = fin.Length;
                 if (readLen > Int32.MaxValue)
                     throw new SSHException("Key file is too large.");

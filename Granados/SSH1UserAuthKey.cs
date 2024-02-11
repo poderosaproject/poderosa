@@ -67,14 +67,15 @@ namespace Granados.SSH1 {
                             out _crtCoefficient,
                             out _comment);
 #else
-            Stream s = File.Open(path, FileMode.Open);
-            byte[] header = new byte[32];
-            s.Read(header, 0, header.Length);
-            if (Encoding.ASCII.GetString(header) != "SSH PRIVATE KEY FILE FORMAT 1.1\n")
-                throw new SSHException(String.Format(Strings.GetString("BrokenKeyFile"), path));
+            SSH1DataReader reader;
+            using (FileStream s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                byte[] header = new byte[32];
+                s.Read(header, 0, header.Length);
+                if (Encoding.ASCII.GetString(header) != "SSH PRIVATE KEY FILE FORMAT 1.1\n")
+                    throw new SSHException(String.Format(Strings.GetString("BrokenKeyFile"), path));
 
-            SSH1DataReader reader = new SSH1DataReader(ReadAll(s));
-            s.Close();
+                reader = new SSH1DataReader(ReadAll(s));
+            }
 
             byte[] cipher = reader.Read(2); //first 2 bytes indicates algorithm and next 8 bytes is space
             reader.Read(8);
