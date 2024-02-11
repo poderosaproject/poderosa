@@ -393,15 +393,11 @@ namespace Poderosa.Protocols {
             };
 
             foreach (string[] keyValueName in keyValueNameArray) {
-                RegistryKey subKey = baseKey.OpenSubKey(keyValueName[0]);
-                if (subKey != null) {
-                    try {
+                using (RegistryKey subKey = baseKey.OpenSubKey(keyValueName[0])) {
+                    if (subKey != null) {
                         string val = subKey.GetValue(keyValueName[1]) as string;
                         if (val != null)
                             return val;
-                    }
-                    finally {
-                        subKey.Close();
                     }
                 }
             }

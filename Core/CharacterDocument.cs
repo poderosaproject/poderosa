@@ -276,19 +276,13 @@ namespace Poderosa.Document {
 
         //テキストファイルから読み出す。装飾はムリだけど
         public void LoadForTest(string filename) {
-            StreamReader r = null;
-            try {
-                r = new StreamReader(filename, Encoding.Default);
+            using (StreamReader r = new StreamReader(filename, Encoding.Default)) {
                 TextDecoration dec = TextDecoration.Default;
                 string line = r.ReadLine();
                 while (line != null) {
                     this.AddLine(GLine.CreateSimpleGLine(line, dec));
                     line = r.ReadLine();
                 }
-            }
-            finally {
-                if (r != null)
-                    r.Close();
             }
         }
         //単一行からの作成
