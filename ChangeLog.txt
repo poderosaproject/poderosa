@@ -1,4 +1,13 @@
-﻿4.5.1
+4.6.0
+-----
+    * Supports KEX algorithm "curve25519-sha256@libssh.org."
+    * Allow storing passphrase in the shortcut file (.gts).
+      The shortcut files containing passphrase, saved in older versions (<=4.4.5),
+      can also be used.
+    * Fix: Support for using read-only key file.
+    * Some code cleanup.
+
+4.5.1
 -----
     * Fix: Proper discovery of public key algorithms (RFC8332 3.3)
 
