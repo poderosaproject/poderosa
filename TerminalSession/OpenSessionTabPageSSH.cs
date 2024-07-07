@@ -127,11 +127,9 @@ namespace Poderosa.Sessions {
         /// If false was returned, parent form will set the focus on the "OK" button.
         /// </returns>
         public bool SetFocus() {
-            if (String.IsNullOrEmpty(_hostBox.Text)) {
-                _hostBox.Focus();
-                return true;
-            }
-            return false;
+            _hostBox.Focus();
+            _hostBox.SelectAll();
+            return true;
         }
 
         /// <summary>
