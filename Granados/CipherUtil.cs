@@ -41,9 +41,14 @@ namespace Granados.Crypto {
             dest[offset + 3] = (byte)(val & 0xff);
         }
 
-        internal static void BlockXor(byte[] src, int s_offset, int len, byte[] dest, int d_offset) {
+        internal static void BlockXor(byte[] src, int srcOffset, int len, byte[] dest, int destOffset) {
             for (; len > 0; len--)
-                dest[d_offset++] ^= src[s_offset++];
+                dest[destOffset++] ^= src[srcOffset++];
+        }
+
+        internal static void BlockXor2(byte[] src1, int src1Offset, byte[] src2, int src2Offset, int len, byte[] dest, int destOffset) {
+            for (; len > 0; len--)
+                dest[destOffset++] = (byte)(src1[src1Offset++] ^ src2[src2Offset++]);
         }
 
         public static int memcmp(byte[] d1, int o1, byte[] d2, int o2, int len) {

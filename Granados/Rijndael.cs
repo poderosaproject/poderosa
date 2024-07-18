@@ -13,13 +13,11 @@ namespace Granados.Algorithms {
     /// </summary>
     /// <exclude/>
     public class Rijndael {
-        byte[] _IV;
-        int[][] _Ke;			// encryption round keys
-        int[][] _Kd;			// decryption round keys
+        private int[][] _Ke;			// encryption round keys
+        private int[][] _Kd;			// decryption round keys
         private int _rounds;
 
         public Rijndael() {
-            _IV = new byte[GetBlockSize()];
         }
 
         public int GetBlockSize() {
@@ -27,21 +25,14 @@ namespace Granados.Algorithms {
         }
 
         ///////////////////////////////////////////////
-        // set _IV
-        ///////////////////////////////////////////////
-        public void SetIV(byte[] newiv) {
-            Array.Copy(newiv, 0, _IV, 0, _IV.Length);
-        }
-
-        ///////////////////////////////////////////////
         // set KEY
         ///////////////////////////////////////////////
         public void InitializeKey(byte[] key) {
             if (key == null)
-                throw new Exception("Empty key");
+                throw new ArgumentException("Empty key", "key");
             //128bit or 192bit or 256bit
             if (!(key.Length == 16 || key.Length == 24 || key.Length == 32))
-                throw new Exception("Incorrect key length");
+                throw new ArgumentException("Invalid key length", "key");
 
             _rounds = getRounds(key.Length, GetBlockSize());
             _Ke = new int[_rounds + 1][];
@@ -116,60 +107,6 @@ namespace Granados.Algorithms {
                     return blockSize != 32 ? 12 : 14;
                 default:
                     return 14;
-            }
-        }
-
-        public void encryptCBC(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) {
-            int block_size = GetBlockSize();
-            int nBlocks = inputLen / block_size;
-            for (int bc = 0; bc < nBlocks; bc++) {
-                CipherUtil.BlockXor(input, inputOffset, block_size, _IV, 0);
-                blockEncrypt(_IV, 0, output, outputOffset);
-                Array.Copy(output, outputOffset, _IV, 0, block_size);
-                inputOffset += block_size;
-                outputOffset += block_size;
-            }
-        }
-
-        public void decryptCBC(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) {
-            int block_size = GetBlockSize();
-            byte[] tmpBlk = new byte[block_size];
-            int nBlocks = inputLen / block_size;
-            for (int bc = 0; bc < nBlocks; bc++) {
-                blockDecrypt(input, inputOffset, tmpBlk, 0);
-                for (int i = 0; i < block_size; i++) {
-                    tmpBlk[i] ^= _IV[i];
-                    _IV[i] = input[inputOffset + i];
-                    output[outputOffset + i] = tmpBlk[i];
-                }
-                inputOffset += block_size;
-                outputOffset += block_size;
-            }
-        }
-
-        public void encryptCTR(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) {
-            int block_size = GetBlockSize();
-            int nBlocks = inputLen / block_size;
-            byte[] tmpBlk = new byte[block_size];
-            for (int bc = 0; bc < nBlocks; bc++) {
-                blockEncrypt(_IV, 0, tmpBlk, 0);
-                CipherUtil.BlockXor(input, inputOffset, block_size, tmpBlk, 0);
-                Array.Copy(tmpBlk, 0, output, outputOffset, block_size);
-                incrementIV();
-                inputOffset += block_size;
-                outputOffset += block_size;
-            }
-        }
-
-        public void decryptCTR(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) {
-            encryptCTR(input, inputOffset, inputLen, output, outputOffset);
-        }
-
-        public void incrementIV() {
-            for (int i = GetBlockSize() - 1; i >= 0; i--) {
-                if (++_IV[i] != 0) {
-                    return;
-                }
             }
         }
 
@@ -482,4 +419,733 @@ namespace Granados.Algorithms {
             return a0 << 24 | a1 << 16 | a2 << 8 | a3;
         }
     }
+
+    /// <summary>
+    /// AES Block Cipher Mode interface
+    /// </summary>
+    public interface IAESBlockCipherMode {
+        void Encrypt(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset);
+        void Decrypt(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset);
+        int GetBlockSize();
+    }
+
+    /// <summary>
+    /// AES CBC mode encryption / decryption
+    /// </summary>
+    public class AESBlockCipherCBC : Rijndael, IAESBlockCipherMode {
+
+        private readonly byte[] _chainBlock;
+        private readonly byte[] _tmpBlock;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="key">AES key (128 / 192 / 256 bit)</param>
+        /// <param name="iv">initial vector. if omitted, zero-filled block is used.</param>
+        public AESBlockCipherCBC(byte[] key, byte[] iv = null) {
+            if (iv != null && iv.Length != GetBlockSize()) {
+                throw new ArgumentException("Invald IV size", "iv");
+            }
+
+            _chainBlock = new byte[GetBlockSize()];
+            if (iv != null) {
+                Array.Copy(iv, _chainBlock, iv.Length);
+            }
+
+            _tmpBlock = new byte[GetBlockSize()];
+
+            InitializeKey(key);
+        }
+
+        /// <summary>
+        /// Encrypt
+        /// </summary>
+        /// <param name="input">input byte array</param>
+        /// <param name="inputOffset">input offset</param>
+        /// <param name="inputLen">input length</param>
+        /// <param name="output">output byte array. this can be the same array as <paramref name="input"/>.</param>
+        /// <param name="outputOffset">output offset</param>
+        public void Encrypt(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) {
+            int blockSize = GetBlockSize();
+            int nBlocks = inputLen / blockSize;
+            for (int bc = 0; bc < nBlocks; bc++) {
+                CipherUtil.BlockXor2(input, inputOffset, _chainBlock, 0, blockSize, _tmpBlock, 0);
+                blockEncrypt(_tmpBlock, 0, _chainBlock, 0);
+                Array.Copy(_chainBlock, 0, output, outputOffset, blockSize);
+                inputOffset += blockSize;
+                outputOffset += blockSize;
+            }
+        }
+
+        /// <summary>
+        /// Decrypt
+        /// </summary>
+        /// <param name="input">input byte array</param>
+        /// <param name="inputOffset">input offset</param>
+        /// <param name="inputLen">input length</param>
+        /// <param name="output">output byte array. this can be the same array as <paramref name="input"/>.</param>
+        /// <param name="outputOffset">output offset</param>
+        public void Decrypt(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) {
+            int blockSize = GetBlockSize();
+            int nBlocks = inputLen / blockSize;
+            for (int bc = 0; bc < nBlocks; bc++) {
+                blockDecrypt(input, inputOffset, _tmpBlock, 0);
+                CipherUtil.BlockXor(_chainBlock, 0, blockSize, _tmpBlock, 0);
+                Array.Copy(input, inputOffset, _chainBlock, 0, blockSize);
+                Array.Copy(_tmpBlock, 0, output, outputOffset, blockSize);
+                inputOffset += blockSize;
+                outputOffset += blockSize;
+            }
+        }
+    }
+
+    /// <summary>
+    /// AES CTR mode encryption / decryption
+    /// </summary>
+    public class AESBlockCipherCTR : Rijndael, IAESBlockCipherMode {
+
+        private readonly byte[] _counterBlock;
+        private readonly byte[] _tmpBlock;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="key">AES key (128 / 192 / 256 bit)</param>
+        /// <param name="icb">initial counter block</param>
+        public AESBlockCipherCTR(byte[] key, byte[] icb) {
+            if (icb.Length != GetBlockSize()) {
+                throw new ArgumentException("Invald ICB size", "icb");
+            }
+
+            _counterBlock = new byte[GetBlockSize()];
+            Array.Copy(icb, _counterBlock, icb.Length);
+
+            _tmpBlock = new byte[GetBlockSize()];
+
+            InitializeKey(key);
+        }
+
+        /// <summary>
+        /// Encrypt
+        /// </summary>
+        /// <param name="input">input byte array</param>
+        /// <param name="inputOffset">input offset</param>
+        /// <param name="inputLen">input length</param>
+        /// <param name="output">output byte array. this can be the same array as <paramref name="input"/>.</param>
+        /// <param name="outputOffset">output offset</param>
+        public void Encrypt(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) {
+            int blockSize = GetBlockSize();
+            int nBlocks = inputLen / blockSize;
+            for (int bc = 0; bc < nBlocks; bc++) {
+                blockEncrypt(_counterBlock, 0, _tmpBlock, 0);
+                CipherUtil.BlockXor2(input, inputOffset, _tmpBlock, 0, blockSize, output, outputOffset);
+                IncrementCounterBlock();
+                inputOffset += blockSize;
+                outputOffset += blockSize;
+            }
+        }
+
+        /// <summary>
+        /// Decrypt
+        /// </summary>
+        /// <param name="input">input byte array</param>
+        /// <param name="inputOffset">input offset</param>
+        /// <param name="inputLen">input length</param>
+        /// <param name="output">output byte array. this can be the same array as <paramref name="input"/>.</param>
+        /// <param name="outputOffset">output offset</param>
+        public void Decrypt(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) {
+            Encrypt(input, inputOffset, inputLen, output, outputOffset);
+        }
+
+        internal void IncrementCounterBlock() {
+            for (int i = _counterBlock.Length - 1; i >= 0; i--) {
+                if (++_counterBlock[i] != 0) {
+                    return;
+                }
+            }
+        }
+
+        // for testing
+        internal byte[] CopyCounterBlock() {
+            return (byte[])_counterBlock.Clone();
+        }
+    }
+
+
+#if DEBUG
+    // Test
+    internal static class RijndaelTest {
+        // Test vectors from NIST 800-38A
+        // Recommendation for Block Cipher Modes of Operation: Methods and Techniques
+
+        private static readonly byte[] original =
+            BigIntegerConverter.ParseHex(
+              "6bc1bee22e409f96e93d7e117393172a"
+            + "ae2d8a571e03ac9c9eb76fac45af8e51"
+            + "30c81c46a35ce411e5fbc1191a0a52ef"
+            + "f69f2445df4f9b17ad2b417be66c3710");
+
+        internal static void Test() {
+            Test_AES128_ECB_Encrypt();
+            Test_AES128_ECB_Decrypt();
+            Test_AES192_ECB_Encrypt();
+            Test_AES192_ECB_Decrypt();
+            Test_AES256_ECB_Encrypt();
+            Test_AES256_ECB_Decrypt();
+
+            Test_AES128_CBC_Encrypt();
+            Test_AES128_CBC_Decrypt();
+            Test_AES192_CBC_Encrypt();
+            Test_AES192_CBC_Decrypt();
+            Test_AES256_CBC_Encrypt();
+            Test_AES256_CBC_Decrypt();
+
+            Test_AES_CTR_IncrementCounterBlock();
+
+            Test_AES128_CTR_Encrypt();
+            Test_AES128_CTR_Decrypt();
+            Test_AES192_CTR_Encrypt();
+            Test_AES192_CTR_Decrypt();
+            Test_AES256_CTR_Encrypt();
+            Test_AES256_CTR_Decrypt();
+        }
+
+        #region ECB
+
+        private static void test_AES_ECB_Encrypt(byte[] key, byte[] input, byte[] expected, [System.Runtime.CompilerServices.CallerMemberName] string testName = "") {
+            byte[] inputOrig = (byte[])input.Clone();
+            byte[] output = new byte[input.Length];
+
+            var aes = new Rijndael();
+            aes.InitializeKey(key);
+            int offset = 0;
+            while (offset < input.Length) {
+                aes.blockEncrypt(input, offset, output, offset);
+                offset += aes.GetBlockSize();
+            }
+
+            if (!System.Linq.Enumerable.SequenceEqual(output, expected)) {
+                throw new Exception(String.Format("{0}: Encrypt failed: wrong output", testName));
+            }
+            if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
+                throw new Exception(String.Format("{0}: Encrypt failed: input data were corrupted", testName));
+            }
+        }
+
+        private static void test_AES_ECB_Decrypt(byte[] key, byte[] input, byte[] expected, [System.Runtime.CompilerServices.CallerMemberName] string testName = "") {
+            byte[] inputOrig = (byte[])input.Clone();
+            byte[] output = new byte[input.Length];
+
+            var aes = new Rijndael();
+            aes.InitializeKey(key);
+            int offset = 0;
+            while (offset < input.Length) {
+                aes.blockDecrypt(input, offset, output, offset);
+                offset += aes.GetBlockSize();
+            }
+
+            if (!System.Linq.Enumerable.SequenceEqual(output, expected)) {
+                throw new Exception(String.Format("{0}: Decrypt failed: wrong output", testName));
+            }
+            if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
+                throw new Exception(String.Format("{0}: Decrypt failed: input data were corrupted", testName));
+            }
+        }
+
+        private static void Test_AES128_ECB_Encrypt() {
+            test_AES_ECB_Encrypt(
+                key: BigIntegerConverter.ParseHex("2b7e151628aed2a6abf7158809cf4f3c"),
+                input: (byte[])original.Clone(),
+                expected: BigIntegerConverter.ParseHex(
+                      "3ad77bb40d7a3660a89ecaf32466ef97"
+                    + "f5d3d58503b9699de785895a96fdbaaf"
+                    + "43b1cd7f598ece23881b00e3ed030688"
+                    + "7b0c785e27e8ad3f8223207104725dd4"
+                )
+            );
+        }
+
+        private static void Test_AES128_ECB_Decrypt() {
+            test_AES_ECB_Decrypt(
+                key: BigIntegerConverter.ParseHex("2b7e151628aed2a6abf7158809cf4f3c"),
+                input: BigIntegerConverter.ParseHex(
+                      "3ad77bb40d7a3660a89ecaf32466ef97"
+                    + "f5d3d58503b9699de785895a96fdbaaf"
+                    + "43b1cd7f598ece23881b00e3ed030688"
+                    + "7b0c785e27e8ad3f8223207104725dd4"
+                ),
+                expected: (byte[])original.Clone()
+            );
+        }
+
+        private static void Test_AES192_ECB_Encrypt() {
+            test_AES_ECB_Encrypt(
+                key: BigIntegerConverter.ParseHex("8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"),
+                input: (byte[])original.Clone(),
+                expected: BigIntegerConverter.ParseHex(
+                      "bd334f1d6e45f25ff712a214571fa5cc"
+                    + "974104846d0ad3ad7734ecb3ecee4eef"
+                    + "ef7afd2270e2e60adce0ba2face6444e"
+                    + "9a4b41ba738d6c72fb16691603c18e0e"
+                )
+            );
+        }
+
+        private static void Test_AES192_ECB_Decrypt() {
+            test_AES_ECB_Decrypt(
+                key: BigIntegerConverter.ParseHex("8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"),
+                input: BigIntegerConverter.ParseHex(
+                      "bd334f1d6e45f25ff712a214571fa5cc"
+                    + "974104846d0ad3ad7734ecb3ecee4eef"
+                    + "ef7afd2270e2e60adce0ba2face6444e"
+                    + "9a4b41ba738d6c72fb16691603c18e0e"
+                ),
+                expected: (byte[])original.Clone()
+            );
+        }
+
+        private static void Test_AES256_ECB_Encrypt() {
+            test_AES_ECB_Encrypt(
+                key: BigIntegerConverter.ParseHex(
+                      "603deb1015ca71be2b73aef0857d7781"
+                    + "1f352c073b6108d72d9810a30914dff4"
+                ),
+                input: (byte[])original.Clone(),
+                expected: BigIntegerConverter.ParseHex(
+                      "f3eed1bdb5d2a03c064b5a7e3db181f8"
+                    + "591ccb10d410ed26dc5ba74a31362870"
+                    + "b6ed21b99ca6f4f9f153e7b1beafed1d"
+                    + "23304b7a39f9f3ff067d8d8f9e24ecc7"
+                )
+            );
+        }
+
+        private static void Test_AES256_ECB_Decrypt() {
+            test_AES_ECB_Decrypt(
+                key: BigIntegerConverter.ParseHex(
+                      "603deb1015ca71be2b73aef0857d7781"
+                    + "1f352c073b6108d72d9810a30914dff4"
+                ),
+                input: BigIntegerConverter.ParseHex(
+                      "f3eed1bdb5d2a03c064b5a7e3db181f8"
+                    + "591ccb10d410ed26dc5ba74a31362870"
+                    + "b6ed21b99ca6f4f9f153e7b1beafed1d"
+                    + "23304b7a39f9f3ff067d8d8f9e24ecc7"
+                ),
+                expected: (byte[])original.Clone()
+            );
+        }
+        #endregion
+
+        #region CBC
+
+        private static void test_AES_CBC_Encrypt(byte[] key, byte[] iv, byte[] input, byte[] expected, [System.Runtime.CompilerServices.CallerMemberName] string testName = "") {
+            byte[] inputOrig = (byte[])input.Clone();
+
+            // encrypt all blocks
+            {
+                byte[] output = new byte[input.Length];
+
+                var aes = new AESBlockCipherCBC(key, iv);
+                aes.Encrypt(input, 0, input.Length, output, 0);
+
+                if (!System.Linq.Enumerable.SequenceEqual(output, expected)) {
+                    throw new Exception(String.Format("{0} Encrypt failed: wrong output", testName));
+                }
+                if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
+                    throw new Exception(String.Format("{0} Encrypt failed: input data were corrupted", testName));
+                }
+            }
+
+            // encrypt each blocks
+            {
+
+                var aes = new AESBlockCipherCBC(key, iv);
+                int blockSize = aes.GetBlockSize();
+                byte[] outputBlock = new byte[blockSize];
+                byte[] expectedBlock = new byte[blockSize];
+                for (int inputOffset = 0; inputOffset < input.Length; inputOffset += blockSize) {
+                    aes.Encrypt(input, inputOffset, blockSize, outputBlock, 0);
+
+                    Array.Copy(expected, inputOffset, expectedBlock, 0, blockSize);
+
+                    if (!System.Linq.Enumerable.SequenceEqual(outputBlock, expectedBlock)) {
+                        throw new Exception(String.Format("{0} Encrypt failed (inputOffset = {1}): wrong output", testName, inputOffset));
+                    }
+                }
+                if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
+                    throw new Exception(String.Format("{0} Encrypt failed: input data were corrupted", testName));
+                }
+            }
+
+            // in-place encrypt all blocks
+            {
+                var aes = new AESBlockCipherCBC(key, iv);
+                aes.Encrypt(input, 0, input.Length, input, 0);
+
+                if (!System.Linq.Enumerable.SequenceEqual(input, expected)) {
+                    throw new Exception(String.Format("{0} Encrypt In-Place failed: wrong output", testName));
+                }
+            }
+        }
+
+        private static void test_AES_CBC_Decrypt(byte[] key, byte[] iv, byte[] input, byte[] expected, [System.Runtime.CompilerServices.CallerMemberName] string testName = "") {
+            byte[] inputOrig = (byte[])input.Clone();
+
+            // decrypt all blocks
+            {
+                byte[] output = new byte[input.Length];
+
+                var aes = new AESBlockCipherCBC(key, iv);
+                aes.Decrypt(input, 0, input.Length, output, 0);
+
+                if (!System.Linq.Enumerable.SequenceEqual(output, expected)) {
+                    throw new Exception(String.Format("{0} Decrypt failed: wrong output", testName));
+                }
+                if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
+                    throw new Exception(String.Format("{0} Decrypt failed: input data were corrupted", testName));
+                }
+            }
+
+            // decrypt each blocks
+            {
+                var aes = new AESBlockCipherCBC(key, iv);
+                int blockSize = aes.GetBlockSize();
+                byte[] outputBlock = new byte[blockSize];
+                byte[] expectedBlock = new byte[blockSize];
+                for (int inputOffset = 0; inputOffset < input.Length; inputOffset += blockSize) {
+                    aes.Decrypt(input, inputOffset, blockSize, outputBlock, 0);
+
+                    Array.Copy(expected, inputOffset, expectedBlock, 0, blockSize);
+
+                    if (!System.Linq.Enumerable.SequenceEqual(outputBlock, expectedBlock)) {
+                        throw new Exception(String.Format("{0} Decrypt failed (inputOffset = {1}): wrong output", testName, inputOffset));
+                    }
+                }
+                if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
+                    throw new Exception(String.Format("{0} Encrypt failed: input data were corrupted", testName));
+                }
+            }
+
+            // in-place decrypt all blocks
+            {
+                var aes = new AESBlockCipherCBC(key, iv);
+                aes.Decrypt(input, 0, input.Length, input, 0);
+
+                if (!System.Linq.Enumerable.SequenceEqual(input, expected)) {
+                    throw new Exception(String.Format("{0} Decrypt In-Place failed: wrong output", testName));
+                }
+            }
+        }
+
+        private static void Test_AES128_CBC_Encrypt() {
+            test_AES_CBC_Encrypt(
+                key: BigIntegerConverter.ParseHex("2b7e151628aed2a6abf7158809cf4f3c"),
+                iv: BigIntegerConverter.ParseHex("000102030405060708090a0b0c0d0e0f"),
+                input: (byte[])original.Clone(),
+                expected: BigIntegerConverter.ParseHex(
+                      "7649abac8119b246cee98e9b12e9197d"
+                    + "5086cb9b507219ee95db113a917678b2"
+                    + "73bed6b8e3c1743b7116e69e22229516"
+                    + "3ff1caa1681fac09120eca307586e1a7"
+                )
+            );
+        }
+
+        private static void Test_AES128_CBC_Decrypt() {
+            test_AES_CBC_Decrypt(
+                key: BigIntegerConverter.ParseHex("2b7e151628aed2a6abf7158809cf4f3c"),
+                iv: BigIntegerConverter.ParseHex("000102030405060708090a0b0c0d0e0f"),
+                input: BigIntegerConverter.ParseHex(
+                      "7649abac8119b246cee98e9b12e9197d"
+                    + "5086cb9b507219ee95db113a917678b2"
+                    + "73bed6b8e3c1743b7116e69e22229516"
+                    + "3ff1caa1681fac09120eca307586e1a7"
+                ),
+                expected: (byte[])original.Clone()
+            );
+        }
+
+        private static void Test_AES192_CBC_Encrypt() {
+            test_AES_CBC_Encrypt(
+                key: BigIntegerConverter.ParseHex("8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"),
+                iv: BigIntegerConverter.ParseHex("000102030405060708090a0b0c0d0e0f"),
+                input: (byte[])original.Clone(),
+                expected: BigIntegerConverter.ParseHex(
+                      "4f021db243bc633d7178183a9fa071e8"
+                    + "b4d9ada9ad7dedf4e5e738763f69145a"
+                    + "571b242012fb7ae07fa9baac3df102e0"
+                    + "08b0e27988598881d920a9e64f5615cd"
+                )
+            );
+        }
+
+        private static void Test_AES192_CBC_Decrypt() {
+            test_AES_CBC_Decrypt(
+                key: BigIntegerConverter.ParseHex("8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"),
+                iv: BigIntegerConverter.ParseHex("000102030405060708090a0b0c0d0e0f"),
+                input: BigIntegerConverter.ParseHex(
+                      "4f021db243bc633d7178183a9fa071e8"
+                    + "b4d9ada9ad7dedf4e5e738763f69145a"
+                    + "571b242012fb7ae07fa9baac3df102e0"
+                    + "08b0e27988598881d920a9e64f5615cd"
+                ),
+                expected: (byte[])original.Clone()
+            );
+        }
+
+        private static void Test_AES256_CBC_Encrypt() {
+            test_AES_CBC_Encrypt(
+                key: BigIntegerConverter.ParseHex(
+                      "603deb1015ca71be2b73aef0857d7781"
+                    + "1f352c073b6108d72d9810a30914dff4"
+                ),
+                iv: BigIntegerConverter.ParseHex("000102030405060708090a0b0c0d0e0f"),
+                input: (byte[])original.Clone(),
+                expected: BigIntegerConverter.ParseHex(
+                      "f58c4c04d6e5f1ba779eabfb5f7bfbd6"
+                    + "9cfc4e967edb808d679f777bc6702c7d"
+                    + "39f23369a9d9bacfa530e26304231461"
+                    + "b2eb05e2c39be9fcda6c19078c6a9d1b"
+                )
+            );
+        }
+
+        private static void Test_AES256_CBC_Decrypt() {
+            test_AES_CBC_Decrypt(
+                key: BigIntegerConverter.ParseHex(
+                      "603deb1015ca71be2b73aef0857d7781"
+                    + "1f352c073b6108d72d9810a30914dff4"
+                ),
+                iv: BigIntegerConverter.ParseHex("000102030405060708090a0b0c0d0e0f"),
+                input: BigIntegerConverter.ParseHex(
+                      "f58c4c04d6e5f1ba779eabfb5f7bfbd6"
+                    + "9cfc4e967edb808d679f777bc6702c7d"
+                    + "39f23369a9d9bacfa530e26304231461"
+                    + "b2eb05e2c39be9fcda6c19078c6a9d1b"
+                ),
+                expected: (byte[])original.Clone()
+            );
+        }
+        #endregion
+
+        #region CTR
+
+        private static void Test_AES_CTR_IncrementCounterBlock() {
+            Tuple<string, string>[] patterns =
+            {
+                Tuple.Create("00000000000000000000000000000000", "00000000000000000000000000000001"),
+                Tuple.Create("000000000000000000000000000000ff", "00000000000000000000000000000100"),
+                Tuple.Create("00000000000000000000000000000100", "00000000000000000000000000000101"),
+                Tuple.Create("00ffffffffffffffffffffffffffffff", "01000000000000000000000000000000"),
+                Tuple.Create("01000000000000000000000000000000", "01000000000000000000000000000001"),
+                Tuple.Create("ffffffffffffffffffffffffffffffff", "00000000000000000000000000000000"),
+            };
+
+            foreach (var p in patterns) {
+                byte[] icb = BigIntegerConverter.ParseHex(p.Item1);
+                byte[] expected = BigIntegerConverter.ParseHex(p.Item2);
+                var aes = new AESBlockCipherCTR(BigIntegerConverter.ParseHex("2b7e151628aed2a6abf7158809cf4f3c"), icb);
+                if (!System.Linq.Enumerable.SequenceEqual(aes.CopyCounterBlock(), icb)) {
+                    throw new Exception("icb does not match");
+                }
+                aes.IncrementCounterBlock();
+                if (!System.Linq.Enumerable.SequenceEqual(aes.CopyCounterBlock(), expected)) {
+                    throw new Exception("incremented counter block has wrong value");
+                }
+            }
+        }
+
+        private static void test_AES_CTR_Encrypt(byte[] key, byte[] icb, byte[] input, byte[] expected, [System.Runtime.CompilerServices.CallerMemberName] string testName = "") {
+            byte[] inputOrig = (byte[])input.Clone();
+
+            // encrypt all blocks
+            {
+                byte[] output = new byte[input.Length];
+
+                var aes = new AESBlockCipherCTR(key, icb);
+                aes.Encrypt(input, 0, input.Length, output, 0);
+
+                if (!System.Linq.Enumerable.SequenceEqual(output, expected)) {
+                    throw new Exception(String.Format("{0} Encrypt failed: wrong output", testName));
+                }
+                if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
+                    throw new Exception(String.Format("{0} Encrypt failed: input data were corrupted", testName));
+                }
+            }
+
+            // encrypt each blocks
+            {
+                var aes = new AESBlockCipherCTR(key, icb);
+                int blockSize = aes.GetBlockSize();
+                byte[] outputBlock = new byte[blockSize];
+                byte[] expectedBlock = new byte[blockSize];
+                for (int inputOffset = 0; inputOffset < input.Length; inputOffset += blockSize) {
+                    aes.Encrypt(input, inputOffset, blockSize, outputBlock, 0);
+
+                    Array.Copy(expected, inputOffset, expectedBlock, 0, blockSize);
+
+                    if (!System.Linq.Enumerable.SequenceEqual(outputBlock, expectedBlock)) {
+                        throw new Exception(String.Format("{0} Encrypt failed (inputOffset = {1}): wrong output", testName, inputOffset));
+                    }
+                }
+                if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
+                    throw new Exception(String.Format("{0} Encrypt failed: input data were corrupted", testName));
+                }
+            }
+
+            // in-place encrypt all blocks
+            {
+                var aes = new AESBlockCipherCTR(key, icb);
+                aes.Encrypt(input, 0, input.Length, input, 0);
+
+                if (!System.Linq.Enumerable.SequenceEqual(input, expected)) {
+                    throw new Exception(String.Format("{0} Encrypt In-Place failed: wrong output", testName));
+                }
+            }
+        }
+
+        private static void test_AES_CTR_Decrypt(byte[] key, byte[] icb, byte[] input, byte[] expected, [System.Runtime.CompilerServices.CallerMemberName] string testName = "") {
+            byte[] inputOrig = (byte[])input.Clone();
+
+            // decrypt all blocks
+            {
+                byte[] output = new byte[input.Length];
+
+                var aes = new AESBlockCipherCTR(key, icb);
+                aes.Decrypt(input, 0, input.Length, output, 0);
+
+                if (!System.Linq.Enumerable.SequenceEqual(output, expected)) {
+                    throw new Exception(String.Format("{0} Decrypt failed: wrong output", testName));
+                }
+                if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
+                    throw new Exception(String.Format("{0} Decrypt failed: input data were corrupted", testName));
+                }
+            }
+
+            // decrypt each blocks
+            {
+                var aes = new AESBlockCipherCTR(key, icb);
+                int blockSize = aes.GetBlockSize();
+                byte[] outputBlock = new byte[blockSize];
+                byte[] expectedBlock = new byte[blockSize];
+                for (int inputOffset = 0; inputOffset < input.Length; inputOffset += blockSize) {
+                    aes.Decrypt(input, inputOffset, blockSize, outputBlock, 0);
+
+                    Array.Copy(expected, inputOffset, expectedBlock, 0, blockSize);
+
+                    if (!System.Linq.Enumerable.SequenceEqual(outputBlock, expectedBlock)) {
+                        throw new Exception(String.Format("{0} Decrypt failed (inputOffset = {1}): wrong output", testName, inputOffset));
+                    }
+                }
+                if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
+                    throw new Exception(String.Format("{0} Decrypt failed: input data were corrupted", testName));
+                }
+            }
+
+            // in-place decrypt all blocks
+            {
+                var aes = new AESBlockCipherCTR(key, icb);
+                aes.Decrypt(input, 0, input.Length, input, 0);
+
+                if (!System.Linq.Enumerable.SequenceEqual(input, expected)) {
+                    throw new Exception(String.Format("{0} Decrypt In-Place failed: wrong output", testName));
+                }
+            }
+        }
+
+        private static void Test_AES128_CTR_Encrypt() {
+            test_AES_CTR_Encrypt(
+                key: BigIntegerConverter.ParseHex("2b7e151628aed2a6abf7158809cf4f3c"),
+                icb: BigIntegerConverter.ParseHex("f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"),
+                input: (byte[])original.Clone(),
+                expected: BigIntegerConverter.ParseHex(
+                      "874d6191b620e3261bef6864990db6ce"
+                    + "9806f66b7970fdff8617187bb9fffdff"
+                    + "5ae4df3edbd5d35e5b4f09020db03eab"
+                    + "1e031dda2fbe03d1792170a0f3009cee"
+                )
+            );
+        }
+
+        private static void Test_AES128_CTR_Decrypt() {
+            test_AES_CTR_Decrypt(
+                key: BigIntegerConverter.ParseHex("2b7e151628aed2a6abf7158809cf4f3c"),
+                icb: BigIntegerConverter.ParseHex("f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"),
+                input: BigIntegerConverter.ParseHex(
+                      "874d6191b620e3261bef6864990db6ce"
+                    + "9806f66b7970fdff8617187bb9fffdff"
+                    + "5ae4df3edbd5d35e5b4f09020db03eab"
+                    + "1e031dda2fbe03d1792170a0f3009cee"
+                ),
+                expected: (byte[])original.Clone()
+            );
+        }
+
+        private static void Test_AES192_CTR_Encrypt() {
+            test_AES_CTR_Encrypt(
+                key: BigIntegerConverter.ParseHex("8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"),
+                icb: BigIntegerConverter.ParseHex("f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"),
+                input: (byte[])original.Clone(),
+                expected: BigIntegerConverter.ParseHex(
+                      "1abc932417521ca24f2b0459fe7e6e0b"
+                    + "090339ec0aa6faefd5ccc2c6f4ce8e94"
+                    + "1e36b26bd1ebc670d1bd1d665620abf7"
+                    + "4f78a7f6d29809585a97daec58c6b050"
+                )
+            );
+        }
+
+        private static void Test_AES192_CTR_Decrypt() {
+            test_AES_CTR_Decrypt(
+                key: BigIntegerConverter.ParseHex("8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"),
+                icb: BigIntegerConverter.ParseHex("f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"),
+                input: BigIntegerConverter.ParseHex(
+                      "1abc932417521ca24f2b0459fe7e6e0b"
+                    + "090339ec0aa6faefd5ccc2c6f4ce8e94"
+                    + "1e36b26bd1ebc670d1bd1d665620abf7"
+                    + "4f78a7f6d29809585a97daec58c6b050"
+                ),
+                expected: (byte[])original.Clone()
+            );
+        }
+
+        private static void Test_AES256_CTR_Encrypt() {
+            test_AES_CTR_Encrypt(
+                key: BigIntegerConverter.ParseHex(
+                      "603deb1015ca71be2b73aef0857d7781"
+                    + "1f352c073b6108d72d9810a30914dff4"
+                ),
+                icb: BigIntegerConverter.ParseHex("f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"),
+                input: (byte[])original.Clone(),
+                expected: BigIntegerConverter.ParseHex(
+                      "601ec313775789a5b7a7f504bbf3d228"
+                    + "f443e3ca4d62b59aca84e990cacaf5c5"
+                    + "2b0930daa23de94ce87017ba2d84988d"
+                    + "dfc9c58db67aada613c2dd08457941a6"
+                )
+            );
+        }
+
+        private static void Test_AES256_CTR_Decrypt() {
+            test_AES_CTR_Decrypt(
+                key: BigIntegerConverter.ParseHex(
+                      "603deb1015ca71be2b73aef0857d7781"
+                    + "1f352c073b6108d72d9810a30914dff4"
+                ),
+                icb: BigIntegerConverter.ParseHex("f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"),
+                input: BigIntegerConverter.ParseHex(
+                      "601ec313775789a5b7a7f504bbf3d228"
+                    + "f443e3ca4d62b59aca84e990cacaf5c5"
+                    + "2b0930daa23de94ce87017ba2d84988d"
+                    + "dfc9c58db67aada613c2dd08457941a6"
+                ),
+                expected: (byte[])original.Clone()
+            );
+        }
+        #endregion
+
+    }
+#endif
+
 }

@@ -553,35 +553,25 @@ namespace Granados.Crypto.SSH2 {
     /// </summary>
     internal class RijindaelCipher2 : Cipher {
 
-        private Rijndael _rijindael;
-        private bool isCTR;
+        private readonly IAESBlockCipherMode _aes;
 
         public RijindaelCipher2(byte[] key, byte[] iv, CipherAlgorithm algorithm) {
-            _rijindael = new Rijndael();
-            _rijindael.SetIV(iv);
-            _rijindael.InitializeKey(key);
             if (algorithm == CipherAlgorithm.AES256CTR ||
                 algorithm == CipherAlgorithm.AES192CTR ||
                 algorithm == CipherAlgorithm.AES128CTR)
-                isCTR = true;
+                _aes = new AESBlockCipherCTR(key, iv);
             else
-                isCTR = false;
+                _aes = new AESBlockCipherCBC(key, iv);
         }
         public void Encrypt(byte[] data, int offset, int len, byte[] result, int ro) {
-            if (isCTR)
-                _rijindael.encryptCTR(data, offset, len, result, ro);
-            else
-                _rijindael.encryptCBC(data, offset, len, result, ro);
+            _aes.Encrypt(data, offset, len, result, ro);
         }
         public void Decrypt(byte[] data, int offset, int len, byte[] result, int ro) {
-            if (isCTR)
-                _rijindael.decryptCTR(data, offset, len, result, ro);
-            else
-                _rijindael.decryptCBC(data, offset, len, result, ro);
+            _aes.Decrypt(data, offset, len, result, ro);
         }
         public int BlockSize {
             get {
-                return _rijindael.GetBlockSize();
+                return _aes.GetBlockSize();
             }
         }
     }
