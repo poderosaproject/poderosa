@@ -4,6 +4,8 @@
 // You may not use this file except in compliance with the license.
 
 using System;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Granados.Util;
 using Granados.Crypto;
 
@@ -571,6 +573,444 @@ namespace Granados.Algorithms {
         }
     }
 
+    /// <summary>
+    /// AES GCM mode encryption / decryption
+    /// </summary>
+    public class AESBlockCipherGCM : Rijndael {
+
+        private const int BLOCK_BYTE_LENGTH = 16;
+
+        private UI128 _ghashSubkey;
+        private readonly byte[] _initialCounterBlock = new byte[BLOCK_BYTE_LENGTH];
+        private readonly byte[] _gctrTmpBlock = new byte[BLOCK_BYTE_LENGTH];
+        private readonly byte[] _encdecCounterBlock = new byte[BLOCK_BYTE_LENGTH];
+        private readonly byte[] _encdecLengthBlock = new byte[BLOCK_BYTE_LENGTH];
+        private readonly byte[] _encdecHashBlock = new byte[BLOCK_BYTE_LENGTH];
+        private readonly byte[] _encdecTagBlock = new byte[BLOCK_BYTE_LENGTH];
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="key">AES key (128 / 192 / 256 bit)</param>
+        public AESBlockCipherGCM(byte[] key) {
+            if (GetBlockSize() != BLOCK_BYTE_LENGTH) {
+                throw new NotSupportedException();
+            }
+
+            InitializeKey(key);
+            CalcGhashSubkey();
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="key">AES key (128 / 192 / 256 bit)</param>
+        /// <param name="iv">initial vector. 1 byte or more. 12 byte (96 bit) in general.</param>
+        public AESBlockCipherGCM(byte[] key, byte[] iv)
+            : this(key) {
+
+            SetIV(iv);
+        }
+
+        /// <summary>
+        /// Sets IV
+        /// </summary>
+        /// <param name="iv">initial vector. 1 byte or more. 12 byte (96 bit) in general.</param>
+        public void SetIV(byte[] iv) {
+            if (iv.Length < 1) {
+                throw new ArgumentException("Invalid IV length", "iv");
+            }
+            // Maximum length of IV in the specification is 2^64-1 bit.
+            // The maximum size of a byte array is smaller enough than that.
+
+            InitializeCounterBlock(iv);
+        }
+
+        /// <summary>
+        /// Encrypt
+        /// </summary>
+        /// <param name="input">input buffer</param>
+        /// <param name="inputOffset">input offset</param>
+        /// <param name="inputLength">input length in bytes</param>
+        /// <param name="aad">AAD (Additional Authenticated Data) buffer</param>
+        /// <param name="aadOffset">AAD offset</param>
+        /// <param name="aadLength">AAD length in bytes</param>
+        /// <param name="output">output buffer. this can be the same array as <paramref name="input"/></param>
+        /// <param name="outputOffset">output offset</param>
+        /// <param name="outputTag">output buffer for authentication tag</param>
+        /// <param name="outputTagOffset">offset in the output buffer for authentication tag</param>
+        /// <param name="outputTagLength">authentication tag length in bytes</param>
+        public void Encrypt(byte[] input, int inputOffset, int inputLength, byte[] aad, int aadOffset, int aadLength, byte[] output, int outputOffset, byte[] outputTag, int outputTagOffset, int outputTagLength) {
+            // C <-- GCTR(inc32(J0), P)
+            //    J0: initial value for the counter block
+            //    P: plaintext
+            //    C: ciphertext
+            ResetCounterBlock(_encdecCounterBlock);
+            IncrementCounter(_encdecCounterBlock);
+            UpdateGctr(input, inputOffset, inputLength, output, outputOffset, _encdecCounterBlock);
+            int outputLen = inputLength;
+
+            // S <-- GHASH (A || v0 || C || u0 || [len(A)]64 || [len(C)]64)
+            //    A: AAD
+            //    v0: zero padding to 128 bit boundary
+            //    C: ciphertext
+            //    u0: zero padding to 128 bit boundary
+            //    [len(A)]64: bit length of AAD as 64 bit integer
+            //    [len(C)]64: bit length of ciphertext as 64 bit integer
+            //    S: result of GHASH
+            UI128 hash = UpdateGhash(aad, aadOffset, aadLength, UI128.Zero());
+            hash = UpdateGhash(output, outputOffset, outputLen, hash);
+            SetBE64((ulong)aadLength * 8, _encdecLengthBlock, 0);
+            SetBE64((ulong)outputLen * 8, _encdecLengthBlock, 8);
+            hash = UpdateGhash(_encdecLengthBlock, 0, BLOCK_BYTE_LENGTH, hash);
+            hash.CopyTo(_encdecHashBlock, 0);
+
+            // T <-- MSB(GCTR(J0, S))
+            //    J0: initial value for the counter block
+            //    S: result of GHASH
+            //    MSB(): take higher bits
+            //    T: tag
+            ResetCounterBlock(_encdecCounterBlock); // counter block <-- ICB
+            UpdateGctr(_encdecHashBlock, 0, BLOCK_BYTE_LENGTH, _encdecTagBlock, 0, _encdecCounterBlock);
+
+            Array.Clear(outputTag, outputTagOffset, outputTagLength);
+            Array.Copy(_encdecTagBlock, 0, outputTag, outputTagOffset, Math.Min(outputTagLength, BLOCK_BYTE_LENGTH));
+        }
+
+        /// <summary>
+        /// Decrypt
+        /// </summary>
+        /// <param name="input">input buffer</param>
+        /// <param name="inputOffset">input offset</param>
+        /// <param name="inputLength">input length in bytes</param>
+        /// <param name="aad">AAD (Additional Authenticated Data) buffer</param>
+        /// <param name="aadOffset">AAD offset</param>
+        /// <param name="aadLength">AAD length in bytes</param>
+        /// <param name="tag">buffer for authentication tag</param>
+        /// <param name="tagOffset">offset of the buffer for authentication tag</param>
+        /// <param name="tagLength">authentication tag length in bytes</param>
+        /// <param name="output">output buffer. this can be the same array as <paramref name="input"/></param>
+        /// <param name="outputOffset">output offset</param>
+        /// <returns>true if the authentication tag is correct. otherwise false.</returns>
+        public bool Decrypt(byte[] input, int inputOffset, int inputLength, byte[] aad, int aadOffset, int aadLength, byte[] tag, int tagOffset, int tagLength, byte[] output, int outputOffset) {
+
+            if (tagLength > BLOCK_BYTE_LENGTH) {
+                throw new ArgumentException("Invalid tag length");
+            }
+
+            // S <-- GHASH (A || v0 || C || u0 || [len(A)]64 || [len(C)]64)
+            //    A: AAD
+            //    v0: zero padding to 128 bit boundary
+            //    C: ciphertext
+            //    u0: zero padding to 128 bit boundary
+            //    [len(A)]64: bit length of AAD as 64 bit integer
+            //    [len(C)]64: bit length of ciphertext as 64 bit integer
+            //    S: result of GHASH
+            UI128 hash = UpdateGhash(aad, aadOffset, aadLength, UI128.Zero());
+            hash = UpdateGhash(input, inputOffset, inputLength, hash);
+            SetBE64((ulong)aadLength * 8, _encdecLengthBlock, 0);
+            SetBE64((ulong)inputLength * 8, _encdecLengthBlock, 8);
+            hash = UpdateGhash(_encdecLengthBlock, 0, BLOCK_BYTE_LENGTH, hash);
+            hash.CopyTo(_encdecHashBlock, 0);
+
+            // P <-- GCTR(inc32(J0), C)
+            //    J0: initial value for the counter block
+            //    C: ciphertext
+            //    P: plaintext
+            ResetCounterBlock(_encdecCounterBlock);
+            IncrementCounter(_encdecCounterBlock);
+            UpdateGctr(input, inputOffset, inputLength, output, outputOffset, _encdecCounterBlock);
+
+            // T <-- MSB(GCTR(J0, S))
+            //    J0: initial value for the counter block
+            //    S: result of GHASH
+            //    MSB(): take higher bits
+            //    T: tag
+            ResetCounterBlock(_encdecCounterBlock); // counter block <-- ICB
+            UpdateGctr(_encdecHashBlock, 0, BLOCK_BYTE_LENGTH, _encdecTagBlock, 0, _encdecCounterBlock);
+
+            for (int i = 0; i < tagLength; i++) {
+                if (_encdecTagBlock[i] != tag[tagOffset + i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// A 128 bit block consisting of a pair of 64 bit integers.
+        /// </summary>
+        internal struct UI128 {
+            public ulong hi;
+            public ulong lo;
+
+            public UI128(ulong hi, ulong lo) {
+                this.hi = hi;
+                this.lo = lo;
+            }
+
+            public static UI128 Zero() {
+                return new UI128(0UL, 0UL);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public static UI128 From(byte[] block, int offset) {
+                return new UI128(GetBE64(block, offset), GetBE64(block, offset + 8));
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public static UI128 From(byte[] block, int offset, int length) {
+                if (length < 8) {
+                    return new UI128(GetBE64(block, offset, length), 0UL);
+                }
+                else if (length < 16) {
+                    return new UI128(GetBE64(block, offset), GetBE64(block, offset + 8, length - 8));
+                }
+                return From(block, offset);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void CopyTo(byte[] block, int offset) {
+                SetBE64(hi, block, offset);
+                SetBE64(lo, block, offset + 8);
+            }
+        }
+
+        /// <summary>
+        /// Multiplication in GF(2^128)
+        /// </summary>
+        /// <param name="x">input block</param>
+        /// <param name="y">input block</param>
+        /// <returns>result</returns>
+        private UI128 GFMul(UI128 x, UI128 y) {
+            // copy to local variables so that they are assigned to registers
+            ulong xh = x.hi;
+            ulong xl = x.lo;
+            ulong zh = 0UL;
+            ulong zl = 0UL;
+            ulong vh = y.hi;
+            ulong vl = y.lo;
+            for (int i = 0; i < 128; i++) {
+                // NIST 800-38D describes that "x0x1...x127 denote the sequence of bits in X."
+                // It means that x0 is the left-most bit (=MSB), and x127 is the right-most bit (=LSB).
+                ulong xbit = (xh >> 63) & 1UL;
+                zl ^= vl * xbit;
+                zh ^= vh * xbit;
+                ulong lsb = vl & 1UL;
+                shiftRight(ref vh, ref vl);
+                vh ^= 0xe100000000000000UL * lsb;
+                shiftLeft(ref xh, ref xl);
+            }
+
+            return new UI128(zh, zl);
+        }
+
+        /// <summary>
+        /// Update GHASH
+        /// </summary>
+        /// <param name="input">input buffer</param>
+        /// <param name="inputOffset">input offset</param>
+        /// <param name="inputLength">input length</param>
+        /// <param name="hash">initial state</param>
+        /// <returns>new state</returns>
+        private UI128 UpdateGhash(byte[] input, int inputOffset, int inputLength, UI128 hash) {
+            while (inputLength > 0) {
+                UI128 block;
+                if (inputLength < BLOCK_BYTE_LENGTH) {
+                    block = UI128.From(input, inputOffset, inputLength);
+                }
+                else {
+                    block = UI128.From(input, inputOffset);
+                }
+
+                hash.hi ^= block.hi;
+                hash.lo ^= block.lo;
+
+                hash = GFMul(hash, _ghashSubkey);
+
+                inputOffset += BLOCK_BYTE_LENGTH;
+                inputLength -= BLOCK_BYTE_LENGTH;
+            }
+            return hash;
+        }
+
+        /// <summary>
+        /// Update GCTR
+        /// </summary>
+        /// <param name="input">input buffer</param>
+        /// <param name="inputOffset">input offset</param>
+        /// <param name="inputLength">input length</param>
+        /// <param name="output">output buffer</param>
+        /// <param name="outputOffset">output offset</param>
+        /// <param name="counter">counter block. this block is updated in this method.</param>
+        private void UpdateGctr(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, byte[] counter) {
+            while (inputLength > 0) {
+                blockEncrypt(counter, 0, _gctrTmpBlock, 0);
+
+                int len = Math.Min(inputLength, BLOCK_BYTE_LENGTH);
+
+                CipherUtil.BlockXor2(_gctrTmpBlock, 0, input, inputOffset, len, output, outputOffset);
+
+                IncrementCounter(counter);
+
+                inputOffset += len;
+                inputLength -= len;
+                outputOffset += len;
+            }
+        }
+
+        /// <summary>
+        /// Increment counter block
+        /// </summary>
+        /// <param name="counter">counter block</param>
+        internal void IncrementCounter(byte[] counter) {
+            Debug.Assert(counter.Length == BLOCK_BYTE_LENGTH);
+            // incriment lower 32 bit
+            if (++counter[BLOCK_BYTE_LENGTH - 1] == 0) {
+                if (++counter[BLOCK_BYTE_LENGTH - 2] == 0) {
+                    if (++counter[BLOCK_BYTE_LENGTH - 3] == 0) {
+                        ++counter[BLOCK_BYTE_LENGTH - 4];
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Calculate GHASH subkey
+        /// </summary>
+        /// <remarks>
+        /// <see cref="InitializeCounterBlock(byte[])"/> have to be called before this method.
+        /// </remarks>
+        private void CalcGhashSubkey() {
+            byte[] input = new byte[BLOCK_BYTE_LENGTH]; // zero-filled
+            byte[] output = new byte[BLOCK_BYTE_LENGTH];
+            blockEncrypt(input, 0, output, 0);
+            _ghashSubkey = UI128.From(output, 0);
+        }
+
+        /// <summary>
+        /// Initialize counter block
+        /// </summary>
+        /// <param name="iv">IV</param>
+        /// <remarks>
+        /// <see cref="CalcGhashSubkey"/> have to be called before this method.
+        /// </remarks>
+        private void InitializeCounterBlock(byte[] iv) {
+            ClearBlock(_initialCounterBlock);
+
+            if (iv.Length == 12) { // 96 bit IV
+                Array.Copy(iv, 0, _initialCounterBlock, 0, iv.Length);
+                _initialCounterBlock[15] = 1;
+            }
+            else {
+                UI128 hash = UpdateGhash(iv, 0, iv.Length, UI128.Zero());
+                byte[] lengthBlock = _initialCounterBlock; // avoid temporary memory allocation
+                SetBE64((ulong)iv.Length * 8, lengthBlock, BLOCK_BYTE_LENGTH - 8);
+                hash = UpdateGhash(lengthBlock, 0, lengthBlock.Length, hash);
+                hash.CopyTo(_initialCounterBlock, 0);
+            }
+        }
+
+        /// <summary>
+        /// Reset the counter block as the initial counter block
+        /// </summary>
+        /// <param name="counter">counter block</param>
+        private void ResetCounterBlock(byte[] counter) {
+            Debug.Assert(counter.Length == BLOCK_BYTE_LENGTH);
+            Array.Copy(_initialCounterBlock, counter, BLOCK_BYTE_LENGTH);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void shiftLeft(ref ulong h, ref ulong l) {
+            h = (h << 1) | (l >> 63);
+            l <<= 1;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void shiftRight(ref ulong h, ref ulong l) {
+            l = (l >> 1) | ((h & 1UL) << 63);
+            h >>= 1;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ulong GetBE64(byte[] buff, int offset) {
+            return ((ulong)buff[offset + 7])
+                | ((ulong)buff[offset + 6] << 8)
+                | ((ulong)buff[offset + 5] << 16)
+                | ((ulong)buff[offset + 4] << 24)
+                | ((ulong)buff[offset + 3] << 32)
+                | ((ulong)buff[offset + 2] << 40)
+                | ((ulong)buff[offset + 1] << 48)
+                | ((ulong)buff[offset] << 56);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ulong GetBE64(byte[] buff, int offset, int length) {
+            ulong v = 0UL;
+            switch (length) {
+                case 8:
+                    v |= ((ulong)buff[offset + 7]);
+                    goto case 7;
+                case 7:
+                    v |= ((ulong)buff[offset + 6] << 8);
+                    goto case 6;
+                case 6:
+                    v |= ((ulong)buff[offset + 5] << 16);
+                    goto case 5;
+                case 5:
+                    v |= ((ulong)buff[offset + 4] << 24);
+                    goto case 4;
+                case 4:
+                    v |= ((ulong)buff[offset + 3] << 32);
+                    goto case 3;
+                case 3:
+                    v |= ((ulong)buff[offset + 2] << 40);
+                    goto case 2;
+                case 2:
+                    v |= ((ulong)buff[offset + 1] << 48);
+                    goto case 1;
+                case 1:
+                    v |= ((ulong)buff[offset] << 56);
+                    break;
+                default:
+                    break;
+            }
+            return v;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void SetBE64(ulong v, byte[] buff, int offset) {
+            buff[offset + 7] = (byte)v;
+            buff[offset + 6] = (byte)(v >> 8);
+            buff[offset + 5] = (byte)(v >> 16);
+            buff[offset + 4] = (byte)(v >> 24);
+            buff[offset + 3] = (byte)(v >> 32);
+            buff[offset + 2] = (byte)(v >> 40);
+            buff[offset + 1] = (byte)(v >> 48);
+            buff[offset] = (byte)(v >> 56);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void ClearBlock(byte[] block) {
+            Debug.Assert(block.Length == BLOCK_BYTE_LENGTH);
+            block[0] =
+            block[1] =
+            block[2] =
+            block[3] =
+            block[4] =
+            block[5] =
+            block[6] =
+            block[7] =
+            block[8] =
+            block[9] =
+            block[10] =
+            block[11] =
+            block[12] =
+            block[13] =
+            block[14] =
+            block[15] = 0;
+        }
+    }
 
 #if DEBUG
     // Test
@@ -608,11 +1048,23 @@ namespace Granados.Algorithms {
             Test_AES192_CTR_Decrypt();
             Test_AES256_CTR_Encrypt();
             Test_AES256_CTR_Decrypt();
+
+            Test_UI128_From();
+            Test_UI128_From_WithLength();
+
+            Test_AES_GCM_IncrementCounterBlock();
+
+            Test_AES128_GCM_Encrypt();
+            Test_AES128_GCM_Decrypt();
+            Test_AES192_GCM_Encrypt();
+            Test_AES192_GCM_Decrypt();
+            Test_AES256_GCM_Encrypt();
+            Test_AES256_GCM_Decrypt();
         }
 
         #region ECB
 
-        private static void test_AES_ECB_Encrypt(byte[] key, byte[] input, byte[] expected, [System.Runtime.CompilerServices.CallerMemberName] string testName = "") {
+        private static void test_AES_ECB_Encrypt(byte[] key, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
             byte[] inputOrig = (byte[])input.Clone();
             byte[] output = new byte[input.Length];
 
@@ -632,7 +1084,7 @@ namespace Granados.Algorithms {
             }
         }
 
-        private static void test_AES_ECB_Decrypt(byte[] key, byte[] input, byte[] expected, [System.Runtime.CompilerServices.CallerMemberName] string testName = "") {
+        private static void test_AES_ECB_Decrypt(byte[] key, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
             byte[] inputOrig = (byte[])input.Clone();
             byte[] output = new byte[input.Length];
 
@@ -739,7 +1191,7 @@ namespace Granados.Algorithms {
 
         #region CBC
 
-        private static void test_AES_CBC_Encrypt(byte[] key, byte[] iv, byte[] input, byte[] expected, [System.Runtime.CompilerServices.CallerMemberName] string testName = "") {
+        private static void test_AES_CBC_Encrypt(byte[] key, byte[] iv, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
             byte[] inputOrig = (byte[])input.Clone();
 
             // encrypt all blocks
@@ -789,7 +1241,7 @@ namespace Granados.Algorithms {
             }
         }
 
-        private static void test_AES_CBC_Decrypt(byte[] key, byte[] iv, byte[] input, byte[] expected, [System.Runtime.CompilerServices.CallerMemberName] string testName = "") {
+        private static void test_AES_CBC_Decrypt(byte[] key, byte[] iv, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
             byte[] inputOrig = (byte[])input.Clone();
 
             // decrypt all blocks
@@ -956,7 +1408,7 @@ namespace Granados.Algorithms {
             }
         }
 
-        private static void test_AES_CTR_Encrypt(byte[] key, byte[] icb, byte[] input, byte[] expected, [System.Runtime.CompilerServices.CallerMemberName] string testName = "") {
+        private static void test_AES_CTR_Encrypt(byte[] key, byte[] icb, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
             byte[] inputOrig = (byte[])input.Clone();
 
             // encrypt all blocks
@@ -1005,7 +1457,7 @@ namespace Granados.Algorithms {
             }
         }
 
-        private static void test_AES_CTR_Decrypt(byte[] key, byte[] icb, byte[] input, byte[] expected, [System.Runtime.CompilerServices.CallerMemberName] string testName = "") {
+        private static void test_AES_CTR_Decrypt(byte[] key, byte[] icb, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
             byte[] inputOrig = (byte[])input.Clone();
 
             // decrypt all blocks
@@ -1145,6 +1597,477 @@ namespace Granados.Algorithms {
         }
         #endregion
 
+        #region GCM
+
+        // Use test vectors from NIST
+        // https://csrc.nist.gov/Projects/cryptographic-algorithm-validation-program/cavp-testing-block-cipher-modes
+        // gcmtestvectors.zip
+
+        private static void Test_AES128_GCM_Encrypt() {
+            Test_AES_GCM_Encrypt("gcmEncryptExtIV128.rsp");
+        }
+
+        private static void Test_AES192_GCM_Encrypt() {
+            Test_AES_GCM_Encrypt("gcmEncryptExtIV192.rsp");
+        }
+
+        private static void Test_AES256_GCM_Encrypt() {
+            Test_AES_GCM_Encrypt("gcmEncryptExtIV256.rsp");
+        }
+
+        private static void Test_AES128_GCM_Decrypt() {
+            Test_AES_GCM_Decrypt("gcmDecrypt128.rsp");
+        }
+
+        private static void Test_AES192_GCM_Decrypt() {
+            Test_AES_GCM_Decrypt("gcmDecrypt192.rsp");
+        }
+
+        private static void Test_AES256_GCM_Decrypt() {
+            Test_AES_GCM_Decrypt("gcmDecrypt256.rsp");
+        }
+
+        private static void Test_AES_GCM_Encrypt(string testVectorFile, [CallerMemberName] string testName = "") {
+            string basePath = @"..\..\..\gcmtestvectors";
+
+            using (var reader = new System.IO.StreamReader(System.IO.Path.Combine(basePath, testVectorFile))) {
+                int keyLen = -1;
+                int ivLen = -1;
+                int ptLen = -1;
+                int aadLen = -1;
+                int tagLen = -1;
+
+                while (true) {
+                    string line = reader.ReadLine();
+                    if (line == null) {
+                        break;
+                    }
+
+                    string paramName;
+                    int paramValue;
+                    if (ReadGcmTestVectorParam(line, out paramName, out paramValue)) {
+                        switch (paramName) {
+                            case "Keylen":
+                                keyLen = paramValue;
+                                break;
+                            case "IVlen":
+                                ivLen = paramValue;
+                                break;
+                            case "PTlen":
+                                ptLen = paramValue;
+                                break;
+                            case "AADlen":
+                                aadLen = paramValue;
+                                break;
+                            case "Taglen":
+                                tagLen = paramValue;
+                                break;
+                        }
+                        continue;
+                    }
+
+                    if (line.StartsWith("Count =")) {
+                        byte[] key;
+                        byte[] iv;
+                        byte[] pt;
+                        byte[] aad;
+                        byte[] ct;
+                        byte[] tag;
+                        line = reader.ReadLine();
+                        if (!ReadGcmTestVectorValue(line, "Key", keyLen, out key)) {
+                            throw new Exception("missing Key");
+                        }
+                        string keyLine = line;
+                        line = reader.ReadLine();
+                        if (!ReadGcmTestVectorValue(line, "IV", ivLen, out iv)) {
+                            throw new Exception("missing IV");
+                        }
+                        line = reader.ReadLine();
+                        if (!ReadGcmTestVectorValue(line, "PT", ptLen, out pt)) {
+                            throw new Exception("missing PT");
+                        }
+                        line = reader.ReadLine();
+                        if (!ReadGcmTestVectorValue(line, "AAD", aadLen, out aad)) {
+                            throw new Exception("missing AAD");
+                        }
+                        line = reader.ReadLine();
+                        if (!ReadGcmTestVectorValue(line, "CT", ptLen, out ct)) {
+                            throw new Exception("missing CT");
+                        }
+                        line = reader.ReadLine();
+                        if (!ReadGcmTestVectorValue(line, "Tag", tagLen, out tag)) {
+                            throw new Exception("missing Tag");
+                        }
+
+                        var aes = new AESBlockCipherGCM(key, iv);
+
+                        // encrypt all blocks
+                        {
+                            byte[] input = CloneBytes(pt, 11);
+                            int inputOffset = 11;
+                            int inputLength = pt.Length;
+                            byte[] inputAAD = CloneBytes(aad, 13);
+                            int inputAADOffset = 13;
+                            int inputAADLength = aad.Length;
+                            byte[] output = new byte[15 + ptLen / 8];
+                            int outputOffset = 15;
+                            byte[] outputTag = new byte[17 + tagLen / 8];
+                            int outputTagOffset = 17;
+                            int outputTagLength = tagLen / 8;
+
+                            aes.Encrypt(
+                                input: input,
+                                inputOffset: inputOffset,
+                                inputLength: inputLength,
+                                aad: inputAAD,
+                                aadOffset: inputAADOffset,
+                                aadLength: inputAADLength,
+                                output: output,
+                                outputOffset: outputOffset,
+                                outputTag: outputTag,
+                                outputTagOffset: outputTagOffset,
+                                outputTagLength: outputTagLength
+                            );
+
+                            if (!System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Skip(output, outputOffset), ct)) {
+                                throw new Exception(String.Format("{0} Encrypt failed: wrong output", testName));
+                            }
+                            if (!System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Skip(outputTag, outputTagOffset), tag)) {
+                                throw new Exception(String.Format("{0} Encrypt failed: wrong tag", testName));
+                            }
+                            if (!System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Skip(input, inputOffset), pt)) {
+                                throw new Exception(String.Format("{0} Encrypt failed: input data were corrupted", testName));
+                            }
+                            if (!System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Skip(inputAAD, inputAADOffset), aad)) {
+                                throw new Exception(String.Format("{0} Encrypt failed: AAD were corrupted", testName));
+                            }
+                        }
+
+                        // in-place encrypt all blocks
+                        {
+                            byte[] input = (byte[])pt.Clone();
+                            byte[] inputAAD = (byte[])aad.Clone();
+                            byte[] outputTag = new byte[tagLen / 8];
+
+                            aes.Encrypt(input, 0, input.Length, inputAAD, 0, inputAAD.Length, input, 0, outputTag, 0, outputTag.Length);
+
+                            if (!System.Linq.Enumerable.SequenceEqual(input, ct)) {
+                                throw new Exception(String.Format("{0} Encrypt failed: wrong output", testName));
+                            }
+                            if (!System.Linq.Enumerable.SequenceEqual(outputTag, tag)) {
+                                throw new Exception(String.Format("{0} Encrypt failed: wrong tag", testName));
+                            }
+                            if (!System.Linq.Enumerable.SequenceEqual(inputAAD, aad)) {
+                                throw new Exception(String.Format("{0} Encrypt failed: AAD were corrupted", testName));
+                            }
+                        }
+
+                        Debug.WriteLine("Encrypt OK: " + keyLine);
+                    }
+                }
+            }
+        }
+
+        private static void Test_AES_GCM_Decrypt(string testVectorFile, [CallerMemberName] string testName = "") {
+            string basePath = @"..\..\..\gcmtestvectors";
+
+            using (var reader = new System.IO.StreamReader(System.IO.Path.Combine(basePath, testVectorFile))) {
+                int keyLen = -1;
+                int ivLen = -1;
+                int ptLen = -1;
+                int aadLen = -1;
+                int tagLen = -1;
+
+                while (true) {
+                    string line = reader.ReadLine();
+                    if (line == null) {
+                        break;
+                    }
+
+                    string paramName;
+                    int paramValue;
+                    if (ReadGcmTestVectorParam(line, out paramName, out paramValue)) {
+                        switch (paramName) {
+                            case "Keylen":
+                                keyLen = paramValue;
+                                break;
+                            case "IVlen":
+                                ivLen = paramValue;
+                                break;
+                            case "PTlen":
+                                ptLen = paramValue;
+                                break;
+                            case "AADlen":
+                                aadLen = paramValue;
+                                break;
+                            case "Taglen":
+                                tagLen = paramValue;
+                                break;
+                        }
+                        continue;
+                    }
+
+                    if (line.StartsWith("Count =")) {
+                        byte[] key;
+                        byte[] iv;
+                        byte[] ct;
+                        byte[] aad;
+                        byte[] tag;
+                        byte[] pt;
+                        bool failCase;
+                        line = reader.ReadLine();
+                        if (!ReadGcmTestVectorValue(line, "Key", keyLen, out key)) {
+                            throw new Exception("missing Key");
+                        }
+                        string keyLine = line;
+                        line = reader.ReadLine();
+                        if (!ReadGcmTestVectorValue(line, "IV", ivLen, out iv)) {
+                            throw new Exception("missing IV");
+                        }
+                        line = reader.ReadLine();
+                        if (!ReadGcmTestVectorValue(line, "CT", ptLen, out ct)) {
+                            throw new Exception("missing CT");
+                        }
+                        line = reader.ReadLine();
+                        if (!ReadGcmTestVectorValue(line, "AAD", aadLen, out aad)) {
+                            throw new Exception("missing AAD");
+                        }
+                        line = reader.ReadLine();
+                        if (!ReadGcmTestVectorValue(line, "Tag", tagLen, out tag)) {
+                            throw new Exception("missing Tag");
+                        }
+                        line = reader.ReadLine();
+                        if (line.StartsWith("FAIL")) {
+                            failCase = true;
+                            pt = null;
+                        }
+                        else {
+                            failCase = false;
+                            if (!ReadGcmTestVectorValue(line, "PT", ptLen, out pt)) {
+                                throw new Exception("missing PT");
+                            }
+                        }
+
+                        var aes = new AESBlockCipherGCM(key, iv);
+
+                        // decrypt all blocks
+                        {
+                            byte[] input = CloneBytes(ct, 11);
+                            int inputOffset = 11;
+                            int inputLength = ct.Length;
+                            byte[] inputAAD = CloneBytes(aad, 13);
+                            int inputAADOffset = 13;
+                            int inputAADLength = aad.Length;
+                            byte[] inputTag = CloneBytes(tag, 15);
+                            int inputTagOffset = 15;
+                            int inputTagLength = tag.Length;
+                            byte[] output = new byte[17 + ptLen / 8];
+                            int oututOffset = 17;
+
+                            bool succeeded = aes.Decrypt(
+                                input: input,
+                                inputOffset: inputOffset,
+                                inputLength: inputLength,
+                                aad: inputAAD,
+                                aadOffset: inputAADOffset,
+                                aadLength: inputAADLength,
+                                tag: inputTag,
+                                tagOffset: inputTagOffset,
+                                tagLength: inputTagLength,
+                                output: output,
+                                outputOffset: oututOffset
+                            );
+
+                            if (succeeded != !failCase) {
+                                throw new Exception(String.Format("{0} Decrypt failed: wrong result. actual={1} expected={2}", testName, succeeded, !failCase));
+                            }
+                            if (!failCase) {
+                                if (!System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Skip(output, oututOffset), pt)) {
+                                    throw new Exception(String.Format("{0} Decript failed: wrong output", testName));
+                                }
+                            }
+                            if (!System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Skip(input, inputOffset), ct)) {
+                                throw new Exception(String.Format("{0} Decrypt failed: input data were corrupted", testName));
+                            }
+                            if (!System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Skip(inputAAD, inputAADOffset), aad)) {
+                                throw new Exception(String.Format("{0} Decrypt failed: AAD were corrupted", testName));
+                            }
+                            if (!System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Skip(inputTag, inputTagOffset), tag)) {
+                                throw new Exception(String.Format("{0} Decrypt failed: Tag data were corrupted", testName));
+                            }
+                        }
+
+                        // in-place decrypt all blocks
+                        {
+                            byte[] input = (byte[])ct.Clone();
+                            byte[] inputAAD = (byte[])aad.Clone();
+                            byte[] inputTag = (byte[])tag.Clone();
+
+                            bool succeeded = aes.Decrypt(input, 0, input.Length, inputAAD, 0, inputAAD.Length, inputTag, 0, inputTag.Length, input, 0);
+
+                            if (succeeded != !failCase) {
+                                throw new Exception(String.Format("{0} Decrypt failed: wrong result. actual={1} expected={2}", testName, succeeded, !failCase));
+                            }
+                            if (!failCase) {
+                                if (!System.Linq.Enumerable.SequenceEqual(input, pt)) {
+                                    throw new Exception(String.Format("{0} Decript failed: wrong output", testName));
+                                }
+                            }
+                            if (!System.Linq.Enumerable.SequenceEqual(inputAAD, aad)) {
+                                throw new Exception(String.Format("{0} Decrypt failed: AAD were corrupted", testName));
+                            }
+                            if (!System.Linq.Enumerable.SequenceEqual(inputTag, tag)) {
+                                throw new Exception(String.Format("{0} Decrypt failed: Tag data were corrupted", testName));
+                            }
+                        }
+
+                        Debug.WriteLine("Decrypt OK: " + keyLine);
+                    }
+                }
+            }
+        }
+
+        private static readonly Random _rnd = new Random();
+
+        private static byte[] CloneBytes(byte[] source, int offset) {
+            byte[] b = new byte[offset + source.Length];
+            _rnd.NextBytes(b);
+            Array.Copy(source, 0, b, offset, source.Length);
+            return b;
+        }
+
+        private static bool ReadGcmTestVectorParam(string line, out string name, out int value) {
+            var match = System.Text.RegularExpressions.Regex.Match(line, @"\[(\w+)\s*=\s*(\d+)\]");
+            if (match.Success) {
+                name = match.Groups[1].Value;
+                value = Int32.Parse(match.Groups[2].Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                return true;
+            }
+            else {
+                name = null;
+                value = -1;
+                return false;
+            }
+        }
+
+        private static bool ReadGcmTestVectorValue(string line, string key, int valueLen, out byte[] value) {
+            var match = System.Text.RegularExpressions.Regex.Match(line, @"(\w+)\s*=\s*([0-9a-f]+)?");
+            if (match.Success) {
+                if (match.Groups[1].Value != key) {
+                    throw new Exception(String.Format("key name mismatch: actual={0} expected={1}", match.Groups[1].Value, key));
+                }
+                value = BigIntegerConverter.ParseHex(match.Groups[2].Value);
+                if (value.Length * 8 != valueLen) {
+                    throw new Exception(String.Format("value length mismatch: actual={0} expected={1}", value.Length, valueLen));
+                }
+                return true;
+            }
+            else {
+                value = null;
+                return false;
+            }
+        }
+
+        private static void Test_AES_GCM_IncrementCounterBlock() {
+            byte[] key = new byte[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+            byte[] iv = new byte[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+            var aes = new AESBlockCipherGCM(key, iv);
+
+            Tuple<string, string, string>[] patterns =
+            {
+                Tuple.Create("deadbeefdeadbeefdeadbeef00000000", "deadbeefdeadbeefdeadbeef00000001", "deadbeefdeadbeefdeadbeef00000002"),
+                Tuple.Create("deadbeefdeadbeefdeadbeef0000000f", "deadbeefdeadbeefdeadbeef00000010", "deadbeefdeadbeefdeadbeef00000011"),
+                Tuple.Create("deadbeefdeadbeefdeadbeef000000ff", "deadbeefdeadbeefdeadbeef00000100", "deadbeefdeadbeefdeadbeef00000101"),
+                Tuple.Create("deadbeefdeadbeefdeadbeef00000fff", "deadbeefdeadbeefdeadbeef00001000", "deadbeefdeadbeefdeadbeef00001001"),
+                Tuple.Create("deadbeefdeadbeefdeadbeef0000ffff", "deadbeefdeadbeefdeadbeef00010000", "deadbeefdeadbeefdeadbeef00010001"),
+                Tuple.Create("deadbeefdeadbeefdeadbeef000fffff", "deadbeefdeadbeefdeadbeef00100000", "deadbeefdeadbeefdeadbeef00100001"),
+                Tuple.Create("deadbeefdeadbeefdeadbeef00ffffff", "deadbeefdeadbeefdeadbeef01000000", "deadbeefdeadbeefdeadbeef01000001"),
+                Tuple.Create("deadbeefdeadbeefdeadbeef0fffffff", "deadbeefdeadbeefdeadbeef10000000", "deadbeefdeadbeefdeadbeef10000001"),
+                Tuple.Create("deadbeefdeadbeefdeadbeeffffffffe", "deadbeefdeadbeefdeadbeefffffffff", "deadbeefdeadbeefdeadbeef00000000"),
+            };
+
+            foreach (var p in patterns) {
+                byte[] data = BigIntegerConverter.ParseHex(p.Item1);
+                byte[] expected1 = BigIntegerConverter.ParseHex(p.Item2);
+                byte[] expected2 = BigIntegerConverter.ParseHex(p.Item3);
+                Debug.Assert(data.Length == 16 && expected1.Length == 16 && expected2.Length == 16);
+
+                aes.IncrementCounter(data);
+                if (!System.Linq.Enumerable.SequenceEqual(data, expected1)) {
+                    throw new Exception(String.Format("AES GCM IncrementCounter failed"));
+                }
+                aes.IncrementCounter(data);
+                if (!System.Linq.Enumerable.SequenceEqual(data, expected2)) {
+                    throw new Exception(String.Format("AES GCM IncrementCounter failed"));
+                }
+            }
+        }
+
+        #endregion
+
+        #region UI128
+
+        private static void Test_UI128_From() {
+            byte[] source =
+            {
+                0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+                0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
+            };
+
+            var ui128 = AESBlockCipherGCM.UI128.From(source, 7);
+            if (ui128.hi != 0x1718191a1b1c1d1eUL) {
+                throw new Exception(String.Format("Incorrect HI value: actual={0:x} expected={1:x}", ui128.hi, 0x1718191a1b1c1d1eUL));
+            }
+            if (ui128.lo != 0x1f20212223242526UL) {
+                throw new Exception(String.Format("Incorrect LO value: actual={0:x} expected={1:x}", ui128.lo, 0x1f20212223242526UL));
+            }
+        }
+
+        private static void Test_UI128_From_WithLength() {
+            byte[] source =
+            {
+                0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+                0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
+            };
+
+            Tuple<int, int, ulong, ulong>[] pattern =
+            {
+                // offset, length, hi, lo
+                Tuple.Create(3, 0,  0x0000000000000000UL, 0x0000000000000000UL),
+                Tuple.Create(3, 1,  0x1300000000000000UL, 0x0000000000000000UL),
+                Tuple.Create(3, 2,  0x1314000000000000UL, 0x0000000000000000UL),
+                Tuple.Create(3, 3,  0x1314150000000000UL, 0x0000000000000000UL),
+                Tuple.Create(3, 4,  0x1314151600000000UL, 0x0000000000000000UL),
+                Tuple.Create(3, 5,  0x1314151617000000UL, 0x0000000000000000UL),
+                Tuple.Create(3, 6,  0x1314151617180000UL, 0x0000000000000000UL),
+                Tuple.Create(3, 7,  0x1314151617181900UL, 0x0000000000000000UL),
+                Tuple.Create(3, 8,  0x131415161718191aUL, 0x0000000000000000UL),
+                Tuple.Create(3, 9,  0x131415161718191aUL, 0x1b00000000000000UL),
+                Tuple.Create(3, 10, 0x131415161718191aUL, 0x1b1c000000000000UL),
+                Tuple.Create(3, 11, 0x131415161718191aUL, 0x1b1c1d0000000000UL),
+                Tuple.Create(3, 12, 0x131415161718191aUL, 0x1b1c1d1e00000000UL),
+                Tuple.Create(3, 13, 0x131415161718191aUL, 0x1b1c1d1e1f000000UL),
+                Tuple.Create(3, 14, 0x131415161718191aUL, 0x1b1c1d1e1f200000UL),
+                Tuple.Create(3, 15, 0x131415161718191aUL, 0x1b1c1d1e1f202100UL),
+                Tuple.Create(3, 16, 0x131415161718191aUL, 0x1b1c1d1e1f202122UL),
+            };
+
+            foreach (var p in pattern) {
+                int offset = p.Item1;
+                int length = p.Item2;
+                ulong expectedHi = p.Item3;
+                ulong expectedLo = p.Item4;
+                var ui128 = AESBlockCipherGCM.UI128.From(source, offset, length);
+                if (ui128.hi != expectedHi) {
+                    throw new Exception(String.Format("Incorrect HI value: actual={0:x} expected={1:x}", ui128.hi, expectedHi));
+                }
+                if (ui128.lo != expectedLo) {
+                    throw new Exception(String.Format("Incorrect LO value: actual={0:x} expected={1:x}", ui128.lo, expectedLo));
+                }
+            }
+        }
+
+        #endregion
     }
 #endif
 
