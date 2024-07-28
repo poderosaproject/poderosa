@@ -208,6 +208,18 @@ namespace Granados {
         /// </summary>
         [AlgorithmSpec(AlgorithmName = "AES256CTR", DefaultPriority = 8)]
         AES256CTR = 15,
+        /// <summary>
+        /// <ja>AES128-GCM（SSH2のみ有効）</ja>
+        /// <en>AES128-GCM（SSH2 only）</en>
+        /// </summary>
+        [AlgorithmSpec(AlgorithmName = "AES128GCM", DefaultPriority = 9)]
+        AES128GCM = 16,
+        /// <summary>
+        /// <ja>AES256-GCM（SSH2のみ有効）</ja>
+        /// <en>AES256-GCM（SSH2 only）</en>
+        /// </summary>
+        [AlgorithmSpec(AlgorithmName = "AES256GCM", DefaultPriority = 10)]
+        AES256GCM = 17,
     }
 
     /// <summary>
@@ -324,6 +336,8 @@ namespace Granados {
         HMACSHA1,
         HMACSHA256,
         HMACSHA512,
+        AEAD_AES_128_GCM,
+        AEAD_AES_256_GCM,
     }
 
     /// <summary>

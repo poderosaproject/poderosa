@@ -667,8 +667,7 @@ namespace Granados.SSH2 {
 
         private readonly object _cipherSync = new object();
         private uint _sequenceNumber = 0;
-        private Cipher _cipher = null;
-        private MAC _mac = null;
+        private Func<SSH2Packet, DataFragment> _getPacketImageFunc;
 
         private readonly SSHProtocolEventManager _protocolEventManager;
 
@@ -681,6 +680,7 @@ namespace Granados.SSH2 {
         public SSH2SynchronousPacketHandler(IGranadosSocket socket, IDataHandler handler, SSHProtocolEventManager protocolEventManager)
             : base(socket, handler) {
 
+            _getPacketImageFunc = (packet) => GetPacketImageInternal(packet, null, null);
             _protocolEventManager = protocolEventManager;
         }
 
@@ -691,8 +691,13 @@ namespace Granados.SSH2 {
         /// <param name="mac">MAC for a packet to be sent.</param>
         public void SetCipher(Cipher cipher, MAC mac) {
             lock (_cipherSync) {
-                _cipher = cipher;
-                _mac = mac;
+                Granados.Crypto.SSH2.AESGCMCipher2 aesGcm = cipher as Granados.Crypto.SSH2.AESGCMCipher2;
+                if (aesGcm != null) {
+                    _getPacketImageFunc = (packet) => GetPacketImageInternalAESGCM(packet, aesGcm);
+                }
+                else {
+                    _getPacketImageFunc = (packet) => GetPacketImageInternal(packet, cipher, mac);
+                }
             }
         }
 
@@ -706,8 +711,16 @@ namespace Granados.SSH2 {
         /// <returns>binary image of the packet</returns>
         protected override DataFragment GetPacketImage(SSH2Packet packet) {
             lock (_cipherSync) {
-                return packet.GetImage(_cipher, _mac, _sequenceNumber++);
+                return _getPacketImageFunc(packet);
             }
+        }
+
+        private DataFragment GetPacketImageInternal(SSH2Packet packet, Cipher cipher, MAC mac) {
+            return packet.GetImage(cipher, mac, _sequenceNumber++);
+        }
+
+        private DataFragment GetPacketImageInternalAESGCM(SSH2Packet packet, Granados.Crypto.SSH2.AESGCMCipher2 cipher) {
+            return packet.GetImageAESGCM(cipher, _sequenceNumber++);
         }
 
         /// <summary>
@@ -1066,6 +1079,14 @@ namespace Granados.SSH2 {
                         cipherSettings.macServer,
                         cipherSettings.macClient);
                 }
+
+                _protocolEventManager.Trace(
+                    "update cipher settings: server [{0}, {1}] client [{2}, {3}]",
+                    _cInfo.OutgoingPacketCipher.Value,
+                    _cInfo.OutgoingPacketMacAlgorithm.Value,
+                    _cInfo.IncomingPacketCipher.Value,
+                    _cInfo.IncomingPacketMacAlgorithm.Value
+                );
 
                 lock (_sequenceLock) {
                     _sequenceStatus = SequenceStatus.Idle;
@@ -1507,14 +1528,14 @@ namespace Granados.SSH2 {
                     SSHProtocol.SSH2,
                     _cInfo.OutgoingPacketCipher.Value,
                     DeriveKey(state.secret, state.hash, 'C', CipherFactory.GetKeySize(_cInfo.OutgoingPacketCipher.Value), state.hashAlgorithm),
-                    DeriveKey(state.secret, state.hash, 'A', CipherFactory.GetBlockSize(_cInfo.OutgoingPacketCipher.Value), state.hashAlgorithm)
+                    DeriveKey(state.secret, state.hash, 'A', CipherFactory.GetIVSize(_cInfo.OutgoingPacketCipher.Value), state.hashAlgorithm)
                 );
             settings.cipherClient =
                 CipherFactory.CreateCipher(
                     SSHProtocol.SSH2,
                     _cInfo.IncomingPacketCipher.Value,
                     DeriveKey(state.secret, state.hash, 'D', CipherFactory.GetKeySize(_cInfo.IncomingPacketCipher.Value), state.hashAlgorithm),
-                    DeriveKey(state.secret, state.hash, 'B', CipherFactory.GetBlockSize(_cInfo.IncomingPacketCipher.Value), state.hashAlgorithm)
+                    DeriveKey(state.secret, state.hash, 'B', CipherFactory.GetIVSize(_cInfo.IncomingPacketCipher.Value), state.hashAlgorithm)
                 );
 
             settings.macServer =
@@ -1687,9 +1708,10 @@ namespace Granados.SSH2 {
         private CipherAlgorithm DecideCipherAlgorithm(string candidates) {
             string[] candidateNames = candidates.Split(',');
             foreach (CipherAlgorithm pref in _param.PreferableCipherAlgorithms) {
-                string prefName = CipherFactory.AlgorithmToSSH2Name(pref);
-                if (candidateNames.Contains(prefName)) {
-                    return pref;
+                foreach (string prefName in CipherFactory.AlgorithmToSSH2Name(pref)) {
+                    if (candidateNames.Contains(prefName)) {
+                        return pref;
+                    }
                 }
             }
             throw new SSHException(Strings.GetString("EncryptionAlgorithmNegotiationFailed"));
@@ -1704,9 +1726,10 @@ namespace Granados.SSH2 {
         private MACAlgorithm DecideMacAlgorithm(string candidates) {
             string[] candidateNames = candidates.Split(',');
             foreach (MACAlgorithm pref in _param.PreferableMacAlgorithms) {
-                string prefName = MACFactory.AlgorithmToSSH2Name(pref);
-                if (candidateNames.Contains(prefName)) {
-                    return pref;
+                foreach (string prefName in MACFactory.AlgorithmToSSH2Name(pref)) {
+                    if (candidateNames.Contains(prefName)) {
+                        return pref;
+                    }
                 }
             }
             throw new SSHException(Strings.GetString("EncryptionAlgorithmNegotiationFailed"));
@@ -1747,7 +1770,8 @@ namespace Granados.SSH2 {
             }
             return string.Join(",",
                     _param.PreferableCipherAlgorithms
-                        .Select(algorithm => CipherFactory.AlgorithmToSSH2Name(algorithm)));
+                        .Select(algorithm => CipherFactory.AlgorithmToSSH2Name(algorithm))
+                        .SelectMany(a => a));
         }
 
         /// <summary>
@@ -1760,7 +1784,8 @@ namespace Granados.SSH2 {
             }
             return string.Join(",",
                     _param.PreferableMacAlgorithms
-                        .Select(algorithm => MACFactory.AlgorithmToSSH2Name(algorithm)));
+                        .Select(algorithm => MACFactory.AlgorithmToSSH2Name(algorithm))
+                        .SelectMany(a => a));
         }
 
         /// <summary>

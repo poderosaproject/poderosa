@@ -175,6 +175,19 @@ namespace Granados.SSH2 {
         }
 
         /// <summary>
+        /// Gets the binary image of this packet using AES GCM.
+        /// </summary>
+        /// <param name="cipher">cipher algorithm.</param>
+        /// <param name="sequenceNumber">sequence number</param>
+        /// <returns>data</returns>
+        public DataFragment GetImageAESGCM(Granados.Crypto.SSH2.AESGCMCipher2 cipher, uint sequenceNumber) {
+            BeforeBuildImage();
+            ByteBuffer image = BuildImageAESGCM(cipher, sequenceNumber);
+            Recycle();
+            return image.AsDataFragment();
+        }
+
+        /// <summary>
         /// Modifies payload before making a packet image.
         /// Derived class can override this method for preparing sub-protocol packet.
         /// </summary>
@@ -197,12 +210,37 @@ namespace Granados.SSH2 {
             }
             int packetLength = PADDING_LENGTH_FIELD_LEN + payloadLength + paddingLength;
 
-            int offset = 0;
-            _payload.OverwriteUInt32(offset, sequenceNumber);
-            offset += SEQUENCE_NUMBER_FIELD_LEN;
-            _payload.OverwriteUInt32(offset, (uint)packetLength);
-            offset += PACKET_LENGTH_FIELD_LEN;
-            _payload.OverwriteByte(offset, (byte)paddingLength);
+            // _payload internal buffer layout
+            //
+            //  0 +-------------------+
+            //    | sequence number   | SEQUENCE_NUMBER_FIELD_LEN
+            //    | (initially zero)  |
+            //  4 +-------------------+
+            //    | packet length     | PACKET_LENGTH_FIELD_LEN
+            //    | (initially zero)  |
+            //  8 +-------------------+
+            //    | padding length    | PADDING_LENGTH_FIELD_LEN
+            //    | (initially zero)  |
+            //  9 +-------------------+
+            //    |                   |
+            //    |                   |
+            //    | payload           | payloadLength
+            //    |                   |
+            //    |                   |
+            //    +-------------------+
+            //
+            //  the following fields are appended
+            //    +-------------------+
+            //    |                   |
+            //    | padding           | paddingLength
+            //    |                   |
+            //    +-------------------+
+            //    | MAC               |
+            //    +-------------------+
+
+            _payload.OverwriteUInt32(0, sequenceNumber);
+            _payload.OverwriteUInt32(SEQUENCE_NUMBER_FIELD_LEN, (uint)packetLength);
+            _payload.OverwriteByte(SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN, (byte)paddingLength);
 
             // padding
             _payload.WriteSecureRandomBytes(paddingLength);
@@ -210,26 +248,112 @@ namespace Granados.SSH2 {
             // compute MAC
             byte[] macCode;
             if (mac != null) {
-                macCode = mac.ComputeHash(_payload.RawBuffer, _payload.RawBufferOffset, _payload.Length);
+                macCode =
+                    mac.ComputeHash(
+                        data: _payload.RawBuffer,
+                        offset: 0, // offset of sequence-number field
+                        length: SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN + packetLength
+                    );
             }
             else {
                 macCode = null;
             }
 
-            // remove sequence_number field
-            _payload.RemoveHead(SEQUENCE_NUMBER_FIELD_LEN);
-
             // encrypt
             if (cipher != null) {
                 cipher.Encrypt(
-                    _payload.RawBuffer, _payload.RawBufferOffset, _payload.Length,
-                    _payload.RawBuffer, _payload.RawBufferOffset);
+                    data: _payload.RawBuffer,
+                    offset: SEQUENCE_NUMBER_FIELD_LEN, // offset of packet-length field
+                    length: PACKET_LENGTH_FIELD_LEN + packetLength,
+                    result: _payload.RawBuffer,
+                    resultOffset: SEQUENCE_NUMBER_FIELD_LEN // same as input
+                );
             }
 
             // append MAC
             if (macCode != null) {
                 _payload.Append(macCode);
             }
+
+            // remove sequence_number field
+            _payload.RemoveHead(SEQUENCE_NUMBER_FIELD_LEN);
+
+            return _payload;
+        }
+
+        /// <summary>
+        /// Build packet binary data using AES GCM
+        /// </summary>
+        /// <param name="cipher">cipher algorithm.</param>
+        /// <param name="sequenceNumber">sequence number</param>
+        /// <returns>a byte buffer</returns>
+        private ByteBuffer BuildImageAESGCM(Granados.Crypto.SSH2.AESGCMCipher2 cipher, uint sequenceNumber) {
+            const int AUTHENTICATION_TAG_FIELD_LEN = 16;
+
+            int blockSize = cipher.BlockSize;
+            int payloadLength = _payload.Length - (SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN + PADDING_LENGTH_FIELD_LEN);
+            int paddingLength = blockSize - (PADDING_LENGTH_FIELD_LEN + payloadLength) % blockSize;
+            if (paddingLength < 4) {
+                paddingLength += blockSize;
+            }
+            int packetLength = PADDING_LENGTH_FIELD_LEN + payloadLength + paddingLength;
+
+            // _payload internal buffer layout
+            //
+            //  0 +---------------------+
+            //    | sequence number     | SEQUENCE_NUMBER_FIELD_LEN
+            //    | (initially zero)    |
+            //  4 +---------------------+
+            //    | packet length       | PACKET_LENGTH_FIELD_LEN
+            //    | (initially zero)    |
+            //  8 +---------------------+
+            //    | padding length      | PADDING_LENGTH_FIELD_LEN
+            //    | (initially zero)    |
+            //  9 +---------------------+
+            //    |                     |
+            //    |                     |
+            //    | payload             | payloadLength
+            //    |                     |
+            //    |                     |
+            //    +---------------------+
+            //
+            //  the following fields are appended
+            //    +---------------------+
+            //    |                     |
+            //    | padding             | paddingLength
+            //    |                     |
+            //    +---------------------+
+            //    | authentication tag  | AESAUTHENTICATION_TAG_FIELD_LEN
+            //    +---------------------+
+
+            _payload.OverwriteUInt32(SEQUENCE_NUMBER_FIELD_LEN, (uint)packetLength);
+            _payload.OverwriteByte(SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN, (byte)paddingLength);
+
+            // padding
+            _payload.WriteSecureRandomBytes(paddingLength);
+
+            // add an empty authentication tag field
+            int tagOffset = _payload.Length;
+            _payload.WriteUInt64(0UL);
+            _payload.WriteUInt64(0UL);
+
+            // encrypt
+            cipher.EncryptGCM(
+                input: _payload.RawBuffer,
+                inputOffset: SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN, // offset of padding-length field
+                inputLength: packetLength,
+                aad: _payload.RawBuffer,
+                aadOffset: SEQUENCE_NUMBER_FIELD_LEN, // offset of packet-length field
+                aadLength: PACKET_LENGTH_FIELD_LEN,
+                output: _payload.RawBuffer,
+                outputOffset: SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN, // same as input
+                outputTag: _payload.RawBuffer,
+                outputTagOffset: tagOffset,
+                outputTagLength: AUTHENTICATION_TAG_FIELD_LEN
+            );
+
+            // remove sequence_number field
+            _payload.RemoveHead(SEQUENCE_NUMBER_FIELD_LEN);
 
             return _payload;
         }
@@ -345,13 +469,13 @@ namespace Granados.SSH2 {
         private readonly ByteBuffer _packetImage = new ByteBuffer(36000, MAX_PACKET_LENGTH * 2);
         private int _packetLength;
         private uint _sequence;
-        private Cipher _cipher;
         private readonly object _cipherSync = new object();
-        private MAC _mac;
         private bool _checkMAC;
         private int _macLength;
 
         private bool _hasError = false;
+
+        private Func<bool> _constructPacketFunc;
 
         /// <summary>
         /// Constructor
@@ -360,11 +484,10 @@ namespace Granados.SSH2 {
         public SSH2Packetizer(IDataHandler handler) {
             _nextHandler = handler;
             _sequence = 0;
-            _cipher = null;
-            _mac = null;
             _checkMAC = false;
             _macLength = 0;
             _packetLength = -1;
+            _constructPacketFunc = () => ConstructPacket(null, null);
         }
 
         /// <summary>
@@ -375,10 +498,16 @@ namespace Granados.SSH2 {
         /// <param name="checkMAC">specifies whether MAC check is performed.</param>
         public void SetCipher(Cipher cipher, MAC mac, bool checkMAC) {
             lock (_cipherSync) {
-                _cipher = cipher;
-                _mac = mac;
                 _macLength = (mac != null) ? mac.Size : 0;
                 _checkMAC = (mac != null) ? checkMAC : false;
+
+                Granados.Crypto.SSH2.AESGCMCipher2 aesGcm = cipher as Granados.Crypto.SSH2.AESGCMCipher2;
+                if (aesGcm != null) {
+                    _constructPacketFunc = () => ConstructPacketAESGCM(aesGcm);
+                }
+                else {
+                    _constructPacketFunc = () => ConstructPacket(cipher, mac);
+                }
             }
         }
 
@@ -422,7 +551,7 @@ namespace Granados.SSH2 {
             while (true) {
                 bool hasPacket;
                 try {
-                    hasPacket = ConstructPacket();
+                    hasPacket = _constructPacketFunc();
                 }
                 catch (Exception) {
                     _hasError = true;
@@ -445,14 +574,36 @@ namespace Granados.SSH2 {
         /// true if one SSH packet has been extracted.
         /// in this case, _packetImage contains payload part of the SSH packet.
         /// </returns>
-        private bool ConstructPacket() {
+        private bool ConstructPacket(Cipher cipher, MAC mac) {
             const int SEQUENCE_NUMBER_FIELD_LEN = 4;
             const int PACKET_LENGTH_FIELD_LEN = 4;
             const int PADDING_LENGTH_FIELD_LEN = 1;
 
+            // _packetImage internal buffer layout
+            //
+            //  0 +---------------------+
+            //    | sequence number     | SEQUENCE_NUMBER_FIELD_LEN
+            //  4 +---------------------+
+            //    | packet length       | PACKET_LENGTH_FIELD_LEN
+            //  8 +---------------------+
+            //    | padding length      | PADDING_LENGTH_FIELD_LEN
+            //  9 +---------------------+
+            //    |                     |
+            //    |                     |
+            //    | payload             | payloadLength
+            //    |                     |
+            //    |                     |
+            //    +---------------------+
+            //    |                     |
+            //    | padding             | paddingLength
+            //    |                     |
+            //    +---------------------+
+            //    | MAC                 | _macLength
+            //    +---------------------+
+
             lock (_cipherSync) {
                 if (_packetLength < 0) {
-                    int headLen = (_cipher != null) ? _cipher.BlockSize : 4;
+                    int headLen = (cipher != null) ? cipher.BlockSize : 8;
 
                     if (_inputBuffer.Length < headLen) {
                         return false;
@@ -461,15 +612,20 @@ namespace Granados.SSH2 {
                     _packetImage.Clear();
                     _packetImage.WriteUInt32(_sequence);
                     _packetImage.Append(_inputBuffer, 0, headLen);
+
                     _inputBuffer.RemoveHead(headLen);
 
-                    int headOffset = _packetImage.RawBufferOffset + SEQUENCE_NUMBER_FIELD_LEN;
+                    int headOffset = SEQUENCE_NUMBER_FIELD_LEN;
 
-                    if (_cipher != null) {
-                        // decrypt first block
-                        _cipher.Decrypt(
-                            _packetImage.RawBuffer, headOffset, headLen,
-                            _packetImage.RawBuffer, headOffset);
+                    if (cipher != null) {
+                        // decrypt the first block
+                        cipher.Decrypt(
+                            data: _packetImage.RawBuffer,
+                            offset: headOffset,
+                            length: headLen,
+                            result: _packetImage.RawBuffer,
+                            resultOffset: headOffset
+                        );
                     }
 
                     uint packetLength = SSHUtil.ReadUInt32(_packetImage.RawBuffer, headOffset);
@@ -481,8 +637,8 @@ namespace Granados.SSH2 {
                     _packetLength = (int)packetLength;
                 }
 
-                int packetHeadLen = _packetImage.Length;    // size already read in
-                int requiredLength = SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN + _packetLength + _macLength - packetHeadLen;
+                int secondBlockOffset = _packetImage.Length;    // size already read in
+                int requiredLength = SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN + _packetLength + _macLength - secondBlockOffset;
 
                 if (_inputBuffer.Length < requiredLength) {
                     return false;
@@ -491,12 +647,15 @@ namespace Granados.SSH2 {
                 _packetImage.Append(_inputBuffer, 0, requiredLength);
                 _inputBuffer.RemoveHead(requiredLength);
 
-                if (_cipher != null) {
-                    // decrypt excluding MAC
-                    int headOffset = _packetImage.RawBufferOffset + packetHeadLen;
-                    _cipher.Decrypt(
-                        _packetImage.RawBuffer, headOffset, requiredLength - _macLength,
-                        _packetImage.RawBuffer, headOffset);
+                if (cipher != null) {
+                    // decrypt the second block and after excluding MAC
+                    cipher.Decrypt(
+                        data: _packetImage.RawBuffer,
+                        offset: secondBlockOffset,
+                        length: requiredLength - _macLength,
+                        result: _packetImage.RawBuffer,
+                        resultOffset: secondBlockOffset
+                    );
                 }
 
                 int paddingLength = _packetImage[SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN];
@@ -506,12 +665,17 @@ namespace Granados.SSH2 {
 
                 int payloadLength = _packetLength - PADDING_LENGTH_FIELD_LEN - paddingLength;
 
-                if (_checkMAC && _mac != null) {
+                if (_checkMAC && mac != null) {
                     int contentLen = SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN + _packetLength;
-                    byte[] result = _mac.ComputeHash(_packetImage.RawBuffer, _packetImage.RawBufferOffset, contentLen);
+                    byte[] macData =
+                        mac.ComputeHash(
+                            data: _packetImage.RawBuffer,
+                            offset: 0, // offset of sequence-number field
+                            length: contentLen
+                        );
 
-                    if (result.Length != _macLength ||
-                        !SSHUtil.ByteArrayEqual(result, 0, _packetImage.RawBuffer, _packetImage.RawBufferOffset + contentLen, _macLength)) {
+                    if (macData.Length != _macLength ||
+                        !SSHUtil.ByteArrayEqual(macData, 0, _packetImage.RawBuffer, contentLen, _macLength)) {
                         throw new SSHException("MAC mismatch");
                     }
                 }
@@ -519,6 +683,111 @@ namespace Granados.SSH2 {
                 // retain only payload
                 _packetImage.RemoveHead(SEQUENCE_NUMBER_FIELD_LEN + PACKET_LENGTH_FIELD_LEN + PADDING_LENGTH_FIELD_LEN);
                 _packetImage.RemoveTail(_macLength + paddingLength);
+
+                // sanity check
+                if (_packetImage.Length != payloadLength) {
+                    throw new InvalidOperationException();
+                }
+
+                // prepare for the next packet
+                ++_sequence;
+                _packetLength = -1;
+
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Extracts SSH packet from the internal buffer using AES GCM.
+        /// </summary>
+        /// <param name="cipher">AES GCM cipher object</param>
+        /// <returns>
+        /// true if one SSH packet has been extracted.
+        /// in this case, _packetImage contains payload part of the SSH packet.
+        /// </returns>
+        private bool ConstructPacketAESGCM(Granados.Crypto.SSH2.AESGCMCipher2 cipher) {
+            const int PACKET_LENGTH_FIELD_LEN = 4;
+            const int PADDING_LENGTH_FIELD_LEN = 1;
+            const int AUTHENTICATION_TAG_FIELD_LEN = 16;
+
+            // _packetImage internal buffer layout
+            //
+            //  0 +---------------------+
+            //    | packet length       | PACKET_LENGTH_FIELD_LEN
+            //  4 +---------------------+
+            //    | padding length      | PADDING_LENGTH_FIELD_LEN
+            //  5 +---------------------+
+            //    |                     |
+            //    |                     |
+            //    | payload             | payloadLength
+            //    |                     |
+            //    |                     |
+            //    +---------------------+
+            //    |                     |
+            //    | padding             | paddingLength
+            //    |                     |
+            //    +---------------------+
+            //    | authentication tag  | AUTHENTICATION_TAG_FIELD_LEN
+            //    +---------------------+
+
+            lock (_cipherSync) {
+                if (_packetLength < 0) {
+                    if (_inputBuffer.Length < PACKET_LENGTH_FIELD_LEN) {
+                        return false;
+                    }
+
+                    uint packetLength = SSHUtil.ReadUInt32(_inputBuffer.RawBuffer, _inputBuffer.RawBufferOffset);
+
+                    if (packetLength < MIN_PACKET_LENGTH || packetLength >= MAX_PACKET_LENGTH) {
+                        throw new SSHException(String.Format("invalid packet length : {0}", packetLength));
+                    }
+
+                    _packetImage.Clear();
+                    _packetImage.Append(_inputBuffer, 0, PACKET_LENGTH_FIELD_LEN);
+
+                    _inputBuffer.RemoveHead(PACKET_LENGTH_FIELD_LEN);
+
+                    _packetLength = (int)packetLength;
+                }
+
+                int requiredLength = _packetLength + AUTHENTICATION_TAG_FIELD_LEN;
+
+                if (_inputBuffer.Length < requiredLength) {
+                    return false;
+                }
+
+                _packetImage.Append(_inputBuffer, 0, requiredLength);
+                _inputBuffer.RemoveHead(requiredLength);
+
+                // decrypt blocks excluding authentication tag
+                bool isValid = cipher.DecryptGCM(
+                    input: _packetImage.RawBuffer,
+                    inputOffset: PACKET_LENGTH_FIELD_LEN, // offset of padding-length field
+                    inputLength: _packetLength,
+                    aad: _packetImage.RawBuffer,
+                    aadOffset: 0, // offset of packet-length field
+                    aadLength: PACKET_LENGTH_FIELD_LEN,
+                    tag: _packetImage.RawBuffer,
+                    tagOffset: PACKET_LENGTH_FIELD_LEN + _packetLength, // offset of authentication-tag field
+                    tagLength: AUTHENTICATION_TAG_FIELD_LEN,
+                    output: _packetImage.RawBuffer,
+                    outputOffset: PACKET_LENGTH_FIELD_LEN // sane as input
+                );
+
+                if (!isValid) {
+                    throw new SSHException("invalid packet: authenticated decryption failed");
+                }
+
+                int paddingLength = _packetImage[PACKET_LENGTH_FIELD_LEN];
+                if (paddingLength < 4) {
+                    throw new SSHException(String.Format("invalid padding length : {0}", paddingLength));
+                }
+
+                int payloadLength = _packetLength - PADDING_LENGTH_FIELD_LEN - paddingLength;
+
+                // retain only payload
+                _packetImage.RemoveHead(PACKET_LENGTH_FIELD_LEN + PADDING_LENGTH_FIELD_LEN);
+                _packetImage.RemoveTail(paddingLength + AUTHENTICATION_TAG_FIELD_LEN);
 
                 // sanity check
                 if (_packetImage.Length != payloadLength) {
