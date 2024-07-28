@@ -1064,48 +1064,106 @@ namespace Granados.Algorithms {
 
         #region ECB
 
-        private static void test_AES_ECB_Encrypt(byte[] key, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
-            byte[] inputOrig = (byte[])input.Clone();
-            byte[] output = new byte[input.Length];
-
-            var aes = new Rijndael();
-            aes.InitializeKey(key);
-            int offset = 0;
-            while (offset < input.Length) {
-                aes.blockEncrypt(input, offset, output, offset);
-                offset += aes.GetBlockSize();
-            }
-
-            if (!System.Linq.Enumerable.SequenceEqual(output, expected)) {
-                throw new Exception(String.Format("{0}: Encrypt failed: wrong output", testName));
-            }
-            if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
-                throw new Exception(String.Format("{0}: Encrypt failed: input data were corrupted", testName));
-            }
+        private static void Test_AES_ECB_Encrypt(byte[] key, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
+            Test_AES_ECB_Encrypt_OutOfPlace(key, input, expected, testName);
+            Test_AES_ECB_Encrypt_InPlace(key, input, expected, testName);
         }
 
-        private static void test_AES_ECB_Decrypt(byte[] key, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
-            byte[] inputOrig = (byte[])input.Clone();
-            byte[] output = new byte[input.Length];
+        private static void Test_AES_ECB_Encrypt_OutOfPlace(byte[] key, byte[] input, byte[] expected, string testName) {
+            byte[] inputData = ExtendCopy(input, 3, 5);
+            byte[] inputDataOrig = (byte[])inputData.Clone();
+            int inputDataOffset = 3;
+            int inputDataLength = input.Length;
+            byte[] outputData = new byte[5 + input.Length + 7];
+            int outputDataOffset = 5;
+            byte[] expectedData = ExtendCopy(expected, 5, 7);
 
             var aes = new Rijndael();
             aes.InitializeKey(key);
-            int offset = 0;
-            while (offset < input.Length) {
-                aes.blockDecrypt(input, offset, output, offset);
-                offset += aes.GetBlockSize();
+            for (int i = 0; i < inputDataLength; i += aes.GetBlockSize()) {
+                aes.blockEncrypt(inputData, inputDataOffset + i, outputData, outputDataOffset + i);
             }
 
-            if (!System.Linq.Enumerable.SequenceEqual(output, expected)) {
-                throw new Exception(String.Format("{0}: Decrypt failed: wrong output", testName));
+            if (!Equals(outputData, expectedData)) {
+                throw new Exception(String.Format("{0} (out-of-place) failed: wrong output", testName));
             }
-            if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
-                throw new Exception(String.Format("{0}: Decrypt failed: input data were corrupted", testName));
+            if (!Equals(inputData, inputDataOrig)) {
+                throw new Exception(String.Format("{0} (out-of-place) failed: input data were corrupted", testName));
             }
+            Debug.WriteLine("{0} (out-of-place) Pass", new object[] { testName });
+        }
+
+        private static void Test_AES_ECB_Encrypt_InPlace(byte[] key, byte[] input, byte[] expected, string testName) {
+            byte[] inputData = ExtendCopy(input, 3, 5);
+            int inputDataOffset = 3;
+            int inputDataLength = input.Length;
+            byte[] outputData = inputData;
+            int outputDataOffset = inputDataOffset;
+            byte[] expectedData = ExtendCopy(expected, 3, 5);
+
+            var aes = new Rijndael();
+            aes.InitializeKey(key);
+            for (int i = 0; i < inputDataLength; i += aes.GetBlockSize()) {
+                aes.blockEncrypt(inputData, inputDataOffset + i, outputData, outputDataOffset + i);
+            }
+
+            if (!Equals(outputData, expectedData)) {
+                throw new Exception(String.Format("{0} (in-place) failed: wrong output", testName));
+            }
+            Debug.WriteLine("{0} (in-place) Pass", new object[] { testName });
+        }
+
+        private static void Test_AES_ECB_Decrypt(byte[] key, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
+            Test_AES_ECB_Decrypt_OutOfPlace(key, input, expected, testName);
+            Test_AES_ECB_Decrypt_InPlace(key, input, expected, testName);
+        }
+
+        private static void Test_AES_ECB_Decrypt_OutOfPlace(byte[] key, byte[] input, byte[] expected, string testName) {
+            byte[] inputData = ExtendCopy(input, 3, 5);
+            byte[] inputDataOrig = (byte[])inputData.Clone();
+            int inputDataOffset = 3;
+            int inputDataLength = input.Length;
+            byte[] outputData = new byte[5 + input.Length + 7];
+            int outputDataOffset = 5;
+            byte[] expectedData = ExtendCopy(expected, 5, 7);
+
+            var aes = new Rijndael();
+            aes.InitializeKey(key);
+            for (int i = 0; i < inputDataLength; i += aes.GetBlockSize()) {
+                aes.blockDecrypt(inputData, inputDataOffset + i, outputData, outputDataOffset + i);
+            }
+
+            if (!Equals(outputData, expectedData)) {
+                throw new Exception(String.Format("{0} (out-of-place) failed: wrong output", testName));
+            }
+            if (!Equals(inputData, inputDataOrig)) {
+                throw new Exception(String.Format("{0} (out-of-place) failed: input data were corrupted", testName));
+            }
+            Debug.WriteLine("{0} (out-of-place) Pass", new object[] { testName });
+        }
+
+        private static void Test_AES_ECB_Decrypt_InPlace(byte[] key, byte[] input, byte[] expected, string testName) {
+            byte[] inputData = ExtendCopy(input, 3, 5);
+            int inputDataOffset = 3;
+            int inputDataLength = input.Length;
+            byte[] outputData = inputData;
+            int outputDataOffset = inputDataOffset;
+            byte[] expectedData = ExtendCopy(expected, 3, 5);
+
+            var aes = new Rijndael();
+            aes.InitializeKey(key);
+            for (int i = 0; i < inputDataLength; i += aes.GetBlockSize()) {
+                aes.blockDecrypt(inputData, inputDataOffset + i, outputData, outputDataOffset + i);
+            }
+
+            if (!Equals(outputData, expectedData)) {
+                throw new Exception(String.Format("{0} (in-place) failed: wrong output", testName));
+            }
+            Debug.WriteLine("{0} (in-place) Pass", new object[] { testName });
         }
 
         private static void Test_AES128_ECB_Encrypt() {
-            test_AES_ECB_Encrypt(
+            Test_AES_ECB_Encrypt(
                 key: BigIntegerConverter.ParseHex("2b7e151628aed2a6abf7158809cf4f3c"),
                 input: (byte[])original.Clone(),
                 expected: BigIntegerConverter.ParseHex(
@@ -1118,7 +1176,7 @@ namespace Granados.Algorithms {
         }
 
         private static void Test_AES128_ECB_Decrypt() {
-            test_AES_ECB_Decrypt(
+            Test_AES_ECB_Decrypt(
                 key: BigIntegerConverter.ParseHex("2b7e151628aed2a6abf7158809cf4f3c"),
                 input: BigIntegerConverter.ParseHex(
                       "3ad77bb40d7a3660a89ecaf32466ef97"
@@ -1131,7 +1189,7 @@ namespace Granados.Algorithms {
         }
 
         private static void Test_AES192_ECB_Encrypt() {
-            test_AES_ECB_Encrypt(
+            Test_AES_ECB_Encrypt(
                 key: BigIntegerConverter.ParseHex("8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"),
                 input: (byte[])original.Clone(),
                 expected: BigIntegerConverter.ParseHex(
@@ -1144,7 +1202,7 @@ namespace Granados.Algorithms {
         }
 
         private static void Test_AES192_ECB_Decrypt() {
-            test_AES_ECB_Decrypt(
+            Test_AES_ECB_Decrypt(
                 key: BigIntegerConverter.ParseHex("8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"),
                 input: BigIntegerConverter.ParseHex(
                       "bd334f1d6e45f25ff712a214571fa5cc"
@@ -1157,7 +1215,7 @@ namespace Granados.Algorithms {
         }
 
         private static void Test_AES256_ECB_Encrypt() {
-            test_AES_ECB_Encrypt(
+            Test_AES_ECB_Encrypt(
                 key: BigIntegerConverter.ParseHex(
                       "603deb1015ca71be2b73aef0857d7781"
                     + "1f352c073b6108d72d9810a30914dff4"
@@ -1173,7 +1231,7 @@ namespace Granados.Algorithms {
         }
 
         private static void Test_AES256_ECB_Decrypt() {
-            test_AES_ECB_Decrypt(
+            Test_AES_ECB_Decrypt(
                 key: BigIntegerConverter.ParseHex(
                       "603deb1015ca71be2b73aef0857d7781"
                     + "1f352c073b6108d72d9810a30914dff4"
@@ -1191,107 +1249,144 @@ namespace Granados.Algorithms {
 
         #region CBC
 
-        private static void test_AES_CBC_Encrypt(byte[] key, byte[] iv, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
-            byte[] inputOrig = (byte[])input.Clone();
-
-            // encrypt all blocks
-            {
-                byte[] output = new byte[input.Length];
-
-                var aes = new AESBlockCipherCBC(key, iv);
-                aes.Encrypt(input, 0, input.Length, output, 0);
-
-                if (!System.Linq.Enumerable.SequenceEqual(output, expected)) {
-                    throw new Exception(String.Format("{0} Encrypt failed: wrong output", testName));
-                }
-                if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
-                    throw new Exception(String.Format("{0} Encrypt failed: input data were corrupted", testName));
-                }
-            }
-
-            // encrypt each blocks
-            {
-
-                var aes = new AESBlockCipherCBC(key, iv);
-                int blockSize = aes.GetBlockSize();
-                byte[] outputBlock = new byte[blockSize];
-                byte[] expectedBlock = new byte[blockSize];
-                for (int inputOffset = 0; inputOffset < input.Length; inputOffset += blockSize) {
-                    aes.Encrypt(input, inputOffset, blockSize, outputBlock, 0);
-
-                    Array.Copy(expected, inputOffset, expectedBlock, 0, blockSize);
-
-                    if (!System.Linq.Enumerable.SequenceEqual(outputBlock, expectedBlock)) {
-                        throw new Exception(String.Format("{0} Encrypt failed (inputOffset = {1}): wrong output", testName, inputOffset));
-                    }
-                }
-                if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
-                    throw new Exception(String.Format("{0} Encrypt failed: input data were corrupted", testName));
-                }
-            }
-
-            // in-place encrypt all blocks
-            {
-                var aes = new AESBlockCipherCBC(key, iv);
-                aes.Encrypt(input, 0, input.Length, input, 0);
-
-                if (!System.Linq.Enumerable.SequenceEqual(input, expected)) {
-                    throw new Exception(String.Format("{0} Encrypt In-Place failed: wrong output", testName));
-                }
-            }
+        private static void Test_AES_CBC_Encrypt(byte[] key, byte[] iv, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
+            Test_AES_CBC_Encrypt_OutOfPlace(key, iv, input, expected, testName);
+            Test_AES_CBC_Encrypt_InPlace(key, iv, input, expected, testName);
+            Test_AES_CBC_Encrypt_BlockByBlock(key, iv, input, expected, testName);
         }
 
-        private static void test_AES_CBC_Decrypt(byte[] key, byte[] iv, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
-            byte[] inputOrig = (byte[])input.Clone();
+        private static void Test_AES_CBC_Encrypt_OutOfPlace(byte[] key, byte[] iv, byte[] input, byte[] expected, string testName) {
+            byte[] inputData = ExtendCopy(input, 3, 5);
+            byte[] inputDataOrig = (byte[])inputData.Clone();
+            int inputDataOffset = 3;
+            int inputDataLength = input.Length;
+            byte[] outputData = new byte[5 + input.Length + 7];
+            int outputDataOffset = 5;
+            byte[] expectedData = ExtendCopy(expected, 5, 7);
 
-            // decrypt all blocks
-            {
-                byte[] output = new byte[input.Length];
+            var aes = new AESBlockCipherCBC(key, iv);
+            aes.Encrypt(inputData, inputDataOffset, inputDataLength, outputData, outputDataOffset);
 
-                var aes = new AESBlockCipherCBC(key, iv);
-                aes.Decrypt(input, 0, input.Length, output, 0);
+            if (!Equals(outputData, expectedData)) {
+                throw new Exception(String.Format("{0} (out-of-place) failed: wrong output", testName));
+            }
+            if (!Equals(inputData, inputDataOrig)) {
+                throw new Exception(String.Format("{0} (out-of-place) failed: input data were corrupted", testName));
+            }
+            Debug.WriteLine("{0} (out-of-place) Pass", new object[] { testName });
+        }
 
-                if (!System.Linq.Enumerable.SequenceEqual(output, expected)) {
-                    throw new Exception(String.Format("{0} Decrypt failed: wrong output", testName));
-                }
-                if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
-                    throw new Exception(String.Format("{0} Decrypt failed: input data were corrupted", testName));
-                }
+        private static void Test_AES_CBC_Encrypt_InPlace(byte[] key, byte[] iv, byte[] input, byte[] expected, string testName) {
+            byte[] inputData = ExtendCopy(input, 3, 5);
+            int inputDataOffset = 3;
+            int inputDataLength = input.Length;
+            byte[] outputData = inputData;
+            int outputDataOffset = inputDataOffset;
+            byte[] expectedData = ExtendCopy(expected, 3, 5);
+
+            var aes = new AESBlockCipherCBC(key, iv);
+            aes.Encrypt(inputData, inputDataOffset, inputDataLength, outputData, outputDataOffset);
+
+            if (!Equals(outputData, expectedData)) {
+                throw new Exception(String.Format("{0} (in-place) failed: wrong output", testName));
+            }
+            Debug.WriteLine("{0} (in-place) Pass", new object[] { testName });
+        }
+
+        private static void Test_AES_CBC_Encrypt_BlockByBlock(byte[] key, byte[] iv, byte[] input, byte[] expected, string testName) {
+            byte[] inputData = ExtendCopy(input, 3, 5);
+            byte[] inputDataOrig = (byte[])inputData.Clone();
+            int inputDataOffset = 3;
+            int inputDataLength = input.Length;
+            byte[] outputData = new byte[5 + input.Length + 7];
+            int outputDataOffset = 5;
+            byte[] expectedData = ExtendCopy(expected, 5, 7);
+
+            var aes = new AESBlockCipherCBC(key, iv);
+            int blockSize = aes.GetBlockSize();
+            for (int i = 0; i < inputDataLength; i += blockSize) {
+                aes.Encrypt(inputData, inputDataOffset + i, blockSize, outputData, outputDataOffset + i);
             }
 
-            // decrypt each blocks
-            {
-                var aes = new AESBlockCipherCBC(key, iv);
-                int blockSize = aes.GetBlockSize();
-                byte[] outputBlock = new byte[blockSize];
-                byte[] expectedBlock = new byte[blockSize];
-                for (int inputOffset = 0; inputOffset < input.Length; inputOffset += blockSize) {
-                    aes.Decrypt(input, inputOffset, blockSize, outputBlock, 0);
+            if (!Equals(outputData, expectedData)) {
+                throw new Exception(String.Format("{0} (block-by-block) failed: wrong output", testName));
+            }
+            if (!Equals(inputData, inputDataOrig)) {
+                throw new Exception(String.Format("{0} (block-by-block) failed: input data were corrupted", testName));
+            }
+            Debug.WriteLine("{0} (block-by-block) Pass", new object[] { testName });
+        }
 
-                    Array.Copy(expected, inputOffset, expectedBlock, 0, blockSize);
+        private static void Test_AES_CBC_Decrypt(byte[] key, byte[] iv, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
+            Test_AES_CBC_Decrypt_OutOfPlace(key, iv, input, expected, testName);
+            Test_AES_CBC_Decrypt_InPlace(key, iv, input, expected, testName);
+            Test_AES_CBC_Decrypt_BlockByBlock(key, iv, input, expected, testName);
+        }
 
-                    if (!System.Linq.Enumerable.SequenceEqual(outputBlock, expectedBlock)) {
-                        throw new Exception(String.Format("{0} Decrypt failed (inputOffset = {1}): wrong output", testName, inputOffset));
-                    }
-                }
-                if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
-                    throw new Exception(String.Format("{0} Encrypt failed: input data were corrupted", testName));
-                }
+        private static void Test_AES_CBC_Decrypt_OutOfPlace(byte[] key, byte[] iv, byte[] input, byte[] expected, string testName) {
+            byte[] inputData = ExtendCopy(input, 3, 5);
+            byte[] inputDataOrig = (byte[])inputData.Clone();
+            int inputDataOffset = 3;
+            int inputDataLength = input.Length;
+            byte[] outputData = new byte[5 + input.Length + 7];
+            int outputDataOffset = 5;
+            byte[] expectedData = ExtendCopy(expected, 5, 7);
+
+            var aes = new AESBlockCipherCBC(key, iv);
+            aes.Decrypt(inputData, inputDataOffset, inputDataLength, outputData, outputDataOffset);
+
+            if (!Equals(outputData, expectedData)) {
+                throw new Exception(String.Format("{0} (out-of-place) failed: wrong output", testName));
+            }
+            if (!Equals(inputData, inputDataOrig)) {
+                throw new Exception(String.Format("{0} (out-of-place) failed: input data were corrupted", testName));
+            }
+            Debug.WriteLine("{0} (out-of-place) Pass", new object[] { testName });
+        }
+
+        private static void Test_AES_CBC_Decrypt_InPlace(byte[] key, byte[] iv, byte[] input, byte[] expected, string testName) {
+            byte[] inputData = ExtendCopy(input, 3, 5);
+            int inputDataOffset = 3;
+            int inputDataLength = input.Length;
+            byte[] outputData = inputData;
+            int outputDataOffset = inputDataOffset;
+            byte[] expectedData = ExtendCopy(expected, 3, 5);
+
+            var aes = new AESBlockCipherCBC(key, iv);
+            aes.Decrypt(inputData, inputDataOffset, inputDataLength, outputData, outputDataOffset);
+
+            if (!Equals(inputData, expectedData)) {
+                throw new Exception(String.Format("{0} (in-place) failed: wrong output", testName));
+            }
+            Debug.WriteLine("{0} (in-place) Pass", new object[] { testName });
+        }
+
+        private static void Test_AES_CBC_Decrypt_BlockByBlock(byte[] key, byte[] iv, byte[] input, byte[] expected, string testName) {
+            byte[] inputData = ExtendCopy(input, 3, 5);
+            byte[] inputDataOrig = (byte[])inputData.Clone();
+            int inputDataOffset = 3;
+            int inputDataLength = input.Length;
+            byte[] outputData = new byte[5 + input.Length + 7];
+            int outputDataOffset = 5;
+            byte[] expectedData = ExtendCopy(expected, 5, 7);
+
+            var aes = new AESBlockCipherCBC(key, iv);
+            int blockSize = aes.GetBlockSize();
+            for (int i = 0; i < inputDataLength; i += blockSize) {
+                aes.Decrypt(inputData, inputDataOffset + i, blockSize, outputData, outputDataOffset + i);
             }
 
-            // in-place decrypt all blocks
-            {
-                var aes = new AESBlockCipherCBC(key, iv);
-                aes.Decrypt(input, 0, input.Length, input, 0);
-
-                if (!System.Linq.Enumerable.SequenceEqual(input, expected)) {
-                    throw new Exception(String.Format("{0} Decrypt In-Place failed: wrong output", testName));
-                }
+            if (!Equals(outputData, expectedData)) {
+                throw new Exception(String.Format("{0} (block-by-block) failed: wrong output", testName));
             }
+            if (!Equals(inputData, inputDataOrig)) {
+                throw new Exception(String.Format("{0} (block-by-block) failed: input data were corrupted", testName));
+            }
+            Debug.WriteLine("{0} (block-by-block) Pass", new object[] { testName });
         }
 
         private static void Test_AES128_CBC_Encrypt() {
-            test_AES_CBC_Encrypt(
+            Test_AES_CBC_Encrypt(
                 key: BigIntegerConverter.ParseHex("2b7e151628aed2a6abf7158809cf4f3c"),
                 iv: BigIntegerConverter.ParseHex("000102030405060708090a0b0c0d0e0f"),
                 input: (byte[])original.Clone(),
@@ -1305,7 +1400,7 @@ namespace Granados.Algorithms {
         }
 
         private static void Test_AES128_CBC_Decrypt() {
-            test_AES_CBC_Decrypt(
+            Test_AES_CBC_Decrypt(
                 key: BigIntegerConverter.ParseHex("2b7e151628aed2a6abf7158809cf4f3c"),
                 iv: BigIntegerConverter.ParseHex("000102030405060708090a0b0c0d0e0f"),
                 input: BigIntegerConverter.ParseHex(
@@ -1319,7 +1414,7 @@ namespace Granados.Algorithms {
         }
 
         private static void Test_AES192_CBC_Encrypt() {
-            test_AES_CBC_Encrypt(
+            Test_AES_CBC_Encrypt(
                 key: BigIntegerConverter.ParseHex("8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"),
                 iv: BigIntegerConverter.ParseHex("000102030405060708090a0b0c0d0e0f"),
                 input: (byte[])original.Clone(),
@@ -1333,7 +1428,7 @@ namespace Granados.Algorithms {
         }
 
         private static void Test_AES192_CBC_Decrypt() {
-            test_AES_CBC_Decrypt(
+            Test_AES_CBC_Decrypt(
                 key: BigIntegerConverter.ParseHex("8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"),
                 iv: BigIntegerConverter.ParseHex("000102030405060708090a0b0c0d0e0f"),
                 input: BigIntegerConverter.ParseHex(
@@ -1347,7 +1442,7 @@ namespace Granados.Algorithms {
         }
 
         private static void Test_AES256_CBC_Encrypt() {
-            test_AES_CBC_Encrypt(
+            Test_AES_CBC_Encrypt(
                 key: BigIntegerConverter.ParseHex(
                       "603deb1015ca71be2b73aef0857d7781"
                     + "1f352c073b6108d72d9810a30914dff4"
@@ -1364,7 +1459,7 @@ namespace Granados.Algorithms {
         }
 
         private static void Test_AES256_CBC_Decrypt() {
-            test_AES_CBC_Decrypt(
+            Test_AES_CBC_Decrypt(
                 key: BigIntegerConverter.ParseHex(
                       "603deb1015ca71be2b73aef0857d7781"
                     + "1f352c073b6108d72d9810a30914dff4"
@@ -1398,116 +1493,154 @@ namespace Granados.Algorithms {
                 byte[] icb = BigIntegerConverter.ParseHex(p.Item1);
                 byte[] expected = BigIntegerConverter.ParseHex(p.Item2);
                 var aes = new AESBlockCipherCTR(BigIntegerConverter.ParseHex("2b7e151628aed2a6abf7158809cf4f3c"), icb);
-                if (!System.Linq.Enumerable.SequenceEqual(aes.CopyCounterBlock(), icb)) {
+                if (!Equals(aes.CopyCounterBlock(), icb)) {
                     throw new Exception("icb does not match");
                 }
                 aes.IncrementCounterBlock();
-                if (!System.Linq.Enumerable.SequenceEqual(aes.CopyCounterBlock(), expected)) {
+                if (!Equals(aes.CopyCounterBlock(), expected)) {
                     throw new Exception("incremented counter block has wrong value");
                 }
             }
         }
 
-        private static void test_AES_CTR_Encrypt(byte[] key, byte[] icb, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
-            byte[] inputOrig = (byte[])input.Clone();
-
-            // encrypt all blocks
-            {
-                byte[] output = new byte[input.Length];
-
-                var aes = new AESBlockCipherCTR(key, icb);
-                aes.Encrypt(input, 0, input.Length, output, 0);
-
-                if (!System.Linq.Enumerable.SequenceEqual(output, expected)) {
-                    throw new Exception(String.Format("{0} Encrypt failed: wrong output", testName));
-                }
-                if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
-                    throw new Exception(String.Format("{0} Encrypt failed: input data were corrupted", testName));
-                }
-            }
-
-            // encrypt each blocks
-            {
-                var aes = new AESBlockCipherCTR(key, icb);
-                int blockSize = aes.GetBlockSize();
-                byte[] outputBlock = new byte[blockSize];
-                byte[] expectedBlock = new byte[blockSize];
-                for (int inputOffset = 0; inputOffset < input.Length; inputOffset += blockSize) {
-                    aes.Encrypt(input, inputOffset, blockSize, outputBlock, 0);
-
-                    Array.Copy(expected, inputOffset, expectedBlock, 0, blockSize);
-
-                    if (!System.Linq.Enumerable.SequenceEqual(outputBlock, expectedBlock)) {
-                        throw new Exception(String.Format("{0} Encrypt failed (inputOffset = {1}): wrong output", testName, inputOffset));
-                    }
-                }
-                if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
-                    throw new Exception(String.Format("{0} Encrypt failed: input data were corrupted", testName));
-                }
-            }
-
-            // in-place encrypt all blocks
-            {
-                var aes = new AESBlockCipherCTR(key, icb);
-                aes.Encrypt(input, 0, input.Length, input, 0);
-
-                if (!System.Linq.Enumerable.SequenceEqual(input, expected)) {
-                    throw new Exception(String.Format("{0} Encrypt In-Place failed: wrong output", testName));
-                }
-            }
+        private static void Test_AES_CTR_Encrypt(byte[] key, byte[] icb, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
+            Test_AES_CTR_Encrypt_OutOfPlace(key, icb, input, expected, testName);
+            Test_AES_CTR_Encrypt_InPlace(key, icb, input, expected, testName);
+            Test_AES_CTR_Encrypt_BlockByBlock(key, icb, input, expected, testName);
         }
 
-        private static void test_AES_CTR_Decrypt(byte[] key, byte[] icb, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
-            byte[] inputOrig = (byte[])input.Clone();
+        private static void Test_AES_CTR_Encrypt_OutOfPlace(byte[] key, byte[] icb, byte[] input, byte[] expected, string testName) {
+            byte[] inputData = ExtendCopy(input, 3, 5);
+            byte[] inputDataOrig = (byte[])inputData.Clone();
+            int inputDataOffset = 3;
+            int inputDataLength = input.Length;
+            byte[] outputData = new byte[5 + input.Length + 7];
+            int outputDataOffset = 5;
+            byte[] expectedData = ExtendCopy(expected, 5, 7);
 
-            // decrypt all blocks
-            {
-                byte[] output = new byte[input.Length];
+            var aes = new AESBlockCipherCTR(key, icb);
+            aes.Encrypt(inputData, inputDataOffset, inputDataLength, outputData, outputDataOffset);
 
-                var aes = new AESBlockCipherCTR(key, icb);
-                aes.Decrypt(input, 0, input.Length, output, 0);
+            if (!Equals(outputData, expectedData)) {
+                throw new Exception(String.Format("{0} (out-of-place) failed: wrong output", testName));
+            }
+            if (!Equals(inputData, inputDataOrig)) {
+                throw new Exception(String.Format("{0} (out-of-place) failed: input data were corrupted", testName));
+            }
+            Debug.WriteLine("{0} (out-of-place) Pass", new object[] { testName });
+        }
 
-                if (!System.Linq.Enumerable.SequenceEqual(output, expected)) {
-                    throw new Exception(String.Format("{0} Decrypt failed: wrong output", testName));
-                }
-                if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
-                    throw new Exception(String.Format("{0} Decrypt failed: input data were corrupted", testName));
-                }
+        private static void Test_AES_CTR_Encrypt_InPlace(byte[] key, byte[] icb, byte[] input, byte[] expected, string testName) {
+            byte[] inputData = ExtendCopy(input, 3, 5);
+            int inputDataOffset = 3;
+            int inputDataLength = input.Length;
+            byte[] outputData = inputData;
+            int outputDataOffset = inputDataOffset;
+            byte[] expectedData = ExtendCopy(expected, 3, 5);
+
+            var aes = new AESBlockCipherCTR(key, icb);
+            aes.Encrypt(inputData, inputDataOffset, inputDataLength, outputData, outputDataOffset);
+
+            if (!Equals(outputData, expectedData)) {
+                throw new Exception(String.Format("{0} (in-place) failed: wrong output", testName));
+            }
+            Debug.WriteLine("{0} (in-place) Pass", new object[] { testName });
+        }
+
+        private static void Test_AES_CTR_Encrypt_BlockByBlock(byte[] key, byte[] icb, byte[] input, byte[] expected, string testName) {
+            byte[] inputData = ExtendCopy(input, 3, 5);
+            byte[] inputDataOrig = (byte[])inputData.Clone();
+            int inputDataOffset = 3;
+            int inputDataLength = input.Length;
+            byte[] outputData = new byte[5 + input.Length + 7];
+            int outputDataOffset = 5;
+            byte[] expectedData = ExtendCopy(expected, 5, 7);
+
+            var aes = new AESBlockCipherCTR(key, icb);
+            int blockSize = aes.GetBlockSize();
+            for (int i = 0; i < inputDataLength; i += blockSize) {
+                aes.Encrypt(inputData, inputDataOffset + i, blockSize, outputData, outputDataOffset + i);
             }
 
-            // decrypt each blocks
-            {
-                var aes = new AESBlockCipherCTR(key, icb);
-                int blockSize = aes.GetBlockSize();
-                byte[] outputBlock = new byte[blockSize];
-                byte[] expectedBlock = new byte[blockSize];
-                for (int inputOffset = 0; inputOffset < input.Length; inputOffset += blockSize) {
-                    aes.Decrypt(input, inputOffset, blockSize, outputBlock, 0);
+            if (!Equals(outputData, expectedData)) {
+                throw new Exception(String.Format("{0} (block-by-block) failed: wrong output", testName));
+            }
+            if (!Equals(inputData, inputDataOrig)) {
+                throw new Exception(String.Format("{0} (block-by-block) failed: input data were corrupted", testName));
+            }
+            Debug.WriteLine("{0} (block-by-block) Pass", new object[] { testName });
+        }
 
-                    Array.Copy(expected, inputOffset, expectedBlock, 0, blockSize);
+        private static void Test_AES_CTR_Decrypt(byte[] key, byte[] icb, byte[] input, byte[] expected, [CallerMemberName] string testName = "") {
+            Test_AES_CTR_Decrypt_OutOfPlace(key, icb, input, expected, testName);
+            Test_AES_CTR_Decrypt_InPlace(key, icb, input, expected, testName);
+            Test_AES_CTR_Decrypt_BlockByBlock(key, icb, input, expected, testName);
+        }
 
-                    if (!System.Linq.Enumerable.SequenceEqual(outputBlock, expectedBlock)) {
-                        throw new Exception(String.Format("{0} Decrypt failed (inputOffset = {1}): wrong output", testName, inputOffset));
-                    }
-                }
-                if (!System.Linq.Enumerable.SequenceEqual(input, inputOrig)) {
-                    throw new Exception(String.Format("{0} Decrypt failed: input data were corrupted", testName));
-                }
+        private static void Test_AES_CTR_Decrypt_OutOfPlace(byte[] key, byte[] icb, byte[] input, byte[] expected, string testName) {
+            byte[] inputData = ExtendCopy(input, 3, 5);
+            byte[] inputDataOrig = (byte[])inputData.Clone();
+            int inputDataOffset = 3;
+            int inputDataLength = input.Length;
+            byte[] outputData = new byte[5 + input.Length + 7];
+            int outputDataOffset = 5;
+            byte[] expectedData = ExtendCopy(expected, 5, 7);
+
+            var aes = new AESBlockCipherCTR(key, icb);
+            aes.Decrypt(inputData, inputDataOffset, inputDataLength, outputData, outputDataOffset);
+
+            if (!Equals(outputData, expectedData)) {
+                throw new Exception(String.Format("{0} (out-of-place) failed: wrong output", testName));
+            }
+            if (!Equals(inputData, inputDataOrig)) {
+                throw new Exception(String.Format("{0} (out-of-place) failed: input data were corrupted", testName));
+            }
+            Debug.WriteLine("{0} (out-of-place) Pass", new object[] { testName });
+        }
+
+        private static void Test_AES_CTR_Decrypt_InPlace(byte[] key, byte[] icb, byte[] input, byte[] expected, string testName) {
+            byte[] inputData = ExtendCopy(input, 3, 5);
+            int inputDataOffset = 3;
+            int inputDataLength = input.Length;
+            byte[] outputData = inputData;
+            int outputDataOffset = inputDataOffset;
+            byte[] expectedData = ExtendCopy(expected, 3, 5);
+
+            var aes = new AESBlockCipherCTR(key, icb);
+            aes.Decrypt(inputData, inputDataOffset, inputDataLength, outputData, outputDataOffset);
+
+            if (!Equals(outputData, expectedData)) {
+                throw new Exception(String.Format("{0} (in-place) failed: wrong output", testName));
+            }
+            Debug.WriteLine("{0} (in-place) Pass", new object[] { testName });
+        }
+
+        private static void Test_AES_CTR_Decrypt_BlockByBlock(byte[] key, byte[] icb, byte[] input, byte[] expected, string testName) {
+            byte[] inputData = ExtendCopy(input, 3, 5);
+            byte[] inputDataOrig = (byte[])inputData.Clone();
+            int inputDataOffset = 3;
+            int inputDataLength = input.Length;
+            byte[] outputData = new byte[5 + input.Length + 7];
+            int outputDataOffset = 5;
+            byte[] expectedData = ExtendCopy(expected, 5, 7);
+
+            var aes = new AESBlockCipherCTR(key, icb);
+            int blockSize = aes.GetBlockSize();
+            for (int i = 0; i < inputDataLength; i += blockSize) {
+                aes.Decrypt(inputData, inputDataOffset + i, blockSize, outputData, outputDataOffset + i);
             }
 
-            // in-place decrypt all blocks
-            {
-                var aes = new AESBlockCipherCTR(key, icb);
-                aes.Decrypt(input, 0, input.Length, input, 0);
-
-                if (!System.Linq.Enumerable.SequenceEqual(input, expected)) {
-                    throw new Exception(String.Format("{0} Decrypt In-Place failed: wrong output", testName));
-                }
+            if (!Equals(outputData, expectedData)) {
+                throw new Exception(String.Format("{0} (block-by-block) failed: wrong output", testName));
             }
+            if (!Equals(inputData, inputDataOrig)) {
+                throw new Exception(String.Format("{0} (block-by-block) failed: input data were corrupted", testName));
+            }
+            Debug.WriteLine("{0} (block-by-block) Pass", new object[] { testName });
         }
 
         private static void Test_AES128_CTR_Encrypt() {
-            test_AES_CTR_Encrypt(
+            Test_AES_CTR_Encrypt(
                 key: BigIntegerConverter.ParseHex("2b7e151628aed2a6abf7158809cf4f3c"),
                 icb: BigIntegerConverter.ParseHex("f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"),
                 input: (byte[])original.Clone(),
@@ -1521,7 +1654,7 @@ namespace Granados.Algorithms {
         }
 
         private static void Test_AES128_CTR_Decrypt() {
-            test_AES_CTR_Decrypt(
+            Test_AES_CTR_Decrypt(
                 key: BigIntegerConverter.ParseHex("2b7e151628aed2a6abf7158809cf4f3c"),
                 icb: BigIntegerConverter.ParseHex("f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"),
                 input: BigIntegerConverter.ParseHex(
@@ -1535,7 +1668,7 @@ namespace Granados.Algorithms {
         }
 
         private static void Test_AES192_CTR_Encrypt() {
-            test_AES_CTR_Encrypt(
+            Test_AES_CTR_Encrypt(
                 key: BigIntegerConverter.ParseHex("8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"),
                 icb: BigIntegerConverter.ParseHex("f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"),
                 input: (byte[])original.Clone(),
@@ -1549,7 +1682,7 @@ namespace Granados.Algorithms {
         }
 
         private static void Test_AES192_CTR_Decrypt() {
-            test_AES_CTR_Decrypt(
+            Test_AES_CTR_Decrypt(
                 key: BigIntegerConverter.ParseHex("8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"),
                 icb: BigIntegerConverter.ParseHex("f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"),
                 input: BigIntegerConverter.ParseHex(
@@ -1563,7 +1696,7 @@ namespace Granados.Algorithms {
         }
 
         private static void Test_AES256_CTR_Encrypt() {
-            test_AES_CTR_Encrypt(
+            Test_AES_CTR_Encrypt(
                 key: BigIntegerConverter.ParseHex(
                       "603deb1015ca71be2b73aef0857d7781"
                     + "1f352c073b6108d72d9810a30914dff4"
@@ -1580,7 +1713,7 @@ namespace Granados.Algorithms {
         }
 
         private static void Test_AES256_CTR_Decrypt() {
-            test_AES_CTR_Decrypt(
+            Test_AES_CTR_Decrypt(
                 key: BigIntegerConverter.ParseHex(
                       "603deb1015ca71be2b73aef0857d7781"
                     + "1f352c073b6108d72d9810a30914dff4"
@@ -1699,73 +1832,105 @@ namespace Granados.Algorithms {
                             throw new Exception("missing Tag");
                         }
 
-                        var aes = new AESBlockCipherGCM(key, iv);
-
-                        // encrypt all blocks
-                        {
-                            byte[] input = CloneBytes(pt, 11);
-                            int inputOffset = 11;
-                            int inputLength = pt.Length;
-                            byte[] inputAAD = CloneBytes(aad, 13);
-                            int inputAADOffset = 13;
-                            int inputAADLength = aad.Length;
-                            byte[] output = new byte[15 + ptLen / 8];
-                            int outputOffset = 15;
-                            byte[] outputTag = new byte[17 + tagLen / 8];
-                            int outputTagOffset = 17;
-                            int outputTagLength = tagLen / 8;
-
-                            aes.Encrypt(
-                                input: input,
-                                inputOffset: inputOffset,
-                                inputLength: inputLength,
-                                aad: inputAAD,
-                                aadOffset: inputAADOffset,
-                                aadLength: inputAADLength,
-                                output: output,
-                                outputOffset: outputOffset,
-                                outputTag: outputTag,
-                                outputTagOffset: outputTagOffset,
-                                outputTagLength: outputTagLength
-                            );
-
-                            if (!System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Skip(output, outputOffset), ct)) {
-                                throw new Exception(String.Format("{0} Encrypt failed: wrong output", testName));
-                            }
-                            if (!System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Skip(outputTag, outputTagOffset), tag)) {
-                                throw new Exception(String.Format("{0} Encrypt failed: wrong tag", testName));
-                            }
-                            if (!System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Skip(input, inputOffset), pt)) {
-                                throw new Exception(String.Format("{0} Encrypt failed: input data were corrupted", testName));
-                            }
-                            if (!System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Skip(inputAAD, inputAADOffset), aad)) {
-                                throw new Exception(String.Format("{0} Encrypt failed: AAD were corrupted", testName));
-                            }
-                        }
-
-                        // in-place encrypt all blocks
-                        {
-                            byte[] input = (byte[])pt.Clone();
-                            byte[] inputAAD = (byte[])aad.Clone();
-                            byte[] outputTag = new byte[tagLen / 8];
-
-                            aes.Encrypt(input, 0, input.Length, inputAAD, 0, inputAAD.Length, input, 0, outputTag, 0, outputTag.Length);
-
-                            if (!System.Linq.Enumerable.SequenceEqual(input, ct)) {
-                                throw new Exception(String.Format("{0} Encrypt failed: wrong output", testName));
-                            }
-                            if (!System.Linq.Enumerable.SequenceEqual(outputTag, tag)) {
-                                throw new Exception(String.Format("{0} Encrypt failed: wrong tag", testName));
-                            }
-                            if (!System.Linq.Enumerable.SequenceEqual(inputAAD, aad)) {
-                                throw new Exception(String.Format("{0} Encrypt failed: AAD were corrupted", testName));
-                            }
-                        }
-
-                        Debug.WriteLine("Encrypt OK: " + keyLine);
+                        Test_AES_GCM_Encrypt_OutOfPlace(key, iv, pt, aad, ct, tag, testName, keyLine);
+                        Test_AES_GCM_Encrypt_InPlace(key, iv, pt, aad, ct, tag, testName, keyLine);
                     }
                 }
             }
+        }
+
+        private static void Test_AES_GCM_Encrypt_OutOfPlace(byte[] key, byte[] iv, byte[] pt, byte[] aad, byte[] ct, byte[] tag, string testName, string keyLine) {
+            byte[] input = ExtendCopy(pt, 11, 13);
+            byte[] inputOrig = (byte[])input.Clone();
+            int inputOffset = 11;
+            int inputLength = pt.Length;
+            byte[] inputAAD = ExtendCopy(aad, 13, 15);
+            byte[] inputAADOrig = (byte[])inputAAD.Clone();
+            int inputAADOffset = 13;
+            int inputAADLength = aad.Length;
+            int inputTagLength = tag.Length;
+            byte[] output = new byte[9 + pt.Length + 3];
+            int outputOffset = 9;
+            byte[] expected = ExtendCopy(ct, 9, 3);
+            byte[] outputTag = new byte[7 + tag.Length + 5];
+            int outputTagOffset = 7;
+            int outputTagLength = tag.Length;
+            byte[] expectedTag = ExtendCopy(tag, 7, 5);
+
+            var aes = new AESBlockCipherGCM(key, iv);
+
+            aes.Encrypt(
+                input: input,
+                inputOffset: inputOffset,
+                inputLength: inputLength,
+                aad: inputAAD,
+                aadOffset: inputAADOffset,
+                aadLength: inputAADLength,
+                output: output,
+                outputOffset: outputOffset,
+                outputTag: outputTag,
+                outputTagOffset: outputTagOffset,
+                outputTagLength: outputTagLength
+            );
+
+            if (!Equals(output, expected)) {
+                throw new Exception(String.Format("{0} {1} (out-of-place) failed: wrong output", testName, keyLine));
+            }
+            if (!Equals(outputTag, expectedTag)) {
+                throw new Exception(String.Format("{0} {1} (out-of-place) failed: wrong tag", testName, keyLine));
+            }
+            if (!Equals(input, inputOrig)) {
+                throw new Exception(String.Format("{0} {1} (out-of-place) failed: input data were corrupted", testName, keyLine));
+            }
+            if (!Equals(inputAAD, inputAADOrig)) {
+                throw new Exception(String.Format("{0} {1} (out-of-place) failed: AAD were corrupted", testName));
+            }
+            Debug.WriteLine("{0} {1} (out-of-place) Pass", new object[] { testName, keyLine });
+        }
+
+        private static void Test_AES_GCM_Encrypt_InPlace(byte[] key, byte[] iv, byte[] pt, byte[] aad, byte[] ct, byte[] tag, string testName, string keyLine) {
+            byte[] input = ExtendCopy(pt, 11, 13);
+            int inputOffset = 11;
+            int inputLength = pt.Length;
+            byte[] inputAAD = ExtendCopy(aad, 13, 15);
+            byte[] inputAADOrig = (byte[])inputAAD.Clone();
+            int inputAADOffset = 13;
+            int inputAADLength = aad.Length;
+            int inputTagLength = tag.Length;
+            byte[] output = input;
+            int outputOffset = inputOffset;
+            byte[] expected = ExtendCopy(ct, 11, 13);
+            byte[] outputTag = new byte[7 + tag.Length + 5];
+            int outputTagOffset = 7;
+            int outputTagLength = tag.Length;
+            byte[] expectedTag = ExtendCopy(tag, 7, 5);
+
+            var aes = new AESBlockCipherGCM(key, iv);
+
+            aes.Encrypt(
+                input: input,
+                inputOffset: inputOffset,
+                inputLength: inputLength,
+                aad: inputAAD,
+                aadOffset: inputAADOffset,
+                aadLength: inputAADLength,
+                output: output,
+                outputOffset: outputOffset,
+                outputTag: outputTag,
+                outputTagOffset: outputTagOffset,
+                outputTagLength: outputTagLength
+            );
+
+            if (!Equals(output, expected)) {
+                throw new Exception(String.Format("{0} {1} (in-place) failed: wrong output", testName, keyLine));
+            }
+            if (!Equals(outputTag, expectedTag)) {
+                throw new Exception(String.Format("{0} {1} (in-place) failed: wrong tag", testName, keyLine));
+            }
+            if (!Equals(inputAAD, inputAADOrig)) {
+                throw new Exception(String.Format("{0} {1} (in-place) failed: AAD were corrupted", testName));
+            }
+            Debug.WriteLine("{0} {1} (in-place) Pass", new object[] { testName, keyLine });
         }
 
         private static void Test_AES_GCM_Decrypt(string testVectorFile, [CallerMemberName] string testName = "") {
@@ -1814,7 +1979,7 @@ namespace Granados.Algorithms {
                         byte[] aad;
                         byte[] tag;
                         byte[] pt;
-                        bool failCase;
+                        bool failureCase;
                         line = reader.ReadLine();
                         if (!ReadGcmTestVectorValue(line, "Key", keyLen, out key)) {
                             throw new Exception("missing Key");
@@ -1838,102 +2003,123 @@ namespace Granados.Algorithms {
                         }
                         line = reader.ReadLine();
                         if (line.StartsWith("FAIL")) {
-                            failCase = true;
+                            failureCase = true;
                             pt = null;
                         }
                         else {
-                            failCase = false;
+                            failureCase = false;
                             if (!ReadGcmTestVectorValue(line, "PT", ptLen, out pt)) {
                                 throw new Exception("missing PT");
                             }
                         }
 
-                        var aes = new AESBlockCipherGCM(key, iv);
-
-                        // decrypt all blocks
-                        {
-                            byte[] input = CloneBytes(ct, 11);
-                            int inputOffset = 11;
-                            int inputLength = ct.Length;
-                            byte[] inputAAD = CloneBytes(aad, 13);
-                            int inputAADOffset = 13;
-                            int inputAADLength = aad.Length;
-                            byte[] inputTag = CloneBytes(tag, 15);
-                            int inputTagOffset = 15;
-                            int inputTagLength = tag.Length;
-                            byte[] output = new byte[17 + ptLen / 8];
-                            int oututOffset = 17;
-
-                            bool succeeded = aes.Decrypt(
-                                input: input,
-                                inputOffset: inputOffset,
-                                inputLength: inputLength,
-                                aad: inputAAD,
-                                aadOffset: inputAADOffset,
-                                aadLength: inputAADLength,
-                                tag: inputTag,
-                                tagOffset: inputTagOffset,
-                                tagLength: inputTagLength,
-                                output: output,
-                                outputOffset: oututOffset
-                            );
-
-                            if (succeeded != !failCase) {
-                                throw new Exception(String.Format("{0} Decrypt failed: wrong result. actual={1} expected={2}", testName, succeeded, !failCase));
-                            }
-                            if (!failCase) {
-                                if (!System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Skip(output, oututOffset), pt)) {
-                                    throw new Exception(String.Format("{0} Decript failed: wrong output", testName));
-                                }
-                            }
-                            if (!System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Skip(input, inputOffset), ct)) {
-                                throw new Exception(String.Format("{0} Decrypt failed: input data were corrupted", testName));
-                            }
-                            if (!System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Skip(inputAAD, inputAADOffset), aad)) {
-                                throw new Exception(String.Format("{0} Decrypt failed: AAD were corrupted", testName));
-                            }
-                            if (!System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Skip(inputTag, inputTagOffset), tag)) {
-                                throw new Exception(String.Format("{0} Decrypt failed: Tag data were corrupted", testName));
-                            }
-                        }
-
-                        // in-place decrypt all blocks
-                        {
-                            byte[] input = (byte[])ct.Clone();
-                            byte[] inputAAD = (byte[])aad.Clone();
-                            byte[] inputTag = (byte[])tag.Clone();
-
-                            bool succeeded = aes.Decrypt(input, 0, input.Length, inputAAD, 0, inputAAD.Length, inputTag, 0, inputTag.Length, input, 0);
-
-                            if (succeeded != !failCase) {
-                                throw new Exception(String.Format("{0} Decrypt failed: wrong result. actual={1} expected={2}", testName, succeeded, !failCase));
-                            }
-                            if (!failCase) {
-                                if (!System.Linq.Enumerable.SequenceEqual(input, pt)) {
-                                    throw new Exception(String.Format("{0} Decript failed: wrong output", testName));
-                                }
-                            }
-                            if (!System.Linq.Enumerable.SequenceEqual(inputAAD, aad)) {
-                                throw new Exception(String.Format("{0} Decrypt failed: AAD were corrupted", testName));
-                            }
-                            if (!System.Linq.Enumerable.SequenceEqual(inputTag, tag)) {
-                                throw new Exception(String.Format("{0} Decrypt failed: Tag data were corrupted", testName));
-                            }
-                        }
-
-                        Debug.WriteLine("Decrypt OK: " + keyLine);
+                        Test_AES_GCM_Decrypt_OutOfPlace(key, iv, ct, aad, tag, pt, failureCase, testName, keyLine);
+                        Test_AES_GCM_Decrypt_InPlace(key, iv, ct, aad, tag, pt, failureCase, testName, keyLine);
                     }
                 }
             }
         }
 
-        private static readonly Random _rnd = new Random();
+        private static void Test_AES_GCM_Decrypt_OutOfPlace(byte[] key, byte[] iv, byte[] ct, byte[] aad, byte[] tag, byte[] pt, bool failureCase, string testName, string keyLine) {
+            byte[] input = ExtendCopy(ct, 11, 13);
+            byte[] inputOrig = (byte[])input.Clone();
+            int inputOffset = 11;
+            int inputLength = ct.Length;
+            byte[] inputAAD = ExtendCopy(aad, 13, 15);
+            byte[] inputAADOrig = (byte[])inputAAD.Clone();
+            int inputAADOffset = 13;
+            int inputAADLength = aad.Length;
+            byte[] inputTag = ExtendCopy(tag, 7, 5);
+            byte[] inputTagOrig = (byte[])inputTag.Clone();
+            int inputTagOffset = 7;
+            int inputTagLength = tag.Length;
+            byte[] output = new byte[9 + ct.Length + 3];
+            int outputOffset = 9;
+            byte[] expected = failureCase ? null : ExtendCopy(pt, 9, 3);
 
-        private static byte[] CloneBytes(byte[] source, int offset) {
-            byte[] b = new byte[offset + source.Length];
-            _rnd.NextBytes(b);
-            Array.Copy(source, 0, b, offset, source.Length);
-            return b;
+            var aes = new AESBlockCipherGCM(key, iv);
+
+            bool succeeded = aes.Decrypt(
+                input: input,
+                inputOffset: inputOffset,
+                inputLength: inputLength,
+                aad: inputAAD,
+                aadOffset: inputAADOffset,
+                aadLength: inputAADLength,
+                tag: inputTag,
+                tagOffset: inputTagOffset,
+                tagLength: inputTagLength,
+                output: output,
+                outputOffset: outputOffset
+            );
+
+            if (succeeded != !failureCase) {
+                throw new Exception(String.Format("{0} {1} (out-of-place) failed: wrong result. actual={2} expected={3}", testName, keyLine, succeeded, !failureCase));
+            }
+            if (!failureCase) {
+                if (!Equals(output, expected)) {
+                    throw new Exception(String.Format("{0} {1} (out-of-place) failed: wrong output", testName, keyLine));
+                }
+            }
+            if (!Equals(input, inputOrig)) {
+                throw new Exception(String.Format("{0} {1} (out-of-place) failed: input data were corrupted", testName, keyLine));
+            }
+            if (!Equals(inputAAD, inputAADOrig)) {
+                throw new Exception(String.Format("{0} {1} (out-of-place) failed: AAD were corrupted", testName, keyLine));
+            }
+            if (!Equals(inputTag, inputTagOrig)) {
+                throw new Exception(String.Format("{0} {1} (out-of-place) failed: Tag data were corrupted", testName, keyLine));
+            }
+            Debug.WriteLine("{0} {1} (out-of-place) Pass", new object[] { testName, keyLine });
+        }
+
+        private static void Test_AES_GCM_Decrypt_InPlace(byte[] key, byte[] iv, byte[] ct, byte[] aad, byte[] tag, byte[] pt, bool failureCase, string testName, string keyLine) {
+            byte[] input = ExtendCopy(ct, 11, 13);
+            int inputOffset = 11;
+            int inputLength = ct.Length;
+            byte[] inputAAD = ExtendCopy(aad, 13, 15);
+            byte[] inputAADOrig = (byte[])inputAAD.Clone();
+            int inputAADOffset = 13;
+            int inputAADLength = aad.Length;
+            byte[] inputTag = ExtendCopy(tag, 7, 5);
+            byte[] inputTagOrig = (byte[])inputTag.Clone();
+            int inputTagOffset = 7;
+            int inputTagLength = tag.Length;
+            byte[] output = input;
+            int outputOffset = inputOffset;
+            byte[] expected = failureCase ? null : ExtendCopy(pt, 11, 13);
+
+            var aes = new AESBlockCipherGCM(key, iv);
+
+            bool succeeded = aes.Decrypt(
+                input: input,
+                inputOffset: inputOffset,
+                inputLength: inputLength,
+                aad: inputAAD,
+                aadOffset: inputAADOffset,
+                aadLength: inputAADLength,
+                tag: inputTag,
+                tagOffset: inputTagOffset,
+                tagLength: inputTagLength,
+                output: output,
+                outputOffset: outputOffset
+            );
+
+            if (succeeded != !failureCase) {
+                throw new Exception(String.Format("{0} {1} (in-place) failed: wrong result. actual={2} expected={3}", testName, keyLine, succeeded, !failureCase));
+            }
+            if (!failureCase) {
+                if (!Equals(output, expected)) {
+                    throw new Exception(String.Format("{0} {1} (in-place) failed: wrong output", testName, keyLine));
+                }
+            }
+            if (!Equals(inputAAD, inputAADOrig)) {
+                throw new Exception(String.Format("{0} {1} (in-place) failed: AAD were corrupted", testName, keyLine));
+            }
+            if (!Equals(inputTag, inputTagOrig)) {
+                throw new Exception(String.Format("{0} {1} (in-place) failed: Tag data were corrupted", testName, keyLine));
+            }
+            Debug.WriteLine("{0} {1} (in-place) Pass", new object[] { testName, keyLine });
         }
 
         private static bool ReadGcmTestVectorParam(string line, out string name, out int value) {
@@ -1993,11 +2179,11 @@ namespace Granados.Algorithms {
                 Debug.Assert(data.Length == 16 && expected1.Length == 16 && expected2.Length == 16);
 
                 aes.IncrementCounter(data);
-                if (!System.Linq.Enumerable.SequenceEqual(data, expected1)) {
+                if (!Equals(data, expected1)) {
                     throw new Exception(String.Format("AES GCM IncrementCounter failed"));
                 }
                 aes.IncrementCounter(data);
-                if (!System.Linq.Enumerable.SequenceEqual(data, expected2)) {
+                if (!Equals(data, expected2)) {
                     throw new Exception(String.Format("AES GCM IncrementCounter failed"));
                 }
             }
@@ -2065,6 +2251,20 @@ namespace Granados.Algorithms {
                     throw new Exception(String.Format("Incorrect LO value: actual={0:x} expected={1:x}", ui128.lo, expectedLo));
                 }
             }
+        }
+
+        #endregion
+
+        #region Utilities
+
+        private static byte[] ExtendCopy(byte[] source, int prefixLength, int suffixLength) {
+            byte[] b = new byte[prefixLength + source.Length + suffixLength];
+            Array.Copy(source, 0, b, prefixLength, source.Length);
+            return b;
+        }
+
+        private static bool Equals(byte[] a, byte[] b) {
+            return System.Linq.Enumerable.SequenceEqual(a, b);
         }
 
         #endregion
