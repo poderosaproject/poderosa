@@ -87,7 +87,7 @@ namespace Granados.Crypto {
                     case CipherAlgorithm.AES128CTR:
                     case CipherAlgorithm.AES192CTR:
                     case CipherAlgorithm.AES256CTR:
-                        return new SSH2.RijindaelCipher2(key, iv, algorithm);
+                        return new SSH2.AESCipher2(key, iv, algorithm);
                     default:
                         throw new SSHException("unknown algorithm " + algorithm);
                 }
@@ -569,13 +569,13 @@ namespace Granados.Crypto.SSH2 {
     }
 
     /// <summary>
-    /// Rijindael (SSH2 only)
+    /// AES (SSH2 only)
     /// </summary>
-    internal class RijindaelCipher2 : Cipher {
+    internal class AESCipher2 : Cipher {
 
         private readonly IAESBlockCipherMode _aes;
 
-        public RijindaelCipher2(byte[] key, byte[] iv, CipherAlgorithm algorithm) {
+        public AESCipher2(byte[] key, byte[] iv, CipherAlgorithm algorithm) {
             if (algorithm == CipherAlgorithm.AES256CTR ||
                 algorithm == CipherAlgorithm.AES192CTR ||
                 algorithm == CipherAlgorithm.AES128CTR)
