@@ -12,14 +12,34 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace Granados.Crypto {
-    /*
-     * Cipher
-     *  The numbers at the tail of the class names indicates the version of SSH protocol.
-     *  The difference between V1 and V2 is the CBC procedure
-     */
+
+    /// <summary>
+    /// SSH Cipher interface
+    /// </summary>
     internal interface Cipher {
-        void Encrypt(byte[] data, int offset, int len, byte[] result, int result_offset);
-        void Decrypt(byte[] data, int offset, int len, byte[] result, int result_offset);
+        /// <summary>
+        /// Encrypt plaintext.
+        /// </summary>
+        /// <param name="data">plaintext data buffer</param>
+        /// <param name="offset">offset position on <paramref name="data"/> to read plaintext</param>
+        /// <param name="length">plaintext length</param>
+        /// <param name="result">output buffer</param>
+        /// <param name="resultOffset">offset position on <paramref name="result"/> to write ciphertext</param>
+        void Encrypt(byte[] data, int offset, int length, byte[] result, int resultOffset);
+
+        /// <summary>
+        /// Decrypt ciphertext.
+        /// </summary>
+        /// <param name="data">ciphertext data buffer</param>
+        /// <param name="offset">offset position on <paramref name="data"/> to read ciphertext</param>
+        /// <param name="length">ciphertext length</param>
+        /// <param name="result">output buffer</param>
+        /// <param name="resultOffset">offset position on <paramref name="result"/> to write plaintext</param>
+        void Decrypt(byte[] data, int offset, int length, byte[] result, int resultOffset);
+
+        /// <summary>
+        /// Block size of the cipher algorithm (in bytes).
+        /// </summary>
         int BlockSize {
             get;
         }
