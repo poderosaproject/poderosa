@@ -15,6 +15,7 @@
 using NUnit.Framework;
 using Poderosa.ConnectionParam;
 using Poderosa.Plugins;
+using Poderosa.Serializing;
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -35,8 +36,9 @@ namespace Poderosa.Terminal {
 
         [Test]
         public void Test0() {
+            SerializationOptions opt = new SerializationOptions();
             TerminalSettings ts1 = new TerminalSettings();
-            StructuredText storage = _terminalSettingsSerializer.Serialize(ts1);
+            StructuredText storage = _terminalSettingsSerializer.Serialize(ts1, opt);
             TerminalSettings ts2 = (TerminalSettings)_terminalSettingsSerializer.Deserialize(storage);
 
             Assert.AreEqual(EncodingType.ISO8859_1, ts1.Encoding);
@@ -54,6 +56,7 @@ namespace Poderosa.Terminal {
 
         [Test]
         public void Test1() {
+            SerializationOptions opt = new SerializationOptions();
             TerminalSettings ts1 = new TerminalSettings();
             ts1.BeginUpdate();
             ts1.Encoding = EncodingType.SHIFT_JIS;
@@ -62,7 +65,7 @@ namespace Poderosa.Terminal {
             ts1.TerminalType = TerminalType.VT100;
             ts1.EndUpdate();
 
-            StructuredText storage = _terminalSettingsSerializer.Serialize(ts1);
+            StructuredText storage = _terminalSettingsSerializer.Serialize(ts1, opt);
             //確認
             StringWriter wr = new StringWriter();
             new TextStructuredTextWriter(wr).Write(storage);
@@ -84,7 +87,7 @@ namespace Poderosa.Terminal {
             StructuredText storage = new TextStructuredTextReader(reader).Read();
 
             TerminalSettings ts = (TerminalSettings)_terminalSettingsSerializer.Deserialize(storage);
-            Assert.AreEqual(EncodingType.ISO8859_1, ts.Encoding);
+            Assert.AreEqual(EncodingType.UTF8_Latin, ts.Encoding);
             Assert.AreEqual(false, ts.LocalEcho);
             Assert.AreEqual(NewLine.CR, ts.TransmitNL);
             Assert.AreEqual(LineFeedRule.Normal, ts.LineFeedRule);

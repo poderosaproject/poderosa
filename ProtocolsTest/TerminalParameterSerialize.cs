@@ -22,6 +22,7 @@ using NUnit.Framework;
 
 using System.Globalization;
 using Granados;
+using Poderosa.Serializing;
 
 namespace Poderosa.Protocols {
 
@@ -41,8 +42,9 @@ namespace Poderosa.Protocols {
 
         [Test]
         public void Telnet0() {
+            SerializationOptions opt = new SerializationOptions();
             TelnetParameter p1 = new TelnetParameter();
-            StructuredText t = _telnetSerializer.Serialize(p1);
+            StructuredText t = _telnetSerializer.Serialize(p1, opt);
             Assert.IsNull(t.Parent);
             Assert.IsNull(t.Get("port"));
             TelnetParameter p2 = (TelnetParameter)_telnetSerializer.Deserialize(t);
@@ -51,11 +53,12 @@ namespace Poderosa.Protocols {
         }
         [Test]
         public void Telnet1() {
+            SerializationOptions opt = new SerializationOptions();
             TelnetParameter p1 = new TelnetParameter();
             p1.SetTerminalName("TERMINAL");
             p1.Port = 80;
             p1.Destination = "DESTINATION";
-            StructuredText t = _telnetSerializer.Serialize(p1);
+            StructuredText t = _telnetSerializer.Serialize(p1, opt);
             TelnetParameter p2 = (TelnetParameter)_telnetSerializer.Deserialize(t);
             Assert.AreEqual(80, p2.Port);
             Assert.AreEqual("TERMINAL", p2.TerminalType);
