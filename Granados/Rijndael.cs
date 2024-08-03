@@ -782,24 +782,25 @@ namespace Granados.Algorithms {
         /// <param name="x">input block</param>
         /// <param name="y">input block</param>
         /// <returns>result</returns>
-        private UI128 GFMul(UI128 x, UI128 y) {
+        private UI128 GFMul(ref UI128 x, ref UI128 y) {
             // copy to local variables so that they are assigned to registers
-            ulong xh = x.hi;
-            ulong xl = x.lo;
             ulong zh = 0UL;
             ulong zl = 0UL;
             ulong vh = y.hi;
             ulong vl = y.lo;
-            for (int i = 0; i < 128; i++) {
-                // NIST 800-38D describes that "x0x1...x127 denote the sequence of bits in X."
-                // It means that x0 is the left-most bit (=MSB), and x127 is the right-most bit (=LSB).
-                ulong xbit = (xh >> 63) & 1UL;
-                zl ^= vl * xbit;
-                zh ^= vh * xbit;
-                ulong lsb = vl & 1UL;
-                shiftRight(ref vh, ref vl);
-                vh ^= 0xe100000000000000UL * lsb;
-                shiftLeft(ref xh, ref xl);
+            // NIST 800-38D describes that "x0x1...x127 denote the sequence of bits in X."
+            // It means that x0 is the left-most bit (=MSB), and x127 is the right-most bit (=LSB).
+            ulong xq = x.hi;
+            for (int i = 0; i < 2; i++) {
+                for (int s = 63; s >= 0; s--) {
+                    ulong xbit = (xq >> s) & 1UL;
+                    zl ^= vl * xbit;
+                    zh ^= vh * xbit;
+                    ulong lsb = vl & 1UL;
+                    shiftRight(ref vh, ref vl);
+                    vh ^= 0xe100000000000000UL * lsb;
+                }
+                xq = x.lo;
             }
 
             return new UI128(zh, zl);
@@ -826,7 +827,7 @@ namespace Granados.Algorithms {
                 hash.hi ^= block.hi;
                 hash.lo ^= block.lo;
 
-                hash = GFMul(hash, _ghashSubkey);
+                hash = GFMul(ref hash, ref _ghashSubkey);
 
                 inputOffset += BLOCK_BYTE_LENGTH;
                 inputLength -= BLOCK_BYTE_LENGTH;
