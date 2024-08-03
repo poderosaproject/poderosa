@@ -898,6 +898,76 @@ namespace Granados.Algorithms {
             }
         }
 
+        //[Test]
+        public void AES_GCM_Encrypt_Benchmark() {
+            //Key = c0ff351317a08ac04b1f925e416b5c0f
+            //IV = b1c8cc5d64c9199a34da1db6
+            //PT = be1e3ad747afa026a37fdcffea185cd3aa6b6cc55c6bb4542155af1ac03fd94425573902914426f2979217d513369e2ea97347
+            //AAD = b7537509c762449b29e589947b2be7c1
+            //CT = 53ab8587aac7fa4d2b0d9c2ed09c644b2b90accf8aa4c478161c364dda9d0924bf78b40e9d072b41830bd529441d9a82cb2150
+            //Tag = 192275948364b24c436901402a05a8
+
+            byte[] key = BigIntegerConverter.ParseHex("c0ff351317a08ac04b1f925e416b5c0f");
+            byte[] iv = BigIntegerConverter.ParseHex("b1c8cc5d64c9199a34da1db6");
+            byte[] input = BigIntegerConverter.ParseHex("be1e3ad747afa026a37fdcffea185cd3aa6b6cc55c6bb4542155af1ac03fd94425573902914426f2979217d513369e2ea97347");
+            byte[] inputAAD = BigIntegerConverter.ParseHex("b7537509c762449b29e589947b2be7c1");
+            byte[] expectedOutput = BigIntegerConverter.ParseHex("53ab8587aac7fa4d2b0d9c2ed09c644b2b90accf8aa4c478161c364dda9d0924bf78b40e9d072b41830bd529441d9a82cb2150");
+            byte[] expectedTag = BigIntegerConverter.ParseHex("192275948364b24c436901402a05a8");
+            byte[] output = new byte[expectedOutput.Length];
+            byte[] outputTag = new byte[expectedTag.Length];
+
+            int count1 = 0;
+
+            Stopwatch s1 = Stopwatch.StartNew();
+
+            for (int n = 0; n < 1000; n++) {
+                new AESBlockCipherGCM(key, iv);
+                count1++;
+            }
+
+            TimeSpan t1 = s1.Elapsed;
+            long perCall1 = (long)(t1.TotalMilliseconds * 1000000 / count1);
+
+            var aes = new AESBlockCipherGCM(key, iv);
+
+            int count2 = 0;
+
+            Stopwatch s2 = Stopwatch.StartNew();
+
+            for (int n = 0; n < 100000; n++) {
+                aes.Encrypt(
+                    input: input,
+                    inputOffset: 0,
+                    inputLength: input.Length,
+                    aad: inputAAD,
+                    aadOffset: 0,
+                    aadLength: inputAAD.Length,
+                    output: output,
+                    outputOffset: 0,
+                    outputTag: outputTag,
+                    outputTagOffset: 0,
+                    outputTagLength: outputTag.Length
+                );
+
+                //Assert.AreEqual(expectedOutput, output);
+                //Assert.AreEqual(expectedTag, outputTag);
+
+                count2++;
+            }
+
+            TimeSpan t2 = s2.Elapsed;
+            long perCall2 = (long)(t2.TotalMilliseconds * 1000000 / count2);
+
+            System.IO.File.WriteAllLines(
+                "aes-gcm-benchmark-" + DateTime.Now.ToString("yyyy-MM-dd-HHmmss") + ".txt",
+                new string[] {
+                    String.Format("Constructor: count={0} time={1} per call={2}[ns]", count1, t1, perCall1),
+                    String.Format("Encryption:  count={0} time={1} per call={2}[ns]", count2, t2, perCall2),
+                },
+                System.Text.Encoding.UTF8
+            );
+        }
+
         [TestCase("deadbeefdeadbeefdeadbeef00000000", "deadbeefdeadbeefdeadbeef00000001", "deadbeefdeadbeefdeadbeef00000002")]
         [TestCase("deadbeefdeadbeefdeadbeef0000000f", "deadbeefdeadbeefdeadbeef00000010", "deadbeefdeadbeefdeadbeef00000011")]
         [TestCase("deadbeefdeadbeefdeadbeef000000ff", "deadbeefdeadbeefdeadbeef00000100", "deadbeefdeadbeefdeadbeef00000101")]

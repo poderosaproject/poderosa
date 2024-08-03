@@ -581,6 +581,12 @@ namespace Granados.Algorithms {
         private const int BLOCK_BYTE_LENGTH = 16;
 
         private UI128 _ghashSubkey;
+
+        // index 1: Position of the 1 byte in the block (0-15)
+        // index 2: Byte value (0-255)
+        private UI128[,] _gfmulTable;
+
+        private readonly object _encdecSync = new object();
         private readonly byte[] _initialCounterBlock = new byte[BLOCK_BYTE_LENGTH];
         private readonly byte[] _gctrTmpBlock = new byte[BLOCK_BYTE_LENGTH];
         private readonly byte[] _encdecCounterBlock = new byte[BLOCK_BYTE_LENGTH];
@@ -641,40 +647,42 @@ namespace Granados.Algorithms {
         /// <param name="outputTagOffset">offset in the output buffer for authentication tag</param>
         /// <param name="outputTagLength">authentication tag length in bytes</param>
         public void Encrypt(byte[] input, int inputOffset, int inputLength, byte[] aad, int aadOffset, int aadLength, byte[] output, int outputOffset, byte[] outputTag, int outputTagOffset, int outputTagLength) {
-            // C <-- GCTR(inc32(J0), P)
-            //    J0: initial value for the counter block
-            //    P: plaintext
-            //    C: ciphertext
-            ResetCounterBlock(_encdecCounterBlock);
-            IncrementCounter(_encdecCounterBlock);
-            UpdateGctr(input, inputOffset, inputLength, output, outputOffset, _encdecCounterBlock);
-            int outputLen = inputLength;
+            lock (_encdecSync) {
+                // C <-- GCTR(inc32(J0), P)
+                //    J0: initial value for the counter block
+                //    P: plaintext
+                //    C: ciphertext
+                ResetCounterBlock(_encdecCounterBlock);
+                IncrementCounter(_encdecCounterBlock);
+                UpdateGctr(input, inputOffset, inputLength, output, outputOffset, _encdecCounterBlock);
+                int outputLen = inputLength;
 
-            // S <-- GHASH (A || v0 || C || u0 || [len(A)]64 || [len(C)]64)
-            //    A: AAD
-            //    v0: zero padding to 128 bit boundary
-            //    C: ciphertext
-            //    u0: zero padding to 128 bit boundary
-            //    [len(A)]64: bit length of AAD as 64 bit integer
-            //    [len(C)]64: bit length of ciphertext as 64 bit integer
-            //    S: result of GHASH
-            UI128 hash = UpdateGhash(aad, aadOffset, aadLength, UI128.Zero());
-            hash = UpdateGhash(output, outputOffset, outputLen, hash);
-            SetBE64((ulong)aadLength * 8, _encdecLengthBlock, 0);
-            SetBE64((ulong)outputLen * 8, _encdecLengthBlock, 8);
-            hash = UpdateGhash(_encdecLengthBlock, 0, BLOCK_BYTE_LENGTH, hash);
-            hash.CopyTo(_encdecHashBlock, 0);
+                // S <-- GHASH (A || v0 || C || u0 || [len(A)]64 || [len(C)]64)
+                //    A: AAD
+                //    v0: zero padding to 128 bit boundary
+                //    C: ciphertext
+                //    u0: zero padding to 128 bit boundary
+                //    [len(A)]64: bit length of AAD as 64 bit integer
+                //    [len(C)]64: bit length of ciphertext as 64 bit integer
+                //    S: result of GHASH
+                UI128 hash = UpdateGhash(aad, aadOffset, aadLength, UI128.Zero());
+                hash = UpdateGhash(output, outputOffset, outputLen, hash);
+                SetBE64((ulong)aadLength * 8, _encdecLengthBlock, 0);
+                SetBE64((ulong)outputLen * 8, _encdecLengthBlock, 8);
+                hash = UpdateGhash(_encdecLengthBlock, 0, BLOCK_BYTE_LENGTH, hash);
+                hash.CopyTo(_encdecHashBlock, 0);
 
-            // T <-- MSB(GCTR(J0, S))
-            //    J0: initial value for the counter block
-            //    S: result of GHASH
-            //    MSB(): take higher bits
-            //    T: tag
-            ResetCounterBlock(_encdecCounterBlock); // counter block <-- ICB
-            UpdateGctr(_encdecHashBlock, 0, BLOCK_BYTE_LENGTH, _encdecTagBlock, 0, _encdecCounterBlock);
+                // T <-- MSB(GCTR(J0, S))
+                //    J0: initial value for the counter block
+                //    S: result of GHASH
+                //    MSB(): take higher bits
+                //    T: tag
+                ResetCounterBlock(_encdecCounterBlock); // counter block <-- ICB
+                UpdateGctr(_encdecHashBlock, 0, BLOCK_BYTE_LENGTH, _encdecTagBlock, 0, _encdecCounterBlock);
 
-            Array.Clear(outputTag, outputTagOffset, outputTagLength);
-            Array.Copy(_encdecTagBlock, 0, outputTag, outputTagOffset, Math.Min(outputTagLength, BLOCK_BYTE_LENGTH));
+                Array.Clear(outputTag, outputTagOffset, outputTagLength);
+                Array.Copy(_encdecTagBlock, 0, outputTag, outputTagOffset, Math.Min(outputTagLength, BLOCK_BYTE_LENGTH));
+            }
         }
 
         /// <summary>
@@ -693,48 +701,49 @@ namespace Granados.Algorithms {
         /// <param name="outputOffset">output offset</param>
         /// <returns>true if the authentication tag is correct. otherwise false.</returns>
         public bool Decrypt(byte[] input, int inputOffset, int inputLength, byte[] aad, int aadOffset, int aadLength, byte[] tag, int tagOffset, int tagLength, byte[] output, int outputOffset) {
-
-            if (tagLength > BLOCK_BYTE_LENGTH) {
-                throw new ArgumentException("Invalid tag length");
-            }
-
-            // S <-- GHASH (A || v0 || C || u0 || [len(A)]64 || [len(C)]64)
-            //    A: AAD
-            //    v0: zero padding to 128 bit boundary
-            //    C: ciphertext
-            //    u0: zero padding to 128 bit boundary
-            //    [len(A)]64: bit length of AAD as 64 bit integer
-            //    [len(C)]64: bit length of ciphertext as 64 bit integer
-            //    S: result of GHASH
-            UI128 hash = UpdateGhash(aad, aadOffset, aadLength, UI128.Zero());
-            hash = UpdateGhash(input, inputOffset, inputLength, hash);
-            SetBE64((ulong)aadLength * 8, _encdecLengthBlock, 0);
-            SetBE64((ulong)inputLength * 8, _encdecLengthBlock, 8);
-            hash = UpdateGhash(_encdecLengthBlock, 0, BLOCK_BYTE_LENGTH, hash);
-            hash.CopyTo(_encdecHashBlock, 0);
-
-            // P <-- GCTR(inc32(J0), C)
-            //    J0: initial value for the counter block
-            //    C: ciphertext
-            //    P: plaintext
-            ResetCounterBlock(_encdecCounterBlock);
-            IncrementCounter(_encdecCounterBlock);
-            UpdateGctr(input, inputOffset, inputLength, output, outputOffset, _encdecCounterBlock);
-
-            // T <-- MSB(GCTR(J0, S))
-            //    J0: initial value for the counter block
-            //    S: result of GHASH
-            //    MSB(): take higher bits
-            //    T: tag
-            ResetCounterBlock(_encdecCounterBlock); // counter block <-- ICB
-            UpdateGctr(_encdecHashBlock, 0, BLOCK_BYTE_LENGTH, _encdecTagBlock, 0, _encdecCounterBlock);
-
-            for (int i = 0; i < tagLength; i++) {
-                if (_encdecTagBlock[i] != tag[tagOffset + i]) {
-                    return false;
+            lock (_encdecSync) {
+                if (tagLength > BLOCK_BYTE_LENGTH) {
+                    throw new ArgumentException("Invalid tag length");
                 }
+
+                // S <-- GHASH (A || v0 || C || u0 || [len(A)]64 || [len(C)]64)
+                //    A: AAD
+                //    v0: zero padding to 128 bit boundary
+                //    C: ciphertext
+                //    u0: zero padding to 128 bit boundary
+                //    [len(A)]64: bit length of AAD as 64 bit integer
+                //    [len(C)]64: bit length of ciphertext as 64 bit integer
+                //    S: result of GHASH
+                UI128 hash = UpdateGhash(aad, aadOffset, aadLength, UI128.Zero());
+                hash = UpdateGhash(input, inputOffset, inputLength, hash);
+                SetBE64((ulong)aadLength * 8, _encdecLengthBlock, 0);
+                SetBE64((ulong)inputLength * 8, _encdecLengthBlock, 8);
+                hash = UpdateGhash(_encdecLengthBlock, 0, BLOCK_BYTE_LENGTH, hash);
+                hash.CopyTo(_encdecHashBlock, 0);
+
+                // P <-- GCTR(inc32(J0), C)
+                //    J0: initial value for the counter block
+                //    C: ciphertext
+                //    P: plaintext
+                ResetCounterBlock(_encdecCounterBlock);
+                IncrementCounter(_encdecCounterBlock);
+                UpdateGctr(input, inputOffset, inputLength, output, outputOffset, _encdecCounterBlock);
+
+                // T <-- MSB(GCTR(J0, S))
+                //    J0: initial value for the counter block
+                //    S: result of GHASH
+                //    MSB(): take higher bits
+                //    T: tag
+                ResetCounterBlock(_encdecCounterBlock); // counter block <-- ICB
+                UpdateGctr(_encdecHashBlock, 0, BLOCK_BYTE_LENGTH, _encdecTagBlock, 0, _encdecCounterBlock);
+
+                for (int i = 0; i < tagLength; i++) {
+                    if (_encdecTagBlock[i] != tag[tagOffset + i]) {
+                        return false;
+                    }
+                }
+                return true;
             }
-            return true;
         }
 
         /// <summary>
@@ -807,6 +816,78 @@ namespace Granados.Algorithms {
         }
 
         /// <summary>
+        /// Multiplication in GF(2^128) using pre-computed table
+        /// </summary>
+        /// <param name="x">input block</param>
+        /// <param name="m">pre-computed table</param>
+        /// <returns>result</returns>
+        private UI128 GFMulByTable(ref UI128 x, UI128[,] m) {
+            ulong zh = 0UL;
+            ulong zl = 0UL;
+            ulong xq = x.hi;
+            for (int i = 0, shift = 56; i < 8; i++, shift -= 8) {
+                int b = (byte)(xq >> shift);
+                UI128 v = m[i, b];
+                zh ^= v.hi;
+                zl ^= v.lo;
+            }
+            xq = x.lo;
+            for (int i = 8, shift = 56; i < 16; i++, shift -= 8) {
+                int b = (byte)(xq >> shift);
+                UI128 v = m[i, b];
+                zh ^= v.hi;
+                zl ^= v.lo;
+            }
+            return new UI128(zh, zl);
+        }
+
+        /// <summary>
+        /// Make pre-computed table
+        /// </summary>
+        /// <param name="h">input block</param>
+        /// <returns>pre-computed table</returns>
+        private UI128[,] MakeGFMulTable(ref UI128 h) {
+            // from D. McGrew, J. Viega, "The Galois/Counter Mode of Operation (GCM)"
+            UI128[,] table = new UI128[16, 256];
+            for (int n = 0; n < 256; n++) {
+                UI128 x = new UI128((ulong)n << 56, 0UL); // set x0(MSB) .. x7
+                UI128 m = GFMul(ref x, ref h); // X * H
+                table[0, n] = m;
+                for (int i = 1; i < 16; i++) {
+                    m = GFMulP(ref m, 8); // X * H * P^(8i)
+                    table[i, n] = m;
+                }
+            }
+            return table;
+        }
+
+        /// <summary>
+        /// <p>Calculate X * P^n in GF(2^128)</p>
+        /// </summary>
+        /// <param name="x">input block</param>
+        /// <param name="n">exponent of P</param>
+        /// <returns>result</returns>
+        private UI128 GFMulP(ref UI128 x, int n) {
+            // from D. McGrew, J. Viega, "The Galois/Counter Mode of Operation (GCM)"
+            // This method is equivalent to the following operation:
+            //    v = x
+            //    repeat n times:
+            //       v = GFMul(v, P)
+            //
+            // P = 0x4000 0000 ... 0000
+            // The product X * P corresponds to a right-shift of X.
+
+            ulong xh = x.hi;
+            ulong xl = x.lo;
+            do {
+                ulong lsb = xl & 1UL;
+                shiftRight(ref xh, ref xl);
+                xh ^= 0xe100000000000000UL * lsb;
+            } while (--n > 0);
+            return new UI128(xh, xl);
+        }
+
+        /// <summary>
         /// Update GHASH
         /// </summary>
         /// <param name="input">input buffer</param>
@@ -827,7 +908,9 @@ namespace Granados.Algorithms {
                 hash.hi ^= block.hi;
                 hash.lo ^= block.lo;
 
-                hash = GFMul(ref hash, ref _ghashSubkey);
+                hash = GFMulByTable(ref hash, _gfmulTable);
+                // without optimization:
+                // hash = GFMul(ref hash, ref _ghashSubkey);
 
                 inputOffset += BLOCK_BYTE_LENGTH;
                 inputLength -= BLOCK_BYTE_LENGTH;
@@ -887,6 +970,7 @@ namespace Granados.Algorithms {
             byte[] output = new byte[BLOCK_BYTE_LENGTH];
             blockEncrypt(input, 0, output, 0);
             _ghashSubkey = UI128.From(output, 0);
+            _gfmulTable = MakeGFMulTable(ref _ghashSubkey);
         }
 
         /// <summary>
