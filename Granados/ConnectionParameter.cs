@@ -301,7 +301,7 @@ namespace Granados {
             PortNumber = portNumber;
             Protocol = protocol;
             PreferableCipherAlgorithms = new CipherAlgorithm[] { CipherAlgorithm.AES256GCM, CipherAlgorithm.AES128GCM, CipherAlgorithm.AES256CTR, CipherAlgorithm.AES256, CipherAlgorithm.AES192CTR, CipherAlgorithm.AES192, CipherAlgorithm.AES128CTR, CipherAlgorithm.AES128, CipherAlgorithm.Blowfish, CipherAlgorithm.TripleDES };
-            PreferableMacAlgorithms = new MACAlgorithm[] { MACAlgorithm.AEAD_AES_256_GCM, MACAlgorithm.AEAD_AES_128_GCM, MACAlgorithm.HMACSHA256, MACAlgorithm.HMACSHA512, MACAlgorithm.HMACSHA1 };
+            PreferableMacAlgorithms = new MACAlgorithm[] { MACAlgorithm.HMACSHA256, MACAlgorithm.HMACSHA512, MACAlgorithm.HMACSHA1, MACAlgorithm.AEAD_AES_256_GCM, MACAlgorithm.AEAD_AES_128_GCM };
             PreferableHostKeyAlgorithms = new PublicKeyAlgorithm[] { PublicKeyAlgorithm.DSA, PublicKeyAlgorithm.RSA };
             AuthenticationType = authType;
             UserName = userName;
