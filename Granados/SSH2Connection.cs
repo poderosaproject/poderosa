@@ -1305,19 +1305,15 @@ namespace Granados.SSH2 {
 
             string enc_cs = reader.ReadString();
             _cInfo.SupportedEncryptionAlgorithmsClientToServer = enc_cs;
-            _cInfo.OutgoingPacketCipher = DecideCipherAlgorithm(enc_cs);
 
             string enc_sc = reader.ReadString();
             _cInfo.SupportedEncryptionAlgorithmsServerToClient = enc_sc;
-            _cInfo.IncomingPacketCipher = DecideCipherAlgorithm(enc_sc);
 
             string mac_cs = reader.ReadString();
             _cInfo.SupportedMacAlgorithmsClientToServer = mac_cs;
-            _cInfo.OutgoingPacketMacAlgorithm = DecideMacAlgorithm(mac_cs);
 
             string mac_sc = reader.ReadString();
             _cInfo.SupportedMacAlgorithmsServerToClient = mac_sc;
-            _cInfo.IncomingPacketMacAlgorithm = DecideMacAlgorithm(mac_sc);
 
             string comp_cs = reader.ReadString();
             CheckAlgorithmSupport("compression", comp_cs, "none");
@@ -1353,6 +1349,68 @@ namespace Granados.SSH2 {
                 .ToString();
 
             _protocolEventManager.Trace(traceMessage);
+
+            CipherAlgorithm outgoingPacketCipher = DecideCipherAlgorithm(enc_cs);
+            CipherAlgorithm incomingPacketCipher = DecideCipherAlgorithm(enc_sc);
+            MACAlgorithm outgoingPacketMacAlgorithm = DecideMacAlgorithm(mac_cs);
+            MACAlgorithm incomingPacketMacAlgorithm = DecideMacAlgorithm(mac_sc);
+
+            FixAlgorithmChoices("client to server", ref outgoingPacketCipher, ref outgoingPacketMacAlgorithm);
+            FixAlgorithmChoices("server to client", ref incomingPacketCipher, ref incomingPacketMacAlgorithm);
+
+            _cInfo.OutgoingPacketCipher = outgoingPacketCipher;
+            _cInfo.IncomingPacketCipher = incomingPacketCipher;
+            _cInfo.OutgoingPacketMacAlgorithm = outgoingPacketMacAlgorithm;
+            _cInfo.IncomingPacketMacAlgorithm = incomingPacketMacAlgorithm;
+        }
+
+        /// <summary>
+        /// Fix the algorithm choices
+        /// </summary>
+        /// <param name="direction">direction text for the trace log</param>
+        /// <param name="cipher">cipher algorithm</param>
+        /// <param name="macAlgorithm">MAC algorithm</param>
+        private void FixAlgorithmChoices(string direction, ref CipherAlgorithm cipher, ref MACAlgorithm macAlgorithm) {
+            // RFC 5647 5.1.
+            {
+                MACAlgorithm suitableMACAlgorithm;
+                switch (cipher) {
+                    case CipherAlgorithm.AES128GCM:
+                        suitableMACAlgorithm = MACAlgorithm.AEAD_AES_128_GCM;
+                        break;
+                    case CipherAlgorithm.AES256GCM:
+                        suitableMACAlgorithm = MACAlgorithm.AEAD_AES_256_GCM;
+                        break;
+                    default:
+                        goto checkMac;
+                }
+
+                if (macAlgorithm != suitableMACAlgorithm) {
+                    _protocolEventManager.Trace("fix MAC algorithm ({0}): {1} --> {2}", direction, macAlgorithm, suitableMACAlgorithm);
+                    macAlgorithm = suitableMACAlgorithm;
+                    return;
+                }
+            }
+
+        checkMac: {
+                CipherAlgorithm suitableCipherAlgorithm;
+                switch (macAlgorithm) {
+                    case MACAlgorithm.AEAD_AES_128_GCM:
+                        suitableCipherAlgorithm = CipherAlgorithm.AES128GCM;
+                        break;
+                    case MACAlgorithm.AEAD_AES_256_GCM:
+                        suitableCipherAlgorithm = CipherAlgorithm.AES256GCM;
+                        break;
+                    default:
+                        return;
+                }
+
+                if (cipher != suitableCipherAlgorithm) {
+                    _protocolEventManager.Trace("fix cipher algorithm ({0}): {1} --> {2}", direction, cipher, suitableCipherAlgorithm);
+                    cipher = suitableCipherAlgorithm;
+                    return;
+                }
+            }
         }
 
         /// <summary>
