@@ -110,7 +110,6 @@
     <Compile Include="TerminalToolBar.cs" />
     <Compile Include="TerminalUtil.cs" />
     <Compile Include="Util.cs" />
-    <Compile Include="VT100.cs" />
     <Compile Include="WarningWithDisableOption.cs">
       <SubType>Form</SubType>
     </Compile>
