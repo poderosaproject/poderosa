@@ -90,6 +90,8 @@ namespace Granados.SSH2 {
                             protocolEventLoggerCreator != null ?
                                 protocolEventLoggerCreator(this) : null);
 
+            _protocolEventManager.Trace("server version-string : {0}", serverVersion);
+
             _socketStatusReader = new SocketStatusReader(socket);
             _param = param.Clone();
             _timeouts = (_param.Timeouts != null) ? _param.Timeouts : new SSHTimeouts();
