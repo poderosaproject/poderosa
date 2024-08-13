@@ -154,10 +154,13 @@ namespace Poderosa.Terminal {
 
                     this.LogService.XmlLogger.Write(ch);
 
-                    if (Unicode.IsControlCharacter(ch))
+                    if (Unicode.IsControlCharacter(ch)) {
                         ProcessControlChar(ch);
-                    else
+                        // ignore result
+                    }
+                    else {
                         ProcessNormalChar(ch);
+                    }
                 }
             }
             else {
@@ -195,6 +198,7 @@ namespace Poderosa.Terminal {
                     _isEscapeSequenceReading = false;
 
                     char[] seq = _escapeSequence.ToString().ToCharArray();
+                    _escapeSequence.Remove(0, _escapeSequence.Length);
 
                     this.LogService.XmlLogger.EscapeSequence(seq);
 
@@ -207,9 +211,6 @@ namespace Poderosa.Terminal {
                     catch (UnknownEscapeSequenceException ex) {
                         CharDecodeError(GEnv.Strings.GetString("Message.EscapesequenceTerminal.UnsupportedSequence") + ex.Message);
                         RuntimeUtil.SilentReportException(ex);
-                    }
-                    finally {
-                        _escapeSequence.Remove(0, _escapeSequence.Length);
                     }
                 }
                 else {
@@ -443,10 +444,10 @@ namespace Poderosa.Terminal {
             return true;
         }
 
-        private ProcessCharResult ProcessNormalUnicodeChar(UnicodeChar unicodeChar) {
+        private void ProcessNormalUnicodeChar(UnicodeChar unicodeChar) {
             //WrapAroundがfalseで、キャレットが右端のときは何もしない
             if (!_wrapAroundMode && _manipulator.CaretColumn >= GetDocument().TerminalWidth - 1)
-                return ProcessCharResult.Processed;
+                return;
 
             if (_insertMode)
                 _manipulator.InsertBlanks(_manipulator.CaretColumn, unicodeChar.IsWideWidth ? 2 : 1, _currentdecoration);
@@ -469,20 +470,18 @@ namespace Poderosa.Terminal {
 
             //通常文字の処理
             _manipulator.PutChar(unicodeChar, _currentdecoration);
-
-            return ProcessCharResult.Processed;
         }
 
-        private ProcessCharResult ProcessNormalChar(char ch) {
+        private void ProcessNormalChar(char ch) {
             UnicodeChar unicodeChar;
             if (!base.UnicodeCharConverter.Feed(ch, out unicodeChar)) {
-                return ProcessCharResult.Processed;
+                return;
             }
             if (unicodeChar.IsZeroWidth) {
-                return ProcessCharResult.Processed; // drop
+                return; // drop
             }
 
-            return ProcessNormalUnicodeChar(unicodeChar);
+            ProcessNormalUnicodeChar(unicodeChar);
         }
 
         private ProcessCharResult ProcessControlChar(char ch) {
