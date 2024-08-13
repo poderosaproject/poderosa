@@ -45,9 +45,14 @@ namespace Poderosa.Terminal {
             Sgr,
         }
 
+        private enum ProcessCharResult {
+            Processed,
+            Unsupported,
+        }
+
         private readonly Preprocessor _preprocessor = new Preprocessor();
         private readonly StringBuilder _escapeSequence = new StringBuilder();
-        private ProcessCharResult _charProcessingState = ProcessCharResult.Processed;
+        private bool _isEscapeSequenceReading = false;
         private IModalCharacterTask _currentCharacterTask = null;
 
         private bool _wrapAroundMode;
@@ -89,17 +94,16 @@ namespace Poderosa.Terminal {
             InitTabStops();
         }
 
-        // FIXME: more meaningful name
-        public override ProcessCharResult State {
+        public override bool IsEscapeSequenceReading {
             get {
-                return _charProcessingState;
+                return _isEscapeSequenceReading;
             }
         }
 
         protected override void ResetInternal() {
             _preprocessor.Reset();
             _escapeSequence.Clear();
-            _charProcessingState = ProcessCharResult.Processed;
+            _isEscapeSequenceReading = false;
             _insertMode = false;
             _scrollRegionRelative = false;
         }
@@ -138,9 +142,9 @@ namespace Poderosa.Terminal {
         }
 
         private void ProcessCharInternal(char ch) {
-            if (_charProcessingState != ProcessCharResult.Escaping) {
+            if (!_isEscapeSequenceReading) {
                 if (ch == ControlCode.ESC) {
-                    _charProcessingState = ProcessCharResult.Escaping;
+                    _isEscapeSequenceReading = true;
                 }
                 else {
                     IModalCharacterTask characterTask = _currentCharacterTask;
@@ -151,9 +155,9 @@ namespace Poderosa.Terminal {
                     this.LogService.XmlLogger.Write(ch);
 
                     if (Unicode.IsControlCharacter(ch))
-                        _charProcessingState = ProcessControlChar(ch);
+                        ProcessControlChar(ch);
                     else
-                        _charProcessingState = ProcessNormalChar(ch);
+                        ProcessNormalChar(ch);
                 }
             }
             else {
@@ -188,15 +192,16 @@ namespace Poderosa.Terminal {
                 }
 
                 if (end_flag) { //シーケンスのおわり
+                    _isEscapeSequenceReading = false;
+
                     char[] seq = _escapeSequence.ToString().ToCharArray();
 
                     this.LogService.XmlLogger.EscapeSequence(seq);
 
                     try {
                         char code = seq[0];
-                        _charProcessingState = ProcessCharResult.Unsupported; //ProcessEscapeSequenceで例外が来た後で状態がEscapingはひどい結果を招くので
-                        _charProcessingState = ProcessEscapeSequence(code, seq, 1);
-                        if (_charProcessingState == ProcessCharResult.Unsupported)
+                        ProcessCharResult result = ProcessEscapeSequence(code, seq, 1);
+                        if (result == ProcessCharResult.Unsupported)
                             throw new UnknownEscapeSequenceException("Unknown escape sequence: ESC " + new string(seq));
                     }
                     catch (UnknownEscapeSequenceException ex) {
@@ -207,8 +212,9 @@ namespace Poderosa.Terminal {
                         _escapeSequence.Remove(0, _escapeSequence.Length);
                     }
                 }
-                else
-                    _charProcessingState = ProcessCharResult.Escaping;
+                else {
+                    _isEscapeSequenceReading = true;
+                }
             }
         }
 

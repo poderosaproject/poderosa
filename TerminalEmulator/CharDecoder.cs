@@ -304,7 +304,7 @@ namespace Poderosa.Terminal {
         }
 
         private void ProcessByte(byte b) {
-            if (_processor.State == ProcessCharResult.Escaping)
+            if (_processor.IsEscapeSequenceReading)
                 _processor.ProcessChar((char)b);
             else {
                 if (_state == State.Normal && !IsControlChar(b) && _decoder.IsInterestingByte(b)) {

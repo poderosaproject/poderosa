@@ -256,7 +256,7 @@ namespace Poderosa.Terminal {
         }
 
         #region ICharProcessor
-        public abstract ProcessCharResult State {
+        public abstract bool IsEscapeSequenceReading {
             get;
         }
         public void UnsupportedCharSetDetected(char code) {
@@ -635,25 +635,12 @@ namespace Poderosa.Terminal {
 
     internal interface ICharProcessor {
         void ProcessChar(char ch);
-        ProcessCharResult State {
+        bool IsEscapeSequenceReading {
             get;
         }
         void UnsupportedCharSetDetected(char code);
         void InvalidCharDetected(byte[] data);
     }
-
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <exclude/>
-    public enum ProcessCharResult {
-        Processed,
-        Unsupported,
-        Escaping
-    }
-
-
 
     internal class UnknownEscapeSequenceException : Exception {
         public UnknownEscapeSequenceException(string msg)
