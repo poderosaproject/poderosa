@@ -579,7 +579,22 @@ namespace Poderosa.Terminal {
         public const char SO = '\u000e';
         public const char SI = '\u000f';
         public const char ESC = '\u001b';
+        public const char IND = '\u0084';
+        public const char NEL = '\u0085';
+        public const char HTS = '\u0088';
+        public const char RI = '\u008d';
+        public const char SS2 = '\u008e';
+        public const char SS3 = '\u008f';
+        public const char DCS = '\u0090';
+        public const char SPA = '\u0096';
+        public const char EPA = '\u0097';
+        public const char SOS = '\u0098';
+        public const char DECID = '\u009a';
+        public const char CSI = '\u009b';
         public const char ST = '\u009c';
+        public const char OSC = '\u009d';
+        public const char PM = '\u009e';
+        public const char APC = '\u009f';
     }
 
     //受信スレッドから次に設定すべきScrollBarの値を配置する。
