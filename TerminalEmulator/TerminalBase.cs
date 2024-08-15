@@ -16,6 +16,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Diagnostics;
@@ -595,6 +596,26 @@ namespace Poderosa.Terminal {
         public const char OSC = '\u009d';
         public const char PM = '\u009e';
         public const char APC = '\u009f';
+
+        private static readonly string[] _controlCodeTextMap;
+
+        static ControlCode() {
+            List<string> map = new List<string>();
+            foreach (FieldInfo f in typeof(ControlCode).GetFields(BindingFlags.Public | BindingFlags.Static)) {
+                if (f.IsLiteral && f.FieldType == typeof(char)) {
+                    char value = (char)f.GetValue(null);
+                    while (map.Count <= value) {
+                        map.Add(null);
+                    }
+                    map[value] = f.Name;
+                }
+            }
+            _controlCodeTextMap = map.ToArray();
+        }
+
+        public static string ToName(char ch) {
+            return (ch < _controlCodeTextMap.Length) ? _controlCodeTextMap[ch] : null;
+        }
     }
 
     //受信スレッドから次に設定すべきScrollBarの値を配置する。

@@ -16,6 +16,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Diagnostics;
 using System.Drawing;
@@ -27,6 +28,7 @@ using Poderosa.Document;
 using Poderosa.ConnectionParam;
 using Poderosa.View;
 using Poderosa.Preferences;
+using Poderosa.Terminal.EscapeSequence;
 
 namespace Poderosa.Terminal {
     internal class XTerm : AbstractTerminal {
@@ -50,9 +52,8 @@ namespace Poderosa.Terminal {
             Unsupported,
         }
 
-        private readonly Preprocessor _preprocessor = new Preprocessor();
-        private readonly StringBuilder _escapeSequence = new StringBuilder();
-        private bool _isEscapeSequenceReading = false;
+        private readonly EscapeSequenceEngine<XTerm> _escapeSequenceEngine;
+
         private IModalCharacterTask _currentCharacterTask = null;
 
         private bool _wrapAroundMode;
@@ -85,6 +86,8 @@ namespace Poderosa.Terminal {
 
         public XTerm(TerminalInitializeInfo info)
             : base(info) {
+            _escapeSequenceEngine = new EscapeSequenceEngine<XTerm>(HandleException, HandleIncompleteEscapeSequence);
+
             _insertMode = false;
             _scrollRegionRelative = false;
             _wrapAroundMode = true;
@@ -94,16 +97,51 @@ namespace Poderosa.Terminal {
             InitTabStops();
         }
 
+        private string ConvertEscapeSequenceToPrintable(string sequence) {
+            return sequence.Aggregate(
+                new StringBuilder(),
+                (s, ch) => {
+                    string controlName = ControlCode.ToName(ch);
+                    if (controlName != null) {
+                        s.Append('<').Append(controlName).Append('>');
+                    }
+                    else if (ch < 0x20 || ch > 0x7e) {
+                        s.AppendFormat("<{0:x2}>", (int)ch);
+                    }
+                    else {
+                        s.Append(ch);
+                    }
+                    return s;
+                }
+            )
+            .ToString();
+        }
+
+        private void HandleIncompleteEscapeSequence(string sequence) {
+            RuntimeUtil.SilentReportException(new UnknownEscapeSequenceException("Incomplete escape sequence: " + ConvertEscapeSequenceToPrintable(sequence)));
+        }
+
+        private void HandleException(Exception ex, string sequence) {
+            if (ex is UnknownEscapeSequenceException) {
+                CharDecodeError(
+                    String.Format("{0}: {1} ({2})",
+                        GEnv.Strings.GetString("Message.EscapesequenceTerminal.UnsupportedSequence"),
+                        ex.Message,
+                        ConvertEscapeSequenceToPrintable(sequence)
+                    )
+                );
+            }
+            RuntimeUtil.SilentReportException(ex);
+        }
+
         public override bool IsEscapeSequenceReading {
             get {
-                return _isEscapeSequenceReading;
+                return _escapeSequenceEngine.IsEscapeSequenceReading;
             }
         }
 
         protected override void ResetInternal() {
-            _preprocessor.Reset();
-            _escapeSequence.Clear();
-            _isEscapeSequenceReading = false;
+            _escapeSequenceEngine.Reset();
             _insertMode = false;
             _scrollRegionRelative = false;
         }
@@ -131,16 +169,23 @@ namespace Poderosa.Terminal {
         }
 
         public override void ProcessChar(char ch) {
-            char? r1, r2;
-            _preprocessor.Process(ch, out r1, out r2);
-            if (r1.HasValue) {
-                ProcessCharInternal(r1.Value);
-                if (r2.HasValue) {
-                    ProcessCharInternal(r2.Value);
+            if (ch == ControlCode.NUL) {
+                return;
+            }
+
+            this.LogService.XmlLogger.Write(ch);
+
+            if (!_escapeSequenceEngine.Process(this, ch)) {
+                IModalCharacterTask characterTask = _currentCharacterTask;
+                if (characterTask != null) { // macro etc.
+                    characterTask.ProcessChar(ch);
                 }
+
+                ProcessNormalChar(ch);
             }
         }
 
+#if NOTUSED
         private void ProcessCharInternal(char ch) {
             if (!_isEscapeSequenceReading) {
                 if (ch == ControlCode.ESC) {
@@ -218,6 +263,7 @@ namespace Poderosa.Terminal {
                 }
             }
         }
+#endif
 
         public bool ReverseVideo {
             get {
@@ -444,6 +490,18 @@ namespace Poderosa.Terminal {
             return true;
         }
 
+        private void ProcessNormalChar(char ch) {
+            UnicodeChar unicodeChar;
+            if (!base.UnicodeCharConverter.Feed(ch, out unicodeChar)) {
+                return;
+            }
+            if (unicodeChar.IsZeroWidth) {
+                return; // drop
+            }
+
+            ProcessNormalUnicodeChar(unicodeChar);
+        }
+
         private void ProcessNormalUnicodeChar(UnicodeChar unicodeChar) {
             //WrapAroundがfalseで、キャレットが右端のときは何もしない
             if (!_wrapAroundMode && _manipulator.CaretColumn >= GetDocument().TerminalWidth - 1)
@@ -472,83 +530,70 @@ namespace Poderosa.Terminal {
             _manipulator.PutChar(unicodeChar, _currentdecoration);
         }
 
-        private void ProcessNormalChar(char ch) {
-            UnicodeChar unicodeChar;
-            if (!base.UnicodeCharConverter.Feed(ch, out unicodeChar)) {
-                return;
+        [EscapeSequence(ControlCode.LF)]
+        [EscapeSequence(ControlCode.VT)]
+        private void LineFeed() {
+            LineFeedRule rule = GetTerminalSettings().LineFeedRule;
+            if (rule == LineFeedRule.Normal) {
+                DoLineFeed();
             }
-            if (unicodeChar.IsZeroWidth) {
-                return; // drop
+            else if (rule == LineFeedRule.LFOnly) {
+                DoCarriageReturn();
+                DoLineFeed();
             }
-
-            ProcessNormalUnicodeChar(unicodeChar);
         }
 
-        private ProcessCharResult ProcessControlChar(char ch) {
-            if (ch == ControlCode.LF || ch == ControlCode.VT) { //Vertical TabはLFと等しい
-                LineFeedRule rule = GetTerminalSettings().LineFeedRule;
-                if (rule == LineFeedRule.Normal) {
-                    DoLineFeed();
-                }
-                else if (rule == LineFeedRule.LFOnly) {
-                    DoCarriageReturn();
-                    DoLineFeed();
-                }
-                return ProcessCharResult.Processed;
+        [EscapeSequence(ControlCode.CR)]
+        private void CarriageReturn() {
+            LineFeedRule rule = GetTerminalSettings().LineFeedRule;
+            if (rule == LineFeedRule.Normal) {
+                DoCarriageReturn();
             }
-            else if (ch == ControlCode.CR) {
-                LineFeedRule rule = GetTerminalSettings().LineFeedRule;
-                if (rule == LineFeedRule.Normal) {
-                    DoCarriageReturn();
-                }
-                else if (rule == LineFeedRule.CROnly) {
-                    DoCarriageReturn();
-                    DoLineFeed();
-                }
-                return ProcessCharResult.Processed;
+            else if (rule == LineFeedRule.CROnly) {
+                DoCarriageReturn();
+                DoLineFeed();
             }
-            else if (ch == ControlCode.BEL) {
-                this.IndicateBell();
-                return ProcessCharResult.Processed;
-            }
-            else if (ch == ControlCode.BS) {
-                //行頭で、直前行の末尾が継続であった場合行を戻す
-                if (_manipulator.CaretColumn == 0) {
-                    TerminalDocument doc = GetDocument();
-                    int line = doc.CurrentLineNumber - 1;
-                    if (line >= 0 && doc.FindLineOrEdge(line).EOLType == EOLType.Continue) {
-                        doc.InvalidatedRegion.InvalidateLine(doc.CurrentLineNumber);
-                        doc.CurrentLineNumber = line;
-                        if (doc.CurrentLine == null)
-                            _manipulator.Reset(doc.TerminalWidth);
-                        else
-                            _manipulator.Load(doc.CurrentLine, doc.CurrentLine.DisplayLength - 1); //NOTE ここはCharLengthだったが同じだと思って改名した
-                        doc.InvalidatedRegion.InvalidateLine(doc.CurrentLineNumber);
-                    }
-                }
-                else
-                    _manipulator.BackCaret();
+        }
 
-                return ProcessCharResult.Processed;
-            }
-            else if (ch == ControlCode.HT) {
-                _manipulator.CaretColumn = GetNextTabStop(_manipulator.CaretColumn);
-                return ProcessCharResult.Processed;
-            }
-            else if (ch == ControlCode.SO) {
-                return ProcessCharResult.Processed; //以下２つはCharDecoderの中で処理されているはずなので無視
-            }
-            else if (ch == ControlCode.SI) {
-                return ProcessCharResult.Processed;
-            }
-            else if (ch == ControlCode.NUL) {
-                return ProcessCharResult.Processed; //null charは無視 !!CR NULをCR LFとみなす仕様があるが、CR LF CR NULとくることもあって難しい
+        [EscapeSequence(ControlCode.BEL)]
+        private void Bell() {
+            IndicateBell();
+        }
+
+        [EscapeSequence(ControlCode.BS)]
+        private void BackSpace() {
+            //行頭で、直前行の末尾が継続であった場合行を戻す
+            if (_manipulator.CaretColumn == 0) {
+                TerminalDocument doc = GetDocument();
+                int line = doc.CurrentLineNumber - 1;
+                if (line >= 0 && doc.FindLineOrEdge(line).EOLType == EOLType.Continue) {
+                    doc.InvalidatedRegion.InvalidateLine(doc.CurrentLineNumber);
+                    doc.CurrentLineNumber = line;
+                    if (doc.CurrentLine == null)
+                        _manipulator.Reset(doc.TerminalWidth);
+                    else
+                        _manipulator.Load(doc.CurrentLine, doc.CurrentLine.DisplayLength - 1); //NOTE ここはCharLengthだったが同じだと思って改名した
+                    doc.InvalidatedRegion.InvalidateLine(doc.CurrentLineNumber);
+                }
             }
             else {
-                //Debug.WriteLine("Unknown char " + (int)ch);
-                //適当なグラフィック表示ほしい
-                return ProcessCharResult.Unsupported;
+                _manipulator.BackCaret();
             }
+        }
+
+        [EscapeSequence(ControlCode.HT)]
+        private void HorizontalTab() {
+            _manipulator.CaretColumn = GetNextTabStop(_manipulator.CaretColumn);
+        }
+
+        [EscapeSequence(ControlCode.SO)]
+        private void ShiftOut() {
+            // SO should be already processed by CharDecoder
+        }
+
+        [EscapeSequence(ControlCode.SI)]
+        private void ShiftIn() {
+            // SI should be already processed by CharDecoder
         }
 
         private void DoLineFeed() {
@@ -569,6 +614,7 @@ namespace Poderosa.Terminal {
             _manipulator.EOLType = EOLType.CR;  // will be changed to CRLF in DoLineFeed()
         }
 
+#if NOTUSED
         private ProcessCharResult ProcessEscapeSequence(char code, char[] seq, int offset) {
             switch (code) {
                 case '[':
@@ -723,34 +769,44 @@ namespace Poderosa.Terminal {
             }
             return ProcessCharResult.Unsupported;
         }
+#endif
 
-        private void ProcessDeviceAttributes(string param) {
-            if (param.StartsWith(">")) {
-                byte[] data = Encoding.ASCII.GetBytes(" [>82;1;0c");
-                data[0] = 0x1B; //ESC
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'c')]
+        private void PrimaryDeviceAttributes(NumericParams p) {
+            if (p.Get(0, 0) == 0) {
+                byte[] data = Encoding.ASCII.GetBytes("\u001b[?1;2c");
                 TransmitDirect(data);
+                return;
             }
-            else {
-                byte[] data = Encoding.ASCII.GetBytes(" [?1;2c"); //なんかよくわからないがMindTerm等をみるとこれでいいらしい
-                data[0] = 0x1B; //ESC
-                TransmitDirect(data);
-            }
+            throw new UnknownEscapeSequenceException("invalid params");
         }
 
-        private void ProcessDeviceStatusReport(string param) {
+        [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'c')]
+        private void ProcessDeviceAttributes(NumericParams p) {
+            if (p.Get(0, 0) == 0) {
+                byte[] data = Encoding.ASCII.GetBytes("\u001b[>82;1;0c");
+                TransmitDirect(data);
+                return;
+            }
+            throw new UnknownEscapeSequenceException("invalid params");
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'n')]
+        private void ProcessDeviceStatusReport(NumericParams p) {
             string response;
-            if (param == "5")
-                response = " [0n"; //これでOKの意味らしい
-            else if (param == "6")
-                response = String.Format(" [{0};{1}R", GetDocument().CurrentLineNumber - GetDocument().TopLineNumber + 1, _manipulator.CaretColumn + 1);
+            int param = p.Get(0, 0);
+            if (param == 5)
+                response = "\u001b[0n";
+            else if (param == 6)
+                response = String.Format("\u001b[{0};{1}R", GetDocument().CurrentLineNumber - GetDocument().TopLineNumber + 1, _manipulator.CaretColumn + 1);
             else
-                throw new UnknownEscapeSequenceException("DSR " + param);
+                throw new UnknownEscapeSequenceException("unknown DSR code");
 
             byte[] data = Encoding.ASCII.GetBytes(response);
-            data[0] = 0x1B; //ESC
             TransmitDirect(data);
         }
 
+#if UNUSED        
         private void ProcessCursorMove(string param, char method) {
             int count = ParseInt(param, 1); //パラメータが省略されたときの移動量は１
 
@@ -782,11 +838,61 @@ namespace Poderosa.Terminal {
                     break;
             }
         }
+#endif
 
-        //CSI H
-        private void ProcessCursorPosition(string param) {
-            IntPair t = ParseIntPair(param, 1, 1);
-            int row = t.first, col = t.second;
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'A')]
+        private void ProcessCursorUp(NumericParams p) {
+            int count = p.Get(0, 1);
+            int column = _manipulator.CaretColumn;
+            GetDocument().UpdateCurrentLine(_manipulator);
+            GetDocument().CurrentLineNumber = (GetDocument().CurrentLineNumber - count);
+            _manipulator.Load(GetDocument().CurrentLine, column);
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'B')]
+        private void ProcessCursorDown(NumericParams p) {
+            int count = p.Get(0, 1);
+            int column = _manipulator.CaretColumn;
+            GetDocument().UpdateCurrentLine(_manipulator);
+            GetDocument().CurrentLineNumber = (GetDocument().CurrentLineNumber + count);
+            _manipulator.Load(GetDocument().CurrentLine, column);
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'C')]
+        private void ProcessCursorForward(NumericParams p) {
+            int count = p.Get(0, 1);
+            int column = _manipulator.CaretColumn;
+            int newvalue = column + count;
+            if (newvalue >= GetDocument().TerminalWidth)
+                newvalue = GetDocument().TerminalWidth - 1;
+            _manipulator.CaretColumn = newvalue;
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'D')]
+        private void ProcessCursorBackward(NumericParams p) {
+            int count = p.Get(0, 1);
+            int column = _manipulator.CaretColumn;
+            int newvalue = column - count;
+            if (newvalue < 0)
+                newvalue = 0;
+            _manipulator.CaretColumn = newvalue;
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'E')]
+        private void ProcessCursorNextLine(NumericParams p) {
+            throw new UnknownEscapeSequenceException("not implemented");
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'F')]
+        private void ProcessCursorPrecedingLine(NumericParams p) {
+            throw new UnknownEscapeSequenceException("not implemented");
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'H')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'f')] // FIXME: undocumented?
+        private void ProcessCursorPosition(NumericParams p) {
+            int row = p.Get(0, 1);
+            int col = p.Get(1, 1);
             if (_scrollRegionRelative && GetDocument().ScrollingTop != -1) {
                 row += GetDocument().ScrollingTop;
             }
@@ -802,6 +908,16 @@ namespace Poderosa.Terminal {
             ProcessCursorPosition(row, col);
         }
 
+        [EscapeSequence(ControlCode.CSI, 'U')] // FIXME: undocumented?
+        private void ProcessCursorPositionToBottomLeft() {
+            ProcessCursorPosition(GetDocument().TerminalHeight, 1);
+        }
+
+        [EscapeSequence(ControlCode.ESC, 'F')]
+        private void ProcessCursorPositionToLowerLeft() {
+            ProcessCursorPosition(1, 1); // FIXME: is this right?
+        }
+
         private void ProcessCursorPosition(int row, int col) {
             GetDocument().UpdateCurrentLine(_manipulator);
             GetDocument().CurrentLineNumber = (GetDocument().TopLineNumber + row - 1);
@@ -810,16 +926,19 @@ namespace Poderosa.Terminal {
             _manipulator.Load(GetDocument().CurrentLine, col - 1);
         }
 
-        //CSI J
-        private void ProcessEraseInDisplay(string param) {
-            int d = ParseInt(param, 0);
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'J')]
+        private void ProcessEraseInDisplay(NumericParams p) {
+            int param = p.Get(0, 0);
+            ProcessEraseInDisplay(param);
+        }
 
+        private void ProcessEraseInDisplay(int param) {
             TerminalDocument doc = GetDocument();
             int cur = doc.CurrentLineNumber;
             int top = doc.TopLineNumber;
             int bottom = top + doc.TerminalHeight;
             int col = _manipulator.CaretColumn;
-            switch (d) {
+            switch (param) {
                 case 0: //erase below
                     {
                         if (col == 0 && cur == top)
@@ -861,16 +980,16 @@ namespace Poderosa.Terminal {
                     }
                     break;
                 default:
-                    throw new UnknownEscapeSequenceException(String.Format("unknown ED option {0}", param));
+                    throw new UnknownEscapeSequenceException("unknown ED option");
             }
 
         }
 
-        //CSI K
-        private void ProcessEraseInLine(string param) {
-            int d = ParseInt(param, 0);
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'K')]
+        private void ProcessEraseInLine(NumericParams p) {
+            int param = p.Get(0, 0);
 
-            switch (d) {
+            switch (param) {
                 case 0: //erase right
                     EraseRight();
                     break;
@@ -881,7 +1000,7 @@ namespace Poderosa.Terminal {
                     EraseLine();
                     break;
                 default:
-                    throw new UnknownEscapeSequenceException(String.Format("unknown EL option {0}", param));
+                    throw new UnknownEscapeSequenceException("unknown EL option");
             }
         }
 
@@ -897,6 +1016,7 @@ namespace Poderosa.Terminal {
             _manipulator.FillSpace(0, _manipulator.BufferSize, _currentdecoration);
         }
 
+        [EscapeSequence(ControlCode.IND)]
         private void Index() {
             GetDocument().UpdateCurrentLine(_manipulator);
             int current = GetDocument().CurrentLineNumber;
@@ -907,6 +1027,7 @@ namespace Poderosa.Terminal {
             _manipulator.Load(GetDocument().CurrentLine, _manipulator.CaretColumn);
         }
 
+        [EscapeSequence(ControlCode.RI)]
         private void ReverseIndex() {
             GetDocument().UpdateCurrentLine(_manipulator);
             int current = GetDocument().CurrentLineNumber;
@@ -917,32 +1038,57 @@ namespace Poderosa.Terminal {
             _manipulator.Load(GetDocument().CurrentLine, _manipulator.CaretColumn);
         }
 
-        private void ProcessSetScrollingRegion(string param) {
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'r')]
+        private void ProcessSetScrollingRegion(NumericParams p) {
             int height = GetDocument().TerminalHeight;
-            IntPair v = ParseIntPair(param, 1, height);
+            int top = p.Get(0, 1);
+            int bottom = p.Get(1, height);
 
-            if (v.first < 1)
-                v.first = 1;
-            else if (v.first > height)
-                v.first = height;
-            if (v.second < 1)
-                v.second = 1;
-            else if (v.second > height)
-                v.second = height;
-            if (v.first > v.second) { //問答無用でエラーが良いようにも思うが
-                int t = v.first;
-                v.first = v.second;
-                v.second = t;
+            if (top < 1)
+                top = 1;
+            else if (top > height)
+                top = height;
+            if (bottom < 1)
+                bottom = 1;
+            else if (bottom > height)
+                bottom = height;
+            if (top > bottom) { //問答無用でエラーが良いようにも思うが
+                int t = top;
+                top = bottom;
+                bottom = t;
             }
 
             //指定は1-originだが処理は0-origin
-            GetDocument().SetScrollingRegion(v.first - 1, v.second - 1);
+            GetDocument().SetScrollingRegion(top - 1, bottom - 1);
         }
 
+        [EscapeSequence(ControlCode.NEL)]
         private void ProcessNextLine() {
             GetDocument().UpdateCurrentLine(_manipulator);
             GetDocument().CurrentLineNumber = (GetDocument().CurrentLineNumber + 1);
             _manipulator.Load(GetDocument().CurrentLine, 0);
+        }
+
+        [EscapeSequence(ControlCode.ESC, ' ', 'F')]
+        private void ProcessS7C1T() {
+        }
+
+        [EscapeSequence(ControlCode.ESC, ' ', 'G')]
+        private void ProcessS8C1T() {
+        }
+
+        [EscapeSequence(ControlCode.ESC, ' ', 'L')]
+        private void ProcessSetANSICconformanceLevel1() {
+        }
+
+        [EscapeSequence(ControlCode.ESC, '=')]
+        private void ProcessEnterAlternateKeypadMode() {
+            ChangeMode(TerminalMode.Application);
+        }
+
+        [EscapeSequence(ControlCode.ESC, '>')]
+        private void ProcessExitAlternateKeypadMode() {
+            ChangeMode(TerminalMode.Normal);
         }
 
         protected override void ChangeMode(TerminalMode mode) {
@@ -976,51 +1122,53 @@ namespace Poderosa.Terminal {
             _terminalMode = mode;
         }
 
-        private ProcessCharResult ProcessDECSETMulti(string param, char code) {
-            if (param.Length == 0)
-                return ProcessCharResult.Processed;
-            bool question = param[0] == '?';
-            string[] ps = question ? param.Substring(1).Split(';') : param.Split(';');
-            bool unsupported = false;
-            foreach (string p in ps) {
-                ProcessCharResult r = question ? ProcessDECSET(p, code) : ProcessSetMode(p, code);
-                if (r == ProcessCharResult.Unsupported)
-                    unsupported = true;
-            }
-            return unsupported ? ProcessCharResult.Unsupported : ProcessCharResult.Processed;
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'h')]
+        private void SetMode(NumericParams p) {
+            DoSetMode(p, true);
         }
 
-        private ProcessCharResult ProcessSetMode(string param, char code) {
-            bool set = code == 'h';
-            switch (param) {
-                case "4":
-                    _insertMode = set; //hで始まってlで終わる
-                    return ProcessCharResult.Processed;
-                case "12": {	//local echo
-                        ITerminalSettings settings = GetTerminalSettings();
-                        bool value = !set;
-                        _afterExitLockActions.Add(() => {
-                            settings.BeginUpdate();
-                            settings.LocalEcho = value;
-                            settings.EndUpdate();
-                        });
-                        return ProcessCharResult.Processed;
-                    }
-                case "20":
-                    return ProcessCharResult.Processed; //!!WinXPのTelnetで確認した
-                case "25":
-                    return ProcessCharResult.Processed;
-                case "34":	//MakeCursorBig, puttyにはある
-                    //!setでカーソルを強制的に箱型にし、setで通常に戻すというのが正しい動作だが実害はないので無視
-                    return ProcessCharResult.Processed;
-                default:
-                    return ProcessCharResult.Unsupported;
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'l')]
+        private void ResetMode(NumericParams p) {
+            DoSetMode(p, false);
+        }
+
+        private void DoSetMode(NumericParams p, bool set) {
+            bool unknownCode = false;
+            foreach (int param in p.EnumerateWithoutNull()) {
+                switch (param) {
+                    case 4: // Insert Mode
+                        _insertMode = set; //hで始まってlで終わる
+                        break;
+                    case 12: {	//local echo
+                            ITerminalSettings settings = GetTerminalSettings();
+                            bool value = !set;
+                            _afterExitLockActions.Add(() => {
+                                settings.BeginUpdate();
+                                settings.LocalEcho = value;
+                                settings.EndUpdate();
+                            });
+                        }
+                        break;
+                    case 20: // Normal Linefeed
+                        break;
+                    case 25:
+                        break;
+                    case 34:	//MakeCursorBig, puttyにはある
+                        //!setでカーソルを強制的に箱型にし、setで通常に戻すというのが正しい動作だが実害はないので無視
+                        break;
+                    default:
+                        unknownCode = true;
+                        break;
+                }
+            }
+            if (unknownCode) {
+                throw new UnknownEscapeSequenceException("unsupported SetMode code");
             }
         }
 
-        //これを送ってくるアプリケーションは viで上方スクロール
-        private void ProcessInsertLines(string param) {
-            int d = ParseInt(param, 1);
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'L')]
+        private void ProcessInsertLines(NumericParams p) {
+            int d = p.Get(0, 1);
 
             TerminalDocument doc = GetDocument();
             int caret_pos = _manipulator.CaretColumn;
@@ -1036,9 +1184,9 @@ namespace Poderosa.Terminal {
             _manipulator.Load(doc.CurrentLine, caret_pos);
         }
 
-        //これを送ってくるアプリケーションは viで下方スクロール
-        private void ProcessDeleteLines(string param) {
-            int d = ParseInt(param, 1);
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'M')]
+        private void ProcessDeleteLines(NumericParams p) {
+            int d = p.Get(0, 1);
 
             /*
             TerminalDocument doc = GetDocument();
@@ -1064,6 +1212,7 @@ namespace Poderosa.Terminal {
             _manipulator.Load(doc.CurrentLine, caret_col);
         }
 
+#if NOTUSED
         private ProcessCharResult ProcessAfterOSC(string param, char code) {
             int semicolon = param.IndexOf(';');
             if (semicolon == -1)
@@ -1212,13 +1361,179 @@ namespace Poderosa.Terminal {
             else
                 return ProcessCharResult.Unsupported;
         }
+#endif
 
-        private void ProcessSGR(string param) {
+
+        [EscapeSequence(ControlCode.OSC, EscapeSequenceParamType.Text, ControlCode.BEL)]
+        [EscapeSequence(ControlCode.OSC, EscapeSequenceParamType.Text, ControlCode.ST)]
+        private void ProcessOSC(string paramText) {
+            OSCParams p;
+            if (!OSCParams.Parse(paramText, out p)) {
+                throw new UnknownEscapeSequenceException("invalid OSC format");
+            }
+
+            switch (p.GetCode()) {
+                case 0:
+                case 2:
+                    OSCChangeWindowTitle(p);
+                    return;
+
+                case 1:
+                    return;
+
+                case 4:
+                    OSCChangeColorPalette(p);
+                    return;
+
+                default:
+                    throw new UnknownEscapeSequenceException("unsupported OSC code");
+            }
+        }
+
+        private void OSCChangeWindowTitle(OSCParams p) {
+            IDynamicCaptionFormatter[] fmts = TerminalEmulatorPlugin.Instance.DynamicCaptionFormatter;
+            TerminalDocument doc = GetDocument();
+
+            if (fmts.Length > 0) {
+                ITerminalSettings settings = GetTerminalSettings();
+                string title = fmts[0].FormatCaptionUsingWindowTitle(GetConnection().Destination, settings, p.GetText());
+                _afterExitLockActions.Add(new AfterExitLockDelegate(new CaptionChanger(GetTerminalSettings(), title).Do));
+            }
+        }
+
+        private void OSCChangeColorPalette(OSCParams p) {
+            // パレット変更
+            //   形式: OSC 4 ; 色番号 ; 色指定 ST
+            //     色番号: 0～255
+            //     色指定: 以下の形式のどれか
+            //       #rgb
+            //       #rrggbb
+            //       #rrrgggbbb
+            //       #rrrrggggbbbb
+            //       rgb:r/g/b
+            //       rgb:rr/gg/bb
+            //       rgb:rrr/ggg/bbb
+            //       rgb:rrrr/gggg/bbbb
+            //       他にも幾つか形式があるけれど、通常はこれで十分と思われる。
+            //       他の形式は XParseColor(1) を参照
+            //
+            // 参考: http://ttssh2.sourceforge.jp/manual/ja/about/ctrlseq.html#OSC
+            //
+            while (p.HasNextParam()) {
+                int pn;
+                if (!p.TryGetNextInteger(out pn)) {
+                    throw new UnknownEscapeSequenceException("(OSC) invalid color number");
+                }
+                string pv;
+                if (!p.TryGetNextText(out pv)) {
+                    throw new UnknownEscapeSequenceException("(OSC) missing color spec");
+                }
+                if (pn < 0 || pn > 255) {
+                    throw new UnknownEscapeSequenceException("(OSC) unsupported color number");
+                }
+
+                int r, g, b;
+                if (pv.StartsWith("#")) {
+                    switch (pv.Length) {
+                        case 4: // #rgb
+                            if (Int32.TryParse(pv.Substring(1, 1), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out r) &&
+                                Int32.TryParse(pv.Substring(2, 1), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out g) &&
+                                Int32.TryParse(pv.Substring(3, 1), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out b)) {
+                                r <<= 4;
+                                g <<= 4;
+                                b <<= 4;
+                            }
+                            else {
+                                throw new UnknownEscapeSequenceException("(OSC) invalid color spec");
+                            }
+                            break;
+                        case 7: // #rrggbb
+                            if (Int32.TryParse(pv.Substring(1, 2), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out r) &&
+                                Int32.TryParse(pv.Substring(3, 2), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out g) &&
+                                Int32.TryParse(pv.Substring(5, 2), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out b)) {
+                            }
+                            else {
+                                throw new UnknownEscapeSequenceException("(OSC) invalid color spec");
+                            }
+                            break;
+                        case 10: // #rrrgggbbb
+                            if (Int32.TryParse(pv.Substring(1, 3), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out r) &&
+                                Int32.TryParse(pv.Substring(4, 3), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out g) &&
+                                Int32.TryParse(pv.Substring(7, 3), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out b)) {
+                                r >>= 4;
+                                g >>= 4;
+                                b >>= 4;
+                            }
+                            else {
+                                throw new UnknownEscapeSequenceException("(OSC) invalid color spec");
+                            }
+                            break;
+                        case 13: // #rrrrggggbbbb
+                            if (Int32.TryParse(pv.Substring(1, 4), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out r) &&
+                                Int32.TryParse(pv.Substring(5, 4), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out g) &&
+                                Int32.TryParse(pv.Substring(9, 4), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out b)) {
+                                r >>= 8;
+                                g >>= 8;
+                                b >>= 8;
+                            }
+                            else {
+                                throw new UnknownEscapeSequenceException("(OSC) invalid color spec");
+                            }
+                            break;
+                        default:
+                            throw new UnknownEscapeSequenceException("(OSC) unsupported color spec format");
+                    }
+                }
+                else if (pv.StartsWith("rgb:")) { // rgb:rr/gg/bb
+                    string[] vals = pv.Substring(4).Split(new Char[] { '/' });
+                    if (vals.Length == 3
+                        && vals[0].Length == vals[1].Length
+                        && vals[0].Length == vals[2].Length
+                        && vals[0].Length > 0
+                        && vals[0].Length <= 4
+                        && Int32.TryParse(vals[0], NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out r)
+                        && Int32.TryParse(vals[1], NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out g)
+                        && Int32.TryParse(vals[2], NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out b)) {
+                        switch (vals[0].Length) {
+                            case 1:
+                                r <<= 4;
+                                g <<= 4;
+                                b <<= 4;
+                                break;
+                            case 3:
+                                r >>= 4;
+                                g >>= 4;
+                                b >>= 4;
+                                break;
+                            case 4:
+                                r >>= 8;
+                                g >>= 8;
+                                b >>= 8;
+                                break;
+                        }
+                    }
+                    else {
+                        throw new UnknownEscapeSequenceException("(OSC) invalid color spec");
+                    }
+                }
+                else {
+                    throw new UnknownEscapeSequenceException("(OSC) unsupported color spec format");
+                }
+
+                GetRenderProfile().ESColorSet[pn] = new ESColor(Color.FromArgb(r, g, b), true);
+            }
+        }
+
+        [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'm')]
+        private void ProcessSetResourceValues(NumericParams p) {
+            throw new UnknownEscapeSequenceException("not implemented");
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'm')]
+        private void ProcessSGR(NumericParams p) {
             int state = 0, target = 0, r = 0, g = 0, b = 0;
-            string[] ps = param.Split(';');
             TextDecoration dec = _currentdecoration;
-            foreach (string cmd in ps) {
-                int code = ParseSGRCode(cmd);
+            foreach (int code in p.EnumerateWithDefault(0)) {
                 if (state != 0) {
                     switch (state) {
                         case 1:
@@ -1328,19 +1643,6 @@ namespace Poderosa.Terminal {
             }
         Apply:
             _currentdecoration = dec;
-        }
-
-        private int ParseSGRCode(string param) {
-            if (param.Length == 0)
-                return 0;
-            else if (param.Length == 1)
-                return param[0] - '0';
-            else if (param.Length == 2)
-                return (param[0] - '0') * 10 + (param[1] - '0');
-            else if (param.Length == 3)
-                return (param[0] - '0') * 100 + (param[1] - '0') * 10 + (param[2] - '0');
-            else
-                throw new UnknownEscapeSequenceException(String.Format("unknown SGR parameter {0}", param));
         }
 
         private TextDecoration SetForeColorByRGB(TextDecoration dec, int r, int g, int b) {
@@ -1469,136 +1771,168 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //CSI ? Pm h, CSI ? Pm l
-        private ProcessCharResult ProcessDECSET(string param, char code) {
-            //Debug.WriteLine(String.Format("DECSET {0} {1}", param, code));
-            bool set = code == 'h';
-            switch (param) {
-                case "25":
-                    return ProcessCharResult.Processed; //!!Show/Hide Cursorだがとりあえず無視
-                case "1":
-                    ChangeCursorKeyMode(code == 'h' ? TerminalMode.Application : TerminalMode.Normal);
-                    return ProcessCharResult.Processed;
-                case "1047":	//Alternate Buffer
-                    if (set) {
-                        SwitchBuffer(true);
-                        // XTerm doesn't clear screen.
-                    }
-                    else {
-                        ClearScreen();
-                        SwitchBuffer(false);
-                    }
-                    return ProcessCharResult.Processed;
-                case "1048":	//Save/Restore Cursor
-                    if (set)
-                        SaveCursor();
-                    else
-                        RestoreCursor();
-                    return ProcessCharResult.Processed;
-                case "1049":	//Save/Restore Cursor and Alternate Buffer
-                    if (set) {
-                        SaveCursor();
-                        SwitchBuffer(true);
-                        ClearScreen();
-                    }
-                    else {
-                        // XTerm doesn't clear screen for enabling copy/paste from the alternate buffer.
-                        // But we need ClearScreen for emulating the buffer-switch.
-                        ClearScreen();
-                        SwitchBuffer(false);
-                        RestoreCursor();
-                    }
-                    return ProcessCharResult.Processed;
-                case "1000": // DEC VT200 compatible: Send button press and release event with mouse position.
-                    ResetMouseTracking((set) ? MouseTrackingState.Normal : MouseTrackingState.Off);
-                    return ProcessCharResult.Processed;
-                case "1001": // DEC VT200 highlight tracking
-                    // Not supported
-                    ResetMouseTracking(MouseTrackingState.Off);
-                    return ProcessCharResult.Processed;
-                case "1002": // Button-event tracking: Send button press, release, and drag event.
-                    ResetMouseTracking((set) ? MouseTrackingState.Drag : MouseTrackingState.Off);
-                    return ProcessCharResult.Processed;
-                case "1003": // Any-event tracking: Send button press, release, and motion.
-                    ResetMouseTracking((set) ? MouseTrackingState.Any : MouseTrackingState.Off);
-                    return ProcessCharResult.Processed;
-                case "1004": // Send FocusIn/FocusOut events
-                    _focusReportingMode = set;
-                    return ProcessCharResult.Processed;
-                case "1005": // Enable UTF8 Mouse Mode
-                    if (set) {
-                        _mouseTrackingProtocol = MouseTrackingProtocol.Utf8;
-                    }
-                    else {
-                        _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
-                    }
-                    return ProcessCharResult.Processed;
-                case "1006": // Enable SGR Extended Mouse Mode
-                    if (set) {
-                        _mouseTrackingProtocol = MouseTrackingProtocol.Sgr;
-                    }
-                    else {
-                        _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
-                    }
-                    return ProcessCharResult.Processed;
-                case "1015": // Enable UTF8 Extended Mouse Mode
-                    if (set) {
-                        _mouseTrackingProtocol = MouseTrackingProtocol.Urxvt;
-                    }
-                    else {
-                        _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
-                    }
-                    return ProcessCharResult.Processed;
-                case "1034":	// Input 8 bits
-                    return ProcessCharResult.Processed;
-                case "2004":    // Set/Reset bracketed paste mode
-                    _bracketedPasteMode = set;
-                    return ProcessCharResult.Processed;
-                case "3":	//132 Column Mode
-                    return ProcessCharResult.Processed;
-                case "4":	//Smooth Scroll なんのことやら
-                    return ProcessCharResult.Processed;
-                case "5":
-                    SetReverseVideo(set);
-                    return ProcessCharResult.Processed;
-                case "6":	//Origin Mode
-                    _scrollRegionRelative = set;
-                    return ProcessCharResult.Processed;
-                case "7":
-                    _wrapAroundMode = set;
-                    return ProcessCharResult.Processed;
-                case "12":
-                    //一応報告あったので。SETMODEの12ならローカルエコーなんだがな
-                    return ProcessCharResult.Processed;
-                case "47":
-                    if (set)
-                        SwitchBuffer(true);
-                    else
-                        SwitchBuffer(false);
-                    return ProcessCharResult.Processed;
-                default:
-                    return ProcessCharResult.Unsupported;
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'h')]
+        private void ProcessDECSET(NumericParams p) {
+            DoDECSET(p, true);
+        }
+
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'l')]
+        private void ProcessDECRST(NumericParams p) {
+            DoDECSET(p, false);
+        }
+
+        private void DoDECSET(NumericParams p, bool set) {
+            bool unknownCode = false;
+            foreach (int param in p.EnumerateWithoutNull()) {
+                switch (param) {
+                    case 25: // Show/hide cursor
+                        break; //!!Show/Hide Cursorだがとりあえず無視
+                    case 1:
+                        ChangeCursorKeyMode(set ? TerminalMode.Application : TerminalMode.Normal);
+                        break;
+                    case 1047:	//Alternate Buffer
+                        if (set) {
+                            SwitchBuffer(true);
+                            // XTerm doesn't clear screen.
+                        }
+                        else {
+                            ClearScreen();
+                            SwitchBuffer(false);
+                        }
+                        break;
+                    case 1048:	//Save/Restore Cursor
+                        if (set)
+                            SaveCursor();
+                        else
+                            RestoreCursor();
+                        break;
+                    case 1049:	//Save/Restore Cursor and Alternate Buffer
+                        if (set) {
+                            SaveCursor();
+                            SwitchBuffer(true);
+                            ClearScreen();
+                        }
+                        else {
+                            // XTerm doesn't clear screen for enabling copy/paste from the alternate buffer.
+                            // But we need ClearScreen for emulating the buffer-switch.
+                            ClearScreen();
+                            SwitchBuffer(false);
+                            RestoreCursor();
+                        }
+                        break;
+                    case 1000: // DEC VT200 compatible: Send button press and release event with mouse position.
+                        ResetMouseTracking((set) ? MouseTrackingState.Normal : MouseTrackingState.Off);
+                        break;
+                    case 1001: // DEC VT200 highlight tracking
+                        // Not supported
+                        ResetMouseTracking(MouseTrackingState.Off);
+                        break;
+                    case 1002: // Button-event tracking: Send button press, release, and drag event.
+                        ResetMouseTracking((set) ? MouseTrackingState.Drag : MouseTrackingState.Off);
+                        break;
+                    case 1003: // Any-event tracking: Send button press, release, and motion.
+                        ResetMouseTracking((set) ? MouseTrackingState.Any : MouseTrackingState.Off);
+                        break;
+                    case 1004: // Send FocusIn/FocusOut events
+                        _focusReportingMode = set;
+                        break;
+                    case 1005: // Enable UTF8 Mouse Mode
+                        if (set) {
+                            _mouseTrackingProtocol = MouseTrackingProtocol.Utf8;
+                        }
+                        else {
+                            _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
+                        }
+                        break;
+                    case 1006: // Enable SGR Extended Mouse Mode
+                        if (set) {
+                            _mouseTrackingProtocol = MouseTrackingProtocol.Sgr;
+                        }
+                        else {
+                            _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
+                        }
+                        break;
+                    case 1015: // Enable UTF8 Extended Mouse Mode
+                        if (set) {
+                            _mouseTrackingProtocol = MouseTrackingProtocol.Urxvt;
+                        }
+                        else {
+                            _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
+                        }
+                        break;
+                    case 1034:	// Input 8 bits
+                        break;
+                    case 2004:    // Set/Reset bracketed paste mode
+                        _bracketedPasteMode = set;
+                        break;
+                    case 3:	//132 Column Mode
+                        break;
+                    case 4:	//Smooth Scroll なんのことやら
+                        break;
+                    case 5:
+                        SetReverseVideo(set);
+                        break;
+                    case 6:	//Origin Mode
+                        _scrollRegionRelative = set;
+                        break;
+                    case 7:
+                        _wrapAroundMode = set;
+                        break;
+                    case 12:
+                        //一応報告あったので。SETMODEの12ならローカルエコーなんだがな
+                        break;
+                    case 47:
+                        if (set)
+                            SwitchBuffer(true);
+                        else
+                            SwitchBuffer(false);
+                        break;
+                    default:
+                        unknownCode = true;
+                        break;
+                }
+            }
+            if (unknownCode) {
+                throw new UnknownEscapeSequenceException("unsupported DECSET/DECRST code");
             }
         }
 
-        private ProcessCharResult ProcessSaveDECSET(string param, char code) {
-            switch (param) {
-                case "1047":
-                case "47":
-                    _savedMode_isAlternateBuffer = _isAlternateBuffer;
-                    break;
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 's')]
+        private void ProcessSaveDECSET(NumericParams p) {
+            bool unknownCode = false;
+            foreach (int param in p.EnumerateWithoutNull()) {
+                switch (param) {
+                    case 1047:
+                    case 47:
+                        _savedMode_isAlternateBuffer = _isAlternateBuffer;
+                        break;
+                    default:
+                        unknownCode = true;
+                        break;
+                }
             }
-            return ProcessCharResult.Processed;
+            if (unknownCode) {
+                throw new UnknownEscapeSequenceException("unsupported DECSET code to save");
+            }
         }
 
-        private ProcessCharResult ProcessRestoreDECSET(string param, char code) {
-            switch (param) {
-                case "1047":
-                case "47":
-                    SwitchBuffer(_savedMode_isAlternateBuffer);
-                    break;
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'r')]
+        private void ProcessRestoreDECSET(NumericParams p) {
+            bool unknownCode = false;
+            foreach (int param in p.EnumerateWithoutNull()) {
+                switch (param) {
+                    case 1047:
+                    case 47:
+                        SwitchBuffer(_savedMode_isAlternateBuffer);
+                        break;
+                    default:
+                        unknownCode = true;
+                        break;
+                }
             }
-            return ProcessCharResult.Processed;
+            if (unknownCode) {
+                throw new UnknownEscapeSequenceException("unsupported DECSET code to restore");
+            }
         }
 
         private void ResetMouseTracking(MouseTrackingState newState) {
@@ -1615,34 +1949,36 @@ namespace Poderosa.Terminal {
             _mouseTrackingState = newState;
         }
 
-        private void ProcessLinePositionAbsolute(string param) {
-            foreach (string p in param.Split(';')) {
-                int row = ParseInt(p, 1);
-                if (row < 1)
-                    row = 1;
-                if (row > GetDocument().TerminalHeight)
-                    row = GetDocument().TerminalHeight;
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'd')]
+        private void ProcessLinePositionAbsolute(NumericParams p) {
+            int row = p.Get(0, 1);
+            if (row < 1)
+                row = 1;
+            if (row > GetDocument().TerminalHeight)
+                row = GetDocument().TerminalHeight;
 
-                int col = _manipulator.CaretColumn;
+            int col = _manipulator.CaretColumn;
 
-                //以下はCSI Hとほぼ同じ
-                GetDocument().UpdateCurrentLine(_manipulator);
-                GetDocument().CurrentLineNumber = (GetDocument().TopLineNumber + row - 1);
-                _manipulator.Load(GetDocument().CurrentLine, col);
-            }
+            //以下はCSI Hとほぼ同じ
+            GetDocument().UpdateCurrentLine(_manipulator);
+            GetDocument().CurrentLineNumber = (GetDocument().TopLineNumber + row - 1);
+            _manipulator.Load(GetDocument().CurrentLine, col);
         }
-        private void ProcessLineColumnAbsolute(string param) {
-            foreach (string p in param.Split(';')) {
-                int n = ParseInt(p, 1);
-                if (n < 1)
-                    n = 1;
-                if (n > GetDocument().TerminalWidth)
-                    n = GetDocument().TerminalWidth;
-                _manipulator.CaretColumn = n - 1;
-            }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'G')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '`')]
+        private void ProcessLineColumnAbsolute(NumericParams p) {
+            int n = p.Get(0, 1);
+            if (n < 1)
+                n = 1;
+            if (n > GetDocument().TerminalWidth)
+                n = GetDocument().TerminalWidth;
+            _manipulator.CaretColumn = n - 1;
         }
-        private void ProcessEraseChars(string param) {
-            int n = ParseInt(param, 1);
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'X')]
+        private void ProcessEraseChars(NumericParams p) {
+            int n = p.Get(0, 1);
             int s = _manipulator.CaretColumn;
             for (int i = 0; i < n; i++) {
                 _manipulator.PutChar(UnicodeChar.ASCII_SPACE, _currentdecoration);
@@ -1651,8 +1987,22 @@ namespace Poderosa.Terminal {
             }
             _manipulator.CaretColumn = s;
         }
-        private void ProcessScrollUp(string param) {
-            int d = ParseInt(param, 1);
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'P')]
+        private void ProcessDeleteChars(NumericParams p) {
+            int n = p.Get(0, 1);
+            _manipulator.DeleteChars(_manipulator.CaretColumn, n, _currentdecoration);
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '@')]
+        private void ProcessInsertBlankCharacters(NumericParams p) {
+            int n = p.Get(0, 1);
+            _manipulator.InsertBlanks(_manipulator.CaretColumn, n, _currentdecoration);
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'S')]
+        private void ProcessScrollUp(NumericParams p) {
+            int d = p.Get(0, 1);
 
             TerminalDocument doc = GetDocument();
             int caret_col = _manipulator.CaretColumn;
@@ -1666,8 +2016,10 @@ namespace Poderosa.Terminal {
             }
             _manipulator.Load(doc.CurrentLine, caret_col);
         }
-        private void ProcessScrollDown(string param) {
-            int d = ParseInt(param, 1);
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'T')]
+        private void ProcessScrollDown(NumericParams p) {
+            int d = p.Get(0, 1);
 
             TerminalDocument doc = GetDocument();
             int caret_col = _manipulator.CaretColumn;
@@ -1681,8 +2033,10 @@ namespace Poderosa.Terminal {
             }
             _manipulator.Load(doc.CurrentLine, caret_col);
         }
-        private void ProcessForwardTab(string param) {
-            int n = ParseInt(param, 1);
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'I')]
+        private void ProcessForwardTab(NumericParams p) {
+            int n = p.Get(0, 1);
 
             int t = _manipulator.CaretColumn;
             for (int i = 0; i < n; i++)
@@ -1691,8 +2045,10 @@ namespace Poderosa.Terminal {
                 t = GetDocument().TerminalWidth - 1;
             _manipulator.CaretColumn = t;
         }
-        private void ProcessBackwardTab(string param) {
-            int n = ParseInt(param, 1);
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'Z')]
+        private void ProcessBackwardTab(NumericParams p) {
+            int n = p.Get(0, 1);
 
             int t = _manipulator.CaretColumn;
             for (int i = 0; i < n; i++)
@@ -1701,10 +2057,13 @@ namespace Poderosa.Terminal {
                 t = 0;
             _manipulator.CaretColumn = t;
         }
-        private void ProcessTabClear(string param) {
-            if (param == "0")
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'g')]
+        private void ProcessTabClear(NumericParams p) {
+            int param = p.Get(0, 0);
+            if (param == 0)
                 SetTabStop(_manipulator.CaretColumn, false);
-            else if (param == "3")
+            else if (param == 3)
                 ClearAllTabStop();
         }
 
@@ -1723,6 +2082,12 @@ namespace Poderosa.Terminal {
                 _tabStops = newarray;
             }
         }
+
+        [EscapeSequence(ControlCode.HTS)]
+        private void ProcessHTS() {
+            SetTabStop(_manipulator.CaretColumn, true);
+        }
+
         private void SetTabStop(int index, bool value) {
             EnsureTabStops(index + 1);
             _tabStops[index] = value;
@@ -1756,6 +2121,11 @@ namespace Poderosa.Terminal {
                 index--;
             }
             return 0;
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 't')]
+        private void ProcessWindowManipulation(NumericParams p) {
+            // TODO
         }
 
         private void SwitchBuffer(bool toAlternate) {
@@ -1800,13 +2170,23 @@ namespace Poderosa.Terminal {
         }
 
         private void ClearScreen() {
-            ProcessEraseInDisplay("2");
+            ProcessEraseInDisplay(2);
+        }
+
+        [EscapeSequence(ControlCode.ESC, '7')]
+        private void ProcessDECSC() {
+            SaveCursor();
         }
 
         private void SaveCursor() {
             int sw = _isAlternateBuffer ? 1 : 0;
             _xtermSavedRow[sw] = GetDocument().CurrentLineNumber - GetDocument().TopLineNumber;
             _xtermSavedCol[sw] = _manipulator.CaretColumn;
+        }
+
+        [EscapeSequence(ControlCode.ESC, '8')]
+        private void ProcessDECRC() {
+            RestoreCursor();
         }
 
         private void RestoreCursor() {
@@ -1825,13 +2205,9 @@ namespace Poderosa.Terminal {
             GetDocument().InvalidatedRegion.InvalidatedAll = true; //全体再描画を促す
         }
 
-        private ProcessCharResult SoftTerminalReset(string param) {
-            if (param == "!") {
-                FullReset();
-                return ProcessCharResult.Processed;
-            }
-            else
-                return ProcessCharResult.Unsupported;
+        [EscapeSequence(ControlCode.CSI, '!', 'p')]
+        private void SoftTerminalReset() {
+            FullReset();
         }
 
         internal override byte[] SequenceKeyData(Keys modifier, Keys key) {
@@ -2084,9 +2460,19 @@ namespace Poderosa.Terminal {
         }
 #endif
 
+        [EscapeSequence(ControlCode.ESC, 'c')]
+        private void ProcessRIS() {
+            FullReset();
+        }
+
         public override void FullReset() {
             InitTabStops();
             base.FullReset();
+        }
+
+        [EscapeSequence(ControlCode.DCS, EscapeSequenceParamType.Text, ControlCode.ST)]
+        private void ProcessDCS(string p) {
+            // TODO
         }
 
         //FormatExceptionのほかにOverflowExceptionの可能性もあるので
@@ -2100,32 +2486,6 @@ namespace Poderosa.Terminal {
             catch (Exception ex) {
                 throw new UnknownEscapeSequenceException(String.Format("bad number format [{0}] : {1}", param, ex.Message));
             }
-        }
-
-        private static IntPair ParseIntPair(string param, int default_first, int default_second) {
-            IntPair ret = new IntPair(default_first, default_second);
-
-            string[] s = param.Split(';');
-
-            if (s.Length >= 1 && s[0].Length > 0) {
-                try {
-                    ret.first = Int32.Parse(s[0]);
-                }
-                catch (Exception ex) {
-                    throw new UnknownEscapeSequenceException(String.Format("bad number format [{0}] : {1}", s[0], ex.Message));
-                }
-            }
-
-            if (s.Length >= 2 && s[1].Length > 0) {
-                try {
-                    ret.second = Int32.Parse(s[1]);
-                }
-                catch (Exception ex) {
-                    throw new UnknownEscapeSequenceException(String.Format("bad number format [{0}] : {1}", s[1], ex.Message));
-                }
-            }
-
-            return ret;
         }
 
         //動的変更用
@@ -2142,57 +2502,6 @@ namespace Poderosa.Terminal {
                 _settings.EndUpdate();
             }
         }
-
-        #region Preprocessor
-
-        private class Preprocessor {
-            private bool _gotEscape = false;
-
-            public void Process(char ch, out char? r1, out char? r2) {
-                if (_gotEscape) {
-                    _gotEscape = false;
-
-                    if (ch == '\\') {
-                        // ESC \ --> ST (9C)
-                        // Note:
-                        //  The conversion of "ESC ch" pair is applied
-                        //  only for the "ESC \" case because it may be used
-                        //  for terminating the escape sequence.
-                        //  After this conversion, we can consider ESC as the start
-                        //  of the new escape sequence.
-                        r1 = ControlCode.ST;
-                        r2 = null;
-                        return;
-                    }
-
-                    if (ch == ControlCode.ESC) {
-                        _gotEscape = true;
-                        r1 = ControlCode.ESC; // previous char
-                        r2 = null;
-                        return;
-                    }
-
-                    r1 = ControlCode.ESC;
-                    r2 = ch;
-                    return;
-                }
-
-                if (ch == ControlCode.ESC) {
-                    _gotEscape = true;
-                    r1 = r2 = null;
-                    return;
-                }
-
-                r1 = ch;
-                r2 = null;
-            }
-
-            public void Reset() {
-                _gotEscape = false;
-            }
-        }
-
-        #endregion
     }
 
     /// <summary>
