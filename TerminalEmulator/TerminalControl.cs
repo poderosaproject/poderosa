@@ -481,11 +481,8 @@ namespace Poderosa.Terminal {
                 ch = (char)((int)ch % 32); //Controlを押したら制御文字
 
             if (act == AltKeyAction.ESC) {
-                byte[] t = new byte[2];
-                t[0] = 0x1B;
-                t[1] = (byte)ch;
                 //Debug.WriteLine("ESC " + (int)ch);
-                SendBytes(t);
+                SendBytes(new byte[] { 0x1b, (byte)ch });
             }
             else { //Meta
                 ch = (char)(0x80 + ch);
