@@ -97,37 +97,16 @@ namespace Poderosa.Terminal {
             InitTabStops();
         }
 
-        private string ConvertEscapeSequenceToPrintable(string sequence) {
-            return sequence.Aggregate(
-                new StringBuilder(),
-                (s, ch) => {
-                    string controlName = ControlCode.ToName(ch);
-                    if (controlName != null) {
-                        s.Append('<').Append(controlName).Append('>');
-                    }
-                    else if (ch < 0x20 || ch > 0x7e) {
-                        s.AppendFormat("<{0:x2}>", (int)ch);
-                    }
-                    else {
-                        s.Append(ch);
-                    }
-                    return s;
-                }
-            )
-            .ToString();
-        }
-
         private void HandleIncompleteEscapeSequence(string sequence) {
-            RuntimeUtil.SilentReportException(new UnknownEscapeSequenceException("Incomplete escape sequence: " + ConvertEscapeSequenceToPrintable(sequence)));
+            RuntimeUtil.SilentReportException(new IncompleteEscapeSequenceException("Incomplete escape sequence", sequence));
         }
 
         private void HandleException(Exception ex, string sequence) {
             if (ex is UnknownEscapeSequenceException) {
                 CharDecodeError(
-                    String.Format("{0}: {1} ({2})",
+                    String.Format("{0}: {1}",
                         GEnv.Strings.GetString("Message.EscapesequenceTerminal.UnsupportedSequence"),
-                        ex.Message,
-                        ConvertEscapeSequenceToPrintable(sequence)
+                        ex.Message
                     )
                 );
             }

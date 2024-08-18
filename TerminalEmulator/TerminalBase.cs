@@ -687,9 +687,4 @@ namespace Poderosa.Terminal {
         void InvalidCharDetected(byte[] data);
     }
 
-    internal class UnknownEscapeSequenceException : Exception {
-        public UnknownEscapeSequenceException(string msg)
-            : base(msg) {
-        }
-    }
 }

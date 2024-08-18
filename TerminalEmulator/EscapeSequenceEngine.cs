@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 
 namespace Poderosa.Terminal.EscapeSequence {
 
@@ -163,6 +164,7 @@ namespace Poderosa.Terminal.EscapeSequence {
     /// <para>This class defines internal classes for the implementation of <see cref="EscapeSequenceEngine{T}"/>.</para>
     /// </summary>
     internal abstract class EscapeSequenceEngineBase {
+
         #region Context
 
         /// <summary>
@@ -674,6 +676,24 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         #endregion
 
+        #region Thread-local context
+
+        // Context temporarily stored in thread-local during the escape sequence handler being called
+        protected static readonly ThreadLocal<Context> _currentThreadContext = new ThreadLocal<Context>();
+
+        /// <summary>
+        /// Get the escape sequence captured in the current thread.
+        /// </summary>
+        /// <remarks>
+        /// <para>This method is used to obtain the captured escape sequence when an EscapeSequenceHandlerException is thrown.</para>
+        /// </remarks>
+        /// <returns>escape sequence</returns>
+        public static string GetCurrentThreadEscapeSequence() {
+            return (_currentThreadContext.Value != null) ? _currentThreadContext.Value.GetBufferedText() : null;
+        }
+
+        #endregion
+
         /// <summary>
         /// Register escape sequence handlers marked with EscapeSequenceAttribute.
         /// </summary>
@@ -826,7 +846,9 @@ namespace Poderosa.Terminal.EscapeSequence {
             }
 
             try {
+                _currentThreadContext.Value = _context;
                 final.Action(instance, _context);
+                _currentThreadContext.Value = null;
             }
             catch (Exception e) {
                 var ie = e as TargetInvocationException;
@@ -858,6 +880,56 @@ namespace Poderosa.Terminal.EscapeSequence {
             return _root.Dump();
         }
 #endif
+    }
+
+    internal class EscapeSequenceHandlerException : Exception {
+
+        public EscapeSequenceHandlerException(string message)
+            : base(AddCapturedEscapeSequence(message)) {
+        }
+
+        public EscapeSequenceHandlerException(string message, string escapeSequence)
+            : base(AddEscapeSequence(message, escapeSequence)) {
+        }
+
+        private static string AddCapturedEscapeSequence(string message) {
+            string captured = EscapeSequenceEngineBase.GetCurrentThreadEscapeSequence();
+            if (captured == null) {
+                return message;
+            }
+            return AddEscapeSequence(message, captured);
+        }
+
+        private static string AddEscapeSequence(string message, string escapeSequence) {
+            StringBuilder s = new StringBuilder();
+            s.Append(message).Append(" : ");
+
+            foreach (char ch in escapeSequence) {
+                string controlName = ControlCode.ToName(ch);
+                if (controlName != null) {
+                    s.Append('<').Append(controlName).Append('>');
+                }
+                else if (ch < 0x20 || ch > 0x7e) {
+                    s.AppendFormat("<#{0:X2}>", (int)ch);
+                }
+                else {
+                    s.Append(ch);
+                }
+            }
+            return s.ToString();
+        }
+    }
+
+    internal class UnknownEscapeSequenceException : EscapeSequenceHandlerException {
+        public UnknownEscapeSequenceException(string msg)
+            : base(msg) {
+        }
+    }
+
+    internal class IncompleteEscapeSequenceException : EscapeSequenceHandlerException {
+        public IncompleteEscapeSequenceException(string msg, string sequence)
+            : base(msg, sequence) {
+        }
     }
 
     /// <summary>
