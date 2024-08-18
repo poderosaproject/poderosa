@@ -606,7 +606,7 @@ namespace Poderosa.Terminal {
         public const char PM = '\u009e';
         public const char APC = '\u009f';
 
-        private static readonly string[] _controlCodeTextMap;
+        private static readonly string[] _controlCodeNameTable;
 
         static ControlCode() {
             List<string> map = new List<string>();
@@ -619,11 +619,11 @@ namespace Poderosa.Terminal {
                     map[value] = f.Name;
                 }
             }
-            _controlCodeTextMap = map.ToArray();
+            _controlCodeNameTable = map.ToArray();
         }
 
         public static string ToName(char ch) {
-            return (ch < _controlCodeTextMap.Length) ? _controlCodeTextMap[ch] : null;
+            return (ch < _controlCodeNameTable.Length) ? _controlCodeNameTable[ch] : null;
         }
     }
 
@@ -690,16 +690,6 @@ namespace Poderosa.Terminal {
     internal class UnknownEscapeSequenceException : Exception {
         public UnknownEscapeSequenceException(string msg)
             : base(msg) {
-        }
-    }
-
-    internal struct IntPair {
-        public int first;
-        public int second;
-
-        public IntPair(int f, int s) {
-            first = f;
-            second = s;
         }
     }
 }
