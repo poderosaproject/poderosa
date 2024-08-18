@@ -783,8 +783,18 @@ namespace Poderosa.Terminal.EscapeSequence {
         public EscapeSequenceEngine(Action<Exception, string> exceptionHandler, Action<string> incompleteHandler) {
             lock (_initializeSync) {
                 if (!_initialized) {
+#if DEBUG
+                    long before = GC.GetTotalMemory(true);
+#endif
                     RegisterHandlers(_root, typeof(T));
+#if DEBUG
+                    long after = GC.GetTotalMemory(true);
+#endif
                     _initialized = true;
+
+#if DEBUG
+                    System.Diagnostics.Debug.WriteLine("Size of the escape sequence state table : {0} bytes", after - before);
+#endif
                 }
             }
             _currentState = _root;
