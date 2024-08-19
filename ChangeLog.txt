@@ -1,3 +1,21 @@
+4.7.0
+-----
+    * Added support for the AES-GCM as the cipher/MAC algorithms:
+      "aes128-gcm@openssh.com", "aes256-gcm@openssh.com", "AEAD_AES_128_GCM"
+      and "AEAD_AES_256_GCM".
+      These algorithms are set to a lower priority by default due to their
+      higher CPU usage.
+      You can adjust their priority in the "SSH" section of the "Option Settings"
+      dialog.
+
+    * Changed the initial focus to the hostname field when opening
+      the New Session dialog.
+
+    * Fix: An error may occur when saving the configuration file after the MRU size
+      has been changed.
+
+    * Moved test codes of Granados to GranadosTest.
+
 4.6.0
 -----
     * Supports KEX algorithm "curve25519-sha256@libssh.org."
