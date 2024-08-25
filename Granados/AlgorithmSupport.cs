@@ -163,9 +163,13 @@ namespace Granados.Crypto {
                 case CipherAlgorithm.AES256CTR:
                     return new string[] { "aes256-ctr" };
                 case CipherAlgorithm.AES128GCM:
-                    return new string[] { "AEAD_AES_128_GCM", "aes128-gcm@openssh.com" };
+                    // "aes128-gcm@openssh.com" is more preferred over AEAD_AES_128_GCM
+                    // because it provides how to select correct MAC algorithm.
+                    return new string[] { "aes128-gcm@openssh.com", "AEAD_AES_128_GCM" };
                 case CipherAlgorithm.AES256GCM:
-                    return new string[] { "AEAD_AES_256_GCM", "aes256-gcm@openssh.com" };
+                    // "aes256-gcm@openssh.com" is more preferred over AEAD_AES_256_GCM
+                    // because it provides how to select correct MAC algorithm.
+                    return new string[] { "aes256-gcm@openssh.com", "AEAD_AES_256_GCM" };
                 default:
                     throw new SSHException("unknown algorithm " + algorithm);
             }
