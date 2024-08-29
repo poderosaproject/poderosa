@@ -13,6 +13,7 @@
 // limitations under the License.
 #if UNITTEST
 using NUnit.Framework;
+using Poderosa.Serializing;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -43,7 +44,8 @@ namespace Poderosa.View {
             prof1.ESColorSet = new EscapesequenceColorSet();
             prof1.ESColorSet[1] = new ESColor(Color.Pink, true);
 
-            StructuredText storage = _renderProfileSerializer.Serialize(prof1);
+            SerializationOptions opt = new SerializationOptions();
+            StructuredText storage = _renderProfileSerializer.Serialize(prof1, opt);
             //確認
             StringWriter wr = new StringWriter();
             new TextStructuredTextWriter(wr).Write(storage);

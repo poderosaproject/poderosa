@@ -75,9 +75,9 @@ namespace Poderosa.Util.Collections {
         }
 
         //個数の上限を決めて切る
-        public void LimitCount(int value) {
-            if (_data.Count > value) {
-                _data.RemoveRange(_data.Count - 1, _data.Count - value);
+        public void LimitCount(int limit) {
+            if (_data.Count > limit) {
+                _data.RemoveRange(limit, _data.Count - limit);
             }
         }
 

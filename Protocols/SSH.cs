@@ -110,22 +110,20 @@ namespace Poderosa.Protocols {
             }
 
             byte[] key = Encoding.ASCII.GetBytes("- BOBO VIERI 32-");
-            Granados.Algorithms.Rijndael rijndael = new Granados.Algorithms.Rijndael();
-            rijndael.InitializeKey(key);
+            var aes = new Granados.Algorithms.AESBlockCipherCBC(key);
 
             byte[] e = new byte[t.Length];
-            rijndael.encryptCBC(t, 0, t.Length, e, 0);
+            aes.Encrypt(t, 0, t.Length, e, 0);
 
             return Encoding.ASCII.GetString(Granados.Util.Base64.Encode(e));
         }
         public static string SimpleDecrypt(string enc) {
             byte[] t = Granados.Util.Base64.Decode(Encoding.ASCII.GetBytes(enc));
             byte[] key = Encoding.ASCII.GetBytes("- BOBO VIERI 32-");
-            Granados.Algorithms.Rijndael rijndael = new Granados.Algorithms.Rijndael();
-            rijndael.InitializeKey(key);
+            var aes = new Granados.Algorithms.AESBlockCipherCBC(key);
 
             byte[] d = new byte[t.Length];
-            rijndael.decryptCBC(t, 0, t.Length, d, 0);
+            aes.Decrypt(t, 0, t.Length, d, 0);
 
             return Encoding.ASCII.GetString(d); //パディングがあってもNULL文字になるので除去されるはず
         }

@@ -12,14 +12,34 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace Granados.Crypto {
-    /*
-     * Cipher
-     *  The numbers at the tail of the class names indicates the version of SSH protocol.
-     *  The difference between V1 and V2 is the CBC procedure
-     */
+
+    /// <summary>
+    /// SSH Cipher interface
+    /// </summary>
     internal interface Cipher {
-        void Encrypt(byte[] data, int offset, int len, byte[] result, int result_offset);
-        void Decrypt(byte[] data, int offset, int len, byte[] result, int result_offset);
+        /// <summary>
+        /// Encrypt plaintext.
+        /// </summary>
+        /// <param name="data">plaintext data buffer</param>
+        /// <param name="offset">offset position on <paramref name="data"/> to read plaintext</param>
+        /// <param name="length">plaintext length</param>
+        /// <param name="result">output buffer</param>
+        /// <param name="resultOffset">offset position on <paramref name="result"/> to write ciphertext</param>
+        void Encrypt(byte[] data, int offset, int length, byte[] result, int resultOffset);
+
+        /// <summary>
+        /// Decrypt ciphertext.
+        /// </summary>
+        /// <param name="data">ciphertext data buffer</param>
+        /// <param name="offset">offset position on <paramref name="data"/> to read ciphertext</param>
+        /// <param name="length">ciphertext length</param>
+        /// <param name="result">output buffer</param>
+        /// <param name="resultOffset">offset position on <paramref name="result"/> to write plaintext</param>
+        void Decrypt(byte[] data, int offset, int length, byte[] result, int resultOffset);
+
+        /// <summary>
+        /// Block size of the cipher algorithm (in bytes).
+        /// </summary>
         int BlockSize {
             get;
         }
@@ -67,7 +87,10 @@ namespace Granados.Crypto {
                     case CipherAlgorithm.AES128CTR:
                     case CipherAlgorithm.AES192CTR:
                     case CipherAlgorithm.AES256CTR:
-                        return new SSH2.RijindaelCipher2(key, iv, algorithm);
+                        return new SSH2.AESCipher2(key, iv, algorithm);
+                    case CipherAlgorithm.AES128GCM:
+                    case CipherAlgorithm.AES256GCM:
+                        return new SSH2.AESGCMCipher2(key, iv);
                     default:
                         throw new SSHException("unknown algorithm " + algorithm);
                 }
@@ -84,21 +107,24 @@ namespace Granados.Crypto {
                 case CipherAlgorithm.Blowfish:
                 case CipherAlgorithm.AES128:
                 case CipherAlgorithm.AES128CTR:
+                case CipherAlgorithm.AES128GCM:
                     return 16;
                 case CipherAlgorithm.AES192:
                 case CipherAlgorithm.AES192CTR:
                     return 24;
                 case CipherAlgorithm.AES256:
                 case CipherAlgorithm.AES256CTR:
+                case CipherAlgorithm.AES256GCM:
                     return 32;
                 default:
                     throw new SSHException("unknown algorithm " + algorithm);
             }
         }
+
         /// <summary>
-        /// returns the block size from Algorithm in bytes
+        /// returns the IV size from Algorithm in bytes
         /// </summary>
-        public static int GetBlockSize(CipherAlgorithm algorithm) {
+        public static int GetIVSize(CipherAlgorithm algorithm) {
             switch (algorithm) {
                 case CipherAlgorithm.TripleDES:
                 case CipherAlgorithm.Blowfish:
@@ -110,28 +136,40 @@ namespace Granados.Crypto {
                 case CipherAlgorithm.AES192CTR:
                 case CipherAlgorithm.AES256CTR:
                     return 16;
+                case CipherAlgorithm.AES128GCM:
+                case CipherAlgorithm.AES256GCM:
+                    return 12;
                 default:
                     throw new SSHException("unknown algorithm " + algorithm);
             }
         }
-        public static string AlgorithmToSSH2Name(CipherAlgorithm algorithm) {
+
+        public static string[] AlgorithmToSSH2Name(CipherAlgorithm algorithm) {
             switch (algorithm) {
                 case CipherAlgorithm.TripleDES:
-                    return "3des-cbc";
+                    return new string[] { "3des-cbc" };
                 case CipherAlgorithm.Blowfish:
-                    return "blowfish-cbc";
+                    return new string[] { "blowfish-cbc" };
                 case CipherAlgorithm.AES128:
-                    return "aes128-cbc";
+                    return new string[] { "aes128-cbc" };
                 case CipherAlgorithm.AES192:
-                    return "aes192-cbc";
+                    return new string[] { "aes192-cbc" };
                 case CipherAlgorithm.AES256:
-                    return "aes256-cbc";
+                    return new string[] { "aes256-cbc" };
                 case CipherAlgorithm.AES128CTR:
-                    return "aes128-ctr";
+                    return new string[] { "aes128-ctr" };
                 case CipherAlgorithm.AES192CTR:
-                    return "aes192-ctr";
+                    return new string[] { "aes192-ctr" };
                 case CipherAlgorithm.AES256CTR:
-                    return "aes256-ctr";
+                    return new string[] { "aes256-ctr" };
+                case CipherAlgorithm.AES128GCM:
+                    // "aes128-gcm@openssh.com" is more preferred over AEAD_AES_128_GCM
+                    // because it provides how to select correct MAC algorithm.
+                    return new string[] { "aes128-gcm@openssh.com", "AEAD_AES_128_GCM" };
+                case CipherAlgorithm.AES256GCM:
+                    // "aes256-gcm@openssh.com" is more preferred over AEAD_AES_256_GCM
+                    // because it provides how to select correct MAC algorithm.
+                    return new string[] { "aes256-gcm@openssh.com", "AEAD_AES_256_GCM" };
                 default:
                     throw new SSHException("unknown algorithm " + algorithm);
             }
@@ -154,6 +192,12 @@ namespace Granados.Crypto {
                     return CipherAlgorithm.AES192CTR;
                 case "aes256-ctr":
                     return CipherAlgorithm.AES256CTR;
+                case "AEAD_AES_128_GCM":
+                case "aes128-gcm@openssh.com":
+                    return CipherAlgorithm.AES128GCM;
+                case "AEAD_AES_256_GCM":
+                case "aes256-gcm@openssh.com":
+                    return CipherAlgorithm.AES256GCM;
                 default:
                     throw new SSHException("Unknown algorithm " + name);
             }
@@ -202,6 +246,28 @@ namespace Granados.Crypto {
         }
 
         /// <summary>
+        /// NULL implementation class of the interface <see cref="MAC"/>.
+        /// This object is used as a fake MAC algorithm object if the cipher algorithm was AEAD_AES_128_GCM or AEAD_AES_256_GCM.
+        /// </summary>
+        private class MACNullImpl : MAC {
+            private readonly int _size;
+
+            public MACNullImpl(int size) {
+                _size = size;
+            }
+
+            public byte[] ComputeHash(byte[] data, int offset, int length) {
+                return new byte[_size];
+            }
+
+            public int Size {
+                get {
+                    return _size;
+                }
+            }
+        }
+
+        /// <summary>
         /// Creates a <see cref="MAC"/> object.
         /// </summary>
         /// <param name="algorithm">MAC algorithm</param>
@@ -215,6 +281,9 @@ namespace Granados.Crypto {
                     return new MACImpl(new HMACSHA256(key));
                 case MACAlgorithm.HMACSHA512:
                     return new MACImpl(new HMACSHA512(key));
+                case MACAlgorithm.AEAD_AES_128_GCM:
+                case MACAlgorithm.AEAD_AES_256_GCM:
+                    return new MACNullImpl(16);
                 default:
                     throw new SSHException("unknown algorithm " + algorithm);
             }
@@ -233,6 +302,9 @@ namespace Granados.Crypto {
                     return 32;
                 case MACAlgorithm.HMACSHA512:
                     return 64;
+                case MACAlgorithm.AEAD_AES_128_GCM:
+                case MACAlgorithm.AEAD_AES_256_GCM:
+                    return 16;
                 default:
                     throw new SSHException("unknown algorithm " + algorithm);
             }
@@ -243,14 +315,18 @@ namespace Granados.Crypto {
         /// </summary>
         /// <param name="algorithm">MAC algorithm</param>
         /// <returns></returns>
-        public static string AlgorithmToSSH2Name(MACAlgorithm algorithm) {
+        public static string[] AlgorithmToSSH2Name(MACAlgorithm algorithm) {
             switch (algorithm) {
                 case MACAlgorithm.HMACSHA1:
-                    return "hmac-sha1";
+                    return new string[] { "hmac-sha1" };
                 case MACAlgorithm.HMACSHA256:
-                    return "hmac-sha2-256";
+                    return new string[] { "hmac-sha2-256" };
                 case MACAlgorithm.HMACSHA512:
-                    return "hmac-sha2-512";
+                    return new string[] { "hmac-sha2-512" };
+                case MACAlgorithm.AEAD_AES_128_GCM:
+                    return new string[] { "AEAD_AES_128_GCM" };
+                case MACAlgorithm.AEAD_AES_256_GCM:
+                    return new string[] { "AEAD_AES_256_GCM" };
                 default:
                     throw new SSHException("unknown algorithm " + algorithm);
             }
@@ -549,41 +625,111 @@ namespace Granados.Crypto.SSH2 {
     }
 
     /// <summary>
-    /// Rijindael (SSH2 only)
+    /// AES (SSH2 only)
     /// </summary>
-    internal class RijindaelCipher2 : Cipher {
+    internal class AESCipher2 : Cipher {
 
-        private Rijndael _rijindael;
-        private bool isCTR;
+        private readonly IAESBlockCipherMode _aes;
 
-        public RijindaelCipher2(byte[] key, byte[] iv, CipherAlgorithm algorithm) {
-            _rijindael = new Rijndael();
-            _rijindael.SetIV(iv);
-            _rijindael.InitializeKey(key);
+        public AESCipher2(byte[] key, byte[] iv, CipherAlgorithm algorithm) {
             if (algorithm == CipherAlgorithm.AES256CTR ||
                 algorithm == CipherAlgorithm.AES192CTR ||
                 algorithm == CipherAlgorithm.AES128CTR)
-                isCTR = true;
+                _aes = new AESBlockCipherCTR(key, iv);
             else
-                isCTR = false;
+                _aes = new AESBlockCipherCBC(key, iv);
         }
         public void Encrypt(byte[] data, int offset, int len, byte[] result, int ro) {
-            if (isCTR)
-                _rijindael.encryptCTR(data, offset, len, result, ro);
-            else
-                _rijindael.encryptCBC(data, offset, len, result, ro);
+            _aes.Encrypt(data, offset, len, result, ro);
         }
         public void Decrypt(byte[] data, int offset, int len, byte[] result, int ro) {
-            if (isCTR)
-                _rijindael.decryptCTR(data, offset, len, result, ro);
-            else
-                _rijindael.decryptCBC(data, offset, len, result, ro);
+            _aes.Decrypt(data, offset, len, result, ro);
         }
         public int BlockSize {
             get {
-                return _rijindael.GetBlockSize();
+                return _aes.GetBlockSize();
             }
         }
     }
 
+    /// <summary>
+    /// AES-GCM (SSH2 only)
+    /// </summary>
+    internal class AESGCMCipher2 : Cipher {
+
+        private readonly AESBlockCipherGCM _aesGcm;
+        private readonly byte[] _iv = new byte[12];
+
+        public AESGCMCipher2(byte[] key, byte[] iv) {
+            _aesGcm = new AESBlockCipherGCM(key);
+            Array.Copy(iv, 0, _iv, 0, _iv.Length);
+        }
+        public void Encrypt(byte[] data, int offset, int len, byte[] result, int resultOffset) {
+            throw new NotImplementedException("Use EncryptGCM for AES-GCM");
+        }
+        public void Decrypt(byte[] data, int offset, int len, byte[] result, int resultOffset) {
+            throw new NotImplementedException("Use DecryptGCM for AES-GCM");
+        }
+        public int BlockSize {
+            get {
+                return _aesGcm.GetBlockSize();
+            }
+        }
+
+        public void EncryptGCM(byte[] input, int inputOffset, int inputLength, byte[] aad, int aadOffset, int aadLength, byte[] output, int outputOffset, byte[] outputTag, int outputTagOffset, int outputTagLength) {
+            _aesGcm.SetIV(_iv);
+            _aesGcm.Encrypt(
+                input: input,
+                inputOffset: inputOffset,
+                inputLength: inputLength,
+                aad: aad,
+                aadOffset: aadOffset,
+                aadLength: aadLength,
+                output: output,
+                outputOffset: outputOffset,
+                outputTag: outputTag,
+                outputTagOffset: outputTagOffset,
+                outputTagLength: outputTagLength
+            );
+            IncrementIV();
+        }
+
+        public bool DecryptGCM(byte[] input, int inputOffset, int inputLength, byte[] aad, int aadOffset, int aadLength, byte[] tag, int tagOffset, int tagLength, byte[] output, int outputOffset) {
+            _aesGcm.SetIV(_iv);
+            bool result = _aesGcm.Decrypt(
+                input: input,
+                inputOffset: inputOffset,
+                inputLength: inputLength,
+                aad: aad,
+                aadOffset: aadOffset,
+                aadLength: aadLength,
+                tag: tag,
+                tagOffset: tagOffset,
+                tagLength: tagLength,
+                output: output,
+                outputOffset: outputOffset
+            );
+            IncrementIV();
+            return result;
+        }
+
+        private void IncrementIV() {
+            // increment lower 64 bit
+            if (++_iv[11] == 0) {
+                if (++_iv[10] == 0) {
+                    if (++_iv[9] == 0) {
+                        if (++_iv[8] == 0) {
+                            if (++_iv[7] == 0) {
+                                if (++_iv[6] == 0) {
+                                    if (++_iv[5] == 0) {
+                                        ++_iv[4];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

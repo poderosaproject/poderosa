@@ -90,6 +90,8 @@ namespace Granados.SSH2 {
                             protocolEventLoggerCreator != null ?
                                 protocolEventLoggerCreator(this) : null);
 
+            _protocolEventManager.Trace("server version-string : {0}", serverVersion);
+
             _socketStatusReader = new SocketStatusReader(socket);
             _param = param.Clone();
             _timeouts = (_param.Timeouts != null) ? _param.Timeouts : new SSHTimeouts();
@@ -667,8 +669,7 @@ namespace Granados.SSH2 {
 
         private readonly object _cipherSync = new object();
         private uint _sequenceNumber = 0;
-        private Cipher _cipher = null;
-        private MAC _mac = null;
+        private Func<SSH2Packet, DataFragment> _getPacketImageFunc;
 
         private readonly SSHProtocolEventManager _protocolEventManager;
 
@@ -681,6 +682,7 @@ namespace Granados.SSH2 {
         public SSH2SynchronousPacketHandler(IGranadosSocket socket, IDataHandler handler, SSHProtocolEventManager protocolEventManager)
             : base(socket, handler) {
 
+            _getPacketImageFunc = (packet) => GetPacketImageInternal(packet, null, null);
             _protocolEventManager = protocolEventManager;
         }
 
@@ -691,8 +693,13 @@ namespace Granados.SSH2 {
         /// <param name="mac">MAC for a packet to be sent.</param>
         public void SetCipher(Cipher cipher, MAC mac) {
             lock (_cipherSync) {
-                _cipher = cipher;
-                _mac = mac;
+                Granados.Crypto.SSH2.AESGCMCipher2 aesGcm = cipher as Granados.Crypto.SSH2.AESGCMCipher2;
+                if (aesGcm != null) {
+                    _getPacketImageFunc = (packet) => GetPacketImageInternalAESGCM(packet, aesGcm);
+                }
+                else {
+                    _getPacketImageFunc = (packet) => GetPacketImageInternal(packet, cipher, mac);
+                }
             }
         }
 
@@ -706,8 +713,16 @@ namespace Granados.SSH2 {
         /// <returns>binary image of the packet</returns>
         protected override DataFragment GetPacketImage(SSH2Packet packet) {
             lock (_cipherSync) {
-                return packet.GetImage(_cipher, _mac, _sequenceNumber++);
+                return _getPacketImageFunc(packet);
             }
+        }
+
+        private DataFragment GetPacketImageInternal(SSH2Packet packet, Cipher cipher, MAC mac) {
+            return packet.GetImage(cipher, mac, _sequenceNumber++);
+        }
+
+        private DataFragment GetPacketImageInternalAESGCM(SSH2Packet packet, Granados.Crypto.SSH2.AESGCMCipher2 cipher) {
+            return packet.GetImageAESGCM(cipher, _sequenceNumber++);
         }
 
         /// <summary>
@@ -858,6 +873,11 @@ namespace Granados.SSH2 {
         #region SSH2KeyExchanger
 
         private const int PASSING_TIMEOUT = 1000;
+
+        private const string ALGORITHM_NAME_AEAD_AES_128_GCM = "AEAD_AES_128_GCM";
+        private const string ALGORITHM_NAME_AEAD_AES_256_GCM = "AEAD_AES_256_GCM";
+        private const string ALGORITHM_NAME_AES128_GCM_OPENSSH_COM = "aes128-gcm@openssh.com";
+        private const string ALGORITHM_NAME_AES256_GCM_OPENSSH_COM = "aes256-gcm@openssh.com";
 
         private enum SequenceStatus {
             /// <summary>next key exchange can be started</summary>
@@ -1066,6 +1086,14 @@ namespace Granados.SSH2 {
                         cipherSettings.macServer,
                         cipherSettings.macClient);
                 }
+
+                _protocolEventManager.Trace(
+                    "update cipher settings: server [{0}, {1}] client [{2}, {3}]",
+                    _cInfo.OutgoingPacketCipher.Value,
+                    _cInfo.OutgoingPacketMacAlgorithm.Value,
+                    _cInfo.IncomingPacketCipher.Value,
+                    _cInfo.IncomingPacketMacAlgorithm.Value
+                );
 
                 lock (_sequenceLock) {
                     _sequenceStatus = SequenceStatus.Idle;
@@ -1284,19 +1312,15 @@ namespace Granados.SSH2 {
 
             string enc_cs = reader.ReadString();
             _cInfo.SupportedEncryptionAlgorithmsClientToServer = enc_cs;
-            _cInfo.OutgoingPacketCipher = DecideCipherAlgorithm(enc_cs);
 
             string enc_sc = reader.ReadString();
             _cInfo.SupportedEncryptionAlgorithmsServerToClient = enc_sc;
-            _cInfo.IncomingPacketCipher = DecideCipherAlgorithm(enc_sc);
 
             string mac_cs = reader.ReadString();
             _cInfo.SupportedMacAlgorithmsClientToServer = mac_cs;
-            _cInfo.OutgoingPacketMacAlgorithm = DecideMacAlgorithm(mac_cs);
 
             string mac_sc = reader.ReadString();
             _cInfo.SupportedMacAlgorithmsServerToClient = mac_sc;
-            _cInfo.IncomingPacketMacAlgorithm = DecideMacAlgorithm(mac_sc);
 
             string comp_cs = reader.ReadString();
             CheckAlgorithmSupport("compression", comp_cs, "none");
@@ -1332,6 +1356,19 @@ namespace Granados.SSH2 {
                 .ToString();
 
             _protocolEventManager.Trace(traceMessage);
+
+            CipherAlgorithmAndName outgoingPacketCipher;
+            MACAlgorithmAndName outgoingPacketMacAlgorithm;
+            DecideCipherAlgorithmAndMACAlgorithm(enc_cs, mac_cs, out outgoingPacketCipher, out outgoingPacketMacAlgorithm);
+
+            CipherAlgorithmAndName incomingPacketCipher;
+            MACAlgorithmAndName incomingPacketMacAlgorithm;
+            DecideCipherAlgorithmAndMACAlgorithm(enc_sc, mac_sc, out incomingPacketCipher, out incomingPacketMacAlgorithm);
+
+            _cInfo.OutgoingPacketCipher = outgoingPacketCipher.Algorithm;
+            _cInfo.IncomingPacketCipher = incomingPacketCipher.Algorithm;
+            _cInfo.OutgoingPacketMacAlgorithm = outgoingPacketMacAlgorithm.Algorithm;
+            _cInfo.IncomingPacketMacAlgorithm = incomingPacketMacAlgorithm.Algorithm;
         }
 
         /// <summary>
@@ -1507,14 +1544,14 @@ namespace Granados.SSH2 {
                     SSHProtocol.SSH2,
                     _cInfo.OutgoingPacketCipher.Value,
                     DeriveKey(state.secret, state.hash, 'C', CipherFactory.GetKeySize(_cInfo.OutgoingPacketCipher.Value), state.hashAlgorithm),
-                    DeriveKey(state.secret, state.hash, 'A', CipherFactory.GetBlockSize(_cInfo.OutgoingPacketCipher.Value), state.hashAlgorithm)
+                    DeriveKey(state.secret, state.hash, 'A', CipherFactory.GetIVSize(_cInfo.OutgoingPacketCipher.Value), state.hashAlgorithm)
                 );
             settings.cipherClient =
                 CipherFactory.CreateCipher(
                     SSHProtocol.SSH2,
                     _cInfo.IncomingPacketCipher.Value,
                     DeriveKey(state.secret, state.hash, 'D', CipherFactory.GetKeySize(_cInfo.IncomingPacketCipher.Value), state.hashAlgorithm),
-                    DeriveKey(state.secret, state.hash, 'B', CipherFactory.GetBlockSize(_cInfo.IncomingPacketCipher.Value), state.hashAlgorithm)
+                    DeriveKey(state.secret, state.hash, 'B', CipherFactory.GetIVSize(_cInfo.IncomingPacketCipher.Value), state.hashAlgorithm)
                 );
 
             settings.macServer =
@@ -1649,7 +1686,7 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Decides Key exchange algorithm to use.
         /// </summary>
-        /// <param name="candidates">candidate algorithms</param>
+        /// <param name="candidates">algorithm candidates</param>
         /// <returns>key exchange algorithm to use</returns>
         /// <exception cref="SSHException">no suitable algorithm was found</exception>
         private KexAlgorithm DecideKexAlgorithm(string candidates) {
@@ -1666,7 +1703,7 @@ namespace Granados.SSH2 {
         /// <summary>
         /// Decides host key algorithm to use.
         /// </summary>
-        /// <param name="candidates">candidate algorithms</param>
+        /// <param name="candidates">algorithm candidates</param>
         /// <returns>host key algorithm to use</returns>
         /// <exception cref="SSHException">no suitable algorithm was found</exception>
         private PublicKeySignatureAlgorithm DecideHostKeyAlgorithm(string[] candidates) {
@@ -1679,37 +1716,138 @@ namespace Granados.SSH2 {
         }
 
         /// <summary>
+        /// Decides cipher algorithm and MAC algorithm to use.
+        /// </summary>
+        /// <param name="cipherAlgorithmCandidates">cipher algorithm candidates</param>
+        /// <param name="macAlgorithmCandidates">mac algorithm candidates</param>
+        /// <param name="cipherAlgorithm">cipher algorithm to use</param>
+        /// <param name="macAlgorithm">MAC algorithm to use</param>
+        /// <exception cref="SSHException">no suitable algorithm was found</exception>
+        private void DecideCipherAlgorithmAndMACAlgorithm(
+            string cipherAlgorithmCandidates,
+            string macAlgorithmCandidates,
+            out CipherAlgorithmAndName cipherAlgorithm,
+            out MACAlgorithmAndName macAlgorithm
+        ) {
+            String[] cipherAlgorithmCandidatesArray = cipherAlgorithmCandidates.Split(',');
+            String[] macAlgorithmCandidatesArray = macAlgorithmCandidates.Split(',');
+            cipherAlgorithm = DecideCipherAlgorithm(cipherAlgorithmCandidatesArray);
+            macAlgorithm = DecideMacAlgorithm(macAlgorithmCandidatesArray, cipherAlgorithm);
+            cipherAlgorithm = AdjustCipherAlgorithmByMACAlgorithm(cipherAlgorithmCandidatesArray, cipherAlgorithm, macAlgorithm);
+            ValidateAlgorithms(cipherAlgorithm, macAlgorithm);
+        }
+
+        /// <summary>
         /// Decides cipher algorithm to use.
         /// </summary>
-        /// <param name="candidates">candidate algorithms</param>
-        /// <returns>cipher algorithm to use</returns>
+        /// <param name="candidates">algorithm candidates</param>
+        /// <returns>cipher algorithm to use and its original name</returns>
         /// <exception cref="SSHException">no suitable algorithm was found</exception>
-        private CipherAlgorithm DecideCipherAlgorithm(string candidates) {
-            string[] candidateNames = candidates.Split(',');
+        private CipherAlgorithmAndName DecideCipherAlgorithm(string[] candidates) {
             foreach (CipherAlgorithm pref in _param.PreferableCipherAlgorithms) {
-                string prefName = CipherFactory.AlgorithmToSSH2Name(pref);
-                if (candidateNames.Contains(prefName)) {
-                    return pref;
+                foreach (string prefName in CipherFactory.AlgorithmToSSH2Name(pref)) {
+                    if (candidates.Contains(prefName)) {
+                        return new CipherAlgorithmAndName(pref, prefName);
+                    }
                 }
             }
             throw new SSHException(Strings.GetString("EncryptionAlgorithmNegotiationFailed"));
         }
 
         /// <summary>
+        /// Adjust cipher algorithm if selected MAC algorithm requires the specific cipher algorithm. (RFC5647)
+        /// </summary>
+        /// <param name="candidates">cipher algorithm candidates</param>
+        /// <param name="cipherAlgorithm">selected cipher algorithm</param>
+        /// <param name="macAlgorithm">selected MAC algorithm</param>
+        /// <returns>cipher algorithm to use and its original name</returns>
+        /// <exception cref="SSHException">no suitable algorithm was found</exception>
+        private CipherAlgorithmAndName AdjustCipherAlgorithmByMACAlgorithm(string[] candidates, CipherAlgorithmAndName cipherAlgorithm, MACAlgorithmAndName macAlgorithm) {
+            // RFC5647 calaims that AES-GCM must be selected as the cipher algorithm if AES-GCM is selected as the MAC algorithm.
+            CipherAlgorithmAndName select;
+            switch (macAlgorithm.Name) {
+                case ALGORITHM_NAME_AEAD_AES_128_GCM:
+                    if (cipherAlgorithm.Algorithm == CipherAlgorithm.AES128GCM ||
+                        cipherAlgorithm.Algorithm == CipherAlgorithm.AES256GCM) {
+                        // CipherAlgorithm.AES256GCM is inconsistent with the MAC algorithm AEAD_AES_128_GCM.
+                        // In that case, ValidateAlgorithms() will detect the inconsistency and raise error.
+                        return cipherAlgorithm;
+                    }
+                    select = new CipherAlgorithmAndName(CipherAlgorithm.AES128GCM, ALGORITHM_NAME_AEAD_AES_128_GCM);
+                    goto checkCandidates;
+                case ALGORITHM_NAME_AEAD_AES_256_GCM:
+                    if (cipherAlgorithm.Algorithm == CipherAlgorithm.AES128GCM ||
+                        cipherAlgorithm.Algorithm == CipherAlgorithm.AES256GCM) {
+                        // CipherAlgorithm.AES128GCM is inconsistent with the MAC algorithm AEAD_AES_256_GCM.
+                        // In that case, ValidateAlgorithms() will detect the inconsistency and raise error.
+                        return cipherAlgorithm;
+                    }
+                    select = new CipherAlgorithmAndName(CipherAlgorithm.AES256GCM, ALGORITHM_NAME_AEAD_AES_256_GCM);
+                checkCandidates:
+                    if (!candidates.Contains(select.Name)) {
+                        _protocolEventManager.Trace("cannot select cipher algorithm : {0}", select.Name);
+                        throw new SSHException(Strings.GetString("EncryptionAlgorithmNegotiationFailed"));
+                    }
+                    return select;
+            }
+            return cipherAlgorithm;
+        }
+
+        /// <summary>
         /// Decides MAC algorithm to use.
         /// </summary>
-        /// <param name="candidates">candidate algorithms</param>
-        /// <returns>MAC algorithm to use</returns>
+        /// <param name="candidates">algorithm candidates</param>
+        /// <param name="cipherAlgorithm">selected cipher algorithm</param>
+        /// <returns>MAC algorithm to use and its original name</returns>
         /// <exception cref="SSHException">no suitable algorithm was found</exception>
-        private MACAlgorithm DecideMacAlgorithm(string candidates) {
-            string[] candidateNames = candidates.Split(',');
+        private MACAlgorithmAndName DecideMacAlgorithm(string[] candidates, CipherAlgorithmAndName cipherAlgorithm) {
+            MACAlgorithmAndName select;
+            switch (cipherAlgorithm.Name) {
+                case ALGORITHM_NAME_AES128_GCM_OPENSSH_COM:
+                    // ignore candidates
+                    return new MACAlgorithmAndName(MACAlgorithm.AEAD_AES_128_GCM, ALGORITHM_NAME_AEAD_AES_128_GCM);
+                case ALGORITHM_NAME_AES256_GCM_OPENSSH_COM:
+                    // ignore candidates
+                    return new MACAlgorithmAndName(MACAlgorithm.AEAD_AES_256_GCM, ALGORITHM_NAME_AEAD_AES_256_GCM);
+                case ALGORITHM_NAME_AEAD_AES_128_GCM:
+                    // RFC5647 claims that AES-GCM must be selected as the MAC algorithm if AES-GCM is selected as the cipher algorithm.
+                    // We support it only if AES-GCM is present in the candidates.
+                    select = new MACAlgorithmAndName(MACAlgorithm.AEAD_AES_128_GCM, ALGORITHM_NAME_AEAD_AES_128_GCM);
+                    goto checkCandidates;
+                case ALGORITHM_NAME_AEAD_AES_256_GCM:
+                    select = new MACAlgorithmAndName(MACAlgorithm.AEAD_AES_256_GCM, ALGORITHM_NAME_AEAD_AES_256_GCM);
+                checkCandidates:
+                    if (!candidates.Contains(select.Name)) {
+                        _protocolEventManager.Trace("cannot select MAC algorithm : {0}", select.Name);
+                        throw new SSHException(Strings.GetString("EncryptionAlgorithmNegotiationFailed"));
+                    }
+                    return select;
+            }
+
             foreach (MACAlgorithm pref in _param.PreferableMacAlgorithms) {
-                string prefName = MACFactory.AlgorithmToSSH2Name(pref);
-                if (candidateNames.Contains(prefName)) {
-                    return pref;
+                foreach (string prefName in MACFactory.AlgorithmToSSH2Name(pref)) {
+                    if (candidates.Contains(prefName)) {
+                        return new MACAlgorithmAndName(pref, prefName);
+                    }
                 }
             }
             throw new SSHException(Strings.GetString("EncryptionAlgorithmNegotiationFailed"));
+        }
+
+        /// <summary>
+        /// Validate consistency of the selected algorithms.
+        /// </summary>
+        /// <param name="cipherAlgorithm">selected cipher algorithm</param>
+        /// <param name="macAlgorithm">selected MAC algorithm</param>
+        /// <exception cref="SSHException">inconsistency was detected</exception>
+        private void ValidateAlgorithms(CipherAlgorithmAndName cipherAlgorithm, MACAlgorithmAndName macAlgorithm) {
+            if (
+                ((cipherAlgorithm.Algorithm == CipherAlgorithm.AES128GCM) != (macAlgorithm.Algorithm == MACAlgorithm.AEAD_AES_128_GCM)) ||
+                ((cipherAlgorithm.Algorithm == CipherAlgorithm.AES256GCM) != (macAlgorithm.Algorithm == MACAlgorithm.AEAD_AES_256_GCM))
+            ) {
+                _protocolEventManager.Trace("selected algorithms are inconsistent : cipher algorithm = {0}, MAC algorithm = {1}", cipherAlgorithm.Name, macAlgorithm.Name);
+                throw new SSHException(Strings.GetString("EncryptionAlgorithmNegotiationFailed"));
+            }
         }
 
         /// <summary>
@@ -1747,7 +1885,8 @@ namespace Granados.SSH2 {
             }
             return string.Join(",",
                     _param.PreferableCipherAlgorithms
-                        .Select(algorithm => CipherFactory.AlgorithmToSSH2Name(algorithm)));
+                        .Select(algorithm => CipherFactory.AlgorithmToSSH2Name(algorithm))
+                        .SelectMany(a => a));
         }
 
         /// <summary>
@@ -1760,7 +1899,8 @@ namespace Granados.SSH2 {
             }
             return string.Join(",",
                     _param.PreferableMacAlgorithms
-                        .Select(algorithm => MACFactory.AlgorithmToSSH2Name(algorithm)));
+                        .Select(algorithm => MACFactory.AlgorithmToSSH2Name(algorithm))
+                        .SelectMany(a => a));
         }
 
         /// <summary>
@@ -1775,6 +1915,30 @@ namespace Granados.SSH2 {
         }
 
         #endregion  // SSH2KeyExchanger
+
+        #region Structs for internal use
+
+        private struct CipherAlgorithmAndName {
+            public readonly CipherAlgorithm Algorithm;
+            public readonly string Name;
+
+            public CipherAlgorithmAndName(CipherAlgorithm algorithm, string name) {
+                this.Algorithm = algorithm;
+                this.Name = name;
+            }
+        }
+
+        private struct MACAlgorithmAndName {
+            public readonly MACAlgorithm Algorithm;
+            public readonly string Name;
+
+            public MACAlgorithmAndName(MACAlgorithm algorithm, string name) {
+                this.Algorithm = algorithm;
+                this.Name = name;
+            }
+        }
+
+        #endregion
     }
 
     /// <summary>

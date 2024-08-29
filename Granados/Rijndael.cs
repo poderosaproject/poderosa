@@ -4,6 +4,8 @@
 // You may not use this file except in compliance with the license.
 
 using System;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Granados.Util;
 using Granados.Crypto;
 
@@ -13,13 +15,11 @@ namespace Granados.Algorithms {
     /// </summary>
     /// <exclude/>
     public class Rijndael {
-        byte[] _IV;
-        int[][] _Ke;			// encryption round keys
-        int[][] _Kd;			// decryption round keys
+        private int[][] _Ke;			// encryption round keys
+        private int[][] _Kd;			// decryption round keys
         private int _rounds;
 
         public Rijndael() {
-            _IV = new byte[GetBlockSize()];
         }
 
         public int GetBlockSize() {
@@ -27,21 +27,14 @@ namespace Granados.Algorithms {
         }
 
         ///////////////////////////////////////////////
-        // set _IV
-        ///////////////////////////////////////////////
-        public void SetIV(byte[] newiv) {
-            Array.Copy(newiv, 0, _IV, 0, _IV.Length);
-        }
-
-        ///////////////////////////////////////////////
         // set KEY
         ///////////////////////////////////////////////
         public void InitializeKey(byte[] key) {
             if (key == null)
-                throw new Exception("Empty key");
+                throw new ArgumentException("Empty key", "key");
             //128bit or 192bit or 256bit
             if (!(key.Length == 16 || key.Length == 24 || key.Length == 32))
-                throw new Exception("Incorrect key length");
+                throw new ArgumentException("Invalid key length", "key");
 
             _rounds = getRounds(key.Length, GetBlockSize());
             _Ke = new int[_rounds + 1][];
@@ -116,60 +109,6 @@ namespace Granados.Algorithms {
                     return blockSize != 32 ? 12 : 14;
                 default:
                     return 14;
-            }
-        }
-
-        public void encryptCBC(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) {
-            int block_size = GetBlockSize();
-            int nBlocks = inputLen / block_size;
-            for (int bc = 0; bc < nBlocks; bc++) {
-                CipherUtil.BlockXor(input, inputOffset, block_size, _IV, 0);
-                blockEncrypt(_IV, 0, output, outputOffset);
-                Array.Copy(output, outputOffset, _IV, 0, block_size);
-                inputOffset += block_size;
-                outputOffset += block_size;
-            }
-        }
-
-        public void decryptCBC(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) {
-            int block_size = GetBlockSize();
-            byte[] tmpBlk = new byte[block_size];
-            int nBlocks = inputLen / block_size;
-            for (int bc = 0; bc < nBlocks; bc++) {
-                blockDecrypt(input, inputOffset, tmpBlk, 0);
-                for (int i = 0; i < block_size; i++) {
-                    tmpBlk[i] ^= _IV[i];
-                    _IV[i] = input[inputOffset + i];
-                    output[outputOffset + i] = tmpBlk[i];
-                }
-                inputOffset += block_size;
-                outputOffset += block_size;
-            }
-        }
-
-        public void encryptCTR(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) {
-            int block_size = GetBlockSize();
-            int nBlocks = inputLen / block_size;
-            byte[] tmpBlk = new byte[block_size];
-            for (int bc = 0; bc < nBlocks; bc++) {
-                blockEncrypt(_IV, 0, tmpBlk, 0);
-                CipherUtil.BlockXor(input, inputOffset, block_size, tmpBlk, 0);
-                Array.Copy(tmpBlk, 0, output, outputOffset, block_size);
-                incrementIV();
-                inputOffset += block_size;
-                outputOffset += block_size;
-            }
-        }
-
-        public void decryptCTR(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) {
-            encryptCTR(input, inputOffset, inputLen, output, outputOffset);
-        }
-
-        public void incrementIV() {
-            for (int i = GetBlockSize() - 1; i >= 0; i--) {
-                if (++_IV[i] != 0) {
-                    return;
-                }
             }
         }
 
@@ -482,4 +421,680 @@ namespace Granados.Algorithms {
             return a0 << 24 | a1 << 16 | a2 << 8 | a3;
         }
     }
+
+    /// <summary>
+    /// AES Block Cipher Mode interface
+    /// </summary>
+    public interface IAESBlockCipherMode {
+        void Encrypt(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset);
+        void Decrypt(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset);
+        int GetBlockSize();
+    }
+
+    /// <summary>
+    /// AES CBC mode encryption / decryption
+    /// </summary>
+    public class AESBlockCipherCBC : Rijndael, IAESBlockCipherMode {
+
+        private readonly byte[] _chainBlock;
+        private readonly byte[] _tmpBlock;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="key">AES key (128 / 192 / 256 bit)</param>
+        /// <param name="iv">initial vector. if omitted, zero-filled block is used.</param>
+        public AESBlockCipherCBC(byte[] key, byte[] iv = null) {
+            if (iv != null && iv.Length != GetBlockSize()) {
+                throw new ArgumentException("Invald IV size", "iv");
+            }
+
+            _chainBlock = new byte[GetBlockSize()];
+            if (iv != null) {
+                Array.Copy(iv, _chainBlock, iv.Length);
+            }
+
+            _tmpBlock = new byte[GetBlockSize()];
+
+            InitializeKey(key);
+        }
+
+        /// <summary>
+        /// Encrypt
+        /// </summary>
+        /// <param name="input">input byte array</param>
+        /// <param name="inputOffset">input offset</param>
+        /// <param name="inputLen">input length</param>
+        /// <param name="output">output byte array. this can be the same array as <paramref name="input"/>.</param>
+        /// <param name="outputOffset">output offset</param>
+        public void Encrypt(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) {
+            int blockSize = GetBlockSize();
+            int nBlocks = inputLen / blockSize;
+            for (int bc = 0; bc < nBlocks; bc++) {
+                CipherUtil.BlockXor2(input, inputOffset, _chainBlock, 0, blockSize, _tmpBlock, 0);
+                blockEncrypt(_tmpBlock, 0, _chainBlock, 0);
+                Array.Copy(_chainBlock, 0, output, outputOffset, blockSize);
+                inputOffset += blockSize;
+                outputOffset += blockSize;
+            }
+        }
+
+        /// <summary>
+        /// Decrypt
+        /// </summary>
+        /// <param name="input">input byte array</param>
+        /// <param name="inputOffset">input offset</param>
+        /// <param name="inputLen">input length</param>
+        /// <param name="output">output byte array. this can be the same array as <paramref name="input"/>.</param>
+        /// <param name="outputOffset">output offset</param>
+        public void Decrypt(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) {
+            int blockSize = GetBlockSize();
+            int nBlocks = inputLen / blockSize;
+            for (int bc = 0; bc < nBlocks; bc++) {
+                blockDecrypt(input, inputOffset, _tmpBlock, 0);
+                CipherUtil.BlockXor(_chainBlock, 0, blockSize, _tmpBlock, 0);
+                Array.Copy(input, inputOffset, _chainBlock, 0, blockSize);
+                Array.Copy(_tmpBlock, 0, output, outputOffset, blockSize);
+                inputOffset += blockSize;
+                outputOffset += blockSize;
+            }
+        }
+    }
+
+    /// <summary>
+    /// AES CTR mode encryption / decryption
+    /// </summary>
+    public class AESBlockCipherCTR : Rijndael, IAESBlockCipherMode {
+
+        private readonly byte[] _counterBlock;
+        private readonly byte[] _tmpBlock;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="key">AES key (128 / 192 / 256 bit)</param>
+        /// <param name="icb">initial counter block</param>
+        public AESBlockCipherCTR(byte[] key, byte[] icb) {
+            if (icb.Length != GetBlockSize()) {
+                throw new ArgumentException("Invald ICB size", "icb");
+            }
+
+            _counterBlock = new byte[GetBlockSize()];
+            Array.Copy(icb, _counterBlock, icb.Length);
+
+            _tmpBlock = new byte[GetBlockSize()];
+
+            InitializeKey(key);
+        }
+
+        /// <summary>
+        /// Encrypt
+        /// </summary>
+        /// <param name="input">input byte array</param>
+        /// <param name="inputOffset">input offset</param>
+        /// <param name="inputLen">input length</param>
+        /// <param name="output">output byte array. this can be the same array as <paramref name="input"/>.</param>
+        /// <param name="outputOffset">output offset</param>
+        public void Encrypt(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) {
+            int blockSize = GetBlockSize();
+            int nBlocks = inputLen / blockSize;
+            for (int bc = 0; bc < nBlocks; bc++) {
+                blockEncrypt(_counterBlock, 0, _tmpBlock, 0);
+                CipherUtil.BlockXor2(input, inputOffset, _tmpBlock, 0, blockSize, output, outputOffset);
+                IncrementCounterBlock();
+                inputOffset += blockSize;
+                outputOffset += blockSize;
+            }
+        }
+
+        /// <summary>
+        /// Decrypt
+        /// </summary>
+        /// <param name="input">input byte array</param>
+        /// <param name="inputOffset">input offset</param>
+        /// <param name="inputLen">input length</param>
+        /// <param name="output">output byte array. this can be the same array as <paramref name="input"/>.</param>
+        /// <param name="outputOffset">output offset</param>
+        public void Decrypt(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) {
+            Encrypt(input, inputOffset, inputLen, output, outputOffset);
+        }
+
+        internal void IncrementCounterBlock() {
+            for (int i = _counterBlock.Length - 1; i >= 0; i--) {
+                if (++_counterBlock[i] != 0) {
+                    return;
+                }
+            }
+        }
+
+        // for testing
+        internal byte[] CopyCounterBlock() {
+            return (byte[])_counterBlock.Clone();
+        }
+    }
+
+    /// <summary>
+    /// AES GCM mode encryption / decryption
+    /// </summary>
+    public class AESBlockCipherGCM : Rijndael {
+
+        private const int BLOCK_BYTE_LENGTH = 16;
+
+        private UI128 _ghashSubkey;
+
+        // index 1: Position of the 1 byte in the block (0-15)
+        // index 2: Byte value (0-255)
+        private UI128[,] _gfmulTable;
+
+        private readonly object _encdecSync = new object();
+        private readonly byte[] _initialCounterBlock = new byte[BLOCK_BYTE_LENGTH];
+        private readonly byte[] _gctrTmpBlock = new byte[BLOCK_BYTE_LENGTH];
+        private readonly byte[] _encdecCounterBlock = new byte[BLOCK_BYTE_LENGTH];
+        private readonly byte[] _encdecLengthBlock = new byte[BLOCK_BYTE_LENGTH];
+        private readonly byte[] _encdecHashBlock = new byte[BLOCK_BYTE_LENGTH];
+        private readonly byte[] _encdecTagBlock = new byte[BLOCK_BYTE_LENGTH];
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="key">AES key (128 / 192 / 256 bit)</param>
+        public AESBlockCipherGCM(byte[] key) {
+            if (GetBlockSize() != BLOCK_BYTE_LENGTH) {
+                throw new NotSupportedException();
+            }
+
+            InitializeKey(key);
+            CalcGhashSubkey();
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="key">AES key (128 / 192 / 256 bit)</param>
+        /// <param name="iv">initial vector. 1 byte or more. 12 byte (96 bit) in general.</param>
+        public AESBlockCipherGCM(byte[] key, byte[] iv)
+            : this(key) {
+
+            SetIV(iv);
+        }
+
+        /// <summary>
+        /// Sets IV
+        /// </summary>
+        /// <param name="iv">initial vector. 1 byte or more. 12 byte (96 bit) in general.</param>
+        public void SetIV(byte[] iv) {
+            if (iv.Length < 1) {
+                throw new ArgumentException("Invalid IV length", "iv");
+            }
+            // Maximum length of IV in the specification is 2^64-1 bit.
+            // The maximum size of a byte array is smaller enough than that.
+
+            InitializeCounterBlock(iv);
+        }
+
+        /// <summary>
+        /// Encrypt
+        /// </summary>
+        /// <param name="input">input buffer</param>
+        /// <param name="inputOffset">input offset</param>
+        /// <param name="inputLength">input length in bytes</param>
+        /// <param name="aad">AAD (Additional Authenticated Data) buffer</param>
+        /// <param name="aadOffset">AAD offset</param>
+        /// <param name="aadLength">AAD length in bytes</param>
+        /// <param name="output">output buffer. this can be the same array as <paramref name="input"/></param>
+        /// <param name="outputOffset">output offset</param>
+        /// <param name="outputTag">output buffer for authentication tag</param>
+        /// <param name="outputTagOffset">offset in the output buffer for authentication tag</param>
+        /// <param name="outputTagLength">authentication tag length in bytes</param>
+        public void Encrypt(byte[] input, int inputOffset, int inputLength, byte[] aad, int aadOffset, int aadLength, byte[] output, int outputOffset, byte[] outputTag, int outputTagOffset, int outputTagLength) {
+            lock (_encdecSync) {
+                // C <-- GCTR(inc32(J0), P)
+                //    J0: initial value for the counter block
+                //    P: plaintext
+                //    C: ciphertext
+                ResetCounterBlock(_encdecCounterBlock);
+                IncrementCounter(_encdecCounterBlock);
+                UpdateGctr(input, inputOffset, inputLength, output, outputOffset, _encdecCounterBlock);
+                int outputLen = inputLength;
+
+                // S <-- GHASH (A || v0 || C || u0 || [len(A)]64 || [len(C)]64)
+                //    A: AAD
+                //    v0: zero padding to 128 bit boundary
+                //    C: ciphertext
+                //    u0: zero padding to 128 bit boundary
+                //    [len(A)]64: bit length of AAD as 64 bit integer
+                //    [len(C)]64: bit length of ciphertext as 64 bit integer
+                //    S: result of GHASH
+                UI128 hash = UpdateGhash(aad, aadOffset, aadLength, UI128.Zero());
+                hash = UpdateGhash(output, outputOffset, outputLen, hash);
+                SetBE64((ulong)aadLength * 8, _encdecLengthBlock, 0);
+                SetBE64((ulong)outputLen * 8, _encdecLengthBlock, 8);
+                hash = UpdateGhash(_encdecLengthBlock, 0, BLOCK_BYTE_LENGTH, hash);
+                hash.CopyTo(_encdecHashBlock, 0);
+
+                // T <-- MSB(GCTR(J0, S))
+                //    J0: initial value for the counter block
+                //    S: result of GHASH
+                //    MSB(): take higher bits
+                //    T: tag
+                ResetCounterBlock(_encdecCounterBlock); // counter block <-- ICB
+                UpdateGctr(_encdecHashBlock, 0, BLOCK_BYTE_LENGTH, _encdecTagBlock, 0, _encdecCounterBlock);
+
+                Array.Clear(outputTag, outputTagOffset, outputTagLength);
+                Array.Copy(_encdecTagBlock, 0, outputTag, outputTagOffset, Math.Min(outputTagLength, BLOCK_BYTE_LENGTH));
+            }
+        }
+
+        /// <summary>
+        /// Decrypt
+        /// </summary>
+        /// <param name="input">input buffer</param>
+        /// <param name="inputOffset">input offset</param>
+        /// <param name="inputLength">input length in bytes</param>
+        /// <param name="aad">AAD (Additional Authenticated Data) buffer</param>
+        /// <param name="aadOffset">AAD offset</param>
+        /// <param name="aadLength">AAD length in bytes</param>
+        /// <param name="tag">buffer for authentication tag</param>
+        /// <param name="tagOffset">offset of the buffer for authentication tag</param>
+        /// <param name="tagLength">authentication tag length in bytes</param>
+        /// <param name="output">output buffer. this can be the same array as <paramref name="input"/></param>
+        /// <param name="outputOffset">output offset</param>
+        /// <returns>true if the authentication tag is correct. otherwise false.</returns>
+        public bool Decrypt(byte[] input, int inputOffset, int inputLength, byte[] aad, int aadOffset, int aadLength, byte[] tag, int tagOffset, int tagLength, byte[] output, int outputOffset) {
+            lock (_encdecSync) {
+                if (tagLength > BLOCK_BYTE_LENGTH) {
+                    throw new ArgumentException("Invalid tag length");
+                }
+
+                // S <-- GHASH (A || v0 || C || u0 || [len(A)]64 || [len(C)]64)
+                //    A: AAD
+                //    v0: zero padding to 128 bit boundary
+                //    C: ciphertext
+                //    u0: zero padding to 128 bit boundary
+                //    [len(A)]64: bit length of AAD as 64 bit integer
+                //    [len(C)]64: bit length of ciphertext as 64 bit integer
+                //    S: result of GHASH
+                UI128 hash = UpdateGhash(aad, aadOffset, aadLength, UI128.Zero());
+                hash = UpdateGhash(input, inputOffset, inputLength, hash);
+                SetBE64((ulong)aadLength * 8, _encdecLengthBlock, 0);
+                SetBE64((ulong)inputLength * 8, _encdecLengthBlock, 8);
+                hash = UpdateGhash(_encdecLengthBlock, 0, BLOCK_BYTE_LENGTH, hash);
+                hash.CopyTo(_encdecHashBlock, 0);
+
+                // P <-- GCTR(inc32(J0), C)
+                //    J0: initial value for the counter block
+                //    C: ciphertext
+                //    P: plaintext
+                ResetCounterBlock(_encdecCounterBlock);
+                IncrementCounter(_encdecCounterBlock);
+                UpdateGctr(input, inputOffset, inputLength, output, outputOffset, _encdecCounterBlock);
+
+                // T <-- MSB(GCTR(J0, S))
+                //    J0: initial value for the counter block
+                //    S: result of GHASH
+                //    MSB(): take higher bits
+                //    T: tag
+                ResetCounterBlock(_encdecCounterBlock); // counter block <-- ICB
+                UpdateGctr(_encdecHashBlock, 0, BLOCK_BYTE_LENGTH, _encdecTagBlock, 0, _encdecCounterBlock);
+
+                for (int i = 0; i < tagLength; i++) {
+                    if (_encdecTagBlock[i] != tag[tagOffset + i]) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// A 128 bit block consisting of a pair of 64 bit integers.
+        /// </summary>
+        internal struct UI128 {
+            public ulong hi;
+            public ulong lo;
+
+            public UI128(ulong hi, ulong lo) {
+                this.hi = hi;
+                this.lo = lo;
+            }
+
+            public static UI128 Zero() {
+                return new UI128(0UL, 0UL);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public static UI128 From(byte[] block, int offset) {
+                return new UI128(GetBE64(block, offset), GetBE64(block, offset + 8));
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public static UI128 From(byte[] block, int offset, int length) {
+                if (length < 8) {
+                    return new UI128(GetBE64(block, offset, length), 0UL);
+                }
+                else if (length < 16) {
+                    return new UI128(GetBE64(block, offset), GetBE64(block, offset + 8, length - 8));
+                }
+                return From(block, offset);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void CopyTo(byte[] block, int offset) {
+                SetBE64(hi, block, offset);
+                SetBE64(lo, block, offset + 8);
+            }
+        }
+
+        /// <summary>
+        /// Multiplication in GF(2^128)
+        /// </summary>
+        /// <param name="x">input block</param>
+        /// <param name="y">input block</param>
+        /// <returns>result</returns>
+        private UI128 GFMul(ref UI128 x, ref UI128 y) {
+            // copy to local variables so that they are assigned to registers
+            ulong zh = 0UL;
+            ulong zl = 0UL;
+            ulong vh = y.hi;
+            ulong vl = y.lo;
+            // NIST 800-38D describes that "x0x1...x127 denote the sequence of bits in X."
+            // It means that x0 is the left-most bit (=MSB), and x127 is the right-most bit (=LSB).
+            ulong xq = x.hi;
+            for (int i = 0; i < 2; i++) {
+                for (int s = 63; s >= 0; s--) {
+                    ulong xbit = (xq >> s) & 1UL;
+                    zl ^= vl * xbit;
+                    zh ^= vh * xbit;
+                    ulong lsb = vl & 1UL;
+                    shiftRight(ref vh, ref vl);
+                    vh ^= 0xe100000000000000UL * lsb;
+                }
+                xq = x.lo;
+            }
+
+            return new UI128(zh, zl);
+        }
+
+        /// <summary>
+        /// Multiplication in GF(2^128) using pre-computed table
+        /// </summary>
+        /// <param name="x">input block</param>
+        /// <param name="m">pre-computed table</param>
+        /// <returns>result</returns>
+        private UI128 GFMulByTable(ref UI128 x, UI128[,] m) {
+            ulong zh = 0UL;
+            ulong zl = 0UL;
+            ulong xq = x.hi;
+            for (int i = 0, shift = 56; i < 8; i++, shift -= 8) {
+                int b = (byte)(xq >> shift);
+                UI128 v = m[i, b];
+                zh ^= v.hi;
+                zl ^= v.lo;
+            }
+            xq = x.lo;
+            for (int i = 8, shift = 56; i < 16; i++, shift -= 8) {
+                int b = (byte)(xq >> shift);
+                UI128 v = m[i, b];
+                zh ^= v.hi;
+                zl ^= v.lo;
+            }
+            return new UI128(zh, zl);
+        }
+
+        /// <summary>
+        /// Make pre-computed table
+        /// </summary>
+        /// <param name="h">input block</param>
+        /// <returns>pre-computed table</returns>
+        private UI128[,] MakeGFMulTable(ref UI128 h) {
+            // from D. McGrew, J. Viega, "The Galois/Counter Mode of Operation (GCM)"
+            UI128[,] table = new UI128[16, 256];
+            for (int n = 0; n < 256; n++) {
+                UI128 x = new UI128((ulong)n << 56, 0UL); // set x0(MSB) .. x7
+                UI128 m = GFMul(ref x, ref h); // X * H
+                table[0, n] = m;
+                for (int i = 1; i < 16; i++) {
+                    m = GFMulP(ref m, 8); // X * H * P^(8i)
+                    table[i, n] = m;
+                }
+            }
+            return table;
+        }
+
+        /// <summary>
+        /// <p>Calculate X * P^n in GF(2^128)</p>
+        /// </summary>
+        /// <param name="x">input block</param>
+        /// <param name="n">exponent of P</param>
+        /// <returns>result</returns>
+        private UI128 GFMulP(ref UI128 x, int n) {
+            // from D. McGrew, J. Viega, "The Galois/Counter Mode of Operation (GCM)"
+            // This method is equivalent to the following operation:
+            //    v = x
+            //    repeat n times:
+            //       v = GFMul(v, P)
+            //
+            // P = 0x4000 0000 ... 0000
+            // The product X * P corresponds to a right-shift of X.
+
+            ulong xh = x.hi;
+            ulong xl = x.lo;
+            do {
+                ulong lsb = xl & 1UL;
+                shiftRight(ref xh, ref xl);
+                xh ^= 0xe100000000000000UL * lsb;
+            } while (--n > 0);
+            return new UI128(xh, xl);
+        }
+
+        /// <summary>
+        /// Update GHASH
+        /// </summary>
+        /// <param name="input">input buffer</param>
+        /// <param name="inputOffset">input offset</param>
+        /// <param name="inputLength">input length</param>
+        /// <param name="hash">initial state</param>
+        /// <returns>new state</returns>
+        private UI128 UpdateGhash(byte[] input, int inputOffset, int inputLength, UI128 hash) {
+            while (inputLength > 0) {
+                UI128 block;
+                if (inputLength < BLOCK_BYTE_LENGTH) {
+                    block = UI128.From(input, inputOffset, inputLength);
+                }
+                else {
+                    block = UI128.From(input, inputOffset);
+                }
+
+                hash.hi ^= block.hi;
+                hash.lo ^= block.lo;
+
+                hash = GFMulByTable(ref hash, _gfmulTable);
+                // without optimization:
+                // hash = GFMul(ref hash, ref _ghashSubkey);
+
+                inputOffset += BLOCK_BYTE_LENGTH;
+                inputLength -= BLOCK_BYTE_LENGTH;
+            }
+            return hash;
+        }
+
+        /// <summary>
+        /// Update GCTR
+        /// </summary>
+        /// <param name="input">input buffer</param>
+        /// <param name="inputOffset">input offset</param>
+        /// <param name="inputLength">input length</param>
+        /// <param name="output">output buffer</param>
+        /// <param name="outputOffset">output offset</param>
+        /// <param name="counter">counter block. this block is updated in this method.</param>
+        private void UpdateGctr(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, byte[] counter) {
+            while (inputLength > 0) {
+                blockEncrypt(counter, 0, _gctrTmpBlock, 0);
+
+                int len = Math.Min(inputLength, BLOCK_BYTE_LENGTH);
+
+                CipherUtil.BlockXor2(_gctrTmpBlock, 0, input, inputOffset, len, output, outputOffset);
+
+                IncrementCounter(counter);
+
+                inputOffset += len;
+                inputLength -= len;
+                outputOffset += len;
+            }
+        }
+
+        /// <summary>
+        /// Increment counter block
+        /// </summary>
+        /// <param name="counter">counter block</param>
+        internal void IncrementCounter(byte[] counter) {
+            Debug.Assert(counter.Length == BLOCK_BYTE_LENGTH);
+            // incriment lower 32 bit
+            if (++counter[BLOCK_BYTE_LENGTH - 1] == 0) {
+                if (++counter[BLOCK_BYTE_LENGTH - 2] == 0) {
+                    if (++counter[BLOCK_BYTE_LENGTH - 3] == 0) {
+                        ++counter[BLOCK_BYTE_LENGTH - 4];
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Calculate GHASH subkey
+        /// </summary>
+        /// <remarks>
+        /// <see cref="InitializeCounterBlock(byte[])"/> have to be called before this method.
+        /// </remarks>
+        private void CalcGhashSubkey() {
+            byte[] input = new byte[BLOCK_BYTE_LENGTH]; // zero-filled
+            byte[] output = new byte[BLOCK_BYTE_LENGTH];
+            blockEncrypt(input, 0, output, 0);
+            _ghashSubkey = UI128.From(output, 0);
+            _gfmulTable = MakeGFMulTable(ref _ghashSubkey);
+        }
+
+        /// <summary>
+        /// Initialize counter block
+        /// </summary>
+        /// <param name="iv">IV</param>
+        /// <remarks>
+        /// <see cref="CalcGhashSubkey"/> have to be called before this method.
+        /// </remarks>
+        private void InitializeCounterBlock(byte[] iv) {
+            ClearBlock(_initialCounterBlock);
+
+            if (iv.Length == 12) { // 96 bit IV
+                Array.Copy(iv, 0, _initialCounterBlock, 0, iv.Length);
+                _initialCounterBlock[15] = 1;
+            }
+            else {
+                UI128 hash = UpdateGhash(iv, 0, iv.Length, UI128.Zero());
+                byte[] lengthBlock = _initialCounterBlock; // avoid temporary memory allocation
+                SetBE64((ulong)iv.Length * 8, lengthBlock, BLOCK_BYTE_LENGTH - 8);
+                hash = UpdateGhash(lengthBlock, 0, lengthBlock.Length, hash);
+                hash.CopyTo(_initialCounterBlock, 0);
+            }
+        }
+
+        /// <summary>
+        /// Reset the counter block as the initial counter block
+        /// </summary>
+        /// <param name="counter">counter block</param>
+        private void ResetCounterBlock(byte[] counter) {
+            Debug.Assert(counter.Length == BLOCK_BYTE_LENGTH);
+            Array.Copy(_initialCounterBlock, counter, BLOCK_BYTE_LENGTH);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void shiftLeft(ref ulong h, ref ulong l) {
+            h = (h << 1) | (l >> 63);
+            l <<= 1;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void shiftRight(ref ulong h, ref ulong l) {
+            l = (l >> 1) | ((h & 1UL) << 63);
+            h >>= 1;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ulong GetBE64(byte[] buff, int offset) {
+            return ((ulong)buff[offset + 7])
+                | ((ulong)buff[offset + 6] << 8)
+                | ((ulong)buff[offset + 5] << 16)
+                | ((ulong)buff[offset + 4] << 24)
+                | ((ulong)buff[offset + 3] << 32)
+                | ((ulong)buff[offset + 2] << 40)
+                | ((ulong)buff[offset + 1] << 48)
+                | ((ulong)buff[offset] << 56);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ulong GetBE64(byte[] buff, int offset, int length) {
+            ulong v = 0UL;
+            switch (length) {
+                case 8:
+                    v |= ((ulong)buff[offset + 7]);
+                    goto case 7;
+                case 7:
+                    v |= ((ulong)buff[offset + 6] << 8);
+                    goto case 6;
+                case 6:
+                    v |= ((ulong)buff[offset + 5] << 16);
+                    goto case 5;
+                case 5:
+                    v |= ((ulong)buff[offset + 4] << 24);
+                    goto case 4;
+                case 4:
+                    v |= ((ulong)buff[offset + 3] << 32);
+                    goto case 3;
+                case 3:
+                    v |= ((ulong)buff[offset + 2] << 40);
+                    goto case 2;
+                case 2:
+                    v |= ((ulong)buff[offset + 1] << 48);
+                    goto case 1;
+                case 1:
+                    v |= ((ulong)buff[offset] << 56);
+                    break;
+                default:
+                    break;
+            }
+            return v;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void SetBE64(ulong v, byte[] buff, int offset) {
+            buff[offset + 7] = (byte)v;
+            buff[offset + 6] = (byte)(v >> 8);
+            buff[offset + 5] = (byte)(v >> 16);
+            buff[offset + 4] = (byte)(v >> 24);
+            buff[offset + 3] = (byte)(v >> 32);
+            buff[offset + 2] = (byte)(v >> 40);
+            buff[offset + 1] = (byte)(v >> 48);
+            buff[offset] = (byte)(v >> 56);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void ClearBlock(byte[] block) {
+            Debug.Assert(block.Length == BLOCK_BYTE_LENGTH);
+            block[0] =
+            block[1] =
+            block[2] =
+            block[3] =
+            block[4] =
+            block[5] =
+            block[6] =
+            block[7] =
+            block[8] =
+            block[9] =
+            block[10] =
+            block[11] =
+            block[12] =
+            block[13] =
+            block[14] =
+            block[15] = 0;
+        }
+    }
+
 }

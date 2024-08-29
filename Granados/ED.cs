@@ -488,57 +488,6 @@ namespace Granados.PKI {
         }
     }
 
-#if DEBUG
-    internal static class CurveEd25519Test {
-        // Test of signing and verifying using test vectors
-        // http://ed25519.cr.yp.to/python/sign.input
-        internal static void Test() {
-            using (var reader = new System.IO.StreamReader(@"sign.input")) {
-                int skip = 0;
-                int count = 0;
-                while (true) {
-                    string line = reader.ReadLine();
-                    if (line == null) {
-                        break;
-                    }
-                    count++;
-                    if (count <= skip) {
-                        continue;
-                    }
-                    System.Diagnostics.Debug.WriteLine("Line {0}", count);
-
-                    string[] w = line.Split(':');
-                    byte[][] b = w.Select(s => BigIntegerConverter.ParseHex(s)).ToArray();
-                    byte[] privateKey = new byte[32];
-                    Buffer.BlockCopy(b[0], 0, privateKey, 0, 32);
-                    byte[] publicKey = b[1];
-                    byte[] message = b[2];
-                    byte[] signature = new byte[64];
-                    Buffer.BlockCopy(b[3], 0, signature, 0, 64);
-
-                    CurveEd25519 curve = new CurveEd25519();
-
-                    byte[] sig;
-                    if (!curve.Sign(privateKey, message, out sig)) {
-                        throw new Exception("signing failed");
-                    }
-                    if (sig.Length != signature.Length) {
-                        throw new Exception("invalid sign length");
-                    }
-                    for (int i = 0; i < signature.Length; ++i) {
-                        if (sig[i] != signature[i]) {
-                            throw new Exception("signs doesn't match");
-                        }
-                    }
-                    if (!curve.Verify(publicKey, signature, message)) {
-                        throw new Exception("verification failed");
-                    }
-                }
-            }
-        }
-    }
-#endif
-
     /// <summary>
     /// EDDSA public key
     /// </summary>

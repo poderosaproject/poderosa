@@ -176,38 +176,50 @@ namespace Granados {
         /// <ja>AES128（SSH2のみ有効）</ja>
         /// <en>AES128（SSH2 only）</en>
         /// </summary>
-        [AlgorithmSpec(AlgorithmName = "AES128", DefaultPriority = 3)]
+        [AlgorithmSpec(AlgorithmName = "AES128", DefaultPriority = 5)]
         AES128 = 10,
         /// <summary>
         /// <ja>AES192（SSH2のみ有効）</ja>
         /// <en>AES192（SSH2 only）</en>
         /// </summary>
-        [AlgorithmSpec(AlgorithmName = "AES192", DefaultPriority = 5)]
+        [AlgorithmSpec(AlgorithmName = "AES192", DefaultPriority = 7)]
         AES192 = 11,
         /// <summary>
         /// <ja>AES256（SSH2のみ有効）</ja>
         /// <en>AES256（SSH2 only）</en>
         /// </summary>
-        [AlgorithmSpec(AlgorithmName = "AES256", DefaultPriority = 7)]
+        [AlgorithmSpec(AlgorithmName = "AES256", DefaultPriority = 9)]
         AES256 = 12,
         /// <summary>
         /// <ja>AES128-CTR（SSH2のみ有効）</ja>
         /// <en>AES128-CTR（SSH2 only）</en>
         /// </summary>
-        [AlgorithmSpec(AlgorithmName = "AES128CTR", DefaultPriority = 4)]
+        [AlgorithmSpec(AlgorithmName = "AES128CTR", DefaultPriority = 6)]
         AES128CTR = 13,
         /// <summary>
         /// <ja>AES192-CTR（SSH2のみ有効）</ja>
         /// <en>AES192-CTR（SSH2 only）</en>
         /// </summary>
-        [AlgorithmSpec(AlgorithmName = "AES192CTR", DefaultPriority = 6)]
+        [AlgorithmSpec(AlgorithmName = "AES192CTR", DefaultPriority = 8)]
         AES192CTR = 14,
         /// <summary>
         /// <ja>AES256-CTR（SSH2のみ有効）</ja>
         /// <en>AES256-CTR（SSH2 only）</en>
         /// </summary>
-        [AlgorithmSpec(AlgorithmName = "AES256CTR", DefaultPriority = 8)]
+        [AlgorithmSpec(AlgorithmName = "AES256CTR", DefaultPriority = 10)]
         AES256CTR = 15,
+        /// <summary>
+        /// <ja>AES128-GCM（SSH2のみ有効）</ja>
+        /// <en>AES128-GCM（SSH2 only）</en>
+        /// </summary>
+        [AlgorithmSpec(AlgorithmName = "AES128GCM", DefaultPriority = 3)]
+        AES128GCM = 16,
+        /// <summary>
+        /// <ja>AES256-GCM（SSH2のみ有効）</ja>
+        /// <en>AES256-GCM（SSH2 only）</en>
+        /// </summary>
+        [AlgorithmSpec(AlgorithmName = "AES256GCM", DefaultPriority = 4)]
+        AES256GCM = 17,
     }
 
     /// <summary>
@@ -324,6 +336,8 @@ namespace Granados {
         HMACSHA1,
         HMACSHA256,
         HMACSHA512,
+        AEAD_AES_128_GCM,
+        AEAD_AES_256_GCM,
     }
 
     /// <summary>

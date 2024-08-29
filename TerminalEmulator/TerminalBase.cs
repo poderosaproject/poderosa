@@ -542,17 +542,26 @@ namespace Poderosa.Terminal {
             _scrollBarValues.Dirty = false;
         }
 
-        //ドキュメントロック中でないと呼んではだめ
         public void IndicateBell() {
             IPoderosaMainWindow window = _session.OwnerWindow;
             if (window != null) {
-                Debug.Assert(window.AsForm().InvokeRequired);
-                Monitor.Exit(GetDocument());
+                // If this thread is not a GUI thread, SetStatusIcon() calls Form.Invoke() and waits for completion of the task in the GUI thread.
+                // However, if a document lock has already been acquired by this thread, a deadlock will occur, because the GUI thread will also
+                // wait for the acquisition of the document lock to redraw the screen.
+                var document = GetDocument();
+                bool isLocked = Monitor.IsEntered(document);
+                if (isLocked) {
+                    Monitor.Exit(document);
+                }
                 window.StatusBar.SetStatusIcon(Poderosa.TerminalEmulator.Properties.Resources.Bell16x16);
-                Monitor.Enter(GetDocument());
+                if (isLocked) {
+                    Monitor.Enter(document);
+                }
             }
-            if (GEnv.Options.BeepOnBellChar)
+
+            if (GEnv.Options.BeepOnBellChar) {
                 Win32.MessageBeep(-1);
+            }
         }
 
         protected void SetDocumentCursor(Cursor cursor) {
