@@ -509,8 +509,50 @@ namespace Poderosa.Terminal {
             _manipulator.PutChar(unicodeChar, _currentdecoration);
         }
 
+        [EscapeSequence(ControlCode.ESC, ' ', 'F')] // S7C1T
+        [EscapeSequence(ControlCode.ESC, ' ', 'G')] // S8C1T
+        [EscapeSequence(ControlCode.ESC, ' ', 'L')] // dpANS X3.134.1 - ANSI conformance level 1
+        [EscapeSequence(ControlCode.ESC, ' ', 'M')] // dpANS X3.134.1 - ANSI conformance level 2
+        [EscapeSequence(ControlCode.ESC, ' ', 'N')] // dpANS X3.134.1 - ANSI conformance level 3
+        [EscapeSequence(ControlCode.ESC, '#', '3')] // DECDHL – Double Height Line / top half
+        [EscapeSequence(ControlCode.ESC, '#', '4')] // DECDHL – Double Height Line / bottom half
+        [EscapeSequence(ControlCode.ESC, '#', '5')] // DECSWL – Single-width Line
+        [EscapeSequence(ControlCode.ESC, '#', '6')] // DECDWL – Double-Width Line
+        [EscapeSequence(ControlCode.ESC, '#', '8')] // DECALN – Screen Alignment Display
+        [EscapeSequence(ControlCode.ESC, '%', '@')] // Select default character set
+        [EscapeSequence(ControlCode.ESC, '%', 'G')] // Select UTF-8 character set
+        [EscapeSequence(ControlCode.ESC, 'l')] // Memory Lock
+        [EscapeSequence(ControlCode.ESC, 'm')] // Memory Unlock
+        [EscapeSequence(ControlCode.SI)] // LS0 - Map G0 into GL (SI should be already processed by CharDecoder)
+        [EscapeSequence(ControlCode.SO)] // LS1 - Map G1 into GL (SO should be already processed by CharDecoder)
+        [EscapeSequence(ControlCode.ESC, 'n')] // LS2 - Map G2 into GL
+        [EscapeSequence(ControlCode.ESC, '}')] // LS2R - Map G2 into GR
+        [EscapeSequence(ControlCode.ESC, 'o')] // LS3 - Map G3 into GL
+        [EscapeSequence(ControlCode.ESC, '|')] // LS3R - Map G3 into GR
+        [EscapeSequence(ControlCode.ESC, '~')] // LS1R - Map G1 into GR
+        private void Ignore() {
+        }
+
+        [EscapeSequence(ControlCode.ESC, '(', EscapeSequenceParamType.SinglePrintable)] // Designate G0 Character Set
+        [EscapeSequence(ControlCode.ESC, '(', '%', EscapeSequenceParamType.SinglePrintable)] // Designate G0 Character Set
+        [EscapeSequence(ControlCode.ESC, '(', '&', EscapeSequenceParamType.SinglePrintable)] // Designate G0 Character Set
+        [EscapeSequence(ControlCode.ESC, '(', '"', EscapeSequenceParamType.SinglePrintable)] // Designate G0 Character Set
+        [EscapeSequence(ControlCode.ESC, ')', EscapeSequenceParamType.SinglePrintable)] // Designate G1 Character Set
+        [EscapeSequence(ControlCode.ESC, '*', EscapeSequenceParamType.SinglePrintable)] // Designate G2 Character Set
+        [EscapeSequence(ControlCode.ESC, '+', EscapeSequenceParamType.SinglePrintable)] // Designate G3 Character Set
+        [EscapeSequence(ControlCode.ESC, '-', EscapeSequenceParamType.SinglePrintable)] // Designate G1 Character Set
+        [EscapeSequence(ControlCode.ESC, '.', EscapeSequenceParamType.SinglePrintable)] // Designate G2 Character Set
+        [EscapeSequence(ControlCode.ESC, '/', EscapeSequenceParamType.SinglePrintable)] // Designate G3 Character Set
+        private void Ignore(char ch) {
+        }
+
+        [EscapeSequence(ControlCode.APC, EscapeSequenceParamType.Text, ControlCode.ST)] // Application Program Command
+        private void Ignore(string p) {
+        }
+
         [EscapeSequence(ControlCode.LF)]
         [EscapeSequence(ControlCode.VT)]
+        [EscapeSequence(ControlCode.FF)]
         private void LineFeed() {
             LineFeedRule rule = GetTerminalSettings().LineFeedRule;
             if (rule == LineFeedRule.Normal) {
@@ -565,16 +607,6 @@ namespace Poderosa.Terminal {
             _manipulator.CaretColumn = GetNextTabStop(_manipulator.CaretColumn);
         }
 
-        [EscapeSequence(ControlCode.SO)]
-        private void ShiftOut() {
-            // SO should be already processed by CharDecoder
-        }
-
-        [EscapeSequence(ControlCode.SI)]
-        private void ShiftIn() {
-            // SI should be already processed by CharDecoder
-        }
-
         private void DoLineFeed() {
             _manipulator.EOLType = (_manipulator.EOLType == EOLType.CR || _manipulator.EOLType == EOLType.CRLF) ? EOLType.CRLF : EOLType.LF;
             GLine lineUpdated = GetDocument().UpdateCurrentLine(_manipulator);
@@ -591,6 +623,50 @@ namespace Poderosa.Terminal {
         private void DoCarriageReturn() {
             _manipulator.CarriageReturn();
             _manipulator.EOLType = EOLType.CR;  // will be changed to CRLF in DoLineFeed()
+        }
+
+        [EscapeSequence(ControlCode.ESC, '6')]
+        private void BackIndex() {
+            if (_manipulator.CaretColumn > 0) {
+                _manipulator.CaretColumn--;
+            }
+            else {
+                ShiftScreen(1);
+            }
+        }
+
+        [EscapeSequence(ControlCode.ESC, '9')]
+        private void ForwardIndex() {
+            if (_manipulator.CaretColumn < GetDocument().TerminalWidth - 1) {
+                _manipulator.CaretColumn++;
+            }
+            else {
+                ShiftScreen(-1);
+            }
+        }
+
+        private void ShiftScreen(int columns) {
+            TerminalDocument doc = GetDocument();
+
+            int caretColumn = _manipulator.CaretColumn;
+            doc.UpdateCurrentLine(_manipulator);
+
+            int w = doc.TerminalWidth;
+            int m = doc.TerminalHeight;
+            for (GLine l = doc.TopLine; l != null; l = l.NextLine) {
+                _manipulator.Load(l, 0);
+                if (columns > 0) {
+                    _manipulator.InsertBlanks(0, columns, _currentdecoration);
+                }
+                else if (columns < 0) {
+                    _manipulator.DeleteChars(0, -columns, _currentdecoration);
+                }
+                _manipulator.ExportTo(l);
+            }
+
+            _manipulator.Load(doc.CurrentLine, caretColumn);
+
+            doc.InvalidateAll();
         }
 
 #if NOTUSED
@@ -823,7 +899,10 @@ namespace Poderosa.Terminal {
         private void ProcessCursorUp(NumericParams p) {
             int count = p.Get(0, 1);
             int column = _manipulator.CaretColumn;
-            GetDocument().UpdateCurrentLine(_manipulator);
+            GLine lineUpdated = GetDocument().UpdateCurrentLine(_manipulator);
+            if (lineUpdated != null) {
+                this.LogService.TextLogger.WriteLine(lineUpdated);
+            }
             GetDocument().CurrentLineNumber = (GetDocument().CurrentLineNumber - count);
             _manipulator.Load(GetDocument().CurrentLine, column);
         }
@@ -832,7 +911,10 @@ namespace Poderosa.Terminal {
         private void ProcessCursorDown(NumericParams p) {
             int count = p.Get(0, 1);
             int column = _manipulator.CaretColumn;
-            GetDocument().UpdateCurrentLine(_manipulator);
+            GLine lineUpdated = GetDocument().UpdateCurrentLine(_manipulator);
+            if (lineUpdated != null) {
+                this.LogService.TextLogger.WriteLine(lineUpdated);
+            }
             GetDocument().CurrentLineNumber = (GetDocument().CurrentLineNumber + count);
             _manipulator.Load(GetDocument().CurrentLine, column);
         }
@@ -859,12 +941,28 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'E')]
         private void ProcessCursorNextLine(NumericParams p) {
-            throw new UnknownEscapeSequenceException("not implemented");
+            TerminalDocument doc = GetDocument();
+            int count = p.Get(0, 1);
+            int bottomLineNumber = doc.TopLineNumber + doc.TerminalHeight - 1;
+            GLine lineUpdated = doc.UpdateCurrentLine(_manipulator);
+            if (lineUpdated != null) {
+                this.LogService.TextLogger.WriteLine(lineUpdated);
+            }
+            doc.CurrentLineNumber = Math.Min(doc.CurrentLineNumber + count, bottomLineNumber);
+            _manipulator.Load(doc.CurrentLine, 0);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'F')]
         private void ProcessCursorPrecedingLine(NumericParams p) {
-            throw new UnknownEscapeSequenceException("not implemented");
+            TerminalDocument doc = GetDocument();
+            int count = p.Get(0, 1);
+            int topLineNumber = doc.TopLineNumber;
+            GLine lineUpdated = doc.UpdateCurrentLine(_manipulator);
+            if (lineUpdated != null) {
+                this.LogService.TextLogger.WriteLine(lineUpdated);
+            }
+            doc.CurrentLineNumber = Math.Max(doc.CurrentLineNumber - count, topLineNumber);
+            _manipulator.Load(doc.CurrentLine, 0);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'H')]
@@ -958,10 +1056,13 @@ namespace Poderosa.Terminal {
                         _manipulator.Load(doc.CurrentLine, col);
                     }
                     break;
+                case 3: //saved lines
+                    // not implemented
+                    break;
                 default:
-                    throw new UnknownEscapeSequenceException("unknown ED option");
+                    // ignore
+                    break;
             }
-
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'K')]
@@ -1046,18 +1147,6 @@ namespace Poderosa.Terminal {
             GetDocument().UpdateCurrentLine(_manipulator);
             GetDocument().CurrentLineNumber = (GetDocument().CurrentLineNumber + 1);
             _manipulator.Load(GetDocument().CurrentLine, 0);
-        }
-
-        [EscapeSequence(ControlCode.ESC, ' ', 'F')]
-        private void ProcessS7C1T() {
-        }
-
-        [EscapeSequence(ControlCode.ESC, ' ', 'G')]
-        private void ProcessS8C1T() {
-        }
-
-        [EscapeSequence(ControlCode.ESC, ' ', 'L')]
-        private void ProcessSetANSICconformanceLevel1() {
         }
 
         [EscapeSequence(ControlCode.ESC, '=')]
@@ -1977,6 +2066,18 @@ namespace Poderosa.Terminal {
         private void ProcessInsertBlankCharacters(NumericParams p) {
             int n = p.Get(0, 1);
             _manipulator.InsertBlanks(_manipulator.CaretColumn, n, _currentdecoration);
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', '@')]
+        private void ProcessShiftLeft(NumericParams p) {
+            int n = p.Get(0, 1);
+            ShiftScreen(-n);
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', 'A')]
+        private void ProcessShiftRight(NumericParams p) {
+            int n = p.Get(0, 1);
+            ShiftScreen(n);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'S')]

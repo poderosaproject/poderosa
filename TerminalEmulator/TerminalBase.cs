@@ -585,6 +585,7 @@ namespace Poderosa.Terminal {
         public const char HT = '\u0009';
         public const char LF = '\u000a';
         public const char VT = '\u000b';
+        public const char FF = '\u000c';
         public const char CR = '\u000d';
         public const char SO = '\u000e';
         public const char SI = '\u000f';
