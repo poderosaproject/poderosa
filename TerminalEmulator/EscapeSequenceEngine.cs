@@ -36,6 +36,10 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// Text parameter
         /// </summary>
         Text,
+        /// <summary>
+        /// A next single printable character
+        /// </summary>
+        SinglePrintable,
     }
 
     /// <summary>
@@ -222,6 +226,14 @@ namespace Poderosa.Terminal.EscapeSequence {
             }
 
             /// <summary>
+            /// Get a last character
+            /// </summary>
+            /// <returns>a last character</returns>
+            public char GetLastChar() {
+                return _buff[_buff.Length - 1];
+            }
+
+            /// <summary>
             /// Get numeric parameters
             /// </summary>
             /// <param name="numericParams">An array of single numeric parameters. If the parameter is not a single numeric parameter, the element is null.</param>
@@ -370,74 +382,18 @@ namespace Poderosa.Terminal.EscapeSequence {
                 return (ch <= CHAR_MAX) ? table[ch] : null;
             }
 
-            public void Register(EscapeSequenceAttribute attr, Action<object, Context> action) {
-                FinalState final = new FinalState(action);
-
-                int prefixLen = attr.Prefix.Length;
-                if (prefixLen == 0) {
-                    throw new ArgumentException("missing prefix");
-                }
-
-                CharStateBase s = this;
-                for (int i = 0; i < prefixLen - 1; i++) {
-                    s = s.RegisterOrReuseState<CharState>(attr.Prefix[i]);
-                }
-
-                CharStateBase s2 = null;
-                if (attr.ParamType == EscapeSequenceParamType.Numeric) {
-                    // (this) ---[last-prefix-char]--> (CharState) --[0-9;:]--> (NumericParamsState) -->
-                    //                                     |
-                    //                                     V       numeric parameters were omitted
-                    //                                      ------------------------------------------->
-                    CharState charState = s.RegisterOrReuseState<CharState>(attr.Prefix[prefixLen - 1]);
-                    NumericParamsState numericParamsState = charState.RegisterOrReuseState<NumericParamsState>('0');
-                    foreach (char c in new char[] { '1', '2', '3', '4', '5', '6', '7', '8', '9', ';', ':' }) {
-                        // If numericParamsState was a reused one, the same instance should already be registered for '1' to ':'.
-                        // In such case, RegisterState() returns successfully.
-                        charState.RegisterState(c, numericParamsState);
-                    }
-                    s = numericParamsState;
-                    s2 = charState;
-                }
-                else if (attr.ParamType == EscapeSequenceParamType.Text) {
-                    s = s.RegisterOrReuseState<TextParamState>(attr.Prefix[prefixLen - 1]);
-                }
-                else /* if (attr.ParamType == EscapeSequenceParamType.None) */ {
-                    s.RegisterFinal(attr.Prefix[prefixLen - 1], final);
-                    return;
-                }
-
-                int suffixLen = attr.Suffix.Length;
-                if (suffixLen == 0) {
-                    throw new ArgumentException("missing suffix");
-                }
-                for (int i = 0; i < suffixLen - 1; i++) {
-                    CharStateBase lastState = s.RegisterOrReuseState<CharState>(attr.Suffix[i]);
-                    if (s2 != null) {
-                        s2.CopyTransitionFrom(s, attr.Suffix[i]);
-                    }
-                    s = lastState;
-                    s2 = null;
-                }
-
-                s.RegisterFinal(attr.Suffix[suffixLen - 1], final);
-                if (s2 != null) {
-                    s2.CopyTransitionFrom(s, attr.Suffix[suffixLen - 1]);
-                }
-            }
-
-            private void CopyTransitionFrom(CharStateBase reference, char ch) {
+            public void CopyTransitionFrom(CharStateBase reference, char ch) {
                 // register the same state instance in reference
-                RegisterState(ch, reference.table[ch]);
+                RegisterStateInternal(ch, reference.table[ch]);
 
                 // if the character is a special control character, alternative transiton would also registered in reference
                 char alt1, alt2;
                 if (To7bitPair(ch, out alt1, out alt2)) {
-                    RegisterState(alt1, reference.table[alt1]);
+                    RegisterStateInternal(alt1, reference.table[alt1]);
                 }
             }
 
-            private T RegisterOrReuseState<T>(char ch) where T : CharStateBase, new() {
+            public T RegisterOrReuseState<T>(char ch) where T : CharStateBase, new() {
                 // (this)---[ch]--->(T)
                 T s = this.RegisterOrReuseStateCore<T>(ch);
 
@@ -448,7 +404,7 @@ namespace Poderosa.Terminal.EscapeSequence {
                     //    V                                        |
                     //     -----[alt1]-->(CharState)---[alt2]------
                     CharState altState = this.RegisterOrReuseStateCore<CharState>(alt1);
-                    altState.RegisterState(alt2, s);
+                    altState.RegisterStateInternal(alt2, s);
                 }
 
                 return s;
@@ -473,7 +429,7 @@ namespace Poderosa.Terminal.EscapeSequence {
                 return (T)table[ch];
             }
 
-            private void RegisterState(char ch, State state) {
+            private void RegisterStateInternal(char ch, State state) {
                 if (ch > CHAR_MAX) {
                     throw new ArgumentException(String.Format("invalid character: u{0:x4}", (uint)ch));
                 }
@@ -489,18 +445,24 @@ namespace Poderosa.Terminal.EscapeSequence {
                 table[ch] = state;
             }
 
-            private void RegisterFinal(char ch, FinalState final) {
-                // (this)---[ch]--->(FinalState)
-                this.RegisterState(ch, final);
+            public void RegisterState(char ch, State state) {
+                // (this)---[ch]--->(State)
+                this.RegisterStateInternal(ch, state);
 
                 char alt1, alt2;
                 if (To7bitPair(ch, out alt1, out alt2)) {
-                    // (this)---------------[ch]----------------->(FinalState)
+                    // (this)---------------[ch]----------------->(State)
                     //    |                                        ^
                     //    V                                        |
                     //     -----[alt1]-->(CharState)---[alt2]------
                     CharState altState = this.RegisterOrReuseStateCore<CharState>(alt1);
-                    altState.RegisterState(alt2, final);
+                    altState.RegisterStateInternal(alt2, state);
+                }
+            }
+
+            public void RegisterStateIfNotSet(char ch, State state) {
+                if (table[ch] == null) {
+                    RegisterState(ch, state);
                 }
             }
 
@@ -694,82 +656,252 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         #endregion
 
-        /// <summary>
-        /// Register escape sequence handlers marked with EscapeSequenceAttribute.
-        /// </summary>
-        /// <param name="root">root state</param>
-        /// <param name="type">class containing escape sequence handlers</param>
-        protected static void RegisterHandlers(CharState root, Type type) {
-            foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
-                foreach (EscapeSequenceAttribute attr in method.GetCustomAttributes<EscapeSequenceAttribute>()) {
-                    RegisterHandler(root, attr, method);
+        #region DFA builder
+
+        internal class DFABuilder {
+
+            private readonly CharState _root;
+            private readonly List<Tuple<CharState, FinalState>> _singlePrintableStates = new List<Tuple<CharState, FinalState>>();
+
+            /// <summary>
+            /// Constructor
+            /// </summary>
+            /// <param name="root">root state</param>
+            public DFABuilder(CharState root) {
+                _root = root;
+            }
+
+            /// <summary>
+            /// Register escape sequence handlers marked with EscapeSequenceAttribute.
+            /// </summary>
+            /// <param name="type">class containing escape sequence handlers</param>
+            public void RegisterHandlers(Type type) {
+                RegisterHandlers(type, (method) => method.GetCustomAttributes<EscapeSequenceAttribute>());
+            }
+
+            /// <summary>
+            /// Register escape sequence handlers marked with EscapeSequenceAttribute.
+            /// </summary>
+            /// <param name="type">class containing escape sequence handlers</param>
+            /// <param name="getAttribute">function to get Attributes from MethodInfo</param>
+            public void RegisterHandlers(Type type, Func<MethodInfo, IEnumerable<EscapeSequenceAttribute>> getAttributes) {
+                List<EscapeSequenceAttribute> attrsParamTypeNone = new List<EscapeSequenceAttribute>();
+                List<EscapeSequenceAttribute> attrsParamTypeNumeric = new List<EscapeSequenceAttribute>();
+                List<EscapeSequenceAttribute> attrsParamTypeText = new List<EscapeSequenceAttribute>();
+                List<EscapeSequenceAttribute> attrsParamTypeSinglePrintable = new List<EscapeSequenceAttribute>();
+
+                foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
+                    attrsParamTypeNone.Clear();
+                    attrsParamTypeNumeric.Clear();
+                    attrsParamTypeText.Clear();
+                    attrsParamTypeSinglePrintable.Clear();
+
+                    foreach (EscapeSequenceAttribute attr in getAttributes(method)) {
+                        switch (attr.ParamType) {
+                            case EscapeSequenceParamType.None:
+                                attrsParamTypeNone.Add(attr);
+                                break;
+                            case EscapeSequenceParamType.Numeric:
+                                attrsParamTypeNumeric.Add(attr);
+                                break;
+                            case EscapeSequenceParamType.Text:
+                                attrsParamTypeText.Add(attr);
+                                break;
+                            case EscapeSequenceParamType.SinglePrintable:
+                                attrsParamTypeSinglePrintable.Add(attr);
+                                break;
+                            default:
+                                throw new ArgumentException("invalid EscapeSequenceParamType");
+                        }
+                    }
+
+                    if (attrsParamTypeNone.Count > 0) {
+                        RegisterParamTypeNoneHandlers(attrsParamTypeNone, method);
+                    }
+
+                    if (attrsParamTypeNumeric.Count > 0) {
+                        RegisterParamTypeNumericHandlers(attrsParamTypeNumeric, method);
+                    }
+
+                    if (attrsParamTypeText.Count > 0) {
+                        RegisterParamTypeTextHandlers(attrsParamTypeText, method);
+                    }
+
+                    if (attrsParamTypeSinglePrintable.Count > 0) {
+                        RegisterParamTypeSinglePrintableHandlers(attrsParamTypeSinglePrintable, method);
+                    }
+                }
+
+                // set final state for SinglePrintable parameter
+                foreach (var t in _singlePrintableStates) {
+                    CharState s = t.Item1;
+                    FinalState final = t.Item2;
+                    for (char ch = '\u0021'; ch <= '\u007e'; ch++) {
+                        s.RegisterStateIfNotSet(ch, final);
+                    }
+                }
+            }
+
+            private void RegisterParamTypeNoneHandlers(IEnumerable<EscapeSequenceAttribute> attributes, MethodInfo method) {
+                ParameterInfo[] parameters = method.GetParameters();
+
+                if (parameters.Length != 0) {
+                    throw new ArgumentException(String.Format("method must have no arguments: {0}", method.Name));
+                }
+
+                Action<object, Context> action = (obj, context) => method.Invoke(obj, null);
+
+                foreach (EscapeSequenceAttribute attr in attributes) {
+                    RegisterHandlerCore(attr, action);
+                }
+            }
+
+            private void RegisterParamTypeNumericHandlers(IEnumerable<EscapeSequenceAttribute> attributes, MethodInfo method) {
+                ParameterInfo[] parameters = method.GetParameters();
+
+                Action<object, Context> action;
+
+                if (parameters.Length == 0) {
+                    action = (obj, context) => method.Invoke(obj, null);
+                }
+                else if (parameters.Length == 1) {
+                    if (!parameters[0].ParameterType.IsAssignableFrom(typeof(NumericParams))) {
+                        throw new ArgumentException(String.Format("method argument type must be NumericParams: {0}", method.Name));
+                    }
+                    action = (obj, context) => {
+                        int?[] numericParams;
+                        int[][] combinationParams;
+                        context.GetNumericParams(out numericParams, out combinationParams);
+                        method.Invoke(obj, new object[] { new NumericParams(numericParams, combinationParams) });
+                    };
+                }
+                else {
+                    throw new ArgumentException(String.Format("too many arguments: {0}", method.Name));
+                }
+
+                foreach (EscapeSequenceAttribute attr in attributes) {
+                    RegisterHandlerCore(attr, action);
+                }
+            }
+
+            private void RegisterParamTypeTextHandlers(IEnumerable<EscapeSequenceAttribute> attributes, MethodInfo method) {
+                ParameterInfo[] parameters = method.GetParameters();
+
+                Action<object, Context> action;
+
+                if (parameters.Length == 0) {
+                    action = (obj, context) => method.Invoke(obj, null);
+                }
+                else if (parameters.Length == 1) {
+                    if (!parameters[0].ParameterType.IsAssignableFrom(typeof(string))) {
+                        throw new ArgumentException(String.Format("method argument type must be string: {0}", method.Name));
+                    }
+                    action = (obj, context) => {
+                        string textParam = context.GetTextParam();
+                        method.Invoke(obj, new object[] { textParam });
+                    };
+                }
+                else {
+                    throw new ArgumentException(String.Format("too many arguments: {0}", method.Name));
+                }
+
+                foreach (EscapeSequenceAttribute attr in attributes) {
+                    RegisterHandlerCore(attr, action);
+                }
+            }
+
+            private void RegisterParamTypeSinglePrintableHandlers(IEnumerable<EscapeSequenceAttribute> attributes, MethodInfo method) {
+                ParameterInfo[] parameters = method.GetParameters();
+
+                Action<object, Context> action;
+
+                if (parameters.Length == 0) {
+                    action = (obj, context) => method.Invoke(obj, null);
+                }
+                else if (parameters.Length == 1) {
+                    if (!parameters[0].ParameterType.IsAssignableFrom(typeof(char))) {
+                        throw new ArgumentException(String.Format("method argument type must be char: {0}", method.Name));
+                    }
+                    action = (obj, context) => {
+                        char paramChar = context.GetLastChar();
+                        method.Invoke(obj, new object[] { paramChar });
+                    };
+                }
+                else {
+                    throw new ArgumentException(String.Format("too many arguments: {0}", method.Name));
+                }
+
+                foreach (EscapeSequenceAttribute attr in attributes) {
+                    RegisterHandlerCore(attr, action);
+                }
+            }
+
+            private void RegisterHandlerCore(EscapeSequenceAttribute attr, Action<object, Context> action) {
+                FinalState final = new FinalState(action);
+
+                int prefixLen = attr.Prefix.Length;
+                if (prefixLen == 0) {
+                    throw new ArgumentException("missing prefix");
+                }
+
+                CharStateBase s = _root;
+                for (int i = 0; i < prefixLen - 1; i++) {
+                    s = s.RegisterOrReuseState<CharState>(attr.Prefix[i]);
+                }
+
+                CharStateBase s2 = null;
+                if (attr.ParamType == EscapeSequenceParamType.Numeric) {
+                    // (this) ---[last-prefix-char]--> (CharState) --[0-9;:]--> (NumericParamsState) -->
+                    //                                     |
+                    //                                     V       numeric parameters were omitted
+                    //                                      ------------------------------------------->
+                    CharState charState = s.RegisterOrReuseState<CharState>(attr.Prefix[prefixLen - 1]);
+                    NumericParamsState numericParamsState = charState.RegisterOrReuseState<NumericParamsState>('0');
+                    foreach (char c in new char[] { '1', '2', '3', '4', '5', '6', '7', '8', '9', ';', ':' }) {
+                        // If numericParamsState was a reused one, the same instance should already be registered for '1' to ':'.
+                        // In such case, RegisterState() returns successfully.
+                        charState.RegisterState(c, numericParamsState);
+                    }
+                    s = numericParamsState;
+                    s2 = charState;
+                }
+                else if (attr.ParamType == EscapeSequenceParamType.Text) {
+                    s = s.RegisterOrReuseState<TextParamState>(attr.Prefix[prefixLen - 1]);
+                }
+                else if (attr.ParamType == EscapeSequenceParamType.SinglePrintable) {
+                    CharState charState = s.RegisterOrReuseState<CharState>(attr.Prefix[prefixLen - 1]);
+                    if (_singlePrintableStates.Select(t => t.Item1).Where(st => Object.ReferenceEquals(st, charState)).Any()) {
+                        throw new ArgumentException("conflict SinglePrintable");
+                    }
+                    _singlePrintableStates.Add(Tuple.Create(charState, final)); // set final state later
+                    return;
+                }
+                else /* if (attr.ParamType == EscapeSequenceParamType.None) */ {
+                    s.RegisterState(attr.Prefix[prefixLen - 1], final);
+                    return;
+                }
+
+                int suffixLen = attr.Suffix.Length;
+                if (suffixLen == 0) {
+                    throw new ArgumentException("missing suffix");
+                }
+                for (int i = 0; i < suffixLen - 1; i++) {
+                    CharStateBase lastState = s.RegisterOrReuseState<CharState>(attr.Suffix[i]);
+                    if (s2 != null) {
+                        s2.CopyTransitionFrom(s, attr.Suffix[i]);
+                    }
+                    s = lastState;
+                    s2 = null;
+                }
+
+                s.RegisterState(attr.Suffix[suffixLen - 1], final);
+                if (s2 != null) {
+                    s2.CopyTransitionFrom(s, attr.Suffix[suffixLen - 1]);
                 }
             }
         }
 
-        private static void RegisterHandler(CharState root, EscapeSequenceAttribute attribute, MethodInfo method) {
-            Action<object, Context> action;
-            switch (attribute.ParamType) {
-                case EscapeSequenceParamType.None: {
-                        ParameterInfo[] parameters = method.GetParameters();
-                        if (parameters.Length == 0) {
-                            action = (obj, context) => method.Invoke(obj, null);
-                        }
-                        else {
-                            throw new ArgumentException(String.Format("method must have no arguments: {0}", method.Name));
-                        }
-                        break;
-                    }
-
-                case EscapeSequenceParamType.Numeric: {
-                        ParameterInfo[] parameters = method.GetParameters();
-
-                        if (parameters.Length == 0) {
-                            action = (obj, context) => method.Invoke(obj, null);
-                        }
-                        else if (parameters.Length == 1) {
-                            if (!parameters[0].ParameterType.IsAssignableFrom(typeof(NumericParams))) {
-                                throw new ArgumentException(String.Format("method argument type must be NumericParams: {0}", method.Name));
-                            }
-                            action = (obj, context) => {
-                                int?[] numericParams;
-                                int[][] combinationParams;
-                                context.GetNumericParams(out numericParams, out combinationParams);
-                                method.Invoke(obj, new object[] { new NumericParams(numericParams, combinationParams) });
-                            };
-                        }
-                        else {
-                            throw new ArgumentException(String.Format("too many arguments: {0}", method.Name));
-                        }
-                        break;
-                    }
-
-                case EscapeSequenceParamType.Text: {
-                        ParameterInfo[] parameters = method.GetParameters();
-                        if (parameters.Length == 0) {
-                            action = (obj, context) => method.Invoke(obj, null);
-                        }
-                        else if (parameters.Length == 1) {
-                            if (!parameters[0].ParameterType.IsAssignableFrom(typeof(string))) {
-                                throw new ArgumentException(String.Format("method argument type must be string: {0}", method.Name));
-                            }
-                            action = (obj, context) => {
-                                string textParam = context.GetTextParam();
-                                method.Invoke(obj, new object[] { textParam });
-                            };
-                        }
-                        else {
-                            throw new ArgumentException(String.Format("too many arguments: {0}", method.Name));
-                        }
-                        break;
-                    }
-
-                default:
-                    throw new ArgumentException("invalid EscapeSequenceParamType");
-            }
-
-            root.Register(attribute, action);
-        }
+        #endregion
     }
 
     /// <summary>
@@ -806,7 +938,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 #if DEBUG
                     long before = GC.GetTotalMemory(true);
 #endif
-                    RegisterHandlers(_root, typeof(T));
+                    new DFABuilder(_root).RegisterHandlers(typeof(T));
 #if DEBUG
                     long after = GC.GetTotalMemory(true);
 #endif
