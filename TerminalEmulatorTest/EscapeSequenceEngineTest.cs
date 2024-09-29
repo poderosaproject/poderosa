@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 using NUnit.Framework;
@@ -42,6 +43,16 @@ namespace Poderosa.Terminal.EscapeSequence {
             context.AppendChar('x');
             context.AppendChar('x');
             Assert.AreEqual(expected, context.GetTextParam());
+        }
+
+        [Test]
+        public void TestGetLastChar() {
+            EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
+            context.AppendChar('a');
+            context.AppendChar('b');
+            context.AppendChar('c');
+            context.AppendChar('d');
+            Assert.AreEqual('d', context.GetLastChar());
         }
 
         public static object[] TestGetNumericParamsPatterns =
@@ -102,18 +113,47 @@ namespace Poderosa.Terminal.EscapeSequence {
     }
 
     [TestFixture]
-    class EscapeSequenceEngineStateTest {
+    class EscapeSequenceEngineStateMachineBuilderTest {
 
-        private void DummyAction(object obj, EscapeSequenceEngineBase.Context context) {
+        class DummyClass {
+            private void DummyAction() {
+            }
+        }
+
+        class DummyClass4 {
+            private void DummyAction1() {
+            }
+            private void DummyAction2() {
+            }
+            private void DummyAction3() {
+            }
+            private void DummyAction4() {
+            }
+        }
+
+        private EscapeSequenceEngineBase.CharState Build(params EscapeSequenceAttribute[] attrs) {
+            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
+            new EscapeSequenceEngineBase.StateMachineBuilder(state).RegisterHandlers(
+                typeof(DummyClass),
+                (method) => {
+                    if (method.Name == "DummyAction") {
+                        return attrs;
+                    }
+                    else {
+                        return new EscapeSequenceAttribute[0];
+                    }
+                }
+            );
+            return state;
         }
 
         #region Registration
 
         [Test]
         public void TestRegisterSingleChar() {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-
-            state.Register(new EscapeSequenceAttribute('A'), DummyAction);
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('A')
+            );
 
             string[] dump = state.Dump();
             foreach (string s in dump) {
@@ -147,9 +187,9 @@ namespace Poderosa.Terminal.EscapeSequence {
         [TestCase(ControlCode.PM, "0x9e", "0x1b", "^")]
         [TestCase(ControlCode.APC, "0x9f", "0x1b", "_")]
         public void TestRegisterSpecialControlChar(char ch, string code, string alt1, string alt2) {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-
-            state.Register(new EscapeSequenceAttribute(ch), DummyAction);
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute(ch)
+            );
 
             string[] dump = state.Dump();
             foreach (string s in dump) {
@@ -170,9 +210,9 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [Test]
         public void TestRegisterTwoChars() {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-
-            state.Register(new EscapeSequenceAttribute('A', 'B'), DummyAction);
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('A', 'B')
+            );
 
             string[] dump = state.Dump();
             foreach (string s in dump) {
@@ -192,9 +232,9 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [Test]
         public void TestRegisterTwoSpecialControlChars() {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-
-            state.Register(new EscapeSequenceAttribute(ControlCode.OSC, ControlCode.ST), DummyAction);
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute(ControlCode.OSC, ControlCode.ST)
+            );
 
             string[] dump = state.Dump();
             foreach (string s in dump) {
@@ -221,9 +261,9 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [Test]
         public void TestRegisterCharAndNumericParams() {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-
-            state.Register(new EscapeSequenceAttribute('x', EscapeSequenceParamType.Numeric, 'z'), DummyAction);
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('x', EscapeSequenceParamType.Numeric, 'z')
+            );
 
             string[] dump = state.Dump();
             foreach (string s in dump) {
@@ -267,9 +307,9 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [Test]
         public void TestRegisterCharAndNumericParamsTerminatedBySpecialControlCharacter() {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-
-            state.Register(new EscapeSequenceAttribute('x', EscapeSequenceParamType.Numeric, ControlCode.ST), DummyAction);
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('x', EscapeSequenceParamType.Numeric, ControlCode.ST)
+            );
 
             string[] dump = state.Dump();
             foreach (string s in dump) {
@@ -339,9 +379,9 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [Test]
         public void TestRegisterTwoCharsAndNumericParams() {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-
-            state.Register(new EscapeSequenceAttribute('a', 'b', EscapeSequenceParamType.Numeric, 'y', 'z'), DummyAction);
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('a', 'b', EscapeSequenceParamType.Numeric, 'y', 'z')
+            );
 
             string[] dump = state.Dump();
             foreach (string s in dump) {
@@ -397,29 +437,32 @@ namespace Poderosa.Terminal.EscapeSequence {
             );
         }
 
-        [TestCase(new int[] { 1, 2, 3, 4 })]
-        [TestCase(new int[] { 2, 1, 3, 4 })]
-        [TestCase(new int[] { 3, 1, 2, 4 })]
-        [TestCase(new int[] { 4, 2, 1, 3 })]
+        [TestCase(new int[] { 0, 1, 2, 3 })]
+        [TestCase(new int[] { 1, 0, 2, 3 })]
+        [TestCase(new int[] { 2, 0, 1, 3 })]
+        [TestCase(new int[] { 3, 1, 0, 2 })]
         public void TestRegisterTwoNumericParamsSequences(int[] order) {
             EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
 
-            foreach (int pattern in order) {
-                switch (pattern) {
-                    case 1:
-                        state.Register(new EscapeSequenceAttribute('a', EscapeSequenceParamType.Numeric, 'z'), DummyAction);
-                        break;
-                    case 2:
-                        state.Register(new EscapeSequenceAttribute('a', 'b', EscapeSequenceParamType.Numeric, 'z'), DummyAction);
-                        break;
-                    case 3:
-                        state.Register(new EscapeSequenceAttribute('a', 'b', 'c'), DummyAction);
-                        break;
-                    case 4:
-                        state.Register(new EscapeSequenceAttribute('a', 'c'), DummyAction);
-                        break;
+            EscapeSequenceAttribute[] attrs = {
+                new EscapeSequenceAttribute('a', EscapeSequenceParamType.Numeric, 'z'),
+                new EscapeSequenceAttribute('a', 'b', EscapeSequenceParamType.Numeric, 'z'),
+                new EscapeSequenceAttribute('a', 'b', 'c'),
+                new EscapeSequenceAttribute('a', 'c'),
+            };
+
+            int orderIndex = 0;
+            new EscapeSequenceEngineBase.StateMachineBuilder(state).RegisterHandlers(
+                typeof(DummyClass4),
+                (method) => {
+                    if (method.Name.StartsWith("DummyAction") && orderIndex < order.Length) {
+                        return new List<EscapeSequenceAttribute>() { attrs[order[orderIndex++]] };
+                    }
+                    else {
+                        return new List<EscapeSequenceAttribute>();
+                    }
                 }
-            }
+            );
 
             string[] dump = state.Dump();
             foreach (string s in dump) {
@@ -491,9 +534,9 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [Test]
         public void TestRegisterCharAndTextParams() {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-
-            state.Register(new EscapeSequenceAttribute('x', EscapeSequenceParamType.Text, 'z'), DummyAction);
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('x', EscapeSequenceParamType.Text, 'z')
+            );
 
             string[] dump = state.Dump();
             foreach (string s in dump) {
@@ -513,9 +556,9 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [Test]
         public void TestRegisterTwoCharsAndTextParam() {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-
-            state.Register(new EscapeSequenceAttribute('a', 'b', EscapeSequenceParamType.Text, 'y', 'z'), DummyAction);
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('a', 'b', EscapeSequenceParamType.Text, 'y', 'z')
+            );
 
             string[] dump = state.Dump();
             foreach (string s in dump) {
@@ -536,23 +579,330 @@ namespace Poderosa.Terminal.EscapeSequence {
         }
 
         [Test]
-        public void TestRegisterMultipleSequences() {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
+        public void TestRegisterNextPrintableParams() {
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('a', 'b', EscapeSequenceParamType.SinglePrintable),
+                new EscapeSequenceAttribute('a', 'c', EscapeSequenceParamType.SinglePrintable),
+                new EscapeSequenceAttribute('a', EscapeSequenceParamType.SinglePrintable)
+            );
 
-            state.Register(new EscapeSequenceAttribute('A'), DummyAction);
-            state.Register(new EscapeSequenceAttribute('B', 'C'), DummyAction);
-            state.Register(new EscapeSequenceAttribute('D', EscapeSequenceParamType.Numeric, 'E'), DummyAction);
-            state.Register(new EscapeSequenceAttribute('D', EscapeSequenceParamType.Numeric, 'F'), DummyAction);
-            state.Register(new EscapeSequenceAttribute('D', EscapeSequenceParamType.Numeric, 'G', 'H'), DummyAction);
-            state.Register(new EscapeSequenceAttribute('D', EscapeSequenceParamType.Numeric, 'G', 'J'), DummyAction);
-            state.Register(new EscapeSequenceAttribute('D', 'S', EscapeSequenceParamType.Numeric, 'E'), DummyAction);
-            state.Register(new EscapeSequenceAttribute('D', 'S', EscapeSequenceParamType.Numeric, 'F'), DummyAction);
-            state.Register(new EscapeSequenceAttribute('K', EscapeSequenceParamType.Text, 'L'), DummyAction);
-            state.Register(new EscapeSequenceAttribute('K', EscapeSequenceParamType.Text, 'M'), DummyAction);
-            state.Register(new EscapeSequenceAttribute('K', EscapeSequenceParamType.Text, 'N', 'O'), DummyAction);
-            state.Register(new EscapeSequenceAttribute('K', EscapeSequenceParamType.Text, 'N', 'P'), DummyAction);
-            state.Register(new EscapeSequenceAttribute(ControlCode.CSI, 'Q'), DummyAction);
-            state.Register(new EscapeSequenceAttribute(ControlCode.CSI, 'R'), DummyAction);
+            string[] dump = state.Dump();
+            foreach (string s in dump) {
+                Console.WriteLine(s);
+            }
+            dump = RemoveStateId(dump);
+
+            Assert.AreEqual(
+                new string[] {
+                    "<CharState>",
+                    "  [a] --> <CharState>",
+                    "            [!] --> <FinalState>",
+                    "            [\"] --> <FinalState>",
+                    "            [#] --> <FinalState>",
+                    "            [$] --> <FinalState>",
+                    "            [%] --> <FinalState>",
+                    "            [&] --> <FinalState>",
+                    "            ['] --> <FinalState>",
+                    "            [(] --> <FinalState>",
+                    "            [)] --> <FinalState>",
+                    "            [*] --> <FinalState>",
+                    "            [+] --> <FinalState>",
+                    "            [,] --> <FinalState>",
+                    "            [-] --> <FinalState>",
+                    "            [.] --> <FinalState>",
+                    "            [/] --> <FinalState>",
+                    "            [0] --> <FinalState>",
+                    "            [1] --> <FinalState>",
+                    "            [2] --> <FinalState>",
+                    "            [3] --> <FinalState>",
+                    "            [4] --> <FinalState>",
+                    "            [5] --> <FinalState>",
+                    "            [6] --> <FinalState>",
+                    "            [7] --> <FinalState>",
+                    "            [8] --> <FinalState>",
+                    "            [9] --> <FinalState>",
+                    "            [:] --> <FinalState>",
+                    "            [;] --> <FinalState>",
+                    "            [<] --> <FinalState>",
+                    "            [=] --> <FinalState>",
+                    "            [>] --> <FinalState>",
+                    "            [?] --> <FinalState>",
+                    "            [@] --> <FinalState>",
+                    "            [A] --> <FinalState>",
+                    "            [B] --> <FinalState>",
+                    "            [C] --> <FinalState>",
+                    "            [D] --> <FinalState>",
+                    "            [E] --> <FinalState>",
+                    "            [F] --> <FinalState>",
+                    "            [G] --> <FinalState>",
+                    "            [H] --> <FinalState>",
+                    "            [I] --> <FinalState>",
+                    "            [J] --> <FinalState>",
+                    "            [K] --> <FinalState>",
+                    "            [L] --> <FinalState>",
+                    "            [M] --> <FinalState>",
+                    "            [N] --> <FinalState>",
+                    "            [O] --> <FinalState>",
+                    "            [P] --> <FinalState>",
+                    "            [Q] --> <FinalState>",
+                    "            [R] --> <FinalState>",
+                    "            [S] --> <FinalState>",
+                    "            [T] --> <FinalState>",
+                    "            [U] --> <FinalState>",
+                    "            [V] --> <FinalState>",
+                    "            [W] --> <FinalState>",
+                    "            [X] --> <FinalState>",
+                    "            [Y] --> <FinalState>",
+                    "            [Z] --> <FinalState>",
+                    "            [[] --> <FinalState>",
+                    "            [\\] --> <FinalState>",
+                    "            []] --> <FinalState>",
+                    "            [^] --> <FinalState>",
+                    "            [_] --> <FinalState>",
+                    "            [`] --> <FinalState>",
+                    "            [a] --> <FinalState>",
+                    "            [b] --> <CharState>",
+                    "                      [!] --> <FinalState>",
+                    "                      [\"] --> <FinalState>",
+                    "                      [#] --> <FinalState>",
+                    "                      [$] --> <FinalState>",
+                    "                      [%] --> <FinalState>",
+                    "                      [&] --> <FinalState>",
+                    "                      ['] --> <FinalState>",
+                    "                      [(] --> <FinalState>",
+                    "                      [)] --> <FinalState>",
+                    "                      [*] --> <FinalState>",
+                    "                      [+] --> <FinalState>",
+                    "                      [,] --> <FinalState>",
+                    "                      [-] --> <FinalState>",
+                    "                      [.] --> <FinalState>",
+                    "                      [/] --> <FinalState>",
+                    "                      [0] --> <FinalState>",
+                    "                      [1] --> <FinalState>",
+                    "                      [2] --> <FinalState>",
+                    "                      [3] --> <FinalState>",
+                    "                      [4] --> <FinalState>",
+                    "                      [5] --> <FinalState>",
+                    "                      [6] --> <FinalState>",
+                    "                      [7] --> <FinalState>",
+                    "                      [8] --> <FinalState>",
+                    "                      [9] --> <FinalState>",
+                    "                      [:] --> <FinalState>",
+                    "                      [;] --> <FinalState>",
+                    "                      [<] --> <FinalState>",
+                    "                      [=] --> <FinalState>",
+                    "                      [>] --> <FinalState>",
+                    "                      [?] --> <FinalState>",
+                    "                      [@] --> <FinalState>",
+                    "                      [A] --> <FinalState>",
+                    "                      [B] --> <FinalState>",
+                    "                      [C] --> <FinalState>",
+                    "                      [D] --> <FinalState>",
+                    "                      [E] --> <FinalState>",
+                    "                      [F] --> <FinalState>",
+                    "                      [G] --> <FinalState>",
+                    "                      [H] --> <FinalState>",
+                    "                      [I] --> <FinalState>",
+                    "                      [J] --> <FinalState>",
+                    "                      [K] --> <FinalState>",
+                    "                      [L] --> <FinalState>",
+                    "                      [M] --> <FinalState>",
+                    "                      [N] --> <FinalState>",
+                    "                      [O] --> <FinalState>",
+                    "                      [P] --> <FinalState>",
+                    "                      [Q] --> <FinalState>",
+                    "                      [R] --> <FinalState>",
+                    "                      [S] --> <FinalState>",
+                    "                      [T] --> <FinalState>",
+                    "                      [U] --> <FinalState>",
+                    "                      [V] --> <FinalState>",
+                    "                      [W] --> <FinalState>",
+                    "                      [X] --> <FinalState>",
+                    "                      [Y] --> <FinalState>",
+                    "                      [Z] --> <FinalState>",
+                    "                      [[] --> <FinalState>",
+                    "                      [\\] --> <FinalState>",
+                    "                      []] --> <FinalState>",
+                    "                      [^] --> <FinalState>",
+                    "                      [_] --> <FinalState>",
+                    "                      [`] --> <FinalState>",
+                    "                      [a] --> <FinalState>",
+                    "                      [b] --> <FinalState>",
+                    "                      [c] --> <FinalState>",
+                    "                      [d] --> <FinalState>",
+                    "                      [e] --> <FinalState>",
+                    "                      [f] --> <FinalState>",
+                    "                      [g] --> <FinalState>",
+                    "                      [h] --> <FinalState>",
+                    "                      [i] --> <FinalState>",
+                    "                      [j] --> <FinalState>",
+                    "                      [k] --> <FinalState>",
+                    "                      [l] --> <FinalState>",
+                    "                      [m] --> <FinalState>",
+                    "                      [n] --> <FinalState>",
+                    "                      [o] --> <FinalState>",
+                    "                      [p] --> <FinalState>",
+                    "                      [q] --> <FinalState>",
+                    "                      [r] --> <FinalState>",
+                    "                      [s] --> <FinalState>",
+                    "                      [t] --> <FinalState>",
+                    "                      [u] --> <FinalState>",
+                    "                      [v] --> <FinalState>",
+                    "                      [w] --> <FinalState>",
+                    "                      [x] --> <FinalState>",
+                    "                      [y] --> <FinalState>",
+                    "                      [z] --> <FinalState>",
+                    "                      [{] --> <FinalState>",
+                    "                      [|] --> <FinalState>",
+                    "                      [}] --> <FinalState>",
+                    "                      [~] --> <FinalState>",
+                    "            [c] --> <CharState>",
+                    "                      [!] --> <FinalState>",
+                    "                      [\"] --> <FinalState>",
+                    "                      [#] --> <FinalState>",
+                    "                      [$] --> <FinalState>",
+                    "                      [%] --> <FinalState>",
+                    "                      [&] --> <FinalState>",
+                    "                      ['] --> <FinalState>",
+                    "                      [(] --> <FinalState>",
+                    "                      [)] --> <FinalState>",
+                    "                      [*] --> <FinalState>",
+                    "                      [+] --> <FinalState>",
+                    "                      [,] --> <FinalState>",
+                    "                      [-] --> <FinalState>",
+                    "                      [.] --> <FinalState>",
+                    "                      [/] --> <FinalState>",
+                    "                      [0] --> <FinalState>",
+                    "                      [1] --> <FinalState>",
+                    "                      [2] --> <FinalState>",
+                    "                      [3] --> <FinalState>",
+                    "                      [4] --> <FinalState>",
+                    "                      [5] --> <FinalState>",
+                    "                      [6] --> <FinalState>",
+                    "                      [7] --> <FinalState>",
+                    "                      [8] --> <FinalState>",
+                    "                      [9] --> <FinalState>",
+                    "                      [:] --> <FinalState>",
+                    "                      [;] --> <FinalState>",
+                    "                      [<] --> <FinalState>",
+                    "                      [=] --> <FinalState>",
+                    "                      [>] --> <FinalState>",
+                    "                      [?] --> <FinalState>",
+                    "                      [@] --> <FinalState>",
+                    "                      [A] --> <FinalState>",
+                    "                      [B] --> <FinalState>",
+                    "                      [C] --> <FinalState>",
+                    "                      [D] --> <FinalState>",
+                    "                      [E] --> <FinalState>",
+                    "                      [F] --> <FinalState>",
+                    "                      [G] --> <FinalState>",
+                    "                      [H] --> <FinalState>",
+                    "                      [I] --> <FinalState>",
+                    "                      [J] --> <FinalState>",
+                    "                      [K] --> <FinalState>",
+                    "                      [L] --> <FinalState>",
+                    "                      [M] --> <FinalState>",
+                    "                      [N] --> <FinalState>",
+                    "                      [O] --> <FinalState>",
+                    "                      [P] --> <FinalState>",
+                    "                      [Q] --> <FinalState>",
+                    "                      [R] --> <FinalState>",
+                    "                      [S] --> <FinalState>",
+                    "                      [T] --> <FinalState>",
+                    "                      [U] --> <FinalState>",
+                    "                      [V] --> <FinalState>",
+                    "                      [W] --> <FinalState>",
+                    "                      [X] --> <FinalState>",
+                    "                      [Y] --> <FinalState>",
+                    "                      [Z] --> <FinalState>",
+                    "                      [[] --> <FinalState>",
+                    "                      [\\] --> <FinalState>",
+                    "                      []] --> <FinalState>",
+                    "                      [^] --> <FinalState>",
+                    "                      [_] --> <FinalState>",
+                    "                      [`] --> <FinalState>",
+                    "                      [a] --> <FinalState>",
+                    "                      [b] --> <FinalState>",
+                    "                      [c] --> <FinalState>",
+                    "                      [d] --> <FinalState>",
+                    "                      [e] --> <FinalState>",
+                    "                      [f] --> <FinalState>",
+                    "                      [g] --> <FinalState>",
+                    "                      [h] --> <FinalState>",
+                    "                      [i] --> <FinalState>",
+                    "                      [j] --> <FinalState>",
+                    "                      [k] --> <FinalState>",
+                    "                      [l] --> <FinalState>",
+                    "                      [m] --> <FinalState>",
+                    "                      [n] --> <FinalState>",
+                    "                      [o] --> <FinalState>",
+                    "                      [p] --> <FinalState>",
+                    "                      [q] --> <FinalState>",
+                    "                      [r] --> <FinalState>",
+                    "                      [s] --> <FinalState>",
+                    "                      [t] --> <FinalState>",
+                    "                      [u] --> <FinalState>",
+                    "                      [v] --> <FinalState>",
+                    "                      [w] --> <FinalState>",
+                    "                      [x] --> <FinalState>",
+                    "                      [y] --> <FinalState>",
+                    "                      [z] --> <FinalState>",
+                    "                      [{] --> <FinalState>",
+                    "                      [|] --> <FinalState>",
+                    "                      [}] --> <FinalState>",
+                    "                      [~] --> <FinalState>",
+                    "            [d] --> <FinalState>",
+                    "            [e] --> <FinalState>",
+                    "            [f] --> <FinalState>",
+                    "            [g] --> <FinalState>",
+                    "            [h] --> <FinalState>",
+                    "            [i] --> <FinalState>",
+                    "            [j] --> <FinalState>",
+                    "            [k] --> <FinalState>",
+                    "            [l] --> <FinalState>",
+                    "            [m] --> <FinalState>",
+                    "            [n] --> <FinalState>",
+                    "            [o] --> <FinalState>",
+                    "            [p] --> <FinalState>",
+                    "            [q] --> <FinalState>",
+                    "            [r] --> <FinalState>",
+                    "            [s] --> <FinalState>",
+                    "            [t] --> <FinalState>",
+                    "            [u] --> <FinalState>",
+                    "            [v] --> <FinalState>",
+                    "            [w] --> <FinalState>",
+                    "            [x] --> <FinalState>",
+                    "            [y] --> <FinalState>",
+                    "            [z] --> <FinalState>",
+                    "            [{] --> <FinalState>",
+                    "            [|] --> <FinalState>",
+                    "            [}] --> <FinalState>",
+                    "            [~] --> <FinalState>",
+                },
+                dump
+            );
+        }
+
+        [Test]
+        public void TestRegisterMultipleSequences() {
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('A'),
+                new EscapeSequenceAttribute('B', 'C'),
+                new EscapeSequenceAttribute('D', EscapeSequenceParamType.Numeric, 'E'),
+                new EscapeSequenceAttribute('D', EscapeSequenceParamType.Numeric, 'F'),
+                new EscapeSequenceAttribute('D', EscapeSequenceParamType.Numeric, 'G', 'H'),
+                new EscapeSequenceAttribute('D', EscapeSequenceParamType.Numeric, 'G', 'J'),
+                new EscapeSequenceAttribute('D', 'S', EscapeSequenceParamType.Numeric, 'E'),
+                new EscapeSequenceAttribute('D', 'S', EscapeSequenceParamType.Numeric, 'F'),
+                new EscapeSequenceAttribute('K', EscapeSequenceParamType.Text, 'L'),
+                new EscapeSequenceAttribute('K', EscapeSequenceParamType.Text, 'M'),
+                new EscapeSequenceAttribute('K', EscapeSequenceParamType.Text, 'N', 'O'),
+                new EscapeSequenceAttribute('K', EscapeSequenceParamType.Text, 'N', 'P'),
+                new EscapeSequenceAttribute('Q', EscapeSequenceParamType.SinglePrintable),
+                new EscapeSequenceAttribute('Q', 'R', EscapeSequenceParamType.SinglePrintable),
+                new EscapeSequenceAttribute(ControlCode.CSI, 'Q'),
+                new EscapeSequenceAttribute(ControlCode.CSI, 'R')
+            );
 
             string[] dump = state.Dump();
             foreach (string s in dump) {
@@ -693,6 +1043,195 @@ namespace Poderosa.Terminal.EscapeSequence {
                     "            [N] --> <CharState>",
                     "                      [O] --> <FinalState>",
                     "                      [P] --> <FinalState>",
+                    "  [Q] --> <CharState>",
+                    "            [!] --> <FinalState>",
+                    "            [\"] --> <FinalState>",
+                    "            [#] --> <FinalState>",
+                    "            [$] --> <FinalState>",
+                    "            [%] --> <FinalState>",
+                    "            [&] --> <FinalState>",
+                    "            ['] --> <FinalState>",
+                    "            [(] --> <FinalState>",
+                    "            [)] --> <FinalState>",
+                    "            [*] --> <FinalState>",
+                    "            [+] --> <FinalState>",
+                    "            [,] --> <FinalState>",
+                    "            [-] --> <FinalState>",
+                    "            [.] --> <FinalState>",
+                    "            [/] --> <FinalState>",
+                    "            [0] --> <FinalState>",
+                    "            [1] --> <FinalState>",
+                    "            [2] --> <FinalState>",
+                    "            [3] --> <FinalState>",
+                    "            [4] --> <FinalState>",
+                    "            [5] --> <FinalState>",
+                    "            [6] --> <FinalState>",
+                    "            [7] --> <FinalState>",
+                    "            [8] --> <FinalState>",
+                    "            [9] --> <FinalState>",
+                    "            [:] --> <FinalState>",
+                    "            [;] --> <FinalState>",
+                    "            [<] --> <FinalState>",
+                    "            [=] --> <FinalState>",
+                    "            [>] --> <FinalState>",
+                    "            [?] --> <FinalState>",
+                    "            [@] --> <FinalState>",
+                    "            [A] --> <FinalState>",
+                    "            [B] --> <FinalState>",
+                    "            [C] --> <FinalState>",
+                    "            [D] --> <FinalState>",
+                    "            [E] --> <FinalState>",
+                    "            [F] --> <FinalState>",
+                    "            [G] --> <FinalState>",
+                    "            [H] --> <FinalState>",
+                    "            [I] --> <FinalState>",
+                    "            [J] --> <FinalState>",
+                    "            [K] --> <FinalState>",
+                    "            [L] --> <FinalState>",
+                    "            [M] --> <FinalState>",
+                    "            [N] --> <FinalState>",
+                    "            [O] --> <FinalState>",
+                    "            [P] --> <FinalState>",
+                    "            [Q] --> <FinalState>",
+                    "            [R] --> <CharState>",
+                    "                      [!] --> <FinalState>",
+                    "                      [\"] --> <FinalState>",
+                    "                      [#] --> <FinalState>",
+                    "                      [$] --> <FinalState>",
+                    "                      [%] --> <FinalState>",
+                    "                      [&] --> <FinalState>",
+                    "                      ['] --> <FinalState>",
+                    "                      [(] --> <FinalState>",
+                    "                      [)] --> <FinalState>",
+                    "                      [*] --> <FinalState>",
+                    "                      [+] --> <FinalState>",
+                    "                      [,] --> <FinalState>",
+                    "                      [-] --> <FinalState>",
+                    "                      [.] --> <FinalState>",
+                    "                      [/] --> <FinalState>",
+                    "                      [0] --> <FinalState>",
+                    "                      [1] --> <FinalState>",
+                    "                      [2] --> <FinalState>",
+                    "                      [3] --> <FinalState>",
+                    "                      [4] --> <FinalState>",
+                    "                      [5] --> <FinalState>",
+                    "                      [6] --> <FinalState>",
+                    "                      [7] --> <FinalState>",
+                    "                      [8] --> <FinalState>",
+                    "                      [9] --> <FinalState>",
+                    "                      [:] --> <FinalState>",
+                    "                      [;] --> <FinalState>",
+                    "                      [<] --> <FinalState>",
+                    "                      [=] --> <FinalState>",
+                    "                      [>] --> <FinalState>",
+                    "                      [?] --> <FinalState>",
+                    "                      [@] --> <FinalState>",
+                    "                      [A] --> <FinalState>",
+                    "                      [B] --> <FinalState>",
+                    "                      [C] --> <FinalState>",
+                    "                      [D] --> <FinalState>",
+                    "                      [E] --> <FinalState>",
+                    "                      [F] --> <FinalState>",
+                    "                      [G] --> <FinalState>",
+                    "                      [H] --> <FinalState>",
+                    "                      [I] --> <FinalState>",
+                    "                      [J] --> <FinalState>",
+                    "                      [K] --> <FinalState>",
+                    "                      [L] --> <FinalState>",
+                    "                      [M] --> <FinalState>",
+                    "                      [N] --> <FinalState>",
+                    "                      [O] --> <FinalState>",
+                    "                      [P] --> <FinalState>",
+                    "                      [Q] --> <FinalState>",
+                    "                      [R] --> <FinalState>",
+                    "                      [S] --> <FinalState>",
+                    "                      [T] --> <FinalState>",
+                    "                      [U] --> <FinalState>",
+                    "                      [V] --> <FinalState>",
+                    "                      [W] --> <FinalState>",
+                    "                      [X] --> <FinalState>",
+                    "                      [Y] --> <FinalState>",
+                    "                      [Z] --> <FinalState>",
+                    "                      [[] --> <FinalState>",
+                    "                      [\\] --> <FinalState>",
+                    "                      []] --> <FinalState>",
+                    "                      [^] --> <FinalState>",
+                    "                      [_] --> <FinalState>",
+                    "                      [`] --> <FinalState>",
+                    "                      [a] --> <FinalState>",
+                    "                      [b] --> <FinalState>",
+                    "                      [c] --> <FinalState>",
+                    "                      [d] --> <FinalState>",
+                    "                      [e] --> <FinalState>",
+                    "                      [f] --> <FinalState>",
+                    "                      [g] --> <FinalState>",
+                    "                      [h] --> <FinalState>",
+                    "                      [i] --> <FinalState>",
+                    "                      [j] --> <FinalState>",
+                    "                      [k] --> <FinalState>",
+                    "                      [l] --> <FinalState>",
+                    "                      [m] --> <FinalState>",
+                    "                      [n] --> <FinalState>",
+                    "                      [o] --> <FinalState>",
+                    "                      [p] --> <FinalState>",
+                    "                      [q] --> <FinalState>",
+                    "                      [r] --> <FinalState>",
+                    "                      [s] --> <FinalState>",
+                    "                      [t] --> <FinalState>",
+                    "                      [u] --> <FinalState>",
+                    "                      [v] --> <FinalState>",
+                    "                      [w] --> <FinalState>",
+                    "                      [x] --> <FinalState>",
+                    "                      [y] --> <FinalState>",
+                    "                      [z] --> <FinalState>",
+                    "                      [{] --> <FinalState>",
+                    "                      [|] --> <FinalState>",
+                    "                      [}] --> <FinalState>",
+                    "                      [~] --> <FinalState>",
+                    "            [S] --> <FinalState>",
+                    "            [T] --> <FinalState>",
+                    "            [U] --> <FinalState>",
+                    "            [V] --> <FinalState>",
+                    "            [W] --> <FinalState>",
+                    "            [X] --> <FinalState>",
+                    "            [Y] --> <FinalState>",
+                    "            [Z] --> <FinalState>",
+                    "            [[] --> <FinalState>",
+                    "            [\\] --> <FinalState>",
+                    "            []] --> <FinalState>",
+                    "            [^] --> <FinalState>",
+                    "            [_] --> <FinalState>",
+                    "            [`] --> <FinalState>",
+                    "            [a] --> <FinalState>",
+                    "            [b] --> <FinalState>",
+                    "            [c] --> <FinalState>",
+                    "            [d] --> <FinalState>",
+                    "            [e] --> <FinalState>",
+                    "            [f] --> <FinalState>",
+                    "            [g] --> <FinalState>",
+                    "            [h] --> <FinalState>",
+                    "            [i] --> <FinalState>",
+                    "            [j] --> <FinalState>",
+                    "            [k] --> <FinalState>",
+                    "            [l] --> <FinalState>",
+                    "            [m] --> <FinalState>",
+                    "            [n] --> <FinalState>",
+                    "            [o] --> <FinalState>",
+                    "            [p] --> <FinalState>",
+                    "            [q] --> <FinalState>",
+                    "            [r] --> <FinalState>",
+                    "            [s] --> <FinalState>",
+                    "            [t] --> <FinalState>",
+                    "            [u] --> <FinalState>",
+                    "            [v] --> <FinalState>",
+                    "            [w] --> <FinalState>",
+                    "            [x] --> <FinalState>",
+                    "            [y] --> <FinalState>",
+                    "            [z] --> <FinalState>",
+                    "            [{] --> <FinalState>",
+                    "            [|] --> <FinalState>",
+                    "            [}] --> <FinalState>",
+                    "            [~] --> <FinalState>",
                     "  [0x9b] --> <CharState>",
                     "               [Q] --> <FinalState>",
                     "               [R] --> <FinalState>",
@@ -703,54 +1242,84 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [Test]
         public void TestRegisterConflictFinalState() {
+            TestRegisterConflictCore(
+                new EscapeSequenceAttribute[] {
+                    new EscapeSequenceAttribute('A'),
+                    new EscapeSequenceAttribute('A'),
+                }
+            );
+        }
+
+        private void TestRegisterConflictCore(EscapeSequenceAttribute[] attrs) {
             EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
 
-            state.Register(new EscapeSequenceAttribute('A'), DummyAction);
-            Assert.Throws<ArgumentException>(() =>
-                state.Register(new EscapeSequenceAttribute('A'), DummyAction)
-            );
+            int index = 0;
+            Assert.Throws<ArgumentException>(() => {
+                new EscapeSequenceEngineBase.StateMachineBuilder(state).RegisterHandlers(
+                    typeof(DummyClass4),
+                    (method) => {
+                        if (method.Name.StartsWith("DummyAction") && index < attrs.Length) {
+                            return new List<EscapeSequenceAttribute>() { attrs[index++] };
+                        }
+                        else {
+                            return new List<EscapeSequenceAttribute>();
+                        }
+                    }
+                );
+            });
+
+            // exception should be raised for the last EscapeSequenceAttribute
+            Assert.AreEqual(attrs.Length, index);
         }
 
         [Test]
         public void TestRegisterConflictFinalStateSpecialControlChar() {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-
-            state.Register(new EscapeSequenceAttribute(ControlCode.ESC, '['), DummyAction); // equivalent to CSI, but CSI(0x9b) is not registered
-
-            Assert.Throws<ArgumentException>(() =>
-                state.Register(new EscapeSequenceAttribute(ControlCode.CSI), DummyAction) // attempt to register sequence ESC+[ but it fails
+            TestRegisterConflictCore(
+                new EscapeSequenceAttribute[] {
+                    new EscapeSequenceAttribute(ControlCode.ESC, '['), // equivalent to CSI, but CSI(0x9b) is not registered
+                    new EscapeSequenceAttribute(ControlCode.CSI), // attempt to register sequence ESC+[ but it fails
+                }
             );
         }
 
         [Test]
         public void TestRegisterConflictCharState() {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-
-            state.Register(new EscapeSequenceAttribute('A', EscapeSequenceParamType.Numeric, 'B'), DummyAction);
-            Assert.Throws<ArgumentException>(() =>
-                state.Register(new EscapeSequenceAttribute('A', 'B'), DummyAction)
+            TestRegisterConflictCore(
+                new EscapeSequenceAttribute[] {
+                    new EscapeSequenceAttribute('A', EscapeSequenceParamType.Numeric, 'B'),
+                    new EscapeSequenceAttribute('A', 'B'),
+                }
             );
         }
 
         [Test]
         public void TestRegisterConflictCharStateSpecialControlChar() {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-
-            state.Register(new EscapeSequenceAttribute(ControlCode.ESC, '[', EscapeSequenceParamType.Numeric, 'z'), DummyAction); // equivalent to CSI, but CSI(0x9b) is not registered
-
-            Assert.Throws<ArgumentException>(() =>
-                state.Register(new EscapeSequenceAttribute(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'x'), DummyAction)
-                // attempt to register sequence ESC+[ but it fails becuase another NumericParamsState exists
+            TestRegisterConflictCore(
+                new EscapeSequenceAttribute[] {
+                    new EscapeSequenceAttribute(ControlCode.ESC, '[', EscapeSequenceParamType.Numeric, 'z'), // equivalent to CSI, but CSI(0x9b) is not registered
+                    new EscapeSequenceAttribute(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'x'),
+                        // attempt to register sequence ESC+[ but it fails becuase another NumericParamsState exists
+                }
             );
         }
 
         [Test]
         public void TestRegisterConflictTextParamState() {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
+            TestRegisterConflictCore(
+                new EscapeSequenceAttribute[] {
+                    new EscapeSequenceAttribute('A', 'B'),
+                    new EscapeSequenceAttribute('A', EscapeSequenceParamType.Text, 'C'),
+                }
+            );
+        }
 
-            state.Register(new EscapeSequenceAttribute('A', 'B'), DummyAction);
-            Assert.Throws<ArgumentException>(() =>
-                state.Register(new EscapeSequenceAttribute('A', EscapeSequenceParamType.Text, 'C'), DummyAction)
+        [Test]
+        public void TestRegisterConflictSinglePrintable() {
+            TestRegisterConflictCore(
+                new EscapeSequenceAttribute[] {
+                    new EscapeSequenceAttribute('A', 'B', EscapeSequenceParamType.SinglePrintable),
+                    new EscapeSequenceAttribute('A', 'B', EscapeSequenceParamType.SinglePrintable),
+                }
             );
         }
 
@@ -760,8 +1329,9 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [Test]
         public void TestCharStateAccept() {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-            state.Register(new EscapeSequenceAttribute('A', 'B'), DummyAction);
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('A', 'B')
+            );
 
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
 
@@ -774,8 +1344,9 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [Test]
         public void TestCharStateAcceptNotAccepted() {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-            state.Register(new EscapeSequenceAttribute('A', 'B'), DummyAction);
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('A', 'B')
+            );
 
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
 
@@ -793,8 +1364,9 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [TestCaseSource("TestNumericParamStateAcceptPatterns")]
         public void TestNumericParamStateAccept(string parameters, int?[] expectedNumericParams, int[][] expectedCombinationParams) {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-            state.Register(new EscapeSequenceAttribute('A', EscapeSequenceParamType.Numeric, 'B'), DummyAction);
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('A', EscapeSequenceParamType.Numeric, 'B')
+            );
 
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
 
@@ -820,8 +1392,9 @@ namespace Poderosa.Terminal.EscapeSequence {
         [TestCase("C")]
         [TestCase("12;34X")]
         public void TestNumericParamStateAcceptNotAccepted(string parameters) {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-            state.Register(new EscapeSequenceAttribute('A', EscapeSequenceParamType.Numeric, 'B'), DummyAction);
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('A', EscapeSequenceParamType.Numeric, 'B')
+            );
 
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
 
@@ -839,8 +1412,9 @@ namespace Poderosa.Terminal.EscapeSequence {
         [TestCase("a")]
         [TestCase("abc\u0020def")]
         public void TestTextParamStateAccept(string parameters) {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-            state.Register(new EscapeSequenceAttribute('A', EscapeSequenceParamType.Text, 'B'), DummyAction);
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('A', EscapeSequenceParamType.Text, 'B')
+            );
 
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
 
@@ -859,8 +1433,9 @@ namespace Poderosa.Terminal.EscapeSequence {
         [TestCase("abc\u0000")]
         [TestCase("abc\u001f")]
         public void TestTextParamStateNotAccept(string parameters) {
-            EscapeSequenceEngineBase.CharState state = new EscapeSequenceEngineBase.CharState();
-            state.Register(new EscapeSequenceAttribute('A', EscapeSequenceParamType.Text, 'B'), DummyAction);
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('A', EscapeSequenceParamType.Text, 'B')
+            );
 
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
 
@@ -874,9 +1449,53 @@ namespace Poderosa.Terminal.EscapeSequence {
             Assert.AreEqual("A" + parameters.Substring(0, parameters.Length - 1), context.GetBufferedText());
         }
 
+        [TestCase('!')]
+        [TestCase('~')]
+        [TestCase('0')]
+        [TestCase('9')]
+        [TestCase('a')]
+        [TestCase('z')]
+        [TestCase('A')]
+        [TestCase('Z')]
+        public void TestNextPrintableParamStateAccept(char paramChar) {
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('A', EscapeSequenceParamType.SinglePrintable)
+            );
+
+            EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
+
+            EscapeSequenceEngineBase.State s = state.Accept(context, 'A');
+
+            s = s.Accept(context, paramChar);
+
+            Assert.That(s.GetType() == typeof(EscapeSequenceEngineBase.FinalState));
+            Assert.AreEqual(paramChar, context.GetLastChar());
+            Assert.AreEqual("A" + paramChar, context.GetBufferedText());
+        }
+
+        [TestCase('\u0000')]
+        [TestCase(' ')]
+        [TestCase('\u007f')]
+        [TestCase('\u03b1')]
+        public void TestNextPrintableParamStateNotAccept(char paramChar) {
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('A', EscapeSequenceParamType.SinglePrintable)
+            );
+
+            EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
+
+            EscapeSequenceEngineBase.State s = state.Accept(context, 'A');
+
+            s = s.Accept(context, paramChar);
+
+            Assert.Null(s);
+            Assert.AreEqual("A", context.GetBufferedText());
+        }
+
         [Test]
         public void TestFinalStateAcceptNotAccepted() {
-            EscapeSequenceEngineBase.FinalState state = new EscapeSequenceEngineBase.FinalState(DummyAction);
+            EscapeSequenceEngineBase.FinalState state = new EscapeSequenceEngineBase.FinalState((obj, ctx) => {
+            });
 
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
 
