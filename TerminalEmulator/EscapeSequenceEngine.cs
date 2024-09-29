@@ -91,13 +91,8 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// <param name="prefix">prefix character</param>
         /// <param name="paramType">parameter type</param>
         /// <param name="suffix">suffix characters</param>
-        public EscapeSequenceAttribute(char prefix, EscapeSequenceParamType paramType, params char[] suffix) {
-            if (suffix.Length == 0) {
-                throw new ArgumentException("suffix must have at least one character");
-            }
-            Prefix = new char[] { prefix };
-            ParamType = paramType;
-            Suffix = suffix;
+        public EscapeSequenceAttribute(char prefix, EscapeSequenceParamType paramType, params char[] suffix)
+            : this(new char[] { prefix }, paramType, suffix) {
         }
 
         /// <summary>
@@ -107,11 +102,35 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// <param name="p2">2nd prefix character</param>
         /// <param name="paramType">parameter type</param>
         /// <param name="suffix">suffix characters</param>
-        public EscapeSequenceAttribute(char p1, char p2, EscapeSequenceParamType paramType, params char[] suffix) {
-            if (suffix.Length == 0) {
-                throw new ArgumentException("suffix must have at least one character");
+        public EscapeSequenceAttribute(char p1, char p2, EscapeSequenceParamType paramType, params char[] suffix)
+            : this(new char[] { p1, p2 }, paramType, suffix) {
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="p1">1st prefix character</param>
+        /// <param name="p2">2nd prefix character</param>
+        /// <param name="p3">3rd prefix character</param>
+        /// <param name="paramType">parameter type</param>
+        /// <param name="suffix">suffix characters</param>
+        public EscapeSequenceAttribute(char p1, char p2, char p3, EscapeSequenceParamType paramType, params char[] suffix)
+            : this(new char[] { p1, p2, p3 }, paramType, suffix) {
+        }
+
+        private EscapeSequenceAttribute(char[] prefix, EscapeSequenceParamType paramType, char[] suffix) {
+            if (paramType == EscapeSequenceParamType.None || paramType == EscapeSequenceParamType.SinglePrintable) {
+                if (suffix.Length != 0) {
+                    throw new ArgumentException("suffix must be empty for EscapeSequenceParamType." + paramType.ToString());
+                }
             }
-            Prefix = new char[] { p1, p2 };
+            else {
+                if (suffix.Length == 0) {
+                    throw new ArgumentException("suffix must have at least one character for EscapeSequenceParamType." + paramType.ToString());
+                }
+            }
+
+            Prefix = prefix;
             ParamType = paramType;
             Suffix = suffix;
         }
@@ -656,9 +675,9 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         #endregion
 
-        #region DFA builder
+        #region State Machine Builder
 
-        internal class DFABuilder {
+        internal class StateMachineBuilder {
 
             private readonly CharState _root;
             private readonly List<Tuple<CharState, FinalState>> _singlePrintableStates = new List<Tuple<CharState, FinalState>>();
@@ -667,7 +686,7 @@ namespace Poderosa.Terminal.EscapeSequence {
             /// Constructor
             /// </summary>
             /// <param name="root">root state</param>
-            public DFABuilder(CharState root) {
+            public StateMachineBuilder(CharState root) {
                 _root = root;
             }
 
@@ -938,7 +957,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 #if DEBUG
                     long before = GC.GetTotalMemory(true);
 #endif
-                    new DFABuilder(_root).RegisterHandlers(typeof(T));
+                    new StateMachineBuilder(_root).RegisterHandlers(typeof(T));
 #if DEBUG
                     long after = GC.GetTotalMemory(true);
 #endif
