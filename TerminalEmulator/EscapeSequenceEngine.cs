@@ -153,6 +153,12 @@ namespace Poderosa.Terminal.EscapeSequence {
             _c = c;
         }
 
+        public int Length {
+            get {
+                return _p.Length;
+            }
+        }
+
         public bool IsSingleInteger(int index) {
             return (index >= 0 && index < _p.Length) ? _p[index].HasValue : false;
         }

@@ -1006,10 +1006,16 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'J')]
         private void ProcessEraseInDisplay(NumericParams p) {
             int param = p.Get(0, 0);
-            ProcessEraseInDisplay(param);
+            DoEraseInDisplay(param, false);
         }
 
-        private void ProcessEraseInDisplay(int param) {
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'J')]
+        private void ProcessSelectiveEraseInDisplay(NumericParams p) {
+            int param = p.Get(0, 0);
+            DoEraseInDisplay(param, true);
+        }
+
+        private void DoEraseInDisplay(int param, bool selective) {
             TerminalDocument doc = GetDocument();
             int cur = doc.CurrentLineNumber;
             int top = doc.TopLineNumber;
@@ -1021,11 +1027,16 @@ namespace Poderosa.Terminal {
                         if (col == 0 && cur == top)
                             goto ERASE_ALL;
 
-                        EraseRight();
+                        if (selective) {
+                            SelectiveEraseRight();
+                        }
+                        else {
+                            EraseRight();
+                        }
                         doc.UpdateCurrentLine(_manipulator);
                         doc.EnsureLine(bottom - 1);
                         doc.RemoveAfter(bottom);
-                        doc.ClearRange(cur + 1, bottom, _currentdecoration);
+                        doc.ClearRange(cur + 1, bottom, _currentdecoration, selective);
                         _manipulator.Load(doc.CurrentLine, col);
                     }
                     break;
@@ -1034,9 +1045,14 @@ namespace Poderosa.Terminal {
                         if (col == doc.TerminalWidth - 1 && cur == bottom - 1)
                             goto ERASE_ALL;
 
-                        EraseLeft();
+                        if (selective) {
+                            SelectiveEraseLeft();
+                        }
+                        else {
+                            EraseLeft();
+                        }
                         doc.UpdateCurrentLine(_manipulator);
-                        doc.ClearRange(top, cur, _currentdecoration);
+                        doc.ClearRange(top, cur, _currentdecoration, selective);
                         _manipulator.Load(doc.CurrentLine, col);
                     }
                     break;
@@ -1052,7 +1068,7 @@ namespace Poderosa.Terminal {
                         //}
                         doc.EnsureLine(bottom - 1);
                         doc.RemoveAfter(bottom);
-                        doc.ClearRange(top, bottom, _currentdecoration);
+                        doc.ClearRange(top, bottom, _currentdecoration, selective);
                         _manipulator.Load(doc.CurrentLine, col);
                     }
                     break;
@@ -1065,22 +1081,117 @@ namespace Poderosa.Terminal {
             }
         }
 
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'z')]
+        private void ProcessEraseRectangle(NumericParams p) {
+            DoEraseRectangle(p, false);
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', '{')]
+        private void ProcessSelectiveEraseRectangle(NumericParams p) {
+            DoEraseRectangle(p, true);
+        }
+
+        private void DoEraseRectangle(NumericParams p, bool selective) {
+            TerminalDocument doc = GetDocument();
+            int width = doc.TerminalWidth;
+            int height = doc.TerminalHeight;
+
+            int row1 = p.Get(0, 1);
+            int col1 = p.Get(1, 1);
+            int row2 = p.Get(2, height);
+            int col2 = p.Get(3, width);
+
+            if (row1 == 0) {
+                row1 = 1;
+            }
+            if (row2 == 0) {
+                row2 = height;
+            }
+            if (col1 == 0) {
+                col1 = 1;
+            }
+            if (col2 == 0) {
+                col2 = width;
+            }
+
+            if (row1 > row2 || col1 > col2 || row1 > height || col1 > width) {
+                return;
+            }
+
+            if (row1 > height) {
+                row1 = height;
+            }
+            if (row2 > height) {
+                row2 = height;
+            }
+            if (col1 > width) {
+                col1 = width;
+            }
+            if (col2 > width) {
+                col2 = width;
+            }
+
+            int caretColumn = _manipulator.CaretColumn;
+            doc.UpdateCurrentLine(_manipulator);
+
+            GLine line = doc.FindLineOrNull(doc.TopLineNumber + row1 - 1);
+
+            for (int r = row1; line != null && r <= row2; r++, line = line.NextLine) {
+                _manipulator.Load(line, 0);
+                if (selective) {
+                    _manipulator.FillSpaceSkipProtected(col1 - 1, col2, _currentdecoration);
+                }
+                else {
+                    _manipulator.FillSpace(col1 - 1, col2, _currentdecoration);
+                }
+                _manipulator.ExportTo(line);
+                doc.InvalidatedRegion.InvalidateLine(line.ID);
+            }
+
+            _manipulator.Load(doc.CurrentLine, caretColumn);
+        }
+
+
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'K')]
         private void ProcessEraseInLine(NumericParams p) {
             int param = p.Get(0, 0);
+            DoEraseInLine(param, false);
+        }
 
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'K')]
+        private void ProcessSelectiveEraseInLine(NumericParams p) {
+            int param = p.Get(0, 0);
+            DoEraseInLine(param, true);
+        }
+
+        private void DoEraseInLine(int param, bool selective) {
             switch (param) {
                 case 0: //erase right
-                    EraseRight();
+                    if (selective) {
+                        SelectiveEraseRight();
+                    }
+                    else {
+                        EraseRight();
+                    }
                     break;
                 case 1: //erase left
-                    EraseLeft();
+                    if (selective) {
+                        SelectiveEraseLeft();
+                    }
+                    else {
+                        EraseLeft();
+                    }
                     break;
                 case 2: //erase all
-                    EraseLine();
+                    if (selective) {
+                        SelectiveEraseLine();
+                    }
+                    else {
+                        EraseLine();
+                    }
                     break;
                 default:
-                    throw new UnknownEscapeSequenceException("unknown EL option");
+                    break;
             }
         }
 
@@ -1088,12 +1199,41 @@ namespace Poderosa.Terminal {
             _manipulator.FillSpace(_manipulator.CaretColumn, _manipulator.BufferSize, _currentdecoration);
         }
 
+        private void SelectiveEraseRight() {
+            _manipulator.FillSpaceSkipProtected(_manipulator.CaretColumn, _manipulator.BufferSize, _currentdecoration);
+        }
+
         private void EraseLeft() {
             _manipulator.FillSpace(0, _manipulator.CaretColumn + 1, _currentdecoration);
         }
 
+        private void SelectiveEraseLeft() {
+            _manipulator.FillSpaceSkipProtected(0, _manipulator.CaretColumn + 1, _currentdecoration);
+        }
+
         private void EraseLine() {
             _manipulator.FillSpace(0, _manipulator.BufferSize, _currentdecoration);
+        }
+
+        private void SelectiveEraseLine() {
+            _manipulator.FillSpaceSkipProtected(0, _manipulator.BufferSize, _currentdecoration);
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '"', 'q')]
+        private void ProcessProtectCharacter(NumericParams p) {
+            int param = p.Get(0, 0);
+
+            switch (param) {
+                case 0:
+                case 2:
+                    _currentdecoration = _currentdecoration.GetCopyWithProtected(false);
+                    break;
+                case 1:
+                    _currentdecoration = _currentdecoration.GetCopyWithProtected(true);
+                    break;
+                default:
+                    break;
+            }
         }
 
         [EscapeSequence(ControlCode.IND)]
@@ -2250,7 +2390,7 @@ namespace Poderosa.Terminal {
         }
 
         private void ClearScreen() {
-            ProcessEraseInDisplay(2);
+            DoEraseInDisplay(2, false);
         }
 
         [EscapeSequence(ControlCode.ESC, '7')]
@@ -2282,7 +2422,7 @@ namespace Poderosa.Terminal {
                 return;
 
             _reverseVideo = reverse;
-            GetDocument().InvalidatedRegion.InvalidatedAll = true; //全体再描画を促す
+            GetDocument().InvalidateAll();
         }
 
         [EscapeSequence(ControlCode.CSI, '!', 'p')]

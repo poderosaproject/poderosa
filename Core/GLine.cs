@@ -161,6 +161,7 @@ namespace Poderosa.Document {
     [Flags]
     internal enum GAttrFlags : uint {
         None = 0u,
+        Protected = 1u << 18,
         Blink = 1u << 19,
         Hidden = 1u << 20,
         Underlined = 1u << 21,
@@ -187,6 +188,7 @@ namespace Poderosa.Document {
         // bit 0..7  : 8 bit fore color code
         // bit 8..16 : 8 bit back color code
         //
+        // bit 18 : protected (DECSED or DECSEL cannot erase)
         // bit 19 : blink
         // bit 20 : hidden
         // bit 21 : underlined
@@ -833,23 +835,22 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
-        /// Clears content with the default attributes.
-        /// </summary>
-        public void Clear() {
-            Clear(null);
-        }
-
-        /// <summary>
         /// Clears content with the specified background color.
         /// </summary>
         /// <param name="dec">text decoration for specifying the background color, or null for using default attributes.</param>
-        public void Clear(TextDecoration dec) {
+        /// <param name="selective">if true, protected characters are retained.</param>
+        public void Clear(TextDecoration dec = null, bool selective = false) {
             TextDecoration d = dec ?? TextDecoration.Default;
             GAttr attr = d.Attr;
             GColor24 color = d.Color24;
 
             lock (this) {
-                Fill(0, _cell.Length, GChar.ASCII_NUL, attr, color);
+                if (selective) {
+                    FillSelective(0, _cell.Length, GChar.ASCII_NUL, attr, color);
+                }
+                else {
+                    Fill(0, _cell.Length, GChar.ASCII_NUL, attr, color);
+                }
                 _displayLength = attr.IsDefault ? 0 : _cell.Length;
             }
         }
@@ -868,7 +869,7 @@ namespace Poderosa.Document {
                 _color24 = new GColor24[_cell.Length];
             }
 
-            GCell fillCell = new GCell(ch, attr + GAttrFlags.SameToPrevious);
+            GCell fillCell = new GCell(ch, attr + GAttrFlags.SameToPrevious - GAttrFlags.Protected);
 
             if (start < end) {
                 _cell[start] = fillCell;
@@ -883,6 +884,35 @@ namespace Poderosa.Document {
                 if (uses24bitColor) {
                     _color24[i] = color;
                 }
+            }
+
+            UpdateSameToPrevious(end);
+        }
+
+        /// <summary>
+        /// Fill range with the specified character and attributes, but skips protected characters.
+        /// </summary>
+        /// <param name="start">start index of the range (inclusive)</param>
+        /// <param name="end">end index of the range (exclusive)</param>
+        /// <param name="ch">character to fill cells</param>
+        /// <param name="attr">attributes to fill cells</param>
+        /// <param name="color">24 bit colors to fill cells</param>
+        private void FillSelective(int start, int end, GChar ch, GAttr attr, GColor24 color) {
+            bool uses24bitColor = attr.Uses24bitColor;
+            if (uses24bitColor && _color24 == null) {
+                _color24 = new GColor24[_cell.Length];
+            }
+
+            GCell fillCell = new GCell(ch, attr + GAttrFlags.SameToPrevious - GAttrFlags.Protected);
+
+            for (int i = start; i < end; i++) {
+                if (!_cell[i].Attr.Has(GAttrFlags.Protected)) {
+                    _cell[i] = fillCell;
+                    if (uses24bitColor) {
+                        _color24[i] = color;
+                    }
+                }
+                UpdateSameToPrevious(i);
             }
 
             UpdateSameToPrevious(end);
@@ -1595,6 +1625,34 @@ namespace Poderosa.Document {
             FixLeftHalfOfWideWidthCharacter(from - 1);
 
             for (int i = from; i < to; i++) {
+                // Note: uses ASCII_NUL instead of ASCII_SPACE for detecting correct length of the content
+                _cell[i].Set(GChar.ASCII_NUL, fillAttr);
+                _color24[i] = fillColor;
+            }
+
+            FixRightHalfOfWideWidthCharacter(to);
+        }
+
+        /// <summary>
+        /// Fills specified range with spaces but not protected characters.
+        /// </summary>
+        /// <param name="from">start index of the range (inclusive)</param>
+        /// <param name="to">end index of the range (exclusive)</param>
+        /// <param name="dec">text decoration of the blanks (null indicates default setting)</param>
+        public void FillSpaceSkipProtected(int from, int to, TextDecoration dec) {
+            from = Math.Max(0, from);
+            to = Math.Min(_cell.Length, to);
+            dec = dec.GetCopyWithProtected(false);
+
+            GAttr fillAttr = dec.Attr;
+            GColor24 fillColor = dec.Color24;
+
+            FixLeftHalfOfWideWidthCharacter(from - 1);
+
+            for (int i = from; i < to; i++) {
+                if (_cell[i].Attr.Has(GAttrFlags.Protected)) {
+                    continue;
+                }
                 // Note: uses ASCII_NUL instead of ASCII_SPACE for detecting correct length of the content
                 _cell[i].Set(GChar.ASCII_NUL, fillAttr);
                 _color24[i] = fillColor;

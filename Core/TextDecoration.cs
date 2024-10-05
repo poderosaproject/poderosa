@@ -340,6 +340,16 @@ namespace Poderosa.Document {
                 blink ? _attr + GAttrFlags.Blink : _attr - GAttrFlags.Blink, _color24);
         }
 
+        /// <summary>
+        /// Get a new copy whose "protected" status was set.
+        /// </summary>
+        /// <param name="isProtected">new "protected" status</param>
+        /// <returns>new instance</returns>
+        public TextDecoration GetCopyWithProtected(bool isProtected) {
+            return new TextDecoration(
+                isProtected ? _attr + GAttrFlags.Protected : _attr - GAttrFlags.Protected, _color24);
+        }
+
         public override string ToString() {
             StringBuilder s = new StringBuilder();
             s.Append("{Back=");

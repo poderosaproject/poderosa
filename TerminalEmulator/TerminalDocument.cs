@@ -417,13 +417,13 @@ namespace Poderosa.Terminal {
             _invalidatedRegion.InvalidatedAll = true;
         }
 
-        public void ClearRange(int from, int to, TextDecoration dec) {
+        public void ClearRange(int from, int to, TextDecoration dec, bool selective = false) {
             GLine l = FindLineOrNullClipTop(from);
             if (l == null)
                 return;
 
             while (l != null && l.ID < to) {
-                l.Clear(dec);
+                l.Clear(dec, selective);
                 _invalidatedRegion.InvalidateLine(l.ID);
                 l = l.NextLine;
             }
