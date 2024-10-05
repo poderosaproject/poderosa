@@ -89,7 +89,7 @@ namespace Poderosa.Terminal {
         protected TerminalMode _cursorKeyMode; //_terminalModeは別物。AIXでのviで、カーソルキーは不変という例が確認されている
 
         protected abstract void ChangeMode(TerminalMode tm);
-        protected abstract void ResetInternal();
+        protected abstract void FullResetInternal();
 
         //ICharDecoder
         public abstract void ProcessChar(char ch);
@@ -319,15 +319,16 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //これはメインスレッドから呼び出すこと
-        public virtual void FullReset() {
+        public void FullReset() {
             lock (_document) {
                 ChangeMode(TerminalMode.Normal);
                 _document.ClearScrollingRegion();
-                ResetInternal();
+                _currentdecoration = TextDecoration.Default;
                 _encodingProfile = EncodingProfile.Create(GetTerminalSettings().Encoding);
                 _decoder = new ISO2022CharDecoder(this, _encodingProfile);
                 _unicodeCharConverter = _encodingProfile.CreateUnicodeCharConverter();
+                FullResetInternal();
+                _document.InvalidateAll();
             }
         }
 

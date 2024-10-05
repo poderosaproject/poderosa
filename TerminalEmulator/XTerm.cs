@@ -56,12 +56,12 @@ namespace Poderosa.Terminal {
 
         private IModalCharacterTask _currentCharacterTask = null;
 
-        private bool _wrapAroundMode;
-        private bool _reverseVideo;
+        private bool _wrapAroundMode = true;
+        private bool _reverseVideo = false;
         private bool[] _tabStops;
         private readonly List<GLine>[] _savedScreen = new List<GLine>[2];	// { main, alternate } 別のバッファに移行したときにGLineを退避しておく
-        private bool _isAlternateBuffer;
-        private bool _savedMode_isAlternateBuffer;
+        private bool _isAlternateBuffer = false;
+        private bool _savedMode_isAlternateBuffer = false;
         private readonly int[] _xtermSavedRow = new int[2];	// { main, alternate }
         private readonly int[] _xtermSavedCol = new int[2];	// { main, alternate }
 
@@ -77,8 +77,8 @@ namespace Poderosa.Terminal {
         private int _prevMouseCol = -1;
         private MouseButtons _mouseButton = MouseButtons.None;
 
-        private bool _insertMode;
-        private bool _scrollRegionRelative;
+        private bool _insertMode = false;
+        private bool _scrollRegionRelative = false;
 
         private const int MOUSE_POS_LIMIT = 255 - 32;       // mouse position limit
         private const int MOUSE_POS_EXT_LIMIT = 2047 - 32;  // mouse position limit in extended mode
@@ -87,13 +87,7 @@ namespace Poderosa.Terminal {
         public XTerm(TerminalInitializeInfo info)
             : base(info) {
             _escapeSequenceEngine = new EscapeSequenceEngine<XTerm>(HandleException, HandleIncompleteEscapeSequence);
-
-            _insertMode = false;
-            _scrollRegionRelative = false;
-            _wrapAroundMode = true;
             _tabStops = new bool[GetDocument().TerminalWidth];
-            _isAlternateBuffer = false;
-            _savedMode_isAlternateBuffer = false;
             InitTabStops();
         }
 
@@ -119,10 +113,19 @@ namespace Poderosa.Terminal {
             }
         }
 
-        protected override void ResetInternal() {
-            _escapeSequenceEngine.Reset();
+        protected override void FullResetInternal() { // called from the base class
+            ProcessCursorPosition(1, 1);
+            DoEraseInDisplay(2 /* all */, false);
+            InitTabStops();
+            _wrapAroundMode = true;
+            _reverseVideo = false;
+            _bracketedPasteMode = false;
+            _mouseTrackingState = MouseTrackingState.Off;
+            _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
+            _focusReportingMode = false;
             _insertMode = false;
             _scrollRegionRelative = false;
+            _escapeSequenceEngine.Reset();
         }
 
         public override void StartModalTerminalTask(IModalTerminalTask task) {
@@ -2683,11 +2686,6 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.ESC, 'c')]
         private void ProcessRIS() {
             FullReset();
-        }
-
-        public override void FullReset() {
-            InitTabStops();
-            base.FullReset();
         }
 
         [EscapeSequence(ControlCode.DCS, EscapeSequenceParamType.Text, ControlCode.ST)]
