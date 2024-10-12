@@ -524,6 +524,7 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.ESC, '#', '8')] // DECALN – Screen Alignment Display
         [EscapeSequence(ControlCode.ESC, '%', '@')] // Select default character set
         [EscapeSequence(ControlCode.ESC, '%', 'G')] // Select UTF-8 character set
+        [EscapeSequence(ControlCode.ESC, 'F')] // Cursor to lower left corner of screen
         [EscapeSequence(ControlCode.ESC, 'l')] // Memory Lock
         [EscapeSequence(ControlCode.ESC, 'm')] // Memory Unlock
         [EscapeSequence(ControlCode.SI)] // LS0 - Map G0 into GL (SI should be already processed by CharDecoder)
@@ -991,11 +992,6 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, 'U')] // FIXME: undocumented?
         private void ProcessCursorPositionToBottomLeft() {
             ProcessCursorPosition(GetDocument().TerminalHeight, 1);
-        }
-
-        [EscapeSequence(ControlCode.ESC, 'F')]
-        private void ProcessCursorPositionToLowerLeft() {
-            ProcessCursorPosition(1, 1); // FIXME: is this right?
         }
 
         private void ProcessCursorPosition(int row, int col) {
