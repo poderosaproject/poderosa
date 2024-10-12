@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Diagnostics;
 
@@ -27,8 +28,8 @@ namespace Poderosa.Terminal {
     /// <exclude/>
     public class TerminalDocument : CharacterDocument {
         private int _caretColumn;
-        private int _scrollingTop;
-        private int _scrollingBottom;
+        private int _scrollingTopOffset;
+        private int _scrollingBottomOffset;
         //ウィンドウの表示用テキスト
         private string _windowTitle; //ホストOSCシーケンスで指定されたタイトル
         private GLine _topLine;
@@ -41,8 +42,8 @@ namespace Poderosa.Terminal {
         internal TerminalDocument(int width, int height) {
             Resize(width, height);
             Clear();
-            _scrollingTop = -1;
-            _scrollingBottom = -1;
+            _scrollingTopOffset = -1;
+            _scrollingBottomOffset = -1;
         }
 
         public string WindowTitle {
@@ -70,11 +71,16 @@ namespace Poderosa.Terminal {
             }
         }
 
-        public void SetScrollingRegion(int top_offset, int bottom_offset) {
-            _scrollingTop = TopLineNumber + top_offset;
-            _scrollingBottom = TopLineNumber + bottom_offset;
-            //GLine l = FindLine(_scrollingTop);
+        /// <summary>
+        /// Set scrolling region
+        /// </summary>
+        /// <param name="topOffset">top of scrolling region specified by offset from the first line of the display area. -1 represents the top of the display area.</param>
+        /// <param name="bottomOffset">bottom of scrolling region specified by offset from the first line of the display area. -1 represents the bottom of the display area.</param>
+        public void SetScrollingRegion(int topOffset, int bottomOffset) {
+            _scrollingTopOffset = topOffset;
+            _scrollingBottomOffset = bottomOffset;
         }
+
         public void Clear() {
             _caretColumn = 0;
             _firstLine = null;
@@ -88,9 +94,10 @@ namespace Poderosa.Terminal {
         }
 
         public void ClearScrollingRegion() {
-            _scrollingTop = -1;
-            _scrollingBottom = -1;
+            _scrollingTopOffset = -1;
+            _scrollingBottomOffset = -1;
         }
+
         public int CaretColumn {
             get {
                 return _caretColumn;
@@ -164,117 +171,216 @@ namespace Poderosa.Terminal {
         }
         #endregion
 
+        public int ScrollingTopOffset {
+            get {
+                return (TerminalHeight < 2) ? 0 : (_scrollingTopOffset < 0) ? 0 : Math.Min(_scrollingTopOffset, TerminalHeight - 2);
+            }
+        }
+
+        public int ScrollingBottomOffset {
+            get {
+                return (TerminalHeight < 2) ? 1 : (_scrollingBottomOffset < 0) ? TerminalHeight - 1 : Math.Min(_scrollingBottomOffset, TerminalHeight - 1);
+            }
+        }
+
         public int ScrollingTop {
             get {
-                return _scrollingTop;
+                return TopLineNumber + ScrollingTopOffset;
             }
         }
+
         public int ScrollingBottom {
             get {
-                return _scrollingBottom;
+                return TopLineNumber + ScrollingBottomOffset;
             }
         }
+
+        public bool IsCurrentLineInScrollingRegion {
+            get {
+                return CurrentLineNumber >= ScrollingTop && CurrentLineNumber <= ScrollingBottom;
+            }
+        }
+
+        public bool HasScrollingRegionTop {
+            get {
+                return _scrollingTopOffset >= 0;
+            }
+        }
+
+        public bool HasScrollingRegionBottom {
+            get {
+                return _scrollingBottomOffset >= 0;
+            }
+        }
+
         internal void LineFeed() {
-            if (_scrollingTop != -1 && _currentLine.ID >= _scrollingBottom) { //ロックされていて下まで行っている
-                ScrollDown();
+            if (HasScrollingRegionBottom) {
+                if (CurrentLineNumber == ScrollingBottom) {
+                    ScrollDown();
+                }
+                else {
+                    CurrentLineNumber++; // move to the next line. new line will be added as needed.
+                }
             }
             else {
-                if (_height > 1) { //極端に高さがないときはこれで変な値になってしまうのでスキップ
-                    if (_currentLine.ID >= _topLine.ID + _height - 1)
-                        this.TopLineNumber = _currentLine.ID - _height + 2; //これで次のCurrentLineNumber++と合わせて行送りになる
+                CurrentLineNumber++; // move to the next line. new line will be added as needed.
+                int overflow = CurrentLineNumber - (TopLineNumber + TerminalHeight - 1);
+                if (overflow > 0) {
+                    TopLineNumber += overflow;
                 }
-                this.CurrentLineNumber++; //これでプロパティセットがなされ、必要なら行の追加もされる。
             }
-
-            //Debug.WriteLine(String.Format("c={0} t={1} f={2} l={3}", _currentLine.ID, _topLine.ID, _firstLine.ID, _lastLine.ID));
         }
 
-        //スクロール範囲の最も下を１行消し、最も上に１行追加。現在行はその新規行になる。
+        /// <summary>
+        /// <para>Insert one line at the top of the scroll region and remove overflow line from the bottom.</para>
+        /// <para>The current line is reset to the new line inserted.</para>
+        /// </summary>
         internal void ScrollUp() {
-            if (_scrollingTop != -1 && _scrollingBottom != -1)
-                ScrollUp(_scrollingTop, _scrollingBottom);
-            else
-                ScrollUp(TopLineNumber, TopLineNumber + _height - 1);
+            ScrollUp(ScrollingTop, ScrollingBottom);
         }
 
-        internal void ScrollUp(int from, int to) {
+        /// <summary>
+        /// <para>Insert N lines at the top of the specified region and remove overflow lines from the bottom.</para>
+        /// <para>The current line is reset to the first new line inserted.</para>
+        /// </summary>
+        /// <param name="from">line number at the top of the region.</param>
+        /// <param name="to">line number at the bottom of the region.</param>
+        /// <param name="n">number of lines to insert.</param>
+        /// <param name="dec">decoration used to erase lines..</param>
+        internal void ScrollUp(int from, int to, int n = 1, TextDecoration dec = null) {
+            if (to < from || n < 1) {
+                return;
+            }
+
             GLine top = FindLineOrEdge(from);
+            if (top == null || top.ID < from || top.ID > to) {
+                return;
+            }
+            int origTopID = top.ID;
+
             GLine bottom = FindLineOrEdge(to);
-            if (top == null || bottom == null)
-                return; //エラーハンドリングはFindLineの中で。ここではクラッシュ回避だけを行う
-            int bottom_id = bottom.ID;
-            int topline_id = _topLine.ID;
-            GLine nextbottom = bottom.NextLine;
 
-            if (from == to) {
-                _currentLine = top;
-                _currentLine.Clear();
+            int linesToInsert = Math.Min(n, to - from + 1);
+            int linesToRemove = Math.Max(bottom.ID + linesToInsert - to, 0);
+
+            // insert new lines
+            GLine firstNewLine = new GLine(_width);
+            firstNewLine.Clear(dec);
+            InsertBefore(top, firstNewLine);
+
+            for (int i = 1; i < linesToInsert; i++) {
+                GLine newLine = new GLine(_width);
+                newLine.Clear(dec);
+                InsertBefore(top, newLine);
             }
-            else {
-                Remove(bottom);
-                _currentLine = new GLine(_width);
 
-                InsertBefore(top, _currentLine);
-                GLine c = _currentLine;
-                do {
-                    c.ID = from++;
-                    c = c.NextLine;
-                } while (c != nextbottom);
-                Debug.Assert(nextbottom == null || nextbottom.ID == from);
+            // remove overflow lines
+            GLine l = bottom;
+            for (int i = 0; l != null && i < linesToRemove; i++) {
+                GLine prev = l.PrevLine;
+                Remove(l);
+                l = prev;
             }
-            /*
-            //id maintainance
-            GLine c = newbottom;
-            GLine end = _currentLine.PrevLine;
-            while(c != end) {
-                c.ID = bottom_id--;
-                c = c.PrevLine;
+
+            // relabel IDs
+            l = firstNewLine;
+            int id = origTopID;
+            while (l != null && id <= to) {
+                l.ID = id++;
+                l = l.NextLine;
             }
-            */
 
-            //!!次の２行はxtermをやっている間に発見して修正。 VT100では何かの必要があってこうなったはずなので後で調べること
-            //if(_scrollingTop<=_topLine.ID && _topLine.ID<=_scrollingBottom)
-            //	_topLine = _currentLine;
-            while (topline_id < _topLine.ID)
-                _topLine = _topLine.PrevLine;
+            _currentLine = firstNewLine;
 
+            InvalidateAll();
 
-            _invalidatedRegion.InvalidatedAll = true;
-        }
-
-        //スクロール範囲の最も上を１行消し、最も下に１行追加。現在行はその新規行になる。
-        internal void ScrollDown() {
-            if (_scrollingTop != -1 && _scrollingBottom != -1)
-                ScrollDown(_scrollingTop, _scrollingBottom);
-            else
-                ScrollDown(TopLineNumber, TopLineNumber + _height - 1);
-        }
-
-        internal void ScrollDown(int from, int to) {
-            GLine top = FindLineOrEdge(from);
-            GLine bottom = FindLineOrEdge(to);
-            int top_id = top.ID;
-            GLine newtop = top.NextLine;
-
-            if (from == to) {
-                _currentLine = top;
-                _currentLine.Clear();
-            }
-            else {
-                Remove(top); //_topLineの調整は必要ならここで行われる
-                _currentLine = new GLine(_width);
-                InsertAfter(bottom, _currentLine);
-
-                //id maintainance
-                GLine c = newtop;
-                GLine end = _currentLine.NextLine;
-                while (c != end) {
-                    c.ID = top_id++;
-                    c = c.NextLine;
+#if DEBUG
+            {
+                GLine ll = (firstNewLine.PrevLine != null) ? firstNewLine.PrevLine : firstNewLine;
+                int nextID = ll.ID;
+                for (; ll != null; ll = ll.NextLine, nextID++) {
+                    if (ll.ID != nextID) {
+                        Debug.WriteLine("*** ScrollUp: BAD ID ***");
+                    }
                 }
             }
+#endif
+        }
 
-            _invalidatedRegion.InvalidatedAll = true;
+        /// <summary>
+        /// <para>Insert one line at the bottom of the scroll region and remove overflow line from the top.</para>
+        /// <para>The current line is reset to the new line inserted.</para>
+        /// </summary>
+        internal void ScrollDown() {
+            ScrollDown(ScrollingTop, ScrollingBottom);
+        }
+
+        /// <summary>
+        /// <para>Insert N lines at the bottom of the scroll region and remove overflow lines from the top.</para>
+        /// <para>The current line is reset to the new line inserted.</para>
+        /// </summary>
+        /// <param name="from">line number at the top of the region.</param>
+        /// <param name="to">line number at the bottom of the region.</param>
+        /// <param name="n">number of lines to insert.</param>
+        /// <param name="dec">decoration used to erase lines..</param>
+        internal void ScrollDown(int from, int to, int n = 1, TextDecoration dec = null) {
+            if (to < from || n < 1) {
+                return;
+            }
+
+            GLine top = FindLineOrEdge(from);
+            if (top == null || top.ID < from || top.ID > to) {
+                return;
+            }
+
+            GLine bottom = FindLineOrEdge(to);
+            int origBottomID = bottom.ID;
+
+            int linesToInsert = Math.Min(n, to - from + 1);
+            int linesToRemove = Math.Max(from - (top.ID - linesToInsert), 0);
+
+            // insert new lines
+            GLine firstNewLine = new GLine(_width);
+            firstNewLine.Clear(dec);
+            InsertAfter(bottom, firstNewLine);
+
+            for (int i = 1; i < linesToInsert; i++) {
+                GLine newLine = new GLine(_width);
+                newLine.Clear(dec);
+                InsertAfter(bottom, newLine);
+            }
+
+            // remove overflow lines
+            GLine l = top;
+            for (int i = 0; l != null && i < linesToRemove; i++) {
+                GLine next = l.NextLine;
+                Remove(l);
+                l = next;
+            }
+
+            // relabel IDs
+            l = firstNewLine;
+            int id = origBottomID;
+            while (l != null && id >= from) {
+                l.ID = id--;
+                l = l.PrevLine;
+            }
+
+            _currentLine = firstNewLine;
+
+            InvalidateAll();
+
+#if DEBUG
+            {
+                GLine ll = (firstNewLine.NextLine != null) ? firstNewLine.NextLine : firstNewLine;
+                int nextID = ll.ID;
+                for (; ll != null; ll = ll.PrevLine, nextID--) {
+                    if (ll.ID != nextID) {
+                        Debug.WriteLine("*** ScrollDown: BAD ID ***");
+                    }
+                }
+            }
+#endif
         }
 
         //整数インデクスから見つける　CurrentLineからそう遠くない位置だろうとあたりをつける

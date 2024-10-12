@@ -974,18 +974,21 @@ namespace Poderosa.Terminal {
         private void ProcessCursorPosition(NumericParams p) {
             int row = p.Get(0, 1);
             int col = p.Get(1, 1);
-            if (_scrollRegionRelative && GetDocument().ScrollingTop != -1) {
-                row += GetDocument().ScrollingTop;
+
+            if (row < 1) {
+                row = 1;
+            }
+            if (col < 1) {
+                col = 1;
             }
 
-            if (row < 1)
-                row = 1;
-            else if (row > GetDocument().TerminalHeight)
-                row = GetDocument().TerminalHeight;
-            if (col < 1)
-                col = 1;
-            else if (col > GetDocument().TerminalWidth)
-                col = GetDocument().TerminalWidth;
+            if (_scrollRegionRelative && GetDocument().HasScrollingRegionTop) {
+                row += GetDocument().ScrollingTopOffset;
+            }
+
+            row = Math.Min(row, GetDocument().TerminalHeight);
+            col = Math.Min(col, GetDocument().TerminalWidth);
+
             ProcessCursorPosition(row, col);
         }
 
@@ -997,9 +1000,12 @@ namespace Poderosa.Terminal {
         private void ProcessCursorPosition(int row, int col) {
             GetDocument().UpdateCurrentLine(_manipulator);
             GetDocument().CurrentLineNumber = (GetDocument().TopLineNumber + row - 1);
-            //int cc = GetDocument().CurrentLine.DisplayPosToCharPos(col-1);
-            //Debug.Assert(cc>=0);
             _manipulator.Load(GetDocument().CurrentLine, col - 1);
+        }
+
+        private void MoveCursorToHome() {
+            int row = (_scrollRegionRelative && GetDocument().HasScrollingRegionTop) ? GetDocument().ScrollingTopOffset + 1 : 1;
+            ProcessCursorPosition(row, 1);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'J')]
@@ -1239,7 +1245,7 @@ namespace Poderosa.Terminal {
         private void Index() {
             GetDocument().UpdateCurrentLine(_manipulator);
             int current = GetDocument().CurrentLineNumber;
-            if (current == GetDocument().TopLineNumber + GetDocument().TerminalHeight - 1 || current == GetDocument().ScrollingBottom)
+            if (GetDocument().HasScrollingRegionBottom && current == GetDocument().ScrollingBottom)
                 GetDocument().ScrollDown();
             else
                 GetDocument().CurrentLineNumber = current + 1;
@@ -1260,25 +1266,36 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'r')]
         private void ProcessSetScrollingRegion(NumericParams p) {
             int height = GetDocument().TerminalHeight;
-            int top = p.Get(0, 1);
-            int bottom = p.Get(1, height);
+            int top = p.Get(0, -1);
+            int bottom = p.Get(1, -1);
 
-            if (top < 1)
-                top = 1;
-            else if (top > height)
-                top = height;
-            if (bottom < 1)
-                bottom = 1;
-            else if (bottom > height)
-                bottom = height;
-            if (top > bottom) { //問答無用でエラーが良いようにも思うが
-                int t = top;
-                top = bottom;
-                bottom = t;
+            int topOffset;
+            if (top <= 0) {
+                topOffset = -1; // top of the display area
+            }
+            else if (top > height) {
+                topOffset = height - 1;
+            }
+            else {
+                topOffset = top - 1;
             }
 
-            //指定は1-originだが処理は0-origin
-            GetDocument().SetScrollingRegion(top - 1, bottom - 1);
+            int bottomOffset;
+            if (bottom <= 0) {
+                bottomOffset = -1;  // bottom of the display area
+            }
+            else if (bottom > height) {
+                bottomOffset = height - 1;
+            }
+            else {
+                bottomOffset = bottom - 1;
+            }
+
+            if (((topOffset == -1) ? 0 : topOffset) < ((bottomOffset == -1) ? height - 1 : bottomOffset)) {
+                GetDocument().SetScrollingRegion(topOffset, bottomOffset);
+            }
+
+            MoveCursorToHome();
         }
 
         [EscapeSequence(ControlCode.NEL)]
@@ -1376,47 +1393,43 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'L')]
         private void ProcessInsertLines(NumericParams p) {
             int d = p.Get(0, 1);
+            if (d == 0) {
+                d = 1;
+            }
 
             TerminalDocument doc = GetDocument();
-            int caret_pos = _manipulator.CaretColumn;
-            int offset = doc.CurrentLineNumber - doc.TopLineNumber;
-            doc.UpdateCurrentLine(_manipulator);
-            if (doc.ScrollingBottom == -1)
-                doc.SetScrollingRegion(0, GetDocument().TerminalHeight - 1);
-
-            for (int i = 0; i < d; i++) {
-                doc.ScrollUp(doc.CurrentLineNumber, doc.ScrollingBottom);
-                doc.CurrentLineNumber = doc.TopLineNumber + offset;
+            if (!doc.IsCurrentLineInScrollingRegion) {
+                return;
             }
-            _manipulator.Load(doc.CurrentLine, caret_pos);
+
+            int bottom = doc.ScrollingBottom;
+
+            doc.UpdateCurrentLine(_manipulator);
+            int currentLineNumber = doc.CurrentLineNumber;
+            doc.ScrollUp(currentLineNumber, bottom, d, _currentdecoration);
+            doc.CurrentLineNumber = currentLineNumber;
+            _manipulator.Load(doc.CurrentLine, 0);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'M')]
         private void ProcessDeleteLines(NumericParams p) {
             int d = p.Get(0, 1);
-
-            /*
-            TerminalDocument doc = GetDocument();
-            _manipulator.Clear(GetConnection().TerminalWidth);
-            GLine target = doc.CurrentLine;
-            for(int i=0; i<d; i++) {
-                target.Clear();
-                target = target.NextLine;
+            if (d == 0) {
+                d = 1;
             }
-            */
 
             TerminalDocument doc = GetDocument();
-            int caret_col = _manipulator.CaretColumn;
-            int offset = doc.CurrentLineNumber - doc.TopLineNumber;
+            if (!doc.IsCurrentLineInScrollingRegion) {
+                return;
+            }
+
+            int bottom = doc.ScrollingBottom;
+
             doc.UpdateCurrentLine(_manipulator);
-            if (doc.ScrollingBottom == -1)
-                doc.SetScrollingRegion(0, doc.TerminalHeight - 1);
-
-            for (int i = 0; i < d; i++) {
-                doc.ScrollDown(doc.CurrentLineNumber, doc.ScrollingBottom);
-                doc.CurrentLineNumber = doc.TopLineNumber + offset;
-            }
-            _manipulator.Load(doc.CurrentLine, caret_col);
+            int currentLineNumber = doc.CurrentLineNumber;
+            doc.ScrollDown(currentLineNumber, bottom, d, _currentdecoration);
+            doc.CurrentLineNumber = currentLineNumber;
+            _manipulator.Load(doc.CurrentLine, 0);
         }
 
 #if NOTUSED
@@ -2222,34 +2235,41 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'S')]
         private void ProcessScrollUp(NumericParams p) {
             int d = p.Get(0, 1);
+            if (d == 0) {
+                d = 1;
+            }
 
             TerminalDocument doc = GetDocument();
-            int caret_col = _manipulator.CaretColumn;
-            int offset = doc.CurrentLineNumber - doc.TopLineNumber;
+
+            int caretColumn = _manipulator.CaretColumn;
+            int currentLilneNumber = doc.CurrentLineNumber;
             doc.UpdateCurrentLine(_manipulator);
-            if (doc.ScrollingBottom == -1)
-                doc.SetScrollingRegion(0, GetDocument().TerminalHeight - 1);
-            for (int i = 0; i < d; i++) {
-                doc.ScrollDown(doc.ScrollingTop, doc.ScrollingBottom); // TerminalDocument's "Scroll-Down" means XTerm's "Scroll-Up"
-                doc.CurrentLineNumber = doc.TopLineNumber + offset; // find correct GLine
+
+            if (!doc.HasScrollingRegionTop && !doc.HasScrollingRegionBottom) {
+                doc.CurrentLineNumber += d;
+                doc.TopLineNumber += d;
             }
-            _manipulator.Load(doc.CurrentLine, caret_col);
+            else {
+                doc.ScrollDown(doc.ScrollingTop, doc.ScrollingBottom, d, _currentdecoration); // TerminalDocument's "Scroll-Down" means XTerm's "Scroll-Up"
+                doc.CurrentLineNumber = currentLilneNumber;
+            }
+
+            _manipulator.Load(doc.CurrentLine, caretColumn);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'T')]
         private void ProcessScrollDown(NumericParams p) {
             int d = p.Get(0, 1);
+            if (d == 0) {
+                d = 1;
+            }
 
             TerminalDocument doc = GetDocument();
             int caret_col = _manipulator.CaretColumn;
-            int offset = doc.CurrentLineNumber - doc.TopLineNumber;
+            int currentLilneNumber = doc.CurrentLineNumber;
             doc.UpdateCurrentLine(_manipulator);
-            if (doc.ScrollingBottom == -1)
-                doc.SetScrollingRegion(0, GetDocument().TerminalHeight - 1);
-            for (int i = 0; i < d; i++) {
-                doc.ScrollUp(doc.ScrollingTop, doc.ScrollingBottom); // TerminalDocument's "Scroll-Up" means XTerm's "Scroll-Down"
-                doc.CurrentLineNumber = doc.TopLineNumber + offset; // find correct GLine
-            }
+            doc.ScrollUp(doc.ScrollingTop, doc.ScrollingBottom, d, _currentdecoration); // TerminalDocument's "Scroll-Down" means XTerm's "Scroll-Up"
+            doc.CurrentLineNumber = currentLilneNumber;
             _manipulator.Load(doc.CurrentLine, caret_col);
         }
 
