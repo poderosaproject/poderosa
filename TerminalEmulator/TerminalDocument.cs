@@ -27,6 +27,7 @@ namespace Poderosa.Terminal {
     /// </summary>
     /// <exclude/>
     public class TerminalDocument : CharacterDocument {
+        private TextDecoration _currentDecoration = TextDecoration.Default;
         private int _caretColumn;
         private int _scrollingTopOffset;
         private int _scrollingBottomOffset;
@@ -71,6 +72,15 @@ namespace Poderosa.Terminal {
             }
         }
 
+        public TextDecoration CurrentDecoration {
+            get {
+                return _currentDecoration;
+            }
+            set {
+                _currentDecoration = value;
+            }
+        }
+
         /// <summary>
         /// Set scrolling region
         /// </summary>
@@ -86,8 +96,9 @@ namespace Poderosa.Terminal {
             _firstLine = null;
             _lastLine = null;
             _size = 0;
-            AddLine(new GLine(_width));
+            AddLine(CreateErasedGLine());
         }
+        
         public void Resize(int width, int height) {
             _width = width;
             _height = height;
@@ -131,7 +142,7 @@ namespace Poderosa.Terminal {
 
         public void EnsureLine(int id) {
             while (id > _lastLine.ID) {
-                AddLine(new GLine(_width));
+                AddLine(CreateErasedGLine());
             }
         }
 
@@ -146,7 +157,7 @@ namespace Poderosa.Terminal {
                     value = _lastLine.ID + 100; //極端に大きな値を食らって死ぬことがないようにする
 
                 while (value > _lastLine.ID) {
-                    AddLine(new GLine(_width));
+                    AddLine(CreateErasedGLine());
                 }
 
                 _currentLine = FindLineOrEdge(value); //外部から変な値が渡されたり、あるいはどこかにバグがあるせいでこの中でクラッシュすることがまれにあるようだ。なのでOrEdgeバージョンにしてクラッシュは回避
@@ -246,8 +257,7 @@ namespace Poderosa.Terminal {
         /// <param name="from">line number at the top of the region.</param>
         /// <param name="to">line number at the bottom of the region.</param>
         /// <param name="n">number of lines to insert.</param>
-        /// <param name="dec">decoration used to erase lines..</param>
-        internal void ScrollUp(int from, int to, int n = 1, TextDecoration dec = null) {
+        internal void ScrollUp(int from, int to, int n = 1) {
             if (to < from || n < 1) {
                 return;
             }
@@ -264,13 +274,11 @@ namespace Poderosa.Terminal {
             int linesToRemove = Math.Max(bottom.ID + linesToInsert - to, 0);
 
             // insert new lines
-            GLine firstNewLine = new GLine(_width);
-            firstNewLine.Clear(dec);
+            GLine firstNewLine = CreateErasedGLine();
             InsertBefore(top, firstNewLine);
 
             for (int i = 1; i < linesToInsert; i++) {
-                GLine newLine = new GLine(_width);
-                newLine.Clear(dec);
+                GLine newLine = CreateErasedGLine();
                 InsertBefore(top, newLine);
             }
 
@@ -322,8 +330,7 @@ namespace Poderosa.Terminal {
         /// <param name="from">line number at the top of the region.</param>
         /// <param name="to">line number at the bottom of the region.</param>
         /// <param name="n">number of lines to insert.</param>
-        /// <param name="dec">decoration used to erase lines..</param>
-        internal void ScrollDown(int from, int to, int n = 1, TextDecoration dec = null) {
+        internal void ScrollDown(int from, int to, int n = 1) {
             if (to < from || n < 1) {
                 return;
             }
@@ -340,13 +347,11 @@ namespace Poderosa.Terminal {
             int linesToRemove = Math.Max(from - (top.ID - linesToInsert), 0);
 
             // insert new lines
-            GLine firstNewLine = new GLine(_width);
-            firstNewLine.Clear(dec);
+            GLine firstNewLine = CreateErasedGLine();
             InsertAfter(bottom, firstNewLine);
 
             for (int i = 1; i < linesToInsert; i++) {
-                GLine newLine = new GLine(_width);
-                newLine.Clear(dec);
+                GLine newLine = CreateErasedGLine();
                 InsertAfter(bottom, newLine);
             }
 
@@ -574,6 +579,10 @@ namespace Poderosa.Terminal {
                 _invalidatedRegion.InvalidateLine(line.ID);
             }
             return line;
+        }
+
+        private GLine CreateErasedGLine() {
+            return new GLine(_width, _currentDecoration);
         }
     }
 

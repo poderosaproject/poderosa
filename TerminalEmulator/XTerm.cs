@@ -490,7 +490,7 @@ namespace Poderosa.Terminal {
                 return;
 
             if (_insertMode)
-                _manipulator.InsertBlanks(_manipulator.CaretColumn, unicodeChar.IsWideWidth ? 2 : 1, _currentdecoration);
+                _manipulator.InsertBlanks(_manipulator.CaretColumn, unicodeChar.IsWideWidth ? 2 : 1, GetDocument().CurrentDecoration);
 
             //既に画面右端にキャレットがあるのに文字が来たら改行をする
             int tw = GetDocument().TerminalWidth;
@@ -509,7 +509,7 @@ namespace Poderosa.Terminal {
                 _manipulator.ExpandBuffer(tw);
 
             //通常文字の処理
-            _manipulator.PutChar(unicodeChar, _currentdecoration);
+            _manipulator.PutChar(unicodeChar, GetDocument().CurrentDecoration);
         }
 
         [EscapeSequence(ControlCode.ESC, ' ', 'F')] // S7C1T
@@ -660,10 +660,10 @@ namespace Poderosa.Terminal {
             for (GLine l = doc.TopLine; l != null; l = l.NextLine) {
                 _manipulator.Load(l, 0);
                 if (columns > 0) {
-                    _manipulator.InsertBlanks(0, columns, _currentdecoration);
+                    _manipulator.InsertBlanks(0, columns, doc.CurrentDecoration);
                 }
                 else if (columns < 0) {
-                    _manipulator.DeleteChars(0, -columns, _currentdecoration);
+                    _manipulator.DeleteChars(0, -columns, doc.CurrentDecoration);
                 }
                 _manipulator.ExportTo(l);
             }
@@ -1041,7 +1041,7 @@ namespace Poderosa.Terminal {
                         doc.UpdateCurrentLine(_manipulator);
                         doc.EnsureLine(bottom - 1);
                         doc.RemoveAfter(bottom);
-                        doc.ClearRange(cur + 1, bottom, _currentdecoration, selective);
+                        doc.ClearRange(cur + 1, bottom, doc.CurrentDecoration, selective);
                         _manipulator.Load(doc.CurrentLine, col);
                     }
                     break;
@@ -1057,14 +1057,14 @@ namespace Poderosa.Terminal {
                             EraseLeft();
                         }
                         doc.UpdateCurrentLine(_manipulator);
-                        doc.ClearRange(top, cur, _currentdecoration, selective);
+                        doc.ClearRange(top, cur, doc.CurrentDecoration, selective);
                         _manipulator.Load(doc.CurrentLine, col);
                     }
                     break;
                 case 2: //erase all
                 ERASE_ALL: {
-                        GetDocument().ApplicationModeBackColor =
-                            (_currentdecoration != null) ? _currentdecoration.GetBackColorSpec() : ColorSpec.Default;
+                        doc.ApplicationModeBackColor =
+                            (doc.CurrentDecoration != null) ? doc.CurrentDecoration.GetBackColorSpec() : ColorSpec.Default;
 
                         doc.UpdateCurrentLine(_manipulator);
                         //if(_homePositionOnCSIJ2) { //SFUではこうなる
@@ -1073,7 +1073,7 @@ namespace Poderosa.Terminal {
                         //}
                         doc.EnsureLine(bottom - 1);
                         doc.RemoveAfter(bottom);
-                        doc.ClearRange(top, bottom, _currentdecoration, selective);
+                        doc.ClearRange(top, bottom, doc.CurrentDecoration, selective);
                         _manipulator.Load(doc.CurrentLine, col);
                     }
                     break;
@@ -1144,10 +1144,10 @@ namespace Poderosa.Terminal {
             for (int r = row1; line != null && r <= row2; r++, line = line.NextLine) {
                 _manipulator.Load(line, 0);
                 if (selective) {
-                    _manipulator.FillSpaceSkipProtected(col1 - 1, col2, _currentdecoration);
+                    _manipulator.FillSpaceSkipProtected(col1 - 1, col2, doc.CurrentDecoration);
                 }
                 else {
-                    _manipulator.FillSpace(col1 - 1, col2, _currentdecoration);
+                    _manipulator.FillSpace(col1 - 1, col2, doc.CurrentDecoration);
                 }
                 _manipulator.ExportTo(line);
                 doc.InvalidatedRegion.InvalidateLine(line.ID);
@@ -1201,27 +1201,27 @@ namespace Poderosa.Terminal {
         }
 
         private void EraseRight() {
-            _manipulator.FillSpace(_manipulator.CaretColumn, _manipulator.BufferSize, _currentdecoration);
+            _manipulator.FillSpace(_manipulator.CaretColumn, _manipulator.BufferSize, GetDocument().CurrentDecoration);
         }
 
         private void SelectiveEraseRight() {
-            _manipulator.FillSpaceSkipProtected(_manipulator.CaretColumn, _manipulator.BufferSize, _currentdecoration);
+            _manipulator.FillSpaceSkipProtected(_manipulator.CaretColumn, _manipulator.BufferSize, GetDocument().CurrentDecoration);
         }
 
         private void EraseLeft() {
-            _manipulator.FillSpace(0, _manipulator.CaretColumn + 1, _currentdecoration);
+            _manipulator.FillSpace(0, _manipulator.CaretColumn + 1, GetDocument().CurrentDecoration);
         }
 
         private void SelectiveEraseLeft() {
-            _manipulator.FillSpaceSkipProtected(0, _manipulator.CaretColumn + 1, _currentdecoration);
+            _manipulator.FillSpaceSkipProtected(0, _manipulator.CaretColumn + 1, GetDocument().CurrentDecoration);
         }
 
         private void EraseLine() {
-            _manipulator.FillSpace(0, _manipulator.BufferSize, _currentdecoration);
+            _manipulator.FillSpace(0, _manipulator.BufferSize, GetDocument().CurrentDecoration);
         }
 
         private void SelectiveEraseLine() {
-            _manipulator.FillSpaceSkipProtected(0, _manipulator.BufferSize, _currentdecoration);
+            _manipulator.FillSpaceSkipProtected(0, _manipulator.BufferSize, GetDocument().CurrentDecoration);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '"', 'q')]
@@ -1231,10 +1231,10 @@ namespace Poderosa.Terminal {
             switch (param) {
                 case 0:
                 case 2:
-                    _currentdecoration = _currentdecoration.GetCopyWithProtected(false);
+                    GetDocument().CurrentDecoration = GetDocument().CurrentDecoration.GetCopyWithProtected(false);
                     break;
                 case 1:
-                    _currentdecoration = _currentdecoration.GetCopyWithProtected(true);
+                    GetDocument().CurrentDecoration = GetDocument().CurrentDecoration.GetCopyWithProtected(true);
                     break;
                 default:
                     break;
@@ -1406,7 +1406,7 @@ namespace Poderosa.Terminal {
 
             doc.UpdateCurrentLine(_manipulator);
             int currentLineNumber = doc.CurrentLineNumber;
-            doc.ScrollUp(currentLineNumber, bottom, d, _currentdecoration);
+            doc.ScrollUp(currentLineNumber, bottom, d);
             doc.CurrentLineNumber = currentLineNumber;
             _manipulator.Load(doc.CurrentLine, 0);
         }
@@ -1427,7 +1427,7 @@ namespace Poderosa.Terminal {
 
             doc.UpdateCurrentLine(_manipulator);
             int currentLineNumber = doc.CurrentLineNumber;
-            doc.ScrollDown(currentLineNumber, bottom, d, _currentdecoration);
+            doc.ScrollDown(currentLineNumber, bottom, d);
             doc.CurrentLineNumber = currentLineNumber;
             _manipulator.Load(doc.CurrentLine, 0);
         }
@@ -1752,7 +1752,7 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'm')]
         private void ProcessSGR(NumericParams p) {
             int state = 0, target = 0, r = 0, g = 0, b = 0;
-            TextDecoration dec = _currentdecoration;
+            TextDecoration dec = GetDocument().CurrentDecoration;
             foreach (int code in p.EnumerateWithDefault(0)) {
                 if (state != 0) {
                     switch (state) {
@@ -1862,7 +1862,7 @@ namespace Poderosa.Terminal {
                 }
             }
         Apply:
-            _currentdecoration = dec;
+            GetDocument().CurrentDecoration = dec;
         }
 
         private TextDecoration SetForeColorByRGB(TextDecoration dec, int r, int g, int b) {
@@ -2201,7 +2201,7 @@ namespace Poderosa.Terminal {
             int n = p.Get(0, 1);
             int s = _manipulator.CaretColumn;
             for (int i = 0; i < n; i++) {
-                _manipulator.PutChar(UnicodeChar.ASCII_SPACE, _currentdecoration);
+                _manipulator.PutChar(UnicodeChar.ASCII_SPACE, GetDocument().CurrentDecoration);
                 if (_manipulator.CaretColumn >= _manipulator.BufferSize)
                     break;
             }
@@ -2211,13 +2211,13 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'P')]
         private void ProcessDeleteChars(NumericParams p) {
             int n = p.Get(0, 1);
-            _manipulator.DeleteChars(_manipulator.CaretColumn, n, _currentdecoration);
+            _manipulator.DeleteChars(_manipulator.CaretColumn, n, GetDocument().CurrentDecoration);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '@')]
         private void ProcessInsertBlankCharacters(NumericParams p) {
             int n = p.Get(0, 1);
-            _manipulator.InsertBlanks(_manipulator.CaretColumn, n, _currentdecoration);
+            _manipulator.InsertBlanks(_manipulator.CaretColumn, n, GetDocument().CurrentDecoration);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', '@')]
@@ -2250,7 +2250,7 @@ namespace Poderosa.Terminal {
                 doc.TopLineNumber += d;
             }
             else {
-                doc.ScrollDown(doc.ScrollingTop, doc.ScrollingBottom, d, _currentdecoration); // TerminalDocument's "Scroll-Down" means XTerm's "Scroll-Up"
+                doc.ScrollDown(doc.ScrollingTop, doc.ScrollingBottom, d); // TerminalDocument's "Scroll-Down" means XTerm's "Scroll-Up"
                 doc.CurrentLineNumber = currentLilneNumber;
             }
 
@@ -2268,7 +2268,7 @@ namespace Poderosa.Terminal {
             int caret_col = _manipulator.CaretColumn;
             int currentLilneNumber = doc.CurrentLineNumber;
             doc.UpdateCurrentLine(_manipulator);
-            doc.ScrollUp(doc.ScrollingTop, doc.ScrollingBottom, d, _currentdecoration); // TerminalDocument's "Scroll-Down" means XTerm's "Scroll-Up"
+            doc.ScrollUp(doc.ScrollingTop, doc.ScrollingBottom, d); // TerminalDocument's "Scroll-Down" means XTerm's "Scroll-Up"
             doc.CurrentLineNumber = currentLilneNumber;
             _manipulator.Load(doc.CurrentLine, caret_col);
         }

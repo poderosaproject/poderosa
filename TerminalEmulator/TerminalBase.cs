@@ -84,7 +84,6 @@ namespace Poderosa.Terminal {
 
         protected List<AfterExitLockDelegate> _afterExitLockActions;
         protected GLineManipulator _manipulator;
-        protected TextDecoration _currentdecoration;
         protected TerminalMode _terminalMode;
         protected TerminalMode _cursorKeyMode; //_terminalModeは別物。AIXでのviで、カーソルキーは不変という例が確認されている
 
@@ -114,7 +113,6 @@ namespace Poderosa.Terminal {
             _decoder = new ISO2022CharDecoder(this, _encodingProfile);
             _unicodeCharConverter = _encodingProfile.CreateUnicodeCharConverter();
             _terminalMode = TerminalMode.Normal;
-            _currentdecoration = TextDecoration.Default;
             _manipulator = new GLineManipulator();
             _scrollBarValues = new ScrollBarValues();
             _logService = new LogService(info.TerminalParameter, _session.TerminalSettings);
@@ -323,7 +321,7 @@ namespace Poderosa.Terminal {
             lock (_document) {
                 ChangeMode(TerminalMode.Normal);
                 _document.ClearScrollingRegion();
-                _currentdecoration = TextDecoration.Default;
+                _document.CurrentDecoration = TextDecoration.Default;
                 _encodingProfile = EncodingProfile.Create(GetTerminalSettings().Encoding);
                 _decoder = new ISO2022CharDecoder(this, _encodingProfile);
                 _unicodeCharConverter = _encodingProfile.CreateUnicodeCharConverter();

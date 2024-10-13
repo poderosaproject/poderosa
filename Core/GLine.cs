@@ -685,10 +685,46 @@ namespace Poderosa.Document {
         /// Constructor
         /// </summary>
         /// <param name="length"></param>
-        public GLine(int length) {
-            Debug.Assert(length > 0);
-            _cell = new GCell[length];  // no need to fill. (initialized as NULs with the default attribute)
-            _color24 = null;    // 24 bit colors are not used
+        /// <param name="dec">text decoration (optional)</param>
+        public GLine(int length, TextDecoration dec = null) {
+            if (length <= 0) {
+                throw new ArgumentException("invalid length : " + length);
+            }
+
+            _cell = new GCell[length];
+
+            if (dec != null) {
+                GAttr attr = dec.Attr;
+
+                if (length > 0) {
+                    _cell[0] = new GCell(GChar.ASCII_NUL, attr + GAttrFlags.SameToPrevious - GAttrFlags.Protected);
+                    int copied = 1;
+                    while (copied < length) {
+                        int copyLen = Math.Min(length - copied, copied);
+                        Array.Copy(_cell, 0, _cell, copied, copyLen);
+                        copied += copyLen;
+                    }
+                    _cell[0].Attr -= GAttrFlags.SameToPrevious;
+                }
+
+                if (attr.Uses24bitColor) {
+                    _color24 = new GColor24[length];
+                    _color24[0] = dec.Color24;
+                    int copied = 1;
+                    while (copied < length) {
+                        int copyLen = Math.Min(length - copied, copied);
+                        Array.Copy(_color24, 0, _color24, copied, copyLen);
+                        copied += copyLen;
+                    }
+                }
+                else {
+                    _color24 = null;
+                }
+            }
+            else {
+                _color24 = null;
+            }
+
             _displayLength = 0;
             _id = -1;
         }
