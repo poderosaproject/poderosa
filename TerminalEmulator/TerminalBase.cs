@@ -281,6 +281,16 @@ namespace Poderosa.Terminal {
             _session.TerminalTransmission.Transmit(data, offset, length);
         }
 
+        // Lock/Unlock input from keyboard
+        protected void SetKeySendLocked(bool locked) {
+            _session.TerminalControl.SetKeySendLocked(locked);
+        }
+
+        // Force New Line mode for Enter key (send CRLF)
+        protected void SetNewLineOnEnterKey(bool enabled) {
+            _session.TerminalControl.SetNewLineOnEnterKey(enabled);
+        }
+
         //文字系のエラー通知
         protected void CharDecodeError(string msg) {
             IPoderosaMainWindow window = _session.OwnerWindow;
@@ -325,6 +335,8 @@ namespace Poderosa.Terminal {
                 _encodingProfile = EncodingProfile.Create(GetTerminalSettings().Encoding);
                 _decoder = new ISO2022CharDecoder(this, _encodingProfile);
                 _unicodeCharConverter = _encodingProfile.CreateUnicodeCharConverter();
+                SetKeySendLocked(false);
+                SetNewLineOnEnterKey(false);
                 FullResetInternal();
                 _document.InvalidateAll();
             }

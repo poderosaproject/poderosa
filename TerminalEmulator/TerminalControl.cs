@@ -65,10 +65,13 @@ namespace Poderosa.Terminal {
 
         private delegate void AdjustIMECompositionDelegate();
 
+        private bool _keySendLocked;
+
         private bool _inIMEComposition; //IMEによる文字入力の最中であればtrueになる
         private bool _ignoreValueChangeEvent;
 
         private bool _escForVI;
+        private bool _forceNewLine; // controls behavior of Enter key
 
         //再描画の状態管理
         private int _drawOptimizingState = 0; //この状態管理はOnWindowManagerTimer(), SmartInvalidate()参照
@@ -103,7 +106,9 @@ namespace Poderosa.Terminal {
         public TerminalControl() {
             _instanceID = _instanceCount++;
             _enableAutoScrollBarAdjustment = false;
+            _keySendLocked = false;
             _escForVI = false;
+            _forceNewLine = false;
             this.EnabledEx = false;
 
             // この呼び出しは、Windows.Forms フォーム デザイナで必要です。
@@ -246,6 +251,14 @@ namespace Poderosa.Terminal {
             else {
                 GetTerminalTransmission().TransmitDirect(data, offset, length);
             }
+        }
+
+        internal void SetKeySendLocked(bool locked) {
+            _keySendLocked = locked;
+        }
+
+        internal void SetNewLineOnEnterKey(bool enabled) {
+            _forceNewLine = enabled;
         }
 
         /*
@@ -418,7 +431,11 @@ namespace Poderosa.Terminal {
                 }
                 else if (keybody == Keys.Enter && modifiers == Keys.None) {
                     _escForVI = false;
-                    SendCharArray(TerminalUtil.NewLineChars(GetTerminalSettings().TransmitNL));
+                    SendCharArray(
+                        TerminalUtil.NewLineChars(
+                            _forceNewLine
+                                ? NewLine.CRLF
+                                : GetTerminalSettings().TransmitNL));
                     return true;
                 }
                 else if (keybody == Keys.Space && modifiers == Keys.Control) { //これはOnKeyPressにわたってくれない
@@ -532,7 +549,7 @@ namespace Poderosa.Terminal {
         }
         private bool IsAcceptableUserInput() {
             //TODO: ModalTerminalTaskの存在が理由で拒否するときはステータスバーか何かに出すのがよいかも
-            if (!this.EnabledEx || IsConnectionClosed() || _session.Terminal.CurrentModalTerminalTask != null)
+            if (!this.EnabledEx || IsConnectionClosed() || _session.Terminal.CurrentModalTerminalTask != null || _keySendLocked)
                 return false;
             else
                 return true;

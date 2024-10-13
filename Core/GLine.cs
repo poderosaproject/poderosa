@@ -135,6 +135,21 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
+        /// Convert to UnicodeChar
+        /// </summary>
+        /// <returns>UnicodeChar</returns>
+        public UnicodeChar ToUnicodeChar() {
+            UnicodeCharFlags flags = UnicodeCharFlags.None;
+            if (IsCJK) {
+                flags |= UnicodeCharFlags.CJK;
+            }
+            if (IsWideWidth) {
+                flags |= UnicodeCharFlags.WideWidth;
+            }
+            return new UnicodeChar(CodePoint, flags);
+        }
+
+        /// <summary>
         /// Copy character into the char array in UTF-16.
         /// </summary>
         /// <param name="seq">destination array</param>
@@ -152,6 +167,16 @@ namespace Poderosa.Document {
         /// <returns>new object</returns>
         public static GChar operator +(GChar ch, GCharFlags flags) {
             return new GChar(ch._bits | (uint)flags);
+        }
+
+        /// <summary>
+        /// Removes flags.
+        /// </summary>
+        /// <param name="ch">object to be based on</param>
+        /// <param name="flags">flags to remove</param>
+        /// <returns>new object</returns>
+        public static GChar operator -(GChar ch, GCharFlags flags) {
+            return new GChar(ch._bits & ~(uint)flags);
         }
     }
 
@@ -1631,6 +1656,18 @@ namespace Poderosa.Document {
                     _cell[index].SetNul();
                 }
             }
+        }
+
+        /// <summary>
+        /// Get previous character.
+        /// </summary>
+        /// <returns>previous character if it exists.</returns>
+        public UnicodeChar? GetPreviousChar() {
+            int index = _caretColumn - 1;
+            if (index >= 0 && index < _cell.Length) {
+                return _cell[index].Char.ToUnicodeChar();
+            }
+            return null;
         }
 
         /// <summary>

@@ -77,6 +77,7 @@ namespace Poderosa.Terminal {
         private int _prevMouseCol = -1;
         private MouseButtons _mouseButton = MouseButtons.None;
 
+        private bool _forceNewLine = false; // controls behavior of LF/FF/VT
         private bool _insertMode = false;
         private bool _scrollRegionRelative = false;
 
@@ -123,6 +124,7 @@ namespace Poderosa.Terminal {
             _mouseTrackingState = MouseTrackingState.Off;
             _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
             _focusReportingMode = false;
+            _forceNewLine = false;
             _insertMode = false;
             _scrollRegionRelative = false;
             _escapeSequenceEngine.Reset();
@@ -534,6 +536,11 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.ESC, 'o')] // LS3 - Map G3 into GL
         [EscapeSequence(ControlCode.ESC, '|')] // LS3R - Map G3 into GR
         [EscapeSequence(ControlCode.ESC, '~')] // LS1R - Map G1 into GR
+        [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'T')] // Reset title modes
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'i')] // Media Copy
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'i')] // Media Copy (DEC)
+        [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'm')] // set key modifiers mode (xterm)
+        [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'n')] // disable key modifiers mode (xterm)
         private void Ignore() {
         }
 
@@ -558,6 +565,12 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.VT)]
         [EscapeSequence(ControlCode.FF)]
         private void LineFeed() {
+            if (_forceNewLine) {
+                DoCarriageReturn();
+                DoLineFeed();
+                return;
+            }
+
             LineFeedRule rule = GetTerminalSettings().LineFeedRule;
             if (rule == LineFeedRule.Normal) {
                 DoLineFeed();
@@ -831,35 +844,126 @@ namespace Poderosa.Terminal {
 #endif
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'c')]
-        private void PrimaryDeviceAttributes(NumericParams p) {
+        private void ProcessPrimaryDeviceAttributes(NumericParams p) {
             if (p.Get(0, 0) == 0) {
-                byte[] data = Encoding.ASCII.GetBytes("\u001b[?1;2c");
+                int[] features =
+                {
+                    1, // 132 columns
+                    // 2, // Printer port
+                    // 4, // Sixel
+                    6, // Selective erase
+                    // 7, // Soft character set (DRCS)
+                    // 8, // User-defined keys (UDKs)
+                    // 9, // National replacement character sets (NRCS)
+                    // 12, // Yugoslavian (SCS)
+                    // 15, // Technical character set
+                    // 18, // Windowing capability
+                    // 21, // Horizontal scrolling
+                    22, // ANSI color
+                    // 23, // Greek
+                    // 24, // Turkish
+                    // 29, // ANSI text locator
+                    // 42, // ISO Latin-2 character set
+                    // 44, // PCTerm
+                    // 45, // Soft key map
+                    // 46, // ASCII emulation
+                };
+                string featuresText = String.Join(";", features.Select(v => v.ToString(NumberFormatInfo.InvariantInfo)));
+
+                byte[] data = Encoding.ASCII.GetBytes("\u001b[?64;" + featuresText + "c");
                 TransmitDirect(data);
-                return;
             }
-            throw new UnknownEscapeSequenceException("invalid params");
         }
 
         [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'c')]
-        private void ProcessDeviceAttributes(NumericParams p) {
+        private void ProcessSecondaryDeviceAttributes(NumericParams p) {
             if (p.Get(0, 0) == 0) {
-                byte[] data = Encoding.ASCII.GetBytes("\u001b[>82;1;0c");
+                byte[] data = Encoding.ASCII.GetBytes("\u001b[>41;1;0c");
                 TransmitDirect(data);
                 return;
             }
-            throw new UnknownEscapeSequenceException("invalid params");
+        }
+
+        [EscapeSequence(ControlCode.CSI, '=', EscapeSequenceParamType.Numeric, 'c')]
+        private void ProcessTertiaryDeviceAttributes(NumericParams p) {
+            if (p.Get(0, 0) == 0) {
+                // DECRPTUI: DCS ! | 00 00 00 00 ST
+                byte[] data = Encoding.ASCII.GetBytes("\u001bP!|00000000\u001b\\");
+                TransmitDirect(data);
+                return;
+            }
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'n')]
         private void ProcessDeviceStatusReport(NumericParams p) {
-            string response;
             int param = p.Get(0, 0);
-            if (param == 5)
-                response = "\u001b[0n";
-            else if (param == 6)
-                response = String.Format("\u001b[{0};{1}R", GetDocument().CurrentLineNumber - GetDocument().TopLineNumber + 1, _manipulator.CaretColumn + 1);
-            else
-                throw new UnknownEscapeSequenceException("unknown DSR code");
+
+            string response;
+            switch (param) {
+                case 5: // Operating Status Report
+                    response = "\u001b[0n"; // good
+                    break;
+                case 6: // Cursor Position Report
+                    response = String.Format(
+                        NumberFormatInfo.InvariantInfo,
+                        "\u001b[{0};{1}R", GetDocument().CurrentLineNumber - GetDocument().TopLineNumber + 1, _manipulator.CaretColumn + 1);
+                    break;
+                default:
+                    return;
+            }
+
+            byte[] data = Encoding.ASCII.GetBytes(response);
+            TransmitDirect(data);
+        }
+
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'n')]
+        private void ProcessDeviceStatusReportDEC(NumericParams p) {
+            int param = p.Get(0, 0);
+
+            string response;
+            switch (param) {
+                case 5:
+                    // "CSI ? 5 n" doesn't appear in the DEC documentations, but xterm returns this
+                    response = "\u001b[?0n";
+                    break;
+                case 6: // Extended Cursor Position Report
+                    response = String.Format(
+                        NumberFormatInfo.InvariantInfo,
+                        "\u001b[?{0};{1};1R", GetDocument().CurrentLineNumber - GetDocument().TopLineNumber + 1, _manipulator.CaretColumn + 1);
+                    break;
+                case 15: // Printer Status Report
+                    response = "\u001b[?13n"; // no printer
+                    break;
+                case 25: // User-Defined Keys Status
+                    response = "\u001b[?20n"; // unlocked
+                    break;
+                case 26: // Keyboard Status Report
+                    response = "\u001b[?27;1;0;0n"; // North American, Ready
+                    break;
+                case 55: // Locator Status
+                    // according to "Locator Input Model for ANSI Terminals (sixth revision)", response below means "no locator"
+                    response = "\u001b[?53n"; // no locator
+                    break;
+                case 56: // Locator Type
+                    response = "\u001b[?57;0n"; // unknown
+                    break;
+                case 62: // Macro Space Report
+                    // xterm returns 4 digits
+                    response = "\u001b[0000*{";
+                    break;
+                case 63: // Memory Checksum
+                    int pid = p.Get(1, 0);
+                    response = String.Format(NumberFormatInfo.InvariantInfo, "\u001bP{0}!~0000\u001b\\", pid);
+                    break;
+                case 75: // Data Integrity Report
+                    response = "\u001b[?70n"; // OK
+                    break;
+                case 85: // Multi-session Configuration
+                    response = "\u001b[?83n"; // not configured
+                    break;
+                default:
+                    return;
+            }
 
             byte[] data = Encoding.ASCII.GetBytes(response);
             TransmitDirect(data);
@@ -902,13 +1006,14 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'A')]
         private void ProcessCursorUp(NumericParams p) {
             int count = p.GetNonZero(0, 1);
+            TerminalDocument doc = GetDocument();
             int column = _manipulator.CaretColumn;
-            GLine lineUpdated = GetDocument().UpdateCurrentLine(_manipulator);
+            GLine lineUpdated = doc.UpdateCurrentLine(_manipulator);
             if (lineUpdated != null) {
                 this.LogService.TextLogger.WriteLine(lineUpdated);
             }
-            GetDocument().CurrentLineNumber = (GetDocument().CurrentLineNumber - count);
-            _manipulator.Load(GetDocument().CurrentLine, column);
+            doc.CurrentLineNumber = Math.Max(Math.Max(doc.CurrentLineNumber - count, doc.TopLineNumber), doc.ScrollingTop);
+            _manipulator.Load(doc.CurrentLine, column);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'B')]
@@ -969,8 +1074,8 @@ namespace Poderosa.Terminal {
             _manipulator.Load(doc.CurrentLine, 0);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'H')]
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'f')] // FIXME: undocumented?
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'H')] // CUP
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'f')] // HVP
         private void ProcessCursorPosition(NumericParams p) {
             int row = p.GetNonZero(0, 1);
             int col = p.GetNonZero(1, 1);
@@ -999,6 +1104,15 @@ namespace Poderosa.Terminal {
         private void MoveCursorToHome() {
             int row = (_scrollRegionRelative && GetDocument().HasScrollingRegionTop) ? GetDocument().ScrollingTopOffset + 1 : 1;
             ProcessCursorPosition(row, 1);
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'a')]
+        private void ProcessCursorPositionRelative(NumericParams p) {
+            int n = p.GetNonZero(0, 1);
+            int max = GetDocument().TerminalWidth - 1;
+            if (_manipulator.CaretColumn < max) {
+                _manipulator.CaretColumn = Math.Min(_manipulator.CaretColumn + n, max);
+            }
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'J')]
@@ -1136,7 +1250,6 @@ namespace Poderosa.Terminal {
             _manipulator.Load(doc.CurrentLine, caretColumn);
         }
 
-
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'K')]
         private void ProcessEraseInLine(NumericParams p) {
             int param = p.Get(0, 0);
@@ -1236,7 +1349,7 @@ namespace Poderosa.Terminal {
         private void ReverseIndex() {
             GetDocument().UpdateCurrentLine(_manipulator);
             int current = GetDocument().CurrentLineNumber;
-            if (current == GetDocument().TopLineNumber || current == GetDocument().ScrollingTop)
+            if (current == GetDocument().ScrollingTop)
                 GetDocument().ScrollUp();
             else
                 GetDocument().CurrentLineNumber = current - 1;
@@ -1276,6 +1389,17 @@ namespace Poderosa.Terminal {
             }
 
             MoveCursorToHome();
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'b')]
+        private void ProcessRepeatPrecedingChar(NumericParams p) {
+            int n = p.GetNonZero(0, 1);
+            UnicodeChar? ch = _manipulator.GetPreviousChar();
+            if (ch.HasValue) {
+                for (int i = 0; i < n; i++) {
+                    ProcessNormalUnicodeChar(ch.Value);
+                }
+            }
         }
 
         [EscapeSequence(ControlCode.NEL)]
@@ -1337,9 +1461,11 @@ namespace Poderosa.Terminal {
         }
 
         private void DoSetMode(NumericParams p, bool set) {
-            bool unknownCode = false;
             foreach (int param in p.EnumerateWithoutNull()) {
                 switch (param) {
+                    case 2: // Keyboard Action Mode
+                        SetKeySendLocked(set);
+                        break;
                     case 4: // Insert Mode
                         _insertMode = set; //hで始まってlで終わる
                         break;
@@ -1353,20 +1479,16 @@ namespace Poderosa.Terminal {
                             });
                         }
                         break;
-                    case 20: // Normal Linefeed
+                    case 20: // New Line Mode
+                        _forceNewLine = set; // controls behavior of LF/FF/VT
+                        SetNewLineOnEnterKey(set); // controls behavior of Enter key
                         break;
                     case 25:
                         break;
                     case 34:	//MakeCursorBig, puttyにはある
                         //!setでカーソルを強制的に箱型にし、setで通常に戻すというのが正しい動作だが実害はないので無視
                         break;
-                    default:
-                        unknownCode = true;
-                        break;
                 }
-            }
-            if (unknownCode) {
-                throw new UnknownEscapeSequenceException("unsupported SetMode code");
             }
         }
 
@@ -1718,11 +1840,6 @@ namespace Poderosa.Terminal {
             }
         }
 
-        [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'm')]
-        private void ProcessSetResourceValues(NumericParams p) {
-            throw new UnknownEscapeSequenceException("not implemented");
-        }
-
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'm')]
         private void ProcessSGR(NumericParams p) {
             int state = 0, target = 0, r = 0, g = 0, b = 0;
@@ -1976,7 +2093,6 @@ namespace Poderosa.Terminal {
         }
 
         private void DoDECSET(NumericParams p, bool set) {
-            bool unknownCode = false;
             foreach (int param in p.EnumerateWithoutNull()) {
                 switch (param) {
                     case 25: // Show/hide cursor
@@ -2081,14 +2197,25 @@ namespace Poderosa.Terminal {
                         else
                             SwitchBuffer(false);
                         break;
-                    default:
-                        unknownCode = true;
-                        break;
                 }
             }
-            if (unknownCode) {
-                throw new UnknownEscapeSequenceException("unsupported DECSET/DECRST code");
+        }
+
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'S')]
+        private void ProcessQueryGraphics(NumericParams p) {
+            if (p.Length < 2) {
+                return;
             }
+
+            int item = p.Get(0, 0);
+            int action = p.Get(1, 0);
+
+            // TODO
+
+            int result = 1; // item error
+
+            byte[] data = Encoding.ASCII.GetBytes("\u001b[?" + item.ToString(NumberFormatInfo.InvariantInfo) + ";" + result.ToString(NumberFormatInfo.InvariantInfo) + "S");
+            TransmitDirect(data);
         }
 
         [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 's')]
@@ -2147,12 +2274,20 @@ namespace Poderosa.Terminal {
         private void ProcessLinePositionAbsolute(NumericParams p) {
             int row = p.GetNonZero(0, 1);
             row = Math.Min(row, GetDocument().TerminalHeight);
-
             int col = _manipulator.CaretColumn;
 
-            //以下はCSI Hとほぼ同じ
             GetDocument().UpdateCurrentLine(_manipulator);
-            GetDocument().CurrentLineNumber = (GetDocument().TopLineNumber + row - 1);
+            GetDocument().CurrentLineNumber = GetDocument().TopLineNumber + row - 1;
+            _manipulator.Load(GetDocument().CurrentLine, col);
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'e')]
+        private void ProcessLinePositionRelative(NumericParams p) {
+            int n = p.GetNonZero(0, 1);
+            int col = _manipulator.CaretColumn;
+
+            GetDocument().UpdateCurrentLine(_manipulator);
+            GetDocument().CurrentLineNumber = Math.Min(GetDocument().CurrentLineNumber + n, GetDocument().TopLineNumber + GetDocument().TerminalHeight - 1);
             _manipulator.Load(GetDocument().CurrentLine, col);
         }
 
