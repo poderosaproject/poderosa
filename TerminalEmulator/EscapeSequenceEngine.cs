@@ -171,6 +171,11 @@ namespace Poderosa.Terminal.EscapeSequence {
             return (index >= 0 && index < _p.Length) ? _p[index].GetValueOrDefault(defaultValue) : defaultValue;
         }
 
+        public int GetNonZero(int index, int defaultValue) {
+            int val = Get(index, defaultValue);
+            return (val == 0) ? defaultValue : val;
+        }
+
         public int[] GetIntegerCombination(int index) {
             return (index >= 0 && index < _c.Length) ? _c[index] : null;
         }

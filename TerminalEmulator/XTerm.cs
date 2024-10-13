@@ -901,7 +901,7 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'A')]
         private void ProcessCursorUp(NumericParams p) {
-            int count = p.Get(0, 1);
+            int count = p.GetNonZero(0, 1);
             int column = _manipulator.CaretColumn;
             GLine lineUpdated = GetDocument().UpdateCurrentLine(_manipulator);
             if (lineUpdated != null) {
@@ -913,7 +913,7 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'B')]
         private void ProcessCursorDown(NumericParams p) {
-            int count = p.Get(0, 1);
+            int count = p.GetNonZero(0, 1);
             int column = _manipulator.CaretColumn;
             GLine lineUpdated = GetDocument().UpdateCurrentLine(_manipulator);
             if (lineUpdated != null) {
@@ -925,7 +925,7 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'C')]
         private void ProcessCursorForward(NumericParams p) {
-            int count = p.Get(0, 1);
+            int count = p.GetNonZero(0, 1);
             int column = _manipulator.CaretColumn;
             int newvalue = column + count;
             if (newvalue >= GetDocument().TerminalWidth)
@@ -935,7 +935,7 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'D')]
         private void ProcessCursorBackward(NumericParams p) {
-            int count = p.Get(0, 1);
+            int count = p.GetNonZero(0, 1);
             int column = _manipulator.CaretColumn;
             int newvalue = column - count;
             if (newvalue < 0)
@@ -946,7 +946,7 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'E')]
         private void ProcessCursorNextLine(NumericParams p) {
             TerminalDocument doc = GetDocument();
-            int count = p.Get(0, 1);
+            int count = p.GetNonZero(0, 1);
             int bottomLineNumber = doc.TopLineNumber + doc.TerminalHeight - 1;
             GLine lineUpdated = doc.UpdateCurrentLine(_manipulator);
             if (lineUpdated != null) {
@@ -959,7 +959,7 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'F')]
         private void ProcessCursorPrecedingLine(NumericParams p) {
             TerminalDocument doc = GetDocument();
-            int count = p.Get(0, 1);
+            int count = p.GetNonZero(0, 1);
             int topLineNumber = doc.TopLineNumber;
             GLine lineUpdated = doc.UpdateCurrentLine(_manipulator);
             if (lineUpdated != null) {
@@ -972,15 +972,8 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'H')]
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'f')] // FIXME: undocumented?
         private void ProcessCursorPosition(NumericParams p) {
-            int row = p.Get(0, 1);
-            int col = p.Get(1, 1);
-
-            if (row < 1) {
-                row = 1;
-            }
-            if (col < 1) {
-                col = 1;
-            }
+            int row = p.GetNonZero(0, 1);
+            int col = p.GetNonZero(1, 1);
 
             if (_scrollRegionRelative && GetDocument().HasScrollingRegionTop) {
                 row += GetDocument().ScrollingTopOffset;
@@ -1101,23 +1094,10 @@ namespace Poderosa.Terminal {
             int width = doc.TerminalWidth;
             int height = doc.TerminalHeight;
 
-            int row1 = p.Get(0, 1);
-            int col1 = p.Get(1, 1);
-            int row2 = p.Get(2, height);
-            int col2 = p.Get(3, width);
-
-            if (row1 == 0) {
-                row1 = 1;
-            }
-            if (row2 == 0) {
-                row2 = height;
-            }
-            if (col1 == 0) {
-                col1 = 1;
-            }
-            if (col2 == 0) {
-                col2 = width;
-            }
+            int row1 = p.GetNonZero(0, 1);
+            int col1 = p.GetNonZero(1, 1);
+            int row2 = p.GetNonZero(2, height);
+            int col2 = p.GetNonZero(3, width);
 
             if (row1 > row2 || col1 > col2 || row1 > height || col1 > width) {
                 return;
@@ -1392,10 +1372,7 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'L')]
         private void ProcessInsertLines(NumericParams p) {
-            int d = p.Get(0, 1);
-            if (d == 0) {
-                d = 1;
-            }
+            int d = p.GetNonZero(0, 1);
 
             TerminalDocument doc = GetDocument();
             if (!doc.IsCurrentLineInScrollingRegion) {
@@ -1413,10 +1390,7 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'M')]
         private void ProcessDeleteLines(NumericParams p) {
-            int d = p.Get(0, 1);
-            if (d == 0) {
-                d = 1;
-            }
+            int d = p.GetNonZero(0, 1);
 
             TerminalDocument doc = GetDocument();
             if (!doc.IsCurrentLineInScrollingRegion) {
@@ -2171,11 +2145,8 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'd')]
         private void ProcessLinePositionAbsolute(NumericParams p) {
-            int row = p.Get(0, 1);
-            if (row < 1)
-                row = 1;
-            if (row > GetDocument().TerminalHeight)
-                row = GetDocument().TerminalHeight;
+            int row = p.GetNonZero(0, 1);
+            row = Math.Min(row, GetDocument().TerminalHeight);
 
             int col = _manipulator.CaretColumn;
 
@@ -2188,17 +2159,14 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'G')]
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '`')]
         private void ProcessLineColumnAbsolute(NumericParams p) {
-            int n = p.Get(0, 1);
-            if (n < 1)
-                n = 1;
-            if (n > GetDocument().TerminalWidth)
-                n = GetDocument().TerminalWidth;
+            int n = p.GetNonZero(0, 1);
+            n = Math.Min(n, GetDocument().TerminalWidth);
             _manipulator.CaretColumn = n - 1;
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'X')]
         private void ProcessEraseChars(NumericParams p) {
-            int n = p.Get(0, 1);
+            int n = p.GetNonZero(0, 1);
             int s = _manipulator.CaretColumn;
             for (int i = 0; i < n; i++) {
                 _manipulator.PutChar(UnicodeChar.ASCII_SPACE, GetDocument().CurrentDecoration);
@@ -2210,34 +2178,31 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'P')]
         private void ProcessDeleteChars(NumericParams p) {
-            int n = p.Get(0, 1);
+            int n = p.GetNonZero(0, 1);
             _manipulator.DeleteChars(_manipulator.CaretColumn, n, GetDocument().CurrentDecoration);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '@')]
         private void ProcessInsertBlankCharacters(NumericParams p) {
-            int n = p.Get(0, 1);
+            int n = p.GetNonZero(0, 1);
             _manipulator.InsertBlanks(_manipulator.CaretColumn, n, GetDocument().CurrentDecoration);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', '@')]
         private void ProcessShiftLeft(NumericParams p) {
-            int n = p.Get(0, 1);
+            int n = p.GetNonZero(0, 1);
             ShiftScreen(-n);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', 'A')]
         private void ProcessShiftRight(NumericParams p) {
-            int n = p.Get(0, 1);
+            int n = p.GetNonZero(0, 1);
             ShiftScreen(n);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'S')]
         private void ProcessScrollUp(NumericParams p) {
-            int d = p.Get(0, 1);
-            if (d == 0) {
-                d = 1;
-            }
+            int d = p.GetNonZero(0, 1);
 
             TerminalDocument doc = GetDocument();
 
@@ -2259,10 +2224,13 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'T')]
         private void ProcessScrollDown(NumericParams p) {
-            int d = p.Get(0, 1);
-            if (d == 0) {
-                d = 1;
+            if (p.Length > 1) {
+                // ignore highlight tracking information
+                // CSI <func> ; <startx> ; <starty> ; <firstrow> ; <lastrow> T
+                return;
             }
+
+            int d = p.GetNonZero(0, 1);
 
             TerminalDocument doc = GetDocument();
             int caret_col = _manipulator.CaretColumn;
@@ -2275,7 +2243,7 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'I')]
         private void ProcessForwardTab(NumericParams p) {
-            int n = p.Get(0, 1);
+            int n = p.GetNonZero(0, 1);
 
             int t = _manipulator.CaretColumn;
             for (int i = 0; i < n; i++)
@@ -2287,7 +2255,7 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'Z')]
         private void ProcessBackwardTab(NumericParams p) {
-            int n = p.Get(0, 1);
+            int n = p.GetNonZero(0, 1);
 
             int t = _manipulator.CaretColumn;
             for (int i = 0; i < n; i++)
