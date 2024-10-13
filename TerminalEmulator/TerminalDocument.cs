@@ -33,7 +33,8 @@ namespace Poderosa.Terminal {
         private int _scrollingBottomOffset;
         //ウィンドウの表示用テキスト
         private string _windowTitle; //ホストOSCシーケンスで指定されたタイトル
-        private GLine _topLine;
+        private GLine _topLine; // top of the screen
+        private GLine _viewTopLine; // top of the view
         private GLine _currentLine;
 
         //画面に見えている幅と高さ
@@ -98,7 +99,7 @@ namespace Poderosa.Terminal {
             _size = 0;
             AddLine(CreateErasedGLine());
         }
-        
+
         public void Resize(int width, int height) {
             _width = width;
             _height = height;
@@ -123,6 +124,34 @@ namespace Poderosa.Terminal {
                 return _currentLine;
             }
         }
+
+        public GLine ViewTopLine {
+            get {
+                return _viewTopLine;
+            }
+        }
+
+        public int ViewTopLineNumber {
+            get {
+                return _viewTopLine.ID;
+            }
+        }
+
+        public void SetViewTopLineNumber(int value) {
+            int prevID = _viewTopLine.ID;
+            _viewTopLine = FindLineOrEdge(value);
+            if (_viewTopLine.ID != prevID) {
+                _invalidatedRegion.InvalidatedAll = true;
+            }
+        }
+
+        public void ResetViewTop() {
+            if (_viewTopLine != _topLine) {
+                _viewTopLine = _topLine;
+                _invalidatedRegion.InvalidatedAll = true;
+            }
+        }
+
         public GLine TopLine {
             get {
                 return _topLine;
@@ -133,10 +162,19 @@ namespace Poderosa.Terminal {
             get {
                 return _topLine.ID;
             }
-            set {
-                if (_topLine.ID != value)
-                    _invalidatedRegion.InvalidatedAll = true;
-                _topLine = FindLineOrEdge(value); //同上の理由でOrEdgeバージョンに変更
+        }
+
+        public void SetTopLineNumber(int value) {
+            int prevID = _topLine.ID;
+            SetTopLine(FindLineOrEdge(value));
+            if (_topLine.ID != prevID) {
+                _invalidatedRegion.InvalidatedAll = true;
+            }
+        }
+
+        private void SetTopLine(GLine line) {
+            if (line != _topLine) {
+                _viewTopLine = _topLine = line;
             }
         }
 
@@ -151,12 +189,8 @@ namespace Poderosa.Terminal {
                 return _currentLine.ID;
             }
             set {
-                if (value < _firstLine.ID)
-                    value = _firstLine.ID; //リサイズ時の微妙なタイミングで負になってしまうことがあったようだ
-                if (value > _lastLine.ID + 100)
-                    value = _lastLine.ID + 100; //極端に大きな値を食らって死ぬことがないようにする
-
-                while (value > _lastLine.ID) {
+                value = Math.Min(Math.Max(value, FirstLineNumber), LastLineNumber + TerminalHeight);
+                while (_lastLine.ID < value) {
                     AddLine(CreateErasedGLine());
                 }
 
@@ -230,14 +264,14 @@ namespace Poderosa.Terminal {
                     ScrollDown();
                 }
                 else {
-                    CurrentLineNumber++; // move to the next line. new line will be added as needed.
+                    CurrentLineNumber = Math.Min(CurrentLineNumber + 1, TopLineNumber + TerminalHeight - 1); // move to the next line. new line will be added as needed.
                 }
             }
             else {
                 CurrentLineNumber++; // move to the next line. new line will be added as needed.
                 int overflow = CurrentLineNumber - (TopLineNumber + TerminalHeight - 1);
                 if (overflow > 0) {
-                    TopLineNumber += overflow;
+                    SetTopLineNumber(TopLineNumber + overflow);
                 }
             }
         }
@@ -276,6 +310,9 @@ namespace Poderosa.Terminal {
             // insert new lines
             GLine firstNewLine = CreateErasedGLine();
             InsertBefore(top, firstNewLine);
+            if (top == TopLine) {
+                SetTopLine(firstNewLine);
+            }
 
             for (int i = 1; i < linesToInsert; i++) {
                 GLine newLine = CreateErasedGLine();
@@ -362,6 +399,9 @@ namespace Poderosa.Terminal {
                 Remove(l);
                 l = next;
             }
+            if (top == TopLine) {
+                SetTopLine(l);
+            }
 
             // relabel IDs
             l = firstNewLine;
@@ -413,7 +453,7 @@ namespace Poderosa.Terminal {
             if (target == _lastLine)
                 _lastLine = newline;
             if (target == _topLine)
-                _topLine = newline;
+                SetTopLine(newline);
             if (target == _currentLine)
                 _currentLine = newline;
 
@@ -426,7 +466,7 @@ namespace Poderosa.Terminal {
             base.AddLine(line);
             if (_size == 1) {
                 _currentLine = line;
-                _topLine = line;
+                SetTopLine(line);
             }
         }
 
@@ -448,7 +488,7 @@ namespace Poderosa.Terminal {
             if (line == _lastLine)
                 _lastLine = line.PrevLine;
             if (line == _topLine) {
-                _topLine = line.NextLine;
+                SetTopLine(line.NextLine);
             }
             if (line == _currentLine) {
                 _currentLine = line.NextLine;
@@ -479,7 +519,7 @@ namespace Poderosa.Terminal {
 
 
             if (_topLine.ID < _firstLine.ID)
-                _topLine = _firstLine;
+                SetTopLine(_firstLine);
             if (_currentLine.ID < _firstLine.ID) {
                 _currentLine = _firstLine;
                 _caretColumn = 0;
@@ -505,7 +545,7 @@ namespace Poderosa.Terminal {
                 while (delete != null) {
                     _size--;
                     if (delete == _topLine)
-                        _topLine = remain;
+                        SetTopLine(remain);
                     if (delete == _currentLine)
                         _currentLine = remain;
                     delete = delete.NextLine;
@@ -567,7 +607,7 @@ namespace Poderosa.Terminal {
                     }
                 }
 
-                _topLine = FindLineOrEdge(_currentLine.ID - Math.Min(offset, paneheight));
+                SetTopLine(FindLineOrEdge(_currentLine.ID - Math.Min(offset, paneheight)));
                 //Dump("insert doc");
             }
         }

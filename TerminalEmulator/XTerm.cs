@@ -2247,7 +2247,7 @@ namespace Poderosa.Terminal {
 
             if (!doc.HasScrollingRegionTop && !doc.HasScrollingRegionBottom) {
                 doc.CurrentLineNumber += d;
-                doc.TopLineNumber += d;
+                doc.SetTopLineNumber(doc.TopLineNumber + d);
             }
             else {
                 doc.ScrollDown(doc.ScrollingTop, doc.ScrollingBottom, d); // TerminalDocument's "Scroll-Down" means XTerm's "Scroll-Up"

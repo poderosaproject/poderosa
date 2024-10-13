@@ -279,9 +279,11 @@ namespace Poderosa.Terminal {
             TerminalControl tc = _terminal.TerminalHost.TerminalControl;
             Debug.Assert(tc != null);
             TerminalDocument doc = _terminal.GetDocument();
-            SizeF pitch = tc.GetRenderProfile().Pitch;
-            Point popup = new Point((int)(doc.CaretColumn * pitch.Width), (int)((doc.CurrentLineNumber - doc.TopLineNumber + 1) * pitch.Height));
-
+            RenderProfile renderProfile = tc.GetRenderProfile();
+            SizeF pitch = renderProfile.Pitch;
+            int lineSpacing = renderProfile.LineSpacing;
+            int posY = (int)(Math.Min(doc.CurrentLineNumber - doc.ViewTopLineNumber + 1, doc.TerminalHeight) * (pitch.Height + lineSpacing) - lineSpacing);
+            Point popup = new Point((int)(doc.CaretColumn * pitch.Width), posY);
             IPoderosaForm f = tc.FindForm() as IPoderosaForm;
             Debug.Assert(f != null);
             //EXTPにしてもいいんだけど

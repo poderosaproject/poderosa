@@ -403,10 +403,11 @@ namespace Poderosa.Terminal {
                         //Debug.WriteLine(String.Format("E={0} C={1} T={2} H={3} LC={4} MAX={5} n={6}", _transientScrollBarEnabled, _tag.Document.CurrentLineNumber, _tag.Document.TopLineNumber, _tag.Connection.TerminalHeight, _transientScrollBarLargeChange, _transientScrollBarMaximum, n));
                         if (IsAutoScrollMode(n)) {
                             _scrollBarValues.Value = n;
-                            document.TopLineNumber = n + document.FirstLineNumber;
+                            document.SetViewTopLineNumber(document.FirstLineNumber + n);
                         }
-                        else
-                            _scrollBarValues.Value = document.TopLineNumber - document.FirstLineNumber;
+                        else {
+                            _scrollBarValues.Value = document.ViewTopLineNumber - document.FirstLineNumber;
+                        }
 
                         //Invalidateをlockの外に出す。このほうが安全と思われた
 

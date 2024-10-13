@@ -392,7 +392,7 @@ namespace Poderosa.Terminal {
             _ownerControl = terminal.TerminalHost.TerminalControl;
             Debug.Assert(_ownerControl != null);
             TerminalDocument doc = terminal.GetDocument();
-            _commandStartPoint = new Point(doc.CaretColumn + (append_char == '\0' ? 0 : 1), doc.CurrentLineNumber - doc.TopLineNumber);
+            _commandStartPoint = new Point(doc.CaretColumn + (append_char == '\0' ? 0 : 1), Math.Min(doc.CurrentLineNumber - doc.ViewTopLineNumber, doc.TerminalHeight));
             Debug.WriteLineIf(DebugOpt.IntelliSense, String.Format("IS CtxInit M={0} CaretC={1}", mode.ToString(), doc.CaretColumn));
             _scheme = scheme;
             _currentInput = current_input;

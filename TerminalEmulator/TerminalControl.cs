@@ -336,7 +336,7 @@ namespace Poderosa.Terminal {
                 return;
             TerminalDocument document = GetDocument();
             lock (document) {
-                document.TopLineNumber = document.FirstLineNumber + _VScrollBar.Value;
+                document.SetViewTopLineNumber(document.FirstLineNumber + _VScrollBar.Value);
                 _session.Terminal.TransientScrollBarValues.Value = _VScrollBar.Value;
                 Invalidate();
             }
@@ -439,9 +439,11 @@ namespace Poderosa.Terminal {
             if (keybody == Keys.Apps) { //コンテキストメニュー
                 TerminalDocument document = GetDocument();
                 int x = document.CaretColumn;
-                int y = document.CurrentLineNumber - document.TopLineNumber;
-                SizeF p = GetRenderProfile().Pitch;
-                _terminalEmulatorMouseHandler.ShowContextMenu(new Point((int)(p.Width * x), (int)(p.Height * y)));
+                int y = Math.Min(document.CurrentLineNumber - document.ViewTopLineNumber, document.TerminalHeight - 1);
+                RenderProfile renderProfile = GetRenderProfile();
+                SizeF p = renderProfile.Pitch;
+                int lineSpacing = renderProfile.LineSpacing;
+                _terminalEmulatorMouseHandler.ShowContextMenu(new Point((int)(p.Width * x), (int)((p.Height + lineSpacing) * y)));
                 return true;
             }
 
@@ -537,39 +539,6 @@ namespace Poderosa.Terminal {
 
         }
 
-        private void ProcessScrollKey(Keys key) {
-            TerminalDocument doc = GetDocument();
-            int current = doc.TopLineNumber - doc.FirstLineNumber;
-            int newvalue = 0;
-            switch (key) {
-                case Keys.Up:
-                    newvalue = current - 1;
-                    break;
-                case Keys.Down:
-                    newvalue = current + 1;
-                    break;
-                case Keys.PageUp:
-                    newvalue = current - doc.TerminalHeight;
-                    break;
-                case Keys.PageDown:
-                    newvalue = current + doc.TerminalHeight;
-                    break;
-                case Keys.Home:
-                    newvalue = 0;
-                    break;
-                case Keys.End:
-                    newvalue = doc.LastLineNumber - doc.FirstLineNumber + 1 - doc.TerminalHeight;
-                    break;
-            }
-
-            if (newvalue < 0)
-                newvalue = 0;
-            else if (newvalue > _VScrollBar.Maximum + 1 - _VScrollBar.LargeChange)
-                newvalue = _VScrollBar.Maximum + 1 - _VScrollBar.LargeChange;
-
-            _VScrollBar.Value = newvalue; //これでイベントも発生するのでマウスで動かした場合と同じ挙動になる
-        }
-
         private void ProcessSequenceKey(Keys modifier, Keys body) {
             byte[] data;
             data = GetTerminal().SequenceKeyData(modifier, body);
@@ -577,19 +546,7 @@ namespace Poderosa.Terminal {
         }
 
         private void MakeCurrentLineVisible() {
-
-            TerminalDocument document = GetDocument();
-            if (document.CurrentLineNumber - document.FirstLineNumber < _VScrollBar.Value) { //上に隠れた
-                document.TopLineNumber = document.CurrentLineNumber;
-                _session.Terminal.TransientScrollBarValues.Value = document.TopLineNumber - document.FirstLineNumber;
-            }
-            else if (_VScrollBar.Value + document.TerminalHeight <= document.CurrentLineNumber - document.FirstLineNumber) { //下に隠れた
-                int n = document.CurrentLineNumber - document.FirstLineNumber - document.TerminalHeight + 1;
-                if (n < 0)
-                    n = 0;
-                GetTerminal().TransientScrollBarValues.Value = n;
-                GetDocument().TopLineNumber = n + document.FirstLineNumber;
-            }
+            GetDocument().ResetViewTop();
         }
 
         protected override void OnResize(EventArgs args) {
@@ -636,7 +593,7 @@ namespace Poderosa.Terminal {
 
         public override GLine GetTopLine() {
             //TODO Pane内のクラスチェンジができるようになったらここを改善
-            return _session == null ? base.GetTopLine() : GetDocument().TopLine;
+            return _session == null ? base.GetTopLine() : GetDocument().ViewTopLine;
         }
 
         protected override void AdjustCaret(Caret caret) {
@@ -652,7 +609,7 @@ namespace Poderosa.Terminal {
                 //  the value of CaretColumn will indicate outside of the terminal view.
                 //  In such case we draw the caret on the last column of the row.
                 caret.X = Math.Min(d.CaretColumn, d.TerminalWidth - 1);
-                caret.Y = d.CurrentLineNumber - d.TopLineNumber;
+                caret.Y = d.CurrentLineNumber - d.ViewTopLineNumber;
                 caret.Enabled = caret.Y >= 0 && caret.Y < d.TerminalHeight;
             }
         }
@@ -704,28 +661,12 @@ namespace Poderosa.Terminal {
 
             if (_session.Terminal.CurrentModalTerminalTask != null)
                 return; //別タスクが走っているときは無視
-            if (GetTerminal().TerminalMode == TerminalMode.Application) //リサイズしてもスクロールリージョンも更新されるかは分からないが、一応全画面を更新する
-                GetDocument().SetScrollingRegion(0, height - 1);
             GetTerminal().Reset();
-            if (_VScrollBar.Enabled) {
-                bool scroll = IsAutoScrollMode();
-                _VScrollBar.LargeChange = height;
-                if (scroll)
-                    MakeCurrentLineVisible();
-            }
 
             //接続先へ通知
             GetTerminalTransmission().Resize(width, height);
             InvalidateEx();
         }
-        //現在行が見えるように自動的に追随していくべきかどうかの判定
-        private bool IsAutoScrollMode() {
-            TerminalDocument doc = GetDocument();
-            return GetTerminal().TerminalMode == TerminalMode.Normal &&
-                doc.CurrentLineNumber >= doc.TopLineNumber + doc.TerminalHeight - 1 &&
-                (!_VScrollBar.Enabled || _VScrollBar.Value + _VScrollBar.LargeChange > _VScrollBar.Maximum);
-        }
-
 
         //IMEの位置合わせなど。日本語入力開始時、現在のキャレット位置からIMEをスタートさせる。
         private void AdjustIMEComposition() {
@@ -743,7 +684,7 @@ namespace Poderosa.Terminal {
             Win32.SystemMetrics sm = GEnv.SystemMetrics;
             //Debug.WriteLine(String.Format("{0} {1} {2}", document.CaretColumn, charwidth, document.CurrentLine.CharPosToDisplayPos(document.CaretColumn)));
             form.ptCurrentPos.x = sm.ControlBorderWidth + (int)(prof.Pitch.Width * (document.CaretColumn));
-            form.ptCurrentPos.y = sm.ControlBorderHeight + (int)((prof.Pitch.Height + prof.LineSpacing) * (document.CurrentLineNumber - document.TopLineNumber));
+            form.ptCurrentPos.y = sm.ControlBorderHeight + (int)((prof.Pitch.Height + prof.LineSpacing) * Math.Min(document.CurrentLineNumber - document.ViewTopLineNumber, document.TerminalHeight - 1));
             bool r = Win32.ImmSetCompositionWindow(hIMC, ref form);
             Debug.Assert(r);
             Win32.ImmReleaseContext(this.Handle, hIMC);

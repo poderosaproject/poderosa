@@ -290,8 +290,9 @@ namespace Poderosa.Terminal {
         }
         private Point ToControlPoint(Point textPoint) {
             SizeF pitch = _context.RenderProfile.Pitch;
+            int lineSpacing = _context.RenderProfile.LineSpacing;
             int x = (int)(textPoint.X * pitch.Width) - 2; //Y座標は現在行の上側に出すケースもあるが、ContextMenu.Show()で適当に何とかしてくれる
-            int y = (int)((textPoint.Y + 1) * pitch.Height) + 1;
+            int y = (int)((textPoint.Y + 1) * (pitch.Height + lineSpacing) - lineSpacing) + 1;
             Point pt = new Point(x, y);
             //下にはみ出たら
             if (_context.OwnerControl.PointToScreen(pt).Y + this.Height > Screen.PrimaryScreen.Bounds.Height) {
