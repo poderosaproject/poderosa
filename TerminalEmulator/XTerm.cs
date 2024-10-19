@@ -2323,6 +2323,87 @@ namespace Poderosa.Terminal {
             }
         }
 
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'r')]
+        private void ProcessChangeAttributeRect(NumericParams p) {
+            TerminalDocument doc = GetDocument();
+            int top = p.GetNonZero(0, 1);
+            int left = p.GetNonZero(1, 1);
+            int bottom = p.GetNonZero(2, doc.TerminalHeight);
+            int right = p.GetNonZero(3, doc.TerminalWidth);
+
+            if (top > doc.TerminalHeight || left > doc.TerminalWidth) {
+                return;
+            }
+
+            bottom = Math.Min(bottom, doc.TerminalHeight);
+            right = Math.Min(right, doc.TerminalWidth);
+
+            if (bottom < top || right < left) {
+                return;
+            }
+
+            AttributeModifications mod = new AttributeModifications();
+
+            for (int paramIndex = 4; paramIndex < p.Length; paramIndex++) {
+                int attr = p.Get(paramIndex, -1);
+                switch (attr) {
+                    case 0:
+                        mod.Bold = false;
+                        mod.Underline = false;
+                        mod.Blink = false;
+                        mod.Inverted = false;
+                        break;
+                    case 1:
+                        mod.Bold = true;
+                        break;
+                    case 4:
+                        mod.Underline = true;
+                        break;
+                    case 5:
+                        mod.Blink = true;
+                        break;
+                    case 7:
+                        mod.Inverted = true;
+                        break;
+                    case 22:
+                        mod.Bold = false;
+                        break;
+                    case 24:
+                        mod.Underline = false;
+                        break;
+                    case 25:
+                        mod.Blink = false;
+                        break;
+                    case 27:
+                        mod.Inverted = false;
+                        break;
+                }
+            }
+
+            if (mod.IsEmpty) {
+                return;
+            }
+
+            int saveLineNumber = doc.CurrentLineNumber;
+            int saveCaretColumn = _manipulator.CaretColumn;
+            doc.UpdateCurrentLine(_manipulator);
+
+            int rectTopLineNumber = doc.TopLineNumber + top - 1;
+            int rectBottomLineNumber = doc.TopLineNumber + bottom - 1;
+
+            doc.EnsureLine(rectBottomLineNumber);
+            GLine l = doc.FindLineOrEdge(rectTopLineNumber);
+            while (l != null && l.ID <= rectBottomLineNumber) {
+                _manipulator.Load(l, 0);
+                _manipulator.ModifyAttributes(left - 1, right, mod);
+                _manipulator.ExportTo(l);
+                doc.InvalidatedRegion.InvalidateLine(l.ID);
+                l = l.NextLine;
+            }
+            doc.CurrentLineNumber = saveLineNumber;
+            _manipulator.Load(doc.CurrentLine, saveCaretColumn);
+        }
+
         [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'S')]
         private void ProcessQueryGraphics(NumericParams p) {
             if (p.Length < 2) {

@@ -1804,6 +1804,59 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
+        /// Modify attributes. (for DECCARA)
+        /// </summary>
+        /// <param name="from">start index of the range (inclusive)</param>
+        /// <param name="to">end index of the range (exclusive)</param>
+        /// <param name="mod">modifications</param>
+        public void ModifyAttributes(int from, int to, AttributeModifications mod) {
+            from = Math.Max(0, from);
+            to = Math.Min(_cell.Length, to);
+
+            for (int i = from; i < to; i++) {
+                GAttr attr = _cell[i].Attr;
+
+                if (mod.Bold.HasValue) {
+                    if (mod.Bold.Value) {
+                        attr += GAttrFlags.Bold;
+                    }
+                    else {
+                        attr -= GAttrFlags.Bold;
+                    }
+                }
+
+                if (mod.Underline.HasValue) {
+                    if (mod.Underline.Value) {
+                        attr += GAttrFlags.Underlined;
+                    }
+                    else {
+                        attr -= GAttrFlags.Underlined;
+                    }
+                }
+
+                if (mod.Blink.HasValue) {
+                    if (mod.Blink.Value) {
+                        attr += GAttrFlags.Blink;
+                    }
+                    else {
+                        attr -= GAttrFlags.Blink;
+                    }
+                }
+
+                if (mod.Inverted.HasValue) {
+                    if (mod.Inverted.Value) {
+                        attr += GAttrFlags.Inverted;
+                    }
+                    else {
+                        attr -= GAttrFlags.Inverted;
+                    }
+                }
+
+                _cell[i].Attr = attr;
+            }
+        }
+
+        /// <summary>
         /// Export as the new <see cref="GLine"/>.
         /// </summary>
         /// <returns>new <see cref="GLine"/> instance</returns>
@@ -1862,6 +1915,37 @@ namespace Poderosa.Document {
 
             uses24bitColor = tempUses24bitColor;
             displayLength = lastCharIndex + 1;
+        }
+    }
+
+    /// <summary>
+    /// Specifies attribute modification for DECCARA.
+    /// </summary>
+    public struct AttributeModifications {
+        public bool? Bold {
+            get;
+            set;
+        }
+
+        public bool? Underline {
+            get;
+            set;
+        }
+
+        public bool? Blink {
+            get;
+            set;
+        }
+
+        public bool? Inverted {
+            get;
+            set;
+        }
+
+        public bool IsEmpty {
+            get {
+                return !Bold.HasValue && !Underline.HasValue && !Blink.HasValue && !Inverted.HasValue;
+            }
         }
     }
 
