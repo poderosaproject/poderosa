@@ -61,9 +61,9 @@ namespace Poderosa.Terminal {
         private bool[] _tabStops;
         private readonly List<GLine>[] _savedScreen = new List<GLine>[2];	// { main, alternate } 別のバッファに移行したときにGLineを退避しておく
         private bool _isAlternateBuffer = false;
-        private bool _savedMode_isAlternateBuffer = false;
         private readonly int[] _xtermSavedRow = new int[2];	// { main, alternate }
         private readonly int[] _xtermSavedCol = new int[2];	// { main, alternate }
+        private readonly Dictionary<int, bool> _savedDecModes = new Dictionary<int, bool>();
 
         private bool _bracketedPasteMode = false;
         private readonly byte[] _bracketedPasteModeLeadingBytes = new byte[] { 0x1b, (byte)'[', (byte)'2', (byte)'0', (byte)'0', (byte)'~' };
@@ -118,6 +118,7 @@ namespace Poderosa.Terminal {
             ProcessCursorPosition(1, 1);
             DoEraseInDisplay(2 /* all */, false);
             InitTabStops();
+            _savedDecModes.Clear();
             _wrapAroundMode = true;
             _reverseVideo = false;
             _bracketedPasteMode = false;
@@ -540,11 +541,16 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.ESC, 'o')] // LS3 - Map G3 into GL
         [EscapeSequence(ControlCode.ESC, '|')] // LS3R - Map G3 into GR
         [EscapeSequence(ControlCode.ESC, '~')] // LS1R - Map G1 into GR
-        [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'T')] // Reset title modes
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'i')] // Media Copy
-        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'i')] // Media Copy (DEC)
-        [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'm')] // set key modifiers mode (xterm)
-        [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'n')] // disable key modifiers mode (xterm)
+        // unsupported CSI is handled by EscapeSequenceEngine
+        // [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'T')] // Reset title modes
+        // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'i')] // Media Copy
+        // [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'i')] // Media Copy (DEC)
+        // [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'm')] // set key modifiers mode (xterm)
+        // [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'n')] // disable key modifiers mode (xterm)
+        // [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'p')] // set pointerMode (xterm)
+        // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '"', 'p')] // Select Conformance Level
+        // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'q')] // Load LEDs
+        // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', 'q')] // Set Cursor Style
         private void Ignore() {
         }
 
@@ -1477,7 +1483,7 @@ namespace Poderosa.Terminal {
                         SetKeySendLocked(set);
                         break;
                     case 4: // Insert Mode
-                        _insertMode = set; //hで始まってlで終わる
+                        _insertMode = set;
                         break;
                     case 12: {	//local echo
                             ITerminalSettings settings = GetTerminalSettings();
@@ -1493,12 +1499,36 @@ namespace Poderosa.Terminal {
                         _forceNewLine = set; // controls behavior of LF/FF/VT
                         SetNewLineOnEnterKey(set); // controls behavior of Enter key
                         break;
-                    case 25:
-                        break;
-                    case 34:	//MakeCursorBig, puttyにはある
-                        //!setでカーソルを強制的に箱型にし、setで通常に戻すというのが正しい動作だが実害はないので無視
-                        break;
                 }
+            }
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'p')]
+        private void RequestMode(NumericParams p) {
+            int param = p.Get(0, 65535);
+            bool? status = GetANSIMode(param);
+            string value = status.HasValue
+                ? (status.Value
+                    ? "1" // set
+                    : "2" // reset
+                )
+                : "0"; // not recognized
+            byte[] data = Encoding.ASCII.GetBytes("\u001b[" + param.ToInvariantString() + ";" + value + "$y");
+            TransmitDirect(data);
+        }
+
+        private bool? GetANSIMode(int param) {
+            switch (param) {
+                case 2: // Keyboard Action Mode
+                    return IsKeySendLocked();
+                case 4: // Insert Mode
+                    return _insertMode;
+                case 12: //local echo
+                    return !GetTerminalSettings().LocalEcho;
+                case 20: // New Line Mode
+                    return _forceNewLine;
+                default:
+                    return null;
             }
         }
 
@@ -2094,117 +2124,201 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'h')]
         private void ProcessDECSET(NumericParams p) {
-            DoDECSET(p, true);
+            DoDECSETMultiple(p, true);
         }
 
         [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'l')]
         private void ProcessDECRST(NumericParams p) {
-            DoDECSET(p, false);
+            DoDECSETMultiple(p, false);
         }
 
-        private void DoDECSET(NumericParams p, bool set) {
+        private void DoDECSETMultiple(NumericParams p, bool set) {
             foreach (int param in p.EnumerateWithoutNull()) {
-                switch (param) {
-                    case 1:
-                        ChangeCursorKeyMode(set ? TerminalMode.Application : TerminalMode.Normal);
-                        break;
-                    case 3:	//132 Column Mode
-                        break;
-                    case 4:	//Smooth Scroll
-                        break;
-                    case 5:
-                        SetReverseVideo(set);
-                        break;
-                    case 6:	//Origin Mode
-                        _scrollRegionRelative = set;
-                        break;
-                    case 7:
-                        _wrapAroundMode = set;
-                        break;
-                    case 25: // Show/Hide cursor
-                        SetHideCaret(!set);
-                        break;
-                    case 47:
-                        if (set)
-                            SwitchBuffer(true);
-                        else
-                            SwitchBuffer(false);
-                        break;
-                    case 1047:	//Alternate Buffer
-                        if (set) {
-                            SwitchBuffer(true);
-                            // XTerm doesn't clear screen.
-                        }
-                        else {
-                            ClearScreen();
-                            SwitchBuffer(false);
-                        }
-                        break;
-                    case 1048:	//Save/Restore Cursor
-                        if (set)
-                            SaveCursor();
-                        else
-                            RestoreCursor();
-                        break;
-                    case 1049:	//Save/Restore Cursor and Alternate Buffer
-                        if (set) {
-                            SaveCursor();
-                            SwitchBuffer(true);
-                            ClearScreen();
-                        }
-                        else {
-                            // XTerm doesn't clear screen for enabling copy/paste from the alternate buffer.
-                            // But we need ClearScreen for emulating the buffer-switch.
-                            ClearScreen();
-                            SwitchBuffer(false);
-                            RestoreCursor();
-                        }
-                        break;
-                    case 1000: // DEC VT200 compatible: Send button press and release event with mouse position.
-                        ResetMouseTracking((set) ? MouseTrackingState.Normal : MouseTrackingState.Off);
-                        break;
-                    case 1001: // DEC VT200 highlight tracking
-                        // Not supported
-                        ResetMouseTracking(MouseTrackingState.Off);
-                        break;
-                    case 1002: // Button-event tracking: Send button press, release, and drag event.
-                        ResetMouseTracking((set) ? MouseTrackingState.Drag : MouseTrackingState.Off);
-                        break;
-                    case 1003: // Any-event tracking: Send button press, release, and motion.
-                        ResetMouseTracking((set) ? MouseTrackingState.Any : MouseTrackingState.Off);
-                        break;
-                    case 1004: // Send FocusIn/FocusOut events
-                        _focusReportingMode = set;
-                        break;
-                    case 1005: // Enable UTF8 Mouse Mode
-                        if (set) {
-                            _mouseTrackingProtocol = MouseTrackingProtocol.Utf8;
-                        }
-                        else {
-                            _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
-                        }
-                        break;
-                    case 1006: // Enable SGR Extended Mouse Mode
-                        if (set) {
-                            _mouseTrackingProtocol = MouseTrackingProtocol.Sgr;
-                        }
-                        else {
-                            _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
-                        }
-                        break;
-                    case 1015: // Enable UTF8 Extended Mouse Mode
-                        if (set) {
-                            _mouseTrackingProtocol = MouseTrackingProtocol.Urxvt;
-                        }
-                        else {
-                            _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
-                        }
-                        break;
-                    case 1034:	// Input 8 bits
-                        break;
-                    case 2004:    // Set/Reset bracketed paste mode
-                        _bracketedPasteMode = set;
-                        break;
+                DoDECSET(param, set);
+            }
+        }
+
+        private void DoDECSET(int param, bool set) {
+            switch (param) {
+                case 1:
+                    ChangeCursorKeyMode(set ? TerminalMode.Application : TerminalMode.Normal);
+                    break;
+                case 3:	//132 Column Mode
+                    break;
+                case 4:	//Smooth Scroll
+                    break;
+                case 5:
+                    SetReverseVideo(set);
+                    break;
+                case 6:	//Origin Mode
+                    _scrollRegionRelative = set;
+                    break;
+                case 7:
+                    _wrapAroundMode = set;
+                    break;
+                case 25: // Show/Hide cursor
+                    SetHideCaret(!set);
+                    break;
+                case 47:
+                    if (set)
+                        SwitchBuffer(true);
+                    else
+                        SwitchBuffer(false);
+                    break;
+                case 66: // Numeric keypad mode
+                    ChangeMode(set ? TerminalMode.Application : TerminalMode.Normal);
+                    break;
+                case 1000: // DEC VT200 compatible: Send button press and release event with mouse position.
+                    ResetMouseTracking((set) ? MouseTrackingState.Normal : MouseTrackingState.Off);
+                    break;
+                case 1001: // DEC VT200 highlight tracking
+                    // Not supported
+                    ResetMouseTracking(MouseTrackingState.Off);
+                    break;
+                case 1002: // Button-event tracking: Send button press, release, and drag event.
+                    ResetMouseTracking((set) ? MouseTrackingState.Drag : MouseTrackingState.Off);
+                    break;
+                case 1003: // Any-event tracking: Send button press, release, and motion.
+                    ResetMouseTracking((set) ? MouseTrackingState.Any : MouseTrackingState.Off);
+                    break;
+                case 1004: // Send FocusIn/FocusOut events
+                    _focusReportingMode = set;
+                    break;
+                case 1005: // Enable UTF8 Mouse Mode
+                    if (set) {
+                        _mouseTrackingProtocol = MouseTrackingProtocol.Utf8;
+                    }
+                    else {
+                        _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
+                    }
+                    break;
+                case 1006: // Enable SGR Extended Mouse Mode
+                    if (set) {
+                        _mouseTrackingProtocol = MouseTrackingProtocol.Sgr;
+                    }
+                    else {
+                        _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
+                    }
+                    break;
+                case 1015: // Enable UTF8 Extended Mouse Mode
+                    if (set) {
+                        _mouseTrackingProtocol = MouseTrackingProtocol.Urxvt;
+                    }
+                    else {
+                        _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
+                    }
+                    break;
+                case 1034:	// Input 8 bits
+                    break;
+                case 1047:	//Alternate Buffer
+                    if (set) {
+                        SwitchBuffer(true);
+                        // XTerm doesn't clear screen.
+                    }
+                    else {
+                        ClearScreen();
+                        SwitchBuffer(false);
+                    }
+                    break;
+                case 1048:	//Save/Restore Cursor
+                    if (set)
+                        SaveCursor();
+                    else
+                        RestoreCursor();
+                    break;
+                case 1049:	//Save/Restore Cursor and Alternate Buffer
+                    if (set) {
+                        SaveCursor();
+                        SwitchBuffer(true);
+                        ClearScreen();
+                    }
+                    else {
+                        // XTerm doesn't clear screen for enabling copy/paste from the alternate buffer.
+                        // But we need ClearScreen for emulating the buffer-switch.
+                        ClearScreen();
+                        SwitchBuffer(false);
+                        RestoreCursor();
+                    }
+                    break;
+                case 2004:    // Set/Reset bracketed paste mode
+                    _bracketedPasteMode = set;
+                    break;
+            }
+        }
+
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, '$', 'p')]
+        private void RequestDECMode(NumericParams p) {
+            int param = p.Get(0, 65535);
+            bool? status = GetDECMode(param);
+            string value = status.HasValue
+                ? (status.Value
+                    ? "1" // set
+                    : "2" // reset
+                )
+                : "0"; // not recognized
+            byte[] data = Encoding.ASCII.GetBytes("\u001b[?" + param.ToInvariantString() + ";" + value + "$y");
+            TransmitDirect(data);
+        }
+
+        private bool? GetDECMode(int param) {
+            switch (param) {
+                case 1:
+                    return CursorKeyMode == TerminalMode.Application;
+                case 5:
+                    return ReverseVideo;
+                case 6:
+                    return _scrollRegionRelative;
+                case 7:
+                    return _wrapAroundMode;
+                case 25:
+                    return !IsCaretHidden();
+                case 47:
+                case 1047:
+                case 1049:
+                    return _isAlternateBuffer;
+                case 66:
+                    return TerminalMode == TerminalMode.Application;
+                case 1000:
+                    return _mouseTrackingState == MouseTrackingState.Normal;
+                case 1001:
+                    return false;
+                case 1002:
+                    return _mouseTrackingState == MouseTrackingState.Drag;
+                case 1003:
+                    return _mouseTrackingState == MouseTrackingState.Any;
+                case 1004:
+                    return _focusReportingMode;
+                case 1005:
+                    return _mouseTrackingProtocol == MouseTrackingProtocol.Utf8;
+                case 1006:
+                    return _mouseTrackingProtocol == MouseTrackingProtocol.Sgr;
+                case 1015:
+                    return _mouseTrackingProtocol == MouseTrackingProtocol.Urxvt;
+                case 1048:
+                    return true;
+                case 2004:
+                    return _bracketedPasteMode;
+                default:
+                    return null;
+            }
+        }
+
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 's')]
+        private void ProcessSaveDECSET(NumericParams p) {
+            foreach (int param in p.EnumerateWithoutNull()) {
+                bool? status = GetDECMode(param);
+                if (status.HasValue) {
+                    _savedDecModes[param] = status.Value;
+                }
+            }
+        }
+
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'r')]
+        private void ProcessRestoreDECSET(NumericParams p) {
+            foreach (int param in p.EnumerateWithoutNull()) {
+                bool status;
+                if (_savedDecModes.TryGetValue(param, out status)) {
+                    DoDECSET(param, status);
                 }
             }
         }
@@ -2224,44 +2338,6 @@ namespace Poderosa.Terminal {
 
             byte[] data = Encoding.ASCII.GetBytes("\u001b[?" + item.ToInvariantString() + ";" + result.ToInvariantString() + "S");
             TransmitDirect(data);
-        }
-
-        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 's')]
-        private void ProcessSaveDECSET(NumericParams p) {
-            bool unknownCode = false;
-            foreach (int param in p.EnumerateWithoutNull()) {
-                switch (param) {
-                    case 1047:
-                    case 47:
-                        _savedMode_isAlternateBuffer = _isAlternateBuffer;
-                        break;
-                    default:
-                        unknownCode = true;
-                        break;
-                }
-            }
-            if (unknownCode) {
-                throw new UnknownEscapeSequenceException("unsupported DECSET code to save");
-            }
-        }
-
-        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'r')]
-        private void ProcessRestoreDECSET(NumericParams p) {
-            bool unknownCode = false;
-            foreach (int param in p.EnumerateWithoutNull()) {
-                switch (param) {
-                    case 1047:
-                    case 47:
-                        SwitchBuffer(_savedMode_isAlternateBuffer);
-                        break;
-                    default:
-                        unknownCode = true;
-                        break;
-                }
-            }
-            if (unknownCode) {
-                throw new UnknownEscapeSequenceException("unsupported DECSET code to restore");
-            }
         }
 
         private void ResetMouseTracking(MouseTrackingState newState) {

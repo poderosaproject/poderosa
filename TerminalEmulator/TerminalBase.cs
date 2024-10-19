@@ -290,12 +290,28 @@ namespace Poderosa.Terminal {
             }
         }
 
+        protected bool IsKeySendLocked() {
+            TerminalControl t = GetTerminalControl();
+            if (t != null) {
+                return t.IsKeySendLocked();
+            }
+            return false;
+        }
+
         // Force New Line mode for Enter key (send CRLF)
         protected void SetNewLineOnEnterKey(bool enabled) {
             TerminalControl t = GetTerminalControl();
             if (t != null) {
                 t.SetNewLineOnEnterKey(enabled);
             }
+        }
+
+        protected bool IsNewLineOnEnterKey() {
+            TerminalControl t = GetTerminalControl();
+            if (t != null) {
+                return t.IsNewLineOnEnterKey();
+            }
+            return false;
         }
 
         // Hide/Show caret
@@ -305,6 +321,15 @@ namespace Poderosa.Terminal {
                 t.SetHideCaret(hide);
             }
         }
+
+        protected bool IsCaretHidden() {
+            TerminalControl t = GetTerminalControl();
+            if (t != null) {
+                return t.IsCaretHidden();
+            }
+            return false;
+        }
+
 
         //文字系のエラー通知
         protected void CharDecodeError(string msg) {
@@ -368,7 +393,7 @@ namespace Poderosa.Terminal {
                 SetHideCaret(false);
                 SoftResetInternal();
                 _document.InvalidateAll();
-            }            
+            }
         }
 
         //ModalTerminalTask周辺

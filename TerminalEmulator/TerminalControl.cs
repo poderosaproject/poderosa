@@ -259,12 +259,24 @@ namespace Poderosa.Terminal {
             _keySendLocked = locked;
         }
 
+        internal bool IsKeySendLocked() {
+            return _keySendLocked;
+        }
+
         internal void SetNewLineOnEnterKey(bool enabled) {
             _forceNewLine = enabled;
         }
 
+        internal bool IsNewLineOnEnterKey() {
+            return _forceNewLine;
+        }
+
         internal void SetHideCaret(bool hide) {
             _hideCaret = hide;
+        }
+
+        internal bool IsCaretHidden() {
+            return _hideCaret;
         }
 
         /*
