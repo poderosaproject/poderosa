@@ -283,12 +283,26 @@ namespace Poderosa.Terminal {
 
         // Lock/Unlock input from keyboard
         protected void SetKeySendLocked(bool locked) {
-            _session.TerminalControl.SetKeySendLocked(locked);
+            TerminalControl t = GetTerminalControl();
+            if (t != null) {
+                t.SetKeySendLocked(locked);
+            }
         }
 
         // Force New Line mode for Enter key (send CRLF)
         protected void SetNewLineOnEnterKey(bool enabled) {
-            _session.TerminalControl.SetNewLineOnEnterKey(enabled);
+            TerminalControl t = GetTerminalControl();
+            if (t != null) {
+                t.SetNewLineOnEnterKey(enabled);
+            }
+        }
+
+        // Hide/Show caret
+        protected void SetHideCaret(bool hide) {
+            TerminalControl t = GetTerminalControl();
+            if (t != null) {
+                t.SetHideCaret(hide);
+            }
         }
 
         //文字系のエラー通知
@@ -337,6 +351,7 @@ namespace Poderosa.Terminal {
                 _unicodeCharConverter = _encodingProfile.CreateUnicodeCharConverter();
                 SetKeySendLocked(false);
                 SetNewLineOnEnterKey(false);
+                SetHideCaret(false);
                 FullResetInternal();
                 _document.InvalidateAll();
             }

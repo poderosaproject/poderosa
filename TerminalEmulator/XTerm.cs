@@ -2095,10 +2095,30 @@ namespace Poderosa.Terminal {
         private void DoDECSET(NumericParams p, bool set) {
             foreach (int param in p.EnumerateWithoutNull()) {
                 switch (param) {
-                    case 25: // Show/hide cursor
-                        break; //!!Show/Hide Cursorだがとりあえず無視
                     case 1:
                         ChangeCursorKeyMode(set ? TerminalMode.Application : TerminalMode.Normal);
+                        break;
+                    case 3:	//132 Column Mode
+                        break;
+                    case 4:	//Smooth Scroll
+                        break;
+                    case 5:
+                        SetReverseVideo(set);
+                        break;
+                    case 6:	//Origin Mode
+                        _scrollRegionRelative = set;
+                        break;
+                    case 7:
+                        _wrapAroundMode = set;
+                        break;
+                    case 25: // Show/Hide cursor
+                        SetHideCaret(!set);
+                        break;
+                    case 47:
+                        if (set)
+                            SwitchBuffer(true);
+                        else
+                            SwitchBuffer(false);
                         break;
                     case 1047:	//Alternate Buffer
                         if (set) {
@@ -2174,28 +2194,6 @@ namespace Poderosa.Terminal {
                         break;
                     case 2004:    // Set/Reset bracketed paste mode
                         _bracketedPasteMode = set;
-                        break;
-                    case 3:	//132 Column Mode
-                        break;
-                    case 4:	//Smooth Scroll なんのことやら
-                        break;
-                    case 5:
-                        SetReverseVideo(set);
-                        break;
-                    case 6:	//Origin Mode
-                        _scrollRegionRelative = set;
-                        break;
-                    case 7:
-                        _wrapAroundMode = set;
-                        break;
-                    case 12:
-                        //一応報告あったので。SETMODEの12ならローカルエコーなんだがな
-                        break;
-                    case 47:
-                        if (set)
-                            SwitchBuffer(true);
-                        else
-                            SwitchBuffer(false);
                         break;
                 }
             }

@@ -72,6 +72,7 @@ namespace Poderosa.Terminal {
 
         private bool _escForVI;
         private bool _forceNewLine; // controls behavior of Enter key
+        private bool _hideCaret;
 
         //再描画の状態管理
         private int _drawOptimizingState = 0; //この状態管理はOnWindowManagerTimer(), SmartInvalidate()参照
@@ -109,6 +110,7 @@ namespace Poderosa.Terminal {
             _keySendLocked = false;
             _escForVI = false;
             _forceNewLine = false;
+            _hideCaret = false;
             this.EnabledEx = false;
 
             // この呼び出しは、Windows.Forms フォーム デザイナで必要です。
@@ -259,6 +261,10 @@ namespace Poderosa.Terminal {
 
         internal void SetNewLineOnEnterKey(bool enabled) {
             _forceNewLine = enabled;
+        }
+
+        internal void SetHideCaret(bool hide) {
+            _hideCaret = hide;
         }
 
         /*
@@ -627,7 +633,7 @@ namespace Poderosa.Terminal {
                 //  In such case we draw the caret on the last column of the row.
                 caret.X = Math.Min(d.CaretColumn, d.TerminalWidth - 1);
                 caret.Y = d.CurrentLineNumber - d.ViewTopLineNumber;
-                caret.Enabled = caret.Y >= 0 && caret.Y < d.TerminalHeight;
+                caret.Enabled = !_hideCaret && caret.Y >= 0 && caret.Y < d.TerminalHeight;
             }
         }
 
