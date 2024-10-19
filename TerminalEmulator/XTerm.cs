@@ -130,6 +130,12 @@ namespace Poderosa.Terminal {
             _escapeSequenceEngine.Reset();
         }
 
+        protected override void SoftResetInternal() { // called from the base class
+            _wrapAroundMode = true;
+            _insertMode = false;
+            _scrollRegionRelative = false;
+        }
+
         public override void StartModalTerminalTask(IModalTerminalTask task) {
             base.StartModalTerminalTask(task);
             _currentCharacterTask = (IModalCharacterTask)task.GetAdapter(typeof(IModalCharacterTask));
@@ -2547,7 +2553,7 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.CSI, '!', 'p')]
         private void SoftTerminalReset() {
-            FullReset();
+            SoftReset();
         }
 
         internal override byte[] SequenceKeyData(Keys modifier, Keys key) {

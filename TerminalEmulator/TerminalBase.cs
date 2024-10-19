@@ -89,6 +89,7 @@ namespace Poderosa.Terminal {
 
         protected abstract void ChangeMode(TerminalMode tm);
         protected abstract void FullResetInternal();
+        protected abstract void SoftResetInternal();
 
         //ICharDecoder
         public abstract void ProcessChar(char ch);
@@ -344,6 +345,7 @@ namespace Poderosa.Terminal {
         public void FullReset() {
             lock (_document) {
                 ChangeMode(TerminalMode.Normal);
+                ChangeCursorKeyMode(TerminalMode.Normal);
                 _document.ClearScrollingRegion();
                 _document.CurrentDecoration = TextDecoration.Default;
                 _encodingProfile = EncodingProfile.Create(GetTerminalSettings().Encoding);
@@ -355,6 +357,18 @@ namespace Poderosa.Terminal {
                 FullResetInternal();
                 _document.InvalidateAll();
             }
+        }
+
+        public void SoftReset() {
+            lock (_document) {
+                ChangeMode(TerminalMode.Normal);
+                _document.ClearScrollingRegion();
+                _document.CurrentDecoration = _document.CurrentDecoration.GetCopyWithProtected(false);
+                SetKeySendLocked(false);
+                SetHideCaret(false);
+                SoftResetInternal();
+                _document.InvalidateAll();
+            }            
         }
 
         //ModalTerminalTask周辺
