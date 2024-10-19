@@ -445,29 +445,27 @@ namespace Poderosa.Terminal {
 
                 case MouseTrackingProtocol.Urxvt:
                     data = Encoding.ASCII.GetBytes(
-                        new StringBuilder()
-                            .Append("\x1b[")
-                            .Append(statBits.ToString(NumberFormatInfo.InvariantInfo))
-                            .Append(';')
-                            .Append((col + 1).ToString(NumberFormatInfo.InvariantInfo))
-                            .Append(';')
-                            .Append((row + 1).ToString(NumberFormatInfo.InvariantInfo))
-                            .Append("M")
-                            .ToString());
+                            "\u001b["
+                            + statBits.ToInvariantString()
+                            + ";"
+                            + (col + 1).ToInvariantString()
+                            + ";"
+                            + (row + 1).ToInvariantString()
+                            + "M"
+                        );
                     dataLen = data.Length;
                     break;
 
                 case MouseTrackingProtocol.Sgr:
                     data = Encoding.ASCII.GetBytes(
-                        new StringBuilder()
-                            .Append("\x1b[<")
-                            .Append(statBits.ToString(NumberFormatInfo.InvariantInfo))
-                            .Append(';')
-                            .Append((col + 1).ToString(NumberFormatInfo.InvariantInfo))
-                            .Append(';')
-                            .Append((row + 1).ToString(NumberFormatInfo.InvariantInfo))
-                            .Append(action == TerminalMouseAction.ButtonUp ? 'm' : 'M')
-                            .ToString());
+                            "\u001b[<"
+                            + statBits.ToInvariantString()
+                            + ";"
+                            + (col + 1).ToInvariantString()
+                            + ";"
+                            + (row + 1).ToInvariantString()
+                            + ((action == TerminalMouseAction.ButtonUp) ? "m" : "M")
+                        );
                     dataLen = data.Length;
                     break;
 
@@ -874,7 +872,7 @@ namespace Poderosa.Terminal {
                     // 45, // Soft key map
                     // 46, // ASCII emulation
                 };
-                string featuresText = String.Join(";", features.Select(v => v.ToString(NumberFormatInfo.InvariantInfo)));
+                string featuresText = String.Join(";", features.Select(v => v.ToInvariantString()));
 
                 byte[] data = Encoding.ASCII.GetBytes("\u001b[?64;" + featuresText + "c");
                 TransmitDirect(data);
@@ -910,9 +908,12 @@ namespace Poderosa.Terminal {
                     response = "\u001b[0n"; // good
                     break;
                 case 6: // Cursor Position Report
-                    response = String.Format(
-                        NumberFormatInfo.InvariantInfo,
-                        "\u001b[{0};{1}R", GetDocument().CurrentLineNumber - GetDocument().TopLineNumber + 1, _manipulator.CaretColumn + 1);
+                    response =
+                        "\u001b["
+                        + (GetDocument().CurrentLineNumber - GetDocument().TopLineNumber + 1).ToInvariantString()
+                        + ";"
+                        + (_manipulator.CaretColumn + 1).ToInvariantString()
+                        + "R";
                     break;
                 default:
                     return;
@@ -933,9 +934,12 @@ namespace Poderosa.Terminal {
                     response = "\u001b[?0n";
                     break;
                 case 6: // Extended Cursor Position Report
-                    response = String.Format(
-                        NumberFormatInfo.InvariantInfo,
-                        "\u001b[?{0};{1};1R", GetDocument().CurrentLineNumber - GetDocument().TopLineNumber + 1, _manipulator.CaretColumn + 1);
+                    response =
+                        "\u001b[?"
+                        + (GetDocument().CurrentLineNumber - GetDocument().TopLineNumber + 1).ToInvariantString()
+                        + ";"
+                        + (_manipulator.CaretColumn + 1).ToInvariantString()
+                        + ";1R";
                     break;
                 case 15: // Printer Status Report
                     response = "\u001b[?13n"; // no printer
@@ -959,7 +963,7 @@ namespace Poderosa.Terminal {
                     break;
                 case 63: // Memory Checksum
                     int pid = p.Get(1, 0);
-                    response = String.Format(NumberFormatInfo.InvariantInfo, "\u001bP{0}!~0000\u001b\\", pid);
+                    response = "\u001bP" + pid.ToInvariantString() + "!~0000\u001b\\";
                     break;
                 case 75: // Data Integrity Report
                     response = "\u001b[?70n"; // OK
@@ -2218,7 +2222,7 @@ namespace Poderosa.Terminal {
 
             int result = 1; // item error
 
-            byte[] data = Encoding.ASCII.GetBytes("\u001b[?" + item.ToString(NumberFormatInfo.InvariantInfo) + ";" + result.ToString(NumberFormatInfo.InvariantInfo) + "S");
+            byte[] data = Encoding.ASCII.GetBytes("\u001b[?" + item.ToInvariantString() + ";" + result.ToInvariantString() + "S");
             TransmitDirect(data);
         }
 
