@@ -52,6 +52,32 @@ namespace Poderosa.Terminal {
             Unsupported,
         }
 
+        private class SavedCursor {
+            // cursor position (0-based index)
+            public readonly int Row;
+            public readonly int Col;
+            // character attributes / selective erase attribute
+            public readonly TextDecoration Decoration;
+            // wrap mode
+            public readonly bool WrapAroundMode;
+            // origin mode
+            public readonly bool ScrollRegionRelative;
+
+            public SavedCursor(
+                int row,
+                int col,
+                TextDecoration decoration,
+                bool wrapAroundMode,
+                bool scrollRegionRelative
+            ) {
+                this.Row = row;
+                this.Col = col;
+                this.Decoration = decoration;
+                this.WrapAroundMode = wrapAroundMode;
+                this.ScrollRegionRelative = scrollRegionRelative;
+            }
+        }
+
         private readonly EscapeSequenceEngine<XTerm> _escapeSequenceEngine;
 
         private IModalCharacterTask _currentCharacterTask = null;
@@ -61,8 +87,8 @@ namespace Poderosa.Terminal {
         private bool[] _tabStops;
         private readonly List<GLine>[] _savedScreen = new List<GLine>[2];	// { main, alternate } 別のバッファに移行したときにGLineを退避しておく
         private bool _isAlternateBuffer = false;
-        private readonly int[] _xtermSavedRow = new int[2];	// { main, alternate }
-        private readonly int[] _xtermSavedCol = new int[2];	// { main, alternate }
+        private readonly SavedCursor[] _savedCursor = new SavedCursor[2];	// { main, alternate }
+        private SavedCursor _savedCursorSCO = null;
         private readonly Dictionary<int, bool> _savedDecModes = new Dictionary<int, bool>();
 
         private bool _bracketedPasteMode = false;
@@ -2687,8 +2713,19 @@ namespace Poderosa.Terminal {
 
         private void SaveCursor() {
             int sw = _isAlternateBuffer ? 1 : 0;
-            _xtermSavedRow[sw] = GetDocument().CurrentLineNumber - GetDocument().TopLineNumber;
-            _xtermSavedCol[sw] = _manipulator.CaretColumn;
+            _savedCursor[sw] = CreateSavedCursor();
+        }
+
+        private SavedCursor CreateSavedCursor() {
+            int row = GetDocument().CurrentLineNumber - GetDocument().TopLineNumber;
+            int col = _manipulator.CaretColumn;
+            return new SavedCursor(
+                    row: row,
+                    col: col,
+                    decoration: GetDocument().CurrentDecoration,
+                    wrapAroundMode: _wrapAroundMode,
+                    scrollRegionRelative: _scrollRegionRelative
+                );
         }
 
         [EscapeSequence(ControlCode.ESC, '8')]
@@ -2698,9 +2735,50 @@ namespace Poderosa.Terminal {
 
         private void RestoreCursor() {
             int sw = _isAlternateBuffer ? 1 : 0;
+            RestoreCursorInternal(_savedCursor[sw]);
+        }
+
+        private void RestoreCursorInternal(SavedCursor saved) {
+            if (saved == null) {
+                saved = new SavedCursor(
+                    row: 0,
+                    col: 0,
+                    decoration: TextDecoration.Default,
+                    wrapAroundMode: true,
+                    scrollRegionRelative: false
+                );
+            }
+
             GetDocument().UpdateCurrentLine(_manipulator);
-            GetDocument().CurrentLineNumber = GetDocument().TopLineNumber + _xtermSavedRow[sw];
-            _manipulator.Load(GetDocument().CurrentLine, _xtermSavedCol[sw]);
+            GetDocument().CurrentLineNumber = GetDocument().TopLineNumber + saved.Row;
+            _manipulator.Load(GetDocument().CurrentLine, saved.Col);
+
+            GetDocument().CurrentDecoration = saved.Decoration;
+
+            _wrapAroundMode = saved.WrapAroundMode;
+
+            _scrollRegionRelative = saved.ScrollRegionRelative;
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 's')]
+        private void ProcessSCOSCOrDECSLRM(NumericParams p) {
+            if (p.Length == 0) {
+                ProcessSCOSC();
+            }
+            else {
+                // DECSLRM (not supported)
+                Ignore();
+            }
+        }
+
+        private void ProcessSCOSC() {
+            // Note: DECLRMM is currently unsupported, but if DECLRMM was enabled, this method should do nothing.
+            _savedCursorSCO = CreateSavedCursor();
+        }
+
+        [EscapeSequence(ControlCode.CSI, 'u')]
+        private void ProcessSCORC() {
+            RestoreCursorInternal(_savedCursorSCO);
         }
 
         //画面の反転
