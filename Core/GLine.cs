@@ -400,6 +400,16 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
+        /// Reverse flags.
+        /// </summary>
+        /// <param name="attr">object to be based on</param>
+        /// <param name="flags">flags to reverse</param>
+        /// <returns>new object</returns>
+        public static GAttr operator ^(GAttr attr, GAttrFlags flags) {
+            return new GAttr(attr._bits ^ (uint)flags);
+        }
+
+        /// <summary>
         /// Equality operator
         /// </summary>
         /// <param name="attr1"></param>
@@ -1804,6 +1814,39 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
+        /// Copy from other manipurator.
+        /// </summary>
+        /// <param name="source">source manipurator</param>
+        /// <param name="srcFrom">start index of the source range (inclusive)</param>
+        /// <param name="srcTo">end index of the source range (exclusive)</param>
+        /// <param name="destFrom">start index of the destination range (inclusive)</param>
+        public void CopyFrom(GLineManipulator source, int srcFrom, int srcTo, int destFrom) {
+            int srcCol = srcFrom;
+            int destCol = destFrom;
+            int? lastCopiedCol = null;
+            while (srcCol < srcTo) {
+                if (srcCol >= 0 && srcCol < source._cell.Length && destCol >= 0 && destCol < this._cell.Length) {
+                    this._cell[destCol] = source._cell[srcCol];
+                    this._color24[destCol] = source._color24[srcCol];
+
+                    if (!lastCopiedCol.HasValue) { // first character
+                        FixLeftHalfOfWideWidthCharacter(destCol - 1);
+                        FixRightHalfOfWideWidthCharacter(destCol);
+                    }
+
+                    lastCopiedCol = destCol;
+                }
+                srcCol++;
+                destCol++;
+            }
+
+            if (lastCopiedCol.HasValue) {
+                FixLeftHalfOfWideWidthCharacter(lastCopiedCol.Value);
+                FixRightHalfOfWideWidthCharacter(lastCopiedCol.Value + 1);
+            }
+        }
+
+        /// <summary>
         /// Modify attributes. (for DECCARA)
         /// </summary>
         /// <param name="from">start index of the range (inclusive)</param>
@@ -1850,6 +1893,39 @@ namespace Poderosa.Document {
                     else {
                         attr -= GAttrFlags.Inverted;
                     }
+                }
+
+                _cell[i].Attr = attr;
+            }
+        }
+
+        /// <summary>
+        /// Reverse attributes. (for DECRARA)
+        /// </summary>
+        /// <param name="from">start index of the range (inclusive)</param>
+        /// <param name="to">end index of the range (exclusive)</param>
+        /// <param name="mod">modifications</param>
+        public void ReverseAttributes(int from, int to, AttributeModifications mod) {
+            from = Math.Max(0, from);
+            to = Math.Min(_cell.Length, to);
+
+            for (int i = from; i < to; i++) {
+                GAttr attr = _cell[i].Attr;
+
+                if (mod.Bold.HasValue && mod.Bold.Value) {
+                    attr ^= GAttrFlags.Bold;
+                }
+
+                if (mod.Underline.HasValue && mod.Underline.Value) {
+                    attr ^= GAttrFlags.Underlined;
+                }
+
+                if (mod.Blink.HasValue && mod.Blink.Value) {
+                    attr ^= GAttrFlags.Blink;
+                }
+
+                if (mod.Inverted.HasValue && mod.Inverted.Value) {
+                    attr ^= GAttrFlags.Inverted;
                 }
 
                 _cell[i].Attr = attr;
@@ -1919,7 +1995,7 @@ namespace Poderosa.Document {
     }
 
     /// <summary>
-    /// Specifies attribute modification for DECCARA.
+    /// Specifies attribute modification for DECCARA and DECRARA.
     /// </summary>
     public struct AttributeModifications {
         public bool? Bold {

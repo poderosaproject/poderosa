@@ -78,6 +78,25 @@ namespace Poderosa.Terminal {
             }
         }
 
+        private class RectArea {
+            public readonly int Top;
+            public readonly int Left;
+            public readonly int Bottom;
+            public readonly int Right;
+
+            public RectArea(
+                int top,
+                int left,
+                int bottom,
+                int right
+            ) {
+                this.Top = top;
+                this.Left = left;
+                this.Bottom = bottom;
+                this.Right = right;
+            }
+        }
+
         private readonly EscapeSequenceEngine<XTerm> _escapeSequenceEngine;
 
         private IModalCharacterTask _currentCharacterTask = null;
@@ -577,6 +596,10 @@ namespace Poderosa.Terminal {
         // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '"', 'p')] // Select Conformance Level
         // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'q')] // Load LEDs
         // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', 'q')] // Set Cursor Style
+        // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 't')] // Window Manipulation (xterm)
+        // [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 't')] // Title Mode (xterm)
+        // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', 't')] // Set Warning Bell Volume
+        // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', 'u')] // Set Margin Bell Volume
         private void Ignore() {
         }
 
@@ -1246,50 +1269,53 @@ namespace Poderosa.Terminal {
         }
 
         private void DoEraseRectangle(NumericParams p, bool selective) {
-            TerminalDocument doc = GetDocument();
-            int width = doc.TerminalWidth;
-            int height = doc.TerminalHeight;
-
-            int row1 = p.GetNonZero(0, 1);
-            int col1 = p.GetNonZero(1, 1);
-            int row2 = p.GetNonZero(2, height);
-            int col2 = p.GetNonZero(3, width);
-
-            if (row1 > row2 || col1 > col2 || row1 > height || col1 > width) {
+            RectArea rect = ReadRectAreaFromParameters(p, 0);
+            if (rect == null) {
                 return;
             }
 
-            if (row1 > height) {
-                row1 = height;
-            }
-            if (row2 > height) {
-                row2 = height;
-            }
-            if (col1 > width) {
-                col1 = width;
-            }
-            if (col2 > width) {
-                col2 = width;
-            }
+            TerminalDocument doc = GetDocument();
 
             int caretColumn = _manipulator.CaretColumn;
             doc.UpdateCurrentLine(_manipulator);
 
-            GLine line = doc.FindLineOrNull(doc.TopLineNumber + row1 - 1);
+            GLine line = doc.FindLineOrNull(doc.TopLineNumber + rect.Top - 1);
 
-            for (int r = row1; line != null && r <= row2; r++, line = line.NextLine) {
+            for (int r = rect.Top; line != null && r <= rect.Bottom; r++, line = line.NextLine) {
                 _manipulator.Load(line, 0);
                 if (selective) {
-                    _manipulator.FillSpaceSkipProtected(col1 - 1, col2, doc.CurrentDecoration);
+                    _manipulator.FillSpaceSkipProtected(rect.Left - 1, rect.Right, doc.CurrentDecoration);
                 }
                 else {
-                    _manipulator.FillSpace(col1 - 1, col2, doc.CurrentDecoration);
+                    _manipulator.FillSpace(rect.Left - 1, rect.Right, doc.CurrentDecoration);
                 }
                 _manipulator.ExportTo(line);
                 doc.InvalidatedRegion.InvalidateLine(line.ID);
             }
 
             _manipulator.Load(doc.CurrentLine, caretColumn);
+        }
+
+        private RectArea ReadRectAreaFromParameters(NumericParams p, int index) {
+            TerminalDocument doc = GetDocument();
+            int top = p.GetNonZero(index, 1);
+            int left = p.GetNonZero(index + 1, 1);
+            int bottom = p.GetNonZero(index + 2, doc.TerminalHeight);
+            int right = p.GetNonZero(index + 3, doc.TerminalWidth);
+
+            if (top > doc.TerminalHeight || left > doc.TerminalWidth || bottom < top || right < left) {
+                return null;
+            }
+
+            bottom = Math.Min(bottom, doc.TerminalHeight);
+            right = Math.Min(right, doc.TerminalWidth);
+
+            return new RectArea(
+                    top: top,
+                    left: left,
+                    bottom: bottom,
+                    right: right
+                );
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'K')]
@@ -2350,21 +2376,9 @@ namespace Poderosa.Terminal {
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'r')]
-        private void ProcessChangeAttributeRect(NumericParams p) {
-            TerminalDocument doc = GetDocument();
-            int top = p.GetNonZero(0, 1);
-            int left = p.GetNonZero(1, 1);
-            int bottom = p.GetNonZero(2, doc.TerminalHeight);
-            int right = p.GetNonZero(3, doc.TerminalWidth);
-
-            if (top > doc.TerminalHeight || left > doc.TerminalWidth) {
-                return;
-            }
-
-            bottom = Math.Min(bottom, doc.TerminalHeight);
-            right = Math.Min(right, doc.TerminalWidth);
-
-            if (bottom < top || right < left) {
+        private void ProcessChangeAttributesRect(NumericParams p) {
+            RectArea rect = ReadRectAreaFromParameters(p, 0);
+            if (rect == null) {
                 return;
             }
 
@@ -2410,22 +2424,145 @@ namespace Poderosa.Terminal {
                 return;
             }
 
+            TerminalDocument doc = GetDocument();
+
             int saveLineNumber = doc.CurrentLineNumber;
             int saveCaretColumn = _manipulator.CaretColumn;
             doc.UpdateCurrentLine(_manipulator);
 
-            int rectTopLineNumber = doc.TopLineNumber + top - 1;
-            int rectBottomLineNumber = doc.TopLineNumber + bottom - 1;
+            int rectTopLineNumber = doc.TopLineNumber + rect.Top - 1;
+            int rectBottomLineNumber = doc.TopLineNumber + rect.Bottom - 1;
 
             doc.EnsureLine(rectBottomLineNumber);
             GLine l = doc.FindLineOrEdge(rectTopLineNumber);
             while (l != null && l.ID <= rectBottomLineNumber) {
                 _manipulator.Load(l, 0);
-                _manipulator.ModifyAttributes(left - 1, right, mod);
+                _manipulator.ModifyAttributes(rect.Left - 1, rect.Right, mod);
                 _manipulator.ExportTo(l);
                 doc.InvalidatedRegion.InvalidateLine(l.ID);
                 l = l.NextLine;
             }
+            doc.CurrentLineNumber = saveLineNumber;
+            _manipulator.Load(doc.CurrentLine, saveCaretColumn);
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 't')]
+        private void ProcessReverseAttributesRect(NumericParams p) {
+            RectArea rect = ReadRectAreaFromParameters(p, 0);
+            if (rect == null) {
+                return;
+            }
+
+            AttributeModifications mod = new AttributeModifications();
+
+            for (int paramIndex = 4; paramIndex < p.Length; paramIndex++) {
+                int attr = p.Get(paramIndex, -1);
+                switch (attr) {
+                    case 0:
+                        mod.Bold = true;
+                        mod.Underline = true;
+                        mod.Blink = true;
+                        mod.Inverted = true;
+                        break;
+                    case 1:
+                        mod.Bold = true;
+                        break;
+                    case 4:
+                        mod.Underline = true;
+                        break;
+                    case 5:
+                        mod.Blink = true;
+                        break;
+                    case 7:
+                        mod.Inverted = true;
+                        break;
+                }
+            }
+
+            if (mod.IsEmpty) {
+                return;
+            }
+
+            TerminalDocument doc = GetDocument();
+
+            int saveLineNumber = doc.CurrentLineNumber;
+            int saveCaretColumn = _manipulator.CaretColumn;
+            doc.UpdateCurrentLine(_manipulator);
+
+            int rectTopLineNumber = doc.TopLineNumber + rect.Top - 1;
+            int rectBottomLineNumber = doc.TopLineNumber + rect.Bottom - 1;
+
+            doc.EnsureLine(rectBottomLineNumber);
+            GLine l = doc.FindLineOrEdge(rectTopLineNumber);
+            while (l != null && l.ID <= rectBottomLineNumber) {
+                _manipulator.Load(l, 0);
+                _manipulator.ReverseAttributes(rect.Left - 1, rect.Right, mod);
+                _manipulator.ExportTo(l);
+                doc.InvalidatedRegion.InvalidateLine(l.ID);
+                l = l.NextLine;
+            }
+            doc.CurrentLineNumber = saveLineNumber;
+            _manipulator.Load(doc.CurrentLine, saveCaretColumn);
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'v')]
+        private void ProcessCopyRect(NumericParams p) {
+            RectArea srcRect = ReadRectAreaFromParameters(p, 0);
+            if (srcRect == null) {
+                return;
+            }
+
+            // int srcPage = p.Get(4, 1); // ignored
+            int destTop = p.GetNonZero(5, 1);
+            int destLeft = p.GetNonZero(6, 1);
+            // int destPage = p.GetNonZero(7, 1); // ignored
+
+            TerminalDocument doc = GetDocument();
+            if (destTop > doc.TerminalHeight || destLeft > doc.TerminalWidth || (destTop == srcRect.Top && destLeft == srcRect.Left)) {
+                return;
+            }
+
+            int saveLineNumber = doc.CurrentLineNumber;
+            int saveCaretColumn = _manipulator.CaretColumn;
+            doc.UpdateCurrentLine(_manipulator);
+
+            doc.EnsureLine(doc.TopLineNumber + srcRect.Bottom - 1);
+
+            GLine[] copy = new GLine[srcRect.Bottom - srcRect.Top + 1];
+            {
+                int rectTopLineNumber = doc.TopLineNumber + srcRect.Top - 1;
+                GLine l = doc.FindLineOrEdge(rectTopLineNumber);
+                while (l != null) {
+                    int offset = l.ID - rectTopLineNumber;
+                    if (offset >= 0 && offset < copy.Length) {
+                        copy[offset] = l.Clone();
+                    }
+                    l = l.NextLine;
+                }
+            }
+
+            int destTopLineNumber = doc.TopLineNumber + destTop - 1;
+            int destBottomLimit = doc.TopLineNumber + Math.Min(destTop + srcRect.Bottom - srcRect.Top, doc.TerminalHeight) - 1;
+
+            doc.EnsureLine(destBottomLimit);
+
+            GLine destLine = doc.FindLineOrEdge(destTopLineNumber);
+            GLineManipulator srcManipurator = new GLineManipulator();
+            while (destLine != null && destLine.ID <= destBottomLimit) {
+                int offset = destLine.ID - destTopLineNumber;
+                if (offset >= 0 && offset < copy.Length) {
+                    if (copy[offset] != null) {
+                        srcManipurator.Load(copy[offset], 0);
+                        _manipulator.Load(destLine, 0);
+                        _manipulator.ExpandBuffer(doc.TerminalWidth);
+                        _manipulator.CopyFrom(srcManipurator, srcRect.Left - 1, srcRect.Right, destLeft - 1);
+                        _manipulator.ExportTo(destLine);
+                        doc.InvalidatedRegion.InvalidateLine(destLine.ID);
+                    }
+                }
+                destLine = destLine.NextLine;
+            }
+
             doc.CurrentLineNumber = saveLineNumber;
             _manipulator.Load(doc.CurrentLine, saveCaretColumn);
         }
@@ -2654,11 +2791,6 @@ namespace Poderosa.Terminal {
                 index--;
             }
             return 0;
-        }
-
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 't')]
-        private void ProcessWindowManipulation(NumericParams p) {
-            // TODO
         }
 
         private void SwitchBuffer(bool toAlternate) {
