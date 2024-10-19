@@ -219,6 +219,16 @@ namespace Poderosa.Terminal.EscapeSequence {
             }
 
             /// <summary>
+            /// Check if this sequence is CSI
+            /// </summary>
+            /// <returns>true if this sequence is CSI</returns>
+            public bool IsCSI() {
+                int len = _buff.Length;
+                return (len >= 1 && _buff[0] == ControlCode.CSI)
+                    || (len >= 2 && _buff[0] == ControlCode.ESC && _buff[1] == '[');
+            }
+
+            /// <summary>
             /// Append a single character to buffer
             /// </summary>
             /// <param name="ch"></param>
@@ -245,6 +255,27 @@ namespace Poderosa.Terminal.EscapeSequence {
             /// <returns>buffered text</returns>
             public string GetBufferedText() {
                 return _buff.ToString();
+            }
+
+            /// <summary>
+            /// Get buffered text converted to printable characters
+            /// </summary>
+            /// <returns>buffered text</returns>
+            public string GetPrintableBufferedText() {
+                return _buff.ToString()
+                        .Aggregate(
+                            new StringBuilder(),
+                            (s, c) => {
+                                if (Char.IsControl(c) || Char.IsWhiteSpace(c)) {
+                                    s.AppendFormat("<#{0:X2}>", (uint)c);
+                                }
+                                else {
+                                    s.Append(c);
+                                }
+                                return s;
+                            }
+                        )
+                        .ToString();
             }
 
             /// <summary>
@@ -666,6 +697,43 @@ namespace Poderosa.Terminal.EscapeSequence {
             }
         }
 
+        /// <summary>
+        /// Special state that reads CSI to the end and ignores it
+        /// </summary>
+        internal class IgnoreCSIState : State {
+
+            private static readonly FinalState _final = new FinalState((obj, context) => {
+#if DEBUG
+                System.Diagnostics.Debug.WriteLine("Ignore CSI: {0}", new object[] { context.GetPrintableBufferedText() });
+#endif
+            });
+
+            public int Id {
+                get;
+                private set;
+            }
+
+            public IgnoreCSIState() {
+                Id = _nextStateId++;
+            }
+
+            public State Accept(Context context, char ch) {
+                if (ch >= 0x40 && ch <= 0x7e) {
+                    // final byte
+                    context.AppendChar(ch);
+                    return _final;
+                }
+
+                if (ch >= 0x20 && ch <= 0x3f) {
+                    // parameter bytes or intermediate bytes
+                    context.AppendChar(ch);
+                    return this;
+                }
+
+                return null;
+            }
+        }
+
         #endregion
 
         #region Thread-local context
@@ -942,6 +1010,7 @@ namespace Poderosa.Terminal.EscapeSequence {
         private static object _initializeSync = new object();
         private static bool _initialized = false;
         private static readonly CharState _root = new CharState();
+        private static readonly IgnoreCSIState _ignoreCSIState = new IgnoreCSIState();
 
         private readonly Context _context = new Context();
         private readonly Action<Exception, string> _exceptionHandler;
@@ -992,7 +1061,16 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// <returns>true if <paramref name="ch"/> was handled. otherwise false.</returns>
         public bool Process(T instance, char ch) {
             State nextState = _currentState.Accept(_context, ch);
+
             if (nextState == null) {
+                // handle unsupported CSI
+                if (_context.IsCSI()) {
+                    nextState = _ignoreCSIState.Accept(_context, ch);
+                    if (nextState != null) {
+                        goto CheckFinalState;
+                    }
+                }
+
                 if (!Object.ReferenceEquals(_currentState, _root)) {
                     _context.AppendChar(ch); // report including a character not accepted
                     _incompleteHandler(_context.GetBufferedText());
@@ -1001,6 +1079,7 @@ namespace Poderosa.Terminal.EscapeSequence {
                 return false; // not handled
             }
 
+        CheckFinalState:
             FinalState final = nextState as FinalState;
             if (final == null) {
                 _currentState = nextState;
@@ -1016,6 +1095,7 @@ namespace Poderosa.Terminal.EscapeSequence {
                 var ie = e as TargetInvocationException;
                 _exceptionHandler((ie != null) ? ie.InnerException : e, _context.GetBufferedText());
             }
+
             Reset();
             return true; // handled
         }
