@@ -130,6 +130,10 @@ namespace Poderosa.Terminal {
         private const int MOUSE_POS_EXT_LIMIT = 2047 - 32;  // mouse position limit in extended mode
         private const int MOUSE_POS_EXT_START = 127 - 32;   // mouse position to start using extended format
 
+        private const string RESPONSE_CSI = "\u001b[";
+        private const string RESPONSE_DCS = "\u001bP";
+        private const string RESPONSE_ST = "\u001b\\";
+
         public XTerm(TerminalInitializeInfo info)
             : base(info) {
             _escapeSequenceEngine = new EscapeSequenceEngine<XTerm>(HandleException, HandleIncompleteEscapeSequence);
@@ -491,7 +495,7 @@ namespace Poderosa.Terminal {
 
                 case MouseTrackingProtocol.Urxvt:
                     data = Encoding.ASCII.GetBytes(
-                            "\u001b["
+                            RESPONSE_CSI
                             + statBits.ToInvariantString()
                             + ";"
                             + (col + 1).ToInvariantString()
@@ -504,7 +508,7 @@ namespace Poderosa.Terminal {
 
                 case MouseTrackingProtocol.Sgr:
                     data = Encoding.ASCII.GetBytes(
-                            "\u001b[<"
+                            RESPONSE_CSI + "<"
                             + statBits.ToInvariantString()
                             + ";"
                             + (col + 1).ToInvariantString()
@@ -929,7 +933,7 @@ namespace Poderosa.Terminal {
                 };
                 string featuresText = String.Join(";", features.Select(v => v.ToInvariantString()));
 
-                byte[] data = Encoding.ASCII.GetBytes("\u001b[?64;" + featuresText + "c");
+                byte[] data = Encoding.ASCII.GetBytes(RESPONSE_CSI + "?64;" + featuresText + "c");
                 TransmitDirect(data);
             }
         }
@@ -937,7 +941,7 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'c')]
         private void ProcessSecondaryDeviceAttributes(NumericParams p) {
             if (p.Get(0, 0) == 0) {
-                byte[] data = Encoding.ASCII.GetBytes("\u001b[>41;1;0c");
+                byte[] data = Encoding.ASCII.GetBytes(RESPONSE_CSI + ">41;1;0c");
                 TransmitDirect(data);
                 return;
             }
@@ -947,7 +951,7 @@ namespace Poderosa.Terminal {
         private void ProcessTertiaryDeviceAttributes(NumericParams p) {
             if (p.Get(0, 0) == 0) {
                 // DECRPTUI: DCS ! | 00 00 00 00 ST
-                byte[] data = Encoding.ASCII.GetBytes("\u001bP!|00000000\u001b\\");
+                byte[] data = Encoding.ASCII.GetBytes(RESPONSE_DCS + "!|00000000" + RESPONSE_ST);
                 TransmitDirect(data);
                 return;
             }
@@ -960,22 +964,29 @@ namespace Poderosa.Terminal {
             string response;
             switch (param) {
                 case 5: // Operating Status Report
-                    response = "\u001b[0n"; // good
+                    response = RESPONSE_CSI + "0n"; // good
                     break;
                 case 6: // Cursor Position Report
-                    response =
-                        "\u001b["
-                        + (GetDocument().CurrentLineNumber - GetDocument().TopLineNumber + 1).ToInvariantString()
-                        + ";"
-                        + (_manipulator.CaretColumn + 1).ToInvariantString()
-                        + "R";
-                    break;
+                    {
+                        var pos = GetCursorPosition();
+                        response =
+                            RESPONSE_CSI
+                            + pos.Y.ToInvariantString()
+                            + ";"
+                            + pos.X.ToInvariantString()
+                            + "R";
+                        break;
+                    }
                 default:
                     return;
             }
 
             byte[] data = Encoding.ASCII.GetBytes(response);
             TransmitDirect(data);
+        }
+
+        private Point GetCursorPosition() {
+            return new Point(_manipulator.CaretColumn + 1, GetDocument().CurrentLineNumber - GetDocument().TopLineNumber + 1);
         }
 
         [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'n')]
@@ -986,45 +997,48 @@ namespace Poderosa.Terminal {
             switch (param) {
                 case 5:
                     // "CSI ? 5 n" doesn't appear in the DEC documentations, but xterm returns this
-                    response = "\u001b[?0n";
+                    response = RESPONSE_CSI + "?0n";
                     break;
                 case 6: // Extended Cursor Position Report
-                    response =
-                        "\u001b[?"
-                        + (GetDocument().CurrentLineNumber - GetDocument().TopLineNumber + 1).ToInvariantString()
-                        + ";"
-                        + (_manipulator.CaretColumn + 1).ToInvariantString()
-                        + ";1R";
-                    break;
+                    {
+                        var pos = GetCursorPosition();
+                        response =
+                            RESPONSE_CSI + "?"
+                            + pos.Y.ToInvariantString()
+                            + ";"
+                            + pos.X.ToInvariantString()
+                            + ";1R";
+                        break;
+                    }
                 case 15: // Printer Status Report
-                    response = "\u001b[?13n"; // no printer
+                    response = RESPONSE_CSI + "?13n"; // no printer
                     break;
                 case 25: // User-Defined Keys Status
-                    response = "\u001b[?20n"; // unlocked
+                    response = RESPONSE_CSI + "?20n"; // unlocked
                     break;
                 case 26: // Keyboard Status Report
-                    response = "\u001b[?27;1;0;0n"; // North American, Ready
+                    response = RESPONSE_CSI + "?27;1;0;0n"; // North American, Ready
                     break;
                 case 55: // Locator Status
                     // according to "Locator Input Model for ANSI Terminals (sixth revision)", response below means "no locator"
-                    response = "\u001b[?53n"; // no locator
+                    response = RESPONSE_CSI + "?53n"; // no locator
                     break;
                 case 56: // Locator Type
-                    response = "\u001b[?57;0n"; // unknown
+                    response = RESPONSE_CSI + "?57;0n"; // unknown
                     break;
                 case 62: // Macro Space Report
                     // xterm returns 4 digits
-                    response = "\u001b[0000*{";
+                    response = RESPONSE_CSI + "0000*{";
                     break;
                 case 63: // Memory Checksum
                     int pid = p.Get(1, 0);
-                    response = "\u001bP" + pid.ToInvariantString() + "!~0000\u001b\\";
+                    response = RESPONSE_DCS + pid.ToInvariantString() + "!~0000" + RESPONSE_ST;
                     break;
                 case 75: // Data Integrity Report
-                    response = "\u001b[?70n"; // OK
+                    response = RESPONSE_CSI + "?70n"; // OK
                     break;
                 case 85: // Multi-session Configuration
-                    response = "\u001b[?83n"; // not configured
+                    response = RESPONSE_CSI + "?83n"; // not configured
                     break;
                 default:
                     return;
@@ -1565,7 +1579,7 @@ namespace Poderosa.Terminal {
                     : "2" // reset
                 )
                 : "0"; // not recognized
-            byte[] data = Encoding.ASCII.GetBytes("\u001b[" + param.ToInvariantString() + ";" + value + "$y");
+            byte[] data = Encoding.ASCII.GetBytes(RESPONSE_CSI + param.ToInvariantString() + ";" + value + "$y");
             TransmitDirect(data);
         }
 
@@ -2308,7 +2322,7 @@ namespace Poderosa.Terminal {
                     : "2" // reset
                 )
                 : "0"; // not recognized
-            byte[] data = Encoding.ASCII.GetBytes("\u001b[?" + param.ToInvariantString() + ";" + value + "$y");
+            byte[] data = Encoding.ASCII.GetBytes(RESPONSE_CSI + "?" + param.ToInvariantString() + ";" + value + "$y");
             TransmitDirect(data);
         }
 
@@ -2580,7 +2594,7 @@ namespace Poderosa.Terminal {
 
             int result = 1; // item error
 
-            byte[] data = Encoding.ASCII.GetBytes("\u001b[?" + item.ToInvariantString() + ";" + result.ToInvariantString() + "S");
+            byte[] data = Encoding.ASCII.GetBytes(RESPONSE_CSI + "?" + item.ToInvariantString() + ";" + result.ToInvariantString() + "S");
             TransmitDirect(data);
         }
 
