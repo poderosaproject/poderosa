@@ -197,6 +197,12 @@ namespace Poderosa.Document {
             }
         }
 
+        public bool Protected {
+            get {
+                return _attr.Has(GAttrFlags.Protected);
+            }
+        }
+
         private TextDecoration(GAttr attr, GColor24 color24) {
             _attr = attr;
             _color24 = color24;

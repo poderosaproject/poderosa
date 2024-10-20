@@ -22,12 +22,46 @@ using System.Resources;
 using Poderosa.Protocols;
 
 namespace Poderosa.Terminal {
+    public enum CharacterSetSizeType {
+        /// <summary>
+        /// 94-character
+        /// </summary>
+        CS94,
+        /// <summary>
+        /// 96-character
+        /// </summary>
+        CS96,
+        /// <summary>
+        /// Other (e.g. 94x94 character)
+        /// </summary>
+        Other,
+        /// <summary>
+        /// Not designated
+        /// </summary>
+        NotDesignated,
+    }
+
+
     internal interface ICharDecoder {
         void OnReception(ByteDataFragment data);
         void Reset();
         EncodingProfile CurrentEncoding {
             get;
         }
+
+        /// <summary>
+        /// Get character set size of G0, G1, G2 or G3.
+        /// </summary>
+        /// <param name="g">0=G0, 1=G1, 2=G2, 3=G3</param>
+        /// <returns>character set size type</returns>
+        CharacterSetSizeType GetCharacterSetSizeType(int g);
+
+        /// <summary>
+        /// Get character set designator in SCS (Select Character Set).
+        /// </summary>
+        /// <param name="g">0=G0, 1=G1, 2=G2, 3=G3</param>
+        /// <returns>designator (e.g. "B") or null if the character set cannot be designated in SCS.</returns>
+        string GetSCSDesignator(int g);
     }
 
     internal class ISO2022CharDecoder : ICharDecoder {
@@ -291,6 +325,48 @@ namespace Poderosa.Terminal {
             if (_iso2022krByteProcessor == null)
                 _iso2022krByteProcessor = new ISO2022KRByteProcessor(_processor, _byteProcessorBuffer);
             return _iso2022krByteProcessor;
+        }
+
+        public CharacterSetSizeType GetCharacterSetSizeType(int g) {
+            IByteProcessor processor;
+            if (g == 0) {
+                processor = _G0ByteProcessor;
+            }
+            else if (g == 1) {
+                processor = _G1ByteProcessor;
+            }
+            else {
+                return CharacterSetSizeType.NotDesignated;
+            }
+
+            if (processor is ASCIIByteProcessor || processor is DECLineByteProcessor) {
+                return CharacterSetSizeType.CS94;
+            }
+
+            return CharacterSetSizeType.Other;
+        }
+
+        public string GetSCSDesignator(int g) {
+            IByteProcessor processor;
+            if (g == 0) {
+                processor = _G0ByteProcessor;
+            }
+            else if (g == 1) {
+                processor = _G1ByteProcessor;
+            }
+            else {
+                return null;
+            }
+
+            if (processor is ASCIIByteProcessor) {
+                return "B";
+            }
+
+            if (processor is DECLineByteProcessor) {
+                return "0";
+            }
+
+            return null;
         }
 
         public void OnReception(ByteDataFragment data) {

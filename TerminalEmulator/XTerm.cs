@@ -1048,6 +1048,139 @@ namespace Poderosa.Terminal {
             TransmitDirect(data);
         }
 
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'w')]
+        private void ProcessPresentationStateReport(NumericParams p) {
+            int n = p.Get(0, 0);
+
+            string response;
+            switch (n) {
+                case 1:
+                    // DECCIR
+                    {
+                        var pos = GetCursorPosition();
+                        int page = 1;
+                        char srend = GetDECCIRRenditions();
+                        char satt = GetDECCIRAttributes();
+                        char sflag = GetDECCIRFlags();
+                        int pgl = 0; // FIXME
+                        int pgr = 0; // FIXME
+                        char scss = GetDECCIRCharacterSetSize();
+                        string sdesig = GetDECCIRCharacterSetsDesignators();
+                        response = RESPONSE_DCS + "1$u"
+                            + pos.Y.ToInvariantString() + ";"
+                            + pos.X.ToInvariantString() + ";"
+                            + page.ToInvariantString() + ";"
+                            + new String(new char[] { srend, ';', satt, ';', sflag, ';' })
+                            + pgl.ToInvariantString() + ";"
+                            + pgr.ToInvariantString() + ";"
+                            + new String(new char[] { srend, ';' })
+                            + sdesig
+                            + RESPONSE_ST;
+                        break;
+                    }
+                case 2:
+                    // DECTABSR
+                    {
+                        EnsureTabStops(GetDocument().TerminalWidth);
+                        var tabColumns =
+                            String.Join("/",
+                                Enumerable.Range(1, GetDocument().TerminalWidth - 1) // exclude first column
+                                .Where((index) => index < _tabStops.Length && _tabStops[index])
+                                .Select((index) => index + 1) // to column position (1-based)
+                                .Select((column) => column.ToInvariantString())
+                            );
+                        response = RESPONSE_DCS + "2$u" + tabColumns + RESPONSE_ST;
+                        break;
+                    }
+                default:
+                    return; // do nothing
+            }
+
+            TransmitDirect(Encoding.ASCII.GetBytes(response));
+        }
+
+        private char GetDECCIRRenditions() {
+            // bit 7: always 0
+            // bit 6: always 1
+            // bit 5: extension indicator
+            // bit 4: always 0
+            // bit 3: reverse video
+            // bit 2: blink
+            // bit 1: underline
+            // bit 0: bold
+            TextDecoration dec = GetDocument().CurrentDecoration;
+            int r = 0x40
+                + (dec.Bold ? 1 : 0)
+                + (dec.Underline ? 2 : 0)
+                + (dec.Blink ? 4 : 0)
+                + (dec.Inverted ? 8 : 0);
+            return (char)r;
+        }
+
+        private char GetDECCIRAttributes() {
+            // bit 7: always 0
+            // bit 6: always 1
+            // bit 5: extension indicator
+            // bit 4: reserved
+            // bit 3: reserved
+            // bit 2: reserved
+            // bit 1: reserved
+            // bit 0: selectively erasable
+            TextDecoration dec = GetDocument().CurrentDecoration;
+            int r = 0x40
+                + (dec.Protected ? 1 : 0);
+            return (char)r;
+        }
+
+        private char GetDECCIRFlags() {
+            // bit 7: always 0
+            // bit 6: always 1
+            // bit 5: extension indicator
+            // bit 4: reserved
+            // bit 3: auto-wrap pending (1=pending)
+            // bit 2: SS3 pending (1=SS3 received)
+            // bit 1: SS2 pending (1=SS2 received)
+            // bit 0: origin mode (1=set 0=reset)
+            bool autoWrapPending = _wrapAroundMode && _manipulator.CaretColumn >= GetDocument().TerminalWidth;
+            int r = 0x40
+                + (_scrollRegionRelative ? 1 : 0)
+                + (autoWrapPending ? 8 : 0);
+            return (char)r;
+        }
+
+        private char GetDECCIRCharacterSetSize() {
+            // bit 7: always 0
+            // bit 6: always 1
+            // bit 5: extension indicator
+            // bit 4: reserved
+            // bit 3: size of G3 set (1=96-character, 0=94-character)
+            // bit 2: size of G2 set (1=96-character, 0=94-character)
+            // bit 1: size of G1 set (1=96-character, 0=94-character)
+            // bit 0: size of GO set (1=96-character, 0=94-character)
+            int r = 0x40
+                + ((GetCharacterSetSizeType(0) == CharacterSetSizeType.CS96) ? 1 : 0)
+                + ((GetCharacterSetSizeType(1) == CharacterSetSizeType.CS96) ? 2 : 0)
+                + ((GetCharacterSetSizeType(2) == CharacterSetSizeType.CS96) ? 4 : 0)
+                + ((GetCharacterSetSizeType(3) == CharacterSetSizeType.CS96) ? 8 : 0);
+            return (char)r;
+        }
+
+        private string GetDECCIRCharacterSetsDesignators() {
+            // SCS (Select Character Set) character set designators, in the order of GO, G1, G2, G3.
+            string r = "";
+            for (int g = 0; g <= 3; g++) {
+                string d = GetSCSDesignator(g);
+                if (d != null) {
+                    r += d;
+                }
+                else {
+                    r += "B"; // ASCII
+                }
+            }
+            return r;
+        }
+
+
 #if UNUSED        
         private void ProcessCursorMove(string param, char method) {
             int count = ParseInt(param, 1); //パラメータが省略されたときの移動量は１
