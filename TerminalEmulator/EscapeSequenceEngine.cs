@@ -781,7 +781,7 @@ namespace Poderosa.Terminal.EscapeSequence {
             /// Register escape sequence handlers marked with EscapeSequenceAttribute.
             /// </summary>
             /// <param name="type">class containing escape sequence handlers</param>
-            /// <param name="getAttribute">function to get Attributes from MethodInfo</param>
+            /// <param name="getAttributes">function to get Attributes from MethodInfo</param>
             public void RegisterHandlers(Type type, Func<MethodInfo, IEnumerable<EscapeSequenceAttribute>> getAttributes) {
                 List<EscapeSequenceAttribute> attrsParamTypeNone = new List<EscapeSequenceAttribute>();
                 List<EscapeSequenceAttribute> attrsParamTypeNumeric = new List<EscapeSequenceAttribute>();
