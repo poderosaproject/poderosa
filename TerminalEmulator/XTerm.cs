@@ -541,32 +541,63 @@ namespace Poderosa.Terminal {
         }
 
         private void ProcessNormalUnicodeChar(UnicodeChar unicodeChar) {
-            //WrapAroundがfalseで、キャレットが右端のときは何もしない
-            if (!_wrapAroundMode && Document.CaretColumn >= Document.TerminalWidth - 1)
+            if (Document.TerminalWidth < 1) {
                 return;
-
-            if (_insertMode)
-                _manipulator.InsertBlanks(Document.CaretColumn, unicodeChar.IsWideWidth ? 2 : 1, Document.TerminalWidth, Document.CurrentDecoration);
-
-            //既に画面右端にキャレットがあるのに文字が来たら改行をする
-            int tw = Document.TerminalWidth;
-            if (Document.CaretColumn + (unicodeChar.IsWideWidth ? 2 : 1) > tw) {
-                _manipulator.EOLType = EOLType.Continue;
-                GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
-                if (lineUpdated != null) {
-                    this.LogService.TextLogger.WriteLine(lineUpdated);
-                }
-                Document.LineFeed();
-                _manipulator.Load(Document.CurrentLine);
-                Document.CaretColumn = 0;
             }
 
-            //画面のリサイズがあったときは、_manipulatorのバッファサイズが不足の可能性がある
-            if (tw > _manipulator.BufferSize)
-                _manipulator.ExpandBuffer(tw);
+            if (Document.WrapPending && _wrapAroundMode) {
+                // do pending line wrap
+                ContinueToNextLine();
+                ProcessNormalUnicodeChar2(unicodeChar, false);
+            }
+            else {
+                ProcessNormalUnicodeChar2(unicodeChar, _wrapAroundMode);
+            }
+        }
 
-            //通常文字の処理
-            Document.CaretColumn = _manipulator.PutChar(Document.CaretColumn, unicodeChar, Document.CurrentDecoration);
+        private void ProcessNormalUnicodeChar2(UnicodeChar unicodeChar, bool canWrap) {
+            int charWidth = unicodeChar.IsWideWidth ? 2 : 1;
+            int nextColumn = Document.CaretColumn + charWidth;
+
+            if (nextColumn <= Document.TerminalWidth) { // many cases
+                if (_insertMode) {
+                    _manipulator.InsertBlanks(Document.CaretColumn, charWidth, Document.TerminalWidth, Document.CurrentDecoration);
+                }
+
+                _manipulator.PutChar(Document.CaretColumn, unicodeChar, Document.CurrentDecoration);
+
+                if (nextColumn == Document.TerminalWidth) {
+                    Document.CaretColumn = Document.TerminalWidth - 1;
+                    if (_wrapAroundMode) {
+                        Document.WrapPending = true;
+                    }
+                }
+                else {
+                    Document.CaretColumn = nextColumn;
+                }
+            }
+            else {
+                // overflow
+                if (canWrap) {
+                    ContinueToNextLine();
+                    ProcessNormalUnicodeChar2(unicodeChar, false);
+                }
+                else {
+                    _manipulator.PutChar(Document.TerminalWidth - 1, (charWidth == 2) ? UnicodeChar.ASCII_NUL : unicodeChar, Document.CurrentDecoration);
+                    Document.CaretColumn = Document.TerminalWidth - 1;
+                }
+            }
+        }
+
+        private void ContinueToNextLine() {
+            _manipulator.EOLType = EOLType.Continue;
+            GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
+            if (lineUpdated != null) {
+                this.LogService.TextLogger.WriteLine(lineUpdated);
+            }
+            Document.LineFeed();
+            _manipulator.Load(Document.CurrentLine);
+            Document.CaretColumn = 0;
         }
 
         [EscapeSequence(ControlCode.ESC, ' ', 'F')] // S7C1T
@@ -1142,7 +1173,7 @@ namespace Poderosa.Terminal {
             // bit 2: SS3 pending (1=SS3 received)
             // bit 1: SS2 pending (1=SS2 received)
             // bit 0: origin mode (1=set 0=reset)
-            bool autoWrapPending = _wrapAroundMode && Document.CaretColumn >= Document.TerminalWidth;
+            bool autoWrapPending = Document.WrapPending && _wrapAroundMode;
             int r = 0x40
                 + (_scrollRegionRelative ? 1 : 0)
                 + (autoWrapPending ? 8 : 0);

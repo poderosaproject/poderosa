@@ -29,6 +29,7 @@ namespace Poderosa.Terminal {
     public class TerminalDocument : CharacterDocument {
         private TextDecoration _currentDecoration = TextDecoration.Default;
         private int _caretColumn;
+        private bool _wrapPending;
         private int _scrollingTopOffset;
         private int _scrollingBottomOffset;
         //ウィンドウの表示用テキスト
@@ -115,7 +116,18 @@ namespace Poderosa.Terminal {
                 return _caretColumn;
             }
             set {
+                // updating caret position always reset wrap-pending state
                 _caretColumn = value;
+                _wrapPending = false;
+            }
+        }
+
+        public bool WrapPending {
+            get {
+                return _wrapPending;
+            }
+            set {
+                _wrapPending = true;
             }
         }
 
