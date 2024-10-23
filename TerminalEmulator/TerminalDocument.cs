@@ -93,7 +93,7 @@ namespace Poderosa.Terminal {
         }
 
         public void Clear() {
-            _caretColumn = 0;
+            this.CaretColumn = 0;
             _firstLine = null;
             _lastLine = null;
             _size = 0;
@@ -522,7 +522,7 @@ namespace Poderosa.Terminal {
                 SetTopLine(_firstLine);
             if (_currentLine.ID < _firstLine.ID) {
                 _currentLine = _firstLine;
-                _caretColumn = 0;
+                this.CaretColumn = 0;
             }
 
             return delete_count;

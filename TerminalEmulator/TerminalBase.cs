@@ -458,13 +458,14 @@ namespace Poderosa.Terminal {
                     TerminalDocument document = _document;
                     lock (document) {
 
-                        _manipulator.Load(document.CurrentLine, 0);
-                        _manipulator.CaretColumn = document.CaretColumn;
+                        _manipulator.Load(document.CurrentLine);
 
                         _decoder.OnReception(data);
 
+                        // this ensures that the character cell at the caret position exists
+                        _manipulator.ExpandBuffer(Document.TerminalWidth);
+
                         document.UpdateCurrentLine(_manipulator);
-                        document.CaretColumn = _manipulator.CaretColumn;
 
                         CheckDiscardDocument();
                         AdjustTransientScrollBar();

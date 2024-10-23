@@ -1494,7 +1494,6 @@ namespace Poderosa.Document {
 
         private GCell[] _cell = new GCell[1];
         private GColor24[] _color24 = new GColor24[1];  // always non-null
-        private int _caretColumn = 0;
         private EOLType _eolType = EOLType.Continue;
 
         /// <summary>
@@ -1503,19 +1502,6 @@ namespace Poderosa.Document {
         public int BufferSize {
             get {
                 return _cell.Length;
-            }
-        }
-
-        /// <summary>
-        /// Position of the caret.
-        /// </summary>
-        public int CaretColumn {
-            get {
-                return _caretColumn;
-            }
-            set {
-                ExpandBuffer(value + 1);
-                _caretColumn = value;
             }
         }
 
@@ -1529,13 +1515,6 @@ namespace Poderosa.Document {
             set {
                 _eolType = value;
             }
-        }
-
-        /// <summary>
-        /// Insert the carriage return.
-        /// </summary>
-        public void CarriageReturn() {
-            this.CaretColumn = 0;
         }
 
         /// <summary>
@@ -1559,7 +1538,6 @@ namespace Poderosa.Document {
                 _color24[i] = new GColor24();
             }
 
-            _caretColumn = 0;
             _eolType = EOLType.Continue;
         }
 
@@ -1567,11 +1545,10 @@ namespace Poderosa.Document {
         /// Load content from a <see cref="GLine"/>.
         /// </summary>
         /// <param name="line">a line object that the content are copied from.</param>
-        /// <param name="caretColumn">the caret position</param>
         /// <remarks>
         /// If <paramref name="line"/> was null, internal buffer will be cleared.
         /// </remarks>
-        public void Load(GLine line, int caretColumn) {
+        public void Load(GLine line) {
             if (line == null) {
                 Reset(80);
             }
@@ -1579,7 +1556,6 @@ namespace Poderosa.Document {
                 line.DuplicateBuffers(_cell, _color24, out _cell, out _color24);
                 _eolType = line.EOLType;
             }
-            this.CaretColumn = caretColumn;  // buffer may be expanded
         }
 
         /// <summary>
@@ -1588,6 +1564,10 @@ namespace Poderosa.Document {
         /// <param name="length">minimum buffer size.</param>
         public void ExpandBuffer(int length) {
             if (length > _cell.Length) {
+#if DEBUG
+                Debug.WriteLine("GLineManipulator.ExpandBuffer: {0}", length);
+#endif
+
                 GCell[] oldBuff = _cell;
                 GCell[] newBuff = new GCell[length];
                 oldBuff.CopyTo(newBuff);
@@ -1605,35 +1585,42 @@ namespace Poderosa.Document {
         /// <summary>
         /// Write one character to the specified position.
         /// </summary>
+        /// <param name="index">index to write a character.</param>
         /// <param name="ch">character to write.</param>
         /// <param name="dec">text decoration of the character. (null indicates default setting)</param>
-        public void PutChar(UnicodeChar ch, TextDecoration dec) {
+        /// <returns>the next index</returns>
+        public int PutChar(int index, UnicodeChar ch, TextDecoration dec) {
+            if (index < 0) {
+                return index;
+            }
+
             GChar newChar = new GChar(ch);
             GAttr newAttr = dec.Attr;
             GColor24 newColor = dec.Color24;
+
+            // expand as needed to avoid errors in unexpected status.
+            ExpandBuffer(index + (newChar.IsWideWidth ? 2 : 1));
 
             if (newChar.IsCJK) {
                 newAttr += GAttrFlags.UseCjkFont;
             }
 
-            FixLeftHalfOfWideWidthCharacter(_caretColumn - 1);
+            FixLeftHalfOfWideWidthCharacter(index - 1);
 
-            if (_caretColumn >= 0 && _caretColumn < _cell.Length) {
-                _cell[_caretColumn].Set(newChar, newAttr);
-                _color24[_caretColumn] = newColor;
-            }
+            _cell[index].Set(newChar, newAttr);
+            _color24[index] = newColor;
 
-            _caretColumn++;
+            index++;
 
             if (newChar.IsWideWidth) {
-                if (_caretColumn >= 0 && _caretColumn < _cell.Length) {
-                    _cell[_caretColumn].Set(newChar + GCharFlags.RightHalf, newAttr);
-                    _color24[_caretColumn] = newColor;
-                }
-                _caretColumn++;
+                _cell[index].Set(newChar + GCharFlags.RightHalf, newAttr);
+                _color24[index] = newColor;
+                index++;
             }
 
-            FixRightHalfOfWideWidthCharacter(_caretColumn);
+            FixRightHalfOfWideWidthCharacter(index);
+
+            return index;
         }
 
         /// <summary>
@@ -1669,11 +1656,10 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
-        /// Get previous character.
+        /// Get character.
         /// </summary>
-        /// <returns>previous character if it exists.</returns>
-        public UnicodeChar? GetPreviousChar() {
-            int index = _caretColumn - 1;
+        /// <returns>character if it exists. otherwise null.</returns>
+        public UnicodeChar? GetChar(int index) {
             if (index >= 0 && index < _cell.Length) {
                 return _cell[index].Char.ToUnicodeChar();
             }
@@ -1681,26 +1667,20 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
-        /// Moves the caret position to the left. 
-        /// </summary>
-        /// <remarks>
-        /// If current caret position was the top of the line, caret position will not be changed.
-        /// </remarks>
-        public void BackCaret() {
-            if (_caretColumn > 0) {
-                _caretColumn--;
-            }
-        }
-
-        /// <summary>
-        /// Fills specified range with spaces. 
+        /// Fills specified range with spaces (NULs). 
         /// </summary>
         /// <param name="from">start index of the range (inclusive)</param>
         /// <param name="to">end index of the range (exclusive)</param>
         /// <param name="dec">text decoration of the blanks (null indicates default setting)</param>
         public void FillSpace(int from, int to, TextDecoration dec) {
-            from = Math.Max(0, from);
-            to = Math.Min(_cell.Length, to);
+            from = Math.Max(from, 0);
+
+            if (to <= from) {
+                return;
+            }
+
+            // expand as needed to avoid errors in unexpected status.
+            ExpandBuffer(to);
 
             GAttr fillAttr = dec.Attr;
             GColor24 fillColor = dec.Color24;
@@ -1723,8 +1703,15 @@ namespace Poderosa.Document {
         /// <param name="to">end index of the range (exclusive)</param>
         /// <param name="dec">text decoration of the blanks (null indicates default setting)</param>
         public void FillSpaceSkipProtected(int from, int to, TextDecoration dec) {
-            from = Math.Max(0, from);
-            to = Math.Min(_cell.Length, to);
+            from = Math.Max(from, 0);
+
+            if (to <= from) {
+                return;
+            }
+
+            // expand as needed to avoid errors in unexpected status.
+            ExpandBuffer(to);
+
             dec = dec.GetCopyWithProtected(false);
 
             GAttr fillAttr = dec.Attr;
@@ -1796,6 +1783,9 @@ namespace Poderosa.Document {
                 return;
             }
 
+            // expand as needed to avoid errors in unexpected status.
+            ExpandBuffer(end);
+
             count = Math.Min(count, end - start);
 
             GAttr fillAttr = dec.Attr;
@@ -1830,23 +1820,30 @@ namespace Poderosa.Document {
         /// <param name="srcTo">end index of the source range (exclusive)</param>
         /// <param name="destFrom">start index of the destination range (inclusive)</param>
         public void CopyFrom(GLineManipulator source, int srcFrom, int srcTo, int destFrom) {
-            int srcCol = srcFrom;
-            int destCol = destFrom;
+            int copyLen = srcTo - srcFrom;
+            if (copyLen <= 0) {
+                return;
+            }
+
+            // expand as needed to avoid errors in unexpected status.
+            ExpandBuffer(destFrom + copyLen);
+
             int? lastCopiedCol = null;
-            while (srcCol < srcTo) {
-                if (srcCol >= 0 && srcCol < source._cell.Length && destCol >= 0 && destCol < this._cell.Length) {
+            for (int srcCol = srcFrom, destCol = destFrom; srcCol < srcTo; srcCol++, destCol++) {
+                if (srcCol >= 0 && srcCol < source._cell.Length) {
                     this._cell[destCol] = source._cell[srcCol];
                     this._color24[destCol] = source._color24[srcCol];
-
-                    if (!lastCopiedCol.HasValue) { // first character
-                        FixLeftHalfOfWideWidthCharacter(destCol - 1);
-                        FixRightHalfOfWideWidthCharacter(destCol);
-                    }
-
-                    lastCopiedCol = destCol;
                 }
-                srcCol++;
-                destCol++;
+                else {
+                    this._cell[destCol].Set(GChar.ASCII_SPACE, GAttr.Default);
+                }
+
+                if (!lastCopiedCol.HasValue) { // first character
+                    FixLeftHalfOfWideWidthCharacter(destCol - 1);
+                    FixRightHalfOfWideWidthCharacter(destCol);
+                }
+
+                lastCopiedCol = destCol;
             }
 
             if (lastCopiedCol.HasValue) {
@@ -1862,8 +1859,13 @@ namespace Poderosa.Document {
         /// <param name="to">end index of the range (exclusive)</param>
         /// <param name="mod">modifications</param>
         public void ModifyAttributes(int from, int to, AttributeModifications mod) {
-            from = Math.Max(0, from);
-            to = Math.Min(_cell.Length, to);
+            from = Math.Max(from, 0);
+            if (to <= from) {
+                return;
+            }
+
+            // expand as needed to avoid errors in unexpected status.
+            ExpandBuffer(to);
 
             for (int i = from; i < to; i++) {
                 GAttr attr = _cell[i].Attr;
@@ -1915,8 +1917,13 @@ namespace Poderosa.Document {
         /// <param name="to">end index of the range (exclusive)</param>
         /// <param name="mod">modifications</param>
         public void ReverseAttributes(int from, int to, AttributeModifications mod) {
-            from = Math.Max(0, from);
-            to = Math.Min(_cell.Length, to);
+            from = Math.Max(from, 0);
+            if (to <= from) {
+                return;
+            }
+
+            // expand as needed to avoid errors in unexpected status.
+            ExpandBuffer(to);
 
             for (int i = from; i < to; i++) {
                 GAttr attr = _cell[i].Attr;
