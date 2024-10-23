@@ -1781,36 +1781,45 @@ namespace Poderosa.Document {
         /// <summary>
         /// Insert blank characters in the specified range and moves trailing characters to the right.
         /// </summary>
-        /// <param name="start">start columns index</param>
+        /// <param name="start">start column index</param>
         /// <param name="count">count of columns to insert blanks</param>
+        /// <param name="end">end position for right shift of characters (column index, exclusive)</param>
         /// <param name="dec">text decoration of the blanks (null indicates default setting)</param>
-        public void InsertBlanks(int start, int count, TextDecoration dec) {
+        public void InsertBlanks(int start, int count, int end, TextDecoration dec) {
             if (count <= 0) {
                 return;
             }
 
+            start = Math.Max(start, 0);
+
+            if (start >= end) {
+                return;
+            }
+
+            count = Math.Min(count, end - start);
+
             GAttr fillAttr = dec.Attr;
             GColor24 fillColor = dec.Color24;
 
-            int limit = Math.Max(0, start);
-            int dstIndex = _cell.Length - 1;
+            int dstIndex = end - 1;
             int srcIndex = dstIndex - count;
-            while (srcIndex >= limit) {
+            while (srcIndex >= start) {
                 _cell[dstIndex] = _cell[srcIndex];
                 _color24[dstIndex] = _color24[srcIndex];
                 dstIndex--;
                 srcIndex--;
             }
 
-            while (dstIndex >= limit) {
-                _cell[dstIndex].Set(GChar.ASCII_NUL, fillAttr);
+            while (dstIndex >= start) {
+                _cell[dstIndex].Set(GChar.ASCII_SPACE, fillAttr);
                 _color24[dstIndex] = fillColor;
                 dstIndex--;
             }
 
             FixLeftHalfOfWideWidthCharacter(start - 1);
             FixRightHalfOfWideWidthCharacter(start + count);
-            FixLeftHalfOfWideWidthCharacter(_cell.Length - 1);
+            FixLeftHalfOfWideWidthCharacter(end - 1);
+            FixRightHalfOfWideWidthCharacter(end);
         }
 
         /// <summary>

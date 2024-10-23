@@ -546,7 +546,7 @@ namespace Poderosa.Terminal {
                 return;
 
             if (_insertMode)
-                _manipulator.InsertBlanks(_manipulator.CaretColumn, unicodeChar.IsWideWidth ? 2 : 1, GetDocument().CurrentDecoration);
+                _manipulator.InsertBlanks(_manipulator.CaretColumn, unicodeChar.IsWideWidth ? 2 : 1, GetDocument().TerminalWidth, GetDocument().CurrentDecoration);
 
             //既に画面右端にキャレットがあるのに文字が来たら改行をする
             int tw = GetDocument().TerminalWidth;
@@ -736,7 +736,7 @@ namespace Poderosa.Terminal {
             for (GLine l = doc.TopLine; l != null; l = l.NextLine) {
                 _manipulator.Load(l, 0);
                 if (columns > 0) {
-                    _manipulator.InsertBlanks(0, columns, doc.CurrentDecoration);
+                    _manipulator.InsertBlanks(0, columns, doc.TerminalWidth, doc.CurrentDecoration);
                 }
                 else if (columns < 0) {
                     _manipulator.DeleteChars(0, -columns, doc.CurrentDecoration);
@@ -2795,7 +2795,7 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '@')]
         private void ProcessInsertBlankCharacters(NumericParams p) {
             int n = p.GetNonZero(0, 1);
-            _manipulator.InsertBlanks(_manipulator.CaretColumn, n, GetDocument().CurrentDecoration);
+            _manipulator.InsertBlanks(_manipulator.CaretColumn, n, GetDocument().TerminalWidth, GetDocument().CurrentDecoration);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', '@')]
