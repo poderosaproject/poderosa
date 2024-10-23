@@ -137,7 +137,7 @@ namespace Poderosa.Terminal {
         public XTerm(TerminalInitializeInfo info)
             : base(info) {
             _escapeSequenceEngine = new EscapeSequenceEngine<XTerm>(HandleException, HandleIncompleteEscapeSequence);
-            _tabStops = new bool[GetDocument().TerminalWidth];
+            _tabStops = new bool[Document.TerminalWidth];
             InitTabStops();
         }
 
@@ -542,22 +542,22 @@ namespace Poderosa.Terminal {
 
         private void ProcessNormalUnicodeChar(UnicodeChar unicodeChar) {
             //WrapAroundがfalseで、キャレットが右端のときは何もしない
-            if (!_wrapAroundMode && _manipulator.CaretColumn >= GetDocument().TerminalWidth - 1)
+            if (!_wrapAroundMode && _manipulator.CaretColumn >= Document.TerminalWidth - 1)
                 return;
 
             if (_insertMode)
-                _manipulator.InsertBlanks(_manipulator.CaretColumn, unicodeChar.IsWideWidth ? 2 : 1, GetDocument().TerminalWidth, GetDocument().CurrentDecoration);
+                _manipulator.InsertBlanks(_manipulator.CaretColumn, unicodeChar.IsWideWidth ? 2 : 1, Document.TerminalWidth, Document.CurrentDecoration);
 
             //既に画面右端にキャレットがあるのに文字が来たら改行をする
-            int tw = GetDocument().TerminalWidth;
+            int tw = Document.TerminalWidth;
             if (_manipulator.CaretColumn + (unicodeChar.IsWideWidth ? 2 : 1) > tw) {
                 _manipulator.EOLType = EOLType.Continue;
-                GLine lineUpdated = GetDocument().UpdateCurrentLine(_manipulator);
+                GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
                 if (lineUpdated != null) {
                     this.LogService.TextLogger.WriteLine(lineUpdated);
                 }
-                GetDocument().LineFeed();
-                _manipulator.Load(GetDocument().CurrentLine, 0);
+                Document.LineFeed();
+                _manipulator.Load(Document.CurrentLine, 0);
             }
 
             //画面のリサイズがあったときは、_manipulatorのバッファサイズが不足の可能性がある
@@ -565,7 +565,7 @@ namespace Poderosa.Terminal {
                 _manipulator.ExpandBuffer(tw);
 
             //通常文字の処理
-            _manipulator.PutChar(unicodeChar, GetDocument().CurrentDecoration);
+            _manipulator.PutChar(unicodeChar, Document.CurrentDecoration);
         }
 
         [EscapeSequence(ControlCode.ESC, ' ', 'F')] // S7C1T
@@ -665,16 +665,15 @@ namespace Poderosa.Terminal {
         private void BackSpace() {
             //行頭で、直前行の末尾が継続であった場合行を戻す
             if (_manipulator.CaretColumn == 0) {
-                TerminalDocument doc = GetDocument();
-                int line = doc.CurrentLineNumber - 1;
-                if (line >= 0 && doc.FindLineOrEdge(line).EOLType == EOLType.Continue) {
-                    doc.InvalidatedRegion.InvalidateLine(doc.CurrentLineNumber);
-                    doc.CurrentLineNumber = line;
-                    if (doc.CurrentLine == null)
-                        _manipulator.Reset(doc.TerminalWidth);
+                int line = Document.CurrentLineNumber - 1;
+                if (line >= 0 && Document.FindLineOrEdge(line).EOLType == EOLType.Continue) {
+                    Document.InvalidatedRegion.InvalidateLine(Document.CurrentLineNumber);
+                    Document.CurrentLineNumber = line;
+                    if (Document.CurrentLine == null)
+                        _manipulator.Reset(Document.TerminalWidth);
                     else
-                        _manipulator.Load(doc.CurrentLine, doc.CurrentLine.DisplayLength - 1); //NOTE ここはCharLengthだったが同じだと思って改名した
-                    doc.InvalidatedRegion.InvalidateLine(doc.CurrentLineNumber);
+                        _manipulator.Load(Document.CurrentLine, Document.CurrentLine.DisplayLength - 1); //NOTE ここはCharLengthだったが同じだと思って改名した
+                    Document.InvalidatedRegion.InvalidateLine(Document.CurrentLineNumber);
                 }
             }
             else {
@@ -689,15 +688,15 @@ namespace Poderosa.Terminal {
 
         private void DoLineFeed() {
             _manipulator.EOLType = (_manipulator.EOLType == EOLType.CR || _manipulator.EOLType == EOLType.CRLF) ? EOLType.CRLF : EOLType.LF;
-            GLine lineUpdated = GetDocument().UpdateCurrentLine(_manipulator);
+            GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
             if (lineUpdated != null) {
                 this.LogService.TextLogger.WriteLine(lineUpdated);
             }
-            GetDocument().LineFeed();
+            Document.LineFeed();
 
             //カラム保持は必要。サンプル:linuxconf.log
             int col = _manipulator.CaretColumn;
-            _manipulator.Load(GetDocument().CurrentLine, col);
+            _manipulator.Load(Document.CurrentLine, col);
         }
 
         private void DoCarriageReturn() {
@@ -717,7 +716,7 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.ESC, '9')]
         private void ForwardIndex() {
-            if (_manipulator.CaretColumn < GetDocument().TerminalWidth - 1) {
+            if (_manipulator.CaretColumn < Document.TerminalWidth - 1) {
                 _manipulator.CaretColumn++;
             }
             else {
@@ -726,27 +725,25 @@ namespace Poderosa.Terminal {
         }
 
         private void ShiftScreen(int columns) {
-            TerminalDocument doc = GetDocument();
-
             int caretColumn = _manipulator.CaretColumn;
-            doc.UpdateCurrentLine(_manipulator);
+            Document.UpdateCurrentLine(_manipulator);
 
-            int w = doc.TerminalWidth;
-            int m = doc.TerminalHeight;
-            for (GLine l = doc.TopLine; l != null; l = l.NextLine) {
+            int w = Document.TerminalWidth;
+            int m = Document.TerminalHeight;
+            for (GLine l = Document.TopLine; l != null; l = l.NextLine) {
                 _manipulator.Load(l, 0);
                 if (columns > 0) {
-                    _manipulator.InsertBlanks(0, columns, doc.TerminalWidth, doc.CurrentDecoration);
+                    _manipulator.InsertBlanks(0, columns, Document.TerminalWidth, Document.CurrentDecoration);
                 }
                 else if (columns < 0) {
-                    _manipulator.DeleteChars(0, -columns, doc.CurrentDecoration);
+                    _manipulator.DeleteChars(0, -columns, Document.CurrentDecoration);
                 }
                 _manipulator.ExportTo(l);
             }
 
-            _manipulator.Load(doc.CurrentLine, caretColumn);
+            _manipulator.Load(Document.CurrentLine, caretColumn);
 
-            doc.InvalidateAll();
+            Document.InvalidateAll();
         }
 
 #if NOTUSED
@@ -986,7 +983,7 @@ namespace Poderosa.Terminal {
         }
 
         private Point GetCursorPosition() {
-            return new Point(_manipulator.CaretColumn + 1, GetDocument().CurrentLineNumber - GetDocument().TopLineNumber + 1);
+            return new Point(_manipulator.CaretColumn + 1, Document.CurrentLineNumber - Document.TopLineNumber + 1);
         }
 
         [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'n')]
@@ -1081,10 +1078,10 @@ namespace Poderosa.Terminal {
                 case 2:
                     // DECTABSR
                     {
-                        EnsureTabStops(GetDocument().TerminalWidth);
+                        EnsureTabStops(Document.TerminalWidth);
                         var tabColumns =
                             String.Join("/",
-                                Enumerable.Range(1, GetDocument().TerminalWidth - 1) // exclude first column
+                                Enumerable.Range(1, Document.TerminalWidth - 1) // exclude first column
                                 .Where((index) => index < _tabStops.Length && _tabStops[index])
                                 .Select((index) => index + 1) // to column position (1-based)
                                 .Select((column) => column.ToInvariantString())
@@ -1108,7 +1105,7 @@ namespace Poderosa.Terminal {
             // bit 2: blink
             // bit 1: underline
             // bit 0: bold
-            TextDecoration dec = GetDocument().CurrentDecoration;
+            TextDecoration dec = Document.CurrentDecoration;
             int r = 0x40
                 + (dec.Bold ? 1 : 0)
                 + (dec.Underline ? 2 : 0)
@@ -1126,7 +1123,7 @@ namespace Poderosa.Terminal {
             // bit 2: reserved
             // bit 1: reserved
             // bit 0: selectively erasable
-            TextDecoration dec = GetDocument().CurrentDecoration;
+            TextDecoration dec = Document.CurrentDecoration;
             int r = 0x40
                 + (dec.Protected ? 1 : 0);
             return (char)r;
@@ -1141,7 +1138,7 @@ namespace Poderosa.Terminal {
             // bit 2: SS3 pending (1=SS3 received)
             // bit 1: SS2 pending (1=SS2 received)
             // bit 0: origin mode (1=set 0=reset)
-            bool autoWrapPending = _wrapAroundMode && _manipulator.CaretColumn >= GetDocument().TerminalWidth;
+            bool autoWrapPending = _wrapAroundMode && _manipulator.CaretColumn >= Document.TerminalWidth;
             int r = 0x40
                 + (_scrollRegionRelative ? 1 : 0)
                 + (autoWrapPending ? 8 : 0);
@@ -1218,26 +1215,25 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'A')]
         private void ProcessCursorUp(NumericParams p) {
             int count = p.GetNonZero(0, 1);
-            TerminalDocument doc = GetDocument();
             int column = _manipulator.CaretColumn;
-            GLine lineUpdated = doc.UpdateCurrentLine(_manipulator);
+            GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
             if (lineUpdated != null) {
                 this.LogService.TextLogger.WriteLine(lineUpdated);
             }
-            doc.CurrentLineNumber = Math.Max(Math.Max(doc.CurrentLineNumber - count, doc.TopLineNumber), doc.ScrollingTop);
-            _manipulator.Load(doc.CurrentLine, column);
+            Document.CurrentLineNumber = Math.Max(Math.Max(Document.CurrentLineNumber - count, Document.TopLineNumber), Document.ScrollingTop);
+            _manipulator.Load(Document.CurrentLine, column);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'B')]
         private void ProcessCursorDown(NumericParams p) {
             int count = p.GetNonZero(0, 1);
             int column = _manipulator.CaretColumn;
-            GLine lineUpdated = GetDocument().UpdateCurrentLine(_manipulator);
+            GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
             if (lineUpdated != null) {
                 this.LogService.TextLogger.WriteLine(lineUpdated);
             }
-            GetDocument().CurrentLineNumber = (GetDocument().CurrentLineNumber + count);
-            _manipulator.Load(GetDocument().CurrentLine, column);
+            Document.CurrentLineNumber += count;
+            _manipulator.Load(Document.CurrentLine, column);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'C')]
@@ -1245,8 +1241,8 @@ namespace Poderosa.Terminal {
             int count = p.GetNonZero(0, 1);
             int column = _manipulator.CaretColumn;
             int newvalue = column + count;
-            if (newvalue >= GetDocument().TerminalWidth)
-                newvalue = GetDocument().TerminalWidth - 1;
+            if (newvalue >= Document.TerminalWidth)
+                newvalue = Document.TerminalWidth - 1;
             _manipulator.CaretColumn = newvalue;
         }
 
@@ -1262,28 +1258,26 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'E')]
         private void ProcessCursorNextLine(NumericParams p) {
-            TerminalDocument doc = GetDocument();
             int count = p.GetNonZero(0, 1);
-            int bottomLineNumber = doc.TopLineNumber + doc.TerminalHeight - 1;
-            GLine lineUpdated = doc.UpdateCurrentLine(_manipulator);
+            int bottomLineNumber = Document.TopLineNumber + Document.TerminalHeight - 1;
+            GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
             if (lineUpdated != null) {
                 this.LogService.TextLogger.WriteLine(lineUpdated);
             }
-            doc.CurrentLineNumber = Math.Min(doc.CurrentLineNumber + count, bottomLineNumber);
-            _manipulator.Load(doc.CurrentLine, 0);
+            Document.CurrentLineNumber = Math.Min(Document.CurrentLineNumber + count, bottomLineNumber);
+            _manipulator.Load(Document.CurrentLine, 0);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'F')]
         private void ProcessCursorPrecedingLine(NumericParams p) {
-            TerminalDocument doc = GetDocument();
             int count = p.GetNonZero(0, 1);
-            int topLineNumber = doc.TopLineNumber;
-            GLine lineUpdated = doc.UpdateCurrentLine(_manipulator);
+            int topLineNumber = Document.TopLineNumber;
+            GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
             if (lineUpdated != null) {
                 this.LogService.TextLogger.WriteLine(lineUpdated);
             }
-            doc.CurrentLineNumber = Math.Max(doc.CurrentLineNumber - count, topLineNumber);
-            _manipulator.Load(doc.CurrentLine, 0);
+            Document.CurrentLineNumber = Math.Max(Document.CurrentLineNumber - count, topLineNumber);
+            _manipulator.Load(Document.CurrentLine, 0);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'H')] // CUP
@@ -1292,36 +1286,36 @@ namespace Poderosa.Terminal {
             int row = p.GetNonZero(0, 1);
             int col = p.GetNonZero(1, 1);
 
-            if (_scrollRegionRelative && GetDocument().HasScrollingRegionTop) {
-                row += GetDocument().ScrollingTopOffset;
+            if (_scrollRegionRelative && Document.HasScrollingRegionTop) {
+                row += Document.ScrollingTopOffset;
             }
 
-            row = Math.Min(row, GetDocument().TerminalHeight);
-            col = Math.Min(col, GetDocument().TerminalWidth);
+            row = Math.Min(row, Document.TerminalHeight);
+            col = Math.Min(col, Document.TerminalWidth);
 
             ProcessCursorPosition(row, col);
         }
 
         [EscapeSequence(ControlCode.CSI, 'U')] // FIXME: undocumented?
         private void ProcessCursorPositionToBottomLeft() {
-            ProcessCursorPosition(GetDocument().TerminalHeight, 1);
+            ProcessCursorPosition(Document.TerminalHeight, 1);
         }
 
         private void ProcessCursorPosition(int row, int col) {
-            GetDocument().UpdateCurrentLine(_manipulator);
-            GetDocument().CurrentLineNumber = (GetDocument().TopLineNumber + row - 1);
-            _manipulator.Load(GetDocument().CurrentLine, col - 1);
+            Document.UpdateCurrentLine(_manipulator);
+            Document.CurrentLineNumber = (Document.TopLineNumber + row - 1);
+            _manipulator.Load(Document.CurrentLine, col - 1);
         }
 
         private void MoveCursorToHome() {
-            int row = (_scrollRegionRelative && GetDocument().HasScrollingRegionTop) ? GetDocument().ScrollingTopOffset + 1 : 1;
+            int row = (_scrollRegionRelative && Document.HasScrollingRegionTop) ? Document.ScrollingTopOffset + 1 : 1;
             ProcessCursorPosition(row, 1);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'a')]
         private void ProcessCursorPositionRelative(NumericParams p) {
             int n = p.GetNonZero(0, 1);
-            int max = GetDocument().TerminalWidth - 1;
+            int max = Document.TerminalWidth - 1;
             if (_manipulator.CaretColumn < max) {
                 _manipulator.CaretColumn = Math.Min(_manipulator.CaretColumn + n, max);
             }
@@ -1340,10 +1334,9 @@ namespace Poderosa.Terminal {
         }
 
         private void DoEraseInDisplay(int param, bool selective) {
-            TerminalDocument doc = GetDocument();
-            int cur = doc.CurrentLineNumber;
-            int top = doc.TopLineNumber;
-            int bottom = top + doc.TerminalHeight;
+            int cur = Document.CurrentLineNumber;
+            int top = Document.TopLineNumber;
+            int bottom = top + Document.TerminalHeight;
             int col = _manipulator.CaretColumn;
             switch (param) {
                 case 0: //erase below
@@ -1357,16 +1350,16 @@ namespace Poderosa.Terminal {
                         else {
                             EraseRight();
                         }
-                        doc.UpdateCurrentLine(_manipulator);
-                        doc.EnsureLine(bottom - 1);
-                        doc.RemoveAfter(bottom);
-                        doc.ClearRange(cur + 1, bottom, doc.CurrentDecoration, selective);
-                        _manipulator.Load(doc.CurrentLine, col);
+                        Document.UpdateCurrentLine(_manipulator);
+                        Document.EnsureLine(bottom - 1);
+                        Document.RemoveAfter(bottom);
+                        Document.ClearRange(cur + 1, bottom, Document.CurrentDecoration, selective);
+                        _manipulator.Load(Document.CurrentLine, col);
                     }
                     break;
                 case 1: //erase above
                     {
-                        if (col == doc.TerminalWidth - 1 && cur == bottom - 1)
+                        if (col == Document.TerminalWidth - 1 && cur == bottom - 1)
                             goto ERASE_ALL;
 
                         if (selective) {
@@ -1375,25 +1368,25 @@ namespace Poderosa.Terminal {
                         else {
                             EraseLeft();
                         }
-                        doc.UpdateCurrentLine(_manipulator);
-                        doc.ClearRange(top, cur, doc.CurrentDecoration, selective);
-                        _manipulator.Load(doc.CurrentLine, col);
+                        Document.UpdateCurrentLine(_manipulator);
+                        Document.ClearRange(top, cur, Document.CurrentDecoration, selective);
+                        _manipulator.Load(Document.CurrentLine, col);
                     }
                     break;
                 case 2: //erase all
                 ERASE_ALL: {
-                        doc.ApplicationModeBackColor =
-                            (doc.CurrentDecoration != null) ? doc.CurrentDecoration.GetBackColorSpec() : ColorSpec.Default;
+                        Document.ApplicationModeBackColor =
+                                (Document.CurrentDecoration != null) ? Document.CurrentDecoration.GetBackColorSpec() : ColorSpec.Default;
 
-                        doc.UpdateCurrentLine(_manipulator);
+                        Document.UpdateCurrentLine(_manipulator);
                         //if(_homePositionOnCSIJ2) { //SFUではこうなる
                         //	ProcessCursorPosition(1,1); 
                         //	col = 0;
                         //}
-                        doc.EnsureLine(bottom - 1);
-                        doc.RemoveAfter(bottom);
-                        doc.ClearRange(top, bottom, doc.CurrentDecoration, selective);
-                        _manipulator.Load(doc.CurrentLine, col);
+                        Document.EnsureLine(bottom - 1);
+                        Document.RemoveAfter(bottom);
+                        Document.ClearRange(top, bottom, Document.CurrentDecoration, selective);
+                        _manipulator.Load(Document.CurrentLine, col);
                     }
                     break;
                 case 3: //saved lines
@@ -1421,41 +1414,38 @@ namespace Poderosa.Terminal {
                 return;
             }
 
-            TerminalDocument doc = GetDocument();
-
             int caretColumn = _manipulator.CaretColumn;
-            doc.UpdateCurrentLine(_manipulator);
+            Document.UpdateCurrentLine(_manipulator);
 
-            GLine line = doc.FindLineOrNull(doc.TopLineNumber + rect.Top - 1);
+            GLine line = Document.FindLineOrNull(Document.TopLineNumber + rect.Top - 1);
 
             for (int r = rect.Top; line != null && r <= rect.Bottom; r++, line = line.NextLine) {
                 _manipulator.Load(line, 0);
                 if (selective) {
-                    _manipulator.FillSpaceSkipProtected(rect.Left - 1, rect.Right, doc.CurrentDecoration);
+                    _manipulator.FillSpaceSkipProtected(rect.Left - 1, rect.Right, Document.CurrentDecoration);
                 }
                 else {
-                    _manipulator.FillSpace(rect.Left - 1, rect.Right, doc.CurrentDecoration);
+                    _manipulator.FillSpace(rect.Left - 1, rect.Right, Document.CurrentDecoration);
                 }
                 _manipulator.ExportTo(line);
-                doc.InvalidatedRegion.InvalidateLine(line.ID);
+                Document.InvalidatedRegion.InvalidateLine(line.ID);
             }
 
-            _manipulator.Load(doc.CurrentLine, caretColumn);
+            _manipulator.Load(Document.CurrentLine, caretColumn);
         }
 
         private RectArea ReadRectAreaFromParameters(NumericParams p, int index) {
-            TerminalDocument doc = GetDocument();
             int top = p.GetNonZero(index, 1);
             int left = p.GetNonZero(index + 1, 1);
-            int bottom = p.GetNonZero(index + 2, doc.TerminalHeight);
-            int right = p.GetNonZero(index + 3, doc.TerminalWidth);
+            int bottom = p.GetNonZero(index + 2, Document.TerminalHeight);
+            int right = p.GetNonZero(index + 3, Document.TerminalWidth);
 
-            if (top > doc.TerminalHeight || left > doc.TerminalWidth || bottom < top || right < left) {
+            if (top > Document.TerminalHeight || left > Document.TerminalWidth || bottom < top || right < left) {
                 return null;
             }
 
-            bottom = Math.Min(bottom, doc.TerminalHeight);
-            right = Math.Min(right, doc.TerminalWidth);
+            bottom = Math.Min(bottom, Document.TerminalHeight);
+            right = Math.Min(right, Document.TerminalWidth);
 
             return new RectArea(
                     top: top,
@@ -1509,27 +1499,27 @@ namespace Poderosa.Terminal {
         }
 
         private void EraseRight() {
-            _manipulator.FillSpace(_manipulator.CaretColumn, _manipulator.BufferSize, GetDocument().CurrentDecoration);
+            _manipulator.FillSpace(_manipulator.CaretColumn, _manipulator.BufferSize, Document.CurrentDecoration);
         }
 
         private void SelectiveEraseRight() {
-            _manipulator.FillSpaceSkipProtected(_manipulator.CaretColumn, _manipulator.BufferSize, GetDocument().CurrentDecoration);
+            _manipulator.FillSpaceSkipProtected(_manipulator.CaretColumn, _manipulator.BufferSize, Document.CurrentDecoration);
         }
 
         private void EraseLeft() {
-            _manipulator.FillSpace(0, _manipulator.CaretColumn + 1, GetDocument().CurrentDecoration);
+            _manipulator.FillSpace(0, _manipulator.CaretColumn + 1, Document.CurrentDecoration);
         }
 
         private void SelectiveEraseLeft() {
-            _manipulator.FillSpaceSkipProtected(0, _manipulator.CaretColumn + 1, GetDocument().CurrentDecoration);
+            _manipulator.FillSpaceSkipProtected(0, _manipulator.CaretColumn + 1, Document.CurrentDecoration);
         }
 
         private void EraseLine() {
-            _manipulator.FillSpace(0, _manipulator.BufferSize, GetDocument().CurrentDecoration);
+            _manipulator.FillSpace(0, _manipulator.BufferSize, Document.CurrentDecoration);
         }
 
         private void SelectiveEraseLine() {
-            _manipulator.FillSpaceSkipProtected(0, _manipulator.BufferSize, GetDocument().CurrentDecoration);
+            _manipulator.FillSpaceSkipProtected(0, _manipulator.BufferSize, Document.CurrentDecoration);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '"', 'q')]
@@ -1539,10 +1529,10 @@ namespace Poderosa.Terminal {
             switch (param) {
                 case 0:
                 case 2:
-                    GetDocument().CurrentDecoration = GetDocument().CurrentDecoration.GetCopyWithProtected(false);
+                    Document.CurrentDecoration = Document.CurrentDecoration.GetCopyWithProtected(false);
                     break;
                 case 1:
-                    GetDocument().CurrentDecoration = GetDocument().CurrentDecoration.GetCopyWithProtected(true);
+                    Document.CurrentDecoration = Document.CurrentDecoration.GetCopyWithProtected(true);
                     break;
                 default:
                     break;
@@ -1551,29 +1541,29 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.IND)]
         private void Index() {
-            GetDocument().UpdateCurrentLine(_manipulator);
-            int current = GetDocument().CurrentLineNumber;
-            if (GetDocument().HasScrollingRegionBottom && current == GetDocument().ScrollingBottom)
-                GetDocument().ScrollDown();
+            Document.UpdateCurrentLine(_manipulator);
+            int current = Document.CurrentLineNumber;
+            if (Document.HasScrollingRegionBottom && current == Document.ScrollingBottom)
+                Document.ScrollDown();
             else
-                GetDocument().CurrentLineNumber = current + 1;
-            _manipulator.Load(GetDocument().CurrentLine, _manipulator.CaretColumn);
+                Document.CurrentLineNumber = current + 1;
+            _manipulator.Load(Document.CurrentLine, _manipulator.CaretColumn);
         }
 
         [EscapeSequence(ControlCode.RI)]
         private void ReverseIndex() {
-            GetDocument().UpdateCurrentLine(_manipulator);
-            int current = GetDocument().CurrentLineNumber;
-            if (current == GetDocument().ScrollingTop)
-                GetDocument().ScrollUp();
+            Document.UpdateCurrentLine(_manipulator);
+            int current = Document.CurrentLineNumber;
+            if (current == Document.ScrollingTop)
+                Document.ScrollUp();
             else
-                GetDocument().CurrentLineNumber = current - 1;
-            _manipulator.Load(GetDocument().CurrentLine, _manipulator.CaretColumn);
+                Document.CurrentLineNumber = current - 1;
+            _manipulator.Load(Document.CurrentLine, _manipulator.CaretColumn);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'r')]
         private void ProcessSetScrollingRegion(NumericParams p) {
-            int height = GetDocument().TerminalHeight;
+            int height = Document.TerminalHeight;
             int top = p.Get(0, -1);
             int bottom = p.Get(1, -1);
 
@@ -1600,7 +1590,7 @@ namespace Poderosa.Terminal {
             }
 
             if (((topOffset == -1) ? 0 : topOffset) < ((bottomOffset == -1) ? height - 1 : bottomOffset)) {
-                GetDocument().SetScrollingRegion(topOffset, bottomOffset);
+                Document.SetScrollingRegion(topOffset, bottomOffset);
             }
 
             MoveCursorToHome();
@@ -1619,9 +1609,9 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.NEL)]
         private void ProcessNextLine() {
-            GetDocument().UpdateCurrentLine(_manipulator);
-            GetDocument().CurrentLineNumber = (GetDocument().CurrentLineNumber + 1);
-            _manipulator.Load(GetDocument().CurrentLine, 0);
+            Document.UpdateCurrentLine(_manipulator);
+            Document.CurrentLineNumber++;
+            _manipulator.Load(Document.CurrentLine, 0);
         }
 
         [EscapeSequence(ControlCode.ESC, '=')]
@@ -1639,28 +1629,28 @@ namespace Poderosa.Terminal {
                 return;
 
             if (mode == TerminalMode.Normal) {
-                GetDocument().ClearScrollingRegion();
-                GetConnection().TerminalOutput.Resize(GetDocument().TerminalWidth, GetDocument().TerminalHeight); //たとえばemacs起動中にリサイズし、シェルへ戻るとシェルは新しいサイズを認識していない
+                Document.ClearScrollingRegion();
+                GetConnection().TerminalOutput.Resize(Document.TerminalWidth, Document.TerminalHeight); //たとえばemacs起動中にリサイズし、シェルへ戻るとシェルは新しいサイズを認識していない
                 //RMBoxで確認されたことだが、無用に後方にドキュメントを広げてくる奴がいる。カーソルを123回後方へ、など。
                 //場当たり的だが、ノーマルモードに戻る際に後ろの空行を削除することで対応する。
-                GLine l = GetDocument().LastLine;
-                while (l != null && l.DisplayLength == 0 && l.ID > GetDocument().CurrentLineNumber)
+                GLine l = Document.LastLine;
+                while (l != null && l.DisplayLength == 0 && l.ID > Document.CurrentLineNumber)
                     l = l.PrevLine;
 
                 if (l != null)
                     l = l.NextLine;
                 if (l != null)
-                    GetDocument().RemoveAfter(l.ID);
+                    Document.RemoveAfter(l.ID);
 
-                GetDocument().IsApplicationMode = false;
+                Document.IsApplicationMode = false;
             }
             else {
-                GetDocument().ApplicationModeBackColor = ColorSpec.Default;
-                GetDocument().SetScrollingRegion(0, GetDocument().TerminalHeight - 1);
-                GetDocument().IsApplicationMode = true;
+                Document.ApplicationModeBackColor = ColorSpec.Default;
+                Document.SetScrollingRegion(0, Document.TerminalHeight - 1);
+                Document.IsApplicationMode = true;
             }
 
-            GetDocument().InvalidateAll();
+            Document.InvalidateAll();
 
             _terminalMode = mode;
         }
@@ -1735,36 +1725,34 @@ namespace Poderosa.Terminal {
         private void ProcessInsertLines(NumericParams p) {
             int d = p.GetNonZero(0, 1);
 
-            TerminalDocument doc = GetDocument();
-            if (!doc.IsCurrentLineInScrollingRegion) {
+            if (!Document.IsCurrentLineInScrollingRegion) {
                 return;
             }
 
-            int bottom = doc.ScrollingBottom;
+            int bottom = Document.ScrollingBottom;
 
-            doc.UpdateCurrentLine(_manipulator);
-            int currentLineNumber = doc.CurrentLineNumber;
-            doc.ScrollUp(currentLineNumber, bottom, d);
-            doc.CurrentLineNumber = currentLineNumber;
-            _manipulator.Load(doc.CurrentLine, 0);
+            Document.UpdateCurrentLine(_manipulator);
+            int currentLineNumber = Document.CurrentLineNumber;
+            Document.ScrollUp(currentLineNumber, bottom, d);
+            Document.CurrentLineNumber = currentLineNumber;
+            _manipulator.Load(Document.CurrentLine, 0);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'M')]
         private void ProcessDeleteLines(NumericParams p) {
             int d = p.GetNonZero(0, 1);
 
-            TerminalDocument doc = GetDocument();
-            if (!doc.IsCurrentLineInScrollingRegion) {
+            if (!Document.IsCurrentLineInScrollingRegion) {
                 return;
             }
 
-            int bottom = doc.ScrollingBottom;
+            int bottom = Document.ScrollingBottom;
 
-            doc.UpdateCurrentLine(_manipulator);
-            int currentLineNumber = doc.CurrentLineNumber;
-            doc.ScrollDown(currentLineNumber, bottom, d);
-            doc.CurrentLineNumber = currentLineNumber;
-            _manipulator.Load(doc.CurrentLine, 0);
+            Document.UpdateCurrentLine(_manipulator);
+            int currentLineNumber = Document.CurrentLineNumber;
+            Document.ScrollDown(currentLineNumber, bottom, d);
+            Document.CurrentLineNumber = currentLineNumber;
+            _manipulator.Load(Document.CurrentLine, 0);
         }
 
 #if NOTUSED
@@ -1947,7 +1935,6 @@ namespace Poderosa.Terminal {
 
         private void OSCChangeWindowTitle(OSCParams p) {
             IDynamicCaptionFormatter[] fmts = TerminalEmulatorPlugin.Instance.DynamicCaptionFormatter;
-            TerminalDocument doc = GetDocument();
 
             if (fmts.Length > 0) {
                 ITerminalSettings settings = GetTerminalSettings();
@@ -2082,7 +2069,7 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'm')]
         private void ProcessSGR(NumericParams p) {
             int state = 0, target = 0, r = 0, g = 0, b = 0;
-            TextDecoration dec = GetDocument().CurrentDecoration;
+            TextDecoration dec = Document.CurrentDecoration;
             foreach (int code in p.EnumerateWithDefault(0)) {
                 if (state != 0) {
                     switch (state) {
@@ -2192,7 +2179,7 @@ namespace Poderosa.Terminal {
                 }
             }
         Apply:
-            GetDocument().CurrentDecoration = dec;
+            Document.CurrentDecoration = dec;
         }
 
         private TextDecoration SetForeColorByRGB(TextDecoration dec, int r, int g, int b) {
@@ -2571,26 +2558,24 @@ namespace Poderosa.Terminal {
                 return;
             }
 
-            TerminalDocument doc = GetDocument();
-
-            int saveLineNumber = doc.CurrentLineNumber;
+            int saveLineNumber = Document.CurrentLineNumber;
             int saveCaretColumn = _manipulator.CaretColumn;
-            doc.UpdateCurrentLine(_manipulator);
+            Document.UpdateCurrentLine(_manipulator);
 
-            int rectTopLineNumber = doc.TopLineNumber + rect.Top - 1;
-            int rectBottomLineNumber = doc.TopLineNumber + rect.Bottom - 1;
+            int rectTopLineNumber = Document.TopLineNumber + rect.Top - 1;
+            int rectBottomLineNumber = Document.TopLineNumber + rect.Bottom - 1;
 
-            doc.EnsureLine(rectBottomLineNumber);
-            GLine l = doc.FindLineOrEdge(rectTopLineNumber);
+            Document.EnsureLine(rectBottomLineNumber);
+            GLine l = Document.FindLineOrEdge(rectTopLineNumber);
             while (l != null && l.ID <= rectBottomLineNumber) {
                 _manipulator.Load(l, 0);
                 _manipulator.ModifyAttributes(rect.Left - 1, rect.Right, mod);
                 _manipulator.ExportTo(l);
-                doc.InvalidatedRegion.InvalidateLine(l.ID);
+                Document.InvalidatedRegion.InvalidateLine(l.ID);
                 l = l.NextLine;
             }
-            doc.CurrentLineNumber = saveLineNumber;
-            _manipulator.Load(doc.CurrentLine, saveCaretColumn);
+            Document.CurrentLineNumber = saveLineNumber;
+            _manipulator.Load(Document.CurrentLine, saveCaretColumn);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 't')]
@@ -2630,26 +2615,24 @@ namespace Poderosa.Terminal {
                 return;
             }
 
-            TerminalDocument doc = GetDocument();
-
-            int saveLineNumber = doc.CurrentLineNumber;
+            int saveLineNumber = Document.CurrentLineNumber;
             int saveCaretColumn = _manipulator.CaretColumn;
-            doc.UpdateCurrentLine(_manipulator);
+            Document.UpdateCurrentLine(_manipulator);
 
-            int rectTopLineNumber = doc.TopLineNumber + rect.Top - 1;
-            int rectBottomLineNumber = doc.TopLineNumber + rect.Bottom - 1;
+            int rectTopLineNumber = Document.TopLineNumber + rect.Top - 1;
+            int rectBottomLineNumber = Document.TopLineNumber + rect.Bottom - 1;
 
-            doc.EnsureLine(rectBottomLineNumber);
-            GLine l = doc.FindLineOrEdge(rectTopLineNumber);
+            Document.EnsureLine(rectBottomLineNumber);
+            GLine l = Document.FindLineOrEdge(rectTopLineNumber);
             while (l != null && l.ID <= rectBottomLineNumber) {
                 _manipulator.Load(l, 0);
                 _manipulator.ReverseAttributes(rect.Left - 1, rect.Right, mod);
                 _manipulator.ExportTo(l);
-                doc.InvalidatedRegion.InvalidateLine(l.ID);
+                Document.InvalidatedRegion.InvalidateLine(l.ID);
                 l = l.NextLine;
             }
-            doc.CurrentLineNumber = saveLineNumber;
-            _manipulator.Load(doc.CurrentLine, saveCaretColumn);
+            Document.CurrentLineNumber = saveLineNumber;
+            _manipulator.Load(Document.CurrentLine, saveCaretColumn);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'v')]
@@ -2664,21 +2647,20 @@ namespace Poderosa.Terminal {
             int destLeft = p.GetNonZero(6, 1);
             // int destPage = p.GetNonZero(7, 1); // ignored
 
-            TerminalDocument doc = GetDocument();
-            if (destTop > doc.TerminalHeight || destLeft > doc.TerminalWidth || (destTop == srcRect.Top && destLeft == srcRect.Left)) {
+            if (destTop > Document.TerminalHeight || destLeft > Document.TerminalWidth || (destTop == srcRect.Top && destLeft == srcRect.Left)) {
                 return;
             }
 
-            int saveLineNumber = doc.CurrentLineNumber;
+            int saveLineNumber = Document.CurrentLineNumber;
             int saveCaretColumn = _manipulator.CaretColumn;
-            doc.UpdateCurrentLine(_manipulator);
+            Document.UpdateCurrentLine(_manipulator);
 
-            doc.EnsureLine(doc.TopLineNumber + srcRect.Bottom - 1);
+            Document.EnsureLine(Document.TopLineNumber + srcRect.Bottom - 1);
 
             GLine[] copy = new GLine[srcRect.Bottom - srcRect.Top + 1];
             {
-                int rectTopLineNumber = doc.TopLineNumber + srcRect.Top - 1;
-                GLine l = doc.FindLineOrEdge(rectTopLineNumber);
+                int rectTopLineNumber = Document.TopLineNumber + srcRect.Top - 1;
+                GLine l = Document.FindLineOrEdge(rectTopLineNumber);
                 while (l != null) {
                     int offset = l.ID - rectTopLineNumber;
                     if (offset >= 0 && offset < copy.Length) {
@@ -2688,12 +2670,12 @@ namespace Poderosa.Terminal {
                 }
             }
 
-            int destTopLineNumber = doc.TopLineNumber + destTop - 1;
-            int destBottomLimit = doc.TopLineNumber + Math.Min(destTop + srcRect.Bottom - srcRect.Top, doc.TerminalHeight) - 1;
+            int destTopLineNumber = Document.TopLineNumber + destTop - 1;
+            int destBottomLimit = Document.TopLineNumber + Math.Min(destTop + srcRect.Bottom - srcRect.Top, Document.TerminalHeight) - 1;
 
-            doc.EnsureLine(destBottomLimit);
+            Document.EnsureLine(destBottomLimit);
 
-            GLine destLine = doc.FindLineOrEdge(destTopLineNumber);
+            GLine destLine = Document.FindLineOrEdge(destTopLineNumber);
             GLineManipulator srcManipurator = new GLineManipulator();
             while (destLine != null && destLine.ID <= destBottomLimit) {
                 int offset = destLine.ID - destTopLineNumber;
@@ -2701,17 +2683,17 @@ namespace Poderosa.Terminal {
                     if (copy[offset] != null) {
                         srcManipurator.Load(copy[offset], 0);
                         _manipulator.Load(destLine, 0);
-                        _manipulator.ExpandBuffer(doc.TerminalWidth);
+                        _manipulator.ExpandBuffer(Document.TerminalWidth);
                         _manipulator.CopyFrom(srcManipurator, srcRect.Left - 1, srcRect.Right, destLeft - 1);
                         _manipulator.ExportTo(destLine);
-                        doc.InvalidatedRegion.InvalidateLine(destLine.ID);
+                        Document.InvalidatedRegion.InvalidateLine(destLine.ID);
                     }
                 }
                 destLine = destLine.NextLine;
             }
 
-            doc.CurrentLineNumber = saveLineNumber;
-            _manipulator.Load(doc.CurrentLine, saveCaretColumn);
+            Document.CurrentLineNumber = saveLineNumber;
+            _manipulator.Load(Document.CurrentLine, saveCaretColumn);
         }
 
         [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'S')]
@@ -2748,12 +2730,12 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'd')]
         private void ProcessLinePositionAbsolute(NumericParams p) {
             int row = p.GetNonZero(0, 1);
-            row = Math.Min(row, GetDocument().TerminalHeight);
+            row = Math.Min(row, Document.TerminalHeight);
             int col = _manipulator.CaretColumn;
 
-            GetDocument().UpdateCurrentLine(_manipulator);
-            GetDocument().CurrentLineNumber = GetDocument().TopLineNumber + row - 1;
-            _manipulator.Load(GetDocument().CurrentLine, col);
+            Document.UpdateCurrentLine(_manipulator);
+            Document.CurrentLineNumber = Document.TopLineNumber + row - 1;
+            _manipulator.Load(Document.CurrentLine, col);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'e')]
@@ -2761,16 +2743,16 @@ namespace Poderosa.Terminal {
             int n = p.GetNonZero(0, 1);
             int col = _manipulator.CaretColumn;
 
-            GetDocument().UpdateCurrentLine(_manipulator);
-            GetDocument().CurrentLineNumber = Math.Min(GetDocument().CurrentLineNumber + n, GetDocument().TopLineNumber + GetDocument().TerminalHeight - 1);
-            _manipulator.Load(GetDocument().CurrentLine, col);
+            Document.UpdateCurrentLine(_manipulator);
+            Document.CurrentLineNumber = Math.Min(Document.CurrentLineNumber + n, Document.TopLineNumber + Document.TerminalHeight - 1);
+            _manipulator.Load(Document.CurrentLine, col);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'G')]
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '`')]
         private void ProcessLineColumnAbsolute(NumericParams p) {
             int n = p.GetNonZero(0, 1);
-            n = Math.Min(n, GetDocument().TerminalWidth);
+            n = Math.Min(n, Document.TerminalWidth);
             _manipulator.CaretColumn = n - 1;
         }
 
@@ -2779,7 +2761,7 @@ namespace Poderosa.Terminal {
             int n = p.GetNonZero(0, 1);
             int s = _manipulator.CaretColumn;
             for (int i = 0; i < n; i++) {
-                _manipulator.PutChar(UnicodeChar.ASCII_SPACE, GetDocument().CurrentDecoration);
+                _manipulator.PutChar(UnicodeChar.ASCII_SPACE, Document.CurrentDecoration);
                 if (_manipulator.CaretColumn >= _manipulator.BufferSize)
                     break;
             }
@@ -2789,13 +2771,13 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'P')]
         private void ProcessDeleteChars(NumericParams p) {
             int n = p.GetNonZero(0, 1);
-            _manipulator.DeleteChars(_manipulator.CaretColumn, n, GetDocument().CurrentDecoration);
+            _manipulator.DeleteChars(_manipulator.CaretColumn, n, Document.CurrentDecoration);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '@')]
         private void ProcessInsertBlankCharacters(NumericParams p) {
             int n = p.GetNonZero(0, 1);
-            _manipulator.InsertBlanks(_manipulator.CaretColumn, n, GetDocument().TerminalWidth, GetDocument().CurrentDecoration);
+            _manipulator.InsertBlanks(_manipulator.CaretColumn, n, Document.TerminalWidth, Document.CurrentDecoration);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', '@')]
@@ -2814,22 +2796,20 @@ namespace Poderosa.Terminal {
         private void ProcessScrollUp(NumericParams p) {
             int d = p.GetNonZero(0, 1);
 
-            TerminalDocument doc = GetDocument();
-
             int caretColumn = _manipulator.CaretColumn;
-            int currentLilneNumber = doc.CurrentLineNumber;
-            doc.UpdateCurrentLine(_manipulator);
+            int currentLilneNumber = Document.CurrentLineNumber;
+            Document.UpdateCurrentLine(_manipulator);
 
-            if (!doc.HasScrollingRegionTop && !doc.HasScrollingRegionBottom) {
-                doc.CurrentLineNumber += d;
-                doc.SetTopLineNumber(doc.TopLineNumber + d);
+            if (!Document.HasScrollingRegionTop && !Document.HasScrollingRegionBottom) {
+                Document.CurrentLineNumber += d;
+                Document.SetTopLineNumber(Document.TopLineNumber + d);
             }
             else {
-                doc.ScrollDown(doc.ScrollingTop, doc.ScrollingBottom, d); // TerminalDocument's "Scroll-Down" means XTerm's "Scroll-Up"
-                doc.CurrentLineNumber = currentLilneNumber;
+                Document.ScrollDown(Document.ScrollingTop, Document.ScrollingBottom, d); // TerminalDocument's "Scroll-Down" means XTerm's "Scroll-Up"
+                Document.CurrentLineNumber = currentLilneNumber;
             }
 
-            _manipulator.Load(doc.CurrentLine, caretColumn);
+            _manipulator.Load(Document.CurrentLine, caretColumn);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'T')]
@@ -2842,13 +2822,12 @@ namespace Poderosa.Terminal {
 
             int d = p.GetNonZero(0, 1);
 
-            TerminalDocument doc = GetDocument();
             int caret_col = _manipulator.CaretColumn;
-            int currentLilneNumber = doc.CurrentLineNumber;
-            doc.UpdateCurrentLine(_manipulator);
-            doc.ScrollUp(doc.ScrollingTop, doc.ScrollingBottom, d); // TerminalDocument's "Scroll-Down" means XTerm's "Scroll-Up"
-            doc.CurrentLineNumber = currentLilneNumber;
-            _manipulator.Load(doc.CurrentLine, caret_col);
+            int currentLilneNumber = Document.CurrentLineNumber;
+            Document.UpdateCurrentLine(_manipulator);
+            Document.ScrollUp(Document.ScrollingTop, Document.ScrollingBottom, d); // TerminalDocument's "Scroll-Down" means XTerm's "Scroll-Up"
+            Document.CurrentLineNumber = currentLilneNumber;
+            _manipulator.Load(Document.CurrentLine, caret_col);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'I')]
@@ -2858,8 +2837,8 @@ namespace Poderosa.Terminal {
             int t = _manipulator.CaretColumn;
             for (int i = 0; i < n; i++)
                 t = GetNextTabStop(t);
-            if (t >= GetDocument().TerminalWidth)
-                t = GetDocument().TerminalWidth - 1;
+            if (t >= Document.TerminalWidth)
+                t = Document.TerminalWidth - 1;
             _manipulator.CaretColumn = t;
         }
 
@@ -2916,15 +2895,15 @@ namespace Poderosa.Terminal {
         }
 
         private int GetNextTabStop(int start) {
-            EnsureTabStops(Math.Max(start + 1, GetDocument().TerminalWidth));
+            EnsureTabStops(Math.Max(start + 1, Document.TerminalWidth));
 
             int index = start + 1;
-            while (index < GetDocument().TerminalWidth) {
+            while (index < Document.TerminalWidth) {
                 if (_tabStops[index])
                     return index;
                 index++;
             }
-            return GetDocument().TerminalWidth - 1;
+            return Document.TerminalWidth - 1;
         }
 
         //これはvt100にはないのでoverrideしない
@@ -2950,8 +2929,8 @@ namespace Poderosa.Terminal {
 
         private void SaveScreen(int sw) {
             List<GLine> lines = new List<GLine>();
-            GLine l = GetDocument().TopLine;
-            int m = l.ID + GetDocument().TerminalHeight;
+            GLine l = Document.TopLine;
+            int m = l.ID + Document.TerminalHeight;
             while (l != null && l.ID < m) {
                 lines.Add(l.Clone());
                 l = l.NextLine;
@@ -2964,16 +2943,15 @@ namespace Poderosa.Terminal {
                 ClearScreen();	// emulate new buffer
                 return;
             }
-            TerminalDocument doc = GetDocument();
-            int w = doc.TerminalWidth;
-            int m = doc.TerminalHeight;
-            GLine t = doc.TopLine;
+            int w = Document.TerminalWidth;
+            int m = Document.TerminalHeight;
+            GLine t = Document.TopLine;
             foreach (GLine l in _savedScreen[sw]) {
                 l.ExpandBuffer(w);
                 if (t == null)
-                    doc.AddLine(l);
+                    Document.AddLine(l);
                 else {
-                    doc.Replace(t, l);
+                    Document.Replace(t, l);
                     t = l.NextLine;
                 }
                 if (--m == 0)
@@ -2996,12 +2974,12 @@ namespace Poderosa.Terminal {
         }
 
         private SavedCursor CreateSavedCursor() {
-            int row = GetDocument().CurrentLineNumber - GetDocument().TopLineNumber;
+            int row = Document.CurrentLineNumber - Document.TopLineNumber;
             int col = _manipulator.CaretColumn;
             return new SavedCursor(
                     row: row,
                     col: col,
-                    decoration: GetDocument().CurrentDecoration,
+                    decoration: Document.CurrentDecoration,
                     wrapAroundMode: _wrapAroundMode,
                     scrollRegionRelative: _scrollRegionRelative
                 );
@@ -3028,11 +3006,11 @@ namespace Poderosa.Terminal {
                 );
             }
 
-            GetDocument().UpdateCurrentLine(_manipulator);
-            GetDocument().CurrentLineNumber = GetDocument().TopLineNumber + saved.Row;
-            _manipulator.Load(GetDocument().CurrentLine, saved.Col);
+            Document.UpdateCurrentLine(_manipulator);
+            Document.CurrentLineNumber = Document.TopLineNumber + saved.Row;
+            _manipulator.Load(Document.CurrentLine, saved.Col);
 
-            GetDocument().CurrentDecoration = saved.Decoration;
+            Document.CurrentDecoration = saved.Decoration;
 
             _wrapAroundMode = saved.WrapAroundMode;
 
@@ -3066,7 +3044,7 @@ namespace Poderosa.Terminal {
                 return;
 
             _reverseVideo = reverse;
-            GetDocument().InvalidateAll();
+            Document.InvalidateAll();
         }
 
         [EscapeSequence(ControlCode.CSI, '!', 'p')]

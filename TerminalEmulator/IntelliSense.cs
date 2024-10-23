@@ -147,7 +147,7 @@ namespace Poderosa.Terminal {
             return false;
         }
         private void TryParseMultiLineCommand() {
-            GLine current = _terminal.GetDocument().CurrentLine;
+            GLine current = _terminal.Document.CurrentLine;
             GLine command_start_candidate = current;
             IShellScheme scheme = GetTerminalSettings().ShellScheme;
 
@@ -391,7 +391,7 @@ namespace Poderosa.Terminal {
         public void Init(AbstractTerminal terminal, IShellScheme scheme, string[] current_input, IntelliSenseMode mode, char append_char) {
             _ownerControl = terminal.TerminalHost.TerminalControl;
             Debug.Assert(_ownerControl != null);
-            TerminalDocument doc = terminal.GetDocument();
+            TerminalDocument doc = terminal.Document;
             _commandStartPoint = new Point(doc.CaretColumn + (append_char == '\0' ? 0 : 1), Math.Min(doc.CurrentLineNumber - doc.ViewTopLineNumber, doc.TerminalHeight));
             Debug.WriteLineIf(DebugOpt.IntelliSense, String.Format("IS CtxInit M={0} CaretC={1}", mode.ToString(), doc.CaretColumn));
             _scheme = scheme;

@@ -79,7 +79,7 @@ namespace Poderosa.Terminal {
 
         internal TerminalDocument GetDocument() {
             // FIXME: In rare case, _session may be null...
-            return _session.Terminal.GetDocument();
+            return _session.Terminal.Document;
         }
         protected ITerminalSettings GetTerminalSettings() {
             // FIXME: In rare case, _session may be null...
@@ -131,7 +131,7 @@ namespace Poderosa.Terminal {
         }
         public void Attach(ITerminalControlHost session) {
             _session = session;
-            SetContent(session.Terminal.GetDocument());
+            SetContent(session.Terminal.Document);
 
             _mouseTrackingHandler.Attach(session);
             _mouseWheelHandler.Attach(session);

@@ -121,7 +121,6 @@ namespace Poderosa.Terminal {
                 Debug.Assert(tc != null);
                 RenderProfile rp = (RenderProfile)tc.GetRenderProfile().Clone();
                 CommandResultSession session = new CommandResultSession(document, rp); //現在のRenderProfileを使ってセッションを作る
-                TerminalDocument terminaldoc = terminal.GetDocument();
                 PopupViewCreationParam cp = new PopupViewCreationParam(_viewFactory);
                 //結果のサイズに合わせる。ただし高さは20行を上限とする
                 cp.InitialSize = new Size(tc.ClientSize.Width, (int)(RuntimeUtil.AdjustIntRange(document.Size, 0, 20) * rp.Pitch.Height) + 2);

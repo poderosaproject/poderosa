@@ -153,7 +153,7 @@ namespace Poderosa.Terminal {
             else {
                 Point pt = _context.CommandStartPoint;
                 pt.X += h.Length + 1;
-                if (pt.X < _context.Owner.Terminal.GetDocument().TerminalWidth) { //移動後も位置OKなら
+                if (pt.X < _context.Owner.Terminal.Document.TerminalWidth) { //移動後も位置OKなら
                     _context.CommandStartPoint = pt;
                     PopupAgain();
                 }
@@ -221,7 +221,7 @@ namespace Poderosa.Terminal {
             StringBuilder bld = new StringBuilder();
             //一致しているところまで検索し、必要に応じてバックスペースを入れる
             int corresponding_len = 0;
-            int caret_column = _context.Owner.Terminal.GetDocument().CaretColumn;
+            int caret_column = _context.Owner.Terminal.Document.CaretColumn;
             string current_text = _context.Owner.PromptLine.ToNormalString();
             while (caret_column > current_text.Length) {
                 current_text += " ";

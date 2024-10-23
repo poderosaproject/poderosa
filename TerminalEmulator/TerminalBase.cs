@@ -148,20 +148,27 @@ namespace Poderosa.Terminal {
                 return _document;
             }
         }
-        public TerminalDocument GetDocument() {
-            return _document;
+
+        public TerminalDocument Document {
+            get {
+                return _document;
+            }
         }
+
         protected ITerminalSettings GetTerminalSettings() {
             return _session.TerminalSettings;
         }
+
         protected ITerminalConnection GetConnection() {
             return _session.TerminalConnection;
         }
+
         private TerminalControl GetTerminalControl() {
             // Note that _session.TerminalControl may be null if another terminal
             // is selected by tab.
             return _session.TerminalControl;
         }
+
         protected RenderProfile GetRenderProfile() {
             ITerminalSettings settings = _session.TerminalSettings;
             if (settings.UsingDefaultRenderProfile)
@@ -338,7 +345,8 @@ namespace Poderosa.Terminal {
                 return;
             Debug.Assert(window.AsForm().InvokeRequired);
 
-            Monitor.Exit(GetDocument()); //これは忘れるな
+            TerminalDocument doc = Document;
+            Monitor.Exit(doc);
             switch (GEnv.Options.CharDecodeErrorBehavior) {
                 case WarningOption.StatusBar:
                     window.StatusBar.SetMainText(msg);
@@ -347,7 +355,7 @@ namespace Poderosa.Terminal {
                     window.AsForm().Invoke(new CharDecodeErrorDialogDelegate(CharDecodeErrorDialog), window, msg);
                     break;
             }
-            Monitor.Enter(GetDocument());
+            Monitor.Enter(doc);
         }
         private delegate void CharDecodeErrorDialogDelegate(IPoderosaMainWindow window, string msg);
         private void CharDecodeErrorDialog(IPoderosaMainWindow window, string msg) {
@@ -611,7 +619,7 @@ namespace Poderosa.Terminal {
                 // If this thread is not a GUI thread, SetStatusIcon() calls Form.Invoke() and waits for completion of the task in the GUI thread.
                 // However, if a document lock has already been acquired by this thread, a deadlock will occur, because the GUI thread will also
                 // wait for the acquisition of the document lock to redraw the screen.
-                var document = GetDocument();
+                var document = Document;
                 bool isLocked = Monitor.IsEntered(document);
                 if (isLocked) {
                     Monitor.Exit(document);

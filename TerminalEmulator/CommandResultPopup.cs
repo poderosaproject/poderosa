@@ -198,8 +198,7 @@ namespace Poderosa.Terminal {
         //ポップアップ対象の行を集めて構築。ここは受信スレッドでの実行であることに注意
         private void ProcessCommandResult(int end_line_id) {
             List<GLine> result = new List<GLine>();
-            TerminalDocument doc = _terminal.GetDocument();
-            GLine line = doc.FindLineOrNull(_commandStartLineID);
+            GLine line = _terminal.Document.FindLineOrNull(_commandStartLineID);
             while (line != null && line.ID <= end_line_id) {
                 //Debug.WriteLine("P]"+new string(line.Text, 0, line.DisplayLength));
                 result.Add(line);
@@ -278,7 +277,7 @@ namespace Poderosa.Terminal {
         private void ShowMenu() {
             TerminalControl tc = _terminal.TerminalHost.TerminalControl;
             Debug.Assert(tc != null);
-            TerminalDocument doc = _terminal.GetDocument();
+            TerminalDocument doc = _terminal.Document;
             RenderProfile renderProfile = tc.GetRenderProfile();
             SizeF pitch = renderProfile.Pitch;
             int lineSpacing = renderProfile.LineSpacing;
