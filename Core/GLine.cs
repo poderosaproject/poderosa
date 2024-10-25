@@ -1801,7 +1801,7 @@ namespace Poderosa.Document {
             }
 
             while (dstIndex >= start) {
-                _cell[dstIndex].Set(GChar.ASCII_SPACE, fillAttr);
+                _cell[dstIndex].Set(GChar.ASCII_NUL, fillAttr);
                 _color24[dstIndex] = fillColor;
                 dstIndex--;
             }
