@@ -101,6 +101,7 @@ namespace Poderosa.Terminal {
 
         private IModalCharacterTask _currentCharacterTask = null;
 
+        private UnicodeChar? _prevNormalChar = null;
         private bool _wrapAroundMode = true;
         private bool _reverseVideo = false;
         private bool[] _tabStops;
@@ -168,6 +169,7 @@ namespace Poderosa.Terminal {
             DoEraseInDisplay(2 /* all */, false);
             InitTabStops();
             _savedDecModes.Clear();
+            _prevNormalChar = null;
             _wrapAroundMode = true;
             _reverseVideo = false;
             _bracketedPasteMode = false;
@@ -181,6 +183,7 @@ namespace Poderosa.Terminal {
         }
 
         protected override void SoftResetInternal() { // called from the base class
+            _prevNormalChar = null;
             _wrapAroundMode = true;
             _insertMode = false;
             _scrollRegionRelative = false;
@@ -210,6 +213,7 @@ namespace Poderosa.Terminal {
 
         public override void ProcessChar(char ch) {
             if (ch == ControlCode.NUL) {
+                _prevNormalChar = null;
                 return;
             }
 
@@ -222,6 +226,10 @@ namespace Poderosa.Terminal {
                 }
 
                 ProcessNormalChar(ch);
+            }
+            else if (!_escapeSequenceEngine.IsEscapeSequenceReading) {
+                // escape sequence has been processed
+                _prevNormalChar = null;
             }
         }
 
@@ -531,13 +539,17 @@ namespace Poderosa.Terminal {
         private void ProcessNormalChar(char ch) {
             UnicodeChar unicodeChar;
             if (!base.UnicodeCharConverter.Feed(ch, out unicodeChar)) {
+                _prevNormalChar = null;
                 return;
             }
             if (unicodeChar.IsZeroWidth) {
+                _prevNormalChar = null;
                 return; // drop
             }
 
             ProcessNormalUnicodeChar(unicodeChar);
+
+            _prevNormalChar = (unicodeChar.CodePoint >= 0x20) ? unicodeChar : (UnicodeChar?)null;
         }
 
         private void ProcessNormalUnicodeChar(UnicodeChar unicodeChar) {
@@ -1622,13 +1634,12 @@ namespace Poderosa.Terminal {
             MoveCursorToHome();
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'b')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'b')] // REP
         private void ProcessRepeatPrecedingChar(NumericParams p) {
             int n = p.GetNonZero(0, 1);
-            UnicodeChar? ch = _manipulator.GetChar(Document.CaretColumn - 1);
-            if (ch.HasValue) {
+            if (_prevNormalChar.HasValue) {
                 for (int i = 0; i < n; i++) {
-                    ProcessNormalUnicodeChar(ch.Value);
+                    ProcessNormalUnicodeChar(_prevNormalChar.Value);
                 }
             }
         }
