@@ -1086,14 +1086,16 @@ namespace Poderosa.Terminal.EscapeSequence {
                 return true; // handled
             }
 
+            _currentThreadContext.Value = _context;
             try {
-                _currentThreadContext.Value = _context;
                 final.Action(instance, _context);
-                _currentThreadContext.Value = null;
             }
             catch (Exception e) {
                 var ie = e as TargetInvocationException;
                 _exceptionHandler((ie != null) ? ie.InnerException : e, _context.GetBufferedText());
+            }
+            finally {
+                _currentThreadContext.Value = null;
             }
 
             Reset();

@@ -137,7 +137,10 @@ namespace Poderosa.Terminal {
 
         public XTerm(TerminalInitializeInfo info)
             : base(info) {
-            _escapeSequenceEngine = new EscapeSequenceEngine<XTerm>(HandleException, HandleIncompleteEscapeSequence);
+            _escapeSequenceEngine = new EscapeSequenceEngine<XTerm>(
+                exceptionHandler: HandleException,
+                incompleteHandler: HandleIncompleteEscapeSequence
+            );
             _tabStops = new bool[Document.TerminalWidth];
             InitTabStops();
         }
