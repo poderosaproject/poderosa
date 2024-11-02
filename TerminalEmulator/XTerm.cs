@@ -1406,35 +1406,41 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'A')] // CUU
         private void ProcessCursorUp(NumericParams p) {
             int count = p.GetNonZero(0, 1);
-            GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
-            if (lineUpdated != null) {
-                this.LogService.TextLogger.WriteLine(lineUpdated);
+            Document.UpdateCurrentLine(_manipulator);
+            int scrollingTop = Document.ScrollingTopLineNumber;
+            if (Document.CurrentLineNumber >= scrollingTop) {
+                Document.CurrentLineNumber = Math.Max(Document.CurrentLineNumber - count, scrollingTop);
             }
-            Document.CurrentLineNumber = Math.Max(Math.Max(Document.CurrentLineNumber - count, Document.TopLineNumber), Document.ScrollingTop);
+            else {
+                Document.CurrentLineNumber = Math.Max(Document.CurrentLineNumber - count, Document.TopLineNumber);
+            }
             _manipulator.Load(Document.CurrentLine);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'B')] // CUD
         private void ProcessCursorDown(NumericParams p) {
             int count = p.GetNonZero(0, 1);
-            GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
-            if (lineUpdated != null) {
-                this.LogService.TextLogger.WriteLine(lineUpdated);
+            Document.UpdateCurrentLine(_manipulator);
+            int scrollingBottom = Document.ScrollingBottomLineNumber;
+            if (Document.CurrentLineNumber <= scrollingBottom) {
+                Document.CurrentLineNumber = Math.Min(Document.CurrentLineNumber + count, scrollingBottom);
             }
-            Document.CurrentLineNumber += count;
+            else {
+                Document.CurrentLineNumber = Math.Min(Document.CurrentLineNumber + count, Document.TopLineNumber + Document.TerminalHeight - 1);
+            }
             _manipulator.Load(Document.CurrentLine);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'C')] // CUF
         private void ProcessCursorForward(NumericParams p) {
             int count = p.GetNonZero(0, 1);
-            Document.CaretColumn = Math.Min(Document.CaretColumn + count, Document.TerminalWidth - 1);
+            Document.CaretColumn = Math.Min(Document.CaretColumn + count, GetCaretColumnRightLimit());
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'D')] // CUB
         private void ProcessCursorBackward(NumericParams p) {
             int count = p.GetNonZero(0, 1);
-            Document.CaretColumn = Math.Max(Document.CaretColumn - count, 0);
+            Document.CaretColumn = Math.Max(Document.CaretColumn - count, GetCaretColumnLeftLimit());
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'E')] // CNL
