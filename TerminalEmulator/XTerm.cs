@@ -3288,17 +3288,19 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'd')] // VPA
         private void ProcessLinePositionAbsolute(NumericParams p) {
             int row = p.GetNonZero(0, 1);
-            row = Math.Min(row, Document.TerminalHeight);
-
             Document.UpdateCurrentLine(_manipulator);
-            Document.CurrentLineNumber = Document.TopLineNumber + row - 1;
+            if (_originRelative) {
+                Document.CurrentLineNumber = Math.Min(Document.ScrollingTopLineNumber + row - 1, Document.ScrollingBottomLineNumber);
+            }
+            else {
+                Document.CurrentLineNumber = Document.TopLineNumber + Math.Min(row, Document.TerminalHeight) - 1;
+            }
             _manipulator.Load(Document.CurrentLine);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'e')] // VPR
         private void ProcessLinePositionRelative(NumericParams p) {
             int n = p.GetNonZero(0, 1);
-
             Document.UpdateCurrentLine(_manipulator);
             Document.CurrentLineNumber = Math.Min(Document.CurrentLineNumber + n, Document.TopLineNumber + Document.TerminalHeight - 1);
             _manipulator.Load(Document.CurrentLine);
