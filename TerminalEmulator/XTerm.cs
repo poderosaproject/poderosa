@@ -3051,10 +3051,9 @@ namespace Poderosa.Terminal {
             int n = p.GetNonZero(0, 1);
 
             int t = Document.CaretColumn;
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i < n; i++) {
                 t = GetNextTabStop(t);
-            if (t >= Document.TerminalWidth)
-                t = Document.TerminalWidth - 1;
+            }
             Document.CaretColumn = t;
         }
 
@@ -3063,10 +3062,9 @@ namespace Poderosa.Terminal {
             int n = p.GetNonZero(0, 1);
 
             int t = Document.CaretColumn;
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i < n; i++) {
                 t = GetPrevTabStop(t);
-            if (t < 0)
-                t = 0;
+            }
             Document.CaretColumn = t;
         }
 
@@ -3115,12 +3113,12 @@ namespace Poderosa.Terminal {
             EnsureTabStops(Math.Max(start + 1, Document.TerminalWidth));
 
             int index = start + 1;
-            while (index < Document.TerminalWidth) {
+            while (index < Document.RightMarginOffset) {
                 if (_tabStops[index])
                     return index;
                 index++;
             }
-            return Document.TerminalWidth - 1;
+            return Document.RightMarginOffset;
         }
 
         //これはvt100にはないのでoverrideしない
