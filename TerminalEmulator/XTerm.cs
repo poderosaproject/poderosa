@@ -1145,12 +1145,12 @@ namespace Poderosa.Terminal {
                     break;
                 case 6: // Cursor Position Report
                     {
-                        var pos = GetCursorPosition();
+                        var rc = GetCursorPosition();
                         response =
                             RESPONSE_CSI
-                            + pos.Y.ToInvariantString()
+                            + rc.Row.ToInvariantString()
                             + ";"
-                            + pos.X.ToInvariantString()
+                            + rc.Col.ToInvariantString()
                             + "R";
                         break;
                     }
@@ -1162,8 +1162,19 @@ namespace Poderosa.Terminal {
             TransmitDirect(data);
         }
 
-        private Point GetCursorPosition() {
-            return new Point(Document.CaretColumn + 1, Document.CurrentLineNumber - Document.TopLineNumber + 1);
+        private RowCol GetCursorPosition() {
+            ViewPort vp = GetViewPort();
+            return new RowCol(
+                row: Math.Max(vp.FromLineNumber(Document.CurrentLineNumber), 1),
+                col: Math.Max(vp.FromCaretColumn(Document.CaretColumn), 1)
+            );
+        }
+
+        private RowCol GetScreenCursorPosition() {
+            return new RowCol(
+                row: Document.CurrentLineNumber - Document.TopLineNumber + 1,
+                col: Document.CaretColumn + 1
+            );
         }
 
         [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'n')] // DEC DSR
@@ -1178,12 +1189,12 @@ namespace Poderosa.Terminal {
                     break;
                 case 6: // Extended Cursor Position Report
                     {
-                        var pos = GetCursorPosition();
+                        var rc = GetCursorPosition();
                         response =
                             RESPONSE_CSI + "?"
-                            + pos.Y.ToInvariantString()
+                            + rc.Row.ToInvariantString()
                             + ";"
-                            + pos.X.ToInvariantString()
+                            + rc.Col.ToInvariantString()
                             + ";1R";
                         break;
                     }
@@ -1234,7 +1245,7 @@ namespace Poderosa.Terminal {
                 case 1:
                     // DECCIR
                     {
-                        var pos = GetCursorPosition();
+                        var rc = GetScreenCursorPosition();
                         int page = 1;
                         char srend = GetDECCIRRenditions();
                         char satt = GetDECCIRAttributes();
@@ -1244,8 +1255,8 @@ namespace Poderosa.Terminal {
                         char scss = GetDECCIRCharacterSetSize();
                         string sdesig = GetDECCIRCharacterSetsDesignators();
                         response = RESPONSE_DCS + "1$u"
-                            + pos.Y.ToInvariantString() + ";"
-                            + pos.X.ToInvariantString() + ";"
+                            + rc.Row.ToInvariantString() + ";"
+                            + rc.Col.ToInvariantString() + ";"
                             + page.ToInvariantString() + ";"
                             + new String(new char[] { srend, ';', satt, ';', sflag, ';' })
                             + pgl.ToInvariantString() + ";"
