@@ -229,6 +229,7 @@ namespace Poderosa.Terminal {
         private bool _forceNewLine = false; // controls behavior of LF/FF/VT
         private bool _insertMode = false;
         private bool _originRelative = false;
+        private bool _enableHorizontalMargins = false; // DECLRMM
 
         private const int MOUSE_POS_LIMIT = 255 - 32;       // mouse position limit
         private const int MOUSE_POS_EXT_LIMIT = 2047 - 32;  // mouse position limit in extended mode
@@ -285,6 +286,7 @@ namespace Poderosa.Terminal {
             _forceNewLine = false;
             _insertMode = false;
             _originRelative = false;
+            _enableHorizontalMargins = false;
             _escapeSequenceEngine.Reset();
         }
 
@@ -1740,10 +1742,59 @@ namespace Poderosa.Terminal {
             MoveCursorToHome();
         }
 
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 's')] // SCOSC or DECSLRM
+        private void ProcessSCOSCOrDECSLRM(NumericParams p) {
+            if (!_enableHorizontalMargins) {
+                if (p.Length == 0) {
+                    ProcessSCOSC();
+                }
+                return;
+            }
+
+            int width = Document.TerminalWidth;
+            int left = p.Get(0, -1);
+            int right = p.Get(1, -1);
+
+            int leftOffset;
+            if (left <= 0) {
+                leftOffset = -1; // left-most of the display area
+            }
+            else if (left > width) {
+                leftOffset = width - 1;
+            }
+            else {
+                leftOffset = left - 1;
+            }
+
+            int rightOffset;
+            if (right <= 0) {
+                rightOffset = -1;  // right-most of the display area
+            }
+            else if (right > width) {
+                rightOffset = width - 1;
+            }
+            else {
+                rightOffset = right - 1;
+            }
+
+            // left must be smaller than right
+            if (((leftOffset < 0) ? 0 : leftOffset) >= ((rightOffset < 0) ? width - 1 : rightOffset)) {
+                return;
+            }
+
+            Document.SetHorizontalMargins(leftOffset, rightOffset);
+            UpdateViewPortCache();
+            MoveCursorToOrigin();
+        }
+
         private void MoveCursorToOrigin() {
             ViewPort vp = GetViewPort();
             RowCol rc = vp.GetOrigin();
             MoveCursorTo(rc.Row, rc.Col);
+        }
+
+        private void ProcessSCOSC() {
+            _savedCursorSCO = CreateSavedCursor();
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'b')] // REP
@@ -2528,6 +2579,10 @@ namespace Poderosa.Terminal {
                 case 66: // Numeric keypad mode
                     ChangeMode(set ? TerminalMode.Application : TerminalMode.Normal);
                     break;
+                case 69: // Enable left and right margin mode (DECLRMM)
+                    _enableHorizontalMargins = set;
+                    Document.ClearHorizontalMargins();
+                    break;
                 case 1000: // DEC VT200 compatible: Send button press and release event with mouse position.
                     ResetMouseTracking((set) ? MouseTrackingState.Normal : MouseTrackingState.Off);
                     break;
@@ -3178,22 +3233,6 @@ namespace Poderosa.Terminal {
             _wrapAroundMode = saved.WrapAroundMode;
 
             _originRelative = saved.ScrollRegionRelative;
-        }
-
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 's')]
-        private void ProcessSCOSCOrDECSLRM(NumericParams p) {
-            if (p.Length == 0) {
-                ProcessSCOSC();
-            }
-            else {
-                // DECSLRM (not supported)
-                Ignore();
-            }
-        }
-
-        private void ProcessSCOSC() {
-            // Note: DECLRMM is currently unsupported, but if DECLRMM was enabled, this method should do nothing.
-            _savedCursorSCO = CreateSavedCursor();
         }
 
         [EscapeSequence(ControlCode.CSI, 'u')] // SCORC
