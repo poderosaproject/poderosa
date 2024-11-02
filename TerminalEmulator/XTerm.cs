@@ -680,16 +680,17 @@ namespace Poderosa.Terminal {
         private void ProcessNormalUnicodeChar2(UnicodeChar unicodeChar, bool canWrap) {
             int charWidth = unicodeChar.IsWideWidth ? 2 : 1;
             int nextColumn = Document.CaretColumn + charWidth;
+            int rightEnd = GetCaretColumnRightLimit() + 1;
 
-            if (nextColumn <= Document.TerminalWidth) { // many cases
+            if (nextColumn <= rightEnd) { // many cases
                 if (_insertMode) {
-                    _manipulator.InsertBlanks(Document.CaretColumn, charWidth, Document.TerminalWidth, Document.CurrentDecoration);
+                    _manipulator.InsertBlanks(Document.CaretColumn, charWidth, rightEnd, Document.CurrentDecoration);
                 }
 
                 _manipulator.PutChar(Document.CaretColumn, unicodeChar, Document.CurrentDecoration);
 
-                if (nextColumn == Document.TerminalWidth) {
-                    Document.CaretColumn = Document.TerminalWidth - 1;
+                if (nextColumn == rightEnd) {
+                    Document.CaretColumn = rightEnd - 1;
                     if (_wrapAroundMode) {
                         Document.WrapPending = true;
                     }
@@ -705,10 +706,20 @@ namespace Poderosa.Terminal {
                     ProcessNormalUnicodeChar2(unicodeChar, false);
                 }
                 else {
-                    _manipulator.PutChar(Document.TerminalWidth - 1, (charWidth == 2) ? UnicodeChar.ASCII_NUL : unicodeChar, Document.CurrentDecoration);
-                    Document.CaretColumn = Document.TerminalWidth - 1;
+                    _manipulator.PutChar(rightEnd - 1, (charWidth == 2) ? UnicodeChar.ASCII_NUL : unicodeChar, Document.CurrentDecoration);
+                    Document.CaretColumn = rightEnd - 1;
                 }
             }
+        }
+
+        private int GetCaretColumnLeftLimit() {
+            int leftMargin = Document.LeftMarginOffset;
+            return (Document.CaretColumn >= leftMargin) ? leftMargin : 0;
+        }
+
+        private int GetCaretColumnRightLimit() {
+            int rightMargin = Document.RightMarginOffset;
+            return (Document.CaretColumn <= rightMargin) ? rightMargin : (Document.TerminalWidth - 1);
         }
 
         private void ContinueToNextLine() {
@@ -719,7 +730,7 @@ namespace Poderosa.Terminal {
             }
             Document.LineFeed();
             _manipulator.Load(Document.CurrentLine);
-            Document.CaretColumn = 0;
+            Document.CaretColumn = Document.LeftMarginOffset;
         }
 
         [EscapeSequence(ControlCode.ESC, ' ', 'F')] // S7C1T
@@ -854,7 +865,7 @@ namespace Poderosa.Terminal {
 
         private void DoCarriageReturn() {
             _manipulator.EOLType = EOLType.CR;  // will be changed to CRLF in DoLineFeed()
-            Document.CaretColumn = 0;
+            Document.CaretColumn = GetCaretColumnLeftLimit();
         }
 
         [EscapeSequence(ControlCode.ESC, '6')] // DECBI
