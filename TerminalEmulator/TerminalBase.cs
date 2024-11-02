@@ -379,7 +379,7 @@ namespace Poderosa.Terminal {
             lock (_document) {
                 ChangeMode(TerminalMode.Normal);
                 ChangeCursorKeyMode(TerminalMode.Normal);
-                _document.ClearScrollingRegion();
+                _document.ClearMargins();
                 _document.CurrentDecoration = TextDecoration.Default;
                 _encodingProfile = EncodingProfile.Create(GetTerminalSettings().Encoding);
                 _decoder = new ISO2022CharDecoder(this, _encodingProfile);
@@ -395,7 +395,7 @@ namespace Poderosa.Terminal {
         public void SoftReset() {
             lock (_document) {
                 ChangeMode(TerminalMode.Normal);
-                _document.ClearScrollingRegion();
+                _document.ClearMargins();
                 _document.CurrentDecoration = _document.CurrentDecoration.GetCopyWithProtected(false);
                 SetKeySendLocked(false);
                 SetHideCaret(false);

@@ -30,8 +30,11 @@ namespace Poderosa.Terminal {
         private TextDecoration _currentDecoration = TextDecoration.Default;
         private int _caretColumn;
         private bool _wrapPending;
-        private int _scrollingTopOffset;
-        private int _scrollingBottomOffset;
+        // Margins (-1 = default margin)
+        private int _topMarginOffset;
+        private int _bottomMarginOffset;
+        private int _leftMarginOffset;
+        private int _rightMarginOffset;
         //ウィンドウの表示用テキスト
         private string _windowTitle; //ホストOSCシーケンスで指定されたタイトル
         private GLine _topLine; // top of the screen
@@ -45,8 +48,10 @@ namespace Poderosa.Terminal {
         internal TerminalDocument(int width, int height) {
             Resize(width, height);
             Clear();
-            _scrollingTopOffset = -1;
-            _scrollingBottomOffset = -1;
+            _topMarginOffset = -1;
+            _bottomMarginOffset = -1;
+            _leftMarginOffset = -1;
+            _rightMarginOffset = -1;
         }
 
         public string WindowTitle {
@@ -84,13 +89,23 @@ namespace Poderosa.Terminal {
         }
 
         /// <summary>
-        /// Set scrolling region
+        /// Set vertical margins
         /// </summary>
         /// <param name="topOffset">top of scrolling region specified by offset from the first line of the display area. -1 represents the top of the display area.</param>
         /// <param name="bottomOffset">bottom of scrolling region specified by offset from the first line of the display area. -1 represents the bottom of the display area.</param>
-        public void SetScrollingRegion(int topOffset, int bottomOffset) {
-            _scrollingTopOffset = topOffset;
-            _scrollingBottomOffset = bottomOffset;
+        public void SetVerticalMargins(int topOffset, int bottomOffset) {
+            _topMarginOffset = topOffset;
+            _bottomMarginOffset = bottomOffset;
+        }
+
+        /// <summary>
+        /// Set scrolling region
+        /// </summary>
+        /// <param name="leftOffset">left edge of scrolling region specified by offset from the first column of the display area. -1 represents the left-most column of the display area.</param>
+        /// <param name="rightOffset">right edge of scrolling region specified by offset from the first column of the display area. -1 represents the right-most of the display area.</param>
+        public void SetHorizontalMargins(int leftOffset, int rightOffset) {
+            _leftMarginOffset = leftOffset;
+            _rightMarginOffset = rightOffset;
         }
 
         public void Clear() {
@@ -106,9 +121,19 @@ namespace Poderosa.Terminal {
             _height = height;
         }
 
-        public void ClearScrollingRegion() {
-            _scrollingTopOffset = -1;
-            _scrollingBottomOffset = -1;
+        public void ClearMargins() {
+            ClearHorizontalMargins();
+            ClearVerticalMargins();
+        }
+
+        public void ClearHorizontalMargins() {
+            _leftMarginOffset = -1;
+            _rightMarginOffset = -1;
+        }
+
+        public void ClearVerticalMargins() {
+            _topMarginOffset = -1;
+            _bottomMarginOffset = -1;
         }
 
         public int CaretColumn {
@@ -228,55 +253,90 @@ namespace Poderosa.Terminal {
         }
         #endregion
 
-        public int ScrollingTopOffset {
+        public int TopMarginOffset {
             get {
-                return (TerminalHeight < 2) ? 0 : (_scrollingTopOffset < 0) ? 0 : Math.Min(_scrollingTopOffset, TerminalHeight - 2);
+                return (TerminalHeight < 1) ? 0 : (_topMarginOffset < 0) ? 0 : Math.Min(_topMarginOffset, TerminalHeight - 1);
             }
         }
 
-        public int ScrollingBottomOffset {
+        public int BottomMarginOffset {
             get {
-                return (TerminalHeight < 2) ? 1 : (_scrollingBottomOffset < 0) ? TerminalHeight - 1 : Math.Min(_scrollingBottomOffset, TerminalHeight - 1);
+                return (TerminalHeight < 1) ? 0 : (_bottomMarginOffset < 0) ? TerminalHeight - 1 : Math.Min(_bottomMarginOffset, TerminalHeight - 1);
             }
         }
 
-        public int ScrollingTop {
+        public int LeftMarginOffset {
             get {
-                return TopLineNumber + ScrollingTopOffset;
+                return (TerminalWidth < 1) ? 0 : (_leftMarginOffset < 0) ? 0 : Math.Min(_leftMarginOffset, TerminalWidth - 1);
             }
         }
 
-        public int ScrollingBottom {
+        public int RightMarginOffset {
             get {
-                return TopLineNumber + ScrollingBottomOffset;
+                return (TerminalWidth < 1) ? 0 : (_rightMarginOffset < 0) ? TerminalWidth - 1 : Math.Min(_rightMarginOffset, TerminalWidth - 1);
+            }
+        }
+
+        public int ScrollingTopLineNumber {
+            get {
+                return TopLineNumber + TopMarginOffset;
+            }
+        }
+
+        public int ScrollingBottomLineNumber {
+            get {
+                return TopLineNumber + BottomMarginOffset;
             }
         }
 
         public bool IsCurrentLineInScrollingRegion {
             get {
-                return CurrentLineNumber >= ScrollingTop && CurrentLineNumber <= ScrollingBottom;
+                return CurrentLineNumber >= ScrollingTopLineNumber && CurrentLineNumber <= ScrollingBottomLineNumber;
             }
         }
 
-        public bool HasScrollingRegionTop {
+        public bool IsCaretColumnInScrollingRegion {
             get {
-                return _scrollingTopOffset >= 0;
+                return CaretColumn >= LeftMarginOffset && CaretColumn <= RightMarginOffset;
             }
         }
 
-        public bool HasScrollingRegionBottom {
+        public bool HasTopMargin {
             get {
-                return _scrollingBottomOffset >= 0;
+                return _topMarginOffset >= 0;
             }
         }
 
+        public bool HasBottomMargin {
+            get {
+                return _bottomMarginOffset >= 0;
+            }
+        }
+
+        public bool HasLeftMargin {
+            get {
+                return _leftMarginOffset >= 0;
+            }
+        }
+
+        public bool HasRightMargin {
+            get {
+                return _rightMarginOffset >= 0;
+            }
+        }
+
+        /// <summary>
+        /// Line feed considering scrolling region.
+        /// </summary>
         internal void LineFeed() {
-            if (HasScrollingRegionBottom) {
-                if (CurrentLineNumber == ScrollingBottom) {
-                    ScrollDown();
+            // If scrolling region was specified, scroll the region as needed, but the cursor will not go outside of the current view.
+            // If scrolling region was not specified, the view will be moved as needed.
+            if (HasBottomMargin) {
+                if (CurrentLineNumber == ScrollingBottomLineNumber) {
+                    ScrollDownRegion(1);
                 }
-                else {
-                    CurrentLineNumber = Math.Min(CurrentLineNumber + 1, TopLineNumber + TerminalHeight - 1); // move to the next line. new line will be added as needed.
+                else if (CurrentLineNumber < TopLineNumber + TerminalHeight - 1) {
+                    CurrentLineNumber++; // move to the next line. new line will be added as needed.
                 }
             }
             else {
@@ -289,21 +349,26 @@ namespace Poderosa.Terminal {
         }
 
         /// <summary>
-        /// <para>Insert one line at the top of the scroll region and remove overflow line from the bottom.</para>
-        /// <para>The current line is reset to the new line inserted.</para>
+        /// Reverse line feed considering scrolling region.
         /// </summary>
-        internal void ScrollUp() {
-            ScrollUp(ScrollingTop, ScrollingBottom);
+        internal void ReverseLineFeed() {
+            // Regardless whether scrolling region was specified or not, scroll as needed, but the cursor will not go outside of the current view.
+            if (CurrentLineNumber == ScrollingTopLineNumber) {
+                ScrollUpRegion(1);
+            }
+            else if (CurrentLineNumber > TopLineNumber) {
+                CurrentLineNumber--;
+            }
         }
 
         /// <summary>
         /// <para>Insert N lines at the top of the specified region and remove overflow lines from the bottom.</para>
-        /// <para>The current line is reset to the first new line inserted.</para>
+        /// <para>The current line number is not changed.</para>
         /// </summary>
-        /// <param name="from">line number at the top of the region.</param>
-        /// <param name="to">line number at the bottom of the region.</param>
+        /// <param name="from">line number at the top of the region. (inclusive)</param>
+        /// <param name="to">line number at the bottom of the region. (inclusive)</param>
         /// <param name="n">number of lines to insert.</param>
-        internal void ScrollUp(int from, int to, int n = 1) {
+        internal void ScrollUpLines(int from, int to, int n) {
             if (to < from || n < 1) {
                 return;
             }
@@ -315,6 +380,8 @@ namespace Poderosa.Terminal {
             int origTopID = top.ID;
 
             GLine bottom = FindLineOrEdge(to);
+
+            int savedLineNumber = CurrentLineNumber;
 
             int linesToInsert = Math.Min(n, to - from + 1);
             int linesToRemove = Math.Max(bottom.ID + linesToInsert - to, 0);
@@ -347,7 +414,7 @@ namespace Poderosa.Terminal {
                 l = l.NextLine;
             }
 
-            _currentLine = firstNewLine;
+            CurrentLineNumber = savedLineNumber;
 
             InvalidateAll();
 
@@ -365,21 +432,13 @@ namespace Poderosa.Terminal {
         }
 
         /// <summary>
-        /// <para>Insert one line at the bottom of the scroll region and remove overflow line from the top.</para>
-        /// <para>The current line is reset to the new line inserted.</para>
-        /// </summary>
-        internal void ScrollDown() {
-            ScrollDown(ScrollingTop, ScrollingBottom);
-        }
-
-        /// <summary>
         /// <para>Insert N lines at the bottom of the scroll region and remove overflow lines from the top.</para>
-        /// <para>The current line is reset to the new line inserted.</para>
+        /// <para>The current line number is not changed.</para>
         /// </summary>
-        /// <param name="from">line number at the top of the region.</param>
-        /// <param name="to">line number at the bottom of the region.</param>
+        /// <param name="from">line number at the top of the region. (inclusive)</param>
+        /// <param name="to">line number at the bottom of the region. (inclusive)</param>
         /// <param name="n">number of lines to insert.</param>
-        internal void ScrollDown(int from, int to, int n = 1) {
+        internal void ScrollDownLines(int from, int to, int n) {
             if (to < from || n < 1) {
                 return;
             }
@@ -391,6 +450,8 @@ namespace Poderosa.Terminal {
 
             GLine bottom = FindLineOrEdge(to);
             int origBottomID = bottom.ID;
+
+            int savedLineNumber = CurrentLineNumber;
 
             int linesToInsert = Math.Min(n, to - from + 1);
             int linesToRemove = Math.Max(from - (top.ID - linesToInsert), 0);
@@ -423,7 +484,7 @@ namespace Poderosa.Terminal {
                 l = l.PrevLine;
             }
 
-            _currentLine = firstNewLine;
+            CurrentLineNumber = savedLineNumber;
 
             InvalidateAll();
 
@@ -439,6 +500,135 @@ namespace Poderosa.Terminal {
             }
 #endif
         }
+
+        /// <summary>
+        /// <para>Scroll-up the scrolling area with left/right and top/bottom margins.</para>
+        /// <para>Insert N lines at the top of the specified region and remove overflow lines from the bottom.</para>
+        /// <para>The current line number is not changed.</para>
+        /// </summary>
+        /// <param name="n">number of lines to insert.</param>
+        internal void ScrollUpRegion(int n) {
+            ScrollUpRegion(ScrollingTopLineNumber, ScrollingBottomLineNumber, n);
+        }
+
+        /// <summary>
+        /// <para>Scroll-up the scrolling area with left/right and top/bottom margins.</para>
+        /// <para>Insert N lines at the top of the specified region and remove overflow lines from the bottom.</para>
+        /// <para>The current line number is not changed.</para>
+        /// </summary>
+        /// <param name="from">line number to start scroll. (inclusive)</param>
+        /// <param name="n">number of lines to insert.</param>
+        internal void ScrollUpRegionFrom(int from, int n) {
+            ScrollUpRegion(from, ScrollingBottomLineNumber, n);
+        }
+
+        /// <summary>
+        /// <para>Scroll-up the scrolling area with left/right and top/bottom margins.</para>
+        /// <para>Insert N lines at the top of the specified region and remove overflow lines from the bottom.</para>
+        /// <para>The current line number is not changed.</para>
+        /// </summary>
+        /// <param name="top">line number at the top of the region. (inclusive)</param>
+        /// <param name="bottom">line number at the bottom of the region. (inclusive)</param>
+        /// <param name="n">number of lines to insert.</param>
+        internal void ScrollUpRegion(int top, int bottom, int n) {
+            if (!HasLeftMargin && !HasRightMargin) {
+                ScrollUpLines(top, bottom, n);
+                return;
+            }
+
+            if (bottom < top || n < 1) {
+                return;
+            }
+
+            EnsureLine(bottom);
+
+            GLine dstLine = FindLineOrEdge(bottom);
+            GLine srcLine = FindLineOrNull(bottom - n);
+            GLineManipulator srcManip = new GLineManipulator();
+            GLineManipulator dstManip = new GLineManipulator();
+            while (srcLine != null && dstLine != null && srcLine.ID >= top) {
+                srcManip.Load(srcLine);
+                dstManip.Load(dstLine);
+                dstManip.CopyFrom(srcManip, LeftMarginOffset, RightMarginOffset + 1, LeftMarginOffset);
+                dstManip.ExportTo(dstLine);
+                InvalidatedRegion.InvalidateLine(dstLine.ID);
+                dstLine = dstLine.PrevLine;
+                srcLine = srcLine.PrevLine;
+            }
+
+            while (dstLine != null && dstLine.ID >= top) {
+                dstManip.Load(dstLine);
+                dstManip.FillSpace(LeftMarginOffset, RightMarginOffset + 1, _currentDecoration);
+                dstManip.ExportTo(dstLine);
+                InvalidatedRegion.InvalidateLine(dstLine.ID);
+                dstLine = dstLine.PrevLine;
+            }
+        }
+
+        /// <summary>
+        /// <para>Scroll-down the scrolling area with left/right and top/bottom margins.</para>
+        /// <para>Insert N lines at the bottom of the scroll region and remove overflow lines from the top.</para>
+        /// <para>The current line number is not changed.</para>
+        /// </summary>
+        /// <param name="n">number of lines to insert.</param>
+        internal void ScrollDownRegion(int n) {
+            ScrollDownRegion(ScrollingTopLineNumber, ScrollingBottomLineNumber, n);
+        }
+
+        /// <summary>
+        /// <para>Scroll-down the scrolling area with left/right and top/bottom margins.</para>
+        /// <para>Insert N lines at the bottom of the scroll region and remove overflow lines from the top.</para>
+        /// <para>The current line number is not changed.</para>
+        /// </summary>
+        /// <param name="from">line number to start scroll. (inclusive)</param>
+        /// <param name="n">number of lines to insert.</param>
+        internal void ScrollDownRegionFrom(int from, int n) {
+            ScrollDownRegion(from, ScrollingBottomLineNumber, n);
+        }
+
+        /// <summary>
+        /// <para>Scroll-down the scrolling area with left/right and top/bottom margins.</para>
+        /// <para>Insert N lines at the bottom of the scroll region and remove overflow lines from the top.</para>
+        /// <para>The current line number is not changed.</para>
+        /// </summary>
+        /// <param name="top">line number at the top of the region. (inclusive)</param>
+        /// <param name="bottom">line number at the bottom of the region. (inclusive)</param>
+        /// <param name="n">number of lines to insert.</param>
+        internal void ScrollDownRegion(int top, int bottom, int n) {
+            if (!HasLeftMargin && !HasRightMargin) {
+                ScrollDownLines(top, bottom, n);
+                return;
+            }
+
+            if (bottom < top || n < 1) {
+                return;
+            }
+
+            EnsureLine(bottom);
+
+            GLine dstLine = FindLineOrEdge(top);
+            GLine srcLine = FindLineOrNull(top + n);
+            GLineManipulator srcManip = new GLineManipulator();
+            GLineManipulator dstManip = new GLineManipulator();
+            while (srcLine != null && dstLine != null && srcLine.ID <= bottom) {
+                srcManip.Load(srcLine);
+                dstManip.Load(dstLine);
+                dstManip.CopyFrom(srcManip, LeftMarginOffset, RightMarginOffset + 1, LeftMarginOffset);
+                dstManip.ExportTo(dstLine);
+                InvalidatedRegion.InvalidateLine(dstLine.ID);
+                dstLine = dstLine.NextLine;
+                srcLine = srcLine.NextLine;
+            }
+
+            while (dstLine != null && dstLine.ID <= bottom) {
+                dstManip.Load(dstLine);
+                dstManip.FillSpace(LeftMarginOffset, RightMarginOffset + 1, _currentDecoration);
+                dstManip.ExportTo(dstLine);
+                InvalidatedRegion.InvalidateLine(dstLine.ID);
+                dstLine = dstLine.NextLine;
+            }
+        }
+
 
         //整数インデクスから見つける　CurrentLineからそう遠くない位置だろうとあたりをつける
         public override GLine FindLine(int index) {
