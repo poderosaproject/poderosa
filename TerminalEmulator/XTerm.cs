@@ -2109,91 +2109,160 @@ namespace Poderosa.Terminal {
             }
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'm')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'm')] // SGR
         private void ProcessSGR(NumericParams p) {
-            int state = 0, target = 0, r = 0, g = 0, b = 0;
             TextDecoration dec = Document.CurrentDecoration;
-            foreach (int code in p.EnumerateWithDefault(0)) {
-                if (state != 0) {
-                    switch (state) {
-                        case 1:
-                            if (code == 5) { // select indexed color
-                                state = 2;
-                            }
-                            else if (code == 2) { // select RGB color
-                                state = 3;  // read R value
-                            }
-                            else {
-                                Debug.WriteLine("Invalid SGR code : {0}", code);
-                                goto Apply;
-                            }
-                            break;
-                        case 2:
-                            if (code < 256) {
-                                if (target == 3) {
-                                    dec = SelectForeColor(dec, code);
-                                }
-                                else if (target == 4) {
-                                    dec = SelectBackgroundColor(dec, code);
-                                }
-                            }
-                            state = 0;
-                            target = 0;
-                            break;
-                        case 3:
-                            if (code < 256) {
-                                r = code;
-                                state = 4;  // read G value
-                            }
-                            else {
-                                Debug.WriteLine("Invalid SGR R value : {0}", code);
-                                goto Apply;
-                            }
-                            break;
-                        case 4:
-                            if (code < 256) {
-                                g = code;
-                                state = 5;  // read B value
-                            }
-                            else {
-                                Debug.WriteLine("Invalid SGR G value : {0}", code);
-                                goto Apply;
-                            }
-                            break;
-                        case 5:
-                            if (code < 256) {
-                                b = code;
-                                if (target == 3) {
-                                    dec = SetForeColorByRGB(dec, r, g, b);
-                                }
-                                else if (target == 4) {
-                                    dec = SetBackColorByRGB(dec, r, g, b);
-                                }
-                                state = 0;
-                                target = 0;
-                            }
-                            else {
-                                Debug.WriteLine("Invalid SGR B value : {0}", code);
-                                goto Apply;
-                            }
-                            break;
-                    }
-                }
-                else {
+
+            int paramIndex = 0;
+            while (paramIndex < p.Length) {
+                if (p.IsSingleInteger(paramIndex)) {
+                    int code = p.Get(paramIndex++, 0);
                     switch (code) {
+                        case 0: // default rendition (implementation-defined) (ECMA-48,VT100,VT220)
+                            dec = TextDecoration.Default;
+                            break;
+                        case 1: // bold or increased intensity (ECMA-48,VT100,VT220)
+                            dec = dec.GetCopyWithBold(true);
+                            break;
+                        case 2: // faint, decreased intensity or second colour (ECMA-48)
+                            break;
+                        case 3: // italicized (ECMA-48)
+                            break;
+                        case 4: // singly underlined (ECMA-48,VT100,VT220)
+                            dec = dec.GetCopyWithUnderline(true);
+                            break;
+                        case 5: // slowly blinking (ECMA-48,VT100,VT220)
+                        case 6: // rapidly blinking (ECMA-48)
+                            dec = dec.GetCopyWithBlink(true);
+                            break;
+                        case 7: // negative image (ECMA-48,VT100,VT220)
+                            dec = dec.GetCopyWithInverted(true);
+                            break;
                         case 8: // concealed characters (ECMA-48,VT300)
                             dec = dec.GetCopyWithHidden(true);
+                            break;
+                        case 9: // crossed-out (ECMA-48)
+                        case 10: // primary (default) font (ECMA-48)
+                        case 11: // first alternative font (ECMA-48)
+                        case 12: // second alternative font (ECMA-48)
+                        case 13: // third alternative font (ECMA-48)
+                        case 14: // fourth alternative font (ECMA-48)
+                        case 15: // fifth alternative font (ECMA-48)
+                        case 16: // sixth alternative font (ECMA-48)
+                        case 17: // seventh alternative font (ECMA-48)
+                        case 18: // eighth alternative font (ECMA-48)
+                        case 19: // ninth alternative font (ECMA-48)
+                        case 20: // Fraktur (Gothic) (ECMA-48)
+                        case 21: // doubly underlined (ECMA-48)
+                            break;
+                        case 22: // normal colour or normal intensity (neither bold nor faint) (ECMA-48,VT220,VT300)
+                            dec = TextDecoration.Default;
+                            break;
+                        case 23: // not italicized, not fraktur (ECMA-48)
+                            break;
+                        case 24: // not underlined (neither singly nor doubly) (ECMA-48,VT220,VT300)
+                            dec = dec.GetCopyWithUnderline(false);
+                            break;
+                        case 25: // steady (not blinking) (ECMA-48,VT220,VT300)
+                            dec = dec.GetCopyWithBlink(false);
+                            break;
+                        case 26: // reserved (ECMA-48)
+                            break;
+                        case 27: // positive image (ECMA-48,VT220,VT300)
+                            dec = dec.GetCopyWithInverted(false);
                             break;
                         case 28: // revealed characters (ECMA-48)
                             dec = dec.GetCopyWithHidden(false);
                             break;
-                        case 38: // Set foreground color (XTERM,ISO-8613-3)
-                            state = 1;  // start reading subsequent values
-                            target = 3; // set foreground color
+                        case 29: // not crossed out (ECMA-48)
                             break;
+                        case 30: // black display (ECMA-48)
+                        case 31: // red display (ECMA-48)
+                        case 32: // green display (ECMA-48)
+                        case 33: // yellow display (ECMA-48)
+                        case 34: // blue display (ECMA-48)
+                        case 35: // magenta display (ECMA-48)
+                        case 36: // cyan display (ECMA-48)
+                        case 37: // white display (ECMA-48)
+                            dec = SelectForeColor(dec, code - 30);
+                            break;
+                        case 38: // Set foreground color (XTERM,ISO-8613-3)
                         case 48: // Set background color (XTERM,ISO-8613-3)
-                            state = 1;  // start reading subsequent values
-                            target = 4; // set background color
+                            if (p.IsSingleInteger(paramIndex)) {
+                                int type = p.Get(paramIndex++, 0);
+                                if (type == 2) { // RGB
+                                    // sub parameters are semicolon-separated: supports only KDE konsole format
+                                    // 38/48 ; 2 ; R ; G ; B
+                                    int r = p.Get(paramIndex++, 0);
+                                    int g = p.Get(paramIndex++, 0);
+                                    int b = p.Get(paramIndex++, 0);
+                                    if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255) {
+                                        if (code == 38) {
+                                            dec = SetForeColorByRGB(dec, r, g, b);
+                                        }
+                                        else {
+                                            dec = SetBackColorByRGB(dec, r, g, b);
+                                        }
+                                    }
+                                }
+                                else if (type == 5) { // indexed
+                                    // sub parameters are semicolon-separated
+                                    // 38/48 ; 5 ; N
+                                    int n = p.Get(paramIndex++, 0);
+                                    if (n >= 0 && n <= 255) {
+                                        if (code == 38) {
+                                            dec = SelectForeColor(dec, n);
+                                        }
+                                        else {
+                                            dec = SelectBackgroundColor(dec, n);
+                                        }
+                                    }
+                                }
+                            }
+                            else if (p.IsIntegerCombination(paramIndex)) {
+                                // 38/48 ; 2/5 : ... (colon-separated)
+                                int[] subParams = p.GetIntegerCombination(paramIndex++)
+                                                    .Select(v => v.GetValueOrDefault(0))
+                                                    .ToArray();
+                                bool isForeColor = code == 38;
+                                dec = SetColorBySGRSubParams(dec, isForeColor, subParams);
+                            }
+                            else {
+                                paramIndex++; // avoid infinite loop
+                            }
+                            break;
+                        case 39: // default display colour (implementation-defined) (ECMA-48)
+                            dec = dec.GetCopyWithForeColor(ColorSpec.Default);
+                            break;
+                        case 40: // black background (ECMA-48)
+                        case 41: // red background (ECMA-48)
+                        case 42: // green background (ECMA-48)
+                        case 43: // yellow background (ECMA-48)
+                        case 44: // blue background (ECMA-48)
+                        case 45: // magenta background (ECMA-48)
+                        case 46: // cyan background (ECMA-48)
+                        case 47: // white background (ECMA-48)
+                            dec = SelectBackgroundColor(dec, code - 40);
+                            break;
+                        case 49: // default background colour (implementation-defined) (ECMA-48)
+                            dec = dec.GetCopyWithBackColor(ColorSpec.Default);
+                            break;
+                        case 50: // reserved (ECMA-48)
+                        case 51: // framed (ECMA-48)
+                        case 52: // encircled (ECMA-48)
+                        case 53: // overlined (ECMA-48)
+                        case 54: // not framed, not encircled (ECMA-48)
+                        case 55: // not overlined (ECMA-48)
+                        case 56: // reserved (ECMA-48)
+                        case 57: // reserved (ECMA-48)
+                        case 58: // reserved (ECMA-48)
+                        case 59: // reserved (ECMA-48)
+                        case 60: // ideogram underline or right side line (ECMA-48)
+                        case 61: // ideogram double underline or double line on the right side (ECMA-48)
+                        case 62: // ideogram overline or left side line (ECMA-48)
+                        case 63: // ideogram double overline or double line on the left side (ECMA-48)
+                        case 64: // ideogram stress marking (ECMA-48)
+                        case 65: // cancels the effect of the rendition aspects established by parameter values 60 to 64 (ECMA-48)
                             break;
                         case 90: // Set foreground color to Black (XTERM)
                         case 91: // Set foreground color to Red (XTERM)
@@ -2216,13 +2285,74 @@ namespace Poderosa.Terminal {
                             dec = SelectBackgroundColor(dec, code - 100 + 8);
                             break;
                         default:
-                            ProcessSGRParameterANSI(code, ref dec);
+                            Debug.WriteLine("unknown SGR code : {0}", code);
                             break;
                     }
                 }
+                else if (p.IsIntegerCombination(paramIndex)) {
+                    int[] subParams = p.GetIntegerCombination(paramIndex++)
+                                        .Select(v => v.GetValueOrDefault(0))
+                                        .ToArray();
+                    if (subParams.Length >= 1 && (subParams[0] == 38 || subParams[0] == 48)) {
+                        // 38/48 : 2/5 : ... (colon-separated)
+                        bool isForeColor = subParams[0] == 38;
+                        subParams = subParams.Skip(1).ToArray();
+                        dec = SetColorBySGRSubParams(dec, isForeColor, subParams);
+                    }
+                }
+                else {
+                    paramIndex++; // avoid infinite loop
+                }
             }
-        Apply:
+
             Document.CurrentDecoration = dec;
+        }
+
+        private TextDecoration SetColorBySGRSubParams(TextDecoration dec, bool isForeColor, int[] p) {
+            if (p.Length == 0) {
+                return dec;
+            }
+            int type = p[0];
+            if (type == 2) { // RGB
+                if (p.Length == 4) {
+                    // konsole, xterm
+                    // { 2, <R>, <G>, <B> }
+                    if (p[1] >= 0 && p[1] <= 255 && p[2] >= 0 && p[2] <= 255 && p[3] >= 0 && p[3] <= 255) {
+                        if (isForeColor) {
+                            return SetForeColorByRGB(dec, p[1], p[2], p[3]);
+                        }
+                        else {
+                            return SetBackColorByRGB(dec, p[1], p[2], p[3]);
+                        }
+                    }
+                }
+                else if (p.Length >= 5) {
+                    // ITU-T T.416 / ISO-8613-6
+                    // { 2, <colour-space-identifier>, <R>, <G>, <B>, <none>, <tolerance>, <tolerance-color-space> }
+                    if (p[2] >= 0 && p[2] <= 255 && p[3] >= 0 && p[3] <= 255 && p[4] >= 0 && p[4] <= 255) {
+                        if (isForeColor) {
+                            return SetForeColorByRGB(dec, p[2], p[3], p[4]);
+                        }
+                        else {
+                            return SetBackColorByRGB(dec, p[2], p[3], p[4]);
+                        }
+                    }
+                }
+            }
+            else if (type == 5) { // indexed
+                // { 5, <index> }
+                if (p.Length >= 2) {
+                    if (p[1] >= 0 && p[1] <= 255) {
+                        if (isForeColor) {
+                            return SelectForeColor(dec, p[1]);
+                        }
+                        else {
+                            return SelectBackgroundColor(dec, p[1]);
+                        }
+                    }
+                }
+            }
+            return dec;
         }
 
         private TextDecoration SetForeColorByRGB(TextDecoration dec, int r, int g, int b) {
@@ -2239,116 +2369,6 @@ namespace Poderosa.Terminal {
 
         private TextDecoration SelectBackgroundColor(TextDecoration dec, int index) {
             return dec.GetCopyWithBackColor(new ColorSpec(index));
-        }
-
-        private void ProcessSGRParameterANSI(int code, ref TextDecoration dec) {
-            switch (code) {
-                case 0: // default rendition (implementation-defined) (ECMA-48,VT100,VT220)
-                    dec = TextDecoration.Default;
-                    break;
-                case 1: // bold or increased intensity (ECMA-48,VT100,VT220)
-                    dec = dec.GetCopyWithBold(true);
-                    break;
-                case 2: // faint, decreased intensity or second colour (ECMA-48)
-                    break;
-                case 3: // italicized (ECMA-48)
-                    break;
-                case 4: // singly underlined (ECMA-48,VT100,VT220)
-                    dec = dec.GetCopyWithUnderline(true);
-                    break;
-                case 5: // slowly blinking (ECMA-48,VT100,VT220)
-                case 6: // rapidly blinking (ECMA-48)
-                    dec = dec.GetCopyWithBlink(true);
-                    break;
-                case 7: // negative image (ECMA-48,VT100,VT220)
-                    dec = dec.GetCopyWithInverted(true);
-                    break;
-                case 8: // concealed characters (ECMA-48,VT300)
-                case 9: // crossed-out (ECMA-48)
-                case 10: // primary (default) font (ECMA-48)
-                case 11: // first alternative font (ECMA-48)
-                case 12: // second alternative font (ECMA-48)
-                case 13: // third alternative font (ECMA-48)
-                case 14: // fourth alternative font (ECMA-48)
-                case 15: // fifth alternative font (ECMA-48)
-                case 16: // sixth alternative font (ECMA-48)
-                case 17: // seventh alternative font (ECMA-48)
-                case 18: // eighth alternative font (ECMA-48)
-                case 19: // ninth alternative font (ECMA-48)
-                case 20: // Fraktur (Gothic) (ECMA-48)
-                case 21: // doubly underlined (ECMA-48)
-                    break;
-                case 22: // normal colour or normal intensity (neither bold nor faint) (ECMA-48,VT220,VT300)
-                    dec = TextDecoration.Default;
-                    break;
-                case 23: // not italicized, not fraktur (ECMA-48)
-                    break;
-                case 24: // not underlined (neither singly nor doubly) (ECMA-48,VT220,VT300)
-                    dec = dec.GetCopyWithUnderline(false);
-                    break;
-                case 25: // steady (not blinking) (ECMA-48,VT220,VT300)
-                    dec = dec.GetCopyWithBlink(false);
-                    break;
-                case 26: // reserved (ECMA-48)
-                    break;
-                case 27: // positive image (ECMA-48,VT220,VT300)
-                    dec = dec.GetCopyWithInverted(false);
-                    break;
-                case 28: // revealed characters (ECMA-48)
-                case 29: // not crossed out (ECMA-48)
-                    break;
-                case 30: // black display (ECMA-48)
-                case 31: // red display (ECMA-48)
-                case 32: // green display (ECMA-48)
-                case 33: // yellow display (ECMA-48)
-                case 34: // blue display (ECMA-48)
-                case 35: // magenta display (ECMA-48)
-                case 36: // cyan display (ECMA-48)
-                case 37: // white display (ECMA-48)
-                    dec = SelectForeColor(dec, code - 30);
-                    break;
-                case 38: // reserved (ECMA-48)
-                    break;
-                case 39: // default display colour (implementation-defined) (ECMA-48)
-                    dec = dec.GetCopyWithForeColor(ColorSpec.Default);
-                    break;
-                case 40: // black background (ECMA-48)
-                case 41: // red background (ECMA-48)
-                case 42: // green background (ECMA-48)
-                case 43: // yellow background (ECMA-48)
-                case 44: // blue background (ECMA-48)
-                case 45: // magenta background (ECMA-48)
-                case 46: // cyan background (ECMA-48)
-                case 47: // white background (ECMA-48)
-                    dec = SelectBackgroundColor(dec, code - 40);
-                    break;
-                case 48: // reserved (ECMA-48)
-                    break;
-                case 49: // default background colour (implementation-defined) (ECMA-48)
-                    dec = dec.GetCopyWithBackColor(ColorSpec.Default);
-                    break;
-                case 50: // reserved (ECMA-48)
-                case 51: // framed (ECMA-48)
-                case 52: // encircled (ECMA-48)
-                case 53: // overlined (ECMA-48)
-                case 54: // not framed, not encircled (ECMA-48)
-                case 55: // not overlined (ECMA-48)
-                case 56: // reserved (ECMA-48)
-                case 57: // reserved (ECMA-48)
-                case 58: // reserved (ECMA-48)
-                case 59: // reserved (ECMA-48)
-                case 60: // ideogram underline or right side line (ECMA-48)
-                case 61: // ideogram double underline or double line on the right side (ECMA-48)
-                case 62: // ideogram overline or left side line (ECMA-48)
-                case 63: // ideogram double overline or double line on the left side (ECMA-48)
-                case 64: // ideogram stress marking (ECMA-48)
-                case 65: // cancels the effect of the rendition aspects established by parameter values 60 to 64 (ECMA-48)
-                    break;
-                default:
-                    // other values are ignored without notification to the user
-                    Debug.WriteLine("unknown SGR code (ANSI) : {0}", code);
-                    break;
-            }
         }
 
         [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'h')]
