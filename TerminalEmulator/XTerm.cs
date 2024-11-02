@@ -78,7 +78,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        private class RectArea {
+        private struct RectArea {
             public readonly int Top;
             public readonly int Left;
             public readonly int Bottom;
@@ -97,6 +97,107 @@ namespace Poderosa.Terminal {
             }
         }
 
+        /// <summary>
+        /// Position on the screen or view-port
+        /// </summary>
+        protected struct RowCol {
+            /// <summary>
+            /// Vertical position. 1-based.
+            /// </summary>
+            public readonly int Row;
+            /// <summary>
+            /// Horizontal position. 1-based.
+            /// </summary>
+            public readonly int Col;
+
+            public RowCol(int row, int col) {
+                Row = row;
+                Col = col;
+            }
+        }
+
+        /// <summary>
+        /// View port
+        /// </summary>
+        protected class ViewPort {
+            /// <summary>
+            /// View port width
+            /// </summary>
+            public readonly int Width;
+            /// <summary>
+            /// View port height
+            /// </summary>
+            public readonly int Height;
+
+            private readonly int _terminalWidth;
+            private readonly int _terminalHeight;
+
+            private readonly int _topOffset; // 0-based
+            private readonly int _leftOffset; // 0-based
+
+            private readonly int _baseLineNumber;
+
+            public ViewPort(TerminalDocument doc, bool relative) {
+                _terminalWidth = doc.TerminalWidth;
+                _terminalHeight = doc.TerminalHeight;
+
+                if (relative) {
+                    _topOffset = doc.TopMarginOffset;
+                    _leftOffset = doc.LeftMarginOffset;
+                    Height = doc.BottomMarginOffset - _topOffset + 1;
+                    Width = doc.RightMarginOffset - _leftOffset + 1;
+                    _baseLineNumber = doc.TopLineNumber + _topOffset;
+                }
+                else {
+                    _topOffset = 0;
+                    _leftOffset = 0;
+                    Height = doc.TerminalHeight;
+                    Width = doc.TerminalWidth;
+                    _baseLineNumber = doc.TopLineNumber;
+                }
+            }
+
+            public ViewPort() {
+                Width = 0;
+                Height = 0;
+                _terminalWidth = -1;
+                _terminalHeight = -1;
+                _topOffset = 0;
+                _leftOffset = 0;
+                _baseLineNumber = 0;
+            }
+
+            public int ToLineNumber(int row) {
+                return _baseLineNumber + row - 1;
+            }
+
+            public int ToCaretColumn(int col) {
+                return _leftOffset + col - 1;
+            }
+
+            public int FromLineNumber(int n) {
+                return n - _baseLineNumber + 1;
+            }
+
+            public int FromCaretColumn(int c) {
+                return c - _leftOffset + 1;
+            }
+
+            /// <summary>
+            /// Get origin as the absolute position on the screen
+            /// </summary>
+            public RowCol GetOrigin() {
+                return new RowCol(
+                    row: _topOffset + 1,
+                    col: _leftOffset + 1
+                );
+            }
+
+            public bool IsLocationChanged(TerminalDocument doc) {
+                return _terminalWidth != doc.TerminalWidth || _terminalHeight != doc.TerminalHeight || _baseLineNumber != doc.TopLineNumber;
+            }
+        }
+
         private readonly EscapeSequenceEngine<XTerm> _escapeSequenceEngine;
 
         private IModalCharacterTask _currentCharacterTask = null;
@@ -110,6 +211,8 @@ namespace Poderosa.Terminal {
         private readonly SavedCursor[] _savedCursor = new SavedCursor[2];	// { main, alternate }
         private SavedCursor _savedCursorSCO = null;
         private readonly Dictionary<int, bool> _savedDecModes = new Dictionary<int, bool>();
+
+        private ViewPort _viewPortCache = new ViewPort();
 
         private bool _bracketedPasteMode = false;
         private readonly byte[] _bracketedPasteModeLeadingBytes = new byte[] { 0x1b, (byte)'[', (byte)'2', (byte)'0', (byte)'0', (byte)'~' };
@@ -125,7 +228,7 @@ namespace Poderosa.Terminal {
 
         private bool _forceNewLine = false; // controls behavior of LF/FF/VT
         private bool _insertMode = false;
-        private bool _scrollRegionRelative = false;
+        private bool _originRelative = false;
 
         private const int MOUSE_POS_LIMIT = 255 - 32;       // mouse position limit
         private const int MOUSE_POS_EXT_LIMIT = 2047 - 32;  // mouse position limit in extended mode
@@ -181,7 +284,7 @@ namespace Poderosa.Terminal {
             _focusReportingMode = false;
             _forceNewLine = false;
             _insertMode = false;
-            _scrollRegionRelative = false;
+            _originRelative = false;
             _escapeSequenceEngine.Reset();
         }
 
@@ -189,7 +292,7 @@ namespace Poderosa.Terminal {
             _prevNormalChar = null;
             _wrapAroundMode = true;
             _insertMode = false;
-            _scrollRegionRelative = false;
+            _originRelative = false;
         }
 
         public override void StartModalTerminalTask(IModalTerminalTask task) {
@@ -1190,7 +1293,7 @@ namespace Poderosa.Terminal {
             // bit 0: origin mode (1=set 0=reset)
             bool autoWrapPending = Document.WrapPending && _wrapAroundMode;
             int r = 0x40
-                + (_scrollRegionRelative ? 1 : 0)
+                + (_originRelative ? 1 : 0)
                 + (autoWrapPending ? 8 : 0);
             return (char)r;
         }
@@ -1343,7 +1446,7 @@ namespace Poderosa.Terminal {
             ProcessCursorPosition(Document.TerminalHeight, 1);
         }
 
-        private void ProcessCursorPosition(int row, int col) {
+        private void MoveCursorTo(int row, int col) {
             Document.UpdateCurrentLine(_manipulator);
             Document.CurrentLineNumber = (Document.TopLineNumber + row - 1);
             _manipulator.Load(Document.CurrentLine);
@@ -1635,6 +1738,12 @@ namespace Poderosa.Terminal {
             }
 
             MoveCursorToHome();
+        }
+
+        private void MoveCursorToOrigin() {
+            ViewPort vp = GetViewPort();
+            RowCol rc = vp.GetOrigin();
+            MoveCursorTo(rc.Row, rc.Col);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'b')] // REP
@@ -2400,7 +2509,9 @@ namespace Poderosa.Terminal {
                     SetReverseVideo(set);
                     break;
                 case 6:	//Origin Mode
-                    _scrollRegionRelative = set;
+                    _originRelative = set;
+                    UpdateViewPortCache();
+                    MoveCursorToOrigin();
                     break;
                 case 7:
                     _wrapAroundMode = set;
@@ -2516,7 +2627,7 @@ namespace Poderosa.Terminal {
                 case 5:
                     return ReverseVideo;
                 case 6:
-                    return _scrollRegionRelative;
+                    return _originRelative;
                 case 7:
                     return _wrapAroundMode;
                 case 25:
@@ -3032,7 +3143,7 @@ namespace Poderosa.Terminal {
                     col: col,
                     decoration: Document.CurrentDecoration,
                     wrapAroundMode: _wrapAroundMode,
-                    scrollRegionRelative: _scrollRegionRelative
+                    scrollRegionRelative: _originRelative
                 );
         }
 
@@ -3066,7 +3177,7 @@ namespace Poderosa.Terminal {
 
             _wrapAroundMode = saved.WrapAroundMode;
 
-            _scrollRegionRelative = saved.ScrollRegionRelative;
+            _originRelative = saved.ScrollRegionRelative;
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 's')]
@@ -3390,6 +3501,17 @@ namespace Poderosa.Terminal {
                 _settings.Caption = _title;
                 _settings.EndUpdate();
             }
+        }
+
+        private ViewPort GetViewPort() {
+            if (_viewPortCache.IsLocationChanged(Document)) {
+                UpdateViewPortCache();
+            }
+            return _viewPortCache;
+        }
+
+        private void UpdateViewPortCache() {
+            _viewPortCache = new ViewPort(Document, _originRelative);
         }
     }
 
