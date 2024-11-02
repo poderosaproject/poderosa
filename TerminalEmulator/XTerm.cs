@@ -2264,181 +2264,8 @@ namespace Poderosa.Terminal {
 
             int paramIndex = 0;
             while (paramIndex < p.Length) {
-                if (p.IsSingleInteger(paramIndex)) {
-                    int code = p.Get(paramIndex++, 0);
-                    switch (code) {
-                        case 0: // default rendition (implementation-defined) (ECMA-48,VT100,VT220)
-                            dec = TextDecoration.Default;
-                            break;
-                        case 1: // bold or increased intensity (ECMA-48,VT100,VT220)
-                            dec = dec.GetCopyWithBold(true);
-                            break;
-                        case 2: // faint, decreased intensity or second colour (ECMA-48)
-                            break;
-                        case 3: // italicized (ECMA-48)
-                            break;
-                        case 4: // singly underlined (ECMA-48,VT100,VT220)
-                            dec = dec.GetCopyWithUnderline(true);
-                            break;
-                        case 5: // slowly blinking (ECMA-48,VT100,VT220)
-                        case 6: // rapidly blinking (ECMA-48)
-                            dec = dec.GetCopyWithBlink(true);
-                            break;
-                        case 7: // negative image (ECMA-48,VT100,VT220)
-                            dec = dec.GetCopyWithInverted(true);
-                            break;
-                        case 8: // concealed characters (ECMA-48,VT300)
-                            dec = dec.GetCopyWithHidden(true);
-                            break;
-                        case 9: // crossed-out (ECMA-48)
-                        case 10: // primary (default) font (ECMA-48)
-                        case 11: // first alternative font (ECMA-48)
-                        case 12: // second alternative font (ECMA-48)
-                        case 13: // third alternative font (ECMA-48)
-                        case 14: // fourth alternative font (ECMA-48)
-                        case 15: // fifth alternative font (ECMA-48)
-                        case 16: // sixth alternative font (ECMA-48)
-                        case 17: // seventh alternative font (ECMA-48)
-                        case 18: // eighth alternative font (ECMA-48)
-                        case 19: // ninth alternative font (ECMA-48)
-                        case 20: // Fraktur (Gothic) (ECMA-48)
-                        case 21: // doubly underlined (ECMA-48)
-                            break;
-                        case 22: // normal colour or normal intensity (neither bold nor faint) (ECMA-48,VT220,VT300)
-                            dec = TextDecoration.Default;
-                            break;
-                        case 23: // not italicized, not fraktur (ECMA-48)
-                            break;
-                        case 24: // not underlined (neither singly nor doubly) (ECMA-48,VT220,VT300)
-                            dec = dec.GetCopyWithUnderline(false);
-                            break;
-                        case 25: // steady (not blinking) (ECMA-48,VT220,VT300)
-                            dec = dec.GetCopyWithBlink(false);
-                            break;
-                        case 26: // reserved (ECMA-48)
-                            break;
-                        case 27: // positive image (ECMA-48,VT220,VT300)
-                            dec = dec.GetCopyWithInverted(false);
-                            break;
-                        case 28: // revealed characters (ECMA-48)
-                            dec = dec.GetCopyWithHidden(false);
-                            break;
-                        case 29: // not crossed out (ECMA-48)
-                            break;
-                        case 30: // black display (ECMA-48)
-                        case 31: // red display (ECMA-48)
-                        case 32: // green display (ECMA-48)
-                        case 33: // yellow display (ECMA-48)
-                        case 34: // blue display (ECMA-48)
-                        case 35: // magenta display (ECMA-48)
-                        case 36: // cyan display (ECMA-48)
-                        case 37: // white display (ECMA-48)
-                            dec = SelectForeColor(dec, code - 30);
-                            break;
-                        case 38: // Set foreground color (XTERM,ISO-8613-3)
-                        case 48: // Set background color (XTERM,ISO-8613-3)
-                            if (p.IsSingleInteger(paramIndex)) {
-                                int type = p.Get(paramIndex++, 0);
-                                if (type == 2) { // RGB
-                                    // sub parameters are semicolon-separated: supports only KDE konsole format
-                                    // 38/48 ; 2 ; R ; G ; B
-                                    int r = p.Get(paramIndex++, 0);
-                                    int g = p.Get(paramIndex++, 0);
-                                    int b = p.Get(paramIndex++, 0);
-                                    if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255) {
-                                        if (code == 38) {
-                                            dec = SetForeColorByRGB(dec, r, g, b);
-                                        }
-                                        else {
-                                            dec = SetBackColorByRGB(dec, r, g, b);
-                                        }
-                                    }
-                                }
-                                else if (type == 5) { // indexed
-                                    // sub parameters are semicolon-separated
-                                    // 38/48 ; 5 ; N
-                                    int n = p.Get(paramIndex++, 0);
-                                    if (n >= 0 && n <= 255) {
-                                        if (code == 38) {
-                                            dec = SelectForeColor(dec, n);
-                                        }
-                                        else {
-                                            dec = SelectBackgroundColor(dec, n);
-                                        }
-                                    }
-                                }
-                            }
-                            else if (p.IsIntegerCombination(paramIndex)) {
-                                // 38/48 ; 2/5 : ... (colon-separated)
-                                int[] subParams = p.GetIntegerCombination(paramIndex++)
-                                                    .Select(v => v.GetValueOrDefault(0))
-                                                    .ToArray();
-                                bool isForeColor = code == 38;
-                                dec = SetColorBySGRSubParams(dec, isForeColor, subParams);
-                            }
-                            else {
-                                paramIndex++; // avoid infinite loop
-                            }
-                            break;
-                        case 39: // default display colour (implementation-defined) (ECMA-48)
-                            dec = dec.GetCopyWithForeColor(ColorSpec.Default);
-                            break;
-                        case 40: // black background (ECMA-48)
-                        case 41: // red background (ECMA-48)
-                        case 42: // green background (ECMA-48)
-                        case 43: // yellow background (ECMA-48)
-                        case 44: // blue background (ECMA-48)
-                        case 45: // magenta background (ECMA-48)
-                        case 46: // cyan background (ECMA-48)
-                        case 47: // white background (ECMA-48)
-                            dec = SelectBackgroundColor(dec, code - 40);
-                            break;
-                        case 49: // default background colour (implementation-defined) (ECMA-48)
-                            dec = dec.GetCopyWithBackColor(ColorSpec.Default);
-                            break;
-                        case 50: // reserved (ECMA-48)
-                        case 51: // framed (ECMA-48)
-                        case 52: // encircled (ECMA-48)
-                        case 53: // overlined (ECMA-48)
-                        case 54: // not framed, not encircled (ECMA-48)
-                        case 55: // not overlined (ECMA-48)
-                        case 56: // reserved (ECMA-48)
-                        case 57: // reserved (ECMA-48)
-                        case 58: // reserved (ECMA-48)
-                        case 59: // reserved (ECMA-48)
-                        case 60: // ideogram underline or right side line (ECMA-48)
-                        case 61: // ideogram double underline or double line on the right side (ECMA-48)
-                        case 62: // ideogram overline or left side line (ECMA-48)
-                        case 63: // ideogram double overline or double line on the left side (ECMA-48)
-                        case 64: // ideogram stress marking (ECMA-48)
-                        case 65: // cancels the effect of the rendition aspects established by parameter values 60 to 64 (ECMA-48)
-                            break;
-                        case 90: // Set foreground color to Black (XTERM)
-                        case 91: // Set foreground color to Red (XTERM)
-                        case 92: // Set foreground color to Green (XTERM)
-                        case 93: // Set foreground color to Yellow (XTERM)
-                        case 94: // Set foreground color to Blue (XTERM)
-                        case 95: // Set foreground color to Magenta (XTERM)
-                        case 96: // Set foreground color to Cyan (XTERM)
-                        case 97: // Set foreground color to White (XTERM)
-                            dec = SelectForeColor(dec, code - 90 + 8);
-                            break;
-                        case 100: // Set background color to Black (XTERM)
-                        case 101: // Set background color to Red (XTERM)
-                        case 102: // Set background color to Green (XTERM)
-                        case 103: // Set background color to Yellow (XTERM)
-                        case 104: // Set background color to Blue (XTERM)
-                        case 105: // Set background color to Magenta (XTERM)
-                        case 106: // Set background color to Cyan (XTERM)
-                        case 107: // Set background color to White (XTERM)
-                            dec = SelectBackgroundColor(dec, code - 100 + 8);
-                            break;
-                        default:
-                            Debug.WriteLine("unknown SGR code : {0}", code);
-                            break;
-                    }
-                }
-                else if (p.IsIntegerCombination(paramIndex)) {
+
+                if (p.IsIntegerCombination(paramIndex)) {
                     int[] subParams = p.GetIntegerCombination(paramIndex++)
                                         .Select(v => v.GetValueOrDefault(0))
                                         .ToArray();
@@ -2448,9 +2275,177 @@ namespace Poderosa.Terminal {
                         subParams = subParams.Skip(1).ToArray();
                         dec = SetColorBySGRSubParams(dec, isForeColor, subParams);
                     }
+                    continue;
                 }
-                else {
-                    paramIndex++; // avoid infinite loop
+
+                int code = p.Get(paramIndex++, 0);
+                switch (code) {
+                    case 0: // default rendition (implementation-defined) (ECMA-48,VT100,VT220)
+                        dec = TextDecoration.Default;
+                        break;
+                    case 1: // bold or increased intensity (ECMA-48,VT100,VT220)
+                        dec = dec.GetCopyWithBold(true);
+                        break;
+                    case 2: // faint, decreased intensity or second colour (ECMA-48)
+                        break;
+                    case 3: // italicized (ECMA-48)
+                        break;
+                    case 4: // singly underlined (ECMA-48,VT100,VT220)
+                        dec = dec.GetCopyWithUnderline(true);
+                        break;
+                    case 5: // slowly blinking (ECMA-48,VT100,VT220)
+                    case 6: // rapidly blinking (ECMA-48)
+                        dec = dec.GetCopyWithBlink(true);
+                        break;
+                    case 7: // negative image (ECMA-48,VT100,VT220)
+                        dec = dec.GetCopyWithInverted(true);
+                        break;
+                    case 8: // concealed characters (ECMA-48,VT300)
+                        dec = dec.GetCopyWithHidden(true);
+                        break;
+                    case 9: // crossed-out (ECMA-48)
+                    case 10: // primary (default) font (ECMA-48)
+                    case 11: // first alternative font (ECMA-48)
+                    case 12: // second alternative font (ECMA-48)
+                    case 13: // third alternative font (ECMA-48)
+                    case 14: // fourth alternative font (ECMA-48)
+                    case 15: // fifth alternative font (ECMA-48)
+                    case 16: // sixth alternative font (ECMA-48)
+                    case 17: // seventh alternative font (ECMA-48)
+                    case 18: // eighth alternative font (ECMA-48)
+                    case 19: // ninth alternative font (ECMA-48)
+                    case 20: // Fraktur (Gothic) (ECMA-48)
+                    case 21: // doubly underlined (ECMA-48)
+                        break;
+                    case 22: // normal colour or normal intensity (neither bold nor faint) (ECMA-48,VT220,VT300)
+                        dec = TextDecoration.Default;
+                        break;
+                    case 23: // not italicized, not fraktur (ECMA-48)
+                        break;
+                    case 24: // not underlined (neither singly nor doubly) (ECMA-48,VT220,VT300)
+                        dec = dec.GetCopyWithUnderline(false);
+                        break;
+                    case 25: // steady (not blinking) (ECMA-48,VT220,VT300)
+                        dec = dec.GetCopyWithBlink(false);
+                        break;
+                    case 26: // reserved (ECMA-48)
+                        break;
+                    case 27: // positive image (ECMA-48,VT220,VT300)
+                        dec = dec.GetCopyWithInverted(false);
+                        break;
+                    case 28: // revealed characters (ECMA-48)
+                        dec = dec.GetCopyWithHidden(false);
+                        break;
+                    case 29: // not crossed out (ECMA-48)
+                        break;
+                    case 30: // black display (ECMA-48)
+                    case 31: // red display (ECMA-48)
+                    case 32: // green display (ECMA-48)
+                    case 33: // yellow display (ECMA-48)
+                    case 34: // blue display (ECMA-48)
+                    case 35: // magenta display (ECMA-48)
+                    case 36: // cyan display (ECMA-48)
+                    case 37: // white display (ECMA-48)
+                        dec = SelectForeColor(dec, code - 30);
+                        break;
+                    case 38: // Set foreground color (XTERM,ISO-8613-3)
+                    case 48: // Set background color (XTERM,ISO-8613-3)
+                        if (p.IsIntegerCombination(paramIndex)) {
+                            // 38/48 ; 2/5 : ... (colon-separated)
+                            int[] subParams = p.GetIntegerCombination(paramIndex++)
+                                                .Select(v => v.GetValueOrDefault(0))
+                                                .ToArray();
+                            bool isForeColor = code == 38;
+                            dec = SetColorBySGRSubParams(dec, isForeColor, subParams);
+                        }
+                        else {
+                            int type = p.Get(paramIndex++, 0);
+                            if (type == 2) { // RGB
+                                // sub parameters are semicolon-separated: supports only KDE konsole format
+                                // 38/48 ; 2 ; R ; G ; B
+                                int r = p.Get(paramIndex++, 0);
+                                int g = p.Get(paramIndex++, 0);
+                                int b = p.Get(paramIndex++, 0);
+                                if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255) {
+                                    if (code == 38) {
+                                        dec = SetForeColorByRGB(dec, r, g, b);
+                                    }
+                                    else {
+                                        dec = SetBackColorByRGB(dec, r, g, b);
+                                    }
+                                }
+                            }
+                            else if (type == 5) { // indexed
+                                // sub parameters are semicolon-separated
+                                // 38/48 ; 5 ; N
+                                int n = p.Get(paramIndex++, 0);
+                                if (n >= 0 && n <= 255) {
+                                    if (code == 38) {
+                                        dec = SelectForeColor(dec, n);
+                                    }
+                                    else {
+                                        dec = SelectBackgroundColor(dec, n);
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case 39: // default display colour (implementation-defined) (ECMA-48)
+                        dec = dec.GetCopyWithForeColor(ColorSpec.Default);
+                        break;
+                    case 40: // black background (ECMA-48)
+                    case 41: // red background (ECMA-48)
+                    case 42: // green background (ECMA-48)
+                    case 43: // yellow background (ECMA-48)
+                    case 44: // blue background (ECMA-48)
+                    case 45: // magenta background (ECMA-48)
+                    case 46: // cyan background (ECMA-48)
+                    case 47: // white background (ECMA-48)
+                        dec = SelectBackgroundColor(dec, code - 40);
+                        break;
+                    case 49: // default background colour (implementation-defined) (ECMA-48)
+                        dec = dec.GetCopyWithBackColor(ColorSpec.Default);
+                        break;
+                    case 50: // reserved (ECMA-48)
+                    case 51: // framed (ECMA-48)
+                    case 52: // encircled (ECMA-48)
+                    case 53: // overlined (ECMA-48)
+                    case 54: // not framed, not encircled (ECMA-48)
+                    case 55: // not overlined (ECMA-48)
+                    case 56: // reserved (ECMA-48)
+                    case 57: // reserved (ECMA-48)
+                    case 58: // reserved (ECMA-48)
+                    case 59: // reserved (ECMA-48)
+                    case 60: // ideogram underline or right side line (ECMA-48)
+                    case 61: // ideogram double underline or double line on the right side (ECMA-48)
+                    case 62: // ideogram overline or left side line (ECMA-48)
+                    case 63: // ideogram double overline or double line on the left side (ECMA-48)
+                    case 64: // ideogram stress marking (ECMA-48)
+                    case 65: // cancels the effect of the rendition aspects established by parameter values 60 to 64 (ECMA-48)
+                        break;
+                    case 90: // Set foreground color to Black (XTERM)
+                    case 91: // Set foreground color to Red (XTERM)
+                    case 92: // Set foreground color to Green (XTERM)
+                    case 93: // Set foreground color to Yellow (XTERM)
+                    case 94: // Set foreground color to Blue (XTERM)
+                    case 95: // Set foreground color to Magenta (XTERM)
+                    case 96: // Set foreground color to Cyan (XTERM)
+                    case 97: // Set foreground color to White (XTERM)
+                        dec = SelectForeColor(dec, code - 90 + 8);
+                        break;
+                    case 100: // Set background color to Black (XTERM)
+                    case 101: // Set background color to Red (XTERM)
+                    case 102: // Set background color to Green (XTERM)
+                    case 103: // Set background color to Yellow (XTERM)
+                    case 104: // Set background color to Blue (XTERM)
+                    case 105: // Set background color to Magenta (XTERM)
+                    case 106: // Set background color to Cyan (XTERM)
+                    case 107: // Set background color to White (XTERM)
+                        dec = SelectBackgroundColor(dec, code - 100 + 8);
+                        break;
+                    default:
+                        Debug.WriteLine("unknown SGR code : {0}", code);
+                        break;
                 }
             }
 
