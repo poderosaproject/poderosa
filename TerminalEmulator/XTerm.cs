@@ -3039,10 +3039,12 @@ namespace Poderosa.Terminal {
 
             int d = p.GetNonZero(0, 1);
 
-            int currentLilneNumber = Document.CurrentLineNumber;
             Document.UpdateCurrentLine(_manipulator);
-            Document.ScrollUp(Document.ScrollingTop, Document.ScrollingBottom, d); // TerminalDocument's "Scroll-Down" means XTerm's "Scroll-Up"
-            Document.CurrentLineNumber = currentLilneNumber;
+            // DEC document describes the SD scrolls the entire screen,
+            // but the xterm scrolls the area bounded with margins.
+
+            // TerminalDocument's "Scroll-Up" means that the view port is moved up and the content is scrolled down.
+            Document.ScrollUpRegion(d);
             _manipulator.Load(Document.CurrentLine);
         }
 
