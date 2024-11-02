@@ -3407,6 +3407,29 @@ namespace Poderosa.Terminal {
             }
         }
 
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '\'', '}')] // DECIC
+        private void ProcessInsertColumns(NumericParams p) {
+            int d = p.GetNonZero(0, 1);
+
+            if (Document.IsCurrentLineInScrollingRegion && Document.IsCaretColumnInScrollingRegion) {
+                Document.UpdateCurrentLine(_manipulator);
+                ShiftScrollRegionFrom(Document.CaretColumn, d);
+                _manipulator.Load(Document.CurrentLine);
+            }
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '\'', '~')] // DECDC
+        private void ProcessDeleteColumns(NumericParams p) {
+            int d = p.GetNonZero(0, 1);
+
+            if (Document.IsCurrentLineInScrollingRegion && Document.IsCaretColumnInScrollingRegion) {
+                Document.UpdateCurrentLine(_manipulator);
+                ShiftScrollRegionFrom(Document.CaretColumn, -d);
+                _manipulator.Load(Document.CurrentLine);
+            }
+        }
+
+
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'I')] // CHT
         private void ProcessForwardTab(NumericParams p) {
             int n = p.GetNonZero(0, 1);
