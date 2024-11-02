@@ -1455,11 +1455,6 @@ namespace Poderosa.Terminal {
             Document.CaretColumn = col - 1;
         }
 
-        private void MoveCursorToHome() {
-            int row = (_scrollRegionRelative && Document.HasScrollingRegionTop) ? Document.ScrollingTopOffset + 1 : 1;
-            ProcessCursorPosition(row, 1);
-        }
-
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'a')] // HPR
         private void ProcessCursorPositionRelative(NumericParams p) {
             int n = p.GetNonZero(0, 1);
@@ -1735,11 +1730,14 @@ namespace Poderosa.Terminal {
                 bottomOffset = bottom - 1;
             }
 
-            if (((topOffset == -1) ? 0 : topOffset) < ((bottomOffset == -1) ? height - 1 : bottomOffset)) {
-                Document.SetScrollingRegion(topOffset, bottomOffset);
+            // top must be smaller than bottom
+            if (((topOffset < 0) ? 0 : topOffset) >= ((bottomOffset < 0) ? height - 1 : bottomOffset)) {
+                return;
             }
 
-            MoveCursorToHome();
+            Document.SetVerticalMargins(topOffset, bottomOffset);
+            UpdateViewPortCache();
+            MoveCursorToOrigin();
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 's')] // SCOSC or DECSLRM
