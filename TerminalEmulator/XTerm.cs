@@ -870,43 +870,60 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.ESC, '6')] // DECBI
         private void BackIndex() {
-            if (Document.CaretColumn > 0) {
-                Document.CaretColumn--;
+            if (Document.CaretColumn == Document.LeftMarginOffset
+                && Document.IsCurrentLineInScrollingRegion
+                && Document.IsCaretColumnInScrollingRegion) {
+
+                ShiftScrollRegion(1);
             }
             else {
-                ShiftScreen(1);
+                Document.CaretColumn = Math.Max(Document.CaretColumn - 1, GetCaretColumnLeftLimit());
             }
         }
 
         [EscapeSequence(ControlCode.ESC, '9')] // DECFI
         private void ForwardIndex() {
-            if (Document.CaretColumn < Document.TerminalWidth - 1) {
-                Document.CaretColumn++;
+            if (Document.CaretColumn == Document.RightMarginOffset
+                && Document.IsCurrentLineInScrollingRegion
+                && Document.IsCaretColumnInScrollingRegion) {
+
+                ShiftScrollRegion(-1);
             }
             else {
-                ShiftScreen(-1);
+                Document.CaretColumn = Math.Min(Document.CaretColumn + 1, GetCaretColumnRightLimit());
             }
         }
 
-        private void ShiftScreen(int columns) {
+        /// <summary>
+        /// Shift left / shift right scroll region
+        /// </summary>
+        /// <param name="columns">shift right if positive value, shift left if negative value.</param>
+        private void ShiftScrollRegion(int columns) {
+            ShiftScrollRegionFrom(Document.LeftMarginOffset, columns);
+        }
+
+        /// <summary>
+        /// Shift left / shift right scroll region
+        /// </summary>
+        /// <param name="from">column index to start shifting.</param>
+        /// <param name="columns">shift right if positive value, shift left if negative value.</param>
+        private void ShiftScrollRegionFrom(int from, int columns) {
             Document.UpdateCurrentLine(_manipulator);
 
-            int w = Document.TerminalWidth;
-            int m = Document.TerminalHeight;
-            for (GLine l = Document.TopLine; l != null; l = l.NextLine) {
+            int scrollingBottom = Document.ScrollingBottomLineNumber;
+            for (GLine l = Document.FindLineOrEdge(Document.ScrollingTopLineNumber); l != null && l.ID <= scrollingBottom; l = l.NextLine) {
                 _manipulator.Load(l);
                 if (columns > 0) {
-                    _manipulator.InsertBlanks(0, columns, Document.TerminalWidth, Document.CurrentDecoration);
+                    _manipulator.InsertBlanks(from, columns, Document.RightMarginOffset + 1, Document.CurrentDecoration);
                 }
                 else if (columns < 0) {
-                    _manipulator.DeleteChars(0, -columns, Document.CurrentDecoration);
+                    _manipulator.DeleteChars(from, -columns, Document.RightMarginOffset + 1, Document.CurrentDecoration);
                 }
                 _manipulator.ExportTo(l);
+                Document.InvalidatedRegion.InvalidateLine(l.ID);
             }
 
             _manipulator.Load(Document.CurrentLine);
-
-            Document.InvalidateAll();
         }
 
 #if NOTUSED
