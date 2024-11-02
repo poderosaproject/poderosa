@@ -230,6 +230,7 @@ namespace Poderosa.Terminal {
         private bool _insertMode = false;
         private bool _originRelative = false;
         private bool _enableHorizontalMargins = false; // DECLRMM
+        private bool _rectangularAttributeChange = false; // mode for DECCARA and DECRARA
 
         private const int MOUSE_POS_LIMIT = 255 - 32;       // mouse position limit
         private const int MOUSE_POS_EXT_LIMIT = 2047 - 32;  // mouse position limit in extended mode
@@ -287,6 +288,7 @@ namespace Poderosa.Terminal {
             _insertMode = false;
             _originRelative = false;
             _enableHorizontalMargins = false;
+            _rectangularAttributeChange = false;
             _escapeSequenceEngine.Reset();
         }
 
@@ -2740,8 +2742,9 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'r')] // DECCARA
         private void ProcessChangeAttributesRect(NumericParams p) {
-            RectArea rect = ReadRectAreaFromParameters(p, 0);
-            if (rect == null) {
+            ViewPort vp = GetViewPort();
+            RectArea rect;
+            if (!ReadRectAreaFromParameters(p, 0, vp, out rect)) {
                 return;
             }
 
@@ -2787,29 +2790,14 @@ namespace Poderosa.Terminal {
                 return;
             }
 
-            int saveLineNumber = Document.CurrentLineNumber;
-            Document.UpdateCurrentLine(_manipulator);
-
-            int rectTopLineNumber = Document.TopLineNumber + rect.Top - 1;
-            int rectBottomLineNumber = Document.TopLineNumber + rect.Bottom - 1;
-
-            Document.EnsureLine(rectBottomLineNumber);
-            GLine l = Document.FindLineOrEdge(rectTopLineNumber);
-            while (l != null && l.ID <= rectBottomLineNumber) {
-                _manipulator.Load(l);
-                _manipulator.ModifyAttributes(rect.Left - 1, rect.Right, mod);
-                _manipulator.ExportTo(l);
-                Document.InvalidatedRegion.InvalidateLine(l.ID);
-                l = l.NextLine;
-            }
-            Document.CurrentLineNumber = saveLineNumber;
-            _manipulator.Load(Document.CurrentLine);
+            ChangeAttribute(ref vp, ref rect, (manip, from, to) => manip.ModifyAttributes(from, to, mod));
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 't')] // DECRARA
         private void ProcessReverseAttributesRect(NumericParams p) {
-            RectArea rect = ReadRectAreaFromParameters(p, 0);
-            if (rect == null) {
+            ViewPort vp = GetViewPort();
+            RectArea rect;
+            if (!ReadRectAreaFromParameters(p, 0, vp, out rect)) {
                 return;
             }
 
@@ -2843,29 +2831,64 @@ namespace Poderosa.Terminal {
                 return;
             }
 
-            int saveLineNumber = Document.CurrentLineNumber;
+            ChangeAttribute(ref vp, ref rect, (manip, from, to) => manip.ReverseAttributes(from, to, mod));
+        }
+
+        private void ChangeAttribute(ref ViewPort vp, ref RectArea rect, Action<GLineManipulator, int, int> changeAttributes) {
             Document.UpdateCurrentLine(_manipulator);
 
-            int rectTopLineNumber = Document.TopLineNumber + rect.Top - 1;
-            int rectBottomLineNumber = Document.TopLineNumber + rect.Bottom - 1;
+            int rectTopLineNumber = vp.ToLineNumber(rect.Top);
+            int rectBottomLineNumber = vp.ToLineNumber(rect.Bottom);
 
             Document.EnsureLine(rectBottomLineNumber);
-            GLine l = Document.FindLineOrEdge(rectTopLineNumber);
-            while (l != null && l.ID <= rectBottomLineNumber) {
-                _manipulator.Load(l);
-                _manipulator.ReverseAttributes(rect.Left - 1, rect.Right, mod);
-                _manipulator.ExportTo(l);
-                Document.InvalidatedRegion.InvalidateLine(l.ID);
-                l = l.NextLine;
+
+            if (_rectangularAttributeChange) {
+                GLine l = Document.FindLineOrEdge(rectTopLineNumber);
+                while (l != null && l.ID <= rectBottomLineNumber) {
+                    _manipulator.Load(l);
+                    changeAttributes(_manipulator, vp.ToCaretColumn(rect.Left), vp.ToCaretColumn(rect.Right + 1));
+                    _manipulator.ExportTo(l);
+                    Document.InvalidatedRegion.InvalidateLine(l.ID);
+                    l = l.NextLine;
+                }
             }
-            Document.CurrentLineNumber = saveLineNumber;
+            else {
+                GLine l = Document.FindLineOrEdge(rectTopLineNumber);
+                while (l != null && l.ID <= rectBottomLineNumber) {
+                    _manipulator.Load(l);
+                    changeAttributes(
+                        _manipulator,
+                        (l.ID == rectTopLineNumber) ? vp.ToCaretColumn(rect.Left) : vp.ToCaretColumn(1),
+                        (l.ID == rectBottomLineNumber) ? vp.ToCaretColumn(rect.Right + 1) : vp.ToCaretColumn(vp.Width)
+                    );
+                    _manipulator.ExportTo(l);
+                    Document.InvalidatedRegion.InvalidateLine(l.ID);
+                    l = l.NextLine;
+                }
+            }
+
             _manipulator.Load(Document.CurrentLine);
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '*', 'x')] // DECSACE
+        private void ProcessSelectAttributeChangeExtent(NumericParams p) {
+            int mode = p.GetNonZero(0, 0);
+            switch (mode) {
+                case 0:
+                case 1:
+                    _rectangularAttributeChange = false;
+                    break;
+                case 2:
+                    _rectangularAttributeChange = true;
+                    break;
+            }
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'v')] // DECCRA
         private void ProcessCopyRect(NumericParams p) {
-            RectArea srcRect = ReadRectAreaFromParameters(p, 0);
-            if (srcRect == null) {
+            ViewPort vp = GetViewPort();
+            RectArea srcRect;
+            if (!ReadRectAreaFromParameters(p, 0, vp, out srcRect)) {
                 return;
             }
 
@@ -2874,20 +2897,20 @@ namespace Poderosa.Terminal {
             int destLeft = p.GetNonZero(6, 1);
             // int destPage = p.GetNonZero(7, 1); // ignored
 
-            if (destTop > Document.TerminalHeight || destLeft > Document.TerminalWidth || (destTop == srcRect.Top && destLeft == srcRect.Left)) {
+            if (destTop > vp.Height || destLeft > vp.Width || (destTop == srcRect.Top && destLeft == srcRect.Left)) {
                 return;
             }
 
-            int saveLineNumber = Document.CurrentLineNumber;
             Document.UpdateCurrentLine(_manipulator);
 
-            Document.EnsureLine(Document.TopLineNumber + srcRect.Bottom - 1);
+            Document.EnsureLine(vp.ToLineNumber(srcRect.Bottom));
 
             GLine[] copy = new GLine[srcRect.Bottom - srcRect.Top + 1];
             {
-                int rectTopLineNumber = Document.TopLineNumber + srcRect.Top - 1;
+                int rectTopLineNumber = vp.ToLineNumber(srcRect.Top);
+                int rectBottomLineNumber = vp.ToLineNumber(srcRect.Bottom);
                 GLine l = Document.FindLineOrEdge(rectTopLineNumber);
-                while (l != null) {
+                while (l != null && l.ID <= rectBottomLineNumber) {
                     int offset = l.ID - rectTopLineNumber;
                     if (offset >= 0 && offset < copy.Length) {
                         copy[offset] = l.Clone();
@@ -2896,8 +2919,8 @@ namespace Poderosa.Terminal {
                 }
             }
 
-            int destTopLineNumber = Document.TopLineNumber + destTop - 1;
-            int destBottomLimit = Document.TopLineNumber + Math.Min(destTop + srcRect.Bottom - srcRect.Top, Document.TerminalHeight) - 1;
+            int destTopLineNumber = vp.ToLineNumber(destTop);
+            int destBottomLimit = vp.ToLineNumber(Math.Min(destTop + srcRect.Bottom - srcRect.Top, vp.Height));
 
             Document.EnsureLine(destBottomLimit);
 
@@ -2918,7 +2941,6 @@ namespace Poderosa.Terminal {
                 destLine = destLine.NextLine;
             }
 
-            Document.CurrentLineNumber = saveLineNumber;
             _manipulator.Load(Document.CurrentLine);
         }
 
