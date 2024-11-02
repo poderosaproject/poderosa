@@ -1705,22 +1705,23 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.IND)]
         private void Index() {
             Document.UpdateCurrentLine(_manipulator);
-            int current = Document.CurrentLineNumber;
-            if (Document.HasScrollingRegionBottom && current == Document.ScrollingBottom)
-                Document.ScrollDown();
-            else
-                Document.CurrentLineNumber = current + 1;
+            // do LF without considering new-line mode
+            Document.LineFeed();
             _manipulator.Load(Document.CurrentLine);
+        }
+
+        [EscapeSequence(ControlCode.NEL)]
+        private void ProcessNextLine() {
+            Document.UpdateCurrentLine(_manipulator);
+            Document.LineFeed();
+            _manipulator.Load(Document.CurrentLine);
+            Document.CaretColumn = 0;
         }
 
         [EscapeSequence(ControlCode.RI)]
         private void ReverseIndex() {
             Document.UpdateCurrentLine(_manipulator);
-            int current = Document.CurrentLineNumber;
-            if (current == Document.ScrollingTop)
-                Document.ScrollUp();
-            else
-                Document.CurrentLineNumber = current - 1;
+            Document.ReverseLineFeed();
             _manipulator.Load(Document.CurrentLine);
         }
 
@@ -1825,14 +1826,6 @@ namespace Poderosa.Terminal {
                     ProcessNormalUnicodeChar(_prevNormalChar.Value);
                 }
             }
-        }
-
-        [EscapeSequence(ControlCode.NEL)]
-        private void ProcessNextLine() {
-            Document.UpdateCurrentLine(_manipulator);
-            Document.CurrentLineNumber++;
-            _manipulator.Load(Document.CurrentLine);
-            Document.CaretColumn = 0;
         }
 
         [EscapeSequence(ControlCode.ESC, '=')] // DECKPAM
