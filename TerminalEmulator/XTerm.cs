@@ -1584,25 +1584,29 @@ namespace Poderosa.Terminal {
         }
 
         private void DoEraseRectangle(NumericParams p, bool selective) {
-            RectArea rect = ReadRectAreaFromParameters(p, 0);
-            if (rect == null) {
+            ViewPort vp = GetViewPort();
+            RectArea rect;
+            if (!ReadRectAreaFromParameters(p, 0, vp, out rect)) {
                 return;
             }
 
             Document.UpdateCurrentLine(_manipulator);
 
-            GLine line = Document.FindLineOrNull(Document.TopLineNumber + rect.Top - 1);
+            int rectTopLineNumber = vp.ToLineNumber(rect.Top);
+            int rectBottomLineNumber = vp.ToLineNumber(rect.Bottom);
 
-            for (int r = rect.Top; line != null && r <= rect.Bottom; r++, line = line.NextLine) {
-                _manipulator.Load(line);
+            GLine l = Document.FindLineOrEdge(rectTopLineNumber);
+            while (l != null && l.ID <= rectBottomLineNumber) {
+                _manipulator.Load(l);
                 if (selective) {
-                    _manipulator.FillSpaceSkipProtected(rect.Left - 1, rect.Right, Document.CurrentDecoration);
+                    _manipulator.FillSpaceSkipProtected(vp.ToCaretColumn(rect.Left), vp.ToCaretColumn(rect.Right + 1), Document.CurrentDecoration);
                 }
                 else {
-                    _manipulator.FillSpace(rect.Left - 1, rect.Right, Document.CurrentDecoration);
+                    _manipulator.FillSpace(vp.ToCaretColumn(rect.Left), vp.ToCaretColumn(rect.Right + 1), Document.CurrentDecoration);
                 }
-                _manipulator.ExportTo(line);
-                Document.InvalidatedRegion.InvalidateLine(line.ID);
+                _manipulator.ExportTo(l);
+                Document.InvalidatedRegion.InvalidateLine(l.ID);
+                l = l.NextLine;
             }
 
             _manipulator.Load(Document.CurrentLine);
@@ -1696,23 +1700,6 @@ namespace Poderosa.Terminal {
 
         private void SelectiveEraseLine() {
             _manipulator.FillSpaceSkipProtected(0, _manipulator.BufferSize, Document.CurrentDecoration);
-        }
-
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '"', 'q')]
-        private void ProcessProtectCharacter(NumericParams p) {
-            int param = p.Get(0, 0);
-
-            switch (param) {
-                case 0:
-                case 2:
-                    Document.CurrentDecoration = Document.CurrentDecoration.GetCopyWithProtected(false);
-                    break;
-                case 1:
-                    Document.CurrentDecoration = Document.CurrentDecoration.GetCopyWithProtected(true);
-                    break;
-                default:
-                    break;
-            }
         }
 
         [EscapeSequence(ControlCode.IND)]
@@ -2562,6 +2549,23 @@ namespace Poderosa.Terminal {
 
         private TextDecoration SelectBackgroundColor(TextDecoration dec, int index) {
             return dec.GetCopyWithBackColor(new ColorSpec(index));
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '"', 'q')] // DECSCA
+        private void ProcessProtectCharacter(NumericParams p) {
+            int param = p.Get(0, 0);
+
+            switch (param) {
+                case 0:
+                case 2:
+                    Document.CurrentDecoration = Document.CurrentDecoration.GetCopyWithProtected(false);
+                    break;
+                case 1:
+                    Document.CurrentDecoration = Document.CurrentDecoration.GetCopyWithProtected(true);
+                    break;
+                default:
+                    break;
+            }
         }
 
         [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'h')] // DECSET
