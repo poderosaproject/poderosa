@@ -794,6 +794,8 @@ namespace Poderosa.Terminal {
         // [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 't')] // Title Mode (xterm)
         // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', 't')] // Set Warning Bell Volume
         // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', 'u')] // Set Margin Bell Volume
+        // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '\'', 'w')] // Enable Filter Rectangle
+        // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '#', 'y')] // Select checksum extension (xterm)
         private void Ignore() {
         }
 
