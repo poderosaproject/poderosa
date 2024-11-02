@@ -1469,14 +1469,13 @@ namespace Poderosa.Terminal {
             int row = p.GetNonZero(0, 1);
             int col = p.GetNonZero(1, 1);
 
-            if (_scrollRegionRelative && Document.HasScrollingRegionTop) {
-                row += Document.ScrollingTopOffset;
-            }
+            ViewPort vp = GetViewPort();
+            RowCol origin = vp.GetOrigin();
+            MoveCursorTo(
+                origin.Row + Math.Min(row, vp.Height) - 1,
+                origin.Col + Math.Min(col, vp.Width) - 1
+            );
 
-            row = Math.Min(row, Document.TerminalHeight);
-            col = Math.Min(col, Document.TerminalWidth);
-
-            ProcessCursorPosition(row, col);
         }
 
         [EscapeSequence(ControlCode.CSI, 'U')] // FIXME: undocumented?
