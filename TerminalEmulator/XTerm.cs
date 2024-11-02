@@ -119,7 +119,7 @@ namespace Poderosa.Terminal {
         /// <summary>
         /// View port
         /// </summary>
-        protected class ViewPort {
+        protected struct ViewPort {
             /// <summary>
             /// View port width
             /// </summary>
@@ -155,16 +155,6 @@ namespace Poderosa.Terminal {
                     Width = doc.TerminalWidth;
                     _baseLineNumber = doc.TopLineNumber;
                 }
-            }
-
-            public ViewPort() {
-                Width = 0;
-                Height = 0;
-                _terminalWidth = -1;
-                _terminalHeight = -1;
-                _topOffset = 0;
-                _leftOffset = 0;
-                _baseLineNumber = 0;
             }
 
             public int ToLineNumber(int row) {
@@ -234,8 +224,6 @@ namespace Poderosa.Terminal {
         private SavedCursor _savedCursorSCO = null;
         private readonly Dictionary<int, bool> _savedDecModes = new Dictionary<int, bool>();
         private readonly LinkedList<SGRStackItem> _sgrStack = new LinkedList<SGRStackItem>();
-
-        private ViewPort _viewPortCache = new ViewPort();
 
         private bool _bracketedPasteMode = false;
         private readonly byte[] _bracketedPasteModeLeadingBytes = new byte[] { 0x1b, (byte)'[', (byte)'2', (byte)'0', (byte)'0', (byte)'~' };
@@ -1786,7 +1774,6 @@ namespace Poderosa.Terminal {
             }
 
             Document.SetVerticalMargins(topOffset, bottomOffset);
-            UpdateViewPortCache();
             MoveCursorToOrigin();
         }
 
@@ -1831,7 +1818,6 @@ namespace Poderosa.Terminal {
             }
 
             Document.SetHorizontalMargins(leftOffset, rightOffset);
-            UpdateViewPortCache();
             MoveCursorToOrigin();
         }
 
@@ -2769,7 +2755,6 @@ namespace Poderosa.Terminal {
                     break;
                 case 6:	//Origin Mode
                     _originRelative = set;
-                    UpdateViewPortCache();
                     MoveCursorToOrigin();
                     break;
                 case 7:
@@ -3927,14 +3912,7 @@ namespace Poderosa.Terminal {
         }
 
         private ViewPort GetViewPort() {
-            if (_viewPortCache.IsLocationChanged(Document)) {
-                UpdateViewPortCache();
-            }
-            return _viewPortCache;
-        }
-
-        private void UpdateViewPortCache() {
-            _viewPortCache = new ViewPort(Document, _originRelative);
+            return new ViewPort(Document, _originRelative);
         }
     }
 

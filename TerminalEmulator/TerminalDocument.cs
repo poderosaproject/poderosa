@@ -27,31 +27,188 @@ namespace Poderosa.Terminal {
     /// </summary>
     /// <exclude/>
     public class TerminalDocument : CharacterDocument {
+
+        private const int MARGIN_DEFAULT = -1;
+
+        private sealed class ScreenGeometry {
+            private readonly int _width;
+            private readonly int _height;
+            private readonly int _topMarginOffset;
+            private readonly int _bottomMarginOffset;
+            private readonly int _leftMarginOffset;
+            private readonly int _rightMarginOffset;
+            private readonly int _actualTopMarginOffset;
+            private readonly int _actualBottomMarginOffset;
+            private readonly int _actualLeftMarginOffset;
+            private readonly int _actualRightMarginOffset;
+
+            public ScreenGeometry(
+                int width,
+                int height,
+                int topMarginOffset,
+                int bottomMarginOffset,
+                int leftMarginOffset,
+                int rightMarginOffset
+            ) {
+                _width = width;
+                _height = height;
+                _topMarginOffset = topMarginOffset;
+                _bottomMarginOffset = bottomMarginOffset;
+                _leftMarginOffset = leftMarginOffset;
+                _rightMarginOffset = rightMarginOffset;
+                _actualTopMarginOffset = (height < 1) ? 0 : (topMarginOffset < 0) ? 0 : Math.Min(topMarginOffset, height - 1);
+                _actualBottomMarginOffset = (height < 1) ? 0 : (bottomMarginOffset < 0) ? height - 1 : Math.Min(bottomMarginOffset, height - 1);
+                _actualLeftMarginOffset = (width < 1) ? 0 : (leftMarginOffset < 0) ? 0 : Math.Min(leftMarginOffset, width - 1);
+                _actualRightMarginOffset = (width < 1) ? 0 : (rightMarginOffset < 0) ? width - 1 : Math.Min(rightMarginOffset, width - 1);
+            }
+
+            public int Width {
+                get {
+                    return _width;
+                }
+            }
+
+            public int Height {
+                get {
+                    return _height;
+                }
+            }
+
+            public int TopMarginOffset {
+                get {
+                    return _actualTopMarginOffset;
+                }
+            }
+
+            public int BottomMarginOffset {
+                get {
+                    return _actualBottomMarginOffset;
+                }
+            }
+
+            public int LeftMarginOffset {
+                get {
+                    return _actualLeftMarginOffset;
+                }
+            }
+
+            public int RightMarginOffset {
+                get {
+                    return _actualRightMarginOffset;
+                }
+            }
+
+            public bool HasTopMargin {
+                get {
+                    return _topMarginOffset >= 0;
+                }
+            }
+
+            public bool HasBottomMargin {
+                get {
+                    return _bottomMarginOffset >= 0;
+                }
+            }
+
+            public bool HasLeftMargin {
+                get {
+                    return _leftMarginOffset >= 0;
+                }
+            }
+
+            public bool HasRightMargin {
+                get {
+                    return _rightMarginOffset >= 0;
+                }
+            }
+
+            public ScreenGeometry ChangeSize(int width, int height) {
+                return new ScreenGeometry(
+                    width: width,
+                    height: height,
+                    topMarginOffset: _topMarginOffset,
+                    bottomMarginOffset: _bottomMarginOffset,
+                    leftMarginOffset: _leftMarginOffset,
+                    rightMarginOffset: _rightMarginOffset
+                );
+            }
+
+            public ScreenGeometry ChangeVerticalMargins(int topMarginOffset, int bottomMarginOffset) {
+                return new ScreenGeometry(
+                    width: _width,
+                    height: _height,
+                    topMarginOffset: topMarginOffset,
+                    bottomMarginOffset: bottomMarginOffset,
+                    leftMarginOffset: _leftMarginOffset,
+                    rightMarginOffset: _rightMarginOffset
+                );
+            }
+
+            public ScreenGeometry ChangeHorizontalMargins(int leftMarginOffset, int rightMarginOffset) {
+                return new ScreenGeometry(
+                    width: _width,
+                    height: _height,
+                    topMarginOffset: _topMarginOffset,
+                    bottomMarginOffset: _bottomMarginOffset,
+                    leftMarginOffset: leftMarginOffset,
+                    rightMarginOffset: rightMarginOffset
+                );
+            }
+
+            public ScreenGeometry ClearVerticalMargins() {
+                return new ScreenGeometry(
+                    width: _width,
+                    height: _height,
+                    topMarginOffset: MARGIN_DEFAULT,
+                    bottomMarginOffset: MARGIN_DEFAULT,
+                    leftMarginOffset: _leftMarginOffset,
+                    rightMarginOffset: _rightMarginOffset
+                );
+            }
+
+            public ScreenGeometry ClearHorizontalMargins() {
+                return new ScreenGeometry(
+                    width: _width,
+                    height: _height,
+                    topMarginOffset: _topMarginOffset,
+                    bottomMarginOffset: _bottomMarginOffset,
+                    leftMarginOffset: MARGIN_DEFAULT,
+                    rightMarginOffset: MARGIN_DEFAULT
+                );
+            }
+
+            public ScreenGeometry ClearMargins() {
+                return new ScreenGeometry(
+                    width: _width,
+                    height: _height,
+                    topMarginOffset: MARGIN_DEFAULT,
+                    bottomMarginOffset: MARGIN_DEFAULT,
+                    leftMarginOffset: MARGIN_DEFAULT,
+                    rightMarginOffset: MARGIN_DEFAULT
+                );
+            }
+        }
+
         private TextDecoration _currentDecoration = TextDecoration.Default;
         private int _caretColumn;
         private bool _wrapPending;
-        // Margins (-1 = default margin)
-        private int _topMarginOffset;
-        private int _bottomMarginOffset;
-        private int _leftMarginOffset;
-        private int _rightMarginOffset;
+        private ScreenGeometry _geom;
         //ウィンドウの表示用テキスト
         private string _windowTitle; //ホストOSCシーケンスで指定されたタイトル
         private GLine _topLine; // top of the screen
         private GLine _viewTopLine; // top of the view
         private GLine _currentLine;
 
-        //画面に見えている幅と高さ
-        private int _width;
-        private int _height;
-
         internal TerminalDocument(int width, int height) {
-            Resize(width, height);
+            _geom = new ScreenGeometry(
+                    width: width,
+                    height: height,
+                    topMarginOffset: MARGIN_DEFAULT,
+                    bottomMarginOffset: MARGIN_DEFAULT,
+                    leftMarginOffset: MARGIN_DEFAULT,
+                    rightMarginOffset: MARGIN_DEFAULT
+                );
             Clear();
-            _topMarginOffset = -1;
-            _bottomMarginOffset = -1;
-            _leftMarginOffset = -1;
-            _rightMarginOffset = -1;
         }
 
         public string WindowTitle {
@@ -62,14 +219,16 @@ namespace Poderosa.Terminal {
                 _windowTitle = value;
             }
         }
+
         public int TerminalHeight {
             get {
-                return _height;
+                return _geom.Height;
             }
         }
+
         public int TerminalWidth {
             get {
-                return _width;
+                return _geom.Width;
             }
         }
 
@@ -94,8 +253,7 @@ namespace Poderosa.Terminal {
         /// <param name="topOffset">top of scrolling region specified by offset from the first line of the display area. -1 represents the top of the display area.</param>
         /// <param name="bottomOffset">bottom of scrolling region specified by offset from the first line of the display area. -1 represents the bottom of the display area.</param>
         public void SetVerticalMargins(int topOffset, int bottomOffset) {
-            _topMarginOffset = topOffset;
-            _bottomMarginOffset = bottomOffset;
+            _geom = _geom.ChangeVerticalMargins(topOffset, bottomOffset);
         }
 
         /// <summary>
@@ -104,8 +262,7 @@ namespace Poderosa.Terminal {
         /// <param name="leftOffset">left edge of scrolling region specified by offset from the first column of the display area. -1 represents the left-most column of the display area.</param>
         /// <param name="rightOffset">right edge of scrolling region specified by offset from the first column of the display area. -1 represents the right-most of the display area.</param>
         public void SetHorizontalMargins(int leftOffset, int rightOffset) {
-            _leftMarginOffset = leftOffset;
-            _rightMarginOffset = rightOffset;
+            _geom = _geom.ChangeHorizontalMargins(leftOffset, rightOffset);
         }
 
         public void Clear() {
@@ -117,23 +274,19 @@ namespace Poderosa.Terminal {
         }
 
         public void Resize(int width, int height) {
-            _width = width;
-            _height = height;
+            _geom = _geom.ChangeSize(width, height);
         }
 
         public void ClearMargins() {
-            ClearHorizontalMargins();
-            ClearVerticalMargins();
+            _geom = _geom.ClearMargins();
         }
 
         public void ClearHorizontalMargins() {
-            _leftMarginOffset = -1;
-            _rightMarginOffset = -1;
+            _geom = _geom.ClearHorizontalMargins();
         }
 
         public void ClearVerticalMargins() {
-            _topMarginOffset = -1;
-            _bottomMarginOffset = -1;
+            _geom = _geom.ClearVerticalMargins();
         }
 
         public int CaretColumn {
@@ -255,25 +408,25 @@ namespace Poderosa.Terminal {
 
         public int TopMarginOffset {
             get {
-                return (TerminalHeight < 1) ? 0 : (_topMarginOffset < 0) ? 0 : Math.Min(_topMarginOffset, TerminalHeight - 1);
+                return _geom.TopMarginOffset;
             }
         }
 
         public int BottomMarginOffset {
             get {
-                return (TerminalHeight < 1) ? 0 : (_bottomMarginOffset < 0) ? TerminalHeight - 1 : Math.Min(_bottomMarginOffset, TerminalHeight - 1);
+                return _geom.BottomMarginOffset;
             }
         }
 
         public int LeftMarginOffset {
             get {
-                return (TerminalWidth < 1) ? 0 : (_leftMarginOffset < 0) ? 0 : Math.Min(_leftMarginOffset, TerminalWidth - 1);
+                return _geom.LeftMarginOffset;
             }
         }
 
         public int RightMarginOffset {
             get {
-                return (TerminalWidth < 1) ? 0 : (_rightMarginOffset < 0) ? TerminalWidth - 1 : Math.Min(_rightMarginOffset, TerminalWidth - 1);
+                return _geom.RightMarginOffset;
             }
         }
 
@@ -303,25 +456,25 @@ namespace Poderosa.Terminal {
 
         public bool HasTopMargin {
             get {
-                return _topMarginOffset >= 0;
+                return _geom.HasTopMargin;
             }
         }
 
         public bool HasBottomMargin {
             get {
-                return _bottomMarginOffset >= 0;
+                return _geom.HasBottomMargin;
             }
         }
 
         public bool HasLeftMargin {
             get {
-                return _leftMarginOffset >= 0;
+                return _geom.HasLeftMargin;
             }
         }
 
         public bool HasRightMargin {
             get {
-                return _rightMarginOffset >= 0;
+                return _geom.HasRightMargin;
             }
         }
 
@@ -824,7 +977,7 @@ namespace Poderosa.Terminal {
         }
 
         private GLine CreateErasedGLine() {
-            return new GLine(_width, _currentDecoration);
+            return new GLine(TerminalWidth, _currentDecoration);
         }
     }
 
