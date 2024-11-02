@@ -1935,42 +1935,6 @@ namespace Poderosa.Terminal {
             }
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'L')]
-        private void ProcessInsertLines(NumericParams p) {
-            int d = p.GetNonZero(0, 1);
-
-            if (!Document.IsCurrentLineInScrollingRegion) {
-                return;
-            }
-
-            int bottom = Document.ScrollingBottom;
-
-            Document.UpdateCurrentLine(_manipulator);
-            int currentLineNumber = Document.CurrentLineNumber;
-            Document.ScrollUp(currentLineNumber, bottom, d);
-            Document.CurrentLineNumber = currentLineNumber;
-            _manipulator.Load(Document.CurrentLine);
-            Document.CaretColumn = 0;
-        }
-
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'M')]
-        private void ProcessDeleteLines(NumericParams p) {
-            int d = p.GetNonZero(0, 1);
-
-            if (!Document.IsCurrentLineInScrollingRegion) {
-                return;
-            }
-
-            int bottom = Document.ScrollingBottom;
-
-            Document.UpdateCurrentLine(_manipulator);
-            int currentLineNumber = Document.CurrentLineNumber;
-            Document.ScrollDown(currentLineNumber, bottom, d);
-            Document.CurrentLineNumber = currentLineNumber;
-            _manipulator.Load(Document.CurrentLine);
-            Document.CaretColumn = 0;
-        }
-
 #if NOTUSED
         private ProcessCharResult ProcessAfterOSC(string param, char code) {
             int semicolon = param.IndexOf(';');
@@ -3196,6 +3160,30 @@ namespace Poderosa.Terminal {
             // TerminalDocument's "Scroll-Up" means that the view port is moved up and the content is scrolled down.
             Document.ScrollUpRegion(d);
             _manipulator.Load(Document.CurrentLine);
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'L')] // IL
+        private void ProcessInsertLines(NumericParams p) {
+            int d = p.GetNonZero(0, 1);
+
+            if (Document.IsCurrentLineInScrollingRegion && Document.IsCaretColumnInScrollingRegion) {
+                Document.UpdateCurrentLine(_manipulator);
+                Document.ScrollUpRegionFrom(Document.CurrentLineNumber, d);
+                _manipulator.Load(Document.CurrentLine);
+                Document.CaretColumn = Document.LeftMarginOffset;
+            }
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'M')] // DL
+        private void ProcessDeleteLines(NumericParams p) {
+            int d = p.GetNonZero(0, 1);
+
+            if (Document.IsCurrentLineInScrollingRegion && Document.IsCaretColumnInScrollingRegion) {
+                Document.UpdateCurrentLine(_manipulator);
+                Document.ScrollDownRegionFrom(Document.CurrentLineNumber, d);
+                _manipulator.Load(Document.CurrentLine);
+                Document.CaretColumn = Document.LeftMarginOffset;
+            }
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'I')] // CHT
