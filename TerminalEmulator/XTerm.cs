@@ -1843,7 +1843,7 @@ namespace Poderosa.Terminal {
                 return;
 
             if (mode == TerminalMode.Normal) {
-                Document.ClearScrollingRegion();
+                Document.ClearMargins();
                 GetConnection().TerminalOutput.Resize(Document.TerminalWidth, Document.TerminalHeight); //たとえばemacs起動中にリサイズし、シェルへ戻るとシェルは新しいサイズを認識していない
                 //RMBoxで確認されたことだが、無用に後方にドキュメントを広げてくる奴がいる。カーソルを123回後方へ、など。
                 //場当たり的だが、ノーマルモードに戻る際に後ろの空行を削除することで対応する。
@@ -1860,7 +1860,6 @@ namespace Poderosa.Terminal {
             }
             else {
                 Document.ApplicationModeBackColor = ColorSpec.Default;
-                Document.SetScrollingRegion(0, Document.TerminalHeight - 1);
                 Document.IsApplicationMode = true;
             }
 
