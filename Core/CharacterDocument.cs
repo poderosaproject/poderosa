@@ -324,7 +324,6 @@ namespace Poderosa.Document {
         private int _lineIDStart;
         private int _lineIDEnd;
         private bool _invalidatedAll;
-
         private bool _empty;
 
         public InvalidatedRegion() {
@@ -336,16 +335,19 @@ namespace Poderosa.Document {
                 return _lineIDStart;
             }
         }
+
         public int LineIDEnd {
             get {
                 return _lineIDEnd;
             }
         }
+
         public bool IsEmpty {
             get {
                 return _empty;
             }
         }
+
         public bool InvalidatedAll {
             get {
                 return _invalidatedAll;
@@ -367,7 +369,8 @@ namespace Poderosa.Document {
                     _lineIDEnd = id;
             }
         }
-        public void Reset() {
+
+        private void Reset() {
             lock (this) {
                 _lineIDStart = NOT_SET;
                 _lineIDEnd = NOT_SET;
