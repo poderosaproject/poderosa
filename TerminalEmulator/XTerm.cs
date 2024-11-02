@@ -1445,28 +1445,14 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'E')] // CNL
         private void ProcessCursorNextLine(NumericParams p) {
-            int count = p.GetNonZero(0, 1);
-            int bottomLineNumber = Document.TopLineNumber + Document.TerminalHeight - 1;
-            GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
-            if (lineUpdated != null) {
-                this.LogService.TextLogger.WriteLine(lineUpdated);
-            }
-            Document.CurrentLineNumber = Math.Min(Document.CurrentLineNumber + count, bottomLineNumber);
-            _manipulator.Load(Document.CurrentLine);
-            Document.CaretColumn = 0;
+            ProcessCursorDown(p);
+            Document.CaretColumn = GetCaretColumnLeftLimit();
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'F')] // CPL
         private void ProcessCursorPrecedingLine(NumericParams p) {
-            int count = p.GetNonZero(0, 1);
-            int topLineNumber = Document.TopLineNumber;
-            GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
-            if (lineUpdated != null) {
-                this.LogService.TextLogger.WriteLine(lineUpdated);
-            }
-            Document.CurrentLineNumber = Math.Max(Document.CurrentLineNumber - count, topLineNumber);
-            _manipulator.Load(Document.CurrentLine);
-            Document.CaretColumn = 0;
+            ProcessCursorUp(p);
+            Document.CaretColumn = GetCaretColumnLeftLimit();
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'H')] // CUP
