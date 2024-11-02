@@ -273,7 +273,6 @@ namespace Poderosa.Terminal {
         }
 
         protected override void FullResetInternal() { // called from the base class
-            ProcessCursorPosition(1, 1);
             DoEraseInDisplay(2 /* all */, false);
             InitTabStops();
             _savedDecModes.Clear();
@@ -290,6 +289,7 @@ namespace Poderosa.Terminal {
             _enableHorizontalMargins = false;
             _rectangularAttributeChange = false;
             _escapeSequenceEngine.Reset();
+            MoveCursorTo(1, 1);
         }
 
         protected override void SoftResetInternal() { // called from the base class
