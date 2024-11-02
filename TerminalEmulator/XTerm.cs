@@ -1710,7 +1710,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        [EscapeSequence(ControlCode.OSC, EscapeSequenceParamType.Text, ControlCode.BEL)]
+        [EscapeSequence(ControlCode.OSC, EscapeSequenceParamType.Text, ControlCode.BEL)] // OSC
         [EscapeSequence(ControlCode.OSC, EscapeSequenceParamType.Text, ControlCode.ST)]
         private void ProcessOSC(string paramText) {
             OSCParams p;
@@ -2849,7 +2849,7 @@ namespace Poderosa.Terminal {
             TransmitDirect(Encoding.ASCII.GetBytes(response));
         }
 
-        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'S')]
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'S')] // Query Graphics (xterm)
         private void ProcessQueryGraphics(NumericParams p) {
             if (p.Length < 2) {
                 return;
@@ -3047,7 +3047,7 @@ namespace Poderosa.Terminal {
             Document.CaretColumn = t;
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'g')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'g')] // TBC
         private void ProcessTabClear(NumericParams p) {
             int param = p.Get(0, 0);
             if (param == 0)
@@ -3157,7 +3157,7 @@ namespace Poderosa.Terminal {
             DoEraseInDisplay(2, false);
         }
 
-        [EscapeSequence(ControlCode.ESC, '7')]
+        [EscapeSequence(ControlCode.ESC, '7')] // DECSC
         private void ProcessDECSC() {
             SaveCursor();
         }
@@ -3179,7 +3179,7 @@ namespace Poderosa.Terminal {
                 );
         }
 
-        [EscapeSequence(ControlCode.ESC, '8')]
+        [EscapeSequence(ControlCode.ESC, '8')] // DECRC
         private void ProcessDECRC() {
             RestoreCursor();
         }
@@ -3404,12 +3404,12 @@ namespace Poderosa.Terminal {
             return r;
         }
 
-        [EscapeSequence(ControlCode.ESC, 'c')]
+        [EscapeSequence(ControlCode.ESC, 'c')] // RIS
         private void ProcessRIS() {
             FullReset();
         }
 
-        [EscapeSequence(ControlCode.DCS, EscapeSequenceParamType.Text, ControlCode.ST)]
+        [EscapeSequence(ControlCode.DCS, EscapeSequenceParamType.Text, ControlCode.ST)] // DCS
         private void ProcessDCS(string p) {
             // TODO
         }
