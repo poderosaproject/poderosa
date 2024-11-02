@@ -1575,25 +1575,27 @@ namespace Poderosa.Terminal {
             _manipulator.Load(Document.CurrentLine);
         }
 
-        private RectArea ReadRectAreaFromParameters(NumericParams p, int index) {
+        private bool ReadRectAreaFromParameters(NumericParams p, int index, ViewPort vp, out RectArea rect) {
             int top = p.GetNonZero(index, 1);
             int left = p.GetNonZero(index + 1, 1);
-            int bottom = p.GetNonZero(index + 2, Document.TerminalHeight);
-            int right = p.GetNonZero(index + 3, Document.TerminalWidth);
+            int bottom = p.GetNonZero(index + 2, vp.Height);
+            int right = p.GetNonZero(index + 3, vp.Width);
 
-            if (top > Document.TerminalHeight || left > Document.TerminalWidth || bottom < top || right < left) {
-                return null;
+            if (top > vp.Height || left > vp.Width || bottom < top || right < left) {
+                rect = new RectArea();
+                return false;
             }
 
-            bottom = Math.Min(bottom, Document.TerminalHeight);
-            right = Math.Min(right, Document.TerminalWidth);
+            bottom = Math.Min(bottom, vp.Height);
+            right = Math.Min(right, vp.Width);
 
-            return new RectArea(
+            rect = new RectArea(
                     top: top,
                     left: left,
                     bottom: bottom,
                     right: right
                 );
+            return true;
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'K')] // EL
@@ -2918,6 +2920,112 @@ namespace Poderosa.Terminal {
 
             Document.CurrentLineNumber = saveLineNumber;
             _manipulator.Load(Document.CurrentLine);
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'x')] // DECFRA
+        private void ProcessFillRect(NumericParams p) {
+            int charCode = p.Get(0, 0);
+            if (!((charCode >= 32 && charCode <= 126) || (charCode >= 160 && charCode <= 255))) {
+                return;
+            }
+
+            ViewPort vp = GetViewPort();
+            RectArea rect;
+            if (!ReadRectAreaFromParameters(p, 1, vp, out rect)) {
+                return;
+            }
+
+            char charVal = Encoding.GetEncoding(1252).GetChars(new byte[] { (byte)charCode })[0];
+            UnicodeChar fillChar = new UnicodeChar(charVal, false);
+
+            Document.UpdateCurrentLine(_manipulator);
+
+            int bottomLineNumber = vp.ToLineNumber(rect.Bottom);
+            int fillStart = vp.ToCaretColumn(rect.Left);
+            int fillEnd = vp.ToCaretColumn(rect.Right) + 1;
+
+            Document.EnsureLine(bottomLineNumber);
+
+            GLine l = Document.FindLineOrEdge(vp.ToLineNumber(rect.Top));
+            while (l != null && l.ID <= bottomLineNumber) {
+                _manipulator.Load(l);
+                _manipulator.ReplaceCharacter(fillStart, fillEnd, fillChar);
+                _manipulator.ExportTo(l);
+                Document.InvalidatedRegion.InvalidateLine(l.ID);
+                l = l.NextLine;
+            }
+
+            _manipulator.Load(Document.CurrentLine);
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '*', 'y')] // DECRQCRA
+        private void ProcessRequestChecksumRect(NumericParams p) {
+            int pid = p.Get(0, 65535);
+            // int page = p.Get(0, 0); // ignored
+
+            ViewPort vp = GetViewPort();
+            RectArea rect;
+            ushort sum = 0;
+
+            if (ReadRectAreaFromParameters(p, 2, vp, out rect)) {
+                Document.UpdateCurrentLine(_manipulator);
+
+                int bottomLineNumber = vp.ToLineNumber(rect.Bottom);
+                int sumStart = vp.ToCaretColumn(rect.Left);
+                int sumEnd = vp.ToCaretColumn(rect.Right) + 1;
+
+                Document.EnsureLine(bottomLineNumber);
+
+                GLine l = Document.FindLineOrEdge(vp.ToLineNumber(rect.Top));
+                while (l != null && l.ID <= bottomLineNumber) {
+                    _manipulator.Load(l);
+                    for (int i = sumStart; i < sumEnd; i++) {
+                        // Note: this implementation is not compatible with xterm
+                        uint c;
+                        UnicodeChar ch;
+                        bool isRightHalf;
+                        if (_manipulator.GetChar(i, out ch, out isRightHalf)) {
+                            c = ch.CodePoint;
+                            if (c >= 0x100u) {
+                                c = 0x1bu;
+                            }
+                            else if (c >= 0x80u) {
+                                c &= 0x7fu;
+                            }
+                        }
+                        else {
+                            c = 0x20;
+                        }
+
+                        TextDecoration dec;
+                        if (_manipulator.GetAttributes(i, out dec)) {
+                            if (dec.Underline) {
+                                c += 0x10u;
+                            }
+                            if (dec.Inverted) {
+                                c += 0x20u;
+                            }
+                            if (dec.Blink) {
+                                c += 0x40u;
+                            }
+                            if (dec.Bold) {
+                                c += 0x80u;
+                            }
+                        }
+
+                        sum += (ushort)c;
+                    }
+                    l = l.NextLine;
+                }
+
+                _manipulator.Load(Document.CurrentLine);
+            }
+
+            sum = (ushort)(-((int)sum));
+
+            // DECCKSR
+            string response = RESPONSE_DCS + pid.ToInvariantString() + "!~" + sum.ToString("X4", NumberFormatInfo.InvariantInfo) + RESPONSE_ST;
+            TransmitDirect(Encoding.ASCII.GetBytes(response));
         }
 
         [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'S')]

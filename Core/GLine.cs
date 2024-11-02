@@ -1658,12 +1658,55 @@ namespace Poderosa.Document {
         /// <summary>
         /// Get character.
         /// </summary>
-        /// <returns>character if it exists. otherwise null.</returns>
-        public UnicodeChar? GetChar(int index) {
+        /// <param name="index">column index</param>
+        /// <param name="ch">character</param>
+        /// <param name="isRightHalf">true if right-half of the character is stored in the column</param>
+        /// <returns>true if character exists.</returns>
+        public bool GetChar(int index, out UnicodeChar ch, out bool isRightHalf) {
             if (index >= 0 && index < _cell.Length) {
-                return _cell[index].Char.ToUnicodeChar();
+                ch = _cell[index].Char.ToUnicodeChar();
+                isRightHalf = _cell[index].Char.IsRightHalf;
+                return true;
             }
-            return null;
+
+            ch = UnicodeChar.ASCII_NUL;
+            isRightHalf = false;
+            return false;
+        }
+
+        /// <summary>
+        /// Get character attributes.
+        /// </summary>
+        /// <param name="index">column index</param>
+        /// <param name="dec">attributes are stored as TextDecoration</param>
+        /// <returns>true if attributes exist.</returns>
+        public bool GetAttributes(int index, out TextDecoration dec) {
+            if (index >= 0 && index < _cell.Length) {
+                GAttr attr = _cell[index].Attr;
+                dec = TextDecoration.Default
+                        .GetCopyWithBlink(attr.Has(GAttrFlags.Blink))
+                        .GetCopyWithBold(attr.Has(GAttrFlags.Bold))
+                        .GetCopyWithHidden(attr.Has(GAttrFlags.Hidden))
+                        .GetCopyWithInverted(attr.Has(GAttrFlags.Inverted))
+                        .GetCopyWithProtected(attr.Has(GAttrFlags.Protected))
+                        .GetCopyWithUnderline(attr.Has(GAttrFlags.Underlined));
+                if (attr.Has(GAttrFlags.Use24bitForeColor)) {
+                    dec = dec.GetCopyWithForeColor(new ColorSpec(_color24[index].ForeColor));
+                }
+                if (attr.Has(GAttrFlags.Use8bitForeColor)) {
+                    dec = dec.GetCopyWithForeColor(new ColorSpec(attr.ForeColor));
+                }
+                if (attr.Has(GAttrFlags.Use24bitBackColor)) {
+                    dec = dec.GetCopyWithBackColor(new ColorSpec(_color24[index].BackColor));
+                }
+                if (attr.Has(GAttrFlags.Use8bitBackColor)) {
+                    dec = dec.GetCopyWithBackColor(new ColorSpec(attr.BackColor));
+                }
+                return true;
+            }
+
+            dec = TextDecoration.Default;
+            return false;
         }
 
         /// <summary>
@@ -1726,6 +1769,60 @@ namespace Poderosa.Document {
                 // Note: uses ASCII_NUL instead of ASCII_SPACE for detecting correct length of the content
                 _cell[i].Set(GChar.ASCII_NUL, fillAttr);
                 _color24[i] = fillColor;
+            }
+
+            FixRightHalfOfWideWidthCharacter(to);
+        }
+
+        /// <summary>
+        /// Replace character with preserving attributes.
+        /// </summary>
+        /// <param name="from">start index of the range (inclusive)</param>
+        /// <param name="to">end index of the range (exclusive)</param>
+        /// <param name="ch">a character to replace with</param>
+        public void ReplaceCharacter(int from, int to, UnicodeChar ch) {
+            from = Math.Max(from, 0);
+
+            if (to <= from) {
+                return;
+            }
+
+            // expand as needed to avoid errors in unexpected status.
+            ExpandBuffer(to);
+
+            GChar fillChar = new GChar(ch);
+
+            FixLeftHalfOfWideWidthCharacter(from - 1);
+
+            if (ch.IsWideWidth) {
+                int index = from;
+                while (index + 1 < to) {
+                    GAttr attr = _cell[index].Attr;
+                    if (ch.IsCJK) {
+                        attr += GAttrFlags.UseCjkFont;
+                    }
+                    else {
+                        attr -= GAttrFlags.UseCjkFont;
+                    }
+                    _cell[index].Set(fillChar, attr);
+                    _cell[index + 1].Set(fillChar + GCharFlags.RightHalf, attr);
+                    index += 2;
+                }
+                if (index < to) {
+                    _cell[index].Set(GChar.ASCII_NUL, _cell[index].Attr - GAttrFlags.UseCjkFont);
+                }
+            }
+            else {
+                for (int index = from; index < to; index++) {
+                    GAttr attr = _cell[index].Attr;
+                    if (ch.IsCJK) {
+                        attr += GAttrFlags.UseCjkFont;
+                    }
+                    else {
+                        attr -= GAttrFlags.UseCjkFont;
+                    }
+                    _cell[index].Set(fillChar, attr);
+                }
             }
 
             FixRightHalfOfWideWidthCharacter(to);
