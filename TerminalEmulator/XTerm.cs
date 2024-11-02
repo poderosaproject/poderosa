@@ -1475,12 +1475,16 @@ namespace Poderosa.Terminal {
                 origin.Row + Math.Min(row, vp.Height) - 1,
                 origin.Col + Math.Min(col, vp.Width) - 1
             );
-
         }
 
-        [EscapeSequence(ControlCode.CSI, 'U')] // FIXME: undocumented?
-        private void ProcessCursorPositionToBottomLeft() {
-            ProcessCursorPosition(Document.TerminalHeight, 1);
+        [EscapeSequence(ControlCode.CSI, 'U')] // NP
+        private void ProcessMovePagesForward() {
+            MoveCursorToOrigin();
+        }
+
+        [EscapeSequence(ControlCode.CSI, 'V')] // PP
+        private void ProcessMovePagesBackward() {
+            MoveCursorToOrigin();
         }
 
         private void MoveCursorTo(int row, int col) {
