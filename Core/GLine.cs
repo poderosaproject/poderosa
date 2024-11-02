@@ -211,7 +211,7 @@ namespace Poderosa.Document {
     /// </remarks>
     internal struct GAttr {
         // bit 0..7  : 8 bit fore color code
-        // bit 8..16 : 8 bit back color code
+        // bit 8..15 : 8 bit back color code
         //
         // bit 18 : protected (DECSED or DECSEL cannot erase)
         // bit 19 : blink

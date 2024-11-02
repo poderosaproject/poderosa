@@ -424,7 +424,7 @@ namespace Poderosa.Terminal {
         }
 
         /// <summary>
-        /// Hande mouse action.
+        /// Handle mouse action.
         /// </summary>
         /// <param name="action">Action type</param>
         /// <param name="button">Which mouse button caused the event</param>
