@@ -1516,13 +1516,11 @@ namespace Poderosa.Terminal {
         }
 
         private void DoEraseInDisplay(int param, bool selective) {
-            int cur = Document.CurrentLineNumber;
-            int top = Document.TopLineNumber;
-            int bottom = top + Document.TerminalHeight;
+            int bottomLineNumber = Document.TopLineNumber + Document.TerminalHeight - 1;
             switch (param) {
                 case 0: //erase below
                     {
-                        if (Document.CaretColumn == 0 && cur == top)
+                        if (Document.CaretColumn == 0 && Document.CurrentLineNumber == Document.TopLineNumber)
                             goto ERASE_ALL;
 
                         if (selective) {
@@ -1532,15 +1530,15 @@ namespace Poderosa.Terminal {
                             EraseRight();
                         }
                         Document.UpdateCurrentLine(_manipulator);
-                        Document.EnsureLine(bottom - 1);
-                        Document.RemoveAfter(bottom);
-                        Document.ClearRange(cur + 1, bottom, Document.CurrentDecoration, selective);
+                        Document.EnsureLine(bottomLineNumber);
+                        Document.RemoveAfter(bottomLineNumber + 1);
+                        Document.ClearRange(Document.CurrentLineNumber + 1, bottomLineNumber + 1, Document.CurrentDecoration, selective);
                         _manipulator.Load(Document.CurrentLine);
                     }
                     break;
                 case 1: //erase above
                     {
-                        if (Document.CaretColumn == Document.TerminalWidth - 1 && cur == bottom - 1)
+                        if (Document.CaretColumn == Document.TerminalWidth - 1 && Document.CurrentLineNumber == bottomLineNumber)
                             goto ERASE_ALL;
 
                         if (selective) {
@@ -1550,7 +1548,7 @@ namespace Poderosa.Terminal {
                             EraseLeft();
                         }
                         Document.UpdateCurrentLine(_manipulator);
-                        Document.ClearRange(top, cur, Document.CurrentDecoration, selective);
+                        Document.ClearRange(Document.TopLineNumber, Document.CurrentLineNumber, Document.CurrentDecoration, selective);
                         _manipulator.Load(Document.CurrentLine);
                     }
                     break;
@@ -1560,13 +1558,9 @@ namespace Poderosa.Terminal {
                                 (Document.CurrentDecoration != null) ? Document.CurrentDecoration.GetBackColorSpec() : ColorSpec.Default;
 
                         Document.UpdateCurrentLine(_manipulator);
-                        //if(_homePositionOnCSIJ2) { //SFUではこうなる
-                        //	ProcessCursorPosition(1,1); 
-                        //	col = 0;
-                        //}
-                        Document.EnsureLine(bottom - 1);
-                        Document.RemoveAfter(bottom);
-                        Document.ClearRange(top, bottom, Document.CurrentDecoration, selective);
+                        Document.EnsureLine(bottomLineNumber);
+                        Document.RemoveAfter(bottomLineNumber + 1);
+                        Document.ClearRange(Document.TopLineNumber, bottomLineNumber + 1, Document.CurrentDecoration, selective);
                         _manipulator.Load(Document.CurrentLine);
                     }
                     break;
