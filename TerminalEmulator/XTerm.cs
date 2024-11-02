@@ -1455,6 +1455,14 @@ namespace Poderosa.Terminal {
             Document.CaretColumn = GetCaretColumnLeftLimit();
         }
 
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'G')] // CHA
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '`')] // HPA
+        private void ProcessLineColumnAbsolute(NumericParams p) {
+            int n = p.GetNonZero(0, 1);
+            ViewPort vp = GetViewPort();
+            Document.CaretColumn = vp.ToCaretColumn(Math.Min(n, vp.Width) - 1);
+        }
+
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'H')] // CUP
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'f')] // HVP
         private void ProcessCursorPosition(NumericParams p) {
@@ -3124,14 +3132,6 @@ namespace Poderosa.Terminal {
             Document.UpdateCurrentLine(_manipulator);
             Document.CurrentLineNumber = Math.Min(Document.CurrentLineNumber + n, Document.TopLineNumber + Document.TerminalHeight - 1);
             _manipulator.Load(Document.CurrentLine);
-        }
-
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'G')]
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '`')]
-        private void ProcessLineColumnAbsolute(NumericParams p) {
-            int n = p.GetNonZero(0, 1);
-            n = Math.Min(n, Document.TerminalWidth);
-            Document.CaretColumn = n - 1;
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'X')] // ECH
