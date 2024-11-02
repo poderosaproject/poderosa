@@ -243,6 +243,14 @@ namespace Poderosa.Terminal {
             set;
         }
         /// <summary>
+        /// <ja>行継続モードを取得／設定します。</ja>
+        /// <en>Set / get the line continuation mode.</en>
+        /// </summary>
+        LineContinuationMode LineContinuationMode {
+            get;
+            set;
+        }
+        /// <summary>
         /// <ja>
         /// 改行コードの取り扱い方法を取得／設定します。
         /// </ja>
@@ -534,6 +542,11 @@ namespace Poderosa.Terminal {
         /// </summary>
         /// <exclude/>
         event ChangeHandler<EncodingType> ChangeEncoding;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <exclude/>
+        event ChangeHandler<LineContinuationMode> ChangeLineContinuationMode;
     }
 
 }

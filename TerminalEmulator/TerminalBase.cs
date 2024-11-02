@@ -86,6 +86,7 @@ namespace Poderosa.Terminal {
         protected GLineManipulator _manipulator;
         protected TerminalMode _terminalMode;
         protected TerminalMode _cursorKeyMode; //_terminalModeは別物。AIXでのviで、カーソルキーは不変という例が確認されている
+        protected LineContinuationMode _lineContinuationMode;
 
         protected abstract void ChangeMode(TerminalMode tm);
         protected abstract void FullResetInternal();
@@ -114,6 +115,7 @@ namespace Poderosa.Terminal {
             _decoder = new ISO2022CharDecoder(this, _encodingProfile);
             _unicodeCharConverter = _encodingProfile.CreateUnicodeCharConverter();
             _terminalMode = TerminalMode.Normal;
+            _lineContinuationMode = _session.TerminalSettings.LineContinuationMode;
             _manipulator = new GLineManipulator();
             _scrollBarValues = new ScrollBarValues();
             _logService = new LogService(info.TerminalParameter, _session.TerminalSettings);
@@ -133,6 +135,9 @@ namespace Poderosa.Terminal {
                 TerminalControl tc = _session.TerminalControl;
                 if (tc != null)
                     tc.ApplyRenderProfile(prof);
+            };
+            ts.ChangeLineContinuationMode += delegate(LineContinuationMode mode) {
+                this.Reset();
             };
         }
 

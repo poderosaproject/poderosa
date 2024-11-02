@@ -817,28 +817,23 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.BS)]
         private void BackSpace() {
-            //行頭で、直前行の末尾が継続であった場合行を戻す
-            if (Document.CaretColumn == 0) {
-                int line = Document.CurrentLineNumber - 1;
-                if (line >= 0 && Document.FindLineOrEdge(line).EOLType == EOLType.Continue) {
-                    Document.InvalidatedRegion.InvalidateLine(Document.CurrentLineNumber);
-                    Document.CurrentLineNumber = line;
-                    if (Document.CurrentLine == null) {
-                        _manipulator.Reset(Document.TerminalWidth);
-                        Document.CaretColumn = 0;
+            if (_lineContinuationMode == LineContinuationMode.Poderosa
+                && (Document.CaretColumn == Document.LeftMarginOffset || Document.CaretColumn == 0)) {
+                int prevLineNumber = Document.CurrentLineNumber - 1;
+                GLine prevLine = Document.FindLineOrNull(prevLineNumber);
+                if (prevLine != null && prevLine.EOLType == EOLType.Continue) {
+                    Document.UpdateCurrentLine(_manipulator);
+                    Document.CurrentLineNumber = prevLineNumber;
+                    if (Document.TopLineNumber > Document.CurrentLineNumber) {
+                        Document.SetTopLineNumber(Document.CurrentLineNumber);
                     }
-                    else {
-                        _manipulator.Load(Document.CurrentLine);
-                        Document.CaretColumn = Document.CurrentLine.DisplayLength - 1;
-                    }
-                    Document.InvalidatedRegion.InvalidateLine(Document.CurrentLineNumber);
+                    _manipulator.Load(Document.CurrentLine);
+                    Document.CaretColumn = Document.CurrentLine.DisplayLength - 1;
                 }
+                return;
             }
-            else {
-                if (Document.CaretColumn > 0) {
-                    Document.CaretColumn--;
-                }
-            }
+
+            Document.CaretColumn = Math.Max(Document.CaretColumn - 1, GetCaretColumnLeftLimit());
         }
 
         [EscapeSequence(ControlCode.HT)]
