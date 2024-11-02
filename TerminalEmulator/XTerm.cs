@@ -3321,37 +3321,44 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '@')] // ICH
         private void ProcessInsertBlankCharacters(NumericParams p) {
             int n = p.GetNonZero(0, 1);
-            _manipulator.InsertBlanks(Document.CaretColumn, n, Document.TerminalWidth, Document.CurrentDecoration);
+            if (Document.IsCaretColumnInScrollingRegion) {
+                _manipulator.InsertBlanks(Document.CaretColumn, n, Document.RightMarginOffset + 1, Document.CurrentDecoration);
+            }
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', '@')] // SL
         private void ProcessShiftLeft(NumericParams p) {
             int n = p.GetNonZero(0, 1);
-            ShiftScreen(-n);
+            if (Document.IsCurrentLineInScrollingRegion && Document.IsCaretColumnInScrollingRegion) {
+                ShiftScrollRegion(-n);
+            }
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', 'A')] // SR
         private void ProcessShiftRight(NumericParams p) {
             int n = p.GetNonZero(0, 1);
-            ShiftScreen(n);
+            if (Document.IsCurrentLineInScrollingRegion && Document.IsCaretColumnInScrollingRegion) {
+                ShiftScrollRegion(n);
+            }
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'S')] // SU
         private void ProcessScrollUp(NumericParams p) {
             int d = p.GetNonZero(0, 1);
 
-            int currentLilneNumber = Document.CurrentLineNumber;
             Document.UpdateCurrentLine(_manipulator);
-
-            if (!Document.HasScrollingRegionTop && !Document.HasScrollingRegionBottom) {
+            if (!Document.HasTopMargin && !Document.HasBottomMargin && !Document.HasLeftMargin && !Document.HasRightMargin) {
                 Document.CurrentLineNumber += d;
                 Document.SetTopLineNumber(Document.TopLineNumber + d);
+                Document.InvalidateAll();
             }
             else {
-                Document.ScrollDown(Document.ScrollingTop, Document.ScrollingBottom, d); // TerminalDocument's "Scroll-Down" means XTerm's "Scroll-Up"
-                Document.CurrentLineNumber = currentLilneNumber;
-            }
+                // DEC document describes the SU scrolls the entire screen,
+                // but the xterm scrolls the area bounded with margins.
 
+                // TerminalDocument's "Scroll-Down" means that the view port is moved down and the content is scrolled up.
+                Document.ScrollDownRegion(d);
+            }
             _manipulator.Load(Document.CurrentLine);
         }
 
