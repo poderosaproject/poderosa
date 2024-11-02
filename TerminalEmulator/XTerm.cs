@@ -198,6 +198,28 @@ namespace Poderosa.Terminal {
             }
         }
 
+        [Flags]
+        private enum SGRStackMask : ushort {
+            None = 0,
+            Bold = 1,
+            Underline = 8,
+            Blink = 16,
+            Inverted = 32,
+            Hidden = 64,
+            ForegroundColor = 128,
+            BackgroundColor = 256,
+        }
+
+        private class SGRStackItem {
+            public readonly TextDecoration Decoration;
+            public readonly SGRStackMask Mask;
+
+            public SGRStackItem(TextDecoration decoration, SGRStackMask mask) {
+                Decoration = decoration;
+                Mask = mask;
+            }
+        }
+
         private readonly EscapeSequenceEngine<XTerm> _escapeSequenceEngine;
 
         private IModalCharacterTask _currentCharacterTask = null;
@@ -211,6 +233,7 @@ namespace Poderosa.Terminal {
         private readonly SavedCursor[] _savedCursor = new SavedCursor[2];	// { main, alternate }
         private SavedCursor _savedCursorSCO = null;
         private readonly Dictionary<int, bool> _savedDecModes = new Dictionary<int, bool>();
+        private readonly LinkedList<SGRStackItem> _sgrStack = new LinkedList<SGRStackItem>();
 
         private ViewPort _viewPortCache = new ViewPort();
 
@@ -239,6 +262,8 @@ namespace Poderosa.Terminal {
         private const string RESPONSE_CSI = "\u001b[";
         private const string RESPONSE_DCS = "\u001bP";
         private const string RESPONSE_ST = "\u001b\\";
+
+        private const int MAX_SGR_STACK = 10;
 
         public XTerm(TerminalInitializeInfo info)
             : base(info) {
@@ -2505,6 +2530,96 @@ namespace Poderosa.Terminal {
 
         private TextDecoration SelectBackgroundColor(TextDecoration dec, int index) {
             return dec.GetCopyWithBackColor(new ColorSpec(index));
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '#', '{')] // XTPUSHSGR
+        private void ProcessPushSGR(NumericParams p) {
+            if (_sgrStack.Count >= MAX_SGR_STACK) {
+                return;
+            }
+
+            SGRStackMask mask;
+            if (p.Length == 0 || (p.Length == 1 && p.Get(0, 0) == 0)) {
+                mask = (SGRStackMask)0xffffu; // all
+            }
+            else {
+                mask = SGRStackMask.None;
+                foreach (int n in p.EnumerateWithoutNull()) {
+                    switch (n) {
+                        case 1:
+                            mask |= SGRStackMask.Bold;
+                            break;
+                        case 2:
+                            // Faint: not supported
+                            break;
+                        case 3:
+                            // Italic: not supported
+                            break;
+                        case 4:
+                            mask |= SGRStackMask.Underline;
+                            break;
+                        case 5:
+                            mask |= SGRStackMask.Blink;
+                            break;
+                        case 7:
+                            mask |= SGRStackMask.Inverted;
+                            break;
+                        case 8:
+                            mask |= SGRStackMask.Hidden;
+                            break;
+                        case 9:
+                            // Strikeout: not supported
+                            break;
+                        case 10:
+                            mask |= SGRStackMask.ForegroundColor;
+                            break;
+                        case 11:
+                            mask |= SGRStackMask.BackgroundColor;
+                            break;
+                        case 21:
+                            // Doubly underline: not supported
+                            break;
+                    }
+                }
+            }
+
+            _sgrStack.AddLast(new SGRStackItem(Document.CurrentDecoration, mask));
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '#', '}')] // XTPOPSGR
+        private void ProcessPopSGR() {
+            if (_sgrStack.Last == null) {
+                return;
+            }
+
+            SGRStackItem item = _sgrStack.Last.Value;
+            _sgrStack.RemoveLast();
+
+            TextDecoration dec = Document.CurrentDecoration;
+            SGRStackMask mask = item.Mask;
+            if ((mask & SGRStackMask.Bold) != 0) {
+                dec = dec.GetCopyWithBold(item.Decoration.Bold);
+            }
+            if ((mask & SGRStackMask.Underline) != 0) {
+                dec = dec.GetCopyWithUnderline(item.Decoration.Underline);
+            }
+            if ((mask & SGRStackMask.Blink) != 0) {
+                dec = dec.GetCopyWithBlink(item.Decoration.Blink);
+            }
+            if ((mask & SGRStackMask.Inverted) != 0) {
+                dec = dec.GetCopyWithInverted(item.Decoration.Inverted);
+            }
+            if ((mask & SGRStackMask.Hidden) != 0) {
+                dec = dec.GetCopyWithHidden(item.Decoration.Hidden);
+            }
+            if ((mask & SGRStackMask.ForegroundColor) != 0) {
+                dec = dec.GetCopyWithForeColor(item.Decoration.GetForeColorSpec());
+            }
+            if ((mask & SGRStackMask.BackgroundColor) != 0) {
+                dec = dec.GetCopyWithBackColor(item.Decoration.GetBackColorSpec());
+            }
+
+            Document.CurrentDecoration = dec;
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '"', 'q')] // DECSCA
