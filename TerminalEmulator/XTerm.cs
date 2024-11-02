@@ -858,7 +858,7 @@ namespace Poderosa.Terminal {
             Document.CaretColumn = 0;
         }
 
-        [EscapeSequence(ControlCode.ESC, '6')]
+        [EscapeSequence(ControlCode.ESC, '6')] // DECBI
         private void BackIndex() {
             if (Document.CaretColumn > 0) {
                 Document.CaretColumn--;
@@ -868,7 +868,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        [EscapeSequence(ControlCode.ESC, '9')]
+        [EscapeSequence(ControlCode.ESC, '9')] // DECFI
         private void ForwardIndex() {
             if (Document.CaretColumn < Document.TerminalWidth - 1) {
                 Document.CaretColumn++;
@@ -1056,7 +1056,7 @@ namespace Poderosa.Terminal {
         }
 #endif
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'c')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'c')] // DA
         private void ProcessPrimaryDeviceAttributes(NumericParams p) {
             if (p.Get(0, 0) == 0) {
                 int[] features =
@@ -1088,7 +1088,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'c')]
+        [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'c')] // Secondary DA
         private void ProcessSecondaryDeviceAttributes(NumericParams p) {
             if (p.Get(0, 0) == 0) {
                 byte[] data = Encoding.ASCII.GetBytes(RESPONSE_CSI + ">41;1;0c");
@@ -1097,7 +1097,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        [EscapeSequence(ControlCode.CSI, '=', EscapeSequenceParamType.Numeric, 'c')]
+        [EscapeSequence(ControlCode.CSI, '=', EscapeSequenceParamType.Numeric, 'c')] // Tertiary DA
         private void ProcessTertiaryDeviceAttributes(NumericParams p) {
             if (p.Get(0, 0) == 0) {
                 // DECRPTUI: DCS ! | 00 00 00 00 ST
@@ -1107,7 +1107,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'n')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'n')] // DSR
         private void ProcessDeviceStatusReport(NumericParams p) {
             int param = p.Get(0, 0);
 
@@ -1139,7 +1139,7 @@ namespace Poderosa.Terminal {
             return new Point(Document.CaretColumn + 1, Document.CurrentLineNumber - Document.TopLineNumber + 1);
         }
 
-        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'n')]
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'n')] // DEC DSR
         private void ProcessDeviceStatusReportDEC(NumericParams p) {
             int param = p.Get(0, 0);
 
@@ -1198,7 +1198,7 @@ namespace Poderosa.Terminal {
             TransmitDirect(data);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'w')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'w')] // DECRQPSR
         private void ProcessPresentationStateReport(NumericParams p) {
             int n = p.Get(0, 0);
 
@@ -1365,7 +1365,7 @@ namespace Poderosa.Terminal {
         }
 #endif
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'A')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'A')] // CUU
         private void ProcessCursorUp(NumericParams p) {
             int count = p.GetNonZero(0, 1);
             GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
@@ -1376,7 +1376,7 @@ namespace Poderosa.Terminal {
             _manipulator.Load(Document.CurrentLine);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'B')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'B')] // CUD
         private void ProcessCursorDown(NumericParams p) {
             int count = p.GetNonZero(0, 1);
             GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
@@ -1387,19 +1387,19 @@ namespace Poderosa.Terminal {
             _manipulator.Load(Document.CurrentLine);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'C')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'C')] // CUF
         private void ProcessCursorForward(NumericParams p) {
             int count = p.GetNonZero(0, 1);
             Document.CaretColumn = Math.Min(Document.CaretColumn + count, Document.TerminalWidth - 1);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'D')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'D')] // CUB
         private void ProcessCursorBackward(NumericParams p) {
             int count = p.GetNonZero(0, 1);
             Document.CaretColumn = Math.Max(Document.CaretColumn - count, 0);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'E')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'E')] // CNL
         private void ProcessCursorNextLine(NumericParams p) {
             int count = p.GetNonZero(0, 1);
             int bottomLineNumber = Document.TopLineNumber + Document.TerminalHeight - 1;
@@ -1412,7 +1412,7 @@ namespace Poderosa.Terminal {
             Document.CaretColumn = 0;
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'F')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'F')] // CPL
         private void ProcessCursorPrecedingLine(NumericParams p) {
             int count = p.GetNonZero(0, 1);
             int topLineNumber = Document.TopLineNumber;
@@ -1458,7 +1458,7 @@ namespace Poderosa.Terminal {
             ProcessCursorPosition(row, 1);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'a')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'a')] // HPR
         private void ProcessCursorPositionRelative(NumericParams p) {
             int n = p.GetNonZero(0, 1);
             int max = Document.TerminalWidth - 1;
@@ -1467,13 +1467,13 @@ namespace Poderosa.Terminal {
             }
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'J')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'J')] // ED
         private void ProcessEraseInDisplay(NumericParams p) {
             int param = p.Get(0, 0);
             DoEraseInDisplay(param, false);
         }
 
-        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'J')]
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'J')] // DECSED
         private void ProcessSelectiveEraseInDisplay(NumericParams p) {
             int param = p.Get(0, 0);
             DoEraseInDisplay(param, true);
@@ -1543,12 +1543,12 @@ namespace Poderosa.Terminal {
             }
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'z')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'z')] // DECERA
         private void ProcessEraseRectangle(NumericParams p) {
             DoEraseRectangle(p, false);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', '{')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', '{')] // DECSERA
         private void ProcessSelectiveEraseRectangle(NumericParams p) {
             DoEraseRectangle(p, true);
         }
@@ -1599,13 +1599,13 @@ namespace Poderosa.Terminal {
                 );
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'K')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'K')] // EL
         private void ProcessEraseInLine(NumericParams p) {
             int param = p.Get(0, 0);
             DoEraseInLine(param, false);
         }
 
-        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'K')]
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'K')] // DECSEL
         private void ProcessSelectiveEraseInLine(NumericParams p) {
             int param = p.Get(0, 0);
             DoEraseInLine(param, true);
@@ -1705,7 +1705,7 @@ namespace Poderosa.Terminal {
             _manipulator.Load(Document.CurrentLine);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'r')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'r')] // DECSTBM
         private void ProcessSetScrollingRegion(NumericParams p) {
             int height = Document.TerminalHeight;
             int top = p.Get(0, -1);
@@ -1764,12 +1764,12 @@ namespace Poderosa.Terminal {
             Document.CaretColumn = 0;
         }
 
-        [EscapeSequence(ControlCode.ESC, '=')]
+        [EscapeSequence(ControlCode.ESC, '=')] // DECKPAM
         private void ProcessEnterAlternateKeypadMode() {
             ChangeMode(TerminalMode.Application);
         }
 
-        [EscapeSequence(ControlCode.ESC, '>')]
+        [EscapeSequence(ControlCode.ESC, '>')] // DECKPNM
         private void ProcessExitAlternateKeypadMode() {
             ChangeMode(TerminalMode.Normal);
         }
@@ -1805,12 +1805,12 @@ namespace Poderosa.Terminal {
             _terminalMode = mode;
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'h')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'h')] // SM
         private void SetMode(NumericParams p) {
             DoSetMode(p, true);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'l')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'l')] // RM
         private void ResetMode(NumericParams p) {
             DoSetMode(p, false);
         }
@@ -1842,7 +1842,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'p')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'p')] // DECRQM (ANSI mode)
         private void RequestMode(NumericParams p) {
             int param = p.Get(0, 65535);
             bool? status = GetANSIMode(param);
@@ -2480,12 +2480,12 @@ namespace Poderosa.Terminal {
             return dec.GetCopyWithBackColor(new ColorSpec(index));
         }
 
-        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'h')]
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'h')] // DECSET
         private void ProcessDECSET(NumericParams p) {
             DoDECSETMultiple(p, true);
         }
 
-        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'l')]
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'l')] // DECRST
         private void ProcessDECRST(NumericParams p) {
             DoDECSETMultiple(p, false);
         }
@@ -2606,7 +2606,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, '$', 'p')]
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, '$', 'p')] // DECRQM (DEC private mode)
         private void RequestDECMode(NumericParams p) {
             int param = p.Get(0, 65535);
             bool? status = GetDECMode(param);
@@ -2663,7 +2663,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 's')]
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 's')] // Save DEC private mode values
         private void ProcessSaveDECSET(NumericParams p) {
             foreach (int param in p.EnumerateWithoutNull()) {
                 bool? status = GetDECMode(param);
@@ -2673,7 +2673,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'r')]
+        [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'r')] // Restore DEC private mode values
         private void ProcessRestoreDECSET(NumericParams p) {
             foreach (int param in p.EnumerateWithoutNull()) {
                 bool status;
@@ -2683,7 +2683,7 @@ namespace Poderosa.Terminal {
             }
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'r')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'r')] // DECCARA
         private void ProcessChangeAttributesRect(NumericParams p) {
             RectArea rect = ReadRectAreaFromParameters(p, 0);
             if (rect == null) {
@@ -2751,7 +2751,7 @@ namespace Poderosa.Terminal {
             _manipulator.Load(Document.CurrentLine);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 't')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 't')] // DECRARA
         private void ProcessReverseAttributesRect(NumericParams p) {
             RectArea rect = ReadRectAreaFromParameters(p, 0);
             if (rect == null) {
@@ -2807,7 +2807,7 @@ namespace Poderosa.Terminal {
             _manipulator.Load(Document.CurrentLine);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'v')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'v')] // DECCRA
         private void ProcessCopyRect(NumericParams p) {
             RectArea srcRect = ReadRectAreaFromParameters(p, 0);
             if (srcRect == null) {
@@ -2898,7 +2898,7 @@ namespace Poderosa.Terminal {
             _mouseTrackingState = newState;
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'd')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'd')] // VPA
         private void ProcessLinePositionAbsolute(NumericParams p) {
             int row = p.GetNonZero(0, 1);
             row = Math.Min(row, Document.TerminalHeight);
@@ -2908,7 +2908,7 @@ namespace Poderosa.Terminal {
             _manipulator.Load(Document.CurrentLine);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'e')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'e')] // VPR
         private void ProcessLinePositionRelative(NumericParams p) {
             int n = p.GetNonZero(0, 1);
 
@@ -2925,37 +2925,37 @@ namespace Poderosa.Terminal {
             Document.CaretColumn = n - 1;
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'X')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'X')] // ECH
         private void ProcessEraseChars(NumericParams p) {
             int n = p.GetNonZero(0, 1);
             _manipulator.FillSpace(Document.CaretColumn, Math.Min(Document.CaretColumn + n, Document.TerminalWidth), Document.CurrentDecoration);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'P')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'P')] // DCH
         private void ProcessDeleteChars(NumericParams p) {
             int n = p.GetNonZero(0, 1);
             _manipulator.DeleteChars(Document.CaretColumn, n, Document.CurrentDecoration);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '@')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '@')] // ICH
         private void ProcessInsertBlankCharacters(NumericParams p) {
             int n = p.GetNonZero(0, 1);
             _manipulator.InsertBlanks(Document.CaretColumn, n, Document.TerminalWidth, Document.CurrentDecoration);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', '@')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', '@')] // SL
         private void ProcessShiftLeft(NumericParams p) {
             int n = p.GetNonZero(0, 1);
             ShiftScreen(-n);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', 'A')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', 'A')] // SR
         private void ProcessShiftRight(NumericParams p) {
             int n = p.GetNonZero(0, 1);
             ShiftScreen(n);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'S')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'S')] // SU
         private void ProcessScrollUp(NumericParams p) {
             int d = p.GetNonZero(0, 1);
 
@@ -2974,7 +2974,7 @@ namespace Poderosa.Terminal {
             _manipulator.Load(Document.CurrentLine);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'T')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'T')] // SD or Initiate highlight mouse tracking
         private void ProcessScrollDown(NumericParams p) {
             if (p.Length > 1) {
                 // ignore highlight tracking information
@@ -2991,7 +2991,7 @@ namespace Poderosa.Terminal {
             _manipulator.Load(Document.CurrentLine);
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'I')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'I')] // CHT
         private void ProcessForwardTab(NumericParams p) {
             int n = p.GetNonZero(0, 1);
 
@@ -3003,7 +3003,7 @@ namespace Poderosa.Terminal {
             Document.CaretColumn = t;
         }
 
-        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'Z')]
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'Z')] // CBT
         private void ProcessBackwardTab(NumericParams p) {
             int n = p.GetNonZero(0, 1);
 
@@ -3196,7 +3196,7 @@ namespace Poderosa.Terminal {
             _savedCursorSCO = CreateSavedCursor();
         }
 
-        [EscapeSequence(ControlCode.CSI, 'u')]
+        [EscapeSequence(ControlCode.CSI, 'u')] // SCORC
         private void ProcessSCORC() {
             RestoreCursorInternal(_savedCursorSCO);
         }
@@ -3210,7 +3210,7 @@ namespace Poderosa.Terminal {
             Document.InvalidateAll();
         }
 
-        [EscapeSequence(ControlCode.CSI, '!', 'p')]
+        [EscapeSequence(ControlCode.CSI, '!', 'p')] // DECSTR
         private void SoftTerminalReset() {
             SoftReset();
         }
