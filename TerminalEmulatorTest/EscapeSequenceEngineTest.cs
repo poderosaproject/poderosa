@@ -57,27 +57,27 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         public static object[] TestGetNumericParamsPatterns =
             new object[] {
-                new object[] {"", new int?[] { null }, new int[][] { null }},
-                new object[] {"1234567890", new int?[] { 1234567890 }, new int[][] { null }},
-                new object[] {"0009821", new int?[] { 9821 }, new int[][] { null }},
-                new object[] {"abc", new int?[] { null }, new int[][] { null }},
-                new object[] {"11;22;33;44", new int?[] { 11, 22, 33, 44 }, new int[][] { null, null, null, null }},
-                new object[] {"11;22;33;44;", new int?[] { 11, 22, 33, 44, null }, new int[][] { null, null, null, null, null }},
-                new object[] {";11;22;33;44", new int?[] { null, 11, 22, 33, 44 }, new int[][] { null, null, null, null, null }},
-                new object[] {"11;22;xx;44", new int?[] { 11, 22, null, 44 }, new int[][] { null, null, null, null }},
-                new object[] {";", new int?[] { null, null }, new int[][] { null, null }},
-                new object[] {";;79;;", new int?[] { null, null, 79, null, null }, new int[][] { null, null, null, null, null }},
-                new object[] {"11:22:33", new int?[] { null }, new int[][] { new int[] { 11, 22, 33 } }},
-                new object[] {"11;22:33;44", new int?[] { 11, null, 44 }, new int[][] { null, new int[] { 22, 33 }, null }},
-                new object[] {"11;22:", new int?[] { 11, null }, new int[][] { null, new int[] { 22 } }},
-                new object[] {"11;22:abc", new int?[] { 11, null }, new int[][] { null, null }},
-                new object[] {"11;22::33", new int?[] { 11, null }, new int[][] { null, null }},
-                new object[] {"11;:33", new int?[] { 11, null }, new int[][] { null, null }},
-                new object[] {"11;:33;44", new int?[] { 11, null, 44 }, new int[][] { null, null, null }},
+                new object[] {"", new int?[] { null }, new int?[][] { null }},
+                new object[] {"1234567890", new int?[] { 1234567890 }, new int?[][] { null }},
+                new object[] {"0009821", new int?[] { 9821 }, new int?[][] { null }},
+                new object[] {"abc", new int?[] { null }, new int?[][] { null }},
+                new object[] {"11;22;33;44", new int?[] { 11, 22, 33, 44 }, new int?[][] { null, null, null, null }},
+                new object[] {"11;22;33;44;", new int?[] { 11, 22, 33, 44, null }, new int?[][] { null, null, null, null, null }},
+                new object[] {";11;22;33;44", new int?[] { null, 11, 22, 33, 44 }, new int?[][] { null, null, null, null, null }},
+                new object[] {"11;22;xx;44", new int?[] { 11, 22, null, 44 }, new int?[][] { null, null, null, null }},
+                new object[] {";", new int?[] { null, null }, new int?[][] { null, null }},
+                new object[] {";;79;;", new int?[] { null, null, 79, null, null }, new int?[][] { null, null, null, null, null }},
+                new object[] {"11:22:33", new int?[] { null }, new int?[][] { new int?[] { 11, 22, 33 } }},
+                new object[] {"11;22:33;44", new int?[] { 11, null, 44 }, new int?[][] { null, new int?[] { 22, 33 }, null }},
+                new object[] {"11;22:", new int?[] { 11, null }, new int?[][] { null, new int?[] { 22, null } }},
+                new object[] {"11;22:abc", new int?[] { 11, null }, new int?[][] { null, new int?[] { 22, null } }},
+                new object[] {"11;22::33", new int?[] { 11, null }, new int?[][] { null, new int?[] { 22, null, 33 }}},
+                new object[] {"11;:33", new int?[] { 11, null }, new int?[][] { null, new int?[] {null, 33} }},
+                new object[] {"11;:33;44", new int?[] { 11, null, 44 }, new int?[][] { null, new int?[] {null, 33}, null }},
             };
 
         [TestCaseSource("TestGetNumericParamsPatterns")]
-        public void TestGetNumericParams(string input, int?[] expectedNumericParams, int[][] expectedCombinationParams) {
+        public void TestGetNumericParams(string input, int?[] expectedNumericParams, int?[][] expectedCombinationParams) {
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
             context.AppendChar('x');
             context.AppendChar('x');
@@ -88,7 +88,7 @@ namespace Poderosa.Terminal.EscapeSequence {
             context.AppendChar('x');
 
             int?[] numericParams;
-            int[][] combinationParams;
+            int?[][] combinationParams;
             context.GetNumericParams(out numericParams, out combinationParams);
 
             Assert.AreEqual(expectedNumericParams, numericParams);
@@ -105,7 +105,7 @@ namespace Poderosa.Terminal.EscapeSequence {
             Assert.AreEqual("", context.GetTextParam());
 
             int?[] numericParams;
-            int[][] combinationParams;
+            int?[][] combinationParams;
             context.GetNumericParams(out numericParams, out combinationParams);
             Assert.AreEqual(new int?[] { null }, numericParams);
             Assert.AreEqual(new int[][] { null }, combinationParams);
@@ -1356,14 +1356,14 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         public static object[] TestNumericParamStateAcceptPatterns =
             new object[] {
-                new object[] {"", new int?[] { null }, new int[][] { null }},
-                new object[] {"12;34;56", new int?[] { 12, 34, 56 }, new int[][] { null, null, null }},
-                new object[] {"12:34:56", new int?[] { null }, new int[][] { new int[] { 12, 34, 56 } }},
-                new object[] {";", new int?[] { null, null }, new int[][] { null, null }},
+                new object[] {"", new int?[] { null }, new int?[][] { null }},
+                new object[] {"12;34;56", new int?[] { 12, 34, 56 }, new int?[][] { null, null, null }},
+                new object[] {"12:34:56", new int?[] { null }, new int?[][] { new int?[] { 12, 34, 56 } }},
+                new object[] {";", new int?[] { null, null }, new int?[][] { null, null }},
             };
 
         [TestCaseSource("TestNumericParamStateAcceptPatterns")]
-        public void TestNumericParamStateAccept(string parameters, int?[] expectedNumericParams, int[][] expectedCombinationParams) {
+        public void TestNumericParamStateAccept(string parameters, int?[] expectedNumericParams, int?[][] expectedCombinationParams) {
             EscapeSequenceEngineBase.CharState state = Build(
                 new EscapeSequenceAttribute('A', EscapeSequenceParamType.Numeric, 'B')
             );
@@ -1380,7 +1380,7 @@ namespace Poderosa.Terminal.EscapeSequence {
             Assert.That(s.GetType() == typeof(EscapeSequenceEngineBase.FinalState));
 
             int?[] numericParams;
-            int[][] combinationParams;
+            int?[][] combinationParams;
             context.GetNumericParams(out numericParams, out combinationParams);
             Assert.AreEqual(expectedNumericParams, numericParams);
             Assert.AreEqual(expectedCombinationParams, combinationParams);
@@ -1517,7 +1517,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [Test]
         public void TestIsSingleInteger() {
-            var p = new NumericParams(new int?[] { 10, 11, null, 13 }, new int[][] { null, null, null, null });
+            var p = new NumericParams(new int?[] { 10, 11, null, 13 }, new int?[][] { null, null, null, null });
 
             Assert.IsTrue(p.IsSingleInteger(0));
             Assert.IsTrue(p.IsSingleInteger(1));
@@ -1529,7 +1529,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [Test]
         public void TestIsIntegerCombination() {
-            var p = new NumericParams(new int?[] { null, null, null, null }, new int[][] { new int[] { 21, 22 }, null, null, new int[] { 23, 24 } });
+            var p = new NumericParams(new int?[] { null, null, null, null }, new int?[][] { new int?[] { 21, 22 }, null, null, new int?[] { 23, 24 } });
 
             Assert.IsTrue(p.IsIntegerCombination(0));
             Assert.IsFalse(p.IsIntegerCombination(1));
@@ -1541,7 +1541,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [Test]
         public void TestGet() {
-            var p = new NumericParams(new int?[] { 10, 11, null, 13, null }, new int[][] { null, null, null, null, null });
+            var p = new NumericParams(new int?[] { 10, 11, null, 13, null }, new int?[][] { null, null, null, null, null });
 
             Assert.AreEqual(10, p.Get(0, 99));
             Assert.AreEqual(11, p.Get(1, 99));
@@ -1554,34 +1554,31 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [Test]
         public void TestGetIntegerCombination() {
-            var p = new NumericParams(new int?[] { null, null, null, null, null }, new int[][] { new int[] { 21, 22, 23 }, new int[] { 24 }, null, new int[] { 25, 26 }, null });
+            var p = new NumericParams(new int?[] { null, null, null, null, null }, new int?[][] { new int?[] { 21, 22, null, 23 }, new int?[] { 24 }, null, new int?[] { 25, 26 }, null });
 
-            Assert.AreEqual(new int[] { 21, 22, 23 }, p.GetIntegerCombination(0));
-            Assert.AreEqual(new int[] { 24 }, p.GetIntegerCombination(1));
-            Assert.IsNull(p.GetIntegerCombination(2));
-            Assert.AreEqual(new int[] { 25, 26 }, p.GetIntegerCombination(3));
-            Assert.IsNull(p.GetIntegerCombination(4));
-            Assert.IsNull(p.GetIntegerCombination(5));
-            Assert.IsNull(p.GetIntegerCombination(-1));
+            Assert.AreEqual(new int?[] { 21, 22, null, 23 }, p.GetIntegerCombination(0));
+            Assert.AreEqual(new int?[] { 24 }, p.GetIntegerCombination(1));
+            Assert.AreEqual(new int?[] { }, p.GetIntegerCombination(2));
+            Assert.AreEqual(new int?[] { }, p.GetIntegerCombination(-1));
         }
 
         [Test]
         public void TestEnumerate() {
-            var p = new NumericParams(new int?[] { 10, 11, null, 13, null }, new int[][] { null, null, null, null, null });
+            var p = new NumericParams(new int?[] { 10, 11, null, 13, null }, new int?[][] { null, null, null, null, null });
 
             Assert.AreEqual(new int?[] { 10, 11, null, 13, null }, p.Enumerate().ToArray());
         }
 
         [Test]
         public void TestEnumerateWithDefault() {
-            var p = new NumericParams(new int?[] { 10, 11, null, 13, null }, new int[][] { null, null, null, null, null });
+            var p = new NumericParams(new int?[] { 10, 11, null, 13, null }, new int?[][] { null, null, null, null, null });
 
             Assert.AreEqual(new int?[] { 10, 11, 99, 13, 99 }, p.EnumerateWithDefault(99).ToArray());
         }
 
         [Test]
         public void TestEnumerateWithoutNull() {
-            var p = new NumericParams(new int?[] { 10, 11, null, 13, null }, new int[][] { null, null, null, null, null });
+            var p = new NumericParams(new int?[] { 10, 11, null, 13, null }, new int?[][] { null, null, null, null, null });
 
             Assert.AreEqual(new int[] { 10, 11, 13 }, p.EnumerateWithoutNull().ToArray());
         }
