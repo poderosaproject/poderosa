@@ -371,6 +371,40 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
+        /// Get a new instance retaining only the common attributes of this instance and another instance.
+        /// </summary>
+        /// <remarks>
+        /// Different attributes between two instances are set to default values.
+        /// </remarks>
+        /// <param name="another">another instance to be compared</param>
+        /// <returns>new instance</returns>
+        public GAttr GetCommon(GAttr another) {
+            GAttr common = new GAttr((this.CoreBits & ~0xffffu) & (another.CoreBits & ~0xffffu)); // except colors
+
+            if (common.Has(GAttrFlags.Use8bitForeColor)) {
+                if (this.ForeColor == another.ForeColor) {
+                    common = common.CopyWith8bitForeColor(this.ForeColor);
+                }
+                else {
+                    // reset to default
+                    common = common.CopyWithDefaultForeColor();
+                }
+            }
+
+            if (common.Has(GAttrFlags.Use8bitBackColor)) {
+                if (this.BackColor == another.BackColor) {
+                    common = common.CopyWith8bitBackColor(this.BackColor);
+                }
+                else {
+                    // reset to default
+                    common = common.CopyWithDefaultBackColor();
+                }
+            }
+
+            return common;
+        }
+
+        /// <summary>
         /// Checks if one or more of the specified flags were set.
         /// </summary>
         /// <param name="flags"></param>

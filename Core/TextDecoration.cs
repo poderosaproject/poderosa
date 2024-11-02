@@ -356,6 +356,39 @@ namespace Poderosa.Document {
                 isProtected ? _attr + GAttrFlags.Protected : _attr - GAttrFlags.Protected, _color24);
         }
 
+        /// <summary>
+        /// Get a new instance retaining only the common attributes of this instance and another instance.
+        /// </summary>
+        /// <remarks>
+        /// Different attributes between two instances are set to default values.
+        /// </remarks>
+        /// <param name="another">another instance to be compared</param>
+        /// <returns>new instance</returns>
+        public TextDecoration GetCommon(TextDecoration another) {
+            GAttr commonAttr = this._attr.GetCommon(another._attr);
+            GColor24 commonColor24 = new GColor24();
+            if (commonAttr.Has(GAttrFlags.Use24bitForeColor)) {
+                if (this._color24.ForeColor == another._color24.ForeColor) {
+                    commonColor24.ForeColor = this._color24.ForeColor;
+                }
+                else {
+                    // reset to default
+                    commonAttr = commonAttr.CopyWithDefaultForeColor();
+                }
+            }
+            if (commonAttr.Has(GAttrFlags.Use24bitBackColor)) {
+                if (this._color24.BackColor == another._color24.BackColor) {
+                    commonColor24.BackColor = this._color24.BackColor;
+                }
+                else {
+                    // reset to default
+                    commonAttr = commonAttr.CopyWithDefaultBackColor();
+                }
+            }
+
+            return new TextDecoration(commonAttr, commonColor24);
+        }
+
         public override string ToString() {
             StringBuilder s = new StringBuilder();
             s.Append("{Back=");

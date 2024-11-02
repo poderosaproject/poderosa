@@ -2622,6 +2622,104 @@ namespace Poderosa.Terminal {
             Document.CurrentDecoration = dec;
         }
 
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '#', '|')] // XTREPORTSGR
+        private void ProcessReportSGR(NumericParams p) {
+            ViewPort vp = GetViewPort();
+            RectArea rect;
+            if (!ReadRectAreaFromParameters(p, 0, vp, out rect)) {
+                return;
+            }
+
+            Document.UpdateCurrentLine(_manipulator);
+
+            TextDecoration commonDec = null;
+            int bottomLineNumber = vp.ToLineNumber(rect.Bottom);
+            int columnStart = vp.ToCaretColumn(rect.Left);
+            int columnEnd = vp.ToCaretColumn(rect.Right) + 1;
+
+            GLine l = Document.FindLineOrEdge(vp.ToLineNumber(rect.Top));
+            while (l != null && l.ID <= bottomLineNumber) {
+                _manipulator.Load(l);
+                for (int index = columnStart; index < columnEnd; index++) {
+                    TextDecoration d;
+                    if (_manipulator.GetAttributes(index, out d)) {
+                        if (commonDec != null) {
+                            commonDec = commonDec.GetCommon(d);
+                        }
+                        else {
+                            commonDec = d;
+                        }
+                    }
+                }
+                l = l.NextLine;
+            }
+
+            _manipulator.Load(Document.CurrentLine);
+
+            string response = RESPONSE_CSI + "0";
+            if (commonDec != null) {
+                if (commonDec.Bold) {
+                    response += ";1";
+                }
+                if (commonDec.Underline) {
+                    response += ";4";
+                }
+                if (commonDec.Blink) {
+                    response += ";5";
+                }
+                if (commonDec.Inverted) {
+                    response += ";7";
+                }
+                if (commonDec.Hidden) {
+                    response += ";8";
+                }
+
+                {
+                    ColorSpec foreColor = commonDec.GetForeColorSpec();
+                    if (foreColor.ColorType == ColorType.Custom8bit) {
+                        if (foreColor.ColorCode >= 16) {
+                            response = response + ";38:5:" + foreColor.ColorCode.ToInvariantString();
+                        }
+                        else if (foreColor.ColorCode >= 8) {
+                            response = response + ";" + (foreColor.ColorCode + 82).ToInvariantString();
+                        }
+                        else if (foreColor.ColorCode >= 0) {
+                            response = response + ";" + (foreColor.ColorCode + 30).ToInvariantString();
+                        }
+                    }
+                    else if (foreColor.ColorType == ColorType.Custom24bit) {
+                        response = response + ";38:2::"
+                            + ((int)foreColor.Color.R).ToInvariantString() + ":"
+                            + ((int)foreColor.Color.G).ToInvariantString() + ":"
+                            + ((int)foreColor.Color.B).ToInvariantString();
+                    }
+                }
+                {
+                    ColorSpec backColor = commonDec.GetBackColorSpec();
+                    if (backColor.ColorType == ColorType.Custom8bit) {
+                        if (backColor.ColorCode >= 16) {
+                            response = response + ";48:5:" + backColor.ColorCode.ToInvariantString();
+                        }
+                        else if (backColor.ColorCode >= 8) {
+                            response = response + ";" + (backColor.ColorCode + 92).ToInvariantString();
+                        }
+                        else if (backColor.ColorCode >= 0) {
+                            response = response + ";" + (backColor.ColorCode + 40).ToInvariantString();
+                        }
+                    }
+                    else if (backColor.ColorType == ColorType.Custom24bit) {
+                        response = response + ";48:2::"
+                            + ((int)backColor.Color.R).ToInvariantString() + ":"
+                            + ((int)backColor.Color.G).ToInvariantString() + ":"
+                            + ((int)backColor.Color.B).ToInvariantString();
+                    }
+                }
+            }
+            response += "m";
+
+            TransmitDirect(Encoding.ASCII.GetBytes(response));
+        }
+
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '"', 'q')] // DECSCA
         private void ProcessProtectCharacter(NumericParams p) {
             int param = p.Get(0, 0);
