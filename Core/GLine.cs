@@ -1736,25 +1736,41 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="start">start columns index</param>
         /// <param name="count">count of columns to delete</param>
+        /// <param name="end">end position for left shift of characters (column index, exclusive)</param>
         /// <param name="dec">text decoration of the blanks (null indicates default setting)</param>
-        public void DeleteChars(int start, int count, TextDecoration dec) {
+        public void DeleteChars(int start, int count, int? end, TextDecoration dec) {
             if (count <= 0) {
                 return;
+            }
+
+            start = Math.Max(start, 0);
+
+            int actualEnd;
+            if (end.HasValue) {
+                actualEnd = end.Value;
+                if (start >= actualEnd) {
+                    return;
+                }
+                // expand as needed to avoid errors in unexpected status.
+                ExpandBuffer(actualEnd);
+            }
+            else {
+                actualEnd = _cell.Length;
             }
 
             GAttr fillAttr = dec.Attr;
             GColor24 fillColor = dec.Color24;
 
-            int dstIndex = (start >= 0) ? start : 0;
+            int dstIndex = start;
             int srcIndex = dstIndex + count;
-            while (dstIndex < _cell.Length && srcIndex < _cell.Length) {
+            while (dstIndex < actualEnd && srcIndex < actualEnd) {
                 _cell[dstIndex] = _cell[srcIndex];
                 _color24[dstIndex] = _color24[srcIndex];
                 dstIndex++;
                 srcIndex++;
             }
 
-            while (dstIndex < _cell.Length) {
+            while (dstIndex < actualEnd) {
                 // Note: uses ASCII_NUL instead of ASCII_SPACE for detecting correct length of the content
                 _cell[dstIndex].Set(GChar.ASCII_NUL, fillAttr);
                 _color24[dstIndex] = fillColor;
@@ -1763,6 +1779,8 @@ namespace Poderosa.Document {
 
             FixLeftHalfOfWideWidthCharacter(start - 1);
             FixRightHalfOfWideWidthCharacter(start);
+            FixLeftHalfOfWideWidthCharacter(actualEnd - 1);
+            FixRightHalfOfWideWidthCharacter(actualEnd);
         }
 
         /// <summary>

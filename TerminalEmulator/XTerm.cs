@@ -2987,7 +2987,9 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'P')] // DCH
         private void ProcessDeleteChars(NumericParams p) {
             int n = p.GetNonZero(0, 1);
-            _manipulator.DeleteChars(Document.CaretColumn, n, Document.CurrentDecoration);
+            if (Document.IsCaretColumnInScrollingRegion) {
+                _manipulator.DeleteChars(Document.CaretColumn, n, Document.RightMarginOffset + 1, Document.CurrentDecoration);
+            }
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '@')] // ICH
