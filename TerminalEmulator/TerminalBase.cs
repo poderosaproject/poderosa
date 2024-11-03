@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -82,8 +83,8 @@ namespace Poderosa.Terminal {
 
         private bool _cleanup = false;
 
-        protected List<AfterExitLockDelegate> _afterExitLockActions;
-        protected GLineManipulator _manipulator;
+        protected readonly ConcurrentQueue<AfterExitLockDelegate> _afterExitLockActions;
+        protected readonly GLineManipulator _manipulator;
         protected TerminalMode _terminalMode;
         protected TerminalMode _cursorKeyMode; //_terminalModeは別物。AIXでのviで、カーソルキーは不変という例が確認されている
         protected LineContinuationMode _lineContinuationMode;
@@ -109,7 +110,7 @@ namespace Poderosa.Terminal {
             //_invalidateParam = new InvalidateParam();
             _document = new TerminalDocument(info.InitialWidth, info.InitialHeight);
             _document.SetOwner(_session.ISession);
-            _afterExitLockActions = new List<AfterExitLockDelegate>();
+            _afterExitLockActions = new ConcurrentQueue<AfterExitLockDelegate>();
 
             _encodingProfile = EncodingProfile.Create(info.Session.TerminalSettings.Encoding);
             _decoder = new ISO2022CharDecoder(this, _encodingProfile);
@@ -498,10 +499,10 @@ namespace Poderosa.Terminal {
 
                     if (_afterExitLockActions.Count > 0) {
                         Control main = _session.OwnerWindow.AsControl();
-                        foreach (AfterExitLockDelegate action in _afterExitLockActions) {
+                        AfterExitLockDelegate action;
+                        while (_afterExitLockActions.TryDequeue(out action)) {
                             main.Invoke(action);
                         }
-                        _afterExitLockActions.Clear();
                     }
                 }
 

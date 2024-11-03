@@ -1666,7 +1666,7 @@ namespace Poderosa.Terminal {
                     case 12: {	//local echo
                             ITerminalSettings settings = GetTerminalSettings();
                             bool value = !set;
-                            _afterExitLockActions.Add(() => {
+                            _afterExitLockActions.Enqueue(() => {
                                 settings.BeginUpdate();
                                 settings.LocalEcho = value;
                                 settings.EndUpdate();
