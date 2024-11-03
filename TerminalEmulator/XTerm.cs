@@ -222,9 +222,9 @@ namespace Poderosa.Terminal {
         private readonly LinkedList<SGRStackItem> _sgrStack = new LinkedList<SGRStackItem>();
 
         private bool _bracketedPasteMode = false;
-        private readonly byte[] _bracketedPasteModeLeadingBytes = new byte[] { 0x1b, (byte)'[', (byte)'2', (byte)'0', (byte)'0', (byte)'~' };
-        private readonly byte[] _bracketedPasteModeTrailingBytes = new byte[] { 0x1b, (byte)'[', (byte)'2', (byte)'0', (byte)'1', (byte)'~' };
-        private readonly byte[] _bracketedPasteModeEmptyBytes = new byte[0];
+        private static readonly byte[] BRACKETED_PASTE_MODE_LEADING_BYTES = new byte[] { 0x1b, (byte)'[', (byte)'2', (byte)'0', (byte)'0', (byte)'~' };
+        private static readonly byte[] BRACKETED_PASTE_MODE_TRAILING_BYTES = new byte[] { 0x1b, (byte)'[', (byte)'2', (byte)'0', (byte)'1', (byte)'~' };
+        private static readonly byte[] BRACKETED_PASTE_MODE_EMPTY_BYTES = new byte[0];
 
         private MouseTrackingState _mouseTrackingState = MouseTrackingState.Off;
         private MouseTrackingProtocol _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
@@ -334,11 +334,11 @@ namespace Poderosa.Terminal {
         }
 
         internal override byte[] GetPasteLeadingBytes() {
-            return _bracketedPasteMode ? _bracketedPasteModeLeadingBytes : _bracketedPasteModeEmptyBytes;
+            return _bracketedPasteMode ? BRACKETED_PASTE_MODE_LEADING_BYTES : BRACKETED_PASTE_MODE_EMPTY_BYTES;
         }
 
         internal override byte[] GetPasteTrailingBytes() {
-            return _bracketedPasteMode ? _bracketedPasteModeTrailingBytes : _bracketedPasteModeEmptyBytes;
+            return _bracketedPasteMode ? BRACKETED_PASTE_MODE_TRAILING_BYTES : BRACKETED_PASTE_MODE_EMPTY_BYTES;
         }
 
         public override void ProcessChar(char ch) {
