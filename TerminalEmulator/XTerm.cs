@@ -249,6 +249,7 @@ namespace Poderosa.Terminal {
 
         private const string RESPONSE_CSI = "\u001b[";
         private const string RESPONSE_DCS = "\u001bP";
+        private const string RESPONSE_OSC = "\u001b]";
         private const string RESPONSE_ST = "\u001b\\";
 
         private const int MAX_SGR_STACK = 10;
@@ -1725,7 +1726,8 @@ namespace Poderosa.Terminal {
         private void ProcessOSC(string paramText) {
             OSCParams p;
             if (!OSCParams.Parse(paramText, out p)) {
-                throw new UnknownEscapeSequenceException("invalid OSC format");
+                Debug.WriteLine("invalid OSC format: {0}", new object[] { paramText });
+                return;
             }
 
             switch (p.GetCode()) {
@@ -1738,11 +1740,8 @@ namespace Poderosa.Terminal {
                     return;
 
                 case 4:
-                    OSCChangeColorPalette(p);
+                    OSCChangeColorPalette(p, paramText);
                     return;
-
-                default:
-                    throw new UnknownEscapeSequenceException("unsupported OSC code");
             }
         }
 
@@ -1757,127 +1756,254 @@ namespace Poderosa.Terminal {
             Document.SetSubCaption(formatted);
         }
 
-        private void OSCChangeColorPalette(OSCParams p) {
-            // パレット変更
-            //   形式: OSC 4 ; 色番号 ; 色指定 ST
-            //     色番号: 0～255
-            //     色指定: 以下の形式のどれか
-            //       #rgb
-            //       #rrggbb
-            //       #rrrgggbbb
-            //       #rrrrggggbbbb
-            //       rgb:r/g/b
-            //       rgb:rr/gg/bb
-            //       rgb:rrr/ggg/bbb
-            //       rgb:rrrr/gggg/bbbb
-            //       他にも幾つか形式があるけれど、通常はこれで十分と思われる。
-            //       他の形式は XParseColor(1) を参照
+        private void OSCChangeColorPalette(OSCParams p, string source) {
+            // Xterm parses color spec with XParseColor in Xlib.
+            // The "Color Strings" section of "Xlib - C Language X Interface" explains details of the color spec.
             //
-            // 参考: http://ttssh2.sourceforge.jp/manual/ja/about/ctrlseq.html#OSC
+            // 1. RGB Device String
             //
-            while (p.HasNextParam()) {
-                int pn;
-                if (!p.TryGetNextInteger(out pn)) {
-                    throw new UnknownEscapeSequenceException("(OSC) invalid color number");
-                }
-                string pv;
-                if (!p.TryGetNextText(out pv)) {
-                    throw new UnknownEscapeSequenceException("(OSC) missing color spec");
-                }
-                if (pn < 0 || pn > 255) {
-                    throw new UnknownEscapeSequenceException("(OSC) unsupported color number");
-                }
+            //   rgb:<red>/<green>/<blue>
+            //
+            //   <red>, <green>, <blue> := h | hh | hhh | hhhh
+            //   (see XcmsLRGB_RGB_ParseString in libX11)
+            //
+            // 2. Old RGB Device String
+            //
+            //   #RGB           (4 bits each)
+            //   #RRGGBB        (8 bits each)
+            //   #RRRGGGBBB     (12 bits each)
+            //   #RRRRGGGGBBBB  (16 bits each)
+            //
+            //   (see XcmsLRGB_RGB_ParseString in libX11)
+            //
+            // 3. RGB Intensity String
+            //
+            //   rgbi:<red>/<green>/<blue>
+            //
+            //   <red>, <green>, <blue> := floating point value between 0.0 and 1.0, inclusive
+            //   That floating point values are those that sscanf can parse.
+            //   The decimal point can be either '.' or ','.
+            //   (see XcmsLRGB_RGBi_ParseString in libX11)
+            //
+            // 4. Device-Independent String
+            //
+            //   CIEXYZ:<X>/<Y>/<Z>
+            //   CIEuvY:<u>/<v>/<Y>
+            //   CIExyY:<x>/<y>/<Y>
+            //   CIELab:<L>/<a>/<b>
+            //   CIELuv:<L>/<u>/<v>
+            //   TekHVC:<H>/<V>/<C>
+            //
+            //   All of the values (C, H, V, X, Y, Z, a, b, u, v, y, x) are floating-point values.
+            //   That floating point values are those that sscanf can parse.
+            //   The decimal point can be either '.' or ','.
+            //   (see CIEXYZ_ParseString, or similar for other color spaces, in libX11)
+            //
 
-                int r, g, b;
-                if (pv.StartsWith("#")) {
-                    switch (pv.Length) {
-                        case 4: // #rgb
-                            if (Int32.TryParse(pv.Substring(1, 1), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out r) &&
-                                Int32.TryParse(pv.Substring(2, 1), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out g) &&
-                                Int32.TryParse(pv.Substring(3, 1), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out b)) {
-                                r <<= 4;
-                                g <<= 4;
-                                b <<= 4;
-                            }
-                            else {
-                                throw new UnknownEscapeSequenceException("(OSC) invalid color spec");
-                            }
-                            break;
-                        case 7: // #rrggbb
-                            if (Int32.TryParse(pv.Substring(1, 2), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out r) &&
-                                Int32.TryParse(pv.Substring(3, 2), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out g) &&
-                                Int32.TryParse(pv.Substring(5, 2), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out b)) {
-                            }
-                            else {
-                                throw new UnknownEscapeSequenceException("(OSC) invalid color spec");
-                            }
-                            break;
-                        case 10: // #rrrgggbbb
-                            if (Int32.TryParse(pv.Substring(1, 3), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out r) &&
-                                Int32.TryParse(pv.Substring(4, 3), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out g) &&
-                                Int32.TryParse(pv.Substring(7, 3), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out b)) {
-                                r >>= 4;
-                                g >>= 4;
-                                b >>= 4;
-                            }
-                            else {
-                                throw new UnknownEscapeSequenceException("(OSC) invalid color spec");
-                            }
-                            break;
-                        case 13: // #rrrrggggbbbb
-                            if (Int32.TryParse(pv.Substring(1, 4), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out r) &&
-                                Int32.TryParse(pv.Substring(5, 4), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out g) &&
-                                Int32.TryParse(pv.Substring(9, 4), NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out b)) {
-                                r >>= 8;
-                                g >>= 8;
-                                b >>= 8;
-                            }
-                            else {
-                                throw new UnknownEscapeSequenceException("(OSC) invalid color spec");
-                            }
-                            break;
-                        default:
-                            throw new UnknownEscapeSequenceException("(OSC) unsupported color spec format");
+            bool needRepaint = false;
+
+            try {
+                while (p.HasNextParam()) {
+                    int colorNumber;
+                    if (!p.TryGetNextInteger(out colorNumber)) {
+                        Debug.WriteLine("(OSC) invalid color number : {0}", new object[] { source });
+                        return;
                     }
-                }
-                else if (pv.StartsWith("rgb:")) { // rgb:rr/gg/bb
-                    string[] vals = pv.Substring(4).Split(new Char[] { '/' });
-                    if (vals.Length == 3
-                        && vals[0].Length == vals[1].Length
-                        && vals[0].Length == vals[2].Length
-                        && vals[0].Length > 0
-                        && vals[0].Length <= 4
-                        && Int32.TryParse(vals[0], NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out r)
-                        && Int32.TryParse(vals[1], NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out g)
-                        && Int32.TryParse(vals[2], NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out b)) {
-                        switch (vals[0].Length) {
-                            case 1:
-                                r <<= 4;
-                                g <<= 4;
-                                b <<= 4;
-                                break;
-                            case 3:
-                                r >>= 4;
-                                g >>= 4;
-                                b >>= 4;
-                                break;
-                            case 4:
-                                r >>= 8;
-                                g >>= 8;
-                                b >>= 8;
-                                break;
+                    if (colorNumber < 0 || colorNumber > 255) {
+                        Debug.WriteLine("(OSC) unsupported color number : {0}", new object[] { source });
+                        return;
+                    }
+
+                    string spec;
+                    if (!p.TryGetNextText(out spec)) {
+                        Debug.WriteLine("(OSC) missing color spec : {0}", new object[] { source });
+                        return;
+                    }
+
+                    if (spec == "?") {
+                        OSCReportColor(colorNumber);
+                        continue;
+                    }
+
+                    int r, g, b;
+
+                    if (spec.StartsWith("#")) {
+                        if (!OSCParseOldRGB(spec, out r, out g, out b)) {
+                            Debug.WriteLine("(OSC) invalid old RGB color spec : {0}", new object[] { spec });
+                            return;
                         }
                     }
-                    else {
-                        throw new UnknownEscapeSequenceException("(OSC) invalid color spec");
+                    else if (!OSCParseColorSpec(spec, out r, out g, out b)) {
+                        return;
                     }
+
+                    // Debug.WriteLine("color: {0} / {1} / {2}", r, g, b);
+
+                    GetRenderProfile().ESColorSet[colorNumber] = new ESColor(Color.FromArgb(r, g, b), true);
+                    needRepaint = true;
                 }
-                else {
-                    throw new UnknownEscapeSequenceException("(OSC) unsupported color spec format");
+            }
+            finally {
+                if (needRepaint) {
+                    Document.InvalidateAll();
+                }
+            }
+        }
+
+        private void OSCReportColor(int colorNumber) {
+            Color color = GetRenderProfile().ESColorSet[colorNumber].Color;
+            string response = RESPONSE_OSC
+                + "4;"
+                + colorNumber.ToInvariantString()
+                + ";rgb:"
+                + OSCReportColorFormatComponent(color.R) + "/"
+                + OSCReportColorFormatComponent(color.G) + "/"
+                + OSCReportColorFormatComponent(color.B)
+                + RESPONSE_ST;
+            TransmitDirect(Encoding.ASCII.GetBytes(response));
+        }
+
+        private string OSCReportColorFormatComponent(byte v) {
+            uint c = ((uint)v << 8) + v;
+            return String.Format(NumberFormatInfo.InvariantInfo, "{0:x4}", c);
+        }
+
+        private bool OSCParseOldRGB(string spec, out int r, out int g, out int b) {
+            string hex = spec.Substring(1); // drop '#'
+
+            if (hex.Length != 3 && hex.Length != 6 && hex.Length != 9 && hex.Length != 12) {
+                r = g = b = 0;
+                return false;
+            }
+
+            ulong rgb;
+            if (!UInt64.TryParse(hex, NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out rgb)) {
+                r = g = b = 0;
+                return false;
+            }
+
+            int bits = hex.Length * 4 / 3;
+            ulong mask = (1ul << bits) - 1;
+
+            if (bits < 8) {
+                int shift = 8 - bits;
+                b = (int)(rgb & mask) << shift;
+                rgb >>= bits;
+                g = (int)(rgb & mask) << shift;
+                rgb >>= bits;
+                r = (int)(rgb & mask) << shift;
+            }
+            else {
+                int shift = bits - 8;
+                b = (int)(rgb & mask) >> shift;
+                rgb >>= bits;
+                g = (int)(rgb & mask) >> shift;
+                rgb >>= bits;
+                r = (int)(rgb & mask) >> shift;
+            }
+            return true;
+        }
+
+        private bool OSCParseColorSpec(string spec, out int r, out int g, out int b) {
+            int c = spec.IndexOf(':');
+            if (c < 0) {
+                Debug.WriteLine("(OSC) invalid color spec : {0}", new object[] { spec });
+                r = g = b = 0;
+                return false;
+            }
+
+            string name = spec.Substring(0, c);
+            string[] para = spec.Substring(c + 1).Split('/');
+
+            switch (name) {
+                case "rgb":
+                    if (!OSCParseRGB(spec, para, out r, out g, out b)) {
+                        Debug.WriteLine("(OSC) invalid RGB color spec : {0}", new object[] { spec });
+                        return false;
+                    }
+                    return true;
+                case "rgbi":
+                    if (!OSCParseRGBi(spec, para, out r, out g, out b)) {
+                        Debug.WriteLine("(OSC) invalid RGBi color spec : {0}", new object[] { spec });
+                        return false;
+                    }
+                    return true;
+                default:
+                    Debug.WriteLine("(OSC) unsupported color space : {0}", new object[] { spec });
+                    r = g = b = 0;
+                    return false;
+            }
+        }
+
+        private bool OSCParseRGB(string spec, string[] para, out int r, out int g, out int b) {
+            if (para.Length != 3) {
+                r = g = b = 0;
+                return false;
+            }
+
+            int[] v = new int[3];
+            for (int i = 0; i < 3; i++) {
+                string hex = para[i];
+                if (hex.Length < 1 || hex.Length > 4) {
+                    r = g = b = 0;
+                    return false;
                 }
 
-                GetRenderProfile().ESColorSet[pn] = new ESColor(Color.FromArgb(r, g, b), true);
+                uint c;
+                if (!UInt32.TryParse(hex, NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo, out c)) {
+                    r = g = b = 0;
+                    return false;
+                }
+
+                int bits = hex.Length * 4;
+                if (bits == 8) {
+                    v[i] = (int)c;
+                }
+                else {
+                    v[i] = (int)((c * 0xffu) / ((1u << bits) - 1)); // Xlib do this
+                }
             }
+
+            r = v[0];
+            g = v[1];
+            b = v[2];
+            return true;
+        }
+
+        private bool OSCParseRGBi(string spec, string[] para, out int r, out int g, out int b) {
+            if (para.Length != 3) {
+                r = g = b = 0;
+                return false;
+            }
+
+            int[] v = new int[3];
+            for (int i = 0; i < 3; i++) {
+                string f = para[i];
+
+                f = f.Replace(',', '.');
+
+                double c;
+                if (!Double.TryParse(f, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent, NumberFormatInfo.InvariantInfo, out c)) {
+                    r = g = b = 0;
+                    return false;
+                }
+
+                // use linear transformation
+                if (c < 0.0) {
+                    v[i] = 0;
+                }
+                else if (c > 1.0) {
+                    v[i] = 255;
+                }
+                else {
+                    v[i] = Math.Min((int)(c * 255.5), 255);
+                }
+            }
+
+            r = v[0];
+            g = v[1];
+            b = v[2];
+            return true;
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'm')] // SGR
@@ -3421,19 +3547,6 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.DCS, EscapeSequenceParamType.Text, ControlCode.ST)] // DCS
         private void ProcessDCS(string p) {
             // TODO
-        }
-
-        //FormatExceptionのほかにOverflowExceptionの可能性もあるので
-        private static int ParseInt(string param, int default_value) {
-            try {
-                if (param.Length > 0)
-                    return Int32.Parse(param);
-                else
-                    return default_value;
-            }
-            catch (Exception ex) {
-                throw new UnknownEscapeSequenceException(String.Format("bad number format [{0}] : {1}", param, ex.Message));
-            }
         }
 
         private ViewPort GetViewPort() {
