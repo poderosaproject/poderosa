@@ -1386,7 +1386,7 @@ namespace Poderosa.Terminal.EscapeSequence {
             Assert.AreEqual(expectedCombinationParams, combinationParams);
 
             Assert.AreEqual(parameters, context.GetTextParam());
-            Assert.AreEqual("A" + parameters + "B", context.GetBufferedText());
+            Assert.AreEqual(("A" + parameters + "B").ToCharArray(), context.GetSequence());
         }
 
         [TestCase("C")]
@@ -1405,7 +1405,7 @@ namespace Poderosa.Terminal.EscapeSequence {
             }
             s = s.Accept(context, parameters[parameters.Length - 1]);
             Assert.Null(s);
-            Assert.AreEqual("A" + parameters.Substring(0, parameters.Length - 1), context.GetBufferedText());
+            Assert.AreEqual(("A" + parameters.Substring(0, parameters.Length - 1)).ToCharArray(), context.GetSequence());
         }
 
         [TestCase("")]
@@ -1427,7 +1427,7 @@ namespace Poderosa.Terminal.EscapeSequence {
             s = s.Accept(context, 'B');
             Assert.That(s.GetType() == typeof(EscapeSequenceEngineBase.FinalState));
             Assert.AreEqual(parameters, context.GetTextParam());
-            Assert.AreEqual("A" + parameters + "B", context.GetBufferedText());
+            Assert.AreEqual(("A" + parameters + "B").ToCharArray(), context.GetSequence());
         }
 
         [TestCase("abc\u0000")]
@@ -1446,7 +1446,7 @@ namespace Poderosa.Terminal.EscapeSequence {
             }
             s = s.Accept(context, parameters[parameters.Length - 1]);
             Assert.Null(s);
-            Assert.AreEqual("A" + parameters.Substring(0, parameters.Length - 1), context.GetBufferedText());
+            Assert.AreEqual(("A" + parameters.Substring(0, parameters.Length - 1)).ToCharArray(), context.GetSequence());
         }
 
         [TestCase('!')]
@@ -1470,7 +1470,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
             Assert.That(s.GetType() == typeof(EscapeSequenceEngineBase.FinalState));
             Assert.AreEqual(paramChar, context.GetLastChar());
-            Assert.AreEqual("A" + paramChar, context.GetBufferedText());
+            Assert.AreEqual(new char[] { 'A', paramChar }, context.GetSequence());
         }
 
         [TestCase('\u0000')]
@@ -1489,7 +1489,7 @@ namespace Poderosa.Terminal.EscapeSequence {
             s = s.Accept(context, paramChar);
 
             Assert.Null(s);
-            Assert.AreEqual("A", context.GetBufferedText());
+            Assert.AreEqual(new char[] { 'A' }, context.GetSequence());
         }
 
         [Test]
@@ -1501,7 +1501,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
             EscapeSequenceEngineBase.State s = state.Accept(context, 'A');
             Assert.Null(s);
-            Assert.AreEqual("", context.GetBufferedText());
+            Assert.AreEqual(new char[0], context.GetSequence());
             Assert.AreEqual("", context.GetTextParam());
         }
 

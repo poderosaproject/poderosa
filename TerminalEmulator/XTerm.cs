@@ -263,11 +263,14 @@ namespace Poderosa.Terminal {
             InitTabStops();
         }
 
-        private void HandleIncompleteEscapeSequence(string sequence) {
-            RuntimeUtil.SilentReportException(new IncompleteEscapeSequenceException("Incomplete escape sequence", sequence));
+        private void HandleIncompleteEscapeSequence(IEscapeSequenceContext context) {
+            if (this.LogService.HasXmlLogger) {
+                this.LogService.XmlLogger.EscapeSequence(context.GetSequence());
+            }
+            RuntimeUtil.SilentReportException(new IncompleteEscapeSequenceException("Incomplete escape sequence", context.GetSequence()));
         }
 
-        private void HandleException(Exception ex, string sequence) {
+        private void HandleException(Exception ex, IEscapeSequenceContext context) {
             if (ex is UnknownEscapeSequenceException) {
                 CharDecodeError(
                     String.Format("{0}: {1}",

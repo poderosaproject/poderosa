@@ -43,6 +43,13 @@ namespace Poderosa.Terminal.EscapeSequence {
     }
 
     /// <summary>
+    /// Pattern matching context interface
+    /// </summary>
+    internal interface IEscapeSequenceContext {
+        char[] GetSequence();
+    }
+
+    /// <summary>
     /// Attribute to specify escape sequence pattern
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
@@ -208,11 +215,28 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// <summary>
         /// Pattern matching context
         /// </summary>
-        internal class Context {
+        internal class Context : IEscapeSequenceContext {
 
             private readonly List<char> _buff = new List<char>(128);
             private int _paramStart = 0; // inclusive
             private int _paramEnd = 0; // exclusive
+
+            #region IEscapeSequenceContext
+
+            /// <summary>
+            /// Get sequence
+            /// </summary>
+            /// <returns>char sequence</returns>
+            public char[] GetSequence() {
+                int len = _buff.Count;
+                char[] tmp = new char[len];
+                if (tmp.Length > 0) {
+                    _buff.CopyTo(tmp);
+                }
+                return tmp;
+            }
+
+            #endregion
 
             /// <summary>
             /// Reset
@@ -733,8 +757,8 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// <para>This method is used to obtain the captured escape sequence when an EscapeSequenceHandlerException is thrown.</para>
         /// </remarks>
         /// <returns>escape sequence</returns>
-        public static string GetCurrentThreadEscapeSequence() {
-            return (_currentThreadContext.Value != null) ? _currentThreadContext.Value.GetBufferedText() : null;
+        public static char[] GetCurrentThreadEscapeSequence() {
+            return (_currentThreadContext.Value != null) ? _currentThreadContext.Value.GetSequence() : null;
         }
 
         #endregion
@@ -998,8 +1022,8 @@ namespace Poderosa.Terminal.EscapeSequence {
         private static readonly IgnoreCSIState _ignoreCSIState = new IgnoreCSIState();
 
         private readonly Context _context = new Context();
-        private readonly Action<Exception, string> _exceptionHandler;
-        private readonly Action<string> _incompleteHandler;
+        private readonly Action<Exception, IEscapeSequenceContext> _exceptionHandler;
+        private readonly Action<IEscapeSequenceContext> _incompleteHandler;
         private State _currentState;
 
 #if UNITTEST
@@ -1016,7 +1040,10 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// <summary>
         /// Constructor
         /// </summary>
-        public EscapeSequenceEngine(Action<Exception, string> exceptionHandler, Action<string> incompleteHandler) {
+        public EscapeSequenceEngine(
+                Action<IEscapeSequenceContext> incompleteHandler,
+                Action<Exception, IEscapeSequenceContext> exceptionHandler
+        ) {
             lock (_initializeSync) {
                 if (!_initialized) {
 #if DEBUG
@@ -1058,7 +1085,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
                 if (!Object.ReferenceEquals(_currentState, _root)) {
                     _context.AppendChar(ch); // report including a character not accepted
-                    _incompleteHandler(_context.GetBufferedText());
+                    _incompleteHandler(_context);
                     Reset();
                 }
                 return false; // not handled
@@ -1077,7 +1104,7 @@ namespace Poderosa.Terminal.EscapeSequence {
             }
             catch (Exception e) {
                 var ie = e as TargetInvocationException;
-                _exceptionHandler((ie != null) ? ie.InnerException : e, _context.GetBufferedText());
+                _exceptionHandler((ie != null) ? ie.InnerException : e, _context);
             }
             finally {
                 _currentThreadContext.Value = null;
@@ -1117,19 +1144,19 @@ namespace Poderosa.Terminal.EscapeSequence {
             : base(AddCapturedEscapeSequence(message)) {
         }
 
-        public EscapeSequenceHandlerException(string message, string escapeSequence)
+        public EscapeSequenceHandlerException(string message, char[] escapeSequence)
             : base(AddEscapeSequence(message, escapeSequence)) {
         }
 
         private static string AddCapturedEscapeSequence(string message) {
-            string captured = EscapeSequenceEngineBase.GetCurrentThreadEscapeSequence();
+            char[] captured = EscapeSequenceEngineBase.GetCurrentThreadEscapeSequence();
             if (captured == null) {
                 return message;
             }
             return AddEscapeSequence(message, captured);
         }
 
-        private static string AddEscapeSequence(string message, string escapeSequence) {
+        private static string AddEscapeSequence(string message, char[] escapeSequence) {
             StringBuilder s = new StringBuilder();
             s.Append(message).Append(" : ");
 
@@ -1156,7 +1183,7 @@ namespace Poderosa.Terminal.EscapeSequence {
     }
 
     internal class IncompleteEscapeSequenceException : EscapeSequenceHandlerException {
-        public IncompleteEscapeSequenceException(string msg, string sequence)
+        public IncompleteEscapeSequenceException(string msg, char[] sequence)
             : base(msg, sequence) {
         }
     }
