@@ -210,7 +210,7 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// </summary>
         internal class Context {
 
-            private readonly StringBuilder _buff = new StringBuilder();
+            private readonly List<char> _buff = new List<char>(128);
             private int _paramStart = 0; // inclusive
             private int _paramEnd = 0; // exclusive
 
@@ -227,7 +227,7 @@ namespace Poderosa.Terminal.EscapeSequence {
             /// </summary>
             /// <returns>true if this sequence is CSI</returns>
             public bool IsCSI() {
-                int len = _buff.Length;
+                int len = _buff.Count;
                 return (len >= 1 && _buff[0] == ControlCode.CSI)
                     || (len >= 2 && _buff[0] == ControlCode.ESC && _buff[1] == '[');
             }
@@ -237,7 +237,7 @@ namespace Poderosa.Terminal.EscapeSequence {
             /// </summary>
             /// <param name="ch"></param>
             public void AppendChar(char ch) {
-                _buff.Append(ch);
+                _buff.Add(ch);
             }
 
             /// <summary>
@@ -245,20 +245,12 @@ namespace Poderosa.Terminal.EscapeSequence {
             /// </summary>
             /// <param name="ch"></param>
             public void AppendParamChar(char ch) {
-                int index = _buff.Length;
-                _buff.Append(ch);
+                int index = _buff.Count;
+                _buff.Add(ch);
                 if (_paramStart == _paramEnd) {
                     _paramStart = index;
                 }
                 _paramEnd = index + 1;
-            }
-
-            /// <summary>
-            /// Get buffered text
-            /// </summary>
-            /// <returns>buffered text</returns>
-            public string GetBufferedText() {
-                return _buff.ToString();
             }
 
             /// <summary>
@@ -287,7 +279,12 @@ namespace Poderosa.Terminal.EscapeSequence {
             /// </summary>
             /// <returns>text parameter</returns>
             public string GetTextParam() {
-                return _buff.ToString(_paramStart, _paramEnd - _paramStart);
+                int len = _paramEnd - _paramStart;
+                char[] tmp = new char[len];
+                if (tmp.Length > 0) {
+                    _buff.CopyTo(_paramStart, tmp, 0, len);
+                }
+                return new String(tmp);
             }
 
             /// <summary>
@@ -295,7 +292,7 @@ namespace Poderosa.Terminal.EscapeSequence {
             /// </summary>
             /// <returns>a last character</returns>
             public char GetLastChar() {
-                return _buff[_buff.Length - 1];
+                return _buff[_buff.Count - 1];
             }
 
             /// <summary>
