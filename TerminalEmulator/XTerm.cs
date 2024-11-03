@@ -182,10 +182,6 @@ namespace Poderosa.Terminal {
                     col: _leftOffset + 1
                 );
             }
-
-            public bool IsLocationChanged(TerminalDocument doc) {
-                return _terminalWidth != doc.TerminalWidth || _terminalHeight != doc.TerminalHeight || _baseLineNumber != doc.TopLineNumber;
-            }
         }
 
         [Flags]
