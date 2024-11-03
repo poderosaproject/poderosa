@@ -385,6 +385,11 @@ namespace Poderosa.Forms {
                     return _document.Caption;
                 }
             }
+            public override string SubCaption {
+                get {
+                    return _document.SubCaption;
+                }
+            }
             public override Image Icon {
                 get {
                     return _document.Icon;

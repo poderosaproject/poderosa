@@ -47,6 +47,9 @@ namespace Poderosa.Forms {
         public abstract string Caption {
             get;
         }
+        public abstract string SubCaption {
+            get;
+        }
         public abstract Image Icon {
             get;
         } //must be 16*16
@@ -156,6 +159,7 @@ namespace Poderosa.Forms {
         private List<TabBarButton> _buttons;       //表示されている順のボタン
         private List<TabBarButton> _sortedButtons; //幅順にソートしたものを一時的に保存する
         private ToolTip _tabToolTip;      //ボタンのToolTip
+        private bool _tabToolTipChanging;
 
         //ただクリックしただけでMouseMoveが発生してしまうので、正しくドラッグ開始を判定できない
         private int _dragStartPosX;
@@ -180,9 +184,12 @@ namespace Poderosa.Forms {
             _parentTable = parent;
             _buttons = new List<TabBarButton>();
             _tabToolTip = new ToolTip();
+            _tabToolTip.Popup += _tabToolTip_Popup;
+            _tabToolTipChanging = false;
             this.AllowDrop = true;
             this.Height = UNITHEIGHT;
         }
+
         protected override void OnLoad(EventArgs e) {
             base.OnLoad(e);
             if (_normalDrawing == null) {
@@ -190,6 +197,25 @@ namespace Poderosa.Forms {
                 _normalDrawing = TabBarDrawing.CreateNormalStyle(g);
                 _activeDrawing = TabBarDrawing.CreateActiveStyle(_normalDrawing, g);
                 g.Dispose();
+            }
+        }
+
+        private void _tabToolTip_Popup(object sender, PopupEventArgs e) {
+            if (_tabToolTipChanging) {
+                return;
+            }
+            ToolTip toolTip = sender as ToolTip;
+            if (toolTip != null) {
+                TabBarButton button = e.AssociatedControl as TabBarButton;
+                if (button != null) {
+                    string text = button.TabKey.SubCaption;
+                    if (text.Length == 0) {
+                        text = " ";
+                    }
+                    _tabToolTipChanging = true;
+                    toolTip.SetToolTip(button, text);
+                    _tabToolTipChanging = false;
+                }
             }
         }
 
@@ -257,7 +283,9 @@ namespace Poderosa.Forms {
 
         private TabBarButton CreateButton(TabKey key, int index) {
             TabBarButton b = new TabBarButton(this, key, index);
-            //TODO _tabToolTip.SetToolTip(b, document.Description);
+            // a non-empty string must be passed to SetToolTip() to fire the Popup event.
+            // the text will be changed dynamically in Popup event.
+            _tabToolTip.SetToolTip(b, " ");
 
             b.Visible = true;
             b.Top = 1;
