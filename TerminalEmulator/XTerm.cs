@@ -732,6 +732,7 @@ namespace Poderosa.Terminal {
         }
 
         [EscapeSequence(ControlCode.APC, EscapeSequenceParamType.Text, ControlCode.ST)] // Application Program Command
+        [EscapeSequence(ControlCode.PM, EscapeSequenceParamType.Text, ControlCode.ST)] // Privacy message
         private void Ignore(string p) {
         }
 
