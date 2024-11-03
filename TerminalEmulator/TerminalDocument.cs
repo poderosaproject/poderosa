@@ -194,7 +194,6 @@ namespace Poderosa.Terminal {
         private bool _wrapPending;
         private ScreenGeometry _geom;
         //ウィンドウの表示用テキスト
-        private string _windowTitle; //ホストOSCシーケンスで指定されたタイトル
         private GLine _topLine; // top of the screen
         private GLine _viewTopLine; // top of the view
         private GLine _currentLine;
@@ -209,15 +208,6 @@ namespace Poderosa.Terminal {
                     rightMarginOffset: MARGIN_DEFAULT
                 );
             Clear();
-        }
-
-        public string WindowTitle {
-            get {
-                return _windowTitle;
-            }
-            set {
-                _windowTitle = value;
-            }
         }
 
         public int TerminalHeight {
@@ -271,6 +261,14 @@ namespace Poderosa.Terminal {
             _lastLine = null;
             _size = 0;
             AddLine(CreateErasedGLine());
+        }
+
+        public void SetSubCaption(string caption) {
+            _subCaption = caption;
+        }
+
+        public void ClearSubCaption() {
+            _subCaption = null;
         }
 
         public void Resize(int width, int height) {

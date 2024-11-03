@@ -1737,15 +1737,14 @@ namespace Poderosa.Terminal {
         }
 
         private void OSCChangeWindowTitle(OSCParams p) {
-            Document.WindowTitle = p.GetText();
+            string title = p.GetText();
+            IDynamicCaptionFormatter[] formatters = TerminalEmulatorPlugin.Instance.DynamicCaptionFormatter;
+            IDynamicCaptionFormatter formatter = (formatters != null && formatters.Length > 0) ? formatters[0] : new DefaultDynamicCaptionFormatter();
 
-            IDynamicCaptionFormatter[] fmts = TerminalEmulatorPlugin.Instance.DynamicCaptionFormatter;
+            ITerminalSettings settings = GetTerminalSettings();
+            string formatted = formatter.FormatCaptionUsingWindowTitle(GetConnection().Destination, settings, title);
 
-            if (fmts.Length > 0) {
-                ITerminalSettings settings = GetTerminalSettings();
-                string title = fmts[0].FormatCaptionUsingWindowTitle(GetConnection().Destination, settings, p.GetText());
-                _afterExitLockActions.Add(new AfterExitLockDelegate(new CaptionChanger(GetTerminalSettings(), title).Do));
-            }
+            Document.SetSubCaption(formatted);
         }
 
         private void OSCChangeColorPalette(OSCParams p) {
@@ -3427,21 +3426,6 @@ namespace Poderosa.Terminal {
             }
         }
 
-        //動的変更用
-        private class CaptionChanger {
-            private ITerminalSettings _settings;
-            private string _title;
-            public CaptionChanger(ITerminalSettings settings, string title) {
-                _settings = settings;
-                _title = title;
-            }
-            public void Do() {
-                _settings.BeginUpdate();
-                _settings.Caption = _title;
-                _settings.EndUpdate();
-            }
-        }
-
         private ViewPort GetViewPort() {
             return new ViewPort(Document, _originRelative);
         }
@@ -3496,5 +3480,17 @@ namespace Poderosa.Terminal {
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// Default IDynamicCaptionFormatter implementation.
+    /// </summary>
+    /// <remarks>
+    /// This behavior can be overridden using custom plugin.
+    /// </remarks>
+    internal class DefaultDynamicCaptionFormatter : IDynamicCaptionFormatter {
+        public string FormatCaptionUsingWindowTitle(Protocols.ITerminalParameter param, ITerminalSettings settings, string windowTitle) {
+            return windowTitle;
+        }
     }
 }

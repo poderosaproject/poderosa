@@ -42,6 +42,7 @@ namespace Poderosa.Document {
     /// </remarks>
     public class CharacterDocument : IPoderosaDocument, IPoderosaContextMenuPoint {
         protected string _caption;
+        protected string _subCaption;
         protected Image _icon;
         protected ISession _owner;
 
@@ -310,7 +311,12 @@ namespace Poderosa.Document {
         }
         public virtual string Caption {
             get {
-                return _caption;
+                return (_caption != null) ? _caption : String.Empty;
+            }
+        }
+        public virtual string SubCaption {
+            get {
+                return (_subCaption != null) ? _subCaption : this.Caption;
             }
         }
         #endregion

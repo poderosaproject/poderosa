@@ -57,6 +57,17 @@ namespace Poderosa.Sessions {
         }
         /// <summary>
         /// <ja>
+        /// ドキュメントのサブキャプションです。
+        /// </ja>
+        /// <en>
+        /// Sub-caption of the document.
+        /// </en>
+        /// </summary>
+        string SubCaption {
+            get;
+        }
+        /// <summary>
+        /// <ja>
         /// ドキュメントを構成するセッションです。
         /// </ja>
         /// <en>
