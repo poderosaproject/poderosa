@@ -1024,6 +1024,7 @@ namespace Poderosa.Terminal.EscapeSequence {
         private readonly Context _context = new Context();
         private readonly Action<Exception, IEscapeSequenceContext> _exceptionHandler;
         private readonly Action<IEscapeSequenceContext> _incompleteHandler;
+        private readonly Action<IEscapeSequenceContext> _completedHandler;
         private State _currentState;
 
 #if UNITTEST
@@ -1031,9 +1032,14 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// Constructor
         /// </summary>
         public EscapeSequenceEngine()
-            : this((e, s) => {
-            }, (s) => {
-            }) {
+            : this(
+            (c) => {
+            },
+            (c) => {
+            },
+            (e, s) => {
+            }
+            ) {
         }
 #endif
 
@@ -1041,6 +1047,7 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// Constructor
         /// </summary>
         public EscapeSequenceEngine(
+                Action<IEscapeSequenceContext> completedHandler,
                 Action<IEscapeSequenceContext> incompleteHandler,
                 Action<Exception, IEscapeSequenceContext> exceptionHandler
         ) {
@@ -1061,8 +1068,9 @@ namespace Poderosa.Terminal.EscapeSequence {
                 }
             }
             _currentState = _root;
-            _exceptionHandler = exceptionHandler;
+            _completedHandler = completedHandler;
             _incompleteHandler = incompleteHandler;
+            _exceptionHandler = exceptionHandler;
         }
 
         /// <summary>
@@ -1097,6 +1105,8 @@ namespace Poderosa.Terminal.EscapeSequence {
                 _currentState = nextState;
                 return true; // handled
             }
+
+            _completedHandler(_context);
 
             _currentThreadContext.Value = _context;
             try {

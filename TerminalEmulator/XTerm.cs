@@ -256,11 +256,18 @@ namespace Poderosa.Terminal {
         public XTerm(TerminalInitializeInfo info)
             : base(info) {
             _escapeSequenceEngine = new EscapeSequenceEngine<XTerm>(
-                exceptionHandler: HandleException,
-                incompleteHandler: HandleIncompleteEscapeSequence
+                completedHandler: HandleEscapeSequenceCompleted,
+                incompleteHandler: HandleIncompleteEscapeSequence,
+                exceptionHandler: HandleException
             );
             _tabStops = new bool[Document.TerminalWidth];
             InitTabStops();
+        }
+
+        private void HandleEscapeSequenceCompleted(IEscapeSequenceContext context) {
+            if (this.LogService.HasXmlLogger) {
+                this.LogService.XmlLogger.EscapeSequence(context.GetSequence());
+            }
         }
 
         private void HandleIncompleteEscapeSequence(IEscapeSequenceContext context) {
@@ -342,8 +349,6 @@ namespace Poderosa.Terminal {
                 _prevNormalChar = null;
                 return;
             }
-
-            this.LogService.XmlLogger.Write(ch);
 
             if (!_escapeSequenceEngine.Process(this, ch)) {
                 IModalCharacterTask characterTask = _currentCharacterTask;
@@ -583,6 +588,8 @@ namespace Poderosa.Terminal {
         }
 
         private void ProcessNormalChar(char ch) {
+            this.LogService.XmlLogger.Write(ch);
+
             UnicodeChar unicodeChar;
             if (!base.UnicodeCharConverter.Feed(ch, out unicodeChar)) {
                 _prevNormalChar = null;
