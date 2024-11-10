@@ -14,6 +14,7 @@
 #if UNITTEST
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -1410,8 +1411,10 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [TestCase("")]
         [TestCase("a")]
-        [TestCase("abc\u0020def")]
+        [TestCase("abc\\u0020def")]
         public void TestTextParamStateAccept(string parameters) {
+            parameters = TestUtil.ConvertArg(parameters);
+            
             EscapeSequenceEngineBase.CharState state = Build(
                 new EscapeSequenceAttribute('A', EscapeSequenceParamType.Text, 'B')
             );
@@ -1430,9 +1433,11 @@ namespace Poderosa.Terminal.EscapeSequence {
             Assert.AreEqual(("A" + parameters + "B").ToCharArray(), context.GetSequence());
         }
 
-        [TestCase("abc\u0000")]
-        [TestCase("abc\u001f")]
+        [TestCase("abc\\u0000")]
+        [TestCase("abc\\u001f")]
         public void TestTextParamStateNotAccept(string parameters) {
+            parameters = TestUtil.ConvertArg(parameters);
+
             EscapeSequenceEngineBase.CharState state = Build(
                 new EscapeSequenceAttribute('A', EscapeSequenceParamType.Text, 'B')
             );
@@ -1717,66 +1722,68 @@ namespace Poderosa.Terminal.EscapeSequence {
 
 
         public static object[] TestProcessPatterns = new object[] {
-            new object[] { "\u009f", new object[] { "Handle_APC" }},
-            new object[] { "\u001b_", new object[] { "Handle_APC" }},
+            new object[] { "\\u009f", new object[] { "Handle_APC" }},
+            new object[] { "\\u001b_", new object[] { "Handle_APC" }},
 
-            new object[] { "\u009b\u009c", new object[] { "Handle_CSI_ST", null }},
-            new object[] { "\u001b[\u009c", new object[] { "Handle_CSI_ST", null }},
-            new object[] { "\u009b\u001b\\", new object[] { "Handle_CSI_ST", null }},
-            new object[] { "\u001b[\u001b\\", new object[] { "Handle_CSI_ST", null }},
-            new object[] { "\u009b11;22;33\u009c", new object[] { "Handle_CSI_ST", 11, 22, 33 }},
-            new object[] { "\u001b[11;22;33\u009c", new object[] { "Handle_CSI_ST", 11, 22, 33 }},
-            new object[] { "\u009b11;22;33\u001b\\", new object[] { "Handle_CSI_ST", 11, 22, 33 }},
-            new object[] { "\u001b[11;22;33\u001b\\", new object[] { "Handle_CSI_ST", 11, 22, 33 }},
+            new object[] { "\\u009b\\u009c", new object[] { "Handle_CSI_ST", null }},
+            new object[] { "\\u001b[\\u009c", new object[] { "Handle_CSI_ST", null }},
+            new object[] { "\\u009b\\u001b\\", new object[] { "Handle_CSI_ST", null }},
+            new object[] { "\\u001b[\\u001b\\", new object[] { "Handle_CSI_ST", null }},
+            new object[] { "\\u009b11;22;33\\u009c", new object[] { "Handle_CSI_ST", 11, 22, 33 }},
+            new object[] { "\\u001b[11;22;33\\u009c", new object[] { "Handle_CSI_ST", 11, 22, 33 }},
+            new object[] { "\\u009b11;22;33\\u001b\\", new object[] { "Handle_CSI_ST", 11, 22, 33 }},
+            new object[] { "\\u001b[11;22;33\\u001b\\", new object[] { "Handle_CSI_ST", 11, 22, 33 }},
 
-            new object[] { "\u009bX\u009c", new object[] { "Handle_CSI_X_ST", null }},
-            new object[] { "\u001b[X\u009c", new object[] { "Handle_CSI_X_ST", null }},
-            new object[] { "\u009bX\u001b\\", new object[] { "Handle_CSI_X_ST", null }},
-            new object[] { "\u001b[X\u001b\\", new object[] { "Handle_CSI_X_ST", null }},
-            new object[] { "\u009bX11;22;33\u009c", new object[] { "Handle_CSI_X_ST", 11, 22, 33 }},
-            new object[] { "\u001b[X11;22;33\u009c", new object[] { "Handle_CSI_X_ST", 11, 22, 33 }},
-            new object[] { "\u009bX11;22;33\u001b\\", new object[] { "Handle_CSI_X_ST", 11, 22, 33 }},
-            new object[] { "\u001b[X11;22;33\u001b\\", new object[] { "Handle_CSI_X_ST", 11, 22, 33 }},
+            new object[] { "\\u009bX\\u009c", new object[] { "Handle_CSI_X_ST", null }},
+            new object[] { "\\u001b[X\\u009c", new object[] { "Handle_CSI_X_ST", null }},
+            new object[] { "\\u009bX\\u001b\\", new object[] { "Handle_CSI_X_ST", null }},
+            new object[] { "\\u001b[X\\u001b\\", new object[] { "Handle_CSI_X_ST", null }},
+            new object[] { "\\u009bX11;22;33\\u009c", new object[] { "Handle_CSI_X_ST", 11, 22, 33 }},
+            new object[] { "\\u001b[X11;22;33\\u009c", new object[] { "Handle_CSI_X_ST", 11, 22, 33 }},
+            new object[] { "\\u009bX11;22;33\\u001b\\", new object[] { "Handle_CSI_X_ST", 11, 22, 33 }},
+            new object[] { "\\u001b[X11;22;33\\u001b\\", new object[] { "Handle_CSI_X_ST", 11, 22, 33 }},
 
-            new object[] { "\u009bXZ\u009c", new object[] { "Handle_CSI_X_Z_ST", null }},
-            new object[] { "\u001b[XZ\u009c", new object[] { "Handle_CSI_X_Z_ST", null }},
-            new object[] { "\u009bXZ\u001b\\", new object[] { "Handle_CSI_X_Z_ST", null }},
-            new object[] { "\u001b[XZ\u001b\\", new object[] { "Handle_CSI_X_Z_ST", null }},
-            new object[] { "\u009bX11;22;33Z\u009c", new object[] { "Handle_CSI_X_Z_ST", 11, 22, 33 }},
-            new object[] { "\u001b[X11;22;33Z\u009c", new object[] { "Handle_CSI_X_Z_ST", 11, 22, 33 }},
-            new object[] { "\u009bX11;22;33Z\u001b\\", new object[] { "Handle_CSI_X_Z_ST", 11, 22, 33 }},
-            new object[] { "\u001b[X11;22;33Z\u001b\\", new object[] { "Handle_CSI_X_Z_ST", 11, 22, 33 }},
+            new object[] { "\\u009bXZ\\u009c", new object[] { "Handle_CSI_X_Z_ST", null }},
+            new object[] { "\\u001b[XZ\\u009c", new object[] { "Handle_CSI_X_Z_ST", null }},
+            new object[] { "\\u009bXZ\\u001b\\", new object[] { "Handle_CSI_X_Z_ST", null }},
+            new object[] { "\\u001b[XZ\\u001b\\", new object[] { "Handle_CSI_X_Z_ST", null }},
+            new object[] { "\\u009bX11;22;33Z\\u009c", new object[] { "Handle_CSI_X_Z_ST", 11, 22, 33 }},
+            new object[] { "\\u001b[X11;22;33Z\\u009c", new object[] { "Handle_CSI_X_Z_ST", 11, 22, 33 }},
+            new object[] { "\\u009bX11;22;33Z\\u001b\\", new object[] { "Handle_CSI_X_Z_ST", 11, 22, 33 }},
+            new object[] { "\\u001b[X11;22;33Z\\u001b\\", new object[] { "Handle_CSI_X_Z_ST", 11, 22, 33 }},
 
-            new object[] { "\u009bY\u009c", new object[] { "Handle_CSI_Y_ST", null }},
-            new object[] { "\u001b[Y\u009c", new object[] { "Handle_CSI_Y_ST", null }},
-            new object[] { "\u009bY\u001b\\", new object[] { "Handle_CSI_Y_ST", null }},
-            new object[] { "\u001b[Y\u001b\\", new object[] { "Handle_CSI_Y_ST", null }},
-            new object[] { "\u009bY11;22;33\u009c", new object[] { "Handle_CSI_Y_ST", 11, 22, 33 }},
-            new object[] { "\u001b[Y11;22;33\u009c", new object[] { "Handle_CSI_Y_ST", 11, 22, 33 }},
-            new object[] { "\u009bY11;22;33\u001b\\", new object[] { "Handle_CSI_Y_ST", 11, 22, 33 }},
-            new object[] { "\u001b[Y11;22;33\u001b\\", new object[] { "Handle_CSI_Y_ST", 11, 22, 33 }},
+            new object[] { "\\u009bY\\u009c", new object[] { "Handle_CSI_Y_ST", null }},
+            new object[] { "\\u001b[Y\\u009c", new object[] { "Handle_CSI_Y_ST", null }},
+            new object[] { "\\u009bY\\u001b\\", new object[] { "Handle_CSI_Y_ST", null }},
+            new object[] { "\\u001b[Y\\u001b\\", new object[] { "Handle_CSI_Y_ST", null }},
+            new object[] { "\\u009bY11;22;33\\u009c", new object[] { "Handle_CSI_Y_ST", 11, 22, 33 }},
+            new object[] { "\\u001b[Y11;22;33\\u009c", new object[] { "Handle_CSI_Y_ST", 11, 22, 33 }},
+            new object[] { "\\u009bY11;22;33\\u001b\\", new object[] { "Handle_CSI_Y_ST", 11, 22, 33 }},
+            new object[] { "\\u001b[Y11;22;33\\u001b\\", new object[] { "Handle_CSI_Y_ST", 11, 22, 33 }},
 
-            new object[] { "\u009bYZ\u009c", new object[] { "Handle_CSI_Y_Z_ST", null }},
-            new object[] { "\u001b[YZ\u009c", new object[] { "Handle_CSI_Y_Z_ST", null }},
-            new object[] { "\u009bYZ\u001b\\", new object[] { "Handle_CSI_Y_Z_ST", null }},
-            new object[] { "\u001b[YZ\u001b\\", new object[] { "Handle_CSI_Y_Z_ST", null }},
-            new object[] { "\u009bY11;22;33Z\u009c", new object[] { "Handle_CSI_Y_Z_ST", 11, 22, 33 }},
-            new object[] { "\u001b[Y11;22;33Z\u009c", new object[] { "Handle_CSI_Y_Z_ST", 11, 22, 33 }},
-            new object[] { "\u009bY11;22;33Z\u001b\\", new object[] { "Handle_CSI_Y_Z_ST", 11, 22, 33 }},
-            new object[] { "\u001b[Y11;22;33Z\u001b\\", new object[] { "Handle_CSI_Y_Z_ST", 11, 22, 33 }},
+            new object[] { "\\u009bYZ\\u009c", new object[] { "Handle_CSI_Y_Z_ST", null }},
+            new object[] { "\\u001b[YZ\\u009c", new object[] { "Handle_CSI_Y_Z_ST", null }},
+            new object[] { "\\u009bYZ\\u001b\\", new object[] { "Handle_CSI_Y_Z_ST", null }},
+            new object[] { "\\u001b[YZ\\u001b\\", new object[] { "Handle_CSI_Y_Z_ST", null }},
+            new object[] { "\\u009bY11;22;33Z\\u009c", new object[] { "Handle_CSI_Y_Z_ST", 11, 22, 33 }},
+            new object[] { "\\u001b[Y11;22;33Z\\u009c", new object[] { "Handle_CSI_Y_Z_ST", 11, 22, 33 }},
+            new object[] { "\\u009bY11;22;33Z\\u001b\\", new object[] { "Handle_CSI_Y_Z_ST", 11, 22, 33 }},
+            new object[] { "\\u001b[Y11;22;33Z\\u001b\\", new object[] { "Handle_CSI_Y_Z_ST", 11, 22, 33 }},
 
-            new object[] { "\u009d\u009c", new object[] { "Handle_OSC_ST", "" }},
-            new object[] { "\u001b]\u009c", new object[] { "Handle_OSC_ST", "" }},
-            new object[] { "\u009d\u001b\\", new object[] { "Handle_OSC_ST", "" }},
-            new object[] { "\u001b]\u001b\\", new object[] { "Handle_OSC_ST", "" }},
-            new object[] { "\u009dfoo\u009c", new object[] { "Handle_OSC_ST", "foo" }},
-            new object[] { "\u001b]foo\u009c", new object[] { "Handle_OSC_ST", "foo" }},
-            new object[] { "\u009dfoo\u001b\\", new object[] { "Handle_OSC_ST", "foo" }},
-            new object[] { "\u001b]foo\u001b\\", new object[] { "Handle_OSC_ST", "foo" }},
+            new object[] { "\\u009d\\u009c", new object[] { "Handle_OSC_ST", "" }},
+            new object[] { "\\u001b]\\u009c", new object[] { "Handle_OSC_ST", "" }},
+            new object[] { "\\u009d\\u001b\\", new object[] { "Handle_OSC_ST", "" }},
+            new object[] { "\\u001b]\\u001b\\", new object[] { "Handle_OSC_ST", "" }},
+            new object[] { "\\u009dfoo\\u009c", new object[] { "Handle_OSC_ST", "foo" }},
+            new object[] { "\\u001b]foo\\u009c", new object[] { "Handle_OSC_ST", "foo" }},
+            new object[] { "\\u009dfoo\\u001b\\", new object[] { "Handle_OSC_ST", "foo" }},
+            new object[] { "\\u001b]foo\\u001b\\", new object[] { "Handle_OSC_ST", "foo" }},
         };
 
         [TestCaseSource("TestProcessPatterns")]
         public void TestProcess(string input, object[] expected) {
+            input = TestUtil.ConvertArg(input);
+
             var engine = new EscapeSequenceEngine<ValidHandlersForCheckFinalState>();
 
             var instance = new ValidHandlersForCheckFinalState();
@@ -1832,15 +1839,18 @@ namespace Poderosa.Terminal.EscapeSequence {
             Assert.AreEqual(new object[] { "HandlerTextParam2", "abc" }, instance.Calls[0]);
         }
 
-        [TestCase("\u001b[1;2;3XYZ", "YZ")] // final byte is 'X'
-        [TestCase("\u009b1;2;3XYZ", "YZ")] // final byte is 'X'
-        [TestCase("\u001b[XYZ", "YZ")] // final byte is 'X'
-        [TestCase("\u009bXYZ", "YZ")] // final byte is 'X'
-        [TestCase("\u001b[!XYZ", "YZ")] // also ignore intermediate bytes
-        [TestCase("\u009b!XYZ", "YZ")] // also ignore intermediate bytes
-        [TestCase("\u001b[1;2;3\u000aXYZ", "\u000aXYZ")] // U+000a is not a final byte or intermediate byte
-        [TestCase("\u009b1;2;3\u000aXYZ", "\u000aXYZ")] // U+000a is not a final byte or intermediate byte
+        [TestCase("\\u001b[1;2;3XYZ", "YZ")] // final byte is 'X'
+        [TestCase("\\u009b1;2;3XYZ", "YZ")] // final byte is 'X'
+        [TestCase("\\u001b[XYZ", "YZ")] // final byte is 'X'
+        [TestCase("\\u009bXYZ", "YZ")] // final byte is 'X'
+        [TestCase("\\u001b[!XYZ", "YZ")] // also ignore intermediate bytes
+        [TestCase("\\u009b!XYZ", "YZ")] // also ignore intermediate bytes
+        [TestCase("\\u001b[1;2;3\\u000aXYZ", "\\u000aXYZ")] // U+000a is not a final byte or intermediate byte
+        [TestCase("\\u009b1;2;3\\u000aXYZ", "\\u000aXYZ")] // U+000a is not a final byte or intermediate byte
         public void TestIgnoreCSI(string input, string expected) {
+            input = TestUtil.ConvertArg(input);
+            expected = TestUtil.ConvertArg(expected);
+
             var engine = new EscapeSequenceEngine<SomeCSIHandlers>();
 
             SomeCSIHandlers instance = new SomeCSIHandlers();
@@ -2169,5 +2179,24 @@ namespace Poderosa.Terminal.EscapeSequence {
         }
     }
 
+    internal class TestUtil {
+        // Visual Studio or NUnit VS Test Adapter fail to recognize parameterized tests whose parameters contain non-printable characters.
+        // To avoid this issue, we pass the non-printable characters in the parameter as \uXXXX notation, then convert them to characters with this utility function.
+
+        public static string ConvertArg(string arg) {
+            while (true) {
+                int prefixIndex = arg.IndexOf("\\u");
+                if (prefixIndex < 0) {
+                    break;
+                }
+
+                string hex = arg.Substring(prefixIndex + 2, 4);
+                uint code = UInt32.Parse(hex, NumberStyles.AllowHexSpecifier, NumberFormatInfo.InvariantInfo);
+                string ch = new String(new char[] { (char)code });
+                arg = arg.Substring(0, prefixIndex) + ch + arg.Substring(prefixIndex + 6);
+            }
+            return arg;
+        }
+    }
 }
 #endif
