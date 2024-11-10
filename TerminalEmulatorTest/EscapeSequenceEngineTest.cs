@@ -1335,7 +1335,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
 
-            EscapeSequenceEngineBase.State s = state.Accept(context, 'A');
+            EscapeSequenceEngineBase.IState s = state.Accept(context, 'A');
             Assert.That(s.GetType() == typeof(EscapeSequenceEngineBase.CharState));
 
             s = s.Accept(context, 'B');
@@ -1350,7 +1350,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
 
-            EscapeSequenceEngineBase.State s = state.Accept(context, 'C');
+            EscapeSequenceEngineBase.IState s = state.Accept(context, 'C');
             Assert.Null(s);
         }
 
@@ -1370,7 +1370,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
 
-            EscapeSequenceEngineBase.State s = state.Accept(context, 'A');
+            EscapeSequenceEngineBase.IState s = state.Accept(context, 'A');
 
             foreach (char ch in parameters) {
                 s = s.Accept(context, ch);
@@ -1398,7 +1398,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
 
-            EscapeSequenceEngineBase.State s = state.Accept(context, 'A');
+            EscapeSequenceEngineBase.IState s = state.Accept(context, 'A');
 
             for (int i = 0; i < parameters.Length - 1; i++) {
                 s = s.Accept(context, parameters[i]);
@@ -1418,7 +1418,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
 
-            EscapeSequenceEngineBase.State s = state.Accept(context, 'A');
+            EscapeSequenceEngineBase.IState s = state.Accept(context, 'A');
 
             foreach (char ch in parameters) {
                 s = s.Accept(context, ch);
@@ -1439,7 +1439,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
 
-            EscapeSequenceEngineBase.State s = state.Accept(context, 'A');
+            EscapeSequenceEngineBase.IState s = state.Accept(context, 'A');
 
             for (int i = 0; i < parameters.Length - 1; i++) {
                 s = s.Accept(context, parameters[i]);
@@ -1464,7 +1464,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
 
-            EscapeSequenceEngineBase.State s = state.Accept(context, 'A');
+            EscapeSequenceEngineBase.IState s = state.Accept(context, 'A');
 
             s = s.Accept(context, paramChar);
 
@@ -1484,7 +1484,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
 
-            EscapeSequenceEngineBase.State s = state.Accept(context, 'A');
+            EscapeSequenceEngineBase.IState s = state.Accept(context, 'A');
 
             s = s.Accept(context, paramChar);
 
@@ -1499,7 +1499,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
 
-            EscapeSequenceEngineBase.State s = state.Accept(context, 'A');
+            EscapeSequenceEngineBase.IState s = state.Accept(context, 'A');
             Assert.Null(s);
             Assert.AreEqual(new char[0], context.GetSequence());
             Assert.AreEqual("", context.GetTextParam());

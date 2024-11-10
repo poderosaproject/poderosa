@@ -402,18 +402,18 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// <summary>
         /// State interface
         /// </summary>
-        internal interface State {
+        internal interface IState {
             int Id {
                 get;
             }
 
-            State Accept(Context context, char ch);
+            IState Accept(Context context, char ch);
         }
 
         /// <summary>
         /// Final state
         /// </summary>
-        internal class FinalState : State {
+        internal class FinalState : IState {
             public readonly Action<object, Context> Action;
             public int Id {
                 get;
@@ -425,7 +425,7 @@ namespace Poderosa.Terminal.EscapeSequence {
                 Id = _nextStateId++;
             }
 
-            public State Accept(Context context, char ch) {
+            public IState Accept(Context context, char ch) {
                 return null;
             }
         }
@@ -433,9 +433,9 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// <summary>
         /// Base state class that accepts one character and transitions to the next state.
         /// </summary>
-        internal abstract class CharStateBase : State {
+        internal abstract class CharStateBase : IState {
             private const int CHAR_MAX = 0x9f;
-            private readonly State[] table = new State[CHAR_MAX + 1];
+            private readonly IState[] table = new IState[CHAR_MAX + 1];
 
             public int Id {
                 get;
@@ -446,9 +446,9 @@ namespace Poderosa.Terminal.EscapeSequence {
                 Id = _nextStateId++;
             }
 
-            public abstract State Accept(Context context, char ch);
+            public abstract IState Accept(Context context, char ch);
 
-            protected State GetNextState(char ch) {
+            protected IState GetNextState(char ch) {
                 return (ch <= CHAR_MAX) ? table[ch] : null;
             }
 
@@ -499,7 +499,7 @@ namespace Poderosa.Terminal.EscapeSequence {
                 return (T)table[ch];
             }
 
-            private void RegisterStateInternal(char ch, State state) {
+            private void RegisterStateInternal(char ch, IState state) {
                 if (ch > CHAR_MAX) {
                     throw new ArgumentException(String.Format("invalid character: u{0:x4}", (uint)ch));
                 }
@@ -515,7 +515,7 @@ namespace Poderosa.Terminal.EscapeSequence {
                 table[ch] = state;
             }
 
-            public void RegisterState(char ch, State state) {
+            public void RegisterState(char ch, IState state) {
                 // (this)---[ch]--->(State)
                 this.RegisterStateInternal(ch, state);
 
@@ -530,7 +530,7 @@ namespace Poderosa.Terminal.EscapeSequence {
                 }
             }
 
-            public void RegisterStateIfNotSet(char ch, State state) {
+            public void RegisterStateIfNotSet(char ch, IState state) {
                 if (table[ch] == null) {
                     RegisterState(ch, state);
                 }
@@ -638,8 +638,8 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// </summary>
         internal class CharState : CharStateBase {
 
-            public override State Accept(Context context, char ch) {
-                State s = GetNextState(ch);
+            public override IState Accept(Context context, char ch) {
+                IState s = GetNextState(ch);
                 if (s != null) {
                     if (s is NumericParamsState) {
                         context.AppendParamChar(ch);
@@ -663,8 +663,8 @@ namespace Poderosa.Terminal.EscapeSequence {
 
             // Note: The base transition table contains only terminating characters, not characters for numerical parameters.
 
-            public override State Accept(Context context, char ch) {
-                State s = GetNextState(ch);
+            public override IState Accept(Context context, char ch) {
+                IState s = GetNextState(ch);
                 if (s != null) {
                     context.AppendChar(ch);
                     return s;
@@ -690,8 +690,8 @@ namespace Poderosa.Terminal.EscapeSequence {
 
             // Note: The base transition table contains only terminating characters.
 
-            public override State Accept(Context context, char ch) {
-                State s = GetNextState(ch);
+            public override IState Accept(Context context, char ch) {
+                IState s = GetNextState(ch);
                 if (s != null) {
                     context.AppendChar(ch);
                     return s;
@@ -709,7 +709,7 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// <summary>
         /// Special state that reads CSI to the end and ignores it
         /// </summary>
-        internal class IgnoreCSIState : State {
+        internal class IgnoreCSIState : IState {
 
             private static readonly FinalState _final = new FinalState((obj, context) => {
 #if DEBUG
@@ -726,7 +726,7 @@ namespace Poderosa.Terminal.EscapeSequence {
                 Id = _nextStateId++;
             }
 
-            public State Accept(Context context, char ch) {
+            public IState Accept(Context context, char ch) {
                 if (ch >= 0x40 && ch <= 0x7e) {
                     // final byte
                     context.AppendChar(ch);
@@ -1025,7 +1025,7 @@ namespace Poderosa.Terminal.EscapeSequence {
         private readonly Action<Exception, IEscapeSequenceContext> _exceptionHandler;
         private readonly Action<IEscapeSequenceContext> _incompleteHandler;
         private readonly Action<IEscapeSequenceContext> _completedHandler;
-        private State _currentState;
+        private IState _currentState;
 
 #if UNITTEST
         /// <summary>
@@ -1080,7 +1080,7 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// <param name="ch">input</param>
         /// <returns>true if <paramref name="ch"/> was handled. otherwise false.</returns>
         public bool Process(T instance, char ch) {
-            State nextState = _currentState.Accept(_context, ch);
+            IState nextState = _currentState.Accept(_context, ch);
 
             if (nextState == null) {
                 // handle unsupported CSI
