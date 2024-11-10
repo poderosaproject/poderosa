@@ -1083,11 +1083,13 @@ namespace Poderosa.Terminal.EscapeSequence {
             IState nextState = _currentState.Accept(_context, ch);
 
             if (nextState == null) {
-                // handle unsupported CSI
-                if (_context.IsCSI()) {
-                    nextState = _ignoreCSIState.Accept(_context, ch);
-                    if (nextState != null) {
-                        goto CheckFinalState;
+                if (!(_currentState is IgnoreCSIState)) {
+                    if (_context.IsCSI()) {
+                        // handle unsupported CSI
+                        nextState = _ignoreCSIState.Accept(_context, ch);
+                        if (nextState != null) {
+                            goto CheckFinalState;
+                        }
                     }
                 }
 

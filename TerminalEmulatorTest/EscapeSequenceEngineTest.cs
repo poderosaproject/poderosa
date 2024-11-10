@@ -1832,6 +1832,42 @@ namespace Poderosa.Terminal.EscapeSequence {
             Assert.AreEqual(new object[] { "HandlerTextParam2", "abc" }, instance.Calls[0]);
         }
 
+        [TestCase("\u001b[1;2;3XYZ", "YZ")] // final byte is 'X'
+        [TestCase("\u009b1;2;3XYZ", "YZ")] // final byte is 'X'
+        [TestCase("\u001b[XYZ", "YZ")] // final byte is 'X'
+        [TestCase("\u009bXYZ", "YZ")] // final byte is 'X'
+        [TestCase("\u001b[!XYZ", "YZ")] // also ignore intermediate bytes
+        [TestCase("\u009b!XYZ", "YZ")] // also ignore intermediate bytes
+        [TestCase("\u001b[1;2;3\u000aXYZ", "\u000aXYZ")] // U+000a is not a final byte or intermediate byte
+        [TestCase("\u009b1;2;3\u000aXYZ", "\u000aXYZ")] // U+000a is not a final byte or intermediate byte
+        public void TestIgnoreCSI(string input, string expected) {
+            var engine = new EscapeSequenceEngine<SomeCSIHandlers>();
+
+            SomeCSIHandlers instance = new SomeCSIHandlers();
+
+            List<char> notAccepted = new List<char>();
+
+            var enumerator = input.GetEnumerator();
+
+            while (enumerator.MoveNext()) {
+                char ch = enumerator.Current;
+                if (!engine.Process(instance, ch)) {
+                    notAccepted.Add(ch);
+                    break;
+                }
+            }
+
+            while (enumerator.MoveNext()) {
+                char ch = enumerator.Current;
+                Assert.IsFalse(engine.Process(instance, ch));
+                notAccepted.Add(ch);
+            }
+
+            string notAcceptedText = new String(notAccepted.ToArray());
+
+            Assert.AreEqual(expected, notAcceptedText);
+        }
+
         private string[] RemoveStateId(string[] dump) {
             return dump.Select(s => Regex.Replace(s, @"\(#\d+\)", "")).ToArray();
         }
@@ -1987,6 +2023,16 @@ namespace Poderosa.Terminal.EscapeSequence {
     class InvalidTextParamHandlerWrongType {
         [EscapeSequence('J', EscapeSequenceParamType.Text, 'K')]
         private void InvalidHandler(NumericParams parameter) {
+        }
+    }
+
+    class SomeCSIHandlers {
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'A')]
+        private void Handler1() {
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'B')]
+        private void Handler2() {
         }
     }
 
