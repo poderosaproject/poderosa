@@ -1414,7 +1414,7 @@ namespace Poderosa.Terminal.EscapeSequence {
         [TestCase("abc\\u0020def")]
         public void TestTextParamStateAccept(string parameters) {
             parameters = TestUtil.ConvertArg(parameters);
-            
+
             EscapeSequenceEngineBase.CharState state = Build(
                 new EscapeSequenceAttribute('A', EscapeSequenceParamType.Text, 'B')
             );
@@ -1605,6 +1605,26 @@ namespace Poderosa.Terminal.EscapeSequence {
             Assert.AreEqual(
                 new string[] {
                     "<CharState>",
+                    // added by RegisterMissingHandlers()
+                    "  [0x1b] --> <CharState>",
+                    "               [P] --> <CharState>",
+                    "                         [0x1b] --> <CharState>",
+                    "                                      [\\] --> <FinalState>", // DCS ST
+                    "                         [0x9c] --> <FinalState>",  // DCS ST
+                    "               []] --> <CharState>",
+                    "                         [0x1b] --> <CharState>",
+                    "                                      [\\] --> <FinalState>", // OSC ST
+                    "                         [0x9c] --> <FinalState>",  // OSC ST
+                    "               [^] --> <CharState>",
+                    "                         [0x1b] --> <CharState>",
+                    "                                      [\\] --> <FinalState>", // PM ST
+                    "                         [0x9c] --> <FinalState>",  // PM ST
+                    "               [_] --> <CharState>",
+                    "                         [0x1b] --> <CharState>",
+                    "                                      [\\] --> <FinalState>", // APC ST
+                    "                         [0x9c] --> <FinalState>",  // APC ST
+                    //
+                    // from ValidHandlers
                     "  [A] --> <FinalState>",
                     "  [B] --> <CharState>",
                     "            [C] --> <FinalState>",
@@ -1692,6 +1712,24 @@ namespace Poderosa.Terminal.EscapeSequence {
                     "            [M] --> <FinalState>",
                     "  [N] --> <TextParamState>",
                     "            [O] --> <FinalState>",
+                    //
+                    // added by RegisterMissingHandlers()
+                    "  [0x90] --> <CharState>",
+                    "               [0x1b] --> <CharState>",
+                    "                            [\\] --> <FinalState>", // DCS ST
+                    "               [0x9c] --> <FinalState>",  // DCS ST
+                    "  [0x9d] --> <CharState>",
+                    "               [0x1b] --> <CharState>",
+                    "                            [\\] --> <FinalState>", // OSC ST
+                    "               [0x9c] --> <FinalState>",  // OSC ST
+                    "  [0x9e] --> <CharState>",
+                    "               [0x1b] --> <CharState>",
+                    "                            [\\] --> <FinalState>", // PM ST
+                    "               [0x9c] --> <FinalState>",  // PM ST
+                    "  [0x9f] --> <CharState>",
+                    "               [0x1b] --> <CharState>",
+                    "                            [\\] --> <FinalState>", // APC ST
+                    "               [0x9c] --> <FinalState>",  // APC ST
                 },
                 dump
             );
@@ -1839,21 +1877,79 @@ namespace Poderosa.Terminal.EscapeSequence {
             Assert.AreEqual(new object[] { "HandlerTextParam2", "abc" }, instance.Calls[0]);
         }
 
-        [TestCase("\\u001b[1;2;3XYZ", "YZ")] // final byte is 'X'
-        [TestCase("\\u009b1;2;3XYZ", "YZ")] // final byte is 'X'
-        [TestCase("\\u001b[XYZ", "YZ")] // final byte is 'X'
-        [TestCase("\\u009bXYZ", "YZ")] // final byte is 'X'
-        [TestCase("\\u001b[!XYZ", "YZ")] // also ignore intermediate bytes
-        [TestCase("\\u009b!XYZ", "YZ")] // also ignore intermediate bytes
-        [TestCase("\\u001b[1;2;3\\u000aXYZ", "\\u000aXYZ")] // U+000a is not a final byte or intermediate byte
-        [TestCase("\\u009b1;2;3\\u000aXYZ", "\\u000aXYZ")] // U+000a is not a final byte or intermediate byte
-        public void TestIgnoreCSI(string input, string expected) {
+        [TestCase("\\u001b[1;2;3XYZ", "YZ", new string[] { })] // final byte is 'X'
+        [TestCase("\\u009b1;2;3XYZ", "YZ", new string[] { })] // final byte is 'X'
+        [TestCase("\\u001b[XYZ", "YZ", new string[] { })] // final byte is 'X'
+        [TestCase("\\u001b[!XYZ", "YZ", new string[] { })] // also ignore intermediate bytes
+        [TestCase("\\u001b[1;2;3\\u000aXYZ", "\\u000aXYZ", new string[] { })] // U+000a is not a final byte or intermediate byte
+        [TestCase("\\u001b[1;2;3X\\u001b[1;2;3A\\u001b[1;2;3Ya", "a", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase("\\u001b[1;2;3\\u001b[1;2;3A", "", new string[] { "Handle CSI A" })] // restart escape sequence by ESC
+        public void TestIgnoreCSI(string input, string expectedNotAcceptedText, string[] expectedCalled) {
+            TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
+        }
+
+        [TestCase("\\u001b_ABC\\u0008\\u000dDEF\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001b_ABC\\u0008\\u000dDEF\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u001b_\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001b_\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001b_ABC\\u001b\\\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase("\\u001b_ABC\\u001b\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
+        [TestCase("\\u001b_ABC\\u001b[1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
+        public void TestIgnoreAPC(string input, string expectedNotAcceptedText, string[] expectedCalled) {
+            TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
+        }
+
+        [TestCase("\\u001bPABC\\u0008\\u000dDEF\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001bPABC\\u0008\\u000dDEF\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u0090ABC\\u0008\\u000dDEF\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u001bP\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001bP\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001bPABC\\u001b\\\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase("\\u001bPABC\\u001b\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
+        [TestCase("\\u001bPABC\\u001b[1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
+        public void TestIgnoreDCS(string input, string expectedNotAcceptedText, string[] expectedCalled) {
+            TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
+        }
+
+        [TestCase("\\u001b]ABC\\u0008\\u000dDEF\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001b]ABC\\u0008\\u000dDEF\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u001b]ABC\\u0008\\u000dDEF\\u0007GHI", "GHI", new string[] { })] // terminated by BEL (8bit)
+        [TestCase("\\u009dABC\\u0008\\u000dDEF\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u009dABC\\u0008\\u000dDEF\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u009dABC\\u0008\\u000dDEF\\u0007GHI", "GHI", new string[] { })] // terminated by BEL (8bit)
+        [TestCase("\\u001b]\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001b]\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u001b]\\u0007GHI", "GHI", new string[] { })] // terminated by BEL (8bit)
+        [TestCase("\\u001b]ABC\\u001b\\\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase("\\u001b]ABC\\u001b\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
+        [TestCase("\\u001b]ABC\\u001b[1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
+        public void TestIgnoreOSC(string input, string expectedNotAcceptedText, string[] expectedCalled) {
+            TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
+        }
+
+        [TestCase("\\u001b^ABC\\u0008\\u000dDEF\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001b^ABC\\u0008\\u000dDEF\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u009eABC\\u0008\\u000dDEF\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u009eABC\\u0008\\u000dDEF\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u001b^\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001b^\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u001b^ABC\\u001b\\\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase("\\u001b^ABC\\u001b\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
+        [TestCase("\\u001b^ABC\\u001b[1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
+        public void TestIgnorePM(string input, string expectedNotAcceptedText, string[] expectedCalled) {
+            TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
+        }
+
+        private void TestIgnoreControlString(string input, string expectedNotAcceptedText, string[] expectedCalled) {
             input = TestUtil.ConvertArg(input);
-            expected = TestUtil.ConvertArg(expected);
+            expectedNotAcceptedText = TestUtil.ConvertArg(expectedNotAcceptedText);
 
-            var engine = new EscapeSequenceEngine<SomeCSIHandlers>();
+            var engine = new EscapeSequenceEngine<ControlStringHandlers>();
 
-            SomeCSIHandlers instance = new SomeCSIHandlers();
+            ControlStringHandlers instance = new ControlStringHandlers();
 
             List<char> notAccepted = new List<char>();
 
@@ -1875,7 +1971,8 @@ namespace Poderosa.Terminal.EscapeSequence {
 
             string notAcceptedText = new String(notAccepted.ToArray());
 
-            Assert.AreEqual(expected, notAcceptedText);
+            Assert.AreEqual(expectedNotAcceptedText, notAcceptedText);
+            Assert.AreEqual(expectedCalled, instance.Called.ToArray());
         }
 
         private string[] RemoveStateId(string[] dump) {
@@ -2036,13 +2133,18 @@ namespace Poderosa.Terminal.EscapeSequence {
         }
     }
 
-    class SomeCSIHandlers {
+    class ControlStringHandlers {
+
+        public readonly List<string> Called = new List<string>();
+
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'A')]
-        private void Handler1() {
+        private void CSIA() {
+            Called.Add("Handle CSI A");
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'B')]
-        private void Handler2() {
+        private void CSIB() {
+            Called.Add("Handle CSI B");
         }
     }
 

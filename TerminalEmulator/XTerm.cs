@@ -727,10 +727,12 @@ namespace Poderosa.Terminal {
         private void Ignore(char ch) {
         }
 
-        [EscapeSequence(ControlCode.APC, EscapeSequenceParamType.Text, ControlCode.ST)] // Application Program Command
-        [EscapeSequence(ControlCode.PM, EscapeSequenceParamType.Text, ControlCode.ST)] // Privacy message
-        private void Ignore(string p) {
-        }
+        // APC, DCS and PM are handled by EscapeSequenceEngine (just ignored)
+        // [EscapeSequence(ControlCode.APC, EscapeSequenceParamType.Text, ControlCode.ST)] // Application Program Command
+        // [EscapeSequence(ControlCode.PM, EscapeSequenceParamType.Text, ControlCode.ST)] // Privacy message
+        // [EscapeSequence(ControlCode.DCS, EscapeSequenceParamType.Text, ControlCode.ST)] // DCS
+        // private void Ignore(string p) {
+        // }
 
         [EscapeSequence(ControlCode.LF)]
         [EscapeSequence(ControlCode.VT)]
@@ -3539,11 +3541,6 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.ESC, 'c')] // RIS
         private void ProcessRIS() {
             FullReset();
-        }
-
-        [EscapeSequence(ControlCode.DCS, EscapeSequenceParamType.Text, ControlCode.ST)] // DCS
-        private void ProcessDCS(string p) {
-            // TODO
         }
 
         private ViewPort GetViewPort() {

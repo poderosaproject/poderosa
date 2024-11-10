@@ -212,6 +212,15 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         #region Context
 
+        internal enum Introducer {
+            APC,
+            CSI,
+            DCS,
+            OSC,
+            PM,
+            Other,
+        }
+
         /// <summary>
         /// Pattern matching context
         /// </summary>
@@ -220,6 +229,8 @@ namespace Poderosa.Terminal.EscapeSequence {
             private readonly List<char> _buff = new List<char>(128);
             private int _paramStart = 0; // inclusive
             private int _paramEnd = 0; // exclusive
+
+            private bool _ignoreMode = false;
 
             #region IEscapeSequenceContext
 
@@ -244,16 +255,62 @@ namespace Poderosa.Terminal.EscapeSequence {
             public void Reset() {
                 _buff.Clear();
                 _paramStart = _paramEnd = 0;
+                _ignoreMode = false;
             }
 
             /// <summary>
-            /// Check if this sequence is CSI
+            /// Start ignore mode
             /// </summary>
-            /// <returns>true if this sequence is CSI</returns>
-            public bool IsCSI() {
+            public void StartIgnoreMode() {
+                _ignoreMode = true;
+            }
+
+            /// <summary>
+            /// Whether the current sequence is in ignore mode
+            /// </summary>
+            public bool IsIgnoreMode {
+                get {
+                    return _ignoreMode;
+                }
+            }
+
+            /// <summary>
+            /// Get introducer type
+            /// </summary>
+            /// <returns>introducer type</returns>
+            public Introducer GetIntroducer() {
                 int len = _buff.Count;
-                return (len >= 1 && _buff[0] == ControlCode.CSI)
-                    || (len >= 2 && _buff[0] == ControlCode.ESC && _buff[1] == '[');
+                if (len >= 1) {
+                    switch (_buff[0]) {
+                        case ControlCode.APC:
+                            return Introducer.APC;
+                        case ControlCode.CSI:
+                            return Introducer.CSI;
+                        case ControlCode.DCS:
+                            return Introducer.DCS;
+                        case ControlCode.OSC:
+                            return Introducer.OSC;
+                        case ControlCode.PM:
+                            return Introducer.PM;
+                        case ControlCode.ESC:
+                            if (len >= 2) {
+                                switch (_buff[1]) {
+                                    case '_':
+                                        return Introducer.APC;
+                                    case '[':
+                                        return Introducer.CSI;
+                                    case 'P':
+                                        return Introducer.DCS;
+                                    case ']':
+                                        return Introducer.OSC;
+                                    case '^':
+                                        return Introducer.PM;
+                                }
+                            }
+                            break;
+                    }
+                }
+                return Introducer.Other;
             }
 
             /// <summary>
@@ -536,6 +593,10 @@ namespace Poderosa.Terminal.EscapeSequence {
                 }
             }
 
+            public bool HasNextState(char ch) {
+                return table[ch] != null;
+            }
+
             private bool To7bitPair(char ch, out char c1, out char c2) {
                 switch (ch) {
                     case ControlCode.IND:
@@ -743,6 +804,68 @@ namespace Poderosa.Terminal.EscapeSequence {
             }
         }
 
+        /// <summary>
+        /// Special state that reads control string (APC, DCS, OSC or PM) to the end and ignores it
+        /// </summary>
+        internal class IgnoreControlStringState : CharStateBase {
+
+            public int Id {
+                get;
+                private set;
+            }
+
+            private IgnoreControlStringState() {
+                Id = _nextStateId++;
+            }
+
+            public static IgnoreControlStringState BuildForAPC() {
+                return Build("APC", false);
+            }
+
+            public static IgnoreControlStringState BuildForDCS() {
+                return Build("DCS", false);
+            }
+
+            public static IgnoreControlStringState BuildForOSC() {
+                return Build("OSC", true);
+            }
+
+            public static IgnoreControlStringState BuildForPM() {
+                return Build("PM", false);
+            }
+
+            private static IgnoreControlStringState Build(string introducer, bool terminateByBEL) {
+                FinalState finalState = new FinalState((obj, context) => {
+#if DEBUG
+                    System.Diagnostics.Debug.WriteLine("Ignore " + introducer);
+#endif
+                });
+
+                IgnoreControlStringState s = new IgnoreControlStringState();
+
+                for (int c = 0x08; c <= 0x0d; c++) {
+                    s.RegisterState((char)c, s);
+                }
+
+                for (int c = 0x20; c <= 0x7e; c++) {
+                    s.RegisterState((char)c, s);
+                }
+
+                s.RegisterState(ControlCode.ST, finalState);
+
+                if (terminateByBEL) {
+                    s.RegisterState(ControlCode.BEL, finalState);
+                }
+
+                return s;
+            }
+
+            public override IState Accept(Context context, char ch) {
+                return GetNextState(ch);
+                // control string can be very long, so data is not stored in the buffer
+            }
+        }
+
         #endregion
 
         #region Thread-local context
@@ -782,8 +905,8 @@ namespace Poderosa.Terminal.EscapeSequence {
             /// Register escape sequence handlers marked with EscapeSequenceAttribute.
             /// </summary>
             /// <param name="type">class containing escape sequence handlers</param>
-            public void RegisterHandlers(Type type) {
-                RegisterHandlers(type, (method) => method.GetCustomAttributes<EscapeSequenceAttribute>());
+            public StateMachineBuilder RegisterHandlers(Type type) {
+                return RegisterHandlers(type, (method) => method.GetCustomAttributes<EscapeSequenceAttribute>());
             }
 
             /// <summary>
@@ -791,7 +914,7 @@ namespace Poderosa.Terminal.EscapeSequence {
             /// </summary>
             /// <param name="type">class containing escape sequence handlers</param>
             /// <param name="getAttributes">function to get Attributes from MethodInfo</param>
-            public void RegisterHandlers(Type type, Func<MethodInfo, IEnumerable<EscapeSequenceAttribute>> getAttributes) {
+            public StateMachineBuilder RegisterHandlers(Type type, Func<MethodInfo, IEnumerable<EscapeSequenceAttribute>> getAttributes) {
                 List<EscapeSequenceAttribute> attrsParamTypeNone = new List<EscapeSequenceAttribute>();
                 List<EscapeSequenceAttribute> attrsParamTypeNumeric = new List<EscapeSequenceAttribute>();
                 List<EscapeSequenceAttribute> attrsParamTypeText = new List<EscapeSequenceAttribute>();
@@ -847,6 +970,8 @@ namespace Poderosa.Terminal.EscapeSequence {
                         s.RegisterStateIfNotSet(ch, final);
                     }
                 }
+
+                return this;
             }
 
             private void RegisterParamTypeNoneHandlers(IEnumerable<EscapeSequenceAttribute> attributes, MethodInfo method) {
@@ -1006,6 +1131,32 @@ namespace Poderosa.Terminal.EscapeSequence {
                     s2.CopyTransitionFrom(s, attr.Suffix[suffixLen - 1]);
                 }
             }
+
+            public StateMachineBuilder RegisterMissingHandlers() {
+                // IgnoreControlStringState requires at least one handler that handles introducer
+
+                if (!_root.HasNextState(ControlCode.APC)) {
+                    RegisterHandlerCore(new EscapeSequenceAttribute(ControlCode.APC, ControlCode.ST), (obj, context) => {
+                    });
+                }
+
+                if (!_root.HasNextState(ControlCode.DCS)) {
+                    RegisterHandlerCore(new EscapeSequenceAttribute(ControlCode.DCS, ControlCode.ST), (obj, context) => {
+                    });
+                }
+
+                if (!_root.HasNextState(ControlCode.OSC)) {
+                    RegisterHandlerCore(new EscapeSequenceAttribute(ControlCode.OSC, ControlCode.ST), (obj, context) => {
+                    });
+                }
+
+                if (!_root.HasNextState(ControlCode.PM)) {
+                    RegisterHandlerCore(new EscapeSequenceAttribute(ControlCode.PM, ControlCode.ST), (obj, context) => {
+                    });
+                }
+
+                return this;
+            }
         }
 
         #endregion
@@ -1020,6 +1171,10 @@ namespace Poderosa.Terminal.EscapeSequence {
         private static bool _initialized = false;
         private static readonly CharState _root = new CharState();
         private static readonly IgnoreCSIState _ignoreCSIState = new IgnoreCSIState();
+        private static readonly IgnoreControlStringState _ignoreAPCState = IgnoreControlStringState.BuildForAPC();
+        private static readonly IgnoreControlStringState _ignoreDCSState = IgnoreControlStringState.BuildForDCS();
+        private static readonly IgnoreControlStringState _ignoreOSCState = IgnoreControlStringState.BuildForOSC();
+        private static readonly IgnoreControlStringState _ignorePMState = IgnoreControlStringState.BuildForPM();
 
         private readonly Context _context = new Context();
         private readonly Action<Exception, IEscapeSequenceContext> _exceptionHandler;
@@ -1056,7 +1211,9 @@ namespace Poderosa.Terminal.EscapeSequence {
 #if DEBUG
                     long before = GC.GetTotalMemory(true);
 #endif
-                    new StateMachineBuilder(_root).RegisterHandlers(typeof(T));
+                    new StateMachineBuilder(_root)
+                        .RegisterHandlers(typeof(T))
+                        .RegisterMissingHandlers();
 #if DEBUG
                     long after = GC.GetTotalMemory(true);
 #endif
@@ -1083,22 +1240,64 @@ namespace Poderosa.Terminal.EscapeSequence {
             IState nextState = _currentState.Accept(_context, ch);
 
             if (nextState == null) {
-                if (!(_currentState is IgnoreCSIState)) {
-                    if (_context.IsCSI()) {
-                        // handle unsupported CSI
-                        nextState = _ignoreCSIState.Accept(_context, ch);
-                        if (nextState != null) {
-                            goto CheckFinalState;
-                        }
+                if (Object.ReferenceEquals(_currentState, _root)) {
+                    return false; // not handled
+                }
+
+                if (!_context.IsIgnoreMode) {
+                    switch (_context.GetIntroducer()) {
+                        case Introducer.APC:
+                            // handle unsupported APC
+                            _context.StartIgnoreMode();
+                            nextState = _ignoreAPCState.Accept(_context, ch);
+                            if (nextState != null) {
+                                goto CheckFinalState;
+                            }
+                            break;
+                        case Introducer.CSI:
+                            // handle unsupported CSI
+                            _context.StartIgnoreMode();
+                            nextState = _ignoreCSIState.Accept(_context, ch);
+                            if (nextState != null) {
+                                goto CheckFinalState;
+                            }
+                            break;
+                        case Introducer.DCS:
+                            // handle unsupported DCS
+                            _context.StartIgnoreMode();
+                            nextState = _ignoreDCSState.Accept(_context, ch);
+                            if (nextState != null) {
+                                goto CheckFinalState;
+                            }
+                            break;
+                        case Introducer.OSC:
+                            // handle unsupported OSC
+                            _context.StartIgnoreMode();
+                            nextState = _ignoreOSCState.Accept(_context, ch);
+                            if (nextState != null) {
+                                goto CheckFinalState;
+                            }
+                            break;
+                        case Introducer.PM:
+                            // handle unsupported PM
+                            _context.StartIgnoreMode();
+                            nextState = _ignorePMState.Accept(_context, ch);
+                            if (nextState != null) {
+                                goto CheckFinalState;
+                            }
+                            break;
                     }
                 }
 
-                if (!Object.ReferenceEquals(_currentState, _root)) {
-                    _context.AppendChar(ch); // report including a character not accepted
-                    _incompleteHandler(_context);
-                    Reset();
+                // abort current escape sequence
+                _incompleteHandler(_context);
+                Reset();
+
+                // restart
+                nextState = _currentState.Accept(_context, ch);
+                if (nextState == null) {
+                    return false; // not handled
                 }
-                return false; // not handled
             }
 
         CheckFinalState:
