@@ -767,7 +767,9 @@ namespace Poderosa.Terminal.EscapeSequence {
                     return s;
                 }
 
-                if (ch >= 0x20) {
+                // accepts characters that consist of data part in control strings (APC, DCS, OSC, PM and SOS.)
+                // multibyte characters or 8 bit characters excluding control characters are also accepted.
+                if ((ch >= 0x20 && ch <= 0x7e) || (ch >= 0x08 && ch <= 0x0d) || ch >= 0xa0) {
                     context.AppendParamChar(ch);
                     return this;
                 }
@@ -860,18 +862,33 @@ namespace Poderosa.Terminal.EscapeSequence {
                     s.RegisterState((char)c, s);
                 }
 
-                s.RegisterState(ControlCode.ST, finalState);
+                s.RegisterState(ControlCode.CAN, finalState);
+                s.RegisterState(ControlCode.SUB, finalState);
+                s.RegisterState(ControlCode.ST, finalState); // also register ESC -> backslash transition
 
                 if (terminateByBEL) {
                     s.RegisterState(ControlCode.BEL, finalState);
                 }
 
+                // Non-registered characters such as DCS and CSI also terminate the control string,
+                // but are not consumed as part of the string.
+
                 return s;
             }
 
             public override IState Accept(Context context, char ch) {
-                return GetNextState(ch);
                 // control string can be very long, so data is not stored in the buffer
+
+                IState s = GetNextState(ch);
+                if (s != null) {
+                    return s;
+                }
+
+                if (ch >= 0xa0) {
+                    return this; // accept
+                }
+
+                return null;
             }
         }
 

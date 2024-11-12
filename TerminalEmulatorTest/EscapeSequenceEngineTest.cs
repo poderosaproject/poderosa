@@ -1411,7 +1411,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [TestCase("")]
         [TestCase("a")]
-        [TestCase("abc\\u0020def")]
+        [TestCase("abc\\u0020def\\u0008ghi\\u000djkl\\u2615\\ud83c\\udf70")]
         public void TestTextParamStateAccept(string parameters) {
             parameters = TestUtil.ConvertArg(parameters);
 
@@ -1435,6 +1435,8 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [TestCase("abc\\u0000")]
         [TestCase("abc\\u001f")]
+        [TestCase("abc\\u0007")]
+        [TestCase("abc\\u000e")]
         public void TestTextParamStateNotAccept(string parameters) {
             parameters = TestUtil.ConvertArg(parameters);
 
@@ -1888,12 +1890,18 @@ namespace Poderosa.Terminal.EscapeSequence {
             TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
         }
 
-        [TestCase("\\u001b_ABC\\u0008\\u000dDEF\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u001b_ABC\\u0008\\u000dDEF\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u001b_ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001b_ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u001b_ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
+        [TestCase("\\u001b_ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
+        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
+        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
         [TestCase("\\u001b_\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
         [TestCase("\\u001b_\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001b_\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
+        [TestCase("\\u001b_\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
         [TestCase("\\u001b_ABC\\u001b\\\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
         [TestCase("\\u001b_ABC\\u001b\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
         [TestCase("\\u001b_ABC\\u001b[1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
@@ -1901,12 +1909,18 @@ namespace Poderosa.Terminal.EscapeSequence {
             TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
         }
 
-        [TestCase("\\u001bPABC\\u0008\\u000dDEF\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u001bPABC\\u0008\\u000dDEF\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u0090ABC\\u0008\\u000dDEF\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u001bPABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001bPABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u001bPABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
+        [TestCase("\\u001bPABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
+        [TestCase("\\u0090ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
+        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
         [TestCase("\\u001bP\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
         [TestCase("\\u001bP\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001bP\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
+        [TestCase("\\u001bP\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
         [TestCase("\\u001bPABC\\u001b\\\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
         [TestCase("\\u001bPABC\\u001b\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
         [TestCase("\\u001bPABC\\u001b[1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
@@ -1914,15 +1928,21 @@ namespace Poderosa.Terminal.EscapeSequence {
             TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
         }
 
-        [TestCase("\\u001b]ABC\\u0008\\u000dDEF\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u001b]ABC\\u0008\\u000dDEF\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u001b]ABC\\u0008\\u000dDEF\\u0007GHI", "GHI", new string[] { })] // terminated by BEL (8bit)
-        [TestCase("\\u009dABC\\u0008\\u000dDEF\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u009dABC\\u0008\\u000dDEF\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u009dABC\\u0008\\u000dDEF\\u0007GHI", "GHI", new string[] { })] // terminated by BEL (8bit)
+        [TestCase("\\u001b]ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001b]ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u001b]ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0007GHI", "GHI", new string[] { })] // terminated by BEL
+        [TestCase("\\u001b]ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
+        [TestCase("\\u001b]ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
+        [TestCase("\\u009dABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u009dABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u009dABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0007GHI", "GHI", new string[] { })] // terminated by BEL
+        [TestCase("\\u009dABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
+        [TestCase("\\u009dABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
         [TestCase("\\u001b]\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
         [TestCase("\\u001b]\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u001b]\\u0007GHI", "GHI", new string[] { })] // terminated by BEL (8bit)
+        [TestCase("\\u001b]\\u0007GHI", "GHI", new string[] { })] // terminated by BEL
+        [TestCase("\\u001b]\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
+        [TestCase("\\u001b]\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
         [TestCase("\\u001b]ABC\\u001b\\\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
         [TestCase("\\u001b]ABC\\u001b\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
         [TestCase("\\u001b]ABC\\u001b[1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
@@ -1930,12 +1950,18 @@ namespace Poderosa.Terminal.EscapeSequence {
             TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
         }
 
-        [TestCase("\\u001b^ABC\\u0008\\u000dDEF\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u001b^ABC\\u0008\\u000dDEF\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u009eABC\\u0008\\u000dDEF\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u009eABC\\u0008\\u000dDEF\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u001b^ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001b^ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u001b^ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
+        [TestCase("\\u001b^ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
+        [TestCase("\\u009eABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u009eABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u009eABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
+        [TestCase("\\u009eABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
         [TestCase("\\u001b^\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
         [TestCase("\\u001b^\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u001b^\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
+        [TestCase("\\u001b^\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
         [TestCase("\\u001b^ABC\\u001b\\\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
         [TestCase("\\u001b^ABC\\u001b\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
         [TestCase("\\u001b^ABC\\u001b[1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['

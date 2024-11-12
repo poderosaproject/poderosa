@@ -688,6 +688,8 @@ namespace Poderosa.Terminal {
         public const char CR = '\u000d';
         public const char SO = '\u000e';
         public const char SI = '\u000f';
+        public const char CAN = '\u0018';
+        public const char SUB = '\u001a';
         public const char ESC = '\u001b';
         public const char IND = '\u0084';
         public const char NEL = '\u0085';

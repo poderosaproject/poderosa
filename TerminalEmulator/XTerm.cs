@@ -1720,8 +1720,8 @@ namespace Poderosa.Terminal {
             }
         }
 
-        [EscapeSequence(ControlCode.OSC, EscapeSequenceParamType.Text, ControlCode.BEL)] // OSC
-        [EscapeSequence(ControlCode.OSC, EscapeSequenceParamType.Text, ControlCode.ST)]
+        [EscapeSequence(ControlCode.OSC, EscapeSequenceParamType.Text, ControlCode.ST)] // OSC
+        [EscapeSequence(ControlCode.OSC, EscapeSequenceParamType.Text, ControlCode.BEL)]
         private void ProcessOSC(string paramText) {
             OSCParams p;
             if (!OSCParams.Parse(paramText, out p)) {
