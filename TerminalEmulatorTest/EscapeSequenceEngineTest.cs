@@ -1613,6 +1613,10 @@ namespace Poderosa.Terminal.EscapeSequence {
                     "                         [0x1b] --> <CharState>",
                     "                                      [\\] --> <FinalState>", // DCS ST
                     "                         [0x9c] --> <FinalState>",  // DCS ST
+                    "               [X] --> <CharState>",
+                    "                         [0x1b] --> <CharState>",
+                    "                                      [\\] --> <FinalState>", // SOS ST
+                    "                         [0x9c] --> <FinalState>",  // SOS ST
                     "               []] --> <CharState>",
                     "                         [0x1b] --> <CharState>",
                     "                                      [\\] --> <FinalState>", // OSC ST
@@ -1720,6 +1724,10 @@ namespace Poderosa.Terminal.EscapeSequence {
                     "               [0x1b] --> <CharState>",
                     "                            [\\] --> <FinalState>", // DCS ST
                     "               [0x9c] --> <FinalState>",  // DCS ST
+                    "  [0x98] --> <CharState>",
+                    "               [0x1b] --> <CharState>",
+                    "                            [\\] --> <FinalState>", // SOS ST
+                    "               [0x9c] --> <FinalState>",  // SOS ST
                     "  [0x9d] --> <CharState>",
                     "               [0x1b] --> <CharState>",
                     "                            [\\] --> <FinalState>", // OSC ST
@@ -1966,6 +1974,25 @@ namespace Poderosa.Terminal.EscapeSequence {
         [TestCase("\\u001b^ABC\\u001b\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
         [TestCase("\\u001b^ABC\\u001b[1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
         public void TestIgnorePM(string input, string expectedNotAcceptedText, string[] expectedCalled) {
+            TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
+        }
+
+        [TestCase("\\u001bXABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001bXABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u001bXABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
+        [TestCase("\\u001bXABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
+        [TestCase("\\u0098ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u0098ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u0098ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
+        [TestCase("\\u0098ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
+        [TestCase("\\u001bX\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
+        [TestCase("\\u001bX\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
+        [TestCase("\\u001bX\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
+        [TestCase("\\u001bX\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
+        [TestCase("\\u001bXABC\\u001b\\\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase("\\u001bXABC\\u001b\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
+        [TestCase("\\u001bXABC\\u001b[1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
+        public void TestIgnoreSOS(string input, string expectedNotAcceptedText, string[] expectedCalled) {
             TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
         }
 

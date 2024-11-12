@@ -218,6 +218,7 @@ namespace Poderosa.Terminal.EscapeSequence {
             DCS,
             OSC,
             PM,
+            SOS,
             Other,
         }
 
@@ -292,6 +293,8 @@ namespace Poderosa.Terminal.EscapeSequence {
                             return Introducer.OSC;
                         case ControlCode.PM:
                             return Introducer.PM;
+                        case ControlCode.SOS:
+                            return Introducer.SOS;
                         case ControlCode.ESC:
                             if (len >= 2) {
                                 switch (_buff[1]) {
@@ -305,6 +308,8 @@ namespace Poderosa.Terminal.EscapeSequence {
                                         return Introducer.OSC;
                                     case '^':
                                         return Introducer.PM;
+                                    case 'X':
+                                        return Introducer.SOS;
                                 }
                             }
                             break;
@@ -816,7 +821,7 @@ namespace Poderosa.Terminal.EscapeSequence {
         }
 
         /// <summary>
-        /// Special state that reads control string (APC, DCS, OSC or PM) to the end and ignores it
+        /// Special state that reads control string (APC, DCS, OSC, PM and SOS) to the end and ignores it
         /// </summary>
         internal class IgnoreControlStringState : CharStateBase {
 
@@ -843,6 +848,10 @@ namespace Poderosa.Terminal.EscapeSequence {
 
             public static IgnoreControlStringState BuildForPM() {
                 return Build("PM", false);
+            }
+
+            public static IgnoreControlStringState BuildForSOS() {
+                return Build("SOS", false);
             }
 
             private static IgnoreControlStringState Build(string introducer, bool terminateByBEL) {
@@ -1181,6 +1190,11 @@ namespace Poderosa.Terminal.EscapeSequence {
                     });
                 }
 
+                if (!_root.HasNextState(ControlCode.SOS)) {
+                    RegisterHandlerCore(new EscapeSequenceAttribute(ControlCode.SOS, ControlCode.ST), (obj, context) => {
+                    });
+                }
+
                 return this;
             }
         }
@@ -1201,6 +1215,7 @@ namespace Poderosa.Terminal.EscapeSequence {
         private static readonly IgnoreControlStringState _ignoreDCSState = IgnoreControlStringState.BuildForDCS();
         private static readonly IgnoreControlStringState _ignoreOSCState = IgnoreControlStringState.BuildForOSC();
         private static readonly IgnoreControlStringState _ignorePMState = IgnoreControlStringState.BuildForPM();
+        private static readonly IgnoreControlStringState _ignoreSOSState = IgnoreControlStringState.BuildForSOS();
 
         private readonly Context _context = new Context();
         private readonly Action<Exception, IEscapeSequenceContext> _exceptionHandler;
@@ -1308,6 +1323,14 @@ namespace Poderosa.Terminal.EscapeSequence {
                             // handle unsupported PM
                             _context.StartIgnoreMode();
                             nextState = _ignorePMState.Accept(_context, ch);
+                            if (nextState != null) {
+                                goto CheckFinalState;
+                            }
+                            break;
+                        case Introducer.SOS:
+                            // handle unsupported SOS
+                            _context.StartIgnoreMode();
+                            nextState = _ignoreSOSState.Accept(_context, ch);
                             if (nextState != null) {
                                 goto CheckFinalState;
                             }
