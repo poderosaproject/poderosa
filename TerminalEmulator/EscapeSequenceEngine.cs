@@ -588,12 +588,21 @@ namespace Poderosa.Terminal.EscapeSequence {
             }
 
             public void RegisterStateIfNotSet(char ch, IState state) {
+                if (ch > CHAR_MAX) {
+                    throw new ArgumentException(String.Format("invalid character: u{0:x4}", (uint)ch));
+                }
+
                 if (table[ch] == null) {
                     RegisterState(ch, state);
                 }
             }
 
             public bool HasNextState(char ch) {
+                // this method is assumed to be used when constructing the state machine
+                if (ch > CHAR_MAX) {
+                    throw new ArgumentException(String.Format("invalid character: u{0:x4}", (uint)ch));
+                }
+
                 return table[ch] != null;
             }
 
