@@ -682,7 +682,6 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.ESC, '#', '4')] // DECDHL – Double Height Line / bottom half
         [EscapeSequence(ControlCode.ESC, '#', '5')] // DECSWL – Single-width Line
         [EscapeSequence(ControlCode.ESC, '#', '6')] // DECDWL – Double-Width Line
-        [EscapeSequence(ControlCode.ESC, '#', '8')] // DECALN – Screen Alignment Display
         [EscapeSequence(ControlCode.ESC, '%', '@')] // Select default character set
         [EscapeSequence(ControlCode.ESC, '%', 'G')] // Select UTF-8 character set
         [EscapeSequence(ControlCode.ESC, 'F')] // Cursor to lower left corner of screen
@@ -869,6 +868,32 @@ namespace Poderosa.Terminal {
             }
 
             _manipulator.Load(Document.CurrentLine);
+        }
+
+        [EscapeSequence(ControlCode.ESC, '#', '8')] // DECALN
+        private void ProcessScreenAlignment() {
+            Document.ClearMargins();
+
+            Document.UpdateCurrentLine(_manipulator);
+
+            // fill test pattern as xterm does
+            UnicodeChar testChar = new UnicodeChar('E', false);
+            _manipulator.Reset(Document.TerminalWidth);
+            for (int i = 0; i < Document.TerminalWidth; i++) {
+                _manipulator.PutChar(i, testChar, Document.CurrentDecoration);
+            }
+
+            int bottomLineNumber = Document.TopLineNumber + Document.TerminalHeight - 1;
+            Document.EnsureLine(Document.TopLineNumber + Document.TerminalHeight - 1);
+            GLine l = Document.TopLine;
+            while (l != null && l.ID <= bottomLineNumber) {
+                _manipulator.ExportTo(l);
+                l = l.NextLine;
+            }
+
+            _manipulator.Load(Document.CurrentLine);
+
+            MoveCursorTo(1, 1);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'c')] // DA
