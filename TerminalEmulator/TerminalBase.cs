@@ -229,6 +229,12 @@ namespace Poderosa.Terminal {
             }
         }
 
+        protected ICharacterSetManager CharacterSetManager {
+            get {
+                return _decoder;
+            }
+        }
+
         protected UnicodeCharConverter UnicodeCharConverter {
             get {
                 return _unicodeCharConverter;
@@ -656,24 +662,6 @@ namespace Poderosa.Terminal {
             if (terminalControl != null) {
                 terminalControl.ResetDocumentCursor();
             }
-        }
-
-        /// <summary>
-        /// Get character set size of G0, G1, G2 or G3.
-        /// </summary>
-        /// <param name="g">0=G0, 1=G1, 2=G2, 3=G3</param>
-        /// <returns>character set size type</returns>
-        protected CharacterSetSizeType GetCharacterSetSizeType(int g) {
-            return _decoder.GetCharacterSetSizeType(g);
-        }
-
-        /// <summary>
-        /// Get character set designator in SCS (Select Character Set).
-        /// </summary>
-        /// <param name="g">0=G0, 1=G1, 2=G2, 3=G3</param>
-        /// <returns>designator (e.g. "B") or null if the character set cannot be designated in SCS.</returns>
-        protected string GetSCSDesignator(int g) {
-            return _decoder.GetSCSDesignator(g);
         }
     }
 

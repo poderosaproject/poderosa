@@ -62,19 +62,23 @@ namespace Poderosa.Terminal {
             public readonly bool WrapAroundMode;
             // origin mode
             public readonly bool ScrollRegionRelative;
+            // character set mapping
+            public readonly CharacterSetMapping CharacterSetMapping;
 
             public SavedCursor(
                 int row,
                 int col,
                 TextDecoration decoration,
                 bool wrapAroundMode,
-                bool scrollRegionRelative
+                bool scrollRegionRelative,
+                CharacterSetMapping characterSetMapping
             ) {
                 this.Row = row;
                 this.Col = col;
                 this.Decoration = decoration;
                 this.WrapAroundMode = wrapAroundMode;
                 this.ScrollRegionRelative = scrollRegionRelative;
+                this.CharacterSetMapping = characterSetMapping;
             }
         }
 
@@ -1159,10 +1163,10 @@ namespace Poderosa.Terminal {
             // bit 1: size of G1 set (1=96-character, 0=94-character)
             // bit 0: size of GO set (1=96-character, 0=94-character)
             int r = 0x40
-                + ((GetCharacterSetSizeType(0) == CharacterSetSizeType.CS96) ? 1 : 0)
-                + ((GetCharacterSetSizeType(1) == CharacterSetSizeType.CS96) ? 2 : 0)
-                + ((GetCharacterSetSizeType(2) == CharacterSetSizeType.CS96) ? 4 : 0)
-                + ((GetCharacterSetSizeType(3) == CharacterSetSizeType.CS96) ? 8 : 0);
+                + ((CharacterSetManager.GetCharacterSetSizeType(0) == CharacterSetSizeType.CS96) ? 1 : 0)
+                + ((CharacterSetManager.GetCharacterSetSizeType(1) == CharacterSetSizeType.CS96) ? 2 : 0)
+                + ((CharacterSetManager.GetCharacterSetSizeType(2) == CharacterSetSizeType.CS96) ? 4 : 0)
+                + ((CharacterSetManager.GetCharacterSetSizeType(3) == CharacterSetSizeType.CS96) ? 8 : 0);
             return (char)r;
         }
 
@@ -1170,7 +1174,7 @@ namespace Poderosa.Terminal {
             // SCS (Select Character Set) character set designators, in the order of GO, G1, G2, G3.
             string r = "";
             for (int g = 0; g <= 3; g++) {
-                string d = GetSCSDesignator(g);
+                string d = CharacterSetManager.GetSCSDesignator(g);
                 if (d != null) {
                     r += d;
                 }
@@ -3353,12 +3357,14 @@ namespace Poderosa.Terminal {
         private SavedCursor CreateSavedCursor() {
             int row = Document.CurrentLineNumber - Document.TopLineNumber;
             int col = Document.CaretColumn;
+            CharacterSetMapping csMap = CharacterSetManager.GetCharacterSetMapping();
             return new SavedCursor(
                     row: row,
                     col: col,
                     decoration: Document.CurrentDecoration,
                     wrapAroundMode: _wrapAroundMode,
-                    scrollRegionRelative: _originRelative
+                    scrollRegionRelative: _originRelative,
+                    characterSetMapping: csMap
                 );
         }
 
@@ -3379,7 +3385,8 @@ namespace Poderosa.Terminal {
                     col: 0,
                     decoration: TextDecoration.Default,
                     wrapAroundMode: true,
-                    scrollRegionRelative: false
+                    scrollRegionRelative: false,
+                    characterSetMapping: CharacterSetMapping.GetDefault()
                 );
             }
 
@@ -3393,6 +3400,8 @@ namespace Poderosa.Terminal {
             _wrapAroundMode = saved.WrapAroundMode;
 
             _originRelative = saved.ScrollRegionRelative;
+
+            CharacterSetManager.RestoreCharacterSetMapping(saved.CharacterSetMapping);
         }
 
         [EscapeSequence(ControlCode.CSI, 'u')] // SCORC

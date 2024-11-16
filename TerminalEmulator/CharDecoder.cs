@@ -41,14 +41,7 @@ namespace Poderosa.Terminal {
         NotDesignated,
     }
 
-
-    internal interface ICharDecoder {
-        void OnReception(ByteDataFragment data);
-        void Reset();
-        EncodingProfile CurrentEncoding {
-            get;
-        }
-
+    public interface ICharacterSetManager {
         /// <summary>
         /// Get character set size of G0, G1, G2 or G3.
         /// </summary>
@@ -62,6 +55,26 @@ namespace Poderosa.Terminal {
         /// <param name="g">0=G0, 1=G1, 2=G2, 3=G3</param>
         /// <returns>designator (e.g. "B") or null if the character set cannot be designated in SCS.</returns>
         string GetSCSDesignator(int g);
+
+        /// <summary>
+        /// Get character set mapping
+        /// </summary>
+        /// <returns>character set mapping</returns>
+        CharacterSetMapping GetCharacterSetMapping();
+
+        /// <summary>
+        /// Restore character set mapping
+        /// </summary>
+        /// <param name="csMap">character set mapping</param>
+        void RestoreCharacterSetMapping(CharacterSetMapping csMap);
+    }
+
+    internal interface ICharDecoder : ICharacterSetManager {
+        void OnReception(ByteDataFragment data);
+        void Reset();
+        EncodingProfile CurrentEncoding {
+            get;
+        }
     }
 
     internal class ISO2022CharDecoder : ICharDecoder {
@@ -369,6 +382,49 @@ namespace Poderosa.Terminal {
             return null;
         }
 
+        public CharacterSetMapping GetCharacterSetMapping() {
+            string byteProcessorName;
+            if (_currentByteProcessor == null) {
+                byteProcessorName = String.Empty;
+            }
+            else {
+                byteProcessorName = _currentByteProcessor.GetType().Name;
+            }
+
+            return new CharacterSetMapping(
+                byteProcessorName: byteProcessorName
+            );
+        }
+
+        public void RestoreCharacterSetMapping(CharacterSetMapping csMap) {
+            IByteProcessor byteProcessor;
+            switch (csMap.ByteProcessorName) {
+                case "Default":
+                case "ASCIIByteProcessor":
+                    byteProcessor = _asciiByteProcessor;
+                    break;
+                case "DECLineByteProcessor":
+                    byteProcessor = GetDECLineByteProcessor();
+                    break;
+                case "ISO2022JPByteProcessor":
+                    byteProcessor = GetISO2022JPByteProcessor();
+                    break;
+                case "ISO2022JPKanaByteProcessor":
+                    byteProcessor = GetISO2022JPKanaByteProcessor();
+                    break;
+                case "ISO2022KRByteProcessor":
+                    byteProcessor = GetISO2022KRByteProcessor();
+                    break;
+                default:
+                    byteProcessor = null;
+                    break;
+            }
+
+            if (byteProcessor != null) {
+                ChangeProcessor(byteProcessor);
+            }
+        }
+
         public void OnReception(ByteDataFragment data) {
             //処理本体
             byte[] t = data.Buffer;
@@ -555,6 +611,21 @@ namespace Poderosa.Terminal {
                 _processor.InvalidCharDetected(_decoder.GetBuffer());
                 _decoder.Reset();
             }
+        }
+    }
+
+    /// <summary>
+    /// Saved character set mapping
+    /// </summary>
+    public class CharacterSetMapping {
+        internal readonly string ByteProcessorName;
+
+        internal CharacterSetMapping(string byteProcessorName) {
+            this.ByteProcessorName = byteProcessorName;
+        }
+
+        internal static CharacterSetMapping GetDefault() {
+            return new CharacterSetMapping(byteProcessorName: "Default");
         }
     }
 }
