@@ -975,7 +975,7 @@ namespace Poderosa.Terminal {
         }
 
         private GLine CreateErasedGLine() {
-            return new GLine(TerminalWidth, _currentDecoration);
+            return new GLine(TerminalWidth, TextDecoration.Default);
         }
     }
 
