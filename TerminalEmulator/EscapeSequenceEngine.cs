@@ -37,6 +37,14 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// </summary>
         Text,
         /// <summary>
+        /// Text parameter for control strings
+        /// </summary>
+        /// <remarks>
+        /// Accepts UTF-8 data.
+        /// C1 control characters are treated as UTF-8 data.
+        /// </remarks>
+        ControlString,
+        /// <summary>
         /// A next single printable character
         /// </summary>
         SinglePrintable,
@@ -772,14 +780,39 @@ namespace Poderosa.Terminal.EscapeSequence {
                     return s;
                 }
 
-                // accepts characters that consist of data part in control strings (APC, DCS, OSC, PM and SOS.)
-                // multibyte characters or 8 bit characters excluding control characters are also accepted.
-                if ((ch >= 0x20 && ch <= 0x7e) || (ch >= 0x08 && ch <= 0x0d) || ch >= 0xa0) {
+                if ((ch >= 0x20 && ch <= 0x7e) || (ch >= 0x08 && ch <= 0x0d)) {
                     context.AppendParamChar(ch);
                     return this;
                 }
 
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Same as <see cref="TextParamState"/>, but assumed to be used for control string.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Xterm accepts UTF-8 text as control string data.
+        /// As a result, the C1 control character cannot be used as the terminal character.
+        /// </para>
+        /// <para>
+        /// This state does not treat the C1 control character as a terminal character, whereas TextParamState does.
+        /// </para>
+        /// </remarks>
+        internal class ControlStringTextParamState : TextParamState {
+
+            // Note: The base transition table contains only terminating characters.
+
+            public override IState Accept(Context context, char ch) {
+                if (ch >= 0x80 && ch <= 0xf4) {
+                    // accept as UTF-8 data
+                    context.AppendParamChar(ch);
+                    return this;
+                }
+
+                return base.Accept(context, ch);
             }
         }
 
@@ -823,6 +856,10 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// <summary>
         /// Special state that reads control string (APC, DCS, OSC, PM and SOS) to the end and ignores it
         /// </summary>
+        /// <remarks>
+        /// As Xterm does, this state accepts UTF-8 text as control string data.
+        /// As a result, the C1 control character cannot be used as the terminal character.
+        /// </remarks>
         internal class IgnoreControlStringState : CharStateBase {
 
             public int Id {
@@ -873,14 +910,13 @@ namespace Poderosa.Terminal.EscapeSequence {
 
                 s.RegisterState(ControlCode.CAN, finalState);
                 s.RegisterState(ControlCode.SUB, finalState);
-                s.RegisterState(ControlCode.ST, finalState); // also register ESC -> backslash transition
-
                 if (terminateByBEL) {
                     s.RegisterState(ControlCode.BEL, finalState);
                 }
 
-                // Non-registered characters such as DCS and CSI also terminate the control string,
-                // but are not consumed as part of the string.
+                // register both of ST(0x9c) and ESC -> backslash transition.
+                // but in Accept(), ST(0x9c) is treated as UTF-8 data, not as a terminal character.
+                s.RegisterState(ControlCode.ST, finalState);
 
                 return s;
             }
@@ -888,13 +924,14 @@ namespace Poderosa.Terminal.EscapeSequence {
             public override IState Accept(Context context, char ch) {
                 // control string can be very long, so data is not stored in the buffer
 
+                if (ch >= 0x80 && ch <= 0xf4) {
+                    // accept as UTF-8 data
+                    return this;
+                }
+
                 IState s = GetNextState(ch);
                 if (s != null) {
                     return s;
-                }
-
-                if (ch >= 0xa0) {
-                    return this; // accept
                 }
 
                 return null;
@@ -970,6 +1007,7 @@ namespace Poderosa.Terminal.EscapeSequence {
                                 attrsParamTypeNumeric.Add(attr);
                                 break;
                             case EscapeSequenceParamType.Text:
+                            case EscapeSequenceParamType.ControlString:
                                 attrsParamTypeText.Add(attr);
                                 break;
                             case EscapeSequenceParamType.SinglePrintable:
@@ -1134,6 +1172,9 @@ namespace Poderosa.Terminal.EscapeSequence {
                 }
                 else if (attr.ParamType == EscapeSequenceParamType.Text) {
                     s = s.RegisterOrReuseState<TextParamState>(attr.Prefix[prefixLen - 1]);
+                }
+                else if (attr.ParamType == EscapeSequenceParamType.ControlString) {
+                    s = s.RegisterOrReuseState<ControlStringTextParamState>(attr.Prefix[prefixLen - 1]);
                 }
                 else if (attr.ParamType == EscapeSequenceParamType.SinglePrintable) {
                     CharState charState = s.RegisterOrReuseState<CharState>(attr.Prefix[prefixLen - 1]);

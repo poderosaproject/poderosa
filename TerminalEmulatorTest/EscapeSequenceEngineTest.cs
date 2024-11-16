@@ -1411,7 +1411,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         [TestCase("")]
         [TestCase("a")]
-        [TestCase("abc\\u0020def\\u0008ghi\\u000djkl\\u2615\\ud83c\\udf70")]
+        [TestCase("abc\r\n\tdef")]
         public void TestTextParamStateAccept(string parameters) {
             parameters = TestUtil.ConvertArg(parameters);
 
@@ -1437,11 +1437,63 @@ namespace Poderosa.Terminal.EscapeSequence {
         [TestCase("abc\\u001f")]
         [TestCase("abc\\u0007")]
         [TestCase("abc\\u000e")]
+        [TestCase("abc\\u0080")]
+        [TestCase("abc\\u009c")]
         public void TestTextParamStateNotAccept(string parameters) {
             parameters = TestUtil.ConvertArg(parameters);
 
             EscapeSequenceEngineBase.CharState state = Build(
                 new EscapeSequenceAttribute('A', EscapeSequenceParamType.Text, 'B')
+            );
+
+            EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
+
+            EscapeSequenceEngineBase.IState s = state.Accept(context, 'A');
+
+            for (int i = 0; i < parameters.Length - 1; i++) {
+                s = s.Accept(context, parameters[i]);
+            }
+            s = s.Accept(context, parameters[parameters.Length - 1]);
+            Assert.Null(s);
+            Assert.AreEqual(("A" + parameters.Substring(0, parameters.Length - 1)).ToCharArray(), context.GetSequence());
+        }
+
+        [TestCase("")]
+        [TestCase("a")]
+        [TestCase("abc\r\n\tdef")]
+        [TestCase("abc\\u0080")]
+        [TestCase("abc\\u009c")]
+        [TestCase("\\u00e2\\u0098\\u0095\\u00f0\\u009f\\u008d\\u00b0")]
+        public void TestControlStringTextParamStateAccept(string parameters) {
+            parameters = TestUtil.ConvertArg(parameters);
+
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('A', EscapeSequenceParamType.ControlString, 'B')
+            );
+
+            EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
+
+            EscapeSequenceEngineBase.IState s = state.Accept(context, 'A');
+
+            foreach (char ch in parameters) {
+                s = s.Accept(context, ch);
+            }
+
+            s = s.Accept(context, 'B');
+            Assert.That(s.GetType() == typeof(EscapeSequenceEngineBase.FinalState));
+            Assert.AreEqual(parameters, context.GetTextParam());
+            Assert.AreEqual(("A" + parameters + "B").ToCharArray(), context.GetSequence());
+        }
+
+        [TestCase("abc\\u0000")]
+        [TestCase("abc\\u001f")]
+        [TestCase("abc\\u0007")]
+        [TestCase("abc\\u000e")]
+        public void TestControlStringTextParamStateNotAccept(string parameters) {
+            parameters = TestUtil.ConvertArg(parameters);
+
+            EscapeSequenceEngineBase.CharState state = Build(
+                new EscapeSequenceAttribute('A', EscapeSequenceParamType.ControlString, 'B')
             );
 
             EscapeSequenceEngineBase.Context context = new EscapeSequenceEngineBase.Context();
@@ -1768,64 +1820,82 @@ namespace Poderosa.Terminal.EscapeSequence {
             );
         }
 
+        const string APC8 = "\\u009f";
+        const string APC7 = "\\u001b_";
+        const string CSI8 = "\\u009b";
+        const string CSI7 = "\\u001b[";
+        const string DCS8 = "\\u0090";
+        const string DCS7 = "\\u001bP";
+        const string OSC8 = "\\u009d";
+        const string OSC7 = "\\u001b]";
+        const string PM8 = "\\u009e";
+        const string PM7 = "\\u001b^";
+        const string SOS8 = "\\u0098";
+        const string SOS7 = "\\u001bX";
+        const string ST8 = "\\u009c";
+        const string ST7 = "\\u001b\\";
+        const string ESC = "\\u001b";
+        const string CAN = "\\u0018";
+        const string SUB = "\\u001a";
+        const string BEL = "\\u0007";
 
         public static object[] TestProcessPatterns = new object[] {
-            new object[] { "\\u009f", new object[] { "Handle_APC" }},
-            new object[] { "\\u001b_", new object[] { "Handle_APC" }},
+            new object[] { APC8, new object[] { "Handle_APC" }},
+            new object[] { APC7, new object[] { "Handle_APC" }},
 
-            new object[] { "\\u009b\\u009c", new object[] { "Handle_CSI_ST", null }},
-            new object[] { "\\u001b[\\u009c", new object[] { "Handle_CSI_ST", null }},
-            new object[] { "\\u009b\\u001b\\", new object[] { "Handle_CSI_ST", null }},
-            new object[] { "\\u001b[\\u001b\\", new object[] { "Handle_CSI_ST", null }},
-            new object[] { "\\u009b11;22;33\\u009c", new object[] { "Handle_CSI_ST", 11, 22, 33 }},
-            new object[] { "\\u001b[11;22;33\\u009c", new object[] { "Handle_CSI_ST", 11, 22, 33 }},
-            new object[] { "\\u009b11;22;33\\u001b\\", new object[] { "Handle_CSI_ST", 11, 22, 33 }},
-            new object[] { "\\u001b[11;22;33\\u001b\\", new object[] { "Handle_CSI_ST", 11, 22, 33 }},
+            new object[] { CSI8 + ST8, new object[] { "Handle_CSI_ST", null }},
+            new object[] { CSI7 + ST8, new object[] { "Handle_CSI_ST", null }},
+            new object[] { CSI8 + ST7, new object[] { "Handle_CSI_ST", null }},
+            new object[] { CSI7 + ST7, new object[] { "Handle_CSI_ST", null }},
+            new object[] { CSI8 + "11;22;33" + ST8, new object[] { "Handle_CSI_ST", 11, 22, 33 }},
+            new object[] { CSI7 + "11;22;33" + ST8, new object[] { "Handle_CSI_ST", 11, 22, 33 }},
+            new object[] { CSI8 + "11;22;33" + ST7, new object[] { "Handle_CSI_ST", 11, 22, 33 }},
+            new object[] { CSI7 + "11;22;33" + ST7, new object[] { "Handle_CSI_ST", 11, 22, 33 }},
 
-            new object[] { "\\u009bX\\u009c", new object[] { "Handle_CSI_X_ST", null }},
-            new object[] { "\\u001b[X\\u009c", new object[] { "Handle_CSI_X_ST", null }},
-            new object[] { "\\u009bX\\u001b\\", new object[] { "Handle_CSI_X_ST", null }},
-            new object[] { "\\u001b[X\\u001b\\", new object[] { "Handle_CSI_X_ST", null }},
-            new object[] { "\\u009bX11;22;33\\u009c", new object[] { "Handle_CSI_X_ST", 11, 22, 33 }},
-            new object[] { "\\u001b[X11;22;33\\u009c", new object[] { "Handle_CSI_X_ST", 11, 22, 33 }},
-            new object[] { "\\u009bX11;22;33\\u001b\\", new object[] { "Handle_CSI_X_ST", 11, 22, 33 }},
-            new object[] { "\\u001b[X11;22;33\\u001b\\", new object[] { "Handle_CSI_X_ST", 11, 22, 33 }},
+            new object[] { CSI8 + "X" + ST8, new object[] { "Handle_CSI_X_ST", null }},
+            new object[] { CSI7 + "X" + ST8, new object[] { "Handle_CSI_X_ST", null }},
+            new object[] { CSI8 + "X" + ST7, new object[] { "Handle_CSI_X_ST", null }},
+            new object[] { CSI7 + "X" + ST7, new object[] { "Handle_CSI_X_ST", null }},
+            new object[] { CSI8 + "X11;22;33" + ST8, new object[] { "Handle_CSI_X_ST", 11, 22, 33 }},
+            new object[] { CSI7 + "X11;22;33" + ST8, new object[] { "Handle_CSI_X_ST", 11, 22, 33 }},
+            new object[] { CSI8 + "X11;22;33" + ST7, new object[] { "Handle_CSI_X_ST", 11, 22, 33 }},
+            new object[] { CSI7 + "X11;22;33" + ST7, new object[] { "Handle_CSI_X_ST", 11, 22, 33 }},
 
-            new object[] { "\\u009bXZ\\u009c", new object[] { "Handle_CSI_X_Z_ST", null }},
-            new object[] { "\\u001b[XZ\\u009c", new object[] { "Handle_CSI_X_Z_ST", null }},
-            new object[] { "\\u009bXZ\\u001b\\", new object[] { "Handle_CSI_X_Z_ST", null }},
-            new object[] { "\\u001b[XZ\\u001b\\", new object[] { "Handle_CSI_X_Z_ST", null }},
-            new object[] { "\\u009bX11;22;33Z\\u009c", new object[] { "Handle_CSI_X_Z_ST", 11, 22, 33 }},
-            new object[] { "\\u001b[X11;22;33Z\\u009c", new object[] { "Handle_CSI_X_Z_ST", 11, 22, 33 }},
-            new object[] { "\\u009bX11;22;33Z\\u001b\\", new object[] { "Handle_CSI_X_Z_ST", 11, 22, 33 }},
-            new object[] { "\\u001b[X11;22;33Z\\u001b\\", new object[] { "Handle_CSI_X_Z_ST", 11, 22, 33 }},
+            new object[] { CSI8 + "XZ" + ST8, new object[] { "Handle_CSI_X_Z_ST", null }},
+            new object[] { CSI7 + "XZ" + ST8, new object[] { "Handle_CSI_X_Z_ST", null }},
+            new object[] { CSI8 + "XZ" + ST7, new object[] { "Handle_CSI_X_Z_ST", null }},
+            new object[] { CSI7 + "XZ" + ST7, new object[] { "Handle_CSI_X_Z_ST", null }},
+            new object[] { CSI8 + "X11;22;33Z" + ST8, new object[] { "Handle_CSI_X_Z_ST", 11, 22, 33 }},
+            new object[] { CSI7 + "X11;22;33Z" + ST8, new object[] { "Handle_CSI_X_Z_ST", 11, 22, 33 }},
+            new object[] { CSI8 + "X11;22;33Z" + ST7, new object[] { "Handle_CSI_X_Z_ST", 11, 22, 33 }},
+            new object[] { CSI7 + "X11;22;33Z" + ST7, new object[] { "Handle_CSI_X_Z_ST", 11, 22, 33 }},
 
-            new object[] { "\\u009bY\\u009c", new object[] { "Handle_CSI_Y_ST", null }},
-            new object[] { "\\u001b[Y\\u009c", new object[] { "Handle_CSI_Y_ST", null }},
-            new object[] { "\\u009bY\\u001b\\", new object[] { "Handle_CSI_Y_ST", null }},
-            new object[] { "\\u001b[Y\\u001b\\", new object[] { "Handle_CSI_Y_ST", null }},
-            new object[] { "\\u009bY11;22;33\\u009c", new object[] { "Handle_CSI_Y_ST", 11, 22, 33 }},
-            new object[] { "\\u001b[Y11;22;33\\u009c", new object[] { "Handle_CSI_Y_ST", 11, 22, 33 }},
-            new object[] { "\\u009bY11;22;33\\u001b\\", new object[] { "Handle_CSI_Y_ST", 11, 22, 33 }},
-            new object[] { "\\u001b[Y11;22;33\\u001b\\", new object[] { "Handle_CSI_Y_ST", 11, 22, 33 }},
+            new object[] { CSI8 + "Y" + ST8, new object[] { "Handle_CSI_Y_ST", null }},
+            new object[] { CSI7 + "Y" + ST8, new object[] { "Handle_CSI_Y_ST", null }},
+            new object[] { CSI8 + "Y" + ST7, new object[] { "Handle_CSI_Y_ST", null }},
+            new object[] { CSI7 + "Y" + ST7, new object[] { "Handle_CSI_Y_ST", null }},
+            new object[] { CSI8 + "Y11;22;33" + ST8, new object[] { "Handle_CSI_Y_ST", 11, 22, 33 }},
+            new object[] { CSI7 + "Y11;22;33" + ST8, new object[] { "Handle_CSI_Y_ST", 11, 22, 33 }},
+            new object[] { CSI8 + "Y11;22;33" + ST7, new object[] { "Handle_CSI_Y_ST", 11, 22, 33 }},
+            new object[] { CSI7 + "Y11;22;33" + ST7, new object[] { "Handle_CSI_Y_ST", 11, 22, 33 }},
 
-            new object[] { "\\u009bYZ\\u009c", new object[] { "Handle_CSI_Y_Z_ST", null }},
-            new object[] { "\\u001b[YZ\\u009c", new object[] { "Handle_CSI_Y_Z_ST", null }},
-            new object[] { "\\u009bYZ\\u001b\\", new object[] { "Handle_CSI_Y_Z_ST", null }},
-            new object[] { "\\u001b[YZ\\u001b\\", new object[] { "Handle_CSI_Y_Z_ST", null }},
-            new object[] { "\\u009bY11;22;33Z\\u009c", new object[] { "Handle_CSI_Y_Z_ST", 11, 22, 33 }},
-            new object[] { "\\u001b[Y11;22;33Z\\u009c", new object[] { "Handle_CSI_Y_Z_ST", 11, 22, 33 }},
-            new object[] { "\\u009bY11;22;33Z\\u001b\\", new object[] { "Handle_CSI_Y_Z_ST", 11, 22, 33 }},
-            new object[] { "\\u001b[Y11;22;33Z\\u001b\\", new object[] { "Handle_CSI_Y_Z_ST", 11, 22, 33 }},
+            new object[] { CSI8 + "YZ" + ST8, new object[] { "Handle_CSI_Y_Z_ST", null }},
+            new object[] { CSI7 + "YZ" + ST8, new object[] { "Handle_CSI_Y_Z_ST", null }},
+            new object[] { CSI8 + "YZ" + ST7, new object[] { "Handle_CSI_Y_Z_ST", null }},
+            new object[] { CSI7 + "YZ" + ST7, new object[] { "Handle_CSI_Y_Z_ST", null }},
+            new object[] { CSI8 + "Y11;22;33Z" + ST8, new object[] { "Handle_CSI_Y_Z_ST", 11, 22, 33 }},
+            new object[] { CSI7 + "Y11;22;33Z" + ST8, new object[] { "Handle_CSI_Y_Z_ST", 11, 22, 33 }},
+            new object[] { CSI8 + "Y11;22;33Z" + ST7, new object[] { "Handle_CSI_Y_Z_ST", 11, 22, 33 }},
+            new object[] { CSI7 + "Y11;22;33Z" + ST7, new object[] { "Handle_CSI_Y_Z_ST", 11, 22, 33 }},
 
-            new object[] { "\\u009d\\u009c", new object[] { "Handle_OSC_ST", "" }},
-            new object[] { "\\u001b]\\u009c", new object[] { "Handle_OSC_ST", "" }},
-            new object[] { "\\u009d\\u001b\\", new object[] { "Handle_OSC_ST", "" }},
-            new object[] { "\\u001b]\\u001b\\", new object[] { "Handle_OSC_ST", "" }},
-            new object[] { "\\u009dfoo\\u009c", new object[] { "Handle_OSC_ST", "foo" }},
-            new object[] { "\\u001b]foo\\u009c", new object[] { "Handle_OSC_ST", "foo" }},
-            new object[] { "\\u009dfoo\\u001b\\", new object[] { "Handle_OSC_ST", "foo" }},
-            new object[] { "\\u001b]foo\\u001b\\", new object[] { "Handle_OSC_ST", "foo" }},
+            new object[] { OSC8 + ST8, new object[] { "Handle_OSC_ST", "" }}, // Handle_OSC_ST() use EscapeSequenceParamType.Text, so 8bit ST is used as terminal character
+            new object[] { OSC7 + ST8, new object[] { "Handle_OSC_ST", "" }},
+            new object[] { OSC8 + ST7, new object[] { "Handle_OSC_ST", "" }},
+            new object[] { OSC7 + ST7, new object[] { "Handle_OSC_ST", "" }},
+            new object[] { OSC8 + "foo" + ST8, new object[] { "Handle_OSC_ST", "foo" }},
+            new object[] { OSC7 + "foo" + ST8, new object[] { "Handle_OSC_ST", "foo" }},
+            new object[] { OSC8 + "foo" + ST7, new object[] { "Handle_OSC_ST", "foo" }},
+            new object[] { OSC7 + "foo" + ST7, new object[] { "Handle_OSC_ST", "foo" }},
         };
 
         [TestCaseSource("TestProcessPatterns")]
@@ -1887,111 +1957,96 @@ namespace Poderosa.Terminal.EscapeSequence {
             Assert.AreEqual(new object[] { "HandlerTextParam2", "abc" }, instance.Calls[0]);
         }
 
-        [TestCase("\\u001b[1;2;3XYZ", "YZ", new string[] { })] // final byte is 'X'
-        [TestCase("\\u009b1;2;3XYZ", "YZ", new string[] { })] // final byte is 'X'
-        [TestCase("\\u001b[XYZ", "YZ", new string[] { })] // final byte is 'X'
-        [TestCase("\\u001b[!XYZ", "YZ", new string[] { })] // also ignore intermediate bytes
-        [TestCase("\\u001b[1;2;3\\u000aXYZ", "\\u000aXYZ", new string[] { })] // U+000a is not a final byte or intermediate byte
-        [TestCase("\\u001b[1;2;3X\\u001b[1;2;3A\\u001b[1;2;3Ya", "a", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
-        [TestCase("\\u001b[1;2;3\\u001b[1;2;3A", "", new string[] { "Handle CSI A" })] // restart escape sequence by ESC
+        [TestCase(CSI7 + "1;2;3XYZ", "YZ", new string[] { })] // final byte is 'X'
+        [TestCase(CSI8 + "1;2;3XYZ", "YZ", new string[] { })] // final byte is 'X'
+        [TestCase(CSI7 + "XYZ", "YZ", new string[] { })] // final byte is 'X'
+        [TestCase(CSI7 + "!XYZ", "YZ", new string[] { })] // also ignore intermediate bytes
+        [TestCase(CSI7 + "1;2;3\\u000aXYZ", "\\u000aXYZ", new string[] { })] // U+000a is not a final byte or intermediate byte
+        [TestCase(CSI7 + "1;2;3X\\u001b[1;2;3A\\u001b[1;2;3Ya", "a", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase(CSI7 + "1;2;3\\u001b[1;2;3A", "", new string[] { "Handle CSI A" })] // restart escape sequence by ESC
         public void TestIgnoreCSI(string input, string expectedNotAcceptedText, string[] expectedCalled) {
             TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
         }
 
-        [TestCase("\\u001b_ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u001b_ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u001b_ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
-        [TestCase("\\u001b_ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
-        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
-        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
-        [TestCase("\\u001b_\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u001b_\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u001b_\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
-        [TestCase("\\u001b_\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
-        [TestCase("\\u001b_ABC\\u001b\\\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
-        [TestCase("\\u001b_ABC\\u001b\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
-        [TestCase("\\u001b_ABC\\u001b[1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
+        [TestCase(APC7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(APC7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
+        [TestCase(APC7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
+        [TestCase(APC8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(APC8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
+        [TestCase(APC8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
+        [TestCase(APC7 + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit)
+        [TestCase(APC7 + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN
+        [TestCase(APC7 + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB
+        [TestCase(APC7 + "ABC" + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase(APC7 + "ABC" + ESC + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
+        [TestCase(APC7 + "ABC" + CSI7 + "1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
         public void TestIgnoreAPC(string input, string expectedNotAcceptedText, string[] expectedCalled) {
             TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
         }
 
-        [TestCase("\\u001bPABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u001bPABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u001bPABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
-        [TestCase("\\u001bPABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
-        [TestCase("\\u0090ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
-        [TestCase("\\u009fABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
-        [TestCase("\\u001bP\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u001bP\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u001bP\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
-        [TestCase("\\u001bP\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
-        [TestCase("\\u001bPABC\\u001b\\\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
-        [TestCase("\\u001bPABC\\u001b\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
-        [TestCase("\\u001bPABC\\u001b[1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
+        [TestCase(DCS7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(DCS7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
+        [TestCase(DCS7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
+        [TestCase(DCS8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(DCS8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
+        [TestCase(DCS8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
+        [TestCase(DCS7 + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit)
+        [TestCase(DCS7 + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN
+        [TestCase(DCS7 + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB
+        [TestCase(DCS7 + "ABC" + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase(DCS7 + "ABC" + ESC + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
+        [TestCase(DCS7 + "ABC" + CSI7 + "1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
         public void TestIgnoreDCS(string input, string expectedNotAcceptedText, string[] expectedCalled) {
             TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
         }
 
-        [TestCase("\\u001b]ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u001b]ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u001b]ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0007GHI", "GHI", new string[] { })] // terminated by BEL
-        [TestCase("\\u001b]ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
-        [TestCase("\\u001b]ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
-        [TestCase("\\u009dABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u009dABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u009dABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0007GHI", "GHI", new string[] { })] // terminated by BEL
-        [TestCase("\\u009dABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
-        [TestCase("\\u009dABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
-        [TestCase("\\u001b]\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u001b]\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u001b]\\u0007GHI", "GHI", new string[] { })] // terminated by BEL
-        [TestCase("\\u001b]\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
-        [TestCase("\\u001b]\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
-        [TestCase("\\u001b]ABC\\u001b\\\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
-        [TestCase("\\u001b]ABC\\u001b\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
-        [TestCase("\\u001b]ABC\\u001b[1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
+        [TestCase(OSC7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(OSC7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
+        [TestCase(OSC7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
+        [TestCase(OSC7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + BEL + "XYZ", "XYZ", new string[] { })] // terminated by BEL, 8bit ST is ignored as UTF-8 data
+        [TestCase(OSC8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(OSC8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
+        [TestCase(OSC8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
+        [TestCase(OSC8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + BEL + "XYZ", "XYZ", new string[] { })] // terminated by BEL, 8bit ST is ignored as UTF-8 data
+        [TestCase(OSC7 + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit)
+        [TestCase(OSC7 + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN
+        [TestCase(OSC7 + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB
+        [TestCase(OSC7 + BEL + "XYZ", "XYZ", new string[] { })] // terminated by BEL
+        [TestCase(OSC7 + "ABC" + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase(OSC7 + "ABC" + ESC + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
+        [TestCase(OSC7 + "ABC" + CSI7 + "1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
         public void TestIgnoreOSC(string input, string expectedNotAcceptedText, string[] expectedCalled) {
             TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
         }
 
-        [TestCase("\\u001b^ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u001b^ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u001b^ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
-        [TestCase("\\u001b^ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
-        [TestCase("\\u009eABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u009eABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u009eABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
-        [TestCase("\\u009eABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
-        [TestCase("\\u001b^\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u001b^\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u001b^\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
-        [TestCase("\\u001b^\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
-        [TestCase("\\u001b^ABC\\u001b\\\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
-        [TestCase("\\u001b^ABC\\u001b\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
-        [TestCase("\\u001b^ABC\\u001b[1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
+        [TestCase(PM7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(PM7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
+        [TestCase(PM7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
+        [TestCase(PM8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(PM8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
+        [TestCase(PM8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
+        [TestCase(PM7 + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit)
+        [TestCase(PM7 + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN
+        [TestCase(PM7 + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB
+        [TestCase(PM7 + "ABC" + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase(PM7 + "ABC" + ESC + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
+        [TestCase(PM7 + "ABC" + CSI7 + "1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
         public void TestIgnorePM(string input, string expectedNotAcceptedText, string[] expectedCalled) {
             TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
         }
 
-        [TestCase("\\u001bXABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u001bXABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u001bXABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
-        [TestCase("\\u001bXABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
-        [TestCase("\\u0098ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u0098ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u0098ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
-        [TestCase("\\u0098ABC\\u0008\\u000dDEF\\u2615\\ud83c\\udf70\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
-        [TestCase("\\u001bX\\u009cGHI", "GHI", new string[] { })] // terminated by ST (8bit)
-        [TestCase("\\u001bX\\u001b\\GHI", "GHI", new string[] { })] // terminated by ST (7bit)
-        [TestCase("\\u001bX\\u0018GHI", "GHI", new string[] { })] // terminated by CAN
-        [TestCase("\\u001bX\\u001aGHI", "GHI", new string[] { })] // terminated by SUB
-        [TestCase("\\u001bXABC\\u001b\\\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
-        [TestCase("\\u001bXABC\\u001b\\u001b[1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
-        [TestCase("\\u001bXABC\\u001b[1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
+        [TestCase(SOS7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(SOS7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
+        [TestCase(SOS7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
+        [TestCase(SOS8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(SOS8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
+        [TestCase(SOS8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
+        [TestCase(SOS7 + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit)
+        [TestCase(SOS7 + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN
+        [TestCase(SOS7 + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB
+        [TestCase(SOS7 + "ABC" + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase(SOS7 + "ABC" + ESC + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
+        [TestCase(SOS7 + "ABC" + CSI7 + "1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
         public void TestIgnoreSOS(string input, string expectedNotAcceptedText, string[] expectedCalled) {
             TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
         }

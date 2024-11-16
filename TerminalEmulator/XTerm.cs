@@ -1720,8 +1720,8 @@ namespace Poderosa.Terminal {
             }
         }
 
-        [EscapeSequence(ControlCode.OSC, EscapeSequenceParamType.Text, ControlCode.ST)] // OSC
-        [EscapeSequence(ControlCode.OSC, EscapeSequenceParamType.Text, ControlCode.BEL)]
+        [EscapeSequence(ControlCode.OSC, EscapeSequenceParamType.ControlString, ControlCode.ST)] // OSC
+        [EscapeSequence(ControlCode.OSC, EscapeSequenceParamType.ControlString, ControlCode.BEL)]
         private void ProcessOSC(string paramText) {
             OSCParams p;
             if (!OSCParams.Parse(paramText, out p)) {
@@ -1746,6 +1746,8 @@ namespace Poderosa.Terminal {
 
         private void OSCChangeWindowTitle(OSCParams p) {
             string title = p.GetText();
+            title = ParseUtf8String(title);
+
             IDynamicCaptionFormatter[] formatters = TerminalEmulatorPlugin.Instance.DynamicCaptionFormatter;
             IDynamicCaptionFormatter formatter = (formatters != null && formatters.Length > 0) ? formatters[0] : new DefaultDynamicCaptionFormatter();
 
@@ -1753,6 +1755,25 @@ namespace Poderosa.Terminal {
             string formatted = formatter.FormatCaptionUsingWindowTitle(GetConnection().Destination, settings, title);
 
             Document.SetSubCaption(formatted);
+        }
+
+        private string ParseUtf8String(string s) {
+            List<byte> utf8data = new List<byte>();
+
+            foreach (char ch in s) {
+                if (ch > 0xf4) {
+                    continue;
+                }
+                if (ch < 0x20) {
+                    utf8data.Add((byte)0x20); // space
+                }
+                else {
+                    utf8data.Add((byte)ch);
+                }
+            }
+
+            Encoding utf8 = Encoding.GetEncoding("UTF-8", EncoderFallback.ReplacementFallback, DecoderFallback.ReplacementFallback);
+            return utf8.GetString(utf8data.ToArray());
         }
 
         private void OSCChangeColorPalette(OSCParams p, string source) {
