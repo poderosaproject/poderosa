@@ -1838,6 +1838,7 @@ namespace Poderosa.Terminal.EscapeSequence {
         const string CAN = "\\u0018";
         const string SUB = "\\u001a";
         const string BEL = "\\u0007";
+        const string BS = "\\u0008";
 
         public static object[] TestProcessPatterns = new object[] {
             new object[] { APC8, new object[] { "Handle_APC" }},
@@ -2083,6 +2084,67 @@ namespace Poderosa.Terminal.EscapeSequence {
             Assert.AreEqual(expectedCalled, instance.Called.ToArray());
         }
 
+
+        public static object[] TestControlCharacterInterruptPatterns = new object[] {
+            new object[] {
+                ESC + BS + "[" + "12;34;56" + ST7,
+                new object[][] {
+                    new object[] { "Handle_BS" },
+                    new object[] { "Handle_CSI_ST", 12, 34, 56 },
+                },
+            },
+            new object[] {
+                CSI7 + BS + "12;34;56" + ST7,
+                new object[][] {
+                    new object[] { "Handle_BS" },
+                    new object[] { "Handle_CSI_ST", 12, 34, 56 },
+                },
+            },
+            new object[] {
+                CSI7 + "1" + BS + "2;34;56" + ST7,
+                new object[][] {
+                    new object[] { "Handle_BS" },
+                    new object[] { "Handle_CSI_ST", 12, 34, 56 },
+                },
+            },
+            new object[] {
+                CSI7 + "12;" + BS + "34;56" + ST7,
+                new object[][] {
+                    new object[] { "Handle_BS" },
+                    new object[] { "Handle_CSI_ST", 12, 34, 56 },
+                },
+            },
+            new object[] {
+                CSI7 + "12;34;56" + BS + ST7,
+                new object[][] {
+                    new object[] { "Handle_BS" },
+                    new object[] { "Handle_CSI_ST", 12, 34, 56 },
+                },
+            },
+            new object[] {
+                CSI7 + "12;34;56" + ESC + BS + "\\",
+                new object[][] {
+                    new object[] { "Handle_BS" },
+                    new object[] { "Handle_CSI_ST", 12, 34, 56 },
+                },
+            },
+        };
+
+        [TestCaseSource("TestControlCharacterInterruptPatterns")]
+        public void TestControlCharacterInterrupt(string input, object[][] expectedCalls) {
+            input = TestUtil.ConvertArg(input);
+
+            var engine = new EscapeSequenceEngine<ValidHandlersForCheckFinalState>();
+
+            var instance = new ValidHandlersForCheckFinalState();
+
+            for (int i = 0; i < input.Length; i++) {
+                Assert.IsTrue(engine.Process(instance, input[i]));
+            }
+
+            Assert.AreEqual(expectedCalls, instance.Calls.ToArray());
+        }
+
         private string[] RemoveStateId(string[] dump) {
             return dump.Select(s => Regex.Replace(s, @"\(#\d+\)", "")).ToArray();
         }
@@ -2208,6 +2270,11 @@ namespace Poderosa.Terminal.EscapeSequence {
         [EscapeSequence(ControlCode.OSC, EscapeSequenceParamType.Text, ControlCode.ST)]
         private void Handle_OSC_ST(string parameter) {
             Calls.Add(new object[] { "Handle_OSC_ST", parameter });
+        }
+
+        [EscapeSequence(ControlCode.BS)]
+        private void Handle_BS() {
+            Calls.Add(new object[] { "Handle_BS" });
         }
     }
 

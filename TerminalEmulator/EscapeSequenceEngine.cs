@@ -1326,6 +1326,18 @@ namespace Poderosa.Terminal.EscapeSequence {
                     return false; // not handled
                 }
 
+                // check interrupting control characters
+                if ((ch >= 0 && ch <= 0x1f) || ch == 0x7f || ch == 0xff) {
+                    // execute immediately if the action was registered for the control character.
+                    // _currentState and _context are retained.
+                    Context context = new Context();
+                    FinalState intFinal = _root.Accept(context, ch) as FinalState;
+                    if (intFinal != null) {
+                        CallAction(instance, context, intFinal);
+                        return true; // handled
+                    }
+                }
+
                 if (!_context.IsIgnoreMode) {
                     switch (_context.GetIntroducer()) {
                         case Introducer.APC:
@@ -1397,22 +1409,26 @@ namespace Poderosa.Terminal.EscapeSequence {
                 return true; // handled
             }
 
-            _completedHandler(_context);
+            CallAction(instance, _context, final);
 
-            _currentThreadContext.Value = _context;
+            Reset();
+            return true; // handled
+        }
+
+        private void CallAction(T instance, Context context, FinalState final) {
+            _completedHandler(context);
+
+            _currentThreadContext.Value = context;
             try {
-                final.Action(instance, _context);
+                final.Action(instance, context);
             }
             catch (Exception e) {
                 var ie = e as TargetInvocationException;
-                _exceptionHandler((ie != null) ? ie.InnerException : e, _context);
+                _exceptionHandler((ie != null) ? ie.InnerException : e, context);
             }
             finally {
                 _currentThreadContext.Value = null;
             }
-
-            Reset();
-            return true; // handled
         }
 
         /// <summary>
