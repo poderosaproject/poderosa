@@ -2535,6 +2535,9 @@ namespace Poderosa.Terminal {
                     ChangeCursorKeyMode(set ? TerminalMode.Application : TerminalMode.Normal);
                     break;
                 case 3:	//132 Column Mode
+                    Document.ClearMargins();
+                    ClearScreen();
+                    MoveCursorTo(1, 1);
                     break;
                 case 4:	//Smooth Scroll
                     break;
