@@ -955,8 +955,8 @@ namespace Poderosa.Document {
                 }
                 else {
                     Fill(0, _cell.Length, GChar.ASCII_NUL, attr, color);
+                    _displayLength = attr.IsDefault ? 0 : _cell.Length;
                 }
-                _displayLength = attr.IsDefault ? 0 : _cell.Length;
             }
         }
 
