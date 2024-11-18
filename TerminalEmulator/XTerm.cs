@@ -737,6 +737,11 @@ namespace Poderosa.Terminal {
         // private void Ignore(string p) {
         // }
 
+        [EscapeSequence(ControlCode.ESC, 'c')] // RIS
+        private void ProcessRIS() {
+            FullReset();
+        }
+
         [EscapeSequence(ControlCode.LF)]
         [EscapeSequence(ControlCode.VT)]
         [EscapeSequence(ControlCode.FF)]
@@ -3594,11 +3599,6 @@ namespace Poderosa.Terminal {
                     throw new ArgumentException(String.Format("unknown cursor key code: {0}", key));
             }
             return r;
-        }
-
-        [EscapeSequence(ControlCode.ESC, 'c')] // RIS
-        private void ProcessRIS() {
-            FullReset();
         }
 
         private ViewPort GetViewPort() {
