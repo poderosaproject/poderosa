@@ -210,6 +210,27 @@ namespace Poderosa.Terminal {
             }
         }
 
+        private class TransmissionMode {
+            public readonly bool IsEightBit;
+            public readonly byte[] BRACKETED_PASTE_MODE_LEADING_BYTES;
+            public readonly byte[] BRACKETED_PASTE_MODE_TRAILING_BYTES;
+
+            private TransmissionMode(bool eightBit) {
+                IsEightBit = eightBit;
+                BRACKETED_PASTE_MODE_LEADING_BYTES = eightBit
+                    ? new byte[] { (byte)ControlCode.CSI, (byte)'2', (byte)'0', (byte)'0', (byte)'~' }
+                    : new byte[] { (byte)ControlCode.ESC, (byte)'[', (byte)'2', (byte)'0', (byte)'0', (byte)'~' };
+
+                BRACKETED_PASTE_MODE_TRAILING_BYTES = eightBit
+                    ? new byte[] { (byte)ControlCode.CSI, (byte)'2', (byte)'0', (byte)'1', (byte)'~' }
+                    : new byte[] { (byte)ControlCode.ESC, (byte)'[', (byte)'2', (byte)'0', (byte)'1', (byte)'~' };
+            }
+
+            public static readonly TransmissionMode EightBit = new TransmissionMode(true);
+            public static readonly TransmissionMode SevenBit = new TransmissionMode(false);
+        }
+
+
         private readonly EscapeSequenceEngine<XTerm> _escapeSequenceEngine;
 
         private IModalCharacterTask _currentCharacterTask = null;
@@ -226,8 +247,6 @@ namespace Poderosa.Terminal {
         private readonly LinkedList<SGRStackItem> _sgrStack = new LinkedList<SGRStackItem>();
 
         private bool _bracketedPasteMode = false;
-        private static readonly byte[] BRACKETED_PASTE_MODE_LEADING_BYTES = new byte[] { 0x1b, (byte)'[', (byte)'2', (byte)'0', (byte)'0', (byte)'~' };
-        private static readonly byte[] BRACKETED_PASTE_MODE_TRAILING_BYTES = new byte[] { 0x1b, (byte)'[', (byte)'2', (byte)'0', (byte)'1', (byte)'~' };
         private static readonly byte[] BRACKETED_PASTE_MODE_EMPTY_BYTES = new byte[0];
 
         private MouseTrackingState _mouseTrackingState = MouseTrackingState.Off;
@@ -237,6 +256,7 @@ namespace Poderosa.Terminal {
         private int _prevMouseCol = -1;
         private MouseButtons _mouseButton = MouseButtons.None;
 
+        private TransmissionMode _transmissionMode = TransmissionMode.SevenBit;
         private bool _forceNewLine = false; // controls behavior of LF/FF/VT
         private bool _insertMode = false;
         private bool _originRelative = false;
@@ -246,11 +266,6 @@ namespace Poderosa.Terminal {
         private const int MOUSE_POS_LIMIT = 255 - 32;       // mouse position limit
         private const int MOUSE_POS_EXT_LIMIT = 2047 - 32;  // mouse position limit in extended mode
         private const int MOUSE_POS_EXT_START = 127 - 32;   // mouse position to start using extended format
-
-        private const string RESPONSE_CSI = "\u001b[";
-        private const string RESPONSE_DCS = "\u001bP";
-        private const string RESPONSE_OSC = "\u001b]";
-        private const string RESPONSE_ST = "\u001b\\";
 
         private const int MAX_SGR_STACK = 10;
 
@@ -306,6 +321,7 @@ namespace Poderosa.Terminal {
             _mouseTrackingState = MouseTrackingState.Off;
             _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
             _focusReportingMode = false;
+            _transmissionMode = TransmissionMode.SevenBit;
             _forceNewLine = false;
             _insertMode = false;
             _originRelative = false;
@@ -338,11 +354,11 @@ namespace Poderosa.Terminal {
         }
 
         internal override byte[] GetPasteLeadingBytes() {
-            return _bracketedPasteMode ? BRACKETED_PASTE_MODE_LEADING_BYTES : BRACKETED_PASTE_MODE_EMPTY_BYTES;
+            return _bracketedPasteMode ? _transmissionMode.BRACKETED_PASTE_MODE_LEADING_BYTES : BRACKETED_PASTE_MODE_EMPTY_BYTES;
         }
 
         internal override byte[] GetPasteTrailingBytes() {
-            return _bracketedPasteMode ? BRACKETED_PASTE_MODE_TRAILING_BYTES : BRACKETED_PASTE_MODE_EMPTY_BYTES;
+            return _bracketedPasteMode ? _transmissionMode.BRACKETED_PASTE_MODE_TRAILING_BYTES : BRACKETED_PASTE_MODE_EMPTY_BYTES;
         }
 
         public override void ProcessChar(char ch) {
@@ -554,9 +570,8 @@ namespace Poderosa.Terminal {
                     break;
 
                 case MouseTrackingProtocol.Urxvt:
-                    data = Encoding.ASCII.GetBytes(
-                            RESPONSE_CSI
-                            + statBits.ToInvariantString()
+                    data = MakeCSI(
+                            statBits.ToInvariantString()
                             + ";"
                             + (col + 1).ToInvariantString()
                             + ";"
@@ -567,8 +582,8 @@ namespace Poderosa.Terminal {
                     break;
 
                 case MouseTrackingProtocol.Sgr:
-                    data = Encoding.ASCII.GetBytes(
-                            RESPONSE_CSI + "<"
+                    data = MakeCSI(
+                            "<"
                             + statBits.ToInvariantString()
                             + ";"
                             + (col + 1).ToInvariantString()
@@ -677,8 +692,6 @@ namespace Poderosa.Terminal {
             Document.CaretColumn = Document.LeftMarginOffset;
         }
 
-        [EscapeSequence(ControlCode.ESC, ' ', 'F')] // S7C1T
-        [EscapeSequence(ControlCode.ESC, ' ', 'G')] // S8C1T
         [EscapeSequence(ControlCode.ESC, ' ', 'L')] // dpANS X3.134.1 - ANSI conformance level 1
         [EscapeSequence(ControlCode.ESC, ' ', 'M')] // dpANS X3.134.1 - ANSI conformance level 2
         [EscapeSequence(ControlCode.ESC, ' ', 'N')] // dpANS X3.134.1 - ANSI conformance level 3
@@ -705,7 +718,6 @@ namespace Poderosa.Terminal {
         // [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'm')] // set key modifiers mode (xterm)
         // [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'n')] // disable key modifiers mode (xterm)
         // [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'p')] // set pointerMode (xterm)
-        // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '"', 'p')] // Select Conformance Level
         // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'q')] // Load LEDs
         // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', 'q')] // Set Cursor Style
         // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 't')] // Window Manipulation (xterm)
@@ -736,6 +748,44 @@ namespace Poderosa.Terminal {
         // [EscapeSequence(ControlCode.DCS, EscapeSequenceParamType.Text, ControlCode.ST)] // DCS
         // private void Ignore(string p) {
         // }
+
+        [EscapeSequence(ControlCode.ESC, ' ', 'F')] // S7C1T
+        private void Select7bitC1() {
+            if (_transmissionMode.IsEightBit) {
+                _transmissionMode = TransmissionMode.SevenBit;
+            }
+        }
+
+        [EscapeSequence(ControlCode.ESC, ' ', 'G')] // S8C1T
+        private void Select8bitC1() {
+            if (!_transmissionMode.IsEightBit) {
+                _transmissionMode = TransmissionMode.EightBit;
+            }
+        }
+
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '"', 'p')] // DECSCL
+        private void SelectConformanceLevel(NumericParams p) {
+            int level = p.Get(0, 0);
+            if (level < 61 || level > 64) {
+                return;
+            }
+
+            if (level <= 61) {
+                Select7bitC1();
+            }
+            else {
+                int c1Mode = p.Get(1, 0);
+                switch (c1Mode) {
+                    case 0:
+                    case 2:
+                        Select8bitC1();
+                        break;
+                    case 1:
+                        Select7bitC1();
+                        break;
+                }
+            }
+        }
 
         [EscapeSequence(ControlCode.ESC, 'c')] // RIS
         private void ProcessRIS() {
@@ -932,7 +982,7 @@ namespace Poderosa.Terminal {
                 };
                 string featuresText = String.Join(";", features.Select(v => v.ToInvariantString()));
 
-                byte[] data = Encoding.ASCII.GetBytes(RESPONSE_CSI + "?64;" + featuresText + "c");
+                byte[] data = MakeCSI("?64;" + featuresText + "c");
                 TransmitDirect(data);
             }
         }
@@ -940,7 +990,7 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'c')] // Secondary DA
         private void ProcessSecondaryDeviceAttributes(NumericParams p) {
             if (p.Get(0, 0) == 0) {
-                byte[] data = Encoding.ASCII.GetBytes(RESPONSE_CSI + ">41;1;0c");
+                byte[] data = MakeCSI(">41;1;0c");
                 TransmitDirect(data);
                 return;
             }
@@ -950,7 +1000,7 @@ namespace Poderosa.Terminal {
         private void ProcessTertiaryDeviceAttributes(NumericParams p) {
             if (p.Get(0, 0) == 0) {
                 // DECRPTUI: DCS ! | 00 00 00 00 ST
-                byte[] data = Encoding.ASCII.GetBytes(RESPONSE_DCS + "!|00000000" + RESPONSE_ST);
+                byte[] data = MakeDCS_ST("!|00000000");
                 TransmitDirect(data);
                 return;
             }
@@ -960,28 +1010,27 @@ namespace Poderosa.Terminal {
         private void ProcessDeviceStatusReport(NumericParams p) {
             int param = p.Get(0, 0);
 
-            string response;
+            byte[] response;
             switch (param) {
                 case 5: // Operating Status Report
-                    response = RESPONSE_CSI + "0n"; // good
+                    response = MakeCSI("0n"); // good
                     break;
                 case 6: // Cursor Position Report
                     {
                         var rc = GetCursorPosition();
-                        response =
-                            RESPONSE_CSI
-                            + rc.Row.ToInvariantString()
+                        response = MakeCSI(
+                            rc.Row.ToInvariantString()
                             + ";"
                             + rc.Col.ToInvariantString()
-                            + "R";
+                            + "R"
+                        );
                         break;
                     }
                 default:
                     return;
             }
 
-            byte[] data = Encoding.ASCII.GetBytes(response);
-            TransmitDirect(data);
+            TransmitDirect(response);
         }
 
         private RowCol GetCursorPosition() {
@@ -1003,66 +1052,66 @@ namespace Poderosa.Terminal {
         private void ProcessDeviceStatusReportDEC(NumericParams p) {
             int param = p.Get(0, 0);
 
-            string response;
+            byte[] response;
             switch (param) {
                 case 5:
                     // "CSI ? 5 n" doesn't appear in the DEC documentations, but xterm returns this
-                    response = RESPONSE_CSI + "?0n";
+                    response = MakeCSI("?0n");
                     break;
                 case 6: // Extended Cursor Position Report
                     {
                         var rc = GetCursorPosition();
-                        response =
-                            RESPONSE_CSI + "?"
+                        response = MakeCSI(
+                            "?"
                             + rc.Row.ToInvariantString()
                             + ";"
                             + rc.Col.ToInvariantString()
-                            + ";1R";
+                            + ";1R"
+                        );
                         break;
                     }
                 case 15: // Printer Status Report
-                    response = RESPONSE_CSI + "?13n"; // no printer
+                    response = MakeCSI("?13n"); // no printer
                     break;
                 case 25: // User-Defined Keys Status
-                    response = RESPONSE_CSI + "?20n"; // unlocked
+                    response = MakeCSI("?20n"); // unlocked
                     break;
                 case 26: // Keyboard Status Report
-                    response = RESPONSE_CSI + "?27;1;0;0n"; // North American, Ready
+                    response = MakeCSI("?27;1;0;0n"); // North American, Ready
                     break;
                 case 55: // Locator Status
                     // according to "Locator Input Model for ANSI Terminals (sixth revision)", response below means "no locator"
-                    response = RESPONSE_CSI + "?53n"; // no locator
+                    response = MakeCSI("?53n"); // no locator
                     break;
                 case 56: // Locator Type
-                    response = RESPONSE_CSI + "?57;0n"; // unknown
+                    response = MakeCSI("?57;0n"); // unknown
                     break;
                 case 62: // Macro Space Report
                     // xterm returns 4 digits
-                    response = RESPONSE_CSI + "0000*{";
+                    response = MakeCSI("0000*{");
                     break;
                 case 63: // Memory Checksum
                     int pid = p.Get(1, 0);
-                    response = RESPONSE_DCS + pid.ToInvariantString() + "!~0000" + RESPONSE_ST;
+                    response = MakeDCS_ST(pid.ToInvariantString() + "!~0000");
                     break;
                 case 75: // Data Integrity Report
-                    response = RESPONSE_CSI + "?70n"; // OK
+                    response = MakeCSI("?70n"); // OK
                     break;
                 case 85: // Multi-session Configuration
-                    response = RESPONSE_CSI + "?83n"; // not configured
+                    response = MakeCSI("?83n"); // not configured
                     break;
                 default:
                     return;
             }
 
-            byte[] data = Encoding.ASCII.GetBytes(response);
-            TransmitDirect(data);
+            TransmitDirect(response);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'w')] // DECRQPSR
         private void ProcessPresentationStateReport(NumericParams p) {
             int n = p.Get(0, 0);
 
-            string response;
+            byte[] response;
             switch (n) {
                 case 1:
                     // DECCIR
@@ -1076,7 +1125,8 @@ namespace Poderosa.Terminal {
                         int pgr = 0; // FIXME
                         char scss = GetDECCIRCharacterSetSize();
                         string sdesig = GetDECCIRCharacterSetsDesignators();
-                        response = RESPONSE_DCS + "1$u"
+                        response = MakeDCS_ST(
+                            "1$u"
                             + rc.Row.ToInvariantString() + ";"
                             + rc.Col.ToInvariantString() + ";"
                             + page.ToInvariantString() + ";"
@@ -1085,7 +1135,7 @@ namespace Poderosa.Terminal {
                             + pgr.ToInvariantString() + ";"
                             + new String(new char[] { srend, ';' })
                             + sdesig
-                            + RESPONSE_ST;
+                        );
                         break;
                     }
                 case 2:
@@ -1099,14 +1149,14 @@ namespace Poderosa.Terminal {
                                 .Select((index) => index + 1) // to column position (1-based)
                                 .Select((column) => column.ToInvariantString())
                             );
-                        response = RESPONSE_DCS + "2$u" + tabColumns + RESPONSE_ST;
+                        response = MakeDCS_ST("2$u" + tabColumns);
                         break;
                     }
                 default:
                     return; // do nothing
             }
 
-            TransmitDirect(Encoding.ASCII.GetBytes(response));
+            TransmitDirect(response);
         }
 
         private char GetDECCIRRenditions() {
@@ -1735,7 +1785,7 @@ namespace Poderosa.Terminal {
                     : "2" // reset
                 )
                 : "0"; // not recognized
-            byte[] data = Encoding.ASCII.GetBytes(RESPONSE_CSI + param.ToInvariantString() + ";" + value + "$y");
+            byte[] data = MakeCSI(param.ToInvariantString() + ";" + value + "$y");
             TransmitDirect(data);
         }
 
@@ -1906,15 +1956,15 @@ namespace Poderosa.Terminal {
 
         private void OSCReportColor(int colorNumber) {
             Color color = GetRenderProfile().ESColorSet[colorNumber].Color;
-            string response = RESPONSE_OSC
-                + "4;"
+            byte[] response = MakeOSC_ST(
+                "4;"
                 + colorNumber.ToInvariantString()
                 + ";rgb:"
                 + OSCReportColorFormatComponent(color.R) + "/"
                 + OSCReportColorFormatComponent(color.G) + "/"
                 + OSCReportColorFormatComponent(color.B)
-                + RESPONSE_ST;
-            TransmitDirect(Encoding.ASCII.GetBytes(response));
+            );
+            TransmitDirect(response);
         }
 
         private string OSCReportColorFormatComponent(byte v) {
@@ -2441,7 +2491,7 @@ namespace Poderosa.Terminal {
 
             _manipulator.Load(Document.CurrentLine);
 
-            string response = RESPONSE_CSI + "0";
+            string response = "0";
             if (commonDec != null) {
                 if (commonDec.Bold) {
                     response += ";1";
@@ -2502,7 +2552,8 @@ namespace Poderosa.Terminal {
             }
             response += "m";
 
-            TransmitDirect(Encoding.ASCII.GetBytes(response));
+            byte[] data = MakeCSI(response);
+            TransmitDirect(data);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '"', 'q')] // DECSCA
@@ -2664,7 +2715,7 @@ namespace Poderosa.Terminal {
                     : "2" // reset
                 )
                 : "0"; // not recognized
-            byte[] data = Encoding.ASCII.GetBytes(RESPONSE_CSI + "?" + param.ToInvariantString() + ";" + value + "$y");
+            byte[] data = MakeCSI("?" + param.ToInvariantString() + ";" + value + "$y");
             TransmitDirect(data);
         }
 
@@ -3037,8 +3088,8 @@ namespace Poderosa.Terminal {
             sum = (ushort)(-((int)sum));
 
             // DECCKSR
-            string response = RESPONSE_DCS + pid.ToInvariantString() + "!~" + sum.ToString("X4", NumberFormatInfo.InvariantInfo) + RESPONSE_ST;
-            TransmitDirect(Encoding.ASCII.GetBytes(response));
+            byte[] response = MakeDCS_ST(pid.ToInvariantString() + "!~" + sum.ToString("X4", NumberFormatInfo.InvariantInfo));
+            TransmitDirect(response);
         }
 
         [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'S')] // Query Graphics (xterm)
@@ -3054,7 +3105,7 @@ namespace Poderosa.Terminal {
 
             int result = 1; // item error
 
-            byte[] data = Encoding.ASCII.GetBytes(RESPONSE_CSI + "?" + item.ToInvariantString() + ";" + result.ToInvariantString() + "S");
+            byte[] data = MakeCSI("?" + item.ToInvariantString() + ";" + result.ToInvariantString() + "S");
             TransmitDirect(data);
         }
 
@@ -3439,26 +3490,30 @@ namespace Poderosa.Terminal {
                 return VT100CursorKey(modifier, key);
             }
             else {
-                byte[] r = new byte[4];
-                r[0] = 0x1B;
-                r[1] = (byte)'[';
-                r[3] = (byte)'~';
-                //このあたりはxtermでは割と違うようだ
-                if (key == Keys.Insert)
-                    r[2] = (byte)'2';
-                else if (key == Keys.Home)
-                    r[2] = (byte)'7';
-                else if (key == Keys.PageUp)
-                    r[2] = (byte)'5';
-                else if (key == Keys.Delete)
-                    r[2] = (byte)'3';
-                else if (key == Keys.End)
-                    r[2] = (byte)'8';
-                else if (key == Keys.PageDown)
-                    r[2] = (byte)'6';
-                else
-                    throw new ArgumentException(String.Format("unknown key: {0}", key));
-                return r;
+                byte b;
+                switch (key) {
+                    case Keys.Insert:
+                        b = (byte)'2';
+                        break;
+                    case Keys.Home:
+                        b = (byte)'7';
+                        break;
+                    case Keys.PageUp:
+                        b = (byte)'5';
+                        break;
+                    case Keys.Delete:
+                        b = (byte)'3';
+                        break;
+                    case Keys.End:
+                        b = (byte)'8';
+                        break;
+                    case Keys.PageDown:
+                        b = (byte)'6';
+                        break;
+                    default:
+                        throw new ArgumentException(String.Format("unknown key: {0}", key));
+                }
+                return MakeCSI(b, (byte)'~');
             }
         }
 
@@ -3505,37 +3560,37 @@ namespace Poderosa.Terminal {
 
         private byte[] XtermFunctionKeyF1ToF4(int m, byte c) {
             if (m > 1) {
-                return new byte[] { 0x1b, (byte)'[', (byte)'1', (byte)';', (byte)('0' + m), c };
+                return MakeCSI((byte)'1', (byte)';', (byte)('0' + m), c);
             }
             else {
-                return new byte[] { 0x1b, (byte)'O', c };
+                return MakeSS3(c);
             }
         }
 
         private byte[] XtermFunctionKeyF5ToF12(int m, byte c1, byte c2) {
             if (m > 1) {
-                return new byte[] { 0x1b, (byte)'[', c1, c2, (byte)';', (byte)('0' + m), (byte)'~' };
+                return MakeCSI(c1, c2, (byte)';', (byte)('0' + m), (byte)'~');
             }
             else {
-                return new byte[] { 0x1b, (byte)'[', c1, c2, (byte)'~' };
+                return MakeCSI(c1, c2, (byte)'~');
             }
         }
 
         // emulate Xterm's modifyCursorKeys
         private byte[] ModifyCursorKey(Keys modifier, Keys key) {
-            char c;
+            byte c;
             switch (key) {
                 case Keys.Up:
-                    c = 'A';
+                    c = (byte)'A';
                     break;
                 case Keys.Down:
-                    c = 'B';
+                    c = (byte)'B';
                     break;
                 case Keys.Right:
-                    c = 'C';
+                    c = (byte)'C';
                     break;
                 case Keys.Left:
-                    c = 'D';
+                    c = (byte)'D';
                     break;
                 default:
                     return null;
@@ -3557,48 +3612,131 @@ namespace Poderosa.Terminal {
 
             switch (XTermPreferences.Instance.modifyCursorKeys) {
                 // only modifyCursorKeys=2 and modifyCursorKeys=3 are supported
-                case 2: {
-                        byte[] data = new byte[] {
-                            0x1b, (byte)'[', (byte)'1', (byte)';', (byte)('0' + m), (byte)c
-                        };
-                        return data;
-                    }
-                case 3: {
-                        byte[] data = new byte[] {
-                            0x1b, (byte)'[', (byte)'>', (byte)'1', (byte)';', (byte)('0' + m), (byte)c
-                        };
-                        return data;
-                    }
+                case 2:
+                    return MakeCSI((byte)'1', (byte)';', (byte)('0' + m), c);
+                case 3:
+                    return MakeCSI((byte)'>', (byte)'1', (byte)';', (byte)('0' + m), c);
             }
 
             return null;
         }
 
         private byte[] VT100CursorKey(Keys modifier, Keys key) {
-            byte[] r = new byte[3];
-            r[0] = 0x1B;
-            if (_cursorKeyMode == TerminalMode.Normal)
-                r[1] = (byte)'[';
-            else
-                r[1] = (byte)'O';
-
+            byte b;
             switch (key) {
                 case Keys.Up:
-                    r[2] = (byte)'A';
+                    b = (byte)'A';
                     break;
                 case Keys.Down:
-                    r[2] = (byte)'B';
+                    b = (byte)'B';
                     break;
                 case Keys.Right:
-                    r[2] = (byte)'C';
+                    b = (byte)'C';
                     break;
                 case Keys.Left:
-                    r[2] = (byte)'D';
+                    b = (byte)'D';
                     break;
                 default:
                     throw new ArgumentException(String.Format("unknown cursor key code: {0}", key));
             }
-            return r;
+
+            if (_cursorKeyMode == TerminalMode.Normal)
+                return MakeCSI(b);
+            else
+                return MakeSS3(b);
+        }
+
+        private byte[] MakeCSI(string data) {
+            byte[] dataBytes = Encoding.ASCII.GetBytes(data);
+            if (_transmissionMode.IsEightBit) {
+                byte[] buff = new byte[dataBytes.Length + 1];
+                buff[0] = (byte)ControlCode.CSI;
+                Array.Copy(dataBytes, 0, buff, 1, dataBytes.Length);
+                return buff;
+            }
+            else {
+                byte[] buff = new byte[dataBytes.Length + 2];
+                buff[0] = (byte)ControlCode.ESC;
+                buff[1] = (byte)'[';
+                Array.Copy(dataBytes, 0, buff, 2, dataBytes.Length);
+                return buff;
+            }
+        }
+
+        private byte[] MakeCSI(byte b1) {
+            return _transmissionMode.IsEightBit
+                ? new byte[] { (byte)ControlCode.CSI, b1 }
+                : new byte[] { (byte)ControlCode.ESC, (byte)'[', b1 };
+        }
+
+        private byte[] MakeCSI(byte b1, byte b2) {
+            return _transmissionMode.IsEightBit
+                ? new byte[] { (byte)ControlCode.CSI, b1, b2 }
+                : new byte[] { (byte)ControlCode.ESC, (byte)'[', b1, b2 };
+        }
+
+        private byte[] MakeCSI(byte b1, byte b2, byte b3) {
+            return _transmissionMode.IsEightBit
+                ? new byte[] { (byte)ControlCode.CSI, b1, b2, b3 }
+                : new byte[] { (byte)ControlCode.ESC, (byte)'[', b1, b2, b3 };
+        }
+
+        private byte[] MakeCSI(byte b1, byte b2, byte b3, byte b4) {
+            return _transmissionMode.IsEightBit
+                ? new byte[] { (byte)ControlCode.CSI, b1, b2, b3, b4 }
+                : new byte[] { (byte)ControlCode.ESC, (byte)'[', b1, b2, b3, b4 };
+        }
+
+        private byte[] MakeCSI(byte b1, byte b2, byte b3, byte b4, byte b5) {
+            return _transmissionMode.IsEightBit
+                ? new byte[] { (byte)ControlCode.CSI, b1, b2, b3, b4, b5 }
+                : new byte[] { (byte)ControlCode.ESC, (byte)'[', b1, b2, b3, b4, b5 };
+        }
+
+        private byte[] MakeSS3(byte b1) {
+            return _transmissionMode.IsEightBit
+                ? new byte[] { (byte)ControlCode.SS3, b1 }
+                : new byte[] { (byte)ControlCode.ESC, (byte)'O', b1 };
+        }
+
+        private byte[] MakeDCS_ST(string data) {
+            byte[] dataBytes = Encoding.ASCII.GetBytes(data);
+            if (_transmissionMode.IsEightBit) {
+                byte[] buff = new byte[dataBytes.Length + 2];
+                buff[0] = (byte)ControlCode.DCS;
+                Array.Copy(dataBytes, 0, buff, 1, dataBytes.Length);
+                buff[dataBytes.Length + 1] = (byte)ControlCode.ST;
+                return buff;
+            }
+            else {
+                byte[] buff = new byte[dataBytes.Length + 4];
+                buff[0] = (byte)ControlCode.ESC;
+                buff[1] = (byte)'P';
+                Array.Copy(dataBytes, 0, buff, 2, dataBytes.Length);
+                buff[dataBytes.Length + 2] = (byte)ControlCode.ESC;
+                buff[dataBytes.Length + 3] = (byte)'\\';
+                return buff;
+            }
+        }
+
+        private byte[] MakeOSC_ST(string data) {
+            byte[] dataBytes = Encoding.ASCII.GetBytes(data);
+            if (_transmissionMode.IsEightBit) {
+                byte[] buff = new byte[dataBytes.Length + 2];
+                buff[0] = (byte)ControlCode.OSC;
+                Array.Copy(dataBytes, 0, buff, 1, dataBytes.Length);
+                buff[dataBytes.Length + 1] = (byte)ControlCode.ST;
+                return buff;
+            }
+            else {
+                byte[] buff = new byte[dataBytes.Length + 4];
+                buff[0] = (byte)ControlCode.ESC;
+                buff[1] = (byte)']';
+                Array.Copy(dataBytes, 0, buff, 2, dataBytes.Length);
+                buff[dataBytes.Length + 2] = (byte)ControlCode.ESC;
+                buff[dataBytes.Length + 3] = (byte)'\\';
+                return buff;
+            }
         }
 
         private ViewPort GetViewPort() {
