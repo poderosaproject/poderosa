@@ -1261,40 +1261,6 @@ namespace Poderosa.Terminal {
             TransmitDirect(response);
         }
 
-#if UNUSED        
-        private void ProcessCursorMove(string param, char method) {
-            int count = ParseInt(param, 1); //パラメータが省略されたときの移動量は１
-
-            int column = _manipulator.CaretColumn;
-            switch (method) {
-                case 'A':
-                    GetDocument().UpdateCurrentLine(_manipulator);
-                    GetDocument().CurrentLineNumber = (GetDocument().CurrentLineNumber - count);
-                    _manipulator.Load(GetDocument().CurrentLine, column);
-                    break;
-                case 'B':
-                    GetDocument().UpdateCurrentLine(_manipulator);
-                    GetDocument().CurrentLineNumber = (GetDocument().CurrentLineNumber + count);
-                    _manipulator.Load(GetDocument().CurrentLine, column);
-                    break;
-                case 'C': {
-                        int newvalue = column + count;
-                        if (newvalue >= GetDocument().TerminalWidth)
-                            newvalue = GetDocument().TerminalWidth - 1;
-                        _manipulator.CaretColumn = newvalue;
-                    }
-                    break;
-                case 'D': {
-                        int newvalue = column - count;
-                        if (newvalue < 0)
-                            newvalue = 0;
-                        _manipulator.CaretColumn = newvalue;
-                    }
-                    break;
-            }
-        }
-#endif
-
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'A')] // CUU
         private void ProcessCursorUp(NumericParams p) {
             int count = p.GetNonZero(0, 1);
