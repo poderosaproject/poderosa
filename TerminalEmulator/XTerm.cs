@@ -2887,7 +2887,7 @@ namespace Poderosa.Terminal {
                     changeAttributes(
                         _manipulator,
                         (l.ID == rectTopLineNumber) ? vp.ToCaretColumn(rect.Left) : vp.ToCaretColumn(1),
-                        (l.ID == rectBottomLineNumber) ? vp.ToCaretColumn(rect.Right + 1) : vp.ToCaretColumn(vp.Width)
+                        (l.ID == rectBottomLineNumber) ? vp.ToCaretColumn(rect.Right + 1) : vp.ToCaretColumn(vp.Width + 1)
                     );
                     _manipulator.ExportTo(l);
                     Document.InvalidatedRegion.InvalidateLine(l.ID);
