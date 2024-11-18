@@ -1779,7 +1779,7 @@ namespace Poderosa.Document {
         /// <param name="from">start index of the range (inclusive)</param>
         /// <param name="to">end index of the range (exclusive)</param>
         /// <param name="dec">text decoration of the blanks (null indicates default setting)</param>
-        public void FillSpaceSkipProtected(int from, int to, TextDecoration dec) {
+        public void FillSpaceUnprotected(int from, int to, TextDecoration dec) {
             from = Math.Max(from, 0);
 
             if (to <= from) {
@@ -1803,6 +1803,38 @@ namespace Poderosa.Document {
                 // Note: uses ASCII_NUL instead of ASCII_SPACE for detecting correct length of the content
                 _cell[i].Set(GChar.ASCII_NUL, fillAttr);
                 _color24[i] = fillColor;
+            }
+
+            FixRightHalfOfWideWidthCharacter(to);
+        }
+
+        /// <summary>
+        /// Fills specified range with spaces but not protected characters.
+        /// Character attributes are preserved.
+        /// </summary>
+        /// <param name="from">start index of the range (inclusive)</param>
+        /// <param name="to">end index of the range (exclusive)</param>
+        public void FillSpaceUnprotectedPreservingAttributes(int from, int to) {
+            from = Math.Max(from, 0);
+
+            if (to <= from) {
+                return;
+            }
+
+            // expand as needed to avoid errors in unexpected status.
+            ExpandBuffer(to);
+
+            FixLeftHalfOfWideWidthCharacter(from - 1);
+
+            for (int i = from; i < to; i++) {
+                GAttr attr = _cell[i].Attr;
+
+                if (attr.Has(GAttrFlags.Protected)) {
+                    continue;
+                }
+
+                // Note: uses ASCII_NUL instead of ASCII_SPACE for detecting correct length of the content
+                _cell[i].Set(GChar.ASCII_NUL, attr - GAttrFlags.UseCjkFont);
             }
 
             FixRightHalfOfWideWidthCharacter(to);

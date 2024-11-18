@@ -1457,7 +1457,8 @@ namespace Poderosa.Terminal {
             while (l != null && l.ID <= rectBottomLineNumber) {
                 _manipulator.Load(l);
                 if (selective) {
-                    _manipulator.FillSpaceSkipProtected(vp.ToCaretColumn(rect.Left), vp.ToCaretColumn(rect.Right + 1), Document.CurrentDecoration);
+                    // DECSERA preserves attributes
+                    _manipulator.FillSpaceUnprotectedPreservingAttributes(vp.ToCaretColumn(rect.Left), vp.ToCaretColumn(rect.Right + 1));
                 }
                 else {
                     _manipulator.FillSpace(vp.ToCaretColumn(rect.Left), vp.ToCaretColumn(rect.Right + 1), Document.CurrentDecoration);
@@ -1541,7 +1542,7 @@ namespace Poderosa.Terminal {
         }
 
         private void SelectiveEraseRight() {
-            _manipulator.FillSpaceSkipProtected(Document.CaretColumn, _manipulator.BufferSize, Document.CurrentDecoration);
+            _manipulator.FillSpaceUnprotected(Document.CaretColumn, _manipulator.BufferSize, Document.CurrentDecoration);
         }
 
         private void EraseLeft() {
@@ -1549,7 +1550,7 @@ namespace Poderosa.Terminal {
         }
 
         private void SelectiveEraseLeft() {
-            _manipulator.FillSpaceSkipProtected(0, Document.CaretColumn + 1, Document.CurrentDecoration);
+            _manipulator.FillSpaceUnprotected(0, Document.CaretColumn + 1, Document.CurrentDecoration);
         }
 
         private void EraseLine() {
@@ -1557,7 +1558,7 @@ namespace Poderosa.Terminal {
         }
 
         private void SelectiveEraseLine() {
-            _manipulator.FillSpaceSkipProtected(0, _manipulator.BufferSize, Document.CurrentDecoration);
+            _manipulator.FillSpaceUnprotected(0, _manipulator.BufferSize, Document.CurrentDecoration);
         }
 
         [EscapeSequence(ControlCode.IND)]
