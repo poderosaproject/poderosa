@@ -1240,6 +1240,26 @@ namespace Poderosa.Terminal {
             return r;
         }
 
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'x')] // DECREQTPARM
+        private void ProcessRequestTerminalParameters(NumericParams p) {
+            int s = p.Get(0, 0);
+
+            string r; // <sol> of response
+            if (s == 0) {
+                r = "2";
+            }
+            else if (s == 1) {
+                r = "3";
+            }
+            else {
+                return;
+            }
+
+            // <parity> = 1 / <nbits> = 1 / <xspeed> = 128 / <rspeed> = 128 / <clkmul> = 1 / <flags> = 0
+            byte[] response = MakeCSI(r + ";1;1;128;128;1;0x");
+
+            TransmitDirect(response);
+        }
 
 #if UNUSED        
         private void ProcessCursorMove(string param, char method) {
