@@ -2985,7 +2985,8 @@ namespace Poderosa.Terminal {
                 return;
             }
 
-            char charVal = Encoding.GetEncoding(1252).GetChars(new byte[] { (byte)charCode })[0];
+            char charVal = CharacterSetManager.GetCharacer((byte)charCode).GetValueOrDefault(' ');
+                
             UnicodeChar fillChar = new UnicodeChar(charVal, false);
 
             Document.UpdateCurrentLine(_manipulator);
@@ -2999,7 +3000,7 @@ namespace Poderosa.Terminal {
             GLine l = Document.FindLineOrEdge(vp.ToLineNumber(rect.Top));
             while (l != null && l.ID <= bottomLineNumber) {
                 _manipulator.Load(l);
-                _manipulator.ReplaceCharacter(fillStart, fillEnd, fillChar);
+                _manipulator.FillCharacter(fillStart, fillEnd, fillChar, Document.CurrentDecoration);
                 _manipulator.ExportTo(l);
                 Document.InvalidatedRegion.InvalidateLine(l.ID);
                 l = l.NextLine;

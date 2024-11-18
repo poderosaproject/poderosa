@@ -43,6 +43,13 @@ namespace Poderosa.Terminal {
 
     public interface ICharacterSetManager {
         /// <summary>
+        /// Get the character corresponding to the code in the current character set.
+        /// </summary>
+        /// <param name="code">code (0-255)</param>
+        /// <returns>a character corresponding to the code if it exists. otherwise null.</returns>
+        char? GetCharacer(byte code);
+
+        /// <summary>
         /// Get character set size of G0, G1, G2 or G3.
         /// </summary>
         /// <param name="g">0=G0, 1=G1, 2=G2, 3=G3</param>
@@ -99,6 +106,7 @@ namespace Poderosa.Terminal {
             void ProcessByte(byte b);
             void Init();
             void Flush();
+            char? GetCharacer(byte code);
         }
 
         private class ASCIIByteProcessor : IByteProcessor {
@@ -112,6 +120,19 @@ namespace Poderosa.Terminal {
             public void Init() {
             }
             public void Flush() {
+            }
+
+            public char? GetCharacer(byte code) {
+                return GetCharacerFallback(code);
+            }
+
+            public static char? GetCharacerFallback(byte code) {
+                if ((code >= 0x20 && code <= 0x7e) || (code >= 0xa0 && code <= 0xff)) {
+                    return (char)code;
+                }
+                else {
+                    return null;
+                }
             }
         }
 
@@ -175,6 +196,13 @@ namespace Poderosa.Terminal {
 
             public void Flush() {
             }
+
+            public char? GetCharacer(byte code) {
+                if (0x60 <= code && code <= 0x7F) {
+                    return DEC_SPECIAL_CHARACTERS[code - 0x60];
+                }
+                return ASCIIByteProcessor.GetCharacerFallback(code);
+            }
         }
 
         private class CJKByteProcessor : IByteProcessor {
@@ -207,6 +235,9 @@ namespace Poderosa.Terminal {
                 foreach (char c in text) {
                     _processor.ProcessChar(c);
                 }
+            }
+            public char? GetCharacer(byte code) {
+                return ASCIIByteProcessor.GetCharacerFallback(code);
             }
         }
 
@@ -423,6 +454,10 @@ namespace Poderosa.Terminal {
             if (byteProcessor != null) {
                 ChangeProcessor(byteProcessor);
             }
+        }
+
+        public char? GetCharacer(byte code) {
+            return _currentByteProcessor.GetCharacer(code);
         }
 
         public void OnReception(ByteDataFragment data) {

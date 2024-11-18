@@ -1809,12 +1809,13 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
-        /// Replace character with preserving attributes.
+        /// Fills specified range with the specified character.
         /// </summary>
         /// <param name="from">start index of the range (inclusive)</param>
         /// <param name="to">end index of the range (exclusive)</param>
-        /// <param name="ch">a character to replace with</param>
-        public void ReplaceCharacter(int from, int to, UnicodeChar ch) {
+        /// <param name="ch">a character to fill with</param>
+        /// <param name="dec">attributes to fill with</param>
+        public void FillCharacter(int from, int to, UnicodeChar ch, TextDecoration dec) {
             from = Math.Max(from, 0);
 
             if (to <= from) {
@@ -1825,37 +1826,33 @@ namespace Poderosa.Document {
             ExpandBuffer(to);
 
             GChar fillChar = new GChar(ch);
+            GAttr fillAttr = dec.Attr;
+            GColor24 fillColor = dec.Color24;
+
+            if (fillChar.IsCJK) {
+                fillAttr += GAttrFlags.UseCjkFont;
+            }
 
             FixLeftHalfOfWideWidthCharacter(from - 1);
 
             if (ch.IsWideWidth) {
                 int index = from;
                 while (index + 1 < to) {
-                    GAttr attr = _cell[index].Attr;
-                    if (ch.IsCJK) {
-                        attr += GAttrFlags.UseCjkFont;
-                    }
-                    else {
-                        attr -= GAttrFlags.UseCjkFont;
-                    }
-                    _cell[index].Set(fillChar, attr);
-                    _cell[index + 1].Set(fillChar + GCharFlags.RightHalf, attr);
+                    _cell[index].Set(fillChar, fillAttr);
+                    _cell[index + 1].Set(fillChar + GCharFlags.RightHalf, fillAttr);
+                    _color24[index] = fillColor;
+                    _color24[index + 1] = fillColor;
                     index += 2;
                 }
                 if (index < to) {
-                    _cell[index].Set(GChar.ASCII_NUL, _cell[index].Attr - GAttrFlags.UseCjkFont);
+                    _cell[index].Set(GChar.ASCII_NUL, fillAttr - GAttrFlags.UseCjkFont);
+                    _color24[index] = fillColor;
                 }
             }
             else {
                 for (int index = from; index < to; index++) {
-                    GAttr attr = _cell[index].Attr;
-                    if (ch.IsCJK) {
-                        attr += GAttrFlags.UseCjkFont;
-                    }
-                    else {
-                        attr -= GAttrFlags.UseCjkFont;
-                    }
-                    _cell[index].Set(fillChar, attr);
+                    _cell[index].Set(fillChar, fillAttr);
+                    _color24[index] = fillColor;
                 }
             }
 
