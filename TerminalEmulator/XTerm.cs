@@ -133,18 +133,12 @@ namespace Poderosa.Terminal {
             /// </summary>
             public readonly int Height;
 
-            private readonly int _terminalWidth;
-            private readonly int _terminalHeight;
-
             private readonly int _topOffset; // 0-based
             private readonly int _leftOffset; // 0-based
 
             private readonly int _baseLineNumber;
 
             public ViewPort(TerminalDocument doc, bool relative) {
-                _terminalWidth = doc.TerminalWidth;
-                _terminalHeight = doc.TerminalHeight;
-
                 if (relative) {
                     _topOffset = doc.TopMarginOffset;
                     _leftOffset = doc.LeftMarginOffset;
