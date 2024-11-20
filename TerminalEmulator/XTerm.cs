@@ -47,11 +47,6 @@ namespace Poderosa.Terminal {
             Sgr,
         }
 
-        private enum ProcessCharResult {
-            Processed,
-            Unsupported,
-        }
-
         private class SavedCursor {
             // cursor position (0-based index)
             public readonly int Row;
