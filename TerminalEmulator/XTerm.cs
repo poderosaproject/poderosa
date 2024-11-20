@@ -232,7 +232,7 @@ namespace Poderosa.Terminal {
         private UnicodeChar? _prevNormalChar = null;
         private bool _wrapAroundMode = true;
         private bool _reverseVideo = false;
-        private bool[] _tabStops;
+        private TabStops _tabStops = new TabStops();
         private readonly List<GLine>[] _savedScreen = new List<GLine>[2];	// { main, alternate } 別のバッファに移行したときにGLineを退避しておく
         private bool _isAlternateBuffer = false;
         private readonly SavedCursor[] _savedCursor = new SavedCursor[2];	// { main, alternate }
@@ -270,8 +270,7 @@ namespace Poderosa.Terminal {
                 incompleteHandler: HandleIncompleteEscapeSequence,
                 exceptionHandler: HandleException
             );
-            _tabStops = new bool[Document.TerminalWidth];
-            InitTabStops();
+            _tabStops.Extend(Document.TerminalWidth);
         }
 
         private void HandleEscapeSequenceCompleted(IEscapeSequenceContext context) {
@@ -306,7 +305,7 @@ namespace Poderosa.Terminal {
         }
 
         protected override void FullResetInternal() { // called from the base class
-            InitTabStops();
+            _tabStops.Initialize();
             _savedDecModes.Clear();
             _prevNormalChar = null;
             _wrapAroundMode = true;
@@ -846,7 +845,7 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.HT)]
         private void HorizontalTab() {
-            Document.CaretColumn = GetNextTabStop(Document.CaretColumn);
+            DoForwardTab(1);
         }
 
         private void DoLineFeed() {
@@ -1135,13 +1134,13 @@ namespace Poderosa.Terminal {
                 case 2:
                     // DECTABSR
                     {
-                        EnsureTabStops(Document.TerminalWidth);
+                        _tabStops.Extend(Document.TerminalWidth);
                         var tabColumns =
                             String.Join("/",
-                                Enumerable.Range(1, Document.TerminalWidth - 1) // exclude first column
-                                .Where((index) => index < _tabStops.Length && _tabStops[index])
-                                .Select((index) => index + 1) // to column position (1-based)
-                                .Select((column) => column.ToInvariantString())
+                                _tabStops.GetIndices()
+                                    .Where(index => index > 0)
+                                    .Select((index) => index + 1) // to column position (1-based)
+                                    .Select((column) => column.ToInvariantString())
                             );
                         response = MakeDCS_ST("2$u" + tabColumns);
                         break;
@@ -2981,7 +2980,7 @@ namespace Poderosa.Terminal {
             }
 
             char charVal = CharacterSetManager.GetCharacer((byte)charCode).GetValueOrDefault(' ');
-                
+
             UnicodeChar fillChar = new UnicodeChar(charVal, false);
 
             Document.UpdateCurrentLine(_manipulator);
@@ -3253,89 +3252,93 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'I')] // CHT
         private void ProcessForwardTab(NumericParams p) {
             int n = p.GetNonZero(0, 1);
+            DoForwardTab(n);
+        }
 
-            int t = Document.CaretColumn;
-            for (int i = 0; i < n; i++) {
-                t = GetNextTabStop(t);
+        private void DoForwardTab(int count) {
+            if (count <= 0) {
+                return;
             }
-            Document.CaretColumn = t;
+
+            bool wrapPending = Document.WrapPending;
+
+            _tabStops.Extend(Document.TerminalWidth);
+
+            int rightLimit = GetCaretColumnRightLimit();
+
+            int col = Document.CaretColumn;
+
+            for (int i = 0; i < count; i++) {
+                int? nextCol = _tabStops.GetNextTabStop(col);
+                if (nextCol.HasValue && nextCol.Value < rightLimit) {
+                    col = nextCol.Value;
+                }
+                else {
+                    col = rightLimit;
+                    break;
+                }
+            }
+
+            Document.CaretColumn = col;
+            if (wrapPending) {
+                Document.WrapPending = true;
+            }
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'Z')] // CBT
         private void ProcessBackwardTab(NumericParams p) {
             int n = p.GetNonZero(0, 1);
+            DoBackwardTab(n);
+        }
 
-            int t = Document.CaretColumn;
-            for (int i = 0; i < n; i++) {
-                t = GetPrevTabStop(t);
+        private void DoBackwardTab(int count) {
+            if (count <= 0) {
+                return;
             }
-            Document.CaretColumn = t;
+
+            bool wrapPending = Document.WrapPending;
+
+            _tabStops.Extend(Document.TerminalWidth);
+
+            // Note:
+            // left-limit is different from Xterm.
+            // Xterm does not limit movement to the left from the left margin.
+            // But such behavior is inconsistent.
+            int leftLimit = GetCaretColumnLeftLimit();
+
+            int col = Document.CaretColumn;
+
+            for (int i = 0; i < count; i++) {
+                int? nextCol = _tabStops.GetPrevTabStop(col);
+                if (nextCol.HasValue && nextCol.Value > leftLimit) {
+                    col = nextCol.Value;
+                }
+                else {
+                    col = leftLimit;
+                    break;
+                }
+            }
+
+            Document.CaretColumn = col;
+            if (wrapPending) {
+                Document.WrapPending = true;
+            }
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'g')] // TBC
         private void ProcessTabClear(NumericParams p) {
             int param = p.Get(0, 0);
-            if (param == 0)
-                SetTabStop(Document.CaretColumn, false);
-            else if (param == 3)
-                ClearAllTabStop();
-        }
-
-        private void InitTabStops() {
-            for (int i = 0; i < _tabStops.Length; i++) {
-                _tabStops[i] = (i % 8) == 0;
+            if (param == 0) {
+                _tabStops.Unset(Document.CaretColumn);
             }
-        }
-        private void EnsureTabStops(int length) {
-            if (length >= _tabStops.Length) {
-                bool[] newarray = new bool[Math.Max(length, _tabStops.Length * 2)];
-                Array.Copy(_tabStops, 0, newarray, 0, _tabStops.Length);
-                for (int i = _tabStops.Length; i < newarray.Length; i++) {
-                    newarray[i] = (i % 8) == 0;
-                }
-                _tabStops = newarray;
+            else if (param == 3) {
+                _tabStops.Clear();
             }
         }
 
         [EscapeSequence(ControlCode.HTS)]
         private void ProcessHTS() {
-            SetTabStop(Document.CaretColumn, true);
-        }
-
-        private void SetTabStop(int index, bool value) {
-            EnsureTabStops(index + 1);
-            _tabStops[index] = value;
-        }
-
-        private void ClearAllTabStop() {
-            for (int i = 0; i < _tabStops.Length; i++) {
-                _tabStops[i] = false;
-            }
-        }
-
-        private int GetNextTabStop(int start) {
-            EnsureTabStops(Math.Max(start + 1, Document.TerminalWidth));
-
-            int index = start + 1;
-            while (index < Document.RightMarginOffset) {
-                if (_tabStops[index])
-                    return index;
-                index++;
-            }
-            return Document.RightMarginOffset;
-        }
-
-        //これはvt100にはないのでoverrideしない
-        private int GetPrevTabStop(int start) {
-            EnsureTabStops(start + 1);
-
-            int index = start - 1;
-            while (index > 0) {
-                if (_tabStops[index])
-                    return index;
-                index--;
-            }
-            return 0;
+            _tabStops.Set(Document.CaretColumn);
         }
 
         private void SwitchBuffer(bool toAlternate) {

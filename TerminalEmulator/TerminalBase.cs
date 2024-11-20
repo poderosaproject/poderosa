@@ -777,4 +777,122 @@ namespace Poderosa.Terminal {
         void InvalidCharDetected(byte[] data);
     }
 
+    internal class TabStops {
+        private uint[] _tabStopBlocks = new uint[0];
+        private bool _cleared = false;
+
+        private static readonly int[] _deBruijnRightMostLookup = {
+                0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,
+                31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9,
+            };
+
+        private static readonly int[] _deBruijnLeftMostLookup = {
+                0, 1, 16, 2, 29, 17, 3, 22, 30, 20, 18, 11, 13, 4, 7, 23,
+                31, 15, 28, 21, 19, 10, 12, 6, 14, 27, 9, 5, 26, 8, 25, 24,
+            };
+
+        public void Extend(int width) {
+            int blockNum = (width + 31) / 32;
+            if (blockNum > _tabStopBlocks.Length) {
+                uint[] newBlocks = new uint[blockNum];
+                Array.Copy(_tabStopBlocks, newBlocks, _tabStopBlocks.Length);
+                if (!_cleared) {
+                    for (int i = _tabStopBlocks.Length; i < blockNum; i++) {
+                        newBlocks[i] = 0x01010101u;
+                    }
+                }
+                _tabStopBlocks = newBlocks;
+            }
+        }
+
+        public int? GetNextTabStop(int currentIndex) {
+            int startIndex = Math.Max(currentIndex + 1, 0);
+            int blockIndex = startIndex >> 5;
+            uint mask = ~0u << (startIndex & 0x1f);
+            while (blockIndex < _tabStopBlocks.Length) {
+                uint block = _tabStopBlocks[blockIndex] & mask;
+                if (block != 0u) {
+                    // find index of right-most bit using de Bruijn sequence
+                    int bitIndex = _deBruijnRightMostLookup[((block & (uint)-(int)block) * 0x077cb531u) >> 27];
+                    return (blockIndex << 5) + bitIndex;
+                }
+                mask = ~0u;
+                blockIndex++;
+            }
+            return null;
+        }
+
+        public int? GetPrevTabStop(int currentIndex) {
+            int startIndex = Math.Min(currentIndex - 1, _tabStopBlocks.Length * 32 - 1);
+            if (startIndex < 0) {
+                return null;
+            }
+            int blockIndex = startIndex >> 5;
+            uint mask = ((1u << (startIndex & 0x1f)) << 1) - 1u;
+            while (blockIndex >= 0) {
+                uint block = _tabStopBlocks[blockIndex] & mask;
+                if (block != 0u) {
+                    // find index of left-most bit using de Bruijn sequence
+                    block |= block >> 1;
+                    block |= block >> 2;
+                    block |= block >> 4;
+                    block |= block >> 8;
+                    block |= block >> 16;
+                    block ^= block >> 1;
+                    int bitIndex = _deBruijnLeftMostLookup[(block * 0x06eb14f9u) >> 27];
+                    return (blockIndex << 5) + bitIndex;
+                }
+                mask = ~0u;
+                blockIndex--;
+            }
+            return null;
+        }
+
+        public void Clear() {
+            for (int i = 0; i < _tabStopBlocks.Length; i++) {
+                _tabStopBlocks[i] = 0u;
+            }
+            _cleared = true;
+        }
+
+        public void Initialize() {
+            for (int i = 0; i < _tabStopBlocks.Length; i++) {
+                _tabStopBlocks[i] = 0x01010101u;
+            }
+            _cleared = false;
+        }
+
+        public void Set(int index) {
+            Extend(index + 1);
+            _tabStopBlocks[index / 32] |= (1u << (index % 32));
+        }
+
+        public void Unset(int index) {
+            Extend(index + 1);
+            _tabStopBlocks[index / 32] &= ~(1u << (index % 32));
+        }
+
+        public IEnumerable<int> GetIndices() {
+            for (int blockIndex = 0; blockIndex < _tabStopBlocks.Length; blockIndex++) {
+                uint block = _tabStopBlocks[blockIndex];
+                uint bit = 1u;
+                for (int i = 0; i < 32; i++) {
+                    if ((block & bit) != 0u) {
+                        yield return blockIndex * 32 + i;
+                    }
+                    bit <<= 1;
+                }
+            }
+        }
+
+#if UNITTEST
+        public uint[] GetRawBitsForTest() {
+            return (uint[])_tabStopBlocks.Clone();
+        }
+
+        public void SetRawBitsForTest(uint[] data) {
+            _tabStopBlocks = (uint[])data.Clone();
+        }
+#endif
+    }
 }
