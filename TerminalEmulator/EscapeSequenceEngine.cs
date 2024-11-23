@@ -210,6 +210,91 @@ namespace Poderosa.Terminal.EscapeSequence {
         public IEnumerable<int> EnumerateWithoutNull() {
             return _p.Where(v => v.HasValue).Select(v => v.Value);
         }
+
+#if UNITTEST
+        public int?[] GetNumericParametersForTesting() {
+            return (int?[])_p.Clone();
+        }
+
+        public int?[][] GetIntegerCombinationsForTesting() {
+            return _c.Select(sub => (sub != null) ? (int?[])sub.Clone() : null).ToArray();
+        }
+#endif
+    }
+
+    internal static class NumericParamsParser {
+        /// <summary>
+        /// Parse numeric parameters
+        /// </summary>
+        /// <param name="parameterText">parameter text</param>
+        public static NumericParams Parse(string parameterText) {
+            int paramCount = CountParams(parameterText);
+            int?[] numericParams = new int?[paramCount];
+            int?[][] combinationParams = new int?[paramCount][];
+            int index = 0;
+            int value = 0;
+            int digits = 0;
+            bool error = false;
+            List<int?> combination = new List<int?>();
+            foreach (char ch in parameterText) {
+                switch (ch) {
+                    case ';':
+                        SetNumericParam(numericParams, combinationParams, index, value, digits, error, combination);
+                        index++;
+                        value = 0;
+                        digits = 0;
+                        error = false;
+                        combination.Clear();
+                        break;
+                    case ':':
+                        combination.Add((!error && digits > 0) ? value : (int?)null);
+                        value = 0;
+                        digits = 0;
+                        error = false;
+                        break;
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        value = value * 10 + (ch - '0');
+                        digits++;
+                        break;
+                    default:
+                        error = true;
+                        break;
+                }
+            }
+
+            SetNumericParam(numericParams, combinationParams, index, value, digits, error, combination);
+
+            return new NumericParams(numericParams, combinationParams);
+        }
+
+        private static int CountParams(string p) {
+            int sepCount = 0;
+            foreach (char ch in p) {
+                if (ch == ';') {
+                    sepCount++;
+                }
+            }
+            return sepCount + 1;
+        }
+
+        private static void SetNumericParam(int?[] numericParams, int?[][] combinationParams, int index, int value, int digits, bool error, List<int?> combination) {
+            if (combination.Count > 0) {
+                combination.Add((!error && digits > 0) ? value : (int?)null);
+                combinationParams[index] = combination.ToArray();
+            }
+            else {
+                numericParams[index] = (!error && digits > 0) ? value : (int?)null;
+            }
+        }
     }
 
     /// <summary>
@@ -394,72 +479,8 @@ namespace Poderosa.Terminal.EscapeSequence {
             /// </summary>
             /// <param name="numericParams">An array of single numeric parameters. If the parameter is not a single numeric parameter, the element is null.</param>
             /// <param name="combinationParams">An array of numeric parameters consisting of integer combinations.</param>
-            public void GetNumericParams(out int?[] numericParams, out int?[][] combinationParams) {
-                string p = GetTextParam();
-                int paramCount = CountParams(p);
-                numericParams = new int?[paramCount];
-                combinationParams = new int?[paramCount][];
-                int index = 0;
-                int value = 0;
-                int digits = 0;
-                bool error = false;
-                List<int?> combination = new List<int?>();
-                foreach (char ch in p) {
-                    switch (ch) {
-                        case ';':
-                            SetNumericParam(numericParams, combinationParams, index, value, digits, error, combination);
-                            index++;
-                            value = 0;
-                            digits = 0;
-                            error = false;
-                            combination.Clear();
-                            break;
-                        case ':':
-                            combination.Add((!error && digits > 0) ? value : (int?)null);
-                            value = 0;
-                            digits = 0;
-                            error = false;
-                            break;
-                        case '0':
-                        case '1':
-                        case '2':
-                        case '3':
-                        case '4':
-                        case '5':
-                        case '6':
-                        case '7':
-                        case '8':
-                        case '9':
-                            value = value * 10 + (ch - '0');
-                            digits++;
-                            break;
-                        default:
-                            error = true;
-                            break;
-                    }
-                }
-
-                SetNumericParam(numericParams, combinationParams, index, value, digits, error, combination);
-            }
-
-            private int CountParams(string p) {
-                int sepCount = 0;
-                foreach (char ch in p) {
-                    if (ch == ';') {
-                        sepCount++;
-                    }
-                }
-                return sepCount + 1;
-            }
-
-            private void SetNumericParam(int?[] numericParams, int?[][] combinationParams, int index, int value, int digits, bool error, List<int?> combination) {
-                if (combination.Count > 0) {
-                    combination.Add((!error && digits > 0) ? value : (int?)null);
-                    combinationParams[index] = combination.ToArray();
-                }
-                else {
-                    numericParams[index] = (!error && digits > 0) ? value : (int?)null;
-                }
+            public NumericParams GetNumericParams() {
+                return NumericParamsParser.Parse(GetTextParam());
             }
         }
 
@@ -1074,10 +1095,8 @@ namespace Poderosa.Terminal.EscapeSequence {
                         throw new ArgumentException(String.Format("method argument type must be NumericParams: {0}", method.Name));
                     }
                     action = (obj, context) => {
-                        int?[] numericParams;
-                        int?[][] combinationParams;
-                        context.GetNumericParams(out numericParams, out combinationParams);
-                        method.Invoke(obj, new object[] { new NumericParams(numericParams, combinationParams) });
+                        NumericParams numericParams = context.GetNumericParams();
+                        method.Invoke(obj, new object[] { numericParams });
                     };
                 }
                 else {
