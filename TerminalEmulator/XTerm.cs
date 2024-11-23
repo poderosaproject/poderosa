@@ -1121,7 +1121,7 @@ namespace Poderosa.Terminal {
                             + new String(new char[] { srend, ';', satt, ';', sflag, ';' })
                             + pgl.ToInvariantString() + ";"
                             + pgr.ToInvariantString() + ";"
-                            + new String(new char[] { srend, ';' })
+                            + new String(new char[] { scss, ';' })
                             + sdesig
                         );
                         break;
