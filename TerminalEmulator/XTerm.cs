@@ -680,6 +680,8 @@ namespace Poderosa.Terminal {
             Document.CaretColumn = Document.LeftMarginOffset;
         }
 
+        [EscapeSequence(ControlCode.ENQ)] // ENQ (answerback message is not supported)
+        [EscapeSequence(ControlCode.DEL)] // DEL (if DEL is a printable character in the selected graphics set, CharDecoder convert it)
         [EscapeSequence(ControlCode.ESC, ' ', 'L')] // dpANS X3.134.1 - ANSI conformance level 1
         [EscapeSequence(ControlCode.ESC, ' ', 'M')] // dpANS X3.134.1 - ANSI conformance level 2
         [EscapeSequence(ControlCode.ESC, ' ', 'N')] // dpANS X3.134.1 - ANSI conformance level 3

@@ -667,6 +667,7 @@ namespace Poderosa.Terminal {
 
     internal static class ControlCode {
         public const char NUL = '\u0000';
+        public const char ENQ = '\u0005';
         public const char BEL = '\u0007';
         public const char BS = '\u0008';
         public const char HT = '\u0009';
@@ -679,6 +680,7 @@ namespace Poderosa.Terminal {
         public const char CAN = '\u0018';
         public const char SUB = '\u001a';
         public const char ESC = '\u001b';
+        public const char DEL = '\u007f';
         public const char IND = '\u0084';
         public const char NEL = '\u0085';
         public const char HTS = '\u0088';
