@@ -160,13 +160,13 @@ namespace Poderosa.View {
         private bool _enableBoldStyle;
         private bool _forceBoldStyle;
         private FontHandle _font;
-        private FontHandle _boldfont;
-        private FontHandle _underlinefont;
-        private FontHandle _boldunderlinefont;
+        private FontHandle _boldFont;
+        private FontHandle _underlineFont;
+        private FontHandle _boldUnderlineFont;
         private FontHandle _cjkFont;
         private FontHandle _cjkBoldfont;
-        private FontHandle _cjkUnderlinefont;
-        private FontHandle _cjkBoldUnderlinefont;
+        private FontHandle _cjkUnderlineFont;
+        private FontHandle _cjkBoldUnderlineFont;
 #if !MACRODOC
         private EscapesequenceColorSet _esColorSet;
 #endif
@@ -407,13 +407,13 @@ namespace Poderosa.View {
 
         private void ClearFont() {
             DisposeFontHandle(ref _font);
-            DisposeFontHandle(ref _boldfont);
-            DisposeFontHandle(ref _underlinefont);
-            DisposeFontHandle(ref _boldunderlinefont);
+            DisposeFontHandle(ref _boldFont);
+            DisposeFontHandle(ref _underlineFont);
+            DisposeFontHandle(ref _boldUnderlineFont);
             DisposeFontHandle(ref _cjkFont);
             DisposeFontHandle(ref _cjkBoldfont);
-            DisposeFontHandle(ref _cjkUnderlinefont);
-            DisposeFontHandle(ref _cjkBoldUnderlinefont);
+            DisposeFontHandle(ref _cjkUnderlineFont);
+            DisposeFontHandle(ref _cjkBoldUnderlineFont);
         }
         private void DisposeFontHandle(ref FontHandle f) {
             if (f != null) {
@@ -434,15 +434,15 @@ namespace Poderosa.View {
         private void CreateFonts() {
             _font = new FontHandle(RuntimeUtil.CreateFont(_fontName, _fontSize), _useClearType);
             FontStyle fs = _font.Font.Style;
-            _boldfont = new FontHandle(new Font(_font.Font, fs | FontStyle.Bold), _useClearType);
-            _underlinefont = new FontHandle(new Font(_font.Font, fs | FontStyle.Underline), _useClearType);
-            _boldunderlinefont = new FontHandle(new Font(_font.Font, fs | FontStyle.Underline | FontStyle.Bold), _useClearType);
+            _boldFont = new FontHandle(new Font(_font.Font, fs | FontStyle.Bold), _useClearType);
+            _underlineFont = new FontHandle(new Font(_font.Font, fs | FontStyle.Underline), _useClearType);
+            _boldUnderlineFont = new FontHandle(new Font(_font.Font, fs | FontStyle.Underline | FontStyle.Bold), _useClearType);
 
             _cjkFont = new FontHandle(new Font(_cjkFontName, _fontSize), _useClearType);
             fs = _cjkFont.Font.Style;
             _cjkBoldfont = new FontHandle(new Font(_cjkFont.Font, fs | FontStyle.Bold), _useClearType);
-            _cjkUnderlinefont = new FontHandle(new Font(_cjkFont.Font, fs | FontStyle.Underline), _useClearType);
-            _cjkBoldUnderlinefont = new FontHandle(new Font(_cjkFont.Font, fs | FontStyle.Underline | FontStyle.Bold), _useClearType);
+            _cjkUnderlineFont = new FontHandle(new Font(_cjkFont.Font, fs | FontStyle.Underline), _useClearType);
+            _cjkBoldUnderlineFont = new FontHandle(new Font(_cjkFont.Font, fs | FontStyle.Underline | FontStyle.Bold), _useClearType);
 
             _usingIdenticalFont = (_font.Font.Name == _cjkFont.Font.Name);
 
@@ -649,14 +649,14 @@ namespace Poderosa.View {
             if (useCjkFont) {
                 if (bold) {
                     if (underlined) {
-                        return _cjkBoldUnderlinefont;
+                        return _cjkBoldUnderlineFont;
                     }
 
                     return _cjkBoldfont;
                 }
 
                 if (underlined) {
-                    return _cjkUnderlinefont;
+                    return _cjkUnderlineFont;
                 }
 
                 return _cjkFont;
@@ -664,14 +664,14 @@ namespace Poderosa.View {
 
             if (bold) {
                 if (underlined) {
-                    return _boldunderlinefont;
+                    return _boldUnderlineFont;
                 }
 
-                return _boldfont;
+                return _boldFont;
             }
 
             if (underlined) {
-                return _underlinefont;
+                return _underlineFont;
             }
 
             return _font;
