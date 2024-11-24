@@ -1109,10 +1109,12 @@ namespace Poderosa.Terminal {
                         char srend = GetDECCIRRenditions();
                         char satt = GetDECCIRAttributes();
                         char sflag = GetDECCIRFlags();
-                        int pgl = 0; // FIXME
-                        int pgr = 0; // FIXME
                         char scss = GetDECCIRCharacterSetSize();
-                        string sdesig = GetDECCIRCharacterSetsDesignators();
+                        int pgl;
+                        int pgr;
+                        string sdesig;
+                        GetDECCIRCharacterSetMapping(out sdesig, out pgl, out pgr);
+
                         response = MakeDCS_ST(
                             "1$u"
                             + rc.Row.ToInvariantString() + ";"
@@ -1213,19 +1215,17 @@ namespace Poderosa.Terminal {
             return (char)r;
         }
 
-        private string GetDECCIRCharacterSetsDesignators() {
-            // SCS (Select Character Set) character set designators, in the order of GO, G1, G2, G3.
-            string r = "";
-            for (int g = 0; g <= 3; g++) {
-                string d = CharacterSetManager.GetSCSDesignator(g);
-                if (d != null) {
-                    r += d;
-                }
-                else {
-                    r += "B"; // ASCII
-                }
-            }
-            return r;
+        private void GetDECCIRCharacterSetMapping(out string mapping, out int gl, out int gr) {
+            string g0, g1, g2, g3;
+            CharacterSetManager.GetCharacterSetMapping(out g0, out g1, out g2, out g3, out gl, out gr);
+
+            const string DEFAULT_DESIGNATOR = "B";
+
+            mapping =
+                ((g0 != null) ? g0 : DEFAULT_DESIGNATOR)
+                + ((g1 != null) ? g1 : DEFAULT_DESIGNATOR)
+                + ((g2 != null) ? g2 : DEFAULT_DESIGNATOR)
+                + ((g3 != null) ? g3 : DEFAULT_DESIGNATOR);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'x')] // DECREQTPARM

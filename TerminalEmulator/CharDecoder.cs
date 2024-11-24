@@ -57,11 +57,26 @@ namespace Poderosa.Terminal {
         CharacterSetSizeType GetCharacterSetSizeType(int g);
 
         /// <summary>
-        /// Get character set designator in SCS (Select Character Set).
+        /// Get character set mapping.
         /// </summary>
-        /// <param name="g">0=G0, 1=G1, 2=G2, 3=G3</param>
-        /// <returns>designator (e.g. "B") or null if the character set cannot be designated in SCS.</returns>
-        string GetSCSDesignator(int g);
+        /// <param name="g0">designator of G0 is stored. null is stored if the character set cannot be designated in SCS.</param>
+        /// <param name="g1">designator of G1 is stored. null is stored if the character set cannot be designated in SCS.</param>
+        /// <param name="g2">designator of G2 is stored. null is stored if the character set cannot be designated in SCS.</param>
+        /// <param name="g3">designator of G3 is stored. null is stored if the character set cannot be designated in SCS.</param>
+        /// <param name="gl">graphic set number mapped to GL is stored. (0=G0, 1=G1, ...)</param>
+        /// <param name="gr">graphic set number mapped to GR is stored. (0=G0, 1=G1, ...)</param>
+        void GetCharacterSetMapping(out string g0, out string g1, out string g2, out string g3, out int gl, out int gr);
+
+        /// <summary>
+        /// Restore character set mapping.
+        /// </summary>
+        /// <param name="g0">designator of G0</param>
+        /// <param name="g1">designator of G1</param>
+        /// <param name="g2">designator of G2</param>
+        /// <param name="g3">designator of G3</param>
+        /// <param name="gl">graphic set number mapped to GL (0=G0, 1=G1, ...)</param>
+        /// <param name="gr">graphic set number mapped to GR (0=G0, 1=G1, ...)</param>
+        void RestoreCharacterSetMapping(string g0, string g1, string g2, string g3, int gl, int gr);
 
         /// <summary>
         /// Get character set mapping
@@ -373,7 +388,16 @@ namespace Poderosa.Terminal {
             return CharacterSetSizeType.Other;
         }
 
-        public string GetSCSDesignator(int g) {
+        public void GetCharacterSetMapping(out string g0, out string g1, out string g2, out string g3, out int gl, out int gr) {
+            g0 = GetSCSDesignator(0);
+            g1 = GetSCSDesignator(1);
+            g2 = GetSCSDesignator(2);
+            g3 = GetSCSDesignator(3);
+            gl = _currentGraphicSet;
+            gr = 1;
+        }
+
+        private string GetSCSDesignator(int g) {
             IByteProcessor processor;
             if (g == 0) {
                 processor = _G0ByteProcessor;
@@ -396,46 +420,99 @@ namespace Poderosa.Terminal {
             return null;
         }
 
-        public CharacterSetMapping GetCharacterSetMapping() {
-            string byteProcessorName;
-            if (_currentByteProcessor == null) {
-                byteProcessorName = String.Empty;
+        public void RestoreCharacterSetMapping(string g0, string g1, string g2, string g3, int gl, int gr) {
+            RestoreCharacterSetBySCSDesignator(0, g0);
+            RestoreCharacterSetBySCSDesignator(1, g1);
+            RestoreCharacterSetBySCSDesignator(2, g2);
+            RestoreCharacterSetBySCSDesignator(3, g3);
+            if (gl >= 0 && gl <= 1) {
+                if (gl != _currentGraphicSet) {
+                    ChangeProcessor(gl);
+                }
+                else {
+                    ApplyProcessor(gl);
+                }
             }
             else {
-                byteProcessorName = _currentByteProcessor.GetType().Name;
+                ApplyProcessor(_currentGraphicSet);
+            }
+        }
+
+        private void RestoreCharacterSetBySCSDesignator(int g, string desig) {
+            IByteProcessor processor;
+            if (g == 0) {
+                processor = _G0ByteProcessor;
+            }
+            else if (g == 1) {
+                processor = _G1ByteProcessor;
+            }
+            else {
+                return;
             }
 
+            // support only switching between DEC Line and others
+
+            if (desig == "B") {
+                if (processor is DECLineByteProcessor) {
+                    processor = _asciiByteProcessor;
+                }
+                else {
+                    return;
+                }
+            }
+            else if (desig == "0") {
+                if (!(processor is DECLineByteProcessor)) {
+                    processor = _decLineByteProcessor.Value;
+                }
+                else {
+                    return;
+                }
+            }
+
+            if (g == 0) {
+                _G0ByteProcessor = processor;
+            }
+            else if (g == 1) {
+                _G1ByteProcessor = processor;
+            }
+        }
+
+        public CharacterSetMapping GetCharacterSetMapping() {
             return new CharacterSetMapping(
-                byteProcessorName: byteProcessorName
+                g0ByteProcessorName: GetByteProcessorName(_G0ByteProcessor),
+                g1ByteProcessorName: GetByteProcessorName(_G1ByteProcessor),
+                graphicSet: _currentGraphicSet
             );
         }
 
         public void RestoreCharacterSetMapping(CharacterSetMapping csMap) {
-            IByteProcessor byteProcessor;
-            switch (csMap.ByteProcessorName) {
+            _G0ByteProcessor = GetByteProcessorByName(csMap.G0ByteProcessorName);
+            _G1ByteProcessor = GetByteProcessorByName(csMap.G1ByteProcessorName);
+            ChangeProcessor(csMap.GraphicSet);
+        }
+
+        private string GetByteProcessorName(IByteProcessor byteProcessor) {
+            if (byteProcessor == null) {
+                return String.Empty;
+            }
+            return byteProcessor.GetType().Name;
+        }
+
+        private IByteProcessor GetByteProcessorByName(string byteProcessorName) {
+            switch (byteProcessorName) {
                 case "Default":
                 case "ASCIIByteProcessor":
-                    byteProcessor = _asciiByteProcessor;
-                    break;
+                    return _asciiByteProcessor;
                 case "DECLineByteProcessor":
-                    byteProcessor = _decLineByteProcessor.Value;
-                    break;
+                    return _decLineByteProcessor.Value;
                 case "ISO2022JPByteProcessor":
-                    byteProcessor = _iso2022jpByteProcessor.Value;
-                    break;
+                    return _iso2022jpByteProcessor.Value;
                 case "ISO2022JPKanaByteProcessor":
-                    byteProcessor = _iso2022jpkanaByteProcessor.Value;
-                    break;
+                    return _iso2022jpkanaByteProcessor.Value;
                 case "ISO2022KRByteProcessor":
-                    byteProcessor = _iso2022krByteProcessor.Value;
-                    break;
+                    return _iso2022krByteProcessor.Value;
                 default:
-                    byteProcessor = null;
-                    break;
-            }
-
-            if (byteProcessor != null) {
-                ChangeProcessor(byteProcessor);
+                    return null;
             }
         }
 
@@ -657,14 +734,22 @@ namespace Poderosa.Terminal {
     /// Saved character set mapping
     /// </summary>
     public class CharacterSetMapping {
-        internal readonly string ByteProcessorName;
+        internal readonly string G0ByteProcessorName;
+        internal readonly string G1ByteProcessorName;
+        internal readonly int GraphicSet;
 
-        internal CharacterSetMapping(string byteProcessorName) {
-            this.ByteProcessorName = byteProcessorName;
+        internal CharacterSetMapping(string g0ByteProcessorName, string g1ByteProcessorName, int graphicSet) {
+            this.G0ByteProcessorName = g0ByteProcessorName;
+            this.G1ByteProcessorName = g1ByteProcessorName;
+            this.GraphicSet = graphicSet;
         }
 
         internal static CharacterSetMapping GetDefault() {
-            return new CharacterSetMapping(byteProcessorName: "Default");
+            return new CharacterSetMapping(
+                g0ByteProcessorName: "Default",
+                g1ByteProcessorName: "Default",
+                graphicSet: 0
+            );
         }
     }
 }
