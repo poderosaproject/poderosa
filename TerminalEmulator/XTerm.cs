@@ -1167,6 +1167,17 @@ namespace Poderosa.Terminal {
             return (char)r;
         }
 
+        private void RestoreDECCIRRenditions(char ch) {
+            if ((ch & 0xf0) == 0x40) {
+                TextDecoration dec = Document.CurrentDecoration;
+                dec = dec.GetCopyWithBold((ch & 1) != 0);
+                dec = dec.GetCopyWithUnderline((ch & 2) != 0);
+                dec = dec.GetCopyWithBlink((ch & 4) != 0);
+                dec = dec.GetCopyWithInverted((ch & 8) != 0);
+                Document.CurrentDecoration = dec;
+            }
+        }
+
         private char GetDECCIRAttributes() {
             // bit 7: always 0
             // bit 6: always 1
@@ -1180,6 +1191,14 @@ namespace Poderosa.Terminal {
             int r = 0x40
                 + (dec.Protected ? 1 : 0);
             return (char)r;
+        }
+
+        private void RestoreDECCIRAttributes(char ch) {
+            if ((ch & 0xe0) == 0x40) {
+                TextDecoration dec = Document.CurrentDecoration;
+                dec = dec.GetCopyWithProtected((ch & 1) != 0);
+                Document.CurrentDecoration = dec;
+            }
         }
 
         private char GetDECCIRFlags() {
@@ -1196,6 +1215,13 @@ namespace Poderosa.Terminal {
                 + (_originRelative ? 1 : 0)
                 + (autoWrapPending ? 8 : 0);
             return (char)r;
+        }
+
+        private void RestoreDECCIRFlags(char ch) {
+            if ((ch & 0xe0) == 0x40) {
+                _originRelative = (ch & 1) != 0;
+                Document.WrapPending = (ch & 8) != 0 && _wrapAroundMode;
+            }
         }
 
         private char GetDECCIRCharacterSetSize() {
@@ -1226,6 +1252,38 @@ namespace Poderosa.Terminal {
                 + ((g1 != null) ? g1 : DEFAULT_DESIGNATOR)
                 + ((g2 != null) ? g2 : DEFAULT_DESIGNATOR)
                 + ((g3 != null) ? g3 : DEFAULT_DESIGNATOR);
+        }
+
+        private void RestoreDECCIRCharacterSetMapping(string mapping, int gl, int gr) {
+            List<string> desigs = new List<string>();
+            char prefixChar = '\u0000';
+
+            foreach (char ch in mapping) {
+                switch (prefixChar) {
+                    case '%':
+                    case '"':
+                    case '&':
+                        desigs.Add(new String(new char[] { prefixChar, ch }));
+                        prefixChar = '\u0000';
+                        break;
+                    default:
+                        switch (ch) {
+                            case '%':
+                            case '"':
+                            case '&':
+                                prefixChar = ch;
+                                break;
+                            default:
+                                desigs.Add(new String(new char[] { ch }));
+                                break;
+                        }
+                        break;
+                }
+            }
+
+            if (desigs.Count >= 4 && gl >= 0 && gl <= 3 && gr >= 0 && gr <= 3) {
+                CharacterSetManager.RestoreCharacterSetMapping(desigs[0], desigs[1], desigs[2], desigs[3], gl, gr);
+            }
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'x')] // DECREQTPARM
@@ -3624,6 +3682,118 @@ namespace Poderosa.Terminal {
                 return MakeCSI(b);
             else
                 return MakeSS3(b);
+        }
+
+        [EscapeSequence(ControlCode.DCS, EscapeSequenceParamType.Numeric, '$', 't')] // DECRSPS
+        private void RestorePresentationStatus(NumericParams p) {
+            int param = p.Get(0, 0);
+            if (param == 1) {
+                // DECCIR
+                _escapeSequenceEngine.StartDCSProcessor(new BufferedDCSProcessor(ProcessRestoreDECCIR));
+            }
+            else if (param == 2) {
+                // DECTABSR
+                _escapeSequenceEngine.StartDCSProcessor(new BufferedDCSProcessor(ProcessRestoreDECTABSR));
+            }
+        }
+
+        private void ProcessRestoreDECCIR(string s) {
+            string[] p = s.Split(';');
+            if (p.Length < 10) {
+                return;
+            }
+
+            int row;
+            if (!ParseNonNegativeInteger(p[0], out row)) {
+                return;
+            }
+
+            int col;
+            if (!ParseNonNegativeInteger(p[1], out col)) {
+                return;
+            }
+
+            int page;
+            if (!ParseNonNegativeInteger(p[2], out page)) {
+                return;
+            }
+
+            char srend;
+            if (!GetSingleChar(p[3], out srend)) {
+                return;
+            }
+
+            char satt;
+            if (!GetSingleChar(p[4], out satt)) {
+                return;
+            }
+
+            char sflag;
+            if (!GetSingleChar(p[5], out sflag)) {
+                return;
+            }
+
+            int pgl;
+            if (!ParseNonNegativeInteger(p[6], out pgl)) {
+                return;
+            }
+
+            int pgr;
+            if (!ParseNonNegativeInteger(p[7], out pgr)) {
+                return;
+            }
+
+            char scss;
+            if (!GetSingleChar(p[8], out scss)) {
+                return;
+            }
+
+            string sdesig = p[9];
+
+            row = Math.Min(Math.Max(row, 1), Document.TerminalHeight);
+            col = Math.Min(Math.Max(col, 1), Document.TerminalWidth);
+            MoveCursorTo(row, col);
+
+            RestoreDECCIRRenditions(srend);
+
+            RestoreDECCIRAttributes(satt);
+
+            RestoreDECCIRFlags(sflag);
+
+            RestoreDECCIRCharacterSetMapping(sdesig, pgl, pgr);
+        }
+
+        private void ProcessRestoreDECTABSR(string s) {
+            string[] p = s.Split('/');
+
+            List<int> tabStops = new List<int>();
+            foreach (string ps in p) {
+                int n;
+                if (!ParseNonNegativeInteger(ps, out n)) {
+                    return;
+                }
+                tabStops.Add(n);
+            }
+
+            _tabStops.Clear();
+            foreach (int pos in tabStops) {
+                if (pos >= 1) {
+                    _tabStops.Set(pos - 1);
+                }
+            }
+        }
+
+        private bool ParseNonNegativeInteger(string s, out int n) {
+            return Int32.TryParse(s, NumberStyles.None, NumberFormatInfo.InvariantInfo, out n) && n >= 0;
+        }
+
+        private bool GetSingleChar(string s, out char c) {
+            if (s.Length == 1) {
+                c = s[0];
+                return true;
+            }
+            c = '\u0000';
+            return false;
         }
 
         private byte[] MakeCSI(string data) {
