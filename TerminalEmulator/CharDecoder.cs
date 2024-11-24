@@ -321,13 +321,14 @@ namespace Poderosa.Terminal {
             _decoder = enc.CreateDecoder();
 
             _asciiByteProcessor = new ASCIIByteProcessor(processor);
-            _currentByteProcessor = _asciiByteProcessor;
             _decLineByteProcessor = new Lazy<DECLineByteProcessor>(() => new DECLineByteProcessor(_processor), false);
             _iso2022jpByteProcessor = new Lazy<ISO2022JPByteProcessor>(() => new ISO2022JPByteProcessor(_processor, _byteProcessorBuffer), false);
             _iso2022jpkanaByteProcessor = new Lazy<ISO2022JPKanaByteProcessor>(() => new ISO2022JPKanaByteProcessor(_processor, _byteProcessorBuffer), false);
             _iso2022krByteProcessor = new Lazy<ISO2022KRByteProcessor>(() => new ISO2022KRByteProcessor(_processor, _byteProcessorBuffer), false);
             _G0ByteProcessor = _asciiByteProcessor;
             _G1ByteProcessor = _asciiByteProcessor;
+            _currentByteProcessor = _asciiByteProcessor;
+            _currentGraphicSet = 0;
 
             _byteProcessorBuffer = new ByteProcessorBuffer();
         }
@@ -338,9 +339,11 @@ namespace Poderosa.Terminal {
             }
         }
 
-        private IByteProcessor _currentByteProcessor;
         private IByteProcessor _G0ByteProcessor; //iso2022のG0,G1
         private IByteProcessor _G1ByteProcessor;
+        // _currentGraphicSet and _currentByteProcessor are changed at the same time in ChangeProcessor()
+        private IByteProcessor _currentByteProcessor;
+        private int _currentGraphicSet; // 0=G0, 1=G1
 
         private readonly ASCIIByteProcessor _asciiByteProcessor;
 
@@ -466,9 +469,9 @@ namespace Poderosa.Terminal {
                                 _state = State.ESC;
                             }
                             else if (b == 14) //SO
-                                ChangeProcessor(_G1ByteProcessor);
+                                ChangeProcessor(1);
                             else if (b == 15) //SI
-                                ChangeProcessor(_G0ByteProcessor);
+                                ChangeProcessor(0);
                             else
                                 ConsumeByte(b);
                             break;
@@ -489,12 +492,12 @@ namespace Poderosa.Terminal {
                             _escseq.Append(b);
                             if (b == (byte)'0') {
                                 _G0ByteProcessor = _decLineByteProcessor.Value;
-                                ChangeProcessor(_G0ByteProcessor);
+                                ApplyProcessor(0);
                                 _state = State.Normal;
                             }
                             else if (b == (byte)'B' || b == (byte)'J' || b == (byte)'~') { //!!lessでssh2architecture.txtを見ていたら来た。詳細はまだ調べていない。
                                 _G0ByteProcessor = _asciiByteProcessor;
-                                ChangeProcessor(_G0ByteProcessor);
+                                ApplyProcessor(0);
                                 _state = State.Normal;
                             }
                             else {
@@ -507,10 +510,12 @@ namespace Poderosa.Terminal {
                             _escseq.Append(b);
                             if (b == (byte)'0') {
                                 _G1ByteProcessor = _decLineByteProcessor.Value;
+                                ApplyProcessor(1);
                                 _state = State.Normal;
                             }
                             else if (b == (byte)'B' || b == (byte)'J' || b == (byte)'~') { //!!lessでssh2architecture.txtを見ていたら来た。詳細はまだ調べていない。
                                 _G1ByteProcessor = _asciiByteProcessor;
+                                ApplyProcessor(1);
                                 _state = State.Normal;
                             }
                             else {
@@ -526,7 +531,7 @@ namespace Poderosa.Terminal {
                                 _state = State.ESC_DOLLAR_ENDBRACKET;
                             else if (b == (byte)'B' || b == (byte)'@') {
                                 _G0ByteProcessor = _iso2022jpByteProcessor.Value;
-                                ChangeProcessor(_G0ByteProcessor);
+                                ApplyProcessor(0);
                                 _state = State.Normal;
                             }
                             else {
@@ -539,17 +544,17 @@ namespace Poderosa.Terminal {
                             _escseq.Append(b);
                             if (b == (byte)'C') {
                                 _G0ByteProcessor = _iso2022krByteProcessor.Value;
-                                ChangeProcessor(_G0ByteProcessor);
+                                ApplyProcessor(0);
                                 _state = State.Normal;
                             }
                             else if (b == (byte)'D') {
                                 _G0ByteProcessor = _iso2022jpByteProcessor.Value;
-                                ChangeProcessor(_G0ByteProcessor);
+                                ApplyProcessor(0);
                                 _state = State.Normal;
                             }
                             else if (b == (byte)'I') {
                                 _G0ByteProcessor = _iso2022jpkanaByteProcessor.Value;
-                                ChangeProcessor(_G0ByteProcessor);
+                                ApplyProcessor(0);
                                 _state = State.Normal;
                             }
                             else {
@@ -562,6 +567,7 @@ namespace Poderosa.Terminal {
                             _escseq.Append(b);
                             if (b == (byte)'C') {
                                 _G1ByteProcessor = _iso2022krByteProcessor.Value;
+                                ApplyProcessor(1);
                                 _state = State.Normal;
                             }
                             else {
@@ -577,18 +583,36 @@ namespace Poderosa.Terminal {
             }
         }
 
-        private void ChangeProcessor(IByteProcessor newprocessor) {
-            //既存のやつがあればリセット
+        private void ChangeProcessor(int g) {
+            IByteProcessor newProcessor;
+            switch (g) {
+                case 0:
+                    newProcessor = _G0ByteProcessor;
+                    break;
+                case 1:
+                    newProcessor = _G1ByteProcessor;
+                    break;
+                default:
+                    return;
+            }
+
             if (_currentByteProcessor != null) {
                 _currentByteProcessor.Flush();
             }
 
-            if (newprocessor != null) {
-                newprocessor.Init();
+            if (newProcessor != null) {
+                newProcessor.Init();
             }
 
-            _currentByteProcessor = newprocessor;
+            _currentByteProcessor = newProcessor;
+            _currentGraphicSet = g;
             _state = State.Normal;
+        }
+
+        private void ApplyProcessor(int g) {
+            if (g == _currentGraphicSet) {
+                ChangeProcessor(g);
+            }
         }
 
         private void ConsumeBytes(byte[] buff, int len) {
