@@ -1283,6 +1283,8 @@ namespace Poderosa.Terminal.EscapeSequence {
         private readonly Action<IEscapeSequenceContext> _completedHandler;
         private IState _currentState;
 
+        private IDCSProcessor _dcsProcessor = null;
+
 #if UNITTEST
         /// <summary>
         /// Constructor
@@ -1338,6 +1340,21 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// <param name="ch">input</param>
         /// <returns>true if <paramref name="ch"/> was handled. otherwise false.</returns>
         public bool Process(T instance, char ch) {
+            if (_dcsProcessor != null) {
+                DCSProcessCharResult dcsResult = _dcsProcessor.ProcessChar(ch);
+                switch (dcsResult) {
+                    case DCSProcessCharResult.Consumed:
+                        return true;
+                    case DCSProcessCharResult.Finished:
+                        _dcsProcessor = null;
+                        return true;
+                    case DCSProcessCharResult.Invalid:
+                        break;
+                }
+                _dcsProcessor = null;
+                return false;
+            }
+
             IState nextState = _currentState.Accept(_context, ch);
 
             if (nextState == null) {
@@ -1412,7 +1429,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
                 // abort current escape sequence
                 _incompleteHandler(_context);
-                Reset();
+                ResetState();
 
                 // restart
                 nextState = _currentState.Accept(_context, ch);
@@ -1430,7 +1447,7 @@ namespace Poderosa.Terminal.EscapeSequence {
 
             CallAction(instance, _context, final);
 
-            Reset();
+            ResetState();
             return true; // handled
         }
 
@@ -1453,9 +1470,17 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// <summary>
         /// Reset internal state.
         /// </summary>
-        public void Reset() {
+        private void ResetState() {
             _context.Reset();
             _currentState = _root;
+        }
+
+        /// <summary>
+        /// Full reset internal state.
+        /// </summary>
+        public void Reset() {
+            _dcsProcessor = null;
+            ResetState();
         }
 
         /// <summary>
@@ -1463,8 +1488,16 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// </summary>
         public bool IsEscapeSequenceReading {
             get {
-                return !Object.ReferenceEquals(_currentState, _root);
+                return _dcsProcessor != null || !Object.ReferenceEquals(_currentState, _root);
             }
+        }
+
+        /// <summary>
+        /// Start DCS processor
+        /// </summary>
+        /// <param name="dcsProcessor">DCS processor</param>
+        public void StartDCSProcessor(IDCSProcessor dcsProcessor) {
+            _dcsProcessor = dcsProcessor;
         }
 
 #if UNITTEST
@@ -1645,4 +1678,174 @@ namespace Poderosa.Terminal.EscapeSequence {
         }
     }
 
+    internal enum DCSProcessCharResult {
+        /// <summary>
+        /// The input character has been consumed.
+        /// </summary>
+        Consumed,
+        /// <summary>
+        /// DCS has been finidhed. The input character has been consumed.
+        /// </summary>
+        Finished,
+        /// <summary>
+        /// The input character is invalid for DCS.
+        /// </summary>
+        Invalid,
+    }
+
+    internal interface IDCSProcessor {
+        DCSProcessCharResult ProcessChar(char ch);
+    }
+
+    internal abstract class DCSProcessorBase : IDCSProcessor {
+
+        protected abstract void Input(char ch);
+        protected abstract void Finish();
+        protected abstract void Cancel();
+
+        private enum Status {
+            Normal,
+            Escape,
+            Finished,
+        }
+
+        private Status _status = Status.Normal;
+
+        public DCSProcessCharResult ProcessChar(char ch) {
+            switch (_status) {
+                case Status.Normal:
+                    if ((ch >= 0x20 && ch <= 0x7e) || (ch >= 0x08 && ch <= 0x0d)) {
+                        Input(ch);
+                        return DCSProcessCharResult.Consumed;
+                    }
+
+                    if (ch == ControlCode.ESC) {
+                        _status = Status.Escape;
+                        return DCSProcessCharResult.Consumed;
+                    }
+
+                    if (ch == ControlCode.ST || ch == ControlCode.CAN || ch == ControlCode.SUB) {
+                        if (ch == ControlCode.ST) {
+                            Finish();
+                        }
+                        else {
+                            Cancel();
+                        }
+                        _status = Status.Finished;
+                        return DCSProcessCharResult.Finished; // ST, CAN and SUB are consumed
+                    }
+
+                    Cancel();
+                    _status = Status.Finished;
+                    return DCSProcessCharResult.Invalid;
+
+                case Status.Escape:
+                    if (ch == '\\') {
+                        Finish();
+                        _status = Status.Finished;
+                        return DCSProcessCharResult.Finished;
+                    }
+
+                    Cancel();
+                    _status = Status.Finished;
+                    return DCSProcessCharResult.Invalid;
+
+                case Status.Finished:
+                default:
+                    return DCSProcessCharResult.Invalid;
+            }
+        }
+    }
+
+    /// <summary>
+    /// DCS processor that buffers subsequent data.
+    /// </summary>
+    /// <remarks>
+    /// The callback is called only once after the control string has been successfully completed.
+    /// </remarks>
+    internal class BufferedDCSProcessor : DCSProcessorBase {
+
+        private readonly StringBuilder _buffer = new StringBuilder();
+        private readonly Action<string> _callback;
+        private readonly int _maxBufferLength;
+        private bool _error = false;
+
+        public BufferedDCSProcessor(Action<string> callback)
+            : this(-1, callback) {
+        }
+
+        public BufferedDCSProcessor(int maxBufferLength, Action<string> callback) {
+            _callback = callback;
+            _maxBufferLength = maxBufferLength;
+        }
+
+        protected override void Input(char ch) {
+            if (!_error) {
+                _buffer.Append(ch);
+
+                if (_maxBufferLength >= 0 && _buffer.Length > _maxBufferLength) {
+                    _error = true;
+                }
+            }
+        }
+
+        protected override void Finish() {
+            if (!_error) {
+                try {
+                    _callback(_buffer.ToString());
+                }
+                catch (Exception ex) {
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                    System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                }
+            }
+        }
+
+        protected override void Cancel() {
+        }
+    }
+
+    /// <summary>
+    /// DCS processor that chunks subsequent data and calls a callback for each chunk.
+    /// </summary>
+    internal class ChunkedDCSProcessor : DCSProcessorBase {
+
+        private readonly StringBuilder _buffer = new StringBuilder();
+        private readonly Action<string> _callback;
+
+        private const int CHUNK_SIZE = 256;
+
+        public ChunkedDCSProcessor(Action<string> callback) {
+            _callback = callback;
+        }
+
+        protected override void Input(char ch) {
+            _buffer.Append(ch);
+
+            if (_buffer.Length >= CHUNK_SIZE) {
+                Flush();
+            }
+        }
+
+        protected override void Finish() {
+            if (_buffer.Length > 0) {
+                Flush();
+            }
+        }
+
+        protected override void Cancel() {
+            Finish();
+        }
+
+        private void Flush() {
+            try {
+                _callback(_buffer.ToString());
+            }
+            catch (Exception ex) {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+            }
+            _buffer.Clear();
+        }
+    }
 }
