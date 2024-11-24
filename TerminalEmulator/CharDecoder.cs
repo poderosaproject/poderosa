@@ -572,7 +572,7 @@ namespace Poderosa.Terminal {
                                 ApplyProcessor(0);
                                 _state = State.Normal;
                             }
-                            else if (b == (byte)'B' || b == (byte)'J' || b == (byte)'~') { //!!lessでssh2architecture.txtを見ていたら来た。詳細はまだ調べていない。
+                            else if (b == (byte)'B' || b == (byte)'J') {
                                 _G0ByteProcessor = _asciiByteProcessor;
                                 ApplyProcessor(0);
                                 _state = State.Normal;
@@ -590,7 +590,7 @@ namespace Poderosa.Terminal {
                                 ApplyProcessor(1);
                                 _state = State.Normal;
                             }
-                            else if (b == (byte)'B' || b == (byte)'J' || b == (byte)'~') { //!!lessでssh2architecture.txtを見ていたら来た。詳細はまだ調べていない。
+                            else if (b == (byte)'B' || b == (byte)'J') {
                                 _G1ByteProcessor = _asciiByteProcessor;
                                 ApplyProcessor(1);
                                 _state = State.Normal;
