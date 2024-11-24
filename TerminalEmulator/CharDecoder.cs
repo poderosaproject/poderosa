@@ -322,6 +322,10 @@ namespace Poderosa.Terminal {
 
             _asciiByteProcessor = new ASCIIByteProcessor(processor);
             _currentByteProcessor = _asciiByteProcessor;
+            _decLineByteProcessor = new Lazy<DECLineByteProcessor>(() => new DECLineByteProcessor(_processor), false);
+            _iso2022jpByteProcessor = new Lazy<ISO2022JPByteProcessor>(() => new ISO2022JPByteProcessor(_processor, _byteProcessorBuffer), false);
+            _iso2022jpkanaByteProcessor = new Lazy<ISO2022JPKanaByteProcessor>(() => new ISO2022JPKanaByteProcessor(_processor, _byteProcessorBuffer), false);
+            _iso2022krByteProcessor = new Lazy<ISO2022KRByteProcessor>(() => new ISO2022KRByteProcessor(_processor, _byteProcessorBuffer), false);
             _G0ByteProcessor = _asciiByteProcessor;
             _G1ByteProcessor = _asciiByteProcessor;
 
@@ -338,38 +342,14 @@ namespace Poderosa.Terminal {
         private IByteProcessor _G0ByteProcessor; //iso2022のG0,G1
         private IByteProcessor _G1ByteProcessor;
 
-        private ASCIIByteProcessor _asciiByteProcessor;
+        private readonly ASCIIByteProcessor _asciiByteProcessor;
 
-        private DECLineByteProcessor _decLineByteProcessor = null;
-        private ISO2022JPByteProcessor _iso2022jpByteProcessor = null;
-        private ISO2022JPKanaByteProcessor _iso2022jpkanaByteProcessor = null;
-        private ISO2022KRByteProcessor _iso2022krByteProcessor = null;
+        private readonly Lazy<DECLineByteProcessor> _decLineByteProcessor;
+        private readonly Lazy<ISO2022JPByteProcessor> _iso2022jpByteProcessor;
+        private readonly Lazy<ISO2022JPKanaByteProcessor> _iso2022jpkanaByteProcessor;
+        private readonly Lazy<ISO2022KRByteProcessor> _iso2022krByteProcessor;
 
         private ByteProcessorBuffer _byteProcessorBuffer;
-
-        private DECLineByteProcessor GetDECLineByteProcessor() {
-            if (_decLineByteProcessor == null)
-                _decLineByteProcessor = new DECLineByteProcessor(_processor);
-            return _decLineByteProcessor;
-        }
-
-        private ISO2022JPByteProcessor GetISO2022JPByteProcessor() {
-            if (_iso2022jpByteProcessor == null)
-                _iso2022jpByteProcessor = new ISO2022JPByteProcessor(_processor, _byteProcessorBuffer);
-            return _iso2022jpByteProcessor;
-        }
-
-        private ISO2022JPKanaByteProcessor GetISO2022JPKanaByteProcessor() {
-            if (_iso2022jpkanaByteProcessor == null)
-                _iso2022jpkanaByteProcessor = new ISO2022JPKanaByteProcessor(_processor, _byteProcessorBuffer);
-            return _iso2022jpkanaByteProcessor;
-        }
-
-        private ISO2022KRByteProcessor GetISO2022KRByteProcessor() {
-            if (_iso2022krByteProcessor == null)
-                _iso2022krByteProcessor = new ISO2022KRByteProcessor(_processor, _byteProcessorBuffer);
-            return _iso2022krByteProcessor;
-        }
 
         public CharacterSetSizeType GetCharacterSetSizeType(int g) {
             IByteProcessor processor;
@@ -435,16 +415,16 @@ namespace Poderosa.Terminal {
                     byteProcessor = _asciiByteProcessor;
                     break;
                 case "DECLineByteProcessor":
-                    byteProcessor = GetDECLineByteProcessor();
+                    byteProcessor = _decLineByteProcessor.Value;
                     break;
                 case "ISO2022JPByteProcessor":
-                    byteProcessor = GetISO2022JPByteProcessor();
+                    byteProcessor = _iso2022jpByteProcessor.Value;
                     break;
                 case "ISO2022JPKanaByteProcessor":
-                    byteProcessor = GetISO2022JPKanaByteProcessor();
+                    byteProcessor = _iso2022jpkanaByteProcessor.Value;
                     break;
                 case "ISO2022KRByteProcessor":
-                    byteProcessor = GetISO2022KRByteProcessor();
+                    byteProcessor = _iso2022krByteProcessor.Value;
                     break;
                 default:
                     byteProcessor = null;
@@ -508,7 +488,7 @@ namespace Poderosa.Terminal {
                         case State.ESC_BRACKET:
                             _escseq.Append(b);
                             if (b == (byte)'0') {
-                                _G0ByteProcessor = GetDECLineByteProcessor();
+                                _G0ByteProcessor = _decLineByteProcessor.Value;
                                 ChangeProcessor(_G0ByteProcessor);
                                 _state = State.Normal;
                             }
@@ -526,7 +506,7 @@ namespace Poderosa.Terminal {
                         case State.ESC_ENDBRACKET:
                             _escseq.Append(b);
                             if (b == (byte)'0') {
-                                _G1ByteProcessor = GetDECLineByteProcessor();
+                                _G1ByteProcessor = _decLineByteProcessor.Value;
                                 _state = State.Normal;
                             }
                             else if (b == (byte)'B' || b == (byte)'J' || b == (byte)'~') { //!!lessでssh2architecture.txtを見ていたら来た。詳細はまだ調べていない。
@@ -545,7 +525,7 @@ namespace Poderosa.Terminal {
                             else if (b == (byte)')')
                                 _state = State.ESC_DOLLAR_ENDBRACKET;
                             else if (b == (byte)'B' || b == (byte)'@') {
-                                _G0ByteProcessor = GetISO2022JPByteProcessor();
+                                _G0ByteProcessor = _iso2022jpByteProcessor.Value;
                                 ChangeProcessor(_G0ByteProcessor);
                                 _state = State.Normal;
                             }
@@ -558,17 +538,17 @@ namespace Poderosa.Terminal {
                         case State.ESC_DOLLAR_BRACKET:
                             _escseq.Append(b);
                             if (b == (byte)'C') {
-                                _G0ByteProcessor = GetISO2022KRByteProcessor();
+                                _G0ByteProcessor = _iso2022krByteProcessor.Value;
                                 ChangeProcessor(_G0ByteProcessor);
                                 _state = State.Normal;
                             }
                             else if (b == (byte)'D') {
-                                _G0ByteProcessor = GetISO2022JPByteProcessor();
+                                _G0ByteProcessor = _iso2022jpByteProcessor.Value;
                                 ChangeProcessor(_G0ByteProcessor);
                                 _state = State.Normal;
                             }
                             else if (b == (byte)'I') {
-                                _G0ByteProcessor = GetISO2022JPKanaByteProcessor();
+                                _G0ByteProcessor = _iso2022jpkanaByteProcessor.Value;
                                 ChangeProcessor(_G0ByteProcessor);
                                 _state = State.Normal;
                             }
@@ -581,7 +561,7 @@ namespace Poderosa.Terminal {
                         case State.ESC_DOLLAR_ENDBRACKET:
                             _escseq.Append(b);
                             if (b == (byte)'C') {
-                                _G1ByteProcessor = GetISO2022KRByteProcessor();
+                                _G1ByteProcessor = _iso2022krByteProcessor.Value;
                                 _state = State.Normal;
                             }
                             else {
