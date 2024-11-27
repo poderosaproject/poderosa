@@ -514,9 +514,7 @@ namespace Poderosa.Terminal {
             switch (protocol) {
 
                 case MouseTrackingProtocol.Normal:
-                    data = new byte[] {
-                        (byte)27, // ESCAPE
-                        (byte)91, // [
+                    data = MakeCSI(
                         (byte)77, // M
                         (byte)statBits,
                         (col == posLimit) ?
@@ -524,21 +522,19 @@ namespace Poderosa.Terminal {
                             (byte)(col + (1 + 0x20)),   // column 0 --> send as 1
                         (row == posLimit) ?
                             (byte)0 :                   // emulate xterm's bug
-                            (byte)(row + (1 + 0x20)),   // row 0 --> send as 1
-                    };
-                    dataLen = 6;
+                            (byte)(row + (1 + 0x20))    // row 0 --> send as 1
+                    );
+                    dataLen = data.Length;
                     break;
 
                 case MouseTrackingProtocol.Utf8:
-                    data = new byte[8] {
-                        (byte)27, // ESCAPE
-                        (byte)91, // [
+                    data = MakeCSI(
                         (byte)77, // M
                         (byte)statBits,
-                        0,0,0,0,
-                    };
+                        0, 0, 0, 0
+                    );
 
-                    dataLen = 4;
+                    dataLen = data.Length - 4;
 
                     if (col < MOUSE_POS_EXT_START)
                         data[dataLen++] = (byte)(col + (1 + 0x20));     // column 0 --> send as 1
@@ -3843,6 +3839,12 @@ namespace Poderosa.Terminal {
             return _transmissionMode.IsEightBit
                 ? new byte[] { (byte)ControlCode.CSI, b1, b2, b3, b4, b5 }
                 : new byte[] { (byte)ControlCode.ESC, (byte)'[', b1, b2, b3, b4, b5 };
+        }
+
+        private byte[] MakeCSI(byte b1, byte b2, byte b3, byte b4, byte b5, byte b6) {
+            return _transmissionMode.IsEightBit
+                ? new byte[] { (byte)ControlCode.CSI, b1, b2, b3, b4, b5, b6 }
+                : new byte[] { (byte)ControlCode.ESC, (byte)'[', b1, b2, b3, b4, b5, b6 };
         }
 
         private byte[] MakeSS3(byte b1) {
