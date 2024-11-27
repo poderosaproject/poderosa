@@ -681,10 +681,6 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.ESC, ' ', 'L')] // dpANS X3.134.1 - ANSI conformance level 1
         [EscapeSequence(ControlCode.ESC, ' ', 'M')] // dpANS X3.134.1 - ANSI conformance level 2
         [EscapeSequence(ControlCode.ESC, ' ', 'N')] // dpANS X3.134.1 - ANSI conformance level 3
-        [EscapeSequence(ControlCode.ESC, '#', '3')] // DECDHL – Double Height Line / top half
-        [EscapeSequence(ControlCode.ESC, '#', '4')] // DECDHL – Double Height Line / bottom half
-        [EscapeSequence(ControlCode.ESC, '#', '5')] // DECSWL – Single-width Line
-        [EscapeSequence(ControlCode.ESC, '#', '6')] // DECDWL – Double-Width Line
         [EscapeSequence(ControlCode.ESC, '%', '@')] // Select default character set
         [EscapeSequence(ControlCode.ESC, '%', 'G')] // Select UTF-8 character set
         [EscapeSequence(ControlCode.ESC, 'F')] // Cursor to lower left corner of screen
@@ -1804,6 +1800,30 @@ namespace Poderosa.Terminal {
                         break;
                 }
             }
+        }
+
+        [EscapeSequence(ControlCode.ESC, '#', '3')] // DECDHL – Double Height Line / top half
+        private void ProcessDoubleHeightLineTopHalf() {
+            _manipulator.LineRenderingType = LineRenderingType.QuadUpperHalf;
+            Document.UpdateCurrentLine(_manipulator);
+        }
+
+        [EscapeSequence(ControlCode.ESC, '#', '4')] // DECDHL – Double Height Line / bottom half
+        private void ProcessDoubleHeightLineBottomHalf() {
+            _manipulator.LineRenderingType = LineRenderingType.QuadLowerHalf;
+            Document.UpdateCurrentLine(_manipulator);
+        }
+
+        [EscapeSequence(ControlCode.ESC, '#', '5')] // DECSWL – Single-width Line
+        private void ProcessSingleWidthLine() {
+            _manipulator.LineRenderingType = LineRenderingType.Normal;
+            Document.UpdateCurrentLine(_manipulator);
+        }
+
+        [EscapeSequence(ControlCode.ESC, '#', '6')] // DECDWL – Double-Width Line
+        private void ProcessDoubleWidthLine() {
+            _manipulator.LineRenderingType = LineRenderingType.DoubleWidth;
+            Document.UpdateCurrentLine(_manipulator);
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'p')] // DECRQM (ANSI mode)

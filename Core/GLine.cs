@@ -660,6 +660,7 @@ namespace Poderosa.Document {
         private GColor24[] _color24;    // can be null if 24 bit colors are not used
         private int _displayLength;
         private EOLType _eolType;
+        private LineRenderingType _lineRenderingType;
         private int _id;
         private GLine _nextLine;
         private GLine _prevLine;
@@ -750,6 +751,42 @@ namespace Poderosa.Document {
             }
         }
 
+        public LineRenderingType LineRenderingType {
+            get {
+                return _lineRenderingType;
+            }
+            set {
+                _lineRenderingType = value;
+            }
+        }
+
+        /// <summary>
+        /// Whether this line is rendered double width.
+        /// </summary>
+        public bool IsDoubleWidth {
+            get {
+                return (_lineRenderingType & LineRenderingType.DoubleWidth) != 0;
+            }
+        }
+
+        /// <summary>
+        /// Whether this line is rendered double height.
+        /// </summary>
+        public bool IsDoubleHeight {
+            get {
+                return (_lineRenderingType & LineRenderingType.DoubleHeight) != 0;
+            }
+        }
+
+        /// <summary>
+        /// Whether this line is rendered as lower-half of double height.
+        /// </summary>
+        public bool IsLowerHalf {
+            get {
+                return (_lineRenderingType & LineRenderingType.LowerHalf) != 0;
+            }
+        }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -795,6 +832,8 @@ namespace Poderosa.Document {
             }
 
             _displayLength = 0;
+            _eolType = EOLType.Continue;
+            _lineRenderingType = LineRenderingType.Normal;
             _id = -1;
         }
 
@@ -805,11 +844,13 @@ namespace Poderosa.Document {
         /// <param name="color24">24 bit colors</param>
         /// <param name="displayLength">length of the content</param>
         /// <param name="eolType">type of the line ending</param>
-        internal GLine(GCell[] cell, GColor24[] color24, int displayLength, EOLType eolType) {
+        /// <param name="lineRenderingType">type of the line rendering</param>
+        internal GLine(GCell[] cell, GColor24[] color24, int displayLength, EOLType eolType, LineRenderingType lineRenderingType) {
             _cell = cell;
             _color24 = color24;
             _displayLength = displayLength;
             _eolType = eolType;
+            _lineRenderingType = lineRenderingType;
             _id = -1;
         }
 
@@ -820,7 +861,8 @@ namespace Poderosa.Document {
         /// <param name="color24">24 bit colors to be copied, or null</param>
         /// <param name="displayLength">length of the content</param>
         /// <param name="eolType">type of the line ending</param>
-        internal void UpdateContent(GCell[] cell, GColor24[] color24, int displayLength, EOLType eolType) {
+        /// <param name="lineRenderingType">type of the line rendering</param>
+        internal void UpdateContent(GCell[] cell, GColor24[] color24, int displayLength, EOLType eolType, LineRenderingType lineRenderingType) {
             lock (this) {
                 if (_cell.Length == cell.Length) {
                     cell.CopyTo(_cell);
@@ -841,6 +883,7 @@ namespace Poderosa.Document {
 
                 _displayLength = displayLength;
                 _eolType = eolType;
+                _lineRenderingType = lineRenderingType;
             }
         }
 
@@ -850,7 +893,7 @@ namespace Poderosa.Document {
         /// <param name="line">another instance</param>
         public void CopyFrom(GLine line) {
             lock (this) {
-                this.UpdateContent(line._cell, line._color24, line._displayLength, line._eolType);
+                this.UpdateContent(line._cell, line._color24, line._displayLength, line._eolType, line._lineRenderingType);
                 this._id = line._id;
             }
         }
@@ -865,7 +908,8 @@ namespace Poderosa.Document {
                             (GCell[])_cell.Clone(),
                             (_color24 != null) ? (GColor24[])_color24.Clone() : null,
                             _displayLength,
-                            _eolType);
+                            _eolType,
+                            _lineRenderingType);
                 nl._id = _id;
                 return nl;
             }
@@ -1166,6 +1210,25 @@ namespace Poderosa.Document {
             int cellStart = 0;
             float fx1 = fx0;
 
+            int textYOffset = 0;
+            int etoCommonOpts = 0;
+            GAttrFlags underlineFlag = GAttrFlags.Underlined;
+
+            LineRenderingType lineRenderingType = _lineRenderingType;
+
+            if (IsDoubleWidth) {
+                pitch *= 2;
+            }
+            if (IsDoubleHeight) {
+                etoCommonOpts += Win32.ETO_CLIPPED;
+                if (IsLowerHalf) {
+                    textYOffset = -(int)prof.Pitch.Height;
+                }
+                else {
+                    underlineFlag = GAttrFlags.None;
+                }
+            }
+
             lock (this) {
                 // Note:
                 //  Currently exclusive execution is not required here
@@ -1182,24 +1245,12 @@ namespace Poderosa.Document {
                     GAttr attr = _cell[cellStart].Attr;
                     GColor24 color24 = (_color24 != null) ? _color24[cellStart] : new GColor24();
 
-                    IntPtr hFont = prof.CalcHFONT_NoUnderline(attr);
+                    IntPtr hFont = prof.CalcHFONT(attr, lineRenderingType);
                     Win32.SelectObject(hdc, hFont);
 
                     Color foreColor;
                     Color backColor;
                     prof.DetermineColors(attr, color24, caret, baseBackColor, out backColor, out foreColor);
-
-                    bool isTextOpaque = foreColor.A != 0;
-                    uint foreColorRef = DrawUtil.ToCOLORREF(foreColor);
-                    if (isTextOpaque) {
-                        Win32.SetTextColor(hdc, foreColorRef);
-                    }
-
-                    bool isBackgroundOpaque = backColor.A != 0;
-                    if (isBackgroundOpaque) {
-                        uint bkColorRef = DrawUtil.ToCOLORREF(backColor);
-                        Win32.SetBkColor(hdc, bkColorRef);
-                    }
 
                     // If background fill is required, we call ExtTextOut() with ETO_OPAQUE to draw the first character.
                     float fx2 = fx0 + pitch * cellEnd;
@@ -1208,7 +1259,7 @@ namespace Poderosa.Document {
                     char[] tmpCharBuf = GetInternalTemporaryCharBuffer((cellEnd - cellStart) * 2);
                     int tmpCharBufLen = 0;
 
-                    if (isTextOpaque) {
+                    if (foreColor.A != 0) { // text is opaque
                         int[] dxBuf = GetInternalTemporaryDxBuffer((cellEnd - cellStart) * 2);
                         int dxBufIndex = 0;
 
@@ -1241,26 +1292,37 @@ namespace Poderosa.Document {
                             prevPos = nextPos;
                         }
 
+                        uint foreColorRef = DrawUtil.ToCOLORREF(foreColor);
+                        Win32.SetTextColor(hdc, foreColorRef);
+
+                        int etoOpts;
+                        if (backColor.A != 0) {
+                            uint bkColorRef = DrawUtil.ToCOLORREF(backColor);
+                            Win32.SetBkColor(hdc, bkColorRef);
+                            etoOpts = etoCommonOpts + Win32.ETO_OPAQUE;
+                        }
+                        else {
+                            etoOpts = etoCommonOpts;
+                        }
+
                         unsafe {
                             fixed (int* pDx = dxBuf)
                             fixed (char* p = tmpCharBuf) {
-                                if (isBackgroundOpaque) {
-                                    Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, p, tmpCharBufLen, pDx);
-                                }
-                                else {
-                                    Win32.ExtTextOut(hdc, rect.left, rect.top, 0, null, p, tmpCharBufLen, pDx);
-                                }
+                                Win32.ExtTextOut(hdc, rect.left, rect.top + textYOffset, etoOpts, &rect, p, tmpCharBufLen, pDx);
                             }
                         }
 
-                        if (attr.Has(GAttrFlags.Underlined)) {
+                        if (attr.Has(underlineFlag)) {
                             DrawUnderline(hdc, foreColorRef, (int)fx1, y2 - 1, (int)fx2 - (int)fx1);
                         }
                     }
-                    else if (isBackgroundOpaque) {
+                    else if (backColor.A != 0) { // text is not visible, but background is opaque
+                        uint bkColorRef = DrawUtil.ToCOLORREF(backColor);
+                        Win32.SetBkColor(hdc, bkColorRef);
+                        int etoOpts = etoCommonOpts + Win32.ETO_OPAQUE;
                         unsafe {
                             fixed (char* p = tmpCharBuf) {
-                                Win32.ExtTextOut(hdc, rect.left, rect.top, Win32.ETO_OPAQUE, &rect, p, 0, null);
+                                Win32.ExtTextOut(hdc, rect.left, rect.top + textYOffset, etoOpts, &rect, p, 0, null);
                             }
                         }
                     }
@@ -1509,7 +1571,7 @@ namespace Poderosa.Document {
                 }
             }
 
-            return new GLine(buff, null, offset, EOLType.CRLF);
+            return new GLine(buff, null, offset, EOLType.CRLF, LineRenderingType.Normal);
         }
     }
 
@@ -1529,6 +1591,7 @@ namespace Poderosa.Document {
         private GCell[] _cell = new GCell[1];
         private GColor24[] _color24 = new GColor24[1];  // always non-null
         private EOLType _eolType = EOLType.Continue;
+        private LineRenderingType _lineRenderingType = LineRenderingType.Normal;
 
         /// <summary>
         /// Current buffer size.
@@ -1548,6 +1611,18 @@ namespace Poderosa.Document {
             }
             set {
                 _eolType = value;
+            }
+        }
+
+        /// <summary>
+        /// Type of the line rendering.
+        /// </summary>
+        public LineRenderingType LineRenderingType {
+            get {
+                return _lineRenderingType;
+            }
+            set {
+                _lineRenderingType = value;
             }
         }
 
@@ -1573,6 +1648,7 @@ namespace Poderosa.Document {
             }
 
             _eolType = EOLType.Continue;
+            _lineRenderingType = LineRenderingType.Normal;
         }
 
         /// <summary>
@@ -1589,6 +1665,7 @@ namespace Poderosa.Document {
             else {
                 line.DuplicateBuffers(_cell, _color24, out _cell, out _color24);
                 _eolType = line.EOLType;
+                _lineRenderingType = line.LineRenderingType;
             }
         }
 
@@ -2139,7 +2216,8 @@ namespace Poderosa.Document {
                             (GCell[])_cell.Clone(),
                             uses24bitColor ? (GColor24[])_color24.Clone() : null,
                             displayLength,
-                            _eolType);
+                            _eolType,
+                            _lineRenderingType);
             return line;
         }
 
@@ -2152,7 +2230,7 @@ namespace Poderosa.Document {
             int displayLength;
             PrepareExport(out uses24bitColor, out displayLength);
 
-            line.UpdateContent(_cell, uses24bitColor ? _color24 : null, displayLength, _eolType);
+            line.UpdateContent(_cell, uses24bitColor ? _color24 : null, displayLength, _eolType, _lineRenderingType);
         }
 
         /// <summary>
@@ -2227,7 +2305,7 @@ namespace Poderosa.Document {
     /// Kind of Line feed code
     /// </en>
     /// </summary>
-    public enum EOLType {
+    public enum EOLType : byte {
         /// <summary>
         /// <ja>改行せずに継続します。</ja><en>It continues without changing line.</en>
         /// </summary>
@@ -2244,6 +2322,34 @@ namespace Poderosa.Document {
         /// <ja>LFで改行します。</ja><en>It changes line with LF. </en>
         /// </summary>
         LF
+    }
+
+    [Flags]
+    public enum LineRenderingType : byte {
+        /// <summary>
+        /// Normal (single width, single height)
+        /// </summary>
+        Normal = 0,
+        /// <summary>
+        /// Double width
+        /// </summary>
+        DoubleWidth = 1,
+        /// <summary>
+        /// Double height
+        /// </summary>
+        DoubleHeight = 2,
+        /// <summary>
+        /// Lower half of double height
+        /// </summary>
+        LowerHalf = 4,
+        /// <summary>
+        /// Upper half of quadrupted size
+        /// </summary>
+        QuadUpperHalf = DoubleWidth | DoubleHeight,
+        /// <summary>
+        /// Lower half of quadrupted size
+        /// </summary>
+        QuadLowerHalf = DoubleWidth | DoubleHeight | LowerHalf,
     }
 
     /// <summary>

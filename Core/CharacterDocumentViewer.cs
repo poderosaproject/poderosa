@@ -866,6 +866,9 @@ namespace Poderosa.View {
 
                     //マウスを動かしていなくても、MouseDownとともにMouseMoveが来てしまうようだ
                     GLine tl = document.FindLine(target_id);
+                    if (tl.IsDoubleWidth) {
+                        col /= 2;
+                    }
                     sel.StartSelection(tl, col, rt, args.X, args.Y);
                 }
             }
@@ -892,6 +895,9 @@ namespace Poderosa.View {
                 int target_id = topline_id + row;
 
                 GLine target_line = document.FindLineOrEdge(target_id);
+                if (target_line.IsDoubleWidth) {
+                    col /= 2;
+                }
                 TextSelection.TextPoint point = sel.ConvertSelectionPosition(target_line, col);
 
                 point.Line = RuntimeUtil.AdjustIntRange(point.Line, document.FirstLineNumber, document.LastLineNumber);

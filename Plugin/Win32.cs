@@ -89,6 +89,8 @@ namespace Poderosa {
         public static extern int SetBkMode(IntPtr hDC, int mode);
         [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
         public static extern int GetTextExtentPoint32(IntPtr hdc, string text, int length, out SIZE size);
+        [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
+        public static extern bool GetTextMetrics(IntPtr hdc, out TEXTMETRICW lptm);
         [DllImport("gdi32.dll")]
         public static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
         [DllImport("gdi32.dll")]
@@ -208,6 +210,7 @@ namespace Poderosa {
         public const int OPAQUE = 2;
 
         public const int ETO_OPAQUE = 2;
+        public const int ETO_CLIPPED = 4;
 
         public const byte CLEARTYPE_QUALITY = 5;            // (_WIN32_WINNT >= 0x0500)
         public const byte CLEARTYPE_NATURAL_QUALITY = 6;    // (_WIN32_WINNT >= 0x0501)
@@ -272,6 +275,34 @@ namespace Poderosa {
             public byte lfPitchAndFamily;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
             public string lfFaceName;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <exclude/>
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public struct TEXTMETRICW {
+            public int tmHeight;
+            public int tmAscent;
+            public int tmDescent;
+            public int tmInternalLeading;
+            public int tmExternalLeading;
+            public int tmAveCharWidth;
+            public int tmMaxCharWidth;
+            public int tmWeight;
+            public int tmOverhang;
+            public int tmDigitizedAspectX;
+            public int tmDigitizedAspectY;
+            public char tmFirstChar;
+            public char tmLastChar;
+            public char tmDefaultChar;
+            public char tmBreakChar;
+            public byte tmItalic;
+            public byte tmUnderlined;
+            public byte tmStruckOut;
+            public byte tmPitchAndFamily;
+            public byte tmCharSet;
         }
 
         /// <summary>
