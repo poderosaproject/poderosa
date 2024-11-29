@@ -497,7 +497,9 @@ namespace Poderosa.Sessions {
             }
             settings.Icon = Poderosa.TerminalSession.Properties.Resources.Cygwin16x16;
             settings.Encoding = ((EnumListItem<EncodingType>)_encodingBox.SelectedItem).Value;
-            settings.TerminalType = ((EnumListItem<TerminalType>)_terminalTypeBox.SelectedItem).Value;
+            settings.TerminalType = (_terminalTypeBox.SelectedItem == null)
+                ? TerminalType.XTerm
+                : ((EnumListItem<TerminalType>)_terminalTypeBox.SelectedItem).Value;
             settings.EndUpdate();
 
             ITerminalParameter termParam = (ITerminalParameter)_param.GetAdapter(typeof(ITerminalParameter));
