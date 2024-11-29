@@ -142,10 +142,7 @@ namespace Poderosa.Terminal {
             };
         }
 
-        //XTERMを表に出さないためのメソッド
         public static AbstractTerminal Create(TerminalInitializeInfo info) {
-            // We always creates XTerm instance because there are still cases that
-            // XTerm's escape sequences are sent even if VT100 was specified as the terminal type.
             return new XTerm(info);
         }
 
