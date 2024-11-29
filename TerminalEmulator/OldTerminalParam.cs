@@ -304,6 +304,11 @@ namespace Poderosa.ConnectionParam {
         [EnumValue(Description = "Enum.TerminalType.XTerm")]
         XTerm,
         /// <summary>
+        /// xterm
+        /// </summary>
+        [EnumValue(Description = "Enum.TerminalType.XTerm256Color")]
+        XTerm256Color,
+        /// <summary>
         /// kterm
         /// </summary>
         [EnumValue(Description = "Enum.TerminalType.KTerm")]
@@ -343,6 +348,8 @@ namespace Poderosa.ConnectionParam {
                     return "vt100";
                 case TerminalType.XTerm:
                     return "xterm";
+                case TerminalType.XTerm256Color:
+                    return "xterm-256color";
                 case TerminalType.KTerm:
                     return "kterm";
                 default:

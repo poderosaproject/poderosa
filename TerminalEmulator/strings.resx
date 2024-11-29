@@ -355,6 +355,9 @@
   <data name="Enum.TerminalType.KTerm">
     <value>kterm</value>
   </data>
+  <data name="Enum.TerminalType.XTerm256Color">
+    <value>xterm-256color</value>
+  </data>
   <data name="Enum.TerminalType.XTerm">
     <value>xterm</value>
   </data>

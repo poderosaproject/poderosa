@@ -491,6 +491,10 @@ $Id: stringresource.xml,v 1.7 2012/03/18 01:26:33 kzmi Exp $
   <ja>kterm</ja>
   <en>kterm</en>
 </record>
+<record name="Enum.TerminalType.XTerm256Color">
+  <ja>xterm-256color</ja>
+  <en>xterm-256color</en>
+</record>
 <record name="Enum.TerminalType.XTerm">
   <ja>xterm</ja>
   <en>xterm</en>
