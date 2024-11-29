@@ -1304,7 +1304,10 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'A')] // CUU
         private void ProcessCursorUp(NumericParams p) {
             int count = p.GetNonZero(0, 1);
-            Document.UpdateCurrentLine(_manipulator);
+            GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
+            if (lineUpdated != null) {
+                this.LogService.TextLogger.WriteLine(lineUpdated);
+            }
             int scrollingTop = Document.ScrollingTopLineNumber;
             if (Document.CurrentLineNumber >= scrollingTop) {
                 Document.CurrentLineNumber = Math.Max(Document.CurrentLineNumber - count, scrollingTop);
@@ -1318,7 +1321,10 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'B')] // CUD
         private void ProcessCursorDown(NumericParams p) {
             int count = p.GetNonZero(0, 1);
-            Document.UpdateCurrentLine(_manipulator);
+            GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
+            if (lineUpdated != null) {
+                this.LogService.TextLogger.WriteLine(lineUpdated);
+            }
             int scrollingBottom = Document.ScrollingBottomLineNumber;
             if (Document.CurrentLineNumber <= scrollingBottom) {
                 Document.CurrentLineNumber = Math.Min(Document.CurrentLineNumber + count, scrollingBottom);
@@ -1386,9 +1392,15 @@ namespace Poderosa.Terminal {
         }
 
         private void MoveCursorTo(int row, int col) {
-            Document.UpdateCurrentLine(_manipulator);
-            Document.CurrentLineNumber = (Document.TopLineNumber + row - 1);
-            _manipulator.Load(Document.CurrentLine);
+            int nextLineNumber = Document.TopLineNumber + row - 1;
+            if (Document.CurrentLineNumber != nextLineNumber) {
+                GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
+                if (lineUpdated != null) {
+                    this.LogService.TextLogger.WriteLine(lineUpdated);
+                }
+                Document.CurrentLineNumber = nextLineNumber;
+                _manipulator.Load(Document.CurrentLine);
+            }
             Document.CaretColumn = col - 1;
         }
 
