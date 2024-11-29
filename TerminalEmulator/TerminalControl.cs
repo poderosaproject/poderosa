@@ -65,17 +65,21 @@ namespace Poderosa.Terminal {
 
         private delegate void AdjustIMECompositionDelegate();
 
+        private bool _keySendLocked;
+
         private bool _inIMEComposition; //IMEによる文字入力の最中であればtrueになる
         private bool _ignoreValueChangeEvent;
 
         private bool _escForVI;
+        private bool _forceNewLine; // controls behavior of Enter key
+        private bool _hideCaret;
 
         //再描画の状態管理
         private int _drawOptimizingState = 0; //この状態管理はOnWindowManagerTimer(), SmartInvalidate()参照
 
         internal TerminalDocument GetDocument() {
             // FIXME: In rare case, _session may be null...
-            return _session.Terminal.GetDocument();
+            return _session.Terminal.Document;
         }
         protected ITerminalSettings GetTerminalSettings() {
             // FIXME: In rare case, _session may be null...
@@ -103,7 +107,10 @@ namespace Poderosa.Terminal {
         public TerminalControl() {
             _instanceID = _instanceCount++;
             _enableAutoScrollBarAdjustment = false;
+            _keySendLocked = false;
             _escForVI = false;
+            _forceNewLine = false;
+            _hideCaret = false;
             this.EnabledEx = false;
 
             // この呼び出しは、Windows.Forms フォーム デザイナで必要です。
@@ -124,7 +131,7 @@ namespace Poderosa.Terminal {
         }
         public void Attach(ITerminalControlHost session) {
             _session = session;
-            SetContent(session.Terminal.GetDocument());
+            SetContent(session.Terminal.Document);
 
             _mouseTrackingHandler.Attach(session);
             _mouseWheelHandler.Attach(session);
@@ -248,6 +255,30 @@ namespace Poderosa.Terminal {
             }
         }
 
+        internal void SetKeySendLocked(bool locked) {
+            _keySendLocked = locked;
+        }
+
+        internal bool IsKeySendLocked() {
+            return _keySendLocked;
+        }
+
+        internal void SetNewLineOnEnterKey(bool enabled) {
+            _forceNewLine = enabled;
+        }
+
+        internal bool IsNewLineOnEnterKey() {
+            return _forceNewLine;
+        }
+
+        internal void SetHideCaret(bool hide) {
+            _hideCaret = hide;
+        }
+
+        internal bool IsCaretHidden() {
+            return _hideCaret;
+        }
+
         /*
          * ↓  受信スレッドによる実行のエリア
          */
@@ -336,7 +367,7 @@ namespace Poderosa.Terminal {
                 return;
             TerminalDocument document = GetDocument();
             lock (document) {
-                document.TopLineNumber = document.FirstLineNumber + _VScrollBar.Value;
+                document.SetViewTopLineNumber(document.FirstLineNumber + _VScrollBar.Value);
                 _session.Terminal.TransientScrollBarValues.Value = _VScrollBar.Value;
                 Invalidate();
             }
@@ -418,7 +449,11 @@ namespace Poderosa.Terminal {
                 }
                 else if (keybody == Keys.Enter && modifiers == Keys.None) {
                     _escForVI = false;
-                    SendCharArray(TerminalUtil.NewLineChars(GetTerminalSettings().TransmitNL));
+                    SendCharArray(
+                        TerminalUtil.NewLineChars(
+                            _forceNewLine
+                                ? NewLine.CRLF
+                                : GetTerminalSettings().TransmitNL));
                     return true;
                 }
                 else if (keybody == Keys.Space && modifiers == Keys.Control) { //これはOnKeyPressにわたってくれない
@@ -439,9 +474,11 @@ namespace Poderosa.Terminal {
             if (keybody == Keys.Apps) { //コンテキストメニュー
                 TerminalDocument document = GetDocument();
                 int x = document.CaretColumn;
-                int y = document.CurrentLineNumber - document.TopLineNumber;
-                SizeF p = GetRenderProfile().Pitch;
-                _terminalEmulatorMouseHandler.ShowContextMenu(new Point((int)(p.Width * x), (int)(p.Height * y)));
+                int y = Math.Min(document.CurrentLineNumber - document.ViewTopLineNumber, document.TerminalHeight - 1);
+                RenderProfile renderProfile = GetRenderProfile();
+                SizeF p = renderProfile.Pitch;
+                int lineSpacing = renderProfile.LineSpacing;
+                _terminalEmulatorMouseHandler.ShowContextMenu(new Point((int)(p.Width * x), (int)((p.Height + lineSpacing) * y)));
                 return true;
             }
 
@@ -481,11 +518,8 @@ namespace Poderosa.Terminal {
                 ch = (char)((int)ch % 32); //Controlを押したら制御文字
 
             if (act == AltKeyAction.ESC) {
-                byte[] t = new byte[2];
-                t[0] = 0x1B;
-                t[1] = (byte)ch;
                 //Debug.WriteLine("ESC " + (int)ch);
-                SendBytes(t);
+                SendBytes(new byte[] { 0x1b, (byte)ch });
             }
             else { //Meta
                 ch = (char)(0x80 + ch);
@@ -533,44 +567,11 @@ namespace Poderosa.Terminal {
         }
         private bool IsAcceptableUserInput() {
             //TODO: ModalTerminalTaskの存在が理由で拒否するときはステータスバーか何かに出すのがよいかも
-            if (!this.EnabledEx || IsConnectionClosed() || _session.Terminal.CurrentModalTerminalTask != null)
+            if (!this.EnabledEx || IsConnectionClosed() || _session.Terminal.CurrentModalTerminalTask != null || _keySendLocked)
                 return false;
             else
                 return true;
 
-        }
-
-        private void ProcessScrollKey(Keys key) {
-            TerminalDocument doc = GetDocument();
-            int current = doc.TopLineNumber - doc.FirstLineNumber;
-            int newvalue = 0;
-            switch (key) {
-                case Keys.Up:
-                    newvalue = current - 1;
-                    break;
-                case Keys.Down:
-                    newvalue = current + 1;
-                    break;
-                case Keys.PageUp:
-                    newvalue = current - doc.TerminalHeight;
-                    break;
-                case Keys.PageDown:
-                    newvalue = current + doc.TerminalHeight;
-                    break;
-                case Keys.Home:
-                    newvalue = 0;
-                    break;
-                case Keys.End:
-                    newvalue = doc.LastLineNumber - doc.FirstLineNumber + 1 - doc.TerminalHeight;
-                    break;
-            }
-
-            if (newvalue < 0)
-                newvalue = 0;
-            else if (newvalue > _VScrollBar.Maximum + 1 - _VScrollBar.LargeChange)
-                newvalue = _VScrollBar.Maximum + 1 - _VScrollBar.LargeChange;
-
-            _VScrollBar.Value = newvalue; //これでイベントも発生するのでマウスで動かした場合と同じ挙動になる
         }
 
         private void ProcessSequenceKey(Keys modifier, Keys body) {
@@ -580,19 +581,7 @@ namespace Poderosa.Terminal {
         }
 
         private void MakeCurrentLineVisible() {
-
-            TerminalDocument document = GetDocument();
-            if (document.CurrentLineNumber - document.FirstLineNumber < _VScrollBar.Value) { //上に隠れた
-                document.TopLineNumber = document.CurrentLineNumber;
-                _session.Terminal.TransientScrollBarValues.Value = document.TopLineNumber - document.FirstLineNumber;
-            }
-            else if (_VScrollBar.Value + document.TerminalHeight <= document.CurrentLineNumber - document.FirstLineNumber) { //下に隠れた
-                int n = document.CurrentLineNumber - document.FirstLineNumber - document.TerminalHeight + 1;
-                if (n < 0)
-                    n = 0;
-                GetTerminal().TransientScrollBarValues.Value = n;
-                GetDocument().TopLineNumber = n + document.FirstLineNumber;
-            }
+            GetDocument().ResetViewTop();
         }
 
         protected override void OnResize(EventArgs args) {
@@ -639,7 +628,7 @@ namespace Poderosa.Terminal {
 
         public override GLine GetTopLine() {
             //TODO Pane内のクラスチェンジができるようになったらここを改善
-            return _session == null ? base.GetTopLine() : GetDocument().TopLine;
+            return _session == null ? base.GetTopLine() : GetDocument().ViewTopLine;
         }
 
         protected override void AdjustCaret(Caret caret) {
@@ -655,8 +644,8 @@ namespace Poderosa.Terminal {
                 //  the value of CaretColumn will indicate outside of the terminal view.
                 //  In such case we draw the caret on the last column of the row.
                 caret.X = Math.Min(d.CaretColumn, d.TerminalWidth - 1);
-                caret.Y = d.CurrentLineNumber - d.TopLineNumber;
-                caret.Enabled = caret.Y >= 0 && caret.Y < d.TerminalHeight;
+                caret.Y = d.CurrentLineNumber - d.ViewTopLineNumber;
+                caret.Enabled = !_hideCaret && caret.Y >= 0 && caret.Y < d.TerminalHeight;
             }
         }
 
@@ -707,28 +696,12 @@ namespace Poderosa.Terminal {
 
             if (_session.Terminal.CurrentModalTerminalTask != null)
                 return; //別タスクが走っているときは無視
-            if (GetTerminal().TerminalMode == TerminalMode.Application) //リサイズしてもスクロールリージョンも更新されるかは分からないが、一応全画面を更新する
-                GetDocument().SetScrollingRegion(0, height - 1);
             GetTerminal().Reset();
-            if (_VScrollBar.Enabled) {
-                bool scroll = IsAutoScrollMode();
-                _VScrollBar.LargeChange = height;
-                if (scroll)
-                    MakeCurrentLineVisible();
-            }
 
             //接続先へ通知
             GetTerminalTransmission().Resize(width, height);
             InvalidateEx();
         }
-        //現在行が見えるように自動的に追随していくべきかどうかの判定
-        private bool IsAutoScrollMode() {
-            TerminalDocument doc = GetDocument();
-            return GetTerminal().TerminalMode == TerminalMode.Normal &&
-                doc.CurrentLineNumber >= doc.TopLineNumber + doc.TerminalHeight - 1 &&
-                (!_VScrollBar.Enabled || _VScrollBar.Value + _VScrollBar.LargeChange > _VScrollBar.Maximum);
-        }
-
 
         //IMEの位置合わせなど。日本語入力開始時、現在のキャレット位置からIMEをスタートさせる。
         private void AdjustIMEComposition() {
@@ -746,7 +719,7 @@ namespace Poderosa.Terminal {
             Win32.SystemMetrics sm = GEnv.SystemMetrics;
             //Debug.WriteLine(String.Format("{0} {1} {2}", document.CaretColumn, charwidth, document.CurrentLine.CharPosToDisplayPos(document.CaretColumn)));
             form.ptCurrentPos.x = sm.ControlBorderWidth + (int)(prof.Pitch.Width * (document.CaretColumn));
-            form.ptCurrentPos.y = sm.ControlBorderHeight + (int)((prof.Pitch.Height + prof.LineSpacing) * (document.CurrentLineNumber - document.TopLineNumber));
+            form.ptCurrentPos.y = sm.ControlBorderHeight + (int)((prof.Pitch.Height + prof.LineSpacing) * Math.Min(document.CurrentLineNumber - document.ViewTopLineNumber, document.TerminalHeight - 1));
             bool r = Win32.ImmSetCompositionWindow(hIMC, ref form);
             Debug.Assert(r);
             Win32.ImmReleaseContext(this.Handle, hIMC);

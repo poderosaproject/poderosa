@@ -70,8 +70,7 @@ namespace Poderosa.Sessions {
         }
 
         public void Revive(ITerminalConnection connection) {
-            TerminalDocument doc = _terminal.GetDocument();
-            _output.Revive(connection, doc.TerminalWidth, doc.TerminalHeight);
+            _output.Revive(connection, _terminal.Document.TerminalWidth, _terminal.Document.TerminalHeight);
             this.OwnerWindow.DocumentTabFeature.Update(_terminal.IDocument);
             _output.Connection.Socket.RepeatAsyncRead(_terminal); //再受信
         }

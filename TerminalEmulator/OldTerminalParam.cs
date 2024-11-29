@@ -311,6 +311,23 @@ namespace Poderosa.ConnectionParam {
     }
 
     /// <summary>
+    /// <ja>行継続モード</ja>
+    /// <en>Line continuation mode</en>
+    /// </summary>
+    public enum LineContinuationMode {
+        /// <summary>
+        /// <ja>行の継続性は考慮されません (デフォルト)</ja>
+        /// <en>Line continuity is not considered (default)</en>
+        /// </summary>
+        Standard,
+        /// <summary>
+        /// <ja>バックスペースのとき、自動折り返しした前の行にカーソルが移動します。</ja>
+        /// <en>In backspace action, the cursor will move to the auto-wrapped previous line.</en>
+        /// </summary>
+        Poderosa,
+    }
+
+    /// <summary>
     /// Utility methods for conversion of <see cref="TerminalType"/>.
     /// </summary>
     public static class TerminalTypeMixin {

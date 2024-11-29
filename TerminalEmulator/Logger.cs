@@ -412,6 +412,22 @@ namespace Poderosa.Terminal {
             }
         }
 
+        public bool HasBinaryLogger {
+            get {
+                return !_binaryLoggers.IsEmpty;
+            }
+        }
+        public bool HasTextLogger {
+            get {
+                return !_textLoggers.IsEmpty;
+            }
+        }
+        public bool HasXmlLogger {
+            get {
+                return !_xmlLoggers.IsEmpty;
+            }
+        }
+
         public void Flush() {
             _binaryLoggers.Flush();
             _textLoggers.Flush();

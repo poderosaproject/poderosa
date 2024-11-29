@@ -182,7 +182,7 @@ namespace Poderosa.Terminal {
                 return; //アプリケーションモードは通知の必要なし
             //一応、前回チェック時とデータ受信の有無をもらってくれば処理の簡略化は可能
 
-            TerminalDocument doc = _terminal.GetDocument();
+            TerminalDocument doc = _terminal.Document;
             int maxLines = PromptRecognizerPreferences.Instance.PromptSearchMaxLines;
             _lineCache.Extend(maxLines);
             GLine promptCandidate = FindPromptCandidateLine(doc, maxLines);
@@ -260,7 +260,7 @@ namespace Poderosa.Terminal {
         private string ParseCommand(GLine promptCandidate, int limitLineID, int limitColumn, PromptInfo promptInfo) {
             _commandBuffer.Remove(0, _commandBuffer.Length);
 
-            Debug.Assert(promptCandidate.ID <= _terminal.GetDocument().CurrentLine.ID);
+            Debug.Assert(promptCandidate.ID <= _terminal.Document.CurrentLine.ID);
 
             int firstLineID = promptCandidate.ID;
             int offset = promptInfo.NextOffset; // initial offset of the first line

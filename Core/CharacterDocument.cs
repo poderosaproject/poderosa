@@ -42,6 +42,7 @@ namespace Poderosa.Document {
     /// </remarks>
     public class CharacterDocument : IPoderosaDocument, IPoderosaContextMenuPoint {
         protected string _caption;
+        protected string _subCaption;
         protected Image _icon;
         protected ISession _owner;
 
@@ -310,7 +311,12 @@ namespace Poderosa.Document {
         }
         public virtual string Caption {
             get {
-                return _caption;
+                return (_caption != null) ? _caption : String.Empty;
+            }
+        }
+        public virtual string SubCaption {
+            get {
+                return (_subCaption != null) ? _subCaption : this.Caption;
             }
         }
         #endregion
@@ -324,7 +330,6 @@ namespace Poderosa.Document {
         private int _lineIDStart;
         private int _lineIDEnd;
         private bool _invalidatedAll;
-
         private bool _empty;
 
         public InvalidatedRegion() {
@@ -336,16 +341,19 @@ namespace Poderosa.Document {
                 return _lineIDStart;
             }
         }
+
         public int LineIDEnd {
             get {
                 return _lineIDEnd;
             }
         }
+
         public bool IsEmpty {
             get {
                 return _empty;
             }
         }
+
         public bool InvalidatedAll {
             get {
                 return _invalidatedAll;
@@ -367,7 +375,8 @@ namespace Poderosa.Document {
                     _lineIDEnd = id;
             }
         }
-        public void Reset() {
+
+        private void Reset() {
             lock (this) {
                 _lineIDStart = NOT_SET;
                 _lineIDEnd = NOT_SET;
