@@ -241,7 +241,7 @@ namespace Poderosa.Pipe {
                 }
 
                 TerminalType terminalType = ((EnumListItem<TerminalType>)_comboBoxTerminalType.SelectedItem).Value;
-                paramTmp.SetTerminalName(terminalType.ToString().ToLowerInvariant());
+                paramTmp.SetTerminalName(terminalType.ToTermValue());
 
                 LogType logType = ((EnumListItem<LogType>)_comboBoxLogType.SelectedItem).Value;
                 ISimpleLogSettings logSettings = null;

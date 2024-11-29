@@ -151,7 +151,7 @@ namespace Poderosa.Sessions {
                         break;
                     case "terminal-type":
                         settings.TerminalType = ParseUtil.ParseEnum<TerminalType>(attr.Value, TerminalType.XTerm);
-                        param.SetTerminalName(attr.Value);
+                        param.SetTerminalName(settings.TerminalType.ToTermValue());
                         break;
                     case "localecho":
                         settings.LocalEcho = ParseUtil.ParseBool(attr.Value, false);

@@ -232,17 +232,5 @@ namespace Poderosa.Sessions {
             }
         }
 
-
-        public static string ToTerminalName(TerminalType tt) {
-            switch (tt) {
-                case TerminalType.KTerm:
-                    return "kterm";
-                case TerminalType.XTerm:
-                    return "xterm";
-                default:
-                    return "vt100";
-            }
-        }
-
     }
 }

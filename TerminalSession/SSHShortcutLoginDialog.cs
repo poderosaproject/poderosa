@@ -509,7 +509,7 @@ namespace Poderosa.Sessions {
                 }
 
                 ITerminalParameter param = (ITerminalParameter)p.GetAdapter(typeof(ITerminalParameter));
-                param.SetTerminalName(ToTerminalName(settings.TerminalType));
+                param.SetTerminalName(settings.TerminalType.ToTermValue());
 
                 if (p.AuthenticationType == AuthenticationType.PublicKey) {
                     if (!File.Exists(_privateKeyBox.Text))
