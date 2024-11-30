@@ -446,11 +446,11 @@ namespace Poderosa.View {
 
                     //描画用にテンポラリのGLineを作り、描画中にdocumentをロックしないようにする
                     //!!ここは実行頻度が高いのでnewを毎回するのは避けたいところだ
-                    RenderParameter param = new RenderParameter();
+                    RenderParameter param;
                     _caret.Enabled = _caret.Enabled && this.Focused; //TODO さらにIME起動中はキャレットを表示しないように. TerminalControlだったらAdjustCaretでIMEをみてるので問題はない
                     lock (_document) {
                         CommitTransientScrollBar();
-                        BuildTransientDocument(e, param);
+                        BuildTransientDocument(clip, out param);
                     }
 
                     DrawLines(g, param, backColor);
@@ -482,8 +482,7 @@ namespace Poderosa.View {
 #endif
         }
 
-        private void BuildTransientDocument(PaintEventArgs e, RenderParameter param) {
-            Rectangle clip = e.ClipRectangle;
+        private void BuildTransientDocument(Rectangle clip, out RenderParameter param) {
             RenderProfile profile = GetRenderProfile();
             _transientLines.Clear();
 
@@ -491,24 +490,19 @@ namespace Poderosa.View {
             //param.TargetRect = new Rectangle(sm.ControlBorderWidth+1, sm.ControlBorderHeight,
             //	this.Width - _VScrollBar.Width - sm.ControlBorderWidth + 8, //この８がない値が正当だが、.NETの文字サイズ丸め問題のため行の最終文字が表示されないことがある。これを回避するためにちょっと増やす
             //	this.Height - sm.ControlBorderHeight);
-            param.TargetRect = this.ClientRectangle;
+            Rectangle targetRect = this.ClientRectangle;
 
-            int offset1 = (int)Math.Floor((clip.Top - BORDER) / (profile.Pitch.Height + profile.LineSpacing));
-            if (offset1 < 0)
-                offset1 = 0;
-            param.LineFrom = offset1;
-            int offset2 = (int)Math.Floor((clip.Bottom - BORDER) / (profile.Pitch.Height + profile.LineSpacing));
-            if (offset2 < 0)
-                offset2 = 0;
-
-            param.LineCount = offset2 - offset1 + 1;
+            int offset1 = (int)Math.Floor(Math.Max(clip.Top - BORDER, 0) / (profile.Pitch.Height + profile.LineSpacing));
+            int lineFrom = offset1;
+            int offset2 = (int)Math.Floor(Math.Max(clip.Bottom - BORDER, 0) / (profile.Pitch.Height + profile.LineSpacing));
+            int lineCount = offset2 - offset1 + 1;
             //Debug.WriteLine(String.Format("{0} {1} ", param.LineFrom, param.LineCount));
 
             int topline_id = GetTopLine().ID;
-            GLine l = _document.FindLineOrNull(topline_id + param.LineFrom);
+            GLine l = _document.FindLineOrNull(topline_id + lineFrom);
             if (l != null) {
                 int poolIndex = 0;
-                for (int i = 0; i < param.LineCount; i++) {
+                for (int i = 0; i < lineCount; i++) {
                     GLine cloned;
                     if (poolIndex < _glinePool.Count) {
                         cloned = _glinePool[poolIndex];
@@ -541,7 +535,7 @@ namespace Poderosa.View {
                     t = t.NextLine;
                     int pos = from.Column; //たとえば左端を越えてドラッグしたときの選択範囲は前行末になるので pos==TerminalWidthとなるケースがある。
                     do {
-                        int index = l.ID - (topline_id + param.LineFrom);
+                        int index = l.ID - (topline_id + lineFrom);
                         if (pos >= 0 && pos < l.DisplayLength && index >= 0 && index < _transientLines.Count) {
                             if (l.ID == to.Line) {
                                 if (pos != to.Column) {
@@ -559,18 +553,24 @@ namespace Poderosa.View {
             }
 
             AdjustCaret(_caret);
-            _caret.Enabled = _caret.Enabled && (param.LineFrom <= _caret.Y && _caret.Y < param.LineFrom + param.LineCount);
+            _caret.Enabled = _caret.Enabled && (lineFrom <= _caret.Y && _caret.Y < lineFrom + lineCount);
 
             //Caret画面外にあるなら処理はしなくてよい。２番目の条件は、Attach-ResizeTerminalの流れの中でこのOnPaintを実行した場合にTerminalHeight>lines.Countになるケースがあるのを防止するため
             if (_caret.Enabled) {
                 //ヒクヒク問題のため、キャレットを表示しないときでもこの操作は省けない
                 if (_caret.Style == CaretType.Box) {
-                    int y = _caret.Y - param.LineFrom;
+                    int y = _caret.Y - lineFrom;
                     if (y >= 0 && y < _transientLines.Count) {
                         _transientLines[y].SetCursor(_caret.X);
                     }
                 }
             }
+
+            param = new RenderParameter(
+                lineFrom: lineFrom,
+                lineCount: lineCount,
+                targetRect: targetRect
+            );
         }
 
         private void DrawLines(Graphics g, RenderParameter param, Color baseBackColor) {
@@ -796,34 +796,18 @@ namespace Poderosa.View {
      * 何行目から何行目までを描画すべきかの情報を収録
      */
     internal class RenderParameter {
-        private int _linefrom;
-        private int _linecount;
-        private Rectangle _targetRect;
+        public readonly int LineFrom;
+        public readonly int LineCount;
+        public readonly Rectangle TargetRect;
 
-        public int LineFrom {
-            get {
-                return _linefrom;
-            }
-            set {
-                _linefrom = value;
-            }
-        }
-
-        public int LineCount {
-            get {
-                return _linecount;
-            }
-            set {
-                _linecount = value;
-            }
-        }
-        public Rectangle TargetRect {
-            get {
-                return _targetRect;
-            }
-            set {
-                _targetRect = value;
-            }
+        public RenderParameter(
+            int lineFrom,
+            int lineCount,
+            Rectangle targetRect
+        ) {
+            this.LineFrom = lineFrom;
+            this.LineCount = lineCount;
+            this.TargetRect = targetRect;
         }
     }
 
