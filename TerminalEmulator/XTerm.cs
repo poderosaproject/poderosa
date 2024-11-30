@@ -1364,7 +1364,7 @@ namespace Poderosa.Terminal {
         private void ProcessLineColumnAbsolute(NumericParams p) {
             int n = p.GetNonZero(0, 1);
             ViewPort vp = GetViewPort();
-            Document.CaretColumn = vp.ToCaretColumn(Math.Min(n, vp.Width) - 1);
+            Document.CaretColumn = vp.ToCaretColumn(Math.Min(n, vp.Width));
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'H')] // CUP
