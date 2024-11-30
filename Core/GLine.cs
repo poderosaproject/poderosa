@@ -1218,14 +1218,16 @@ namespace Poderosa.Document {
 
             if (IsDoubleWidth) {
                 pitch *= 2;
-            }
-            if (IsDoubleHeight) {
-                etoCommonOpts += Win32.ETO_CLIPPED;
-                if (IsLowerHalf) {
-                    textYOffset = -(int)prof.Pitch.Height;
-                }
-                else {
-                    underlineFlag = GAttrFlags.None;
+
+                // supports only the case where both double-height and double-width are specified.
+                if (IsDoubleHeight) {
+                    etoCommonOpts += Win32.ETO_CLIPPED;
+                    if (IsLowerHalf) {
+                        textYOffset = -(int)prof.Pitch.Height;
+                    }
+                    else {
+                        underlineFlag = GAttrFlags.None;
+                    }
                 }
             }
 
