@@ -691,6 +691,11 @@ namespace Poderosa.Terminal {
         private void ResizeTerminal(int width, int height) {
             //Debug.WriteLine(String.Format("Resize {0} {1}", width, height));
 
+            //   In the terminal display, the rendered area should be restricted to
+            // the screen size, since the remote application only updates within
+            // the notified screen size.
+            RestrictDisplayArea(width, height);
+
             //Documentへ通知
             GetDocument().Resize(width, height);
 

@@ -46,6 +46,7 @@ namespace Poderosa.View {
         internal const int TIMER_INTERVAL = 50; //再描画最適化とキャレット処理を行うタイマーの間隔
 
         private CharacterDocument _document;
+        private int _maxDisplayLines; // restrict lines to display to avoid artifacts
         private bool _errorRaisedInDrawing;
         private readonly List<GLine> _transientLines; //再描画するGLineを一時的に保管する
         private readonly List<GLine> _glinePool;
@@ -70,6 +71,7 @@ namespace Poderosa.View {
 #endif
 
         public CharacterDocumentViewer() {
+            _maxDisplayLines = Int32.MaxValue;
             _enableAutoScrollBarAdjustment = true;
             _transientLines = new List<GLine>();
             _glinePool = new List<GLine>();
@@ -134,6 +136,7 @@ namespace Poderosa.View {
                 this.ImeMode = value ? ImeMode.NoControl : ImeMode.Disable;
             }
         }
+
         public VScrollBar VScrollBar {
             get {
                 return _VScrollBar;
@@ -302,6 +305,10 @@ namespace Poderosa.View {
 
         //キャレットの座標設定、表示の可否を設定
         protected virtual void AdjustCaret(Caret caret) {
+        }
+
+        protected void RestrictDisplayArea(int width, int height) {
+            _maxDisplayLines = height;
         }
 
         //_documentの更新状況を見て適切な領域のControl.Invalidate()を呼ぶ。
@@ -492,10 +499,20 @@ namespace Poderosa.View {
             //	this.Height - sm.ControlBorderHeight);
             Rectangle targetRect = this.ClientRectangle;
 
-            int offset1 = (int)Math.Floor(Math.Max(clip.Top - BORDER, 0) / (profile.Pitch.Height + profile.LineSpacing));
-            int lineFrom = offset1;
-            int offset2 = (int)Math.Floor(Math.Max(clip.Bottom - BORDER, 0) / (profile.Pitch.Height + profile.LineSpacing));
-            int lineCount = offset2 - offset1 + 1;
+            float linePitch = profile.Pitch.Height + profile.LineSpacing;
+            int lineFrom = (int)Math.Floor(Math.Max(clip.Top - BORDER, 0) / linePitch);
+            int lineTo = (int)Math.Floor(Math.Max(clip.Bottom - BORDER, 0) / linePitch);
+            int lineCount;
+            if (lineFrom >= _maxDisplayLines) {
+                lineCount = 0;
+            }
+            else {
+                if (lineTo >= _maxDisplayLines) {
+                    lineTo = _maxDisplayLines - 1;
+                }
+                lineCount = lineTo - lineFrom + 1;
+            }
+            
             //Debug.WriteLine(String.Format("{0} {1} ", param.LineFrom, param.LineCount));
 
             int topline_id = GetTopLine().ID;
