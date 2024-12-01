@@ -143,6 +143,9 @@ namespace Poderosa.Terminal {
 
             // Initialize Unicode table
             Poderosa.Document.Unicode.Initialize();
+
+            // Prepare EscapeSequenceEngine for XTerm
+            EscapeSequence.EscapeSequenceEngine<XTerm>.BuildStateMachine();
         }
 
 #if UNITTEST
