@@ -985,12 +985,16 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="dec">text decoration for specifying the background color, or null for using default attributes.</param>
         /// <param name="selective">if true, protected characters are retained.</param>
-        public void Clear(TextDecoration dec = null, bool selective = false) {
+        /// <param name="resetLineRenderingType">if true, LineRenderingType is reset to Normal.</param>
+        public void Clear(TextDecoration dec = null, bool selective = false, bool resetLineRenderingType = true) {
             TextDecoration d = dec ?? TextDecoration.Default;
             GAttr attr = d.Attr;
             GColor24 color = d.Color24;
 
             lock (this) {
+                if (resetLineRenderingType) {
+                    _lineRenderingType = LineRenderingType.Normal;
+                }
                 if (selective) {
                     FillSelective(0, _cell.Length, GChar.ASCII_NUL, attr, color);
                 }

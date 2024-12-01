@@ -316,7 +316,7 @@ namespace Poderosa.Terminal {
             _enableHorizontalMargins = false;
             _rectangularAttributeChange = false;
             _escapeSequenceEngine.Reset();
-            DoEraseInDisplay(2 /* all */, false);
+            DoEraseInDisplay(2 /* all */, false, true);
             MoveCursorTo(new Row(1), new Col(1));
         }
 
@@ -1416,22 +1416,27 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'J')] // ED
         private void ProcessEraseInDisplay(NumericParams p) {
             int param = p.Get(0, 0);
-            DoEraseInDisplay(param, false);
+            DoEraseInDisplay(param, false, true);
         }
 
         [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'J')] // DECSED
         private void ProcessSelectiveEraseInDisplay(NumericParams p) {
             int param = p.Get(0, 0);
-            DoEraseInDisplay(param, true);
+            DoEraseInDisplay(param, true, false);
         }
 
-        private void DoEraseInDisplay(int param, bool selective) {
+        private void DoEraseInDisplay(int param, bool selective, bool resetLineRenderingType) {
             int bottomLineNumber = Document.TopLineNumber + Document.TerminalHeight - 1;
             switch (param) {
                 case 0: //erase below
                     {
-                        if (Document.CaretColumn == 0 && Document.CurrentLineNumber == Document.TopLineNumber)
+                        if (Document.CaretColumn == 0 && Document.CurrentLineNumber == Document.TopLineNumber) {
                             goto ERASE_ALL;
+                        }
+
+                        if (Document.CaretColumn == 0 && resetLineRenderingType) {
+                            _manipulator.LineRenderingType = LineRenderingType.Normal;
+                        }
 
                         if (selective) {
                             SelectiveEraseRight();
@@ -1439,17 +1444,23 @@ namespace Poderosa.Terminal {
                         else {
                             EraseRight();
                         }
+
                         Document.UpdateCurrentLine(_manipulator);
                         Document.EnsureLine(bottomLineNumber);
                         Document.RemoveAfter(bottomLineNumber + 1);
-                        Document.ClearRange(Document.CurrentLineNumber + 1, bottomLineNumber + 1, Document.CurrentDecoration, selective);
+                        Document.ClearRange(Document.CurrentLineNumber + 1, bottomLineNumber + 1, Document.CurrentDecoration, selective, resetLineRenderingType);
                         _manipulator.Load(Document.CurrentLine);
                     }
                     break;
                 case 1: //erase above
                     {
-                        if (Document.CaretColumn == Document.TerminalWidth - 1 && Document.CurrentLineNumber == bottomLineNumber)
+                        if (Document.CaretColumn >= Document.TerminalWidth - 1 && Document.CurrentLineNumber == bottomLineNumber) {
                             goto ERASE_ALL;
+                        }
+
+                        if (Document.CaretColumn >= Document.TerminalWidth - 1 && resetLineRenderingType) {
+                            _manipulator.LineRenderingType = LineRenderingType.Normal;
+                        }
 
                         if (selective) {
                             SelectiveEraseLeft();
@@ -1458,7 +1469,7 @@ namespace Poderosa.Terminal {
                             EraseLeft();
                         }
                         Document.UpdateCurrentLine(_manipulator);
-                        Document.ClearRange(Document.TopLineNumber, Document.CurrentLineNumber, Document.CurrentDecoration, selective);
+                        Document.ClearRange(Document.TopLineNumber, Document.CurrentLineNumber, Document.CurrentDecoration, selective, resetLineRenderingType);
                         _manipulator.Load(Document.CurrentLine);
                     }
                     break;
@@ -1470,7 +1481,7 @@ namespace Poderosa.Terminal {
                         Document.UpdateCurrentLine(_manipulator);
                         Document.EnsureLine(bottomLineNumber);
                         Document.RemoveAfter(bottomLineNumber + 1);
-                        Document.ClearRange(Document.TopLineNumber, bottomLineNumber + 1, Document.CurrentDecoration, selective);
+                        Document.ClearRange(Document.TopLineNumber, bottomLineNumber + 1, Document.CurrentDecoration, selective, resetLineRenderingType);
                         _manipulator.Load(Document.CurrentLine);
                     }
                     break;
@@ -3486,7 +3497,7 @@ namespace Poderosa.Terminal {
         }
 
         private void ClearScreen() {
-            DoEraseInDisplay(2, false);
+            DoEraseInDisplay(2, false, true);
         }
 
         [EscapeSequence(ControlCode.ESC, '7')] // DECSC
