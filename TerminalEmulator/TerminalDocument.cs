@@ -908,26 +908,13 @@ namespace Poderosa.Terminal {
             _invalidatedRegion.InvalidatedAll = true;
         }
 
-        public void ClearAfter(int from, TextDecoration dec) {
-            GLine l = FindLineOrNullClipTop(from);
-            if (l == null)
-                return;
-
-            while (l != null) {
-                l.Clear(dec);
-                l = l.NextLine;
-            }
-
-            _invalidatedRegion.InvalidatedAll = true;
-        }
-
-        public void ClearRange(int from, int to, TextDecoration dec, bool selective = false) {
+        public void ClearRange(int from, int to, TextDecoration dec, bool selective, bool resetLineRenderingType) {
             GLine l = FindLineOrNullClipTop(from);
             if (l == null)
                 return;
 
             while (l != null && l.ID < to) {
-                l.Clear(dec, selective);
+                l.Clear(dec, selective, resetLineRenderingType);
                 _invalidatedRegion.InvalidateLine(l.ID);
                 l = l.NextLine;
             }

@@ -49,8 +49,8 @@ namespace Poderosa.Terminal {
 
         private class SavedCursor {
             // cursor position (0-based index)
-            public readonly int Row;
-            public readonly int Col;
+            public readonly int RowIndex;
+            public readonly int ColIndex;
             // character attributes / selective erase attribute
             public readonly TextDecoration Decoration;
             // wrap mode
@@ -61,15 +61,15 @@ namespace Poderosa.Terminal {
             public readonly CharacterSetMapping CharacterSetMapping;
 
             public SavedCursor(
-                int row,
-                int col,
+                int rowIndex,
+                int colIndex,
                 TextDecoration decoration,
                 bool wrapAroundMode,
                 bool scrollRegionRelative,
                 CharacterSetMapping characterSetMapping
             ) {
-                this.Row = row;
-                this.Col = col;
+                this.RowIndex = rowIndex;
+                this.ColIndex = colIndex;
                 this.Decoration = decoration;
                 this.WrapAroundMode = wrapAroundMode;
                 this.ScrollRegionRelative = scrollRegionRelative;
@@ -78,16 +78,16 @@ namespace Poderosa.Terminal {
         }
 
         private struct RectArea {
-            public readonly int Top;
-            public readonly int Left;
-            public readonly int Bottom;
-            public readonly int Right;
+            public readonly Row Top;
+            public readonly Col Left;
+            public readonly Row Bottom;
+            public readonly Col Right;
 
             public RectArea(
-                int top,
-                int left,
-                int bottom,
-                int right
+                Row top,
+                Col left,
+                Row bottom,
+                Col right
             ) {
                 this.Top = top;
                 this.Left = left;
@@ -99,17 +99,17 @@ namespace Poderosa.Terminal {
         /// <summary>
         /// Position on the screen or view-port
         /// </summary>
-        protected struct RowCol {
+        private struct RowCol {
             /// <summary>
             /// Vertical position. 1-based.
             /// </summary>
-            public readonly int Row;
+            public readonly Row Row;
             /// <summary>
             /// Horizontal position. 1-based.
             /// </summary>
-            public readonly int Col;
+            public readonly Col Col;
 
-            public RowCol(int row, int col) {
+            public RowCol(Row row, Col col) {
                 Row = row;
                 Col = col;
             }
@@ -118,7 +118,7 @@ namespace Poderosa.Terminal {
         /// <summary>
         /// View port
         /// </summary>
-        protected struct ViewPort {
+        private struct ViewPort {
             /// <summary>
             /// View port width
             /// </summary>
@@ -150,20 +150,20 @@ namespace Poderosa.Terminal {
                 }
             }
 
-            public int ToLineNumber(int row) {
-                return _baseLineNumber + row - 1;
+            public int ToLineNumber(Row row) {
+                return _baseLineNumber + row.Value - 1;
             }
 
-            public int ToCaretColumn(int col) {
-                return _leftOffset + col - 1;
+            public int ToCaretColumn(Col col) {
+                return _leftOffset + col.Value - 1;
             }
 
-            public int FromLineNumber(int n) {
-                return n - _baseLineNumber + 1;
+            public Row FromLineNumber(int n) {
+                return (n - _baseLineNumber + 1).AsRow();
             }
 
-            public int FromCaretColumn(int c) {
-                return c - _leftOffset + 1;
+            public Col FromCaretColumn(int c) {
+                return (c - _leftOffset + 1).AsCol();
             }
 
             /// <summary>
@@ -171,8 +171,8 @@ namespace Poderosa.Terminal {
             /// </summary>
             public RowCol GetOrigin() {
                 return new RowCol(
-                    row: _topOffset + 1,
-                    col: _leftOffset + 1
+                    row: (_topOffset + 1).AsRow(),
+                    col: (_leftOffset + 1).AsCol()
                 );
             }
         }
@@ -316,8 +316,8 @@ namespace Poderosa.Terminal {
             _enableHorizontalMargins = false;
             _rectangularAttributeChange = false;
             _escapeSequenceEngine.Reset();
-            DoEraseInDisplay(2 /* all */, false);
-            MoveCursorTo(1, 1);
+            DoEraseInDisplay(2 /* all */, false, true);
+            MoveCursorTo(new Row(1), new Col(1));
         }
 
         protected override void SoftResetInternal() { // called from the base class
@@ -934,7 +934,7 @@ namespace Poderosa.Terminal {
 
             _manipulator.Load(Document.CurrentLine);
 
-            MoveCursorTo(1, 1);
+            MoveCursorTo(new Row(1), new Col(1));
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'c')] // DA
@@ -1018,15 +1018,15 @@ namespace Poderosa.Terminal {
         private RowCol GetCursorPosition() {
             ViewPort vp = GetViewPort();
             return new RowCol(
-                row: Math.Max(vp.FromLineNumber(Document.CurrentLineNumber), 1),
-                col: Math.Max(vp.FromCaretColumn(Document.CaretColumn), 1)
+                row: vp.FromLineNumber(Document.CurrentLineNumber).ClipLower(1),
+                col: vp.FromCaretColumn(Document.CaretColumn).ClipLower(1)
             );
         }
 
         private RowCol GetScreenCursorPosition() {
             return new RowCol(
-                row: Document.CurrentLineNumber - Document.TopLineNumber + 1,
-                col: Document.CaretColumn + 1
+                row: (Document.CurrentLineNumber - Document.TopLineNumber + 1).AsRow(),
+                col: (Document.CaretColumn + 1).AsCol()
             );
         }
 
@@ -1364,7 +1364,7 @@ namespace Poderosa.Terminal {
         private void ProcessLineColumnAbsolute(NumericParams p) {
             int n = p.GetNonZero(0, 1);
             ViewPort vp = GetViewPort();
-            Document.CaretColumn = vp.ToCaretColumn(Math.Min(n, vp.Width) - 1);
+            Document.CaretColumn = vp.ToCaretColumn(Math.Min(n, vp.Width).AsCol());
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'H')] // CUP
@@ -1376,8 +1376,8 @@ namespace Poderosa.Terminal {
             ViewPort vp = GetViewPort();
             RowCol origin = vp.GetOrigin();
             MoveCursorTo(
-                origin.Row + Math.Min(row, vp.Height) - 1,
-                origin.Col + Math.Min(col, vp.Width) - 1
+                (origin.Row.Value + Math.Min(row, vp.Height) - 1).AsRow(),
+                (origin.Col.Value + Math.Min(col, vp.Width) - 1).AsCol()
             );
         }
 
@@ -1391,8 +1391,8 @@ namespace Poderosa.Terminal {
             MoveCursorToOrigin();
         }
 
-        private void MoveCursorTo(int row, int col) {
-            int nextLineNumber = Document.TopLineNumber + row - 1;
+        private void MoveCursorTo(Row row, Col col) {
+            int nextLineNumber = Document.TopLineNumber + row.Value - 1;
             if (Document.CurrentLineNumber != nextLineNumber) {
                 GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
                 if (lineUpdated != null) {
@@ -1401,7 +1401,7 @@ namespace Poderosa.Terminal {
                 Document.CurrentLineNumber = nextLineNumber;
                 _manipulator.Load(Document.CurrentLine);
             }
-            Document.CaretColumn = col - 1;
+            Document.CaretColumn = col.Value - 1;
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'a')] // HPR
@@ -1416,22 +1416,27 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'J')] // ED
         private void ProcessEraseInDisplay(NumericParams p) {
             int param = p.Get(0, 0);
-            DoEraseInDisplay(param, false);
+            DoEraseInDisplay(param, false, true);
         }
 
         [EscapeSequence(ControlCode.CSI, '?', EscapeSequenceParamType.Numeric, 'J')] // DECSED
         private void ProcessSelectiveEraseInDisplay(NumericParams p) {
             int param = p.Get(0, 0);
-            DoEraseInDisplay(param, true);
+            DoEraseInDisplay(param, true, false);
         }
 
-        private void DoEraseInDisplay(int param, bool selective) {
+        private void DoEraseInDisplay(int param, bool selective, bool resetLineRenderingType) {
             int bottomLineNumber = Document.TopLineNumber + Document.TerminalHeight - 1;
             switch (param) {
                 case 0: //erase below
                     {
-                        if (Document.CaretColumn == 0 && Document.CurrentLineNumber == Document.TopLineNumber)
+                        if (Document.CaretColumn == 0 && Document.CurrentLineNumber == Document.TopLineNumber) {
                             goto ERASE_ALL;
+                        }
+
+                        if (Document.CaretColumn == 0 && resetLineRenderingType) {
+                            _manipulator.LineRenderingType = LineRenderingType.Normal;
+                        }
 
                         if (selective) {
                             SelectiveEraseRight();
@@ -1439,17 +1444,23 @@ namespace Poderosa.Terminal {
                         else {
                             EraseRight();
                         }
+
                         Document.UpdateCurrentLine(_manipulator);
                         Document.EnsureLine(bottomLineNumber);
                         Document.RemoveAfter(bottomLineNumber + 1);
-                        Document.ClearRange(Document.CurrentLineNumber + 1, bottomLineNumber + 1, Document.CurrentDecoration, selective);
+                        Document.ClearRange(Document.CurrentLineNumber + 1, bottomLineNumber + 1, Document.CurrentDecoration, selective, resetLineRenderingType);
                         _manipulator.Load(Document.CurrentLine);
                     }
                     break;
                 case 1: //erase above
                     {
-                        if (Document.CaretColumn == Document.TerminalWidth - 1 && Document.CurrentLineNumber == bottomLineNumber)
+                        if (Document.CaretColumn >= Document.TerminalWidth - 1 && Document.CurrentLineNumber == bottomLineNumber) {
                             goto ERASE_ALL;
+                        }
+
+                        if (Document.CaretColumn >= Document.TerminalWidth - 1 && resetLineRenderingType) {
+                            _manipulator.LineRenderingType = LineRenderingType.Normal;
+                        }
 
                         if (selective) {
                             SelectiveEraseLeft();
@@ -1458,7 +1469,7 @@ namespace Poderosa.Terminal {
                             EraseLeft();
                         }
                         Document.UpdateCurrentLine(_manipulator);
-                        Document.ClearRange(Document.TopLineNumber, Document.CurrentLineNumber, Document.CurrentDecoration, selective);
+                        Document.ClearRange(Document.TopLineNumber, Document.CurrentLineNumber, Document.CurrentDecoration, selective, resetLineRenderingType);
                         _manipulator.Load(Document.CurrentLine);
                     }
                     break;
@@ -1470,7 +1481,7 @@ namespace Poderosa.Terminal {
                         Document.UpdateCurrentLine(_manipulator);
                         Document.EnsureLine(bottomLineNumber);
                         Document.RemoveAfter(bottomLineNumber + 1);
-                        Document.ClearRange(Document.TopLineNumber, bottomLineNumber + 1, Document.CurrentDecoration, selective);
+                        Document.ClearRange(Document.TopLineNumber, bottomLineNumber + 1, Document.CurrentDecoration, selective, resetLineRenderingType);
                         _manipulator.Load(Document.CurrentLine);
                     }
                     break;
@@ -1538,10 +1549,10 @@ namespace Poderosa.Terminal {
             right = Math.Min(right, vp.Width);
 
             rect = new RectArea(
-                    top: top,
-                    left: left,
-                    bottom: bottom,
-                    right: right
+                    top: top.AsRow(),
+                    left: left.AsCol(),
+                    bottom: bottom.AsRow(),
+                    right: right.AsCol()
                 );
             return true;
         }
@@ -1816,14 +1827,18 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.ESC, '#', '3')] // DECDHL – Double Height Line / top half
         private void ProcessDoubleHeightLineTopHalf() {
-            _manipulator.LineRenderingType = LineRenderingType.QuadUpperHalf;
-            Document.UpdateCurrentLine(_manipulator);
+            if (!_enableHorizontalMargins) {
+                _manipulator.LineRenderingType = LineRenderingType.QuadUpperHalf;
+                Document.UpdateCurrentLine(_manipulator);
+            }
         }
 
         [EscapeSequence(ControlCode.ESC, '#', '4')] // DECDHL – Double Height Line / bottom half
         private void ProcessDoubleHeightLineBottomHalf() {
-            _manipulator.LineRenderingType = LineRenderingType.QuadLowerHalf;
-            Document.UpdateCurrentLine(_manipulator);
+            if (!_enableHorizontalMargins) {
+                _manipulator.LineRenderingType = LineRenderingType.QuadLowerHalf;
+                Document.UpdateCurrentLine(_manipulator);
+            }
         }
 
         [EscapeSequence(ControlCode.ESC, '#', '5')] // DECSWL – Single-width Line
@@ -1834,8 +1849,10 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.ESC, '#', '6')] // DECDWL – Double-Width Line
         private void ProcessDoubleWidthLine() {
-            _manipulator.LineRenderingType = LineRenderingType.DoubleWidth;
-            Document.UpdateCurrentLine(_manipulator);
+            if (!_enableHorizontalMargins) {
+                _manipulator.LineRenderingType = LineRenderingType.DoubleWidth;
+                Document.UpdateCurrentLine(_manipulator);
+            }
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'p')] // DECRQM (ANSI mode)
@@ -2660,7 +2677,7 @@ namespace Poderosa.Terminal {
                 case 3:	//132 Column Mode
                     Document.ClearMargins();
                     ClearScreen();
-                    MoveCursorTo(1, 1);
+                    MoveCursorTo(new Row(1), new Col(1));
                     break;
                 case 4:	//Smooth Scroll
                     break;
@@ -2689,6 +2706,9 @@ namespace Poderosa.Terminal {
                 case 69: // Enable left and right margin mode (DECLRMM)
                     _enableHorizontalMargins = set;
                     Document.ClearHorizontalMargins();
+                    if (set) {
+                        ResetLineRenderingType();
+                    }
                     break;
                 case 1000: // DEC VT200 compatible: Send button press and release event with mouse position.
                     ResetMouseTracking((set) ? MouseTrackingState.Normal : MouseTrackingState.Off);
@@ -2765,6 +2785,18 @@ namespace Poderosa.Terminal {
                 case 2004:    // Set/Reset bracketed paste mode
                     _bracketedPasteMode = set;
                     break;
+            }
+        }
+
+        private void ResetLineRenderingType() {
+            int bottomLineNumber = Document.TopLineNumber + Document.TerminalHeight - 1;
+            GLine l = Document.TopLine;
+            while (l != null && l.ID <= bottomLineNumber) {
+                bool updated = l.SetLineRenderingType(LineRenderingType.Normal);
+                if (updated) {
+                    Document.InvalidatedRegion.InvalidateLine(l.ID);
+                }
+                l = l.NextLine;
             }
         }
 
@@ -2963,8 +2995,8 @@ namespace Poderosa.Terminal {
                     _manipulator.Load(l);
                     changeAttributes(
                         _manipulator,
-                        (l.ID == rectTopLineNumber) ? vp.ToCaretColumn(rect.Left) : vp.ToCaretColumn(1),
-                        (l.ID == rectBottomLineNumber) ? vp.ToCaretColumn(rect.Right + 1) : vp.ToCaretColumn(vp.Width + 1)
+                        vp.ToCaretColumn((l.ID == rectTopLineNumber) ? rect.Left : new Col(1)),
+                        vp.ToCaretColumn((l.ID == rectBottomLineNumber) ? rect.Right + 1 : (vp.Width + 1).AsCol())
                     );
                     _manipulator.ExportTo(l);
                     Document.InvalidatedRegion.InvalidateLine(l.ID);
@@ -3002,7 +3034,7 @@ namespace Poderosa.Terminal {
             int destLeft = p.GetNonZero(6, 1);
             // int destPage = p.GetNonZero(7, 1); // ignored
 
-            if (destTop > vp.Height || destLeft > vp.Width || (destTop == srcRect.Top && destLeft == srcRect.Left)) {
+            if (destTop > vp.Height || destLeft > vp.Width || (destTop == srcRect.Top.Value && destLeft == srcRect.Left.Value)) {
                 return;
             }
 
@@ -3010,7 +3042,7 @@ namespace Poderosa.Terminal {
 
             Document.EnsureLine(vp.ToLineNumber(srcRect.Bottom));
 
-            GLine[] copy = new GLine[srcRect.Bottom - srcRect.Top + 1];
+            GLine[] copy = new GLine[srcRect.Bottom.Value - srcRect.Top.Value + 1];
             {
                 int rectTopLineNumber = vp.ToLineNumber(srcRect.Top);
                 int rectBottomLineNumber = vp.ToLineNumber(srcRect.Bottom);
@@ -3024,8 +3056,8 @@ namespace Poderosa.Terminal {
                 }
             }
 
-            int destTopLineNumber = vp.ToLineNumber(destTop);
-            int destBottomLimit = vp.ToLineNumber(Math.Min(destTop + srcRect.Bottom - srcRect.Top, vp.Height));
+            int destTopLineNumber = vp.ToLineNumber(destTop.AsRow());
+            int destBottomLimit = vp.ToLineNumber(Math.Min(destTop + srcRect.Bottom.Value - srcRect.Top.Value, vp.Height).AsRow());
 
             Document.EnsureLine(destBottomLimit);
 
@@ -3038,7 +3070,7 @@ namespace Poderosa.Terminal {
                         srcManipurator.Load(copy[offset]);
                         _manipulator.Load(destLine);
                         _manipulator.ExpandBuffer(Document.TerminalWidth);
-                        _manipulator.CopyFrom(srcManipurator, srcRect.Left - 1, srcRect.Right, destLeft - 1);
+                        _manipulator.CopyFrom(srcManipurator, srcRect.Left.Value - 1, srcRect.Right.Value, destLeft - 1);
                         _manipulator.ExportTo(destLine);
                         Document.InvalidatedRegion.InvalidateLine(destLine.ID);
                     }
@@ -3465,7 +3497,7 @@ namespace Poderosa.Terminal {
         }
 
         private void ClearScreen() {
-            DoEraseInDisplay(2, false);
+            DoEraseInDisplay(2, false, true);
         }
 
         [EscapeSequence(ControlCode.ESC, '7')] // DECSC
@@ -3479,12 +3511,12 @@ namespace Poderosa.Terminal {
         }
 
         private SavedCursor CreateSavedCursor() {
-            int row = Document.CurrentLineNumber - Document.TopLineNumber;
-            int col = Document.CaretColumn;
+            int rowIndex = Document.CurrentLineNumber - Document.TopLineNumber;
+            int colIndex = Document.CaretColumn;
             CharacterSetMapping csMap = CharacterSetManager.GetCharacterSetMapping();
             return new SavedCursor(
-                    row: row,
-                    col: col,
+                    rowIndex: rowIndex,
+                    colIndex: colIndex,
                     decoration: Document.CurrentDecoration,
                     wrapAroundMode: _wrapAroundMode,
                     scrollRegionRelative: _originRelative,
@@ -3505,8 +3537,8 @@ namespace Poderosa.Terminal {
         private void RestoreCursorInternal(SavedCursor saved) {
             if (saved == null) {
                 saved = new SavedCursor(
-                    row: 0,
-                    col: 0,
+                    rowIndex: 0,
+                    colIndex: 0,
                     decoration: TextDecoration.Default,
                     wrapAroundMode: true,
                     scrollRegionRelative: false,
@@ -3515,9 +3547,9 @@ namespace Poderosa.Terminal {
             }
 
             Document.UpdateCurrentLine(_manipulator);
-            Document.CurrentLineNumber = Document.TopLineNumber + saved.Row;
+            Document.CurrentLineNumber = Document.TopLineNumber + saved.RowIndex;
             _manipulator.Load(Document.CurrentLine);
-            Document.CaretColumn = saved.Col;
+            Document.CaretColumn = saved.ColIndex;
 
             Document.CurrentDecoration = saved.Decoration;
 
@@ -3733,13 +3765,13 @@ namespace Poderosa.Terminal {
                 return;
             }
 
-            int row;
-            if (!ParseNonNegativeInteger(p[0], out row)) {
+            int rowVal;
+            if (!ParseNonNegativeInteger(p[0], out rowVal)) {
                 return;
             }
 
-            int col;
-            if (!ParseNonNegativeInteger(p[1], out col)) {
+            int colVal;
+            if (!ParseNonNegativeInteger(p[1], out colVal)) {
                 return;
             }
 
@@ -3780,8 +3812,8 @@ namespace Poderosa.Terminal {
 
             string sdesig = p[9];
 
-            row = Math.Min(Math.Max(row, 1), Document.TerminalHeight);
-            col = Math.Min(Math.Max(col, 1), Document.TerminalWidth);
+            Row row = rowVal.AsRow().Clamp(1, Document.TerminalHeight);
+            Col col = colVal.AsCol().Clamp(1, Document.TerminalWidth);
             MoveCursorTo(row, col);
 
             RestoreDECCIRRenditions(srend);

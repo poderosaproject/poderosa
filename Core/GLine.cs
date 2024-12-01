@@ -755,9 +755,6 @@ namespace Poderosa.Document {
             get {
                 return _lineRenderingType;
             }
-            set {
-                _lineRenderingType = value;
-            }
         }
 
         /// <summary>
@@ -988,12 +985,16 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="dec">text decoration for specifying the background color, or null for using default attributes.</param>
         /// <param name="selective">if true, protected characters are retained.</param>
-        public void Clear(TextDecoration dec = null, bool selective = false) {
+        /// <param name="resetLineRenderingType">if true, LineRenderingType is reset to Normal.</param>
+        public void Clear(TextDecoration dec = null, bool selective = false, bool resetLineRenderingType = true) {
             TextDecoration d = dec ?? TextDecoration.Default;
             GAttr attr = d.Attr;
             GColor24 color = d.Color24;
 
             lock (this) {
+                if (resetLineRenderingType) {
+                    _lineRenderingType = LineRenderingType.Normal;
+                }
                 if (selective) {
                     FillSelective(0, _cell.Length, GChar.ASCII_NUL, attr, color);
                 }
@@ -1150,6 +1151,21 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
+        /// Set rendering type
+        /// </summary>
+        /// <param name="t">new value</param>
+        /// <returns>true if rendering type has been changed</returns>
+        public bool SetLineRenderingType(LineRenderingType t) {
+            if (_lineRenderingType != t) {
+                _lineRenderingType = t;
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Expand internal buffer.
         /// </summary>
         /// <param name="length">minimum length</param>
@@ -1218,14 +1234,16 @@ namespace Poderosa.Document {
 
             if (IsDoubleWidth) {
                 pitch *= 2;
-            }
-            if (IsDoubleHeight) {
-                etoCommonOpts += Win32.ETO_CLIPPED;
-                if (IsLowerHalf) {
-                    textYOffset = -(int)prof.Pitch.Height;
-                }
-                else {
-                    underlineFlag = GAttrFlags.None;
+
+                // supports only the case where both double-height and double-width are specified.
+                if (IsDoubleHeight) {
+                    etoCommonOpts += Win32.ETO_CLIPPED;
+                    if (IsLowerHalf) {
+                        textYOffset = -(int)prof.Pitch.Height;
+                    }
+                    else {
+                        underlineFlag = GAttrFlags.None;
+                    }
                 }
             }
 

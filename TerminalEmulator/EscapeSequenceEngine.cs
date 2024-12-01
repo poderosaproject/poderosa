@@ -1309,6 +1309,17 @@ namespace Poderosa.Terminal.EscapeSequence {
                 Action<IEscapeSequenceContext> incompleteHandler,
                 Action<Exception, IEscapeSequenceContext> exceptionHandler
         ) {
+            BuildStateMachine();
+            _currentState = _root;
+            _completedHandler = completedHandler;
+            _incompleteHandler = incompleteHandler;
+            _exceptionHandler = exceptionHandler;
+        }
+
+        /// <summary>
+        /// Build global instance of the state machine
+        /// </summary>
+        public static void BuildStateMachine() {
             lock (_initializeSync) {
                 if (!_initialized) {
 #if DEBUG
@@ -1327,10 +1338,6 @@ namespace Poderosa.Terminal.EscapeSequence {
 #endif
                 }
             }
-            _currentState = _root;
-            _completedHandler = completedHandler;
-            _incompleteHandler = incompleteHandler;
-            _exceptionHandler = exceptionHandler;
         }
 
         /// <summary>

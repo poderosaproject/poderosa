@@ -662,6 +662,86 @@ namespace Poderosa.Terminal {
         }
     }
 
+    /// <summary>
+    /// Represents the row number; vertical position on the screen, 1-based.
+    /// </summary>
+    public struct Row {
+        public readonly int Value;
+
+        public Row(int v) {
+            Value = v;
+        }
+
+        public Row Clamp(int min, int max) {
+            return new Row(Math.Min(Math.Max(Value, min), max));
+        }
+
+        public Row ClipLower(int min) {
+            return new Row(Math.Max(Value, min));
+        }
+
+        public Row ClipUpper(int max) {
+            return new Row(Math.Min(Value, max));
+        }
+
+        public string ToInvariantString() {
+            return Value.ToInvariantString();
+        }
+
+        public static Row operator +(Row r, int n) {
+            return new Row(r.Value + n);
+        }
+
+        public static Row operator -(Row r, int n) {
+            return new Row(r.Value - n);
+        }
+    }
+
+    /// <summary>
+    /// Represents the column number; horizontal position on the screen, 1-based.
+    /// </summary>
+    public struct Col {
+        public readonly int Value;
+
+        public Col(int v) {
+            Value = v;
+        }
+
+        public Col Clamp(int min, int max) {
+            return new Col(Math.Min(Math.Max(Value, min), max));
+        }
+
+        public Col ClipLower(int min) {
+            return new Col(Math.Max(Value, min));
+        }
+
+        public Col ClipUpper(int max) {
+            return new Col(Math.Min(Value, max));
+        }
+
+        public string ToInvariantString() {
+            return Value.ToInvariantString();
+        }
+
+        public static Col operator +(Col r, int n) {
+            return new Col(r.Value + n);
+        }
+
+        public static Col operator -(Col r, int n) {
+            return new Col(r.Value - n);
+        }
+    }
+
+    public static class RowColMixin {
+        public static Row AsRow(this int v) {
+            return new Row(v);
+        }
+
+        public static Col AsCol(this int v) {
+            return new Col(v);
+        }
+    }
+
     internal static class ControlCode {
         public const char NUL = '\u0000';
         public const char ENQ = '\u0005';
