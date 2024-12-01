@@ -1816,14 +1816,18 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.ESC, '#', '3')] // DECDHL – Double Height Line / top half
         private void ProcessDoubleHeightLineTopHalf() {
-            _manipulator.LineRenderingType = LineRenderingType.QuadUpperHalf;
-            Document.UpdateCurrentLine(_manipulator);
+            if (!_enableHorizontalMargins) {
+                _manipulator.LineRenderingType = LineRenderingType.QuadUpperHalf;
+                Document.UpdateCurrentLine(_manipulator);
+            }
         }
 
         [EscapeSequence(ControlCode.ESC, '#', '4')] // DECDHL – Double Height Line / bottom half
         private void ProcessDoubleHeightLineBottomHalf() {
-            _manipulator.LineRenderingType = LineRenderingType.QuadLowerHalf;
-            Document.UpdateCurrentLine(_manipulator);
+            if (!_enableHorizontalMargins) {
+                _manipulator.LineRenderingType = LineRenderingType.QuadLowerHalf;
+                Document.UpdateCurrentLine(_manipulator);
+            }
         }
 
         [EscapeSequence(ControlCode.ESC, '#', '5')] // DECSWL – Single-width Line
@@ -1834,8 +1838,10 @@ namespace Poderosa.Terminal {
 
         [EscapeSequence(ControlCode.ESC, '#', '6')] // DECDWL – Double-Width Line
         private void ProcessDoubleWidthLine() {
-            _manipulator.LineRenderingType = LineRenderingType.DoubleWidth;
-            Document.UpdateCurrentLine(_manipulator);
+            if (!_enableHorizontalMargins) {
+                _manipulator.LineRenderingType = LineRenderingType.DoubleWidth;
+                Document.UpdateCurrentLine(_manipulator);
+            }
         }
 
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, '$', 'p')] // DECRQM (ANSI mode)
@@ -2689,6 +2695,9 @@ namespace Poderosa.Terminal {
                 case 69: // Enable left and right margin mode (DECLRMM)
                     _enableHorizontalMargins = set;
                     Document.ClearHorizontalMargins();
+                    if (set) {
+                        ResetLineRenderingType();
+                    }
                     break;
                 case 1000: // DEC VT200 compatible: Send button press and release event with mouse position.
                     ResetMouseTracking((set) ? MouseTrackingState.Normal : MouseTrackingState.Off);
@@ -2765,6 +2774,18 @@ namespace Poderosa.Terminal {
                 case 2004:    // Set/Reset bracketed paste mode
                     _bracketedPasteMode = set;
                     break;
+            }
+        }
+
+        private void ResetLineRenderingType() {
+            int bottomLineNumber = Document.TopLineNumber + Document.TerminalHeight - 1;
+            GLine l = Document.TopLine;
+            while (l != null && l.ID <= bottomLineNumber) {
+                bool updated = l.SetLineRenderingType(LineRenderingType.Normal);
+                if (updated) {
+                    Document.InvalidatedRegion.InvalidateLine(l.ID);
+                }
+                l = l.NextLine;
             }
         }
 

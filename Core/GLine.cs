@@ -755,9 +755,6 @@ namespace Poderosa.Document {
             get {
                 return _lineRenderingType;
             }
-            set {
-                _lineRenderingType = value;
-            }
         }
 
         /// <summary>
@@ -1147,6 +1144,21 @@ namespace Poderosa.Document {
             else
                 return ASCIIWordBreakTable.NOT_ASCII;
             // TODO: consider unicode character class
+        }
+
+        /// <summary>
+        /// Set rendering type
+        /// </summary>
+        /// <param name="t">new value</param>
+        /// <returns>true if rendering type has been changed</returns>
+        public bool SetLineRenderingType(LineRenderingType t) {
+            if (_lineRenderingType != t) {
+                _lineRenderingType = t;
+                return true;
+            }
+            else {
+                return false;
+            }
         }
 
         /// <summary>
