@@ -73,7 +73,6 @@ namespace Poderosa.Terminal {
         private bool _ignoreValueChangeEvent;
 
         private bool _escForVI;
-        private bool _forceNewLine; // controls behavior of Enter key
         private bool _hideCaret;
 
         /// <summary>
@@ -141,7 +140,6 @@ namespace Poderosa.Terminal {
             _enableAutoScrollBarAdjustment = false;
             _keySendLocked = false;
             _escForVI = false;
-            _forceNewLine = false;
             _hideCaret = false;
 
             // この呼び出しは、Windows.Forms フォーム デザイナで必要です。
@@ -328,14 +326,6 @@ namespace Poderosa.Terminal {
             return _keySendLocked;
         }
 
-        internal void SetNewLineOnEnterKey(bool enabled) {
-            _forceNewLine = enabled;
-        }
-
-        internal bool IsNewLineOnEnterKey() {
-            return _forceNewLine;
-        }
-
         internal void SetHideCaret(bool hide) {
             _hideCaret = hide;
         }
@@ -472,43 +462,43 @@ namespace Poderosa.Terminal {
             Keys keybody = key & Keys.KeyCode;
 
             //接続中でないとだめなキー
-            if (IsAcceptableUserInput()) {
-                //TODO Enter,Space,SequenceKey系もカスタムキーに入れてしまいたい
-                char[] custom = TerminalEmulatorPlugin.Instance.CustomKeySettings.Scan(key); //カスタムキー
-                if (custom != null) {
-                    SendCharArray(custom);
-                    return true;
-                }
-                else if (ProcessAdvancedFeatureKey(modifiers, keybody)) {
-                    return true;
-                }
-                else if (keybody == Keys.Enter && modifiers == Keys.None) {
-                    _escForVI = false;
-                    SendCharArray(
-                        TerminalUtil.NewLineChars(
-                            _forceNewLine
-                                ? NewLine.CRLF
-                                : GetTerminalSettings().TransmitNL));
-                    return true;
-                }
-                else if (keybody == Keys.Space && modifiers == Keys.Control) { //これはOnKeyPressにわたってくれない
-                    SendChar('\0');
-                    return true;
-                }
-                if ((keybody == Keys.Tab) && (modifiers == Keys.Shift)) {
-                    this.SendChar('\t');
-                    return true;
-                }
-                else if (IsSequenceKey(keybody)) {
-                    ProcessSequenceKey(modifiers, keybody);
-                    return true;
-                }
-            }
+            using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
+                if (docScope.Document != null) {
+                    if (IsAcceptableUserInput()) {
+                        //TODO Enter,Space,SequenceKey系もカスタムキーに入れてしまいたい
+                        char[] custom = TerminalEmulatorPlugin.Instance.CustomKeySettings.Scan(key); //カスタムキー
+                        if (custom != null) {
+                            SendCharArray(custom);
+                            return true;
+                        }
+                        else if (ProcessAdvancedFeatureKey(modifiers, keybody)) {
+                            return true;
+                        }
+                        else if (keybody == Keys.Enter && modifiers == Keys.None) {
+                            _escForVI = false;
+                            SendCharArray(
+                                TerminalUtil.NewLineChars(
+                                    docScope.Document.ForceNewLine
+                                        ? NewLine.CRLF
+                                        : GetTerminalSettings().TransmitNL));
+                            return true;
+                        }
+                        else if (keybody == Keys.Space && modifiers == Keys.Control) { //これはOnKeyPressにわたってくれない
+                            SendChar('\0');
+                            return true;
+                        }
+                        if ((keybody == Keys.Tab) && (modifiers == Keys.Shift)) {
+                            this.SendChar('\t');
+                            return true;
+                        }
+                        else if (IsSequenceKey(keybody)) {
+                            ProcessSequenceKey(modifiers, keybody);
+                            return true;
+                        }
+                    }
 
-            //常に送れるキー
-            if (keybody == Keys.Apps) { //コンテキストメニュー
-                using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
-                    if (docScope.Document != null) {
+                    //常に送れるキー
+                    if (keybody == Keys.Apps) { //コンテキストメニュー
                         int x, y;
                         lock (docScope.Document) {
                             x = docScope.Document.CaretColumn;

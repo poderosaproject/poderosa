@@ -246,7 +246,6 @@ namespace Poderosa.Terminal {
         private MouseButtons _mouseButton = MouseButtons.None;
 
         private TransmissionMode _transmissionMode = TransmissionMode.SevenBit;
-        private bool _forceNewLine = false; // controls behavior of LF/FF/VT
         private bool _insertMode = false;
         private bool _originRelative = false;
         private bool _enableHorizontalMargins = false; // DECLRMM
@@ -310,7 +309,6 @@ namespace Poderosa.Terminal {
             _mouseTrackingProtocol = MouseTrackingProtocol.Normal;
             _focusReportingMode = false;
             _transmissionMode = TransmissionMode.SevenBit;
-            _forceNewLine = false;
             _insertMode = false;
             _originRelative = false;
             _enableHorizontalMargins = false;
@@ -778,7 +776,7 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.VT)]
         [EscapeSequence(ControlCode.FF)]
         private void LineFeed() {
-            if (_forceNewLine) {
+            if (Document.ForceNewLine) {
                 DoCarriageReturn();
                 DoLineFeed();
                 return;
@@ -1818,8 +1816,7 @@ namespace Poderosa.Terminal {
                         }
                         break;
                     case 20: // New Line Mode
-                        _forceNewLine = set; // controls behavior of LF/FF/VT
-                        SetNewLineOnEnterKey(set); // controls behavior of Enter key
+                        Document.ForceNewLine = set;
                         break;
                 }
             }
@@ -1878,7 +1875,7 @@ namespace Poderosa.Terminal {
                 case 12: //local echo
                     return !GetTerminalSettings().LocalEcho;
                 case 20: // New Line Mode
-                    return _forceNewLine;
+                    return Document.ForceNewLine;
                 default:
                     return null;
             }

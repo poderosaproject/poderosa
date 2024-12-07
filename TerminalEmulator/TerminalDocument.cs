@@ -207,6 +207,7 @@ namespace Poderosa.Terminal {
                     leftMarginOffset: MARGIN_DEFAULT,
                     rightMarginOffset: MARGIN_DEFAULT
                 );
+            ForceNewLine = false;
             Clear();
         }
 
@@ -236,6 +237,16 @@ namespace Poderosa.Terminal {
                 _currentDecoration = value;
             }
         }
+
+        #region for TerminalCntrol
+        // These properties are used in TerminalControl, but must be managed along with document.
+
+        public bool ForceNewLine {
+            get;
+            set;
+        }
+
+        #endregion
 
         /// <summary>
         /// Set vertical margins

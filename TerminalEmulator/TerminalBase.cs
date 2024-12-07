@@ -314,21 +314,6 @@ namespace Poderosa.Terminal {
             return false;
         }
 
-        // Force New Line mode for Enter key (send CRLF)
-        protected void SetNewLineOnEnterKey(bool enabled) {
-            TerminalControl t = GetTerminalControl();
-            if (t != null) {
-                t.SetNewLineOnEnterKey(enabled);
-            }
-        }
-
-        protected bool IsNewLineOnEnterKey() {
-            TerminalControl t = GetTerminalControl();
-            if (t != null) {
-                return t.IsNewLineOnEnterKey();
-            }
-            return false;
-        }
 
         // Hide/Show caret
         protected void SetHideCaret(bool hide) {
@@ -394,8 +379,8 @@ namespace Poderosa.Terminal {
                 _decoder = new ISO2022CharDecoder(this, _encodingProfile);
                 _unicodeCharConverter = _encodingProfile.CreateUnicodeCharConverter();
                 SetKeySendLocked(false);
-                SetNewLineOnEnterKey(false);
                 SetHideCaret(false);
+                _document.ForceNewLine = false;
                 FullResetInternal();
                 _document.InvalidateAll();
             }
