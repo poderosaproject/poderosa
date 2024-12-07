@@ -108,7 +108,6 @@ namespace Poderosa.Terminal {
             _escForVI = false;
             _forceNewLine = false;
             _hideCaret = false;
-            this.EnabledEx = false;
 
             // この呼び出しは、Windows.Forms フォーム デザイナで必要です。
             InitializeComponent();

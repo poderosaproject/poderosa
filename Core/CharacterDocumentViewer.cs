@@ -45,6 +45,10 @@ namespace Poderosa.View {
 
         public const int BORDER = 2; //内側の枠線のサイズ
 
+        private static readonly Color INACTIVE_BACK_COLOR = SystemColors.ControlDark;
+        private static readonly Color INACTIVE_SPLITMARK_COLOR = SystemColors.Window;
+        private static readonly Color ACTIVE_SPLITMARK_COLOR = SystemColors.ControlDark;
+
         private CharacterDocument _document;
         private int _maxDisplayLines; // restrict lines to display to avoid artifacts
         private bool _errorRaisedInDrawing;
@@ -89,8 +93,13 @@ namespace Poderosa.View {
             this.DoubleBuffered = true;
             _caret = new Caret();
 
+            _VScrollBar.Visible = false;
+            this.Cursor = Cursors.Default;
+            this.BackColor = INACTIVE_BACK_COLOR;
+            this.ImeMode = ImeMode.Disable;
+
             _splitMark = new SplitMarkSupport(this, this);
-            Pen p = new Pen(SystemColors.ControlDark);
+            Pen p = new Pen(INACTIVE_SPLITMARK_COLOR);
             p.DashStyle = System.Drawing.Drawing2D.DashStyle.Dot;
             _splitMark.Pen = p;
 
@@ -135,14 +144,6 @@ namespace Poderosa.View {
         public bool EnabledEx {
             get {
                 return _enabled;
-            }
-            set {
-                _enabled = value;
-                _VScrollBar.Visible = value; //スクロールバーとは連動
-                _splitMark.Pen.Color = value ? SystemColors.ControlDark : SystemColors.Window; //このBackColorと逆で
-                this.Cursor = GetDocumentCursor(); //Splitter.ISiteを援用
-                this.BackColor = value ? GetRenderProfile().BackColor : SystemColors.ControlDark;
-                this.ImeMode = value ? ImeMode.NoControl : ImeMode.Disable;
             }
         }
 
@@ -208,7 +209,13 @@ namespace Poderosa.View {
             RenderProfile prof = GetRenderProfile();
             this.BackColor = prof.BackColor;
             _document = doc;
-            this.EnabledEx = doc != null;
+
+            _enabled = doc != null;
+            _VScrollBar.Visible = _enabled; //スクロールバーとは連動
+            _splitMark.Pen.Color = _enabled ? ACTIVE_SPLITMARK_COLOR : INACTIVE_SPLITMARK_COLOR; //このBackColorと逆で
+            this.Cursor = GetDocumentCursor(); //Splitter.ISiteを援用
+            this.BackColor = _enabled ? GetRenderProfile().BackColor : INACTIVE_BACK_COLOR;
+            this.ImeMode = _enabled ? ImeMode.NoControl : ImeMode.Disable;
 
             if (this.EnabledEx) {
                 _updatingTimer.Enabled = true;
