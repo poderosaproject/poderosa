@@ -163,6 +163,7 @@ namespace Poderosa.Terminal {
                 _session = session;
                 _documentCache = session.Terminal.Document;
                 DocumentChanged(true);
+                ChangeUICursor(_documentCache.UICursor);
 
                 _mouseTrackingHandler.Attach(session);
                 _mouseWheelHandler.Attach(session);
@@ -219,9 +220,19 @@ namespace Poderosa.Terminal {
                 _session = null;
                 _documentCache = null;
                 DocumentChanged(false);
+                ChangeUICursor(null);
             }
             finally {
                 _documentLock.ExitWriteLock();
+            }
+        }
+
+        public void ChangeUICursor(Cursor uiCursor) {
+            if (uiCursor != null) {
+                SetUICursor(uiCursor);
+            }
+            else {
+                ResetUICursor();
             }
         }
 
@@ -670,7 +681,7 @@ namespace Poderosa.Terminal {
                             //  In such case we draw the caret on the last column of the row.
                             caret.X = Math.Min(docScope.Document.CaretColumn, docScope.Document.TerminalWidth - 1);
                             caret.Y = docScope.Document.CurrentLineNumber - docScope.Document.ViewTopLineNumber;
-                            caret.Enabled = docScope.Document.ShowCaret  && caret.Y >= 0 && caret.Y < docScope.Document.TerminalHeight;
+                            caret.Enabled = docScope.Document.ShowCaret && caret.Y >= 0 && caret.Y < docScope.Document.TerminalHeight;
                         }
                     }
                 }

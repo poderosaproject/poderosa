@@ -3205,12 +3205,12 @@ namespace Poderosa.Terminal {
         private void ResetMouseTracking(MouseTrackingState newState) {
             if (newState != MouseTrackingState.Off) {
                 if (_mouseTrackingState == MouseTrackingState.Off) {
-                    SetDocumentCursor(Cursors.Arrow);
+                    ChangeUICursor(Cursors.Arrow);
                 }
             }
             else {
                 if (_mouseTrackingState != MouseTrackingState.Off) {
-                    ResetDocumentCursor();
+                    ChangeUICursor(null);
                 }
             }
             _mouseTrackingState = newState;

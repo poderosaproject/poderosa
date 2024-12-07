@@ -79,7 +79,6 @@ namespace Poderosa.Terminal {
         private PromptRecognizer _promptRecognizer;
         private IntelliSense _intelliSense;
         private PopupStyleCommandResultRecognizer _commandResultRecognizer;
-        private Cursor _documentCursor = null;
 
         private bool _cleanup = false;
 
@@ -243,10 +242,6 @@ namespace Poderosa.Terminal {
         /// </summary>
         /// <param name="terminalControl">TerminalControl which is being attached</param>
         public void Attached(TerminalControl terminalControl) {
-            if (_documentCursor != null)
-                terminalControl.SetDocumentCursor(_documentCursor);
-            else
-                terminalControl.ResetDocumentCursor();
         }
 
         /// <summary>
@@ -254,7 +249,6 @@ namespace Poderosa.Terminal {
         /// </summary>
         /// <param name="terminalControl">TerminalControl which will be detached</param>
         public void Detach(TerminalControl terminalControl) {
-            terminalControl.ResetDocumentCursor();
         }
 
         public void CloseBySession() {
@@ -612,19 +606,11 @@ namespace Poderosa.Terminal {
             }
         }
 
-        protected void SetDocumentCursor(Cursor cursor) {
-            _documentCursor = cursor;
+        protected void ChangeUICursor(Cursor uiCursor) {
+            Document.UICursor = uiCursor;
             TerminalControl terminalControl = GetTerminalControl();
             if (terminalControl != null) {
-                terminalControl.SetDocumentCursor(cursor);
-            }
-        }
-
-        protected void ResetDocumentCursor() {
-            _documentCursor = null;
-            TerminalControl terminalControl = GetTerminalControl();
-            if (terminalControl != null) {
-                terminalControl.ResetDocumentCursor();
+                terminalControl.ChangeUICursor(uiCursor);
             }
         }
     }

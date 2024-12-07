@@ -53,7 +53,7 @@ namespace Poderosa.View {
         private readonly TextSelection _textSelection;
         private readonly SplitMarkSupport _splitMark;
 
-        private Cursor _documentCursor = Cursors.IBeam;
+        private Cursor _uiCursor = INACTIVE_CURSOR; // used to revert cursor that has been changed by OverrideCursor()
 
         protected readonly MouseHandlerManager _mouseHandlerManager;
         protected VScrollBar _VScrollBar;
@@ -85,6 +85,16 @@ namespace Poderosa.View {
         private static Color ACTIVE_SPLITMARK_COLOR {
             get {
                 return SystemColors.ControlDark;
+            }
+        }
+        private static Cursor DEFAULT_CURSOR {
+            get {
+                return Cursors.IBeam;
+            }
+        }
+        private static Cursor INACTIVE_CURSOR {
+            get {
+                return Cursors.Default;
             }
         }
 
@@ -127,7 +137,7 @@ namespace Poderosa.View {
             this.DoubleBuffered = true;
 
             this._VScrollBar.Visible = false;
-            this.Cursor = GetDocumentCursor();
+            this.Cursor = INACTIVE_CURSOR;
             this.BackColor = INACTIVE_BACK_COLOR;
             this.ImeMode = ImeMode.Disable;
 
@@ -185,23 +195,19 @@ namespace Poderosa.View {
             _VScrollBar.Visible = false;
         }
 
-        public void SetDocumentCursor(Cursor cursor) {
+        public void SetUICursor(Cursor cursor) {
             if (this.InvokeRequired) {
                 this.BeginInvoke((MethodInvoker)delegate() {
-                    SetDocumentCursor(cursor);
+                    SetUICursor(cursor);
                 });
                 return;
             }
-            _documentCursor = cursor;
-            this.Cursor = GetDocumentCursor();
+            _uiCursor = cursor;
+            this.Cursor = _uiCursor;
         }
 
-        public void ResetDocumentCursor() {
-            SetDocumentCursor(Cursors.IBeam);
-        }
-
-        private Cursor GetDocumentCursor() {
-            return HasDocument ? _documentCursor : Cursors.Default;
+        public void ResetUICursor() {
+            SetUICursor(HasDocument ? DEFAULT_CURSOR : INACTIVE_CURSOR);
         }
 
         public abstract bool HasDocument {
@@ -233,7 +239,8 @@ namespace Poderosa.View {
 
             _VScrollBar.Visible = hasDocument;
             _splitMark.Pen.Color = hasDocument ? ACTIVE_SPLITMARK_COLOR : INACTIVE_SPLITMARK_COLOR;
-            this.Cursor = GetDocumentCursor();
+            _uiCursor = hasDocument ? DEFAULT_CURSOR : INACTIVE_CURSOR;
+            this.Cursor = _uiCursor;
             this.BackColor = hasDocument ? GetRenderProfile().BackColor : INACTIVE_BACK_COLOR;
             this.ImeMode = hasDocument ? ImeMode.NoControl : ImeMode.Disable;
 
@@ -828,7 +835,7 @@ namespace Poderosa.View {
             this.Cursor = cursor;
         }
         public void RevertCursor() {
-            this.Cursor = GetDocumentCursor();
+            this.Cursor = _uiCursor;
         }
 
         public void SplitVertically() {

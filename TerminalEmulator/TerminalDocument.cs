@@ -17,6 +17,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Diagnostics;
+using System.Windows.Forms;
 
 using Poderosa.Document;
 using Poderosa.Commands;
@@ -209,6 +210,7 @@ namespace Poderosa.Terminal {
                 );
             ForceNewLine = false;
             ShowCaret = true;
+            UICursor = null;
             Clear();
         }
 
@@ -248,6 +250,11 @@ namespace Poderosa.Terminal {
         }
 
         public bool ShowCaret {
+            get;
+            set;
+        }
+
+        public Cursor UICursor {
             get;
             set;
         }
