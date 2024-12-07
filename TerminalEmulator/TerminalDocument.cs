@@ -211,6 +211,7 @@ namespace Poderosa.Terminal {
             ForceNewLine = false;
             ShowCaret = true;
             UICursor = null;
+            KeySendLocked = false;
             Clear();
         }
 
@@ -255,6 +256,11 @@ namespace Poderosa.Terminal {
         }
 
         public Cursor UICursor {
+            get;
+            set;
+        }
+
+        public bool KeySendLocked {
             get;
             set;
         }

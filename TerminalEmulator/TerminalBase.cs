@@ -292,22 +292,6 @@ namespace Poderosa.Terminal {
             _session.TerminalTransmission.Transmit(data, offset, length);
         }
 
-        // Lock/Unlock input from keyboard
-        protected void SetKeySendLocked(bool locked) {
-            TerminalControl t = GetTerminalControl();
-            if (t != null) {
-                t.SetKeySendLocked(locked);
-            }
-        }
-
-        protected bool IsKeySendLocked() {
-            TerminalControl t = GetTerminalControl();
-            if (t != null) {
-                return t.IsKeySendLocked();
-            }
-            return false;
-        }
-
         //文字系のエラー通知
         protected void CharDecodeError(string msg) {
             IPoderosaMainWindow window = _session.OwnerWindow;
@@ -354,7 +338,7 @@ namespace Poderosa.Terminal {
                 _encodingProfile = EncodingProfile.Create(GetTerminalSettings().Encoding);
                 _decoder = new ISO2022CharDecoder(this, _encodingProfile);
                 _unicodeCharConverter = _encodingProfile.CreateUnicodeCharConverter();
-                SetKeySendLocked(false);
+                _document.KeySendLocked = false;
                 _document.ForceNewLine = false;
                 _document.ShowCaret = true;
                 FullResetInternal();
@@ -367,7 +351,7 @@ namespace Poderosa.Terminal {
                 ChangeMode(TerminalMode.Normal);
                 _document.ClearMargins();
                 _document.CurrentDecoration = _document.CurrentDecoration.GetCopyWithProtected(false);
-                SetKeySendLocked(false);
+                _document.KeySendLocked = false;
                 _document.ShowCaret = true;
                 SoftResetInternal();
                 _document.InvalidateAll();

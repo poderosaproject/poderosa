@@ -1800,7 +1800,7 @@ namespace Poderosa.Terminal {
             foreach (int param in p.EnumerateWithoutNull()) {
                 switch (param) {
                     case 2: // Keyboard Action Mode
-                        SetKeySendLocked(set);
+                        Document.KeySendLocked = set;
                         break;
                     case 4: // Insert Mode
                         _insertMode = set;
@@ -1869,7 +1869,7 @@ namespace Poderosa.Terminal {
         private bool? GetANSIMode(int param) {
             switch (param) {
                 case 2: // Keyboard Action Mode
-                    return IsKeySendLocked();
+                    return Document.KeySendLocked;
                 case 4: // Insert Mode
                     return _insertMode;
                 case 12: //local echo

@@ -67,8 +67,6 @@ namespace Poderosa.Terminal {
 
         private delegate void AdjustIMECompositionDelegate();
 
-        private bool _keySendLocked;
-
         private bool _inIMEComposition; //IMEによる文字入力の最中であればtrueになる
         private bool _ignoreValueChangeEvent;
 
@@ -137,7 +135,6 @@ namespace Poderosa.Terminal {
         public TerminalControl() {
             _instanceID = _instanceCount++;
             _enableAutoScrollBarAdjustment = false;
-            _keySendLocked = false;
             _escForVI = false;
 
             // この呼び出しは、Windows.Forms フォーム デザイナで必要です。
@@ -327,14 +324,6 @@ namespace Poderosa.Terminal {
             }
         }
 
-        internal void SetKeySendLocked(bool locked) {
-            _keySendLocked = locked;
-        }
-
-        internal bool IsKeySendLocked() {
-            return _keySendLocked;
-        }
-
         /*
          * ↓  受信スレッドによる実行のエリア
          */
@@ -433,15 +422,17 @@ namespace Poderosa.Terminal {
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
             Keys modifiers = keyData & Keys.Modifiers;
-            if (IsAcceptableUserInput() && (modifiers & Keys.Alt) != Keys.None) { //Altキーの横取り処理を開始
-                Keys keybody = keyData & Keys.KeyCode;
-                if (GEnv.Options.LeftAltKey != AltKeyAction.Menu && (Win32.GetKeyState(Win32.VK_LMENU) & 0x8000) != 0) {
-                    ProcessSpecialAltKey(GEnv.Options.LeftAltKey, modifiers, keybody);
-                    return true;
-                }
-                else if (GEnv.Options.RightAltKey != AltKeyAction.Menu && (Win32.GetKeyState(Win32.VK_RMENU) & 0x8000) != 0) {
-                    ProcessSpecialAltKey(GEnv.Options.RightAltKey, modifiers, keybody);
-                    return true;
+            using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
+                if (IsAcceptableUserInput(docScope.Document) && (modifiers & Keys.Alt) != Keys.None) { //Altキーの横取り処理を開始
+                    Keys keybody = keyData & Keys.KeyCode;
+                    if (GEnv.Options.LeftAltKey != AltKeyAction.Menu && (Win32.GetKeyState(Win32.VK_LMENU) & 0x8000) != 0) {
+                        ProcessSpecialAltKey(GEnv.Options.LeftAltKey, modifiers, keybody);
+                        return true;
+                    }
+                    else if (GEnv.Options.RightAltKey != AltKeyAction.Menu && (Win32.GetKeyState(Win32.VK_RMENU) & 0x8000) != 0) {
+                        ProcessSpecialAltKey(GEnv.Options.RightAltKey, modifiers, keybody);
+                        return true;
+                    }
                 }
             }
 
@@ -465,7 +456,7 @@ namespace Poderosa.Terminal {
             //接続中でないとだめなキー
             using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
                 if (docScope.Document != null) {
-                    if (IsAcceptableUserInput()) {
+                    if (IsAcceptableUserInput(docScope.Document)) {
                         //TODO Enter,Space,SequenceKey系もカスタムキーに入れてしまいたい
                         char[] custom = TerminalEmulatorPlugin.Instance.CustomKeySettings.Scan(key); //カスタムキー
                         if (custom != null) {
@@ -567,8 +558,10 @@ namespace Poderosa.Terminal {
             if (e.KeyChar == '\x001b') {
                 _escForVI = true;
             }
-            if (!IsAcceptableUserInput())
-                return;
+            using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
+                if (!IsAcceptableUserInput(docScope.Document))
+                    return;
+            }
             /* ここの処理について
              * 　IMEで入力文字を確定すると（部分確定ではない）、WM_IME_CHAR、WM_ENDCOMPOSITION、WM_CHARの順でメッセージが送られてくる。Controlはその両方でKeyPressイベントを
              * 　発生させるので、IMEの入力が２回送信されてしまう。
@@ -600,9 +593,10 @@ namespace Poderosa.Terminal {
             }
             GetTerminalTransmission().Transmit(data);
         }
-        private bool IsAcceptableUserInput() {
+
+        private bool IsAcceptableUserInput(TerminalDocument document) {
             //TODO: ModalTerminalTaskの存在が理由で拒否するときはステータスバーか何かに出すのがよいかも
-            if (!this.HasDocument || IsConnectionClosed() || _session.Terminal.CurrentModalTerminalTask != null || _keySendLocked)
+            if (document == null || IsConnectionClosed() || _session.Terminal.CurrentModalTerminalTask != null || document.KeySendLocked)
                 return false;
             else
                 return true;
