@@ -45,10 +45,6 @@ namespace Poderosa.View {
 
         public const int BORDER = 2; //内側の枠線のサイズ
 
-        private static readonly Color INACTIVE_BACK_COLOR = SystemColors.ControlDark;
-        private static readonly Color INACTIVE_SPLITMARK_COLOR = SystemColors.Window;
-        private static readonly Color ACTIVE_SPLITMARK_COLOR = SystemColors.ControlDark;
-
         private int _maxDisplayLines; // restrict lines to display to avoid artifacts
         private bool _errorRaisedInDrawing;
         private readonly List<GLine> _transientLines; //再描画するGLineを一時的に保管する
@@ -75,6 +71,22 @@ namespace Poderosa.View {
 #if ONPAINT_TIME_MEASUREMENT
         private OnPaintTimeObserver _onPaintTimeObserver = null;
 #endif
+
+        private static Color INACTIVE_BACK_COLOR {
+            get {
+                return SystemColors.ControlDark;
+            }
+        }
+        private static Color INACTIVE_SPLITMARK_COLOR {
+            get {
+                return SystemColors.Window;
+            }
+        }
+        private static Color ACTIVE_SPLITMARK_COLOR {
+            get {
+                return SystemColors.ControlDark;
+            }
+        }
 
         /// <summary>
         /// Scope to guarantee consistent access to the document bound to the viewer
