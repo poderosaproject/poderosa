@@ -206,6 +206,8 @@ namespace Poderosa.View {
 
         //派生型であることを強制することなどのためにoverrideすることを許す
         public virtual void SetContent(CharacterDocument doc) {
+            _textSelection.Clear();
+
             RenderProfile prof = GetRenderProfile();
             this.BackColor = prof.BackColor;
             _document = doc;
