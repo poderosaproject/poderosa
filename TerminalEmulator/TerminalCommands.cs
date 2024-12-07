@@ -257,7 +257,7 @@ namespace Poderosa.Terminal {
             if (c == null)
                 return null;
             ITextSelection s = c.ITextSelection;
-            if (s.IsEmpty || !c.EnabledEx)
+            if (s.IsEmpty || !c.HasDocument)
                 return null;
 
             return s.GetSelectedText(opt);

@@ -468,7 +468,7 @@ namespace Poderosa.Terminal {
                 key == Keys.Home || key == Keys.End;
         }
         private void ProcessSpecialAltKey(AltKeyAction act, Keys modifiers, Keys body) {
-            if (!this.EnabledEx)
+            if (!this.HasDocument)
                 return;
             char ch = KeyboardInfo.Scan(body, (modifiers & Keys.Shift) != Keys.None);
             if (ch == '\0')
@@ -527,7 +527,7 @@ namespace Poderosa.Terminal {
         }
         private bool IsAcceptableUserInput() {
             //TODO: ModalTerminalTaskの存在が理由で拒否するときはステータスバーか何かに出すのがよいかも
-            if (!this.EnabledEx || IsConnectionClosed() || _session.Terminal.CurrentModalTerminalTask != null || _keySendLocked)
+            if (!this.HasDocument || IsConnectionClosed() || _session.Terminal.CurrentModalTerminalTask != null || _keySendLocked)
                 return false;
             else
                 return true;
@@ -698,7 +698,7 @@ namespace Poderosa.Terminal {
         }
 
         public void ApplyRenderProfile(RenderProfile prof) {
-            if (this.EnabledEx) {
+            if (this.HasDocument) {
                 this.BackColor = prof.BackColor;
                 Size ts = CalcTerminalSize(prof);
                 if (!IsConnectionClosed() && (ts.Width != GetDocument().TerminalWidth || ts.Height != GetDocument().TerminalHeight)) {
@@ -708,7 +708,7 @@ namespace Poderosa.Terminal {
             }
         }
         public void ApplyTerminalOptions(ITerminalEmulatorOptions opt) {
-            if (this.EnabledEx) {
+            if (this.HasDocument) {
                 if (GetTerminalSettings().UsingDefaultRenderProfile) {
                     ApplyRenderProfile(opt.CreateRenderProfile());
                 }
@@ -727,7 +727,7 @@ namespace Poderosa.Terminal {
 
         protected override void OnGotFocus(EventArgs args) {
             base.OnGotFocus(args);
-            if (!this.EnabledEx)
+            if (!this.HasDocument)
                 return;
             if (GetTerminal().GetFocusReportingMode()) {
                 byte[] data = new byte[] { 0x1b, 0x5b, 0x49 };
@@ -744,7 +744,7 @@ namespace Poderosa.Terminal {
 
         protected override void OnLostFocus(EventArgs args) {
             base.OnLostFocus(args);
-            if (!this.EnabledEx)
+            if (!this.HasDocument)
                 return;
             if (GetTerminal().GetFocusReportingMode()) {
                 byte[] data = new byte[] { 0x1b, 0x5b, 0x4f };
@@ -891,7 +891,7 @@ namespace Poderosa.Terminal {
         }
 
         public override UIHandleResult OnMouseWheel(MouseEventArgs args) {
-            if (!_control.EnabledEx)
+            if (!_control.HasDocument)
                 return UIHandleResult.Pass;
 
             lock (_terminalSync) {
@@ -1189,7 +1189,7 @@ namespace Poderosa.Terminal {
             return UIHandleResult.Pass;
         }
         public override UIHandleResult OnMouseUp(MouseEventArgs args) {
-            if (!_control.EnabledEx)
+            if (!_control.HasDocument)
                 return UIHandleResult.Pass;
 
             if (args.Button == MouseButtons.Right || args.Button == MouseButtons.Middle) {

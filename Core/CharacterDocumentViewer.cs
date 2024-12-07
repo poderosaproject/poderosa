@@ -57,7 +57,6 @@ namespace Poderosa.View {
         private bool _requiresPeriodicRedraw;
         private readonly TextSelection _textSelection;
         private readonly SplitMarkSupport _splitMark;
-        private bool _enabled; //ドキュメントがアタッチされていないときを示す 変更するときはEnabledExプロパティで！
 
         private Cursor _documentCursor = Cursors.IBeam;
 
@@ -141,9 +140,9 @@ namespace Poderosa.View {
             }
         }
 
-        public bool EnabledEx {
+        public bool HasDocument {
             get {
-                return _enabled;
+                return _document != null;
             }
         }
 
@@ -169,22 +168,15 @@ namespace Poderosa.View {
                 return;
             }
             _documentCursor = cursor;
-            if (_enabled)
-                this.Cursor = cursor;
+            this.Cursor = GetDocumentCursor();
         }
 
         public void ResetDocumentCursor() {
-            if (this.InvokeRequired) {
-                this.BeginInvoke((MethodInvoker)delegate() {
-                    ResetDocumentCursor();
-                });
-                return;
-            }
             SetDocumentCursor(Cursors.IBeam);
         }
 
         private Cursor GetDocumentCursor() {
-            return _enabled ? _documentCursor : Cursors.Default;
+            return HasDocument ? _documentCursor : Cursors.Default;
         }
 
 
@@ -212,14 +204,14 @@ namespace Poderosa.View {
             this.BackColor = prof.BackColor;
             _document = doc;
 
-            _enabled = doc != null;
-            _VScrollBar.Visible = _enabled; //スクロールバーとは連動
-            _splitMark.Pen.Color = _enabled ? ACTIVE_SPLITMARK_COLOR : INACTIVE_SPLITMARK_COLOR; //このBackColorと逆で
+            bool hasDocument = doc != null;
+            _VScrollBar.Visible = hasDocument; //スクロールバーとは連動
+            _splitMark.Pen.Color = hasDocument ? ACTIVE_SPLITMARK_COLOR : INACTIVE_SPLITMARK_COLOR; //このBackColorと逆で
             this.Cursor = GetDocumentCursor(); //Splitter.ISiteを援用
-            this.BackColor = _enabled ? GetRenderProfile().BackColor : INACTIVE_BACK_COLOR;
-            this.ImeMode = _enabled ? ImeMode.NoControl : ImeMode.Disable;
+            this.BackColor = hasDocument ? GetRenderProfile().BackColor : INACTIVE_BACK_COLOR;
+            this.ImeMode = hasDocument ? ImeMode.NoControl : ImeMode.Disable;
 
-            if (this.EnabledEx) {
+            if (this.HasDocument) {
                 _updatingTimer.Enabled = true;
             }
             else {
@@ -237,7 +229,7 @@ namespace Poderosa.View {
 
             DateTime now = DateTime.UtcNow;
             if (now >= _nextCaretUpdate) {
-                if (_enabled) {
+                if (HasDocument) {
                     // Note:
                     //  Currently, blinking status of the caret is used also for displaying "blink" characters.
                     //  So the blinking status of the caret have to be updated here even if the caret blinking was not enabled.
@@ -451,7 +443,7 @@ namespace Poderosa.View {
             base.OnResize(e);
             if (_VScrollBar.Visible)
                 AdjustScrollBarPosition();
-            if (_enableAutoScrollBarAdjustment && _enabled)
+            if (_enableAutoScrollBarAdjustment && HasDocument)
                 AdjustScrollBar();
 
             Invalidate();
@@ -477,7 +469,7 @@ namespace Poderosa.View {
                 else
                     HideVScrollBar();
 
-                if (_enabled && !this.DesignMode) {
+                if (HasDocument && !this.DesignMode) {
                     Rectangle clip = e.ClipRectangle;
                     Graphics g = e.Graphics;
                     RenderProfile profile = GetRenderProfile();
@@ -755,7 +747,7 @@ namespace Poderosa.View {
 
         //マウスホイールでのスクロール
         protected virtual void OnMouseWheelCore(MouseEventArgs e) {
-            if (!this.EnabledEx)
+            if (!this.HasDocument)
                 return;
 
             int d = e.Delta / 120; //開発環境だとDeltaに120。これで1か-1が入るはず
@@ -792,7 +784,7 @@ namespace Poderosa.View {
         }
         public int SplitClientWidth {
             get {
-                return this.ClientSize.Width - (_enabled ? _VScrollBar.Width : 0);
+                return this.ClientSize.Width - (HasDocument ? _VScrollBar.Width : 0);
             }
         }
         public int SplitClientHeight {
@@ -888,7 +880,7 @@ namespace Poderosa.View {
         }
 
         public override UIHandleResult OnMouseDown(MouseEventArgs args) {
-            if (args.Button != MouseButtons.Left || !_viewer.EnabledEx)
+            if (args.Button != MouseButtons.Left || !_viewer.HasDocument)
                 return UIHandleResult.Pass;
 
             //テキスト選択ではないのでちょっと柄悪いが。UserControl->Controlの置き換えに伴う
