@@ -2689,7 +2689,7 @@ namespace Poderosa.Terminal {
                     _wrapAroundMode = set;
                     break;
                 case 25: // Show/Hide cursor
-                    SetHideCaret(!set);
+                    Document.ShowCaret = set;
                     break;
                 case 47:
                     if (set)
@@ -2822,7 +2822,7 @@ namespace Poderosa.Terminal {
                 case 7:
                     return _wrapAroundMode;
                 case 25:
-                    return !IsCaretHidden();
+                    return Document.ShowCaret;
                 case 47:
                 case 1047:
                 case 1049:

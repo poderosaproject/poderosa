@@ -314,24 +314,6 @@ namespace Poderosa.Terminal {
             return false;
         }
 
-
-        // Hide/Show caret
-        protected void SetHideCaret(bool hide) {
-            TerminalControl t = GetTerminalControl();
-            if (t != null) {
-                t.SetHideCaret(hide);
-            }
-        }
-
-        protected bool IsCaretHidden() {
-            TerminalControl t = GetTerminalControl();
-            if (t != null) {
-                return t.IsCaretHidden();
-            }
-            return false;
-        }
-
-
         //文字系のエラー通知
         protected void CharDecodeError(string msg) {
             IPoderosaMainWindow window = _session.OwnerWindow;
@@ -379,8 +361,8 @@ namespace Poderosa.Terminal {
                 _decoder = new ISO2022CharDecoder(this, _encodingProfile);
                 _unicodeCharConverter = _encodingProfile.CreateUnicodeCharConverter();
                 SetKeySendLocked(false);
-                SetHideCaret(false);
                 _document.ForceNewLine = false;
+                _document.ShowCaret = true;
                 FullResetInternal();
                 _document.InvalidateAll();
             }
@@ -392,7 +374,7 @@ namespace Poderosa.Terminal {
                 _document.ClearMargins();
                 _document.CurrentDecoration = _document.CurrentDecoration.GetCopyWithProtected(false);
                 SetKeySendLocked(false);
-                SetHideCaret(false);
+                _document.ShowCaret = true;
                 SoftResetInternal();
                 _document.InvalidateAll();
             }

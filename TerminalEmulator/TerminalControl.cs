@@ -73,7 +73,6 @@ namespace Poderosa.Terminal {
         private bool _ignoreValueChangeEvent;
 
         private bool _escForVI;
-        private bool _hideCaret;
 
         /// <summary>
         /// Scope to guarantee consistent access to the TerminalDocument bound to this control
@@ -140,7 +139,6 @@ namespace Poderosa.Terminal {
             _enableAutoScrollBarAdjustment = false;
             _keySendLocked = false;
             _escForVI = false;
-            _hideCaret = false;
 
             // この呼び出しは、Windows.Forms フォーム デザイナで必要です。
             InitializeComponent();
@@ -324,14 +322,6 @@ namespace Poderosa.Terminal {
 
         internal bool IsKeySendLocked() {
             return _keySendLocked;
-        }
-
-        internal void SetHideCaret(bool hide) {
-            _hideCaret = hide;
-        }
-
-        internal bool IsCaretHidden() {
-            return _hideCaret;
         }
 
         /*
@@ -680,7 +670,7 @@ namespace Poderosa.Terminal {
                             //  In such case we draw the caret on the last column of the row.
                             caret.X = Math.Min(docScope.Document.CaretColumn, docScope.Document.TerminalWidth - 1);
                             caret.Y = docScope.Document.CurrentLineNumber - docScope.Document.ViewTopLineNumber;
-                            caret.Enabled = !_hideCaret && caret.Y >= 0 && caret.Y < docScope.Document.TerminalHeight;
+                            caret.Enabled = docScope.Document.ShowCaret  && caret.Y >= 0 && caret.Y < docScope.Document.TerminalHeight;
                         }
                     }
                 }

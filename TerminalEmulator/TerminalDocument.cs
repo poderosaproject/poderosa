@@ -208,6 +208,7 @@ namespace Poderosa.Terminal {
                     rightMarginOffset: MARGIN_DEFAULT
                 );
             ForceNewLine = false;
+            ShowCaret = true;
             Clear();
         }
 
@@ -242,6 +243,11 @@ namespace Poderosa.Terminal {
         // These properties are used in TerminalControl, but must be managed along with document.
 
         public bool ForceNewLine {
+            get;
+            set;
+        }
+
+        public bool ShowCaret {
             get;
             set;
         }
