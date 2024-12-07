@@ -149,7 +149,7 @@ namespace Poderosa.Terminal {
     }
 
     //ViewClass
-    internal class CommandResultViewerControl : CharacterDocumentViewer, IPoderosaView, IGeneralViewCommands {
+    internal class CommandResultViewerControl : SimpleCharacterDocumentViewer, IPoderosaView, IGeneralViewCommands {
         private IPoderosaForm _form;
         private CommandResultSession _session;
 
@@ -162,7 +162,7 @@ namespace Poderosa.Terminal {
         public void SetParent(CommandResultSession session) {
             _session = session;
             this.SetPrivateRenderProfile(session.RenderProfile);
-            this.SetContent(_session.Document);
+            this.DocumentChanged(session != null ? session.Document : null);
         }
 
         public IPoderosaDocument Document {

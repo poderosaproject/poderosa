@@ -102,10 +102,9 @@ namespace Poderosa.LogViewer {
     }
 
     //ViewClass
-    internal class PoderosaLogViewControl : CharacterDocumentViewer, IPoderosaView, IGeneralViewCommands {
+    internal class PoderosaLogViewControl : SimpleCharacterDocumentViewer, IPoderosaView, IGeneralViewCommands {
         private IPoderosaForm _form;
         private PoderosaLogViewerSession _session;
-
 
         public PoderosaLogViewControl(IPoderosaForm form) {
             _form = form;
@@ -116,7 +115,7 @@ namespace Poderosa.LogViewer {
         public void SetParent(PoderosaLogViewerSession session) {
             _session = session;
             this.SetPrivateRenderProfile(CreateLogRenderProfile());
-            this.SetContent(_session.Document);
+            this.DocumentChanged(session != null ? session.Document : null);
         }
 
         public IPoderosaDocument Document {

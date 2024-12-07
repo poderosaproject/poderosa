@@ -80,7 +80,7 @@ namespace Poderosa.Terminal {
         #region IPoderosaView
         public IPoderosaDocument Document {
             get {
-                return _control.CharacterDocument;
+                return _control.CurrentDocument;
             }
         }
 

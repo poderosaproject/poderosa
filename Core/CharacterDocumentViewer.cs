@@ -41,7 +41,7 @@ namespace Poderosa.View {
     /// 
     /// </summary>
     /// <exclude/>
-    public class CharacterDocumentViewer : Control, IPoderosaControl, ISelectionListener, SplitMarkSupport.ISite {
+    public abstract class CharacterDocumentViewer : Control, IPoderosaControl, ISelectionListener, SplitMarkSupport.ISite {
 
         public const int BORDER = 2; //内側の枠線のサイズ
 
@@ -49,7 +49,6 @@ namespace Poderosa.View {
         private static readonly Color INACTIVE_SPLITMARK_COLOR = SystemColors.Window;
         private static readonly Color ACTIVE_SPLITMARK_COLOR = SystemColors.ControlDark;
 
-        private CharacterDocument _document;
         private int _maxDisplayLines; // restrict lines to display to avoid artifacts
         private bool _errorRaisedInDrawing;
         private readonly List<GLine> _transientLines; //再描画するGLineを一時的に保管する
@@ -77,7 +76,31 @@ namespace Poderosa.View {
         private OnPaintTimeObserver _onPaintTimeObserver = null;
 #endif
 
-        public CharacterDocumentViewer() {
+        /// <summary>
+        /// Scope to guarantee consistent access to the document bound to the viewer
+        /// </summary>
+        /// <remarks>
+        /// To avoid frequent memory allocations, this type is defined as struct.
+        /// </remarks>
+        public struct DocumentScope : IDisposable {
+            /// <summary>
+            /// Document bound to the viewer. This may be null.
+            /// </summary>
+            public readonly CharacterDocument Document;
+
+            private readonly ReaderWriterLockSlim _lock;
+
+            public DocumentScope(CharacterDocument document, ReaderWriterLockSlim documentLock) {
+                this.Document = document;
+                this._lock = documentLock;
+            }
+
+            public void Dispose() {
+                _lock.ExitReadLock();
+            }
+        }
+
+        protected CharacterDocumentViewer() {
             _updatingTimer = new System.Timers.Timer();
             _updatingTimer.Interval = 1000.0 / 60.0;
             _updatingTimer.Elapsed += UpdatingTimerElapsed;
@@ -90,12 +113,13 @@ namespace Poderosa.View {
             InitializeComponent();
             //SetStyle(ControlStyles.UserPaint|ControlStyles.AllPaintingInWmPaint|ControlStyles.DoubleBuffer, true);
             this.DoubleBuffered = true;
-            _caret = new Caret();
 
-            _VScrollBar.Visible = false;
-            this.Cursor = Cursors.Default;
+            this._VScrollBar.Visible = false;
+            this.Cursor = GetDocumentCursor();
             this.BackColor = INACTIVE_BACK_COLOR;
             this.ImeMode = ImeMode.Disable;
+
+            _caret = new Caret();
 
             _splitMark = new SplitMarkSupport(this, this);
             Pen p = new Pen(INACTIVE_SPLITMARK_COLOR);
@@ -113,11 +137,6 @@ namespace Poderosa.View {
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
         }
 
-        public CharacterDocument CharacterDocument {
-            get {
-                return _document;
-            }
-        }
         internal TextSelection TextSelection {
             get {
                 return _textSelection;
@@ -137,12 +156,6 @@ namespace Poderosa.View {
         public Caret Caret {
             get {
                 return _caret;
-            }
-        }
-
-        public bool HasDocument {
-            get {
-                return _document != null;
             }
         }
 
@@ -179,6 +192,11 @@ namespace Poderosa.View {
             return HasDocument ? _documentCursor : Cursors.Default;
         }
 
+        public abstract bool HasDocument {
+            get;
+        }
+
+        public abstract DocumentScope GetDocumentScope();
 
         #region IAdaptable
         public virtual IAdaptable GetAdapter(Type adapter) {
@@ -196,30 +214,22 @@ namespace Poderosa.View {
 
         #endregion
 
-        //派生型であることを強制することなどのためにoverrideすることを許す
-        public virtual void SetContent(CharacterDocument doc) {
+        protected void DocumentChanged(bool hasDocument) {
             _textSelection.Clear();
 
-            RenderProfile prof = GetRenderProfile();
-            this.BackColor = prof.BackColor;
-            _document = doc;
+            _requiresPeriodicRedraw = false;
 
-            bool hasDocument = doc != null;
-            _VScrollBar.Visible = hasDocument; //スクロールバーとは連動
-            _splitMark.Pen.Color = hasDocument ? ACTIVE_SPLITMARK_COLOR : INACTIVE_SPLITMARK_COLOR; //このBackColorと逆で
-            this.Cursor = GetDocumentCursor(); //Splitter.ISiteを援用
+            _VScrollBar.Visible = hasDocument;
+            _splitMark.Pen.Color = hasDocument ? ACTIVE_SPLITMARK_COLOR : INACTIVE_SPLITMARK_COLOR;
+            this.Cursor = GetDocumentCursor();
             this.BackColor = hasDocument ? GetRenderProfile().BackColor : INACTIVE_BACK_COLOR;
             this.ImeMode = hasDocument ? ImeMode.NoControl : ImeMode.Disable;
 
-            if (this.HasDocument) {
-                _updatingTimer.Enabled = true;
-            }
-            else {
-                _updatingTimer.Enabled = false;
-            }
+            _updatingTimer.Enabled = hasDocument;
 
-            if (_enableAutoScrollBarAdjustment)
+            if (_enableAutoScrollBarAdjustment) {
                 AdjustScrollBar();
+            }
         }
 
         private void UpdatingTimerElapsed(object sender, System.Timers.ElapsedEventArgs e) {
@@ -227,47 +237,45 @@ namespace Poderosa.View {
                 return;
             }
 
-            DateTime now = DateTime.UtcNow;
-            if (now >= _nextCaretUpdate) {
-                if (HasDocument) {
-                    // Note:
-                    //  Currently, blinking status of the caret is used also for displaying "blink" characters.
-                    //  So the blinking status of the caret have to be updated here even if the caret blinking was not enabled.
-                    _caret.Tick();
+            if (!this.IsDisposed) {
+                using (DocumentScope docScope = GetDocumentScope()) {
+                    DateTime now = DateTime.UtcNow;
+                    if (now >= _nextCaretUpdate && docScope.Document != null) {
+                        // Note:
+                        //  Currently, blinking status of the caret is used also for displaying "blink" characters.
+                        //  So the blinking status of the caret have to be updated here even if the caret blinking was not enabled.
+                        _caret.Tick();
 
-                    if (_requiresPeriodicRedraw) { // blinking characters exist
-                        _requiresPeriodicRedraw = false;
-                        _document.InvalidateAll();
-                    }
-                    else {
-                        _document.InvalidatedRegion.InvalidateLine(GetTopLine().ID + _caret.Y);
-                    }
-                }
+                        if (_requiresPeriodicRedraw) { // blinking characters exist
+                            _requiresPeriodicRedraw = false;
+                            docScope.Document.InvalidateAll();
+                        }
+                        else {
+                            docScope.Document.InvalidatedRegion.InvalidateLine(GetTopLine().ID + _caret.Y);
+                        }
 
-                TimeSpan d = TimeSpan.FromMilliseconds(WindowManagerPlugin.Instance.WindowPreference.OriginalPreference.CaretInterval);
-                DateTime next = _nextCaretUpdate + d;
-                if (next < now) {
-                    next = now + d;
+                        TimeSpan d = TimeSpan.FromMilliseconds(WindowManagerPlugin.Instance.WindowPreference.OriginalPreference.CaretInterval);
+                        DateTime next = _nextCaretUpdate + d;
+                        if (next < now) {
+                            next = now + d;
+                        }
+                        _nextCaretUpdate = next;
+                    }
+
+                    AdaptiveInvalidate(docScope.Document);
                 }
-                _nextCaretUpdate = next;
             }
-
-            AdaptiveInvalidate();
 
             Interlocked.Exchange(ref _updatingState, 0);
         }
 
-        private void AdaptiveInvalidate() {
-            if (this.IsDisposed) {
-                return;
-            }
-
+        private void AdaptiveInvalidate(CharacterDocument document) {
             bool invalidateRequired;
             bool fullInvalidate;
             Rectangle r = new Rectangle();
 
-            if (_document != null) {
-                InvalidatedRegion rgn = _document.InvalidatedRegion.GetCopyAndReset();
+            if (document != null) {
+                InvalidatedRegion rgn = document.InvalidatedRegion.GetCopyAndReset();
                 if (rgn.IsEmpty) {
                     invalidateRequired = false;
                     fullInvalidate = false;
@@ -326,20 +334,24 @@ namespace Poderosa.View {
 
         //自己サイズからScrollBarを適切にいじる
         public void AdjustScrollBar() {
-            if (_document == null)
-                return;
-            RenderProfile prof = GetRenderProfile();
-            float ch = prof.Pitch.Height + prof.LineSpacing;
-            int largechange = (int)Math.Floor((this.ClientSize.Height - BORDER * 2 + prof.LineSpacing) / ch); //きちんと表示できる行数をLargeChangeにセット
-            int current = GetTopLine().ID - _document.FirstLineNumber;
-            int size = Math.Max(_document.Size, current + largechange);
-            if (size <= largechange) {
-                _VScrollBar.Enabled = false;
-            }
-            else {
-                _VScrollBar.Enabled = true;
-                _VScrollBar.LargeChange = largechange;
-                _VScrollBar.Maximum = size - 1; //この-1が必要なのが妙な仕様だ
+            using (DocumentScope docScope = GetDocumentScope()) {
+                if (docScope.Document == null) {
+                    return;
+                }
+
+                RenderProfile prof = GetRenderProfile();
+                float ch = prof.Pitch.Height + prof.LineSpacing;
+                int largechange = (int)Math.Floor((this.ClientSize.Height - BORDER * 2 + prof.LineSpacing) / ch); //きちんと表示できる行数をLargeChangeにセット
+                int current = GetTopLine().ID - docScope.Document.FirstLineNumber;
+                int size = Math.Max(docScope.Document.Size, current + largechange);
+                if (size <= largechange) {
+                    _VScrollBar.Enabled = false;
+                }
+                else {
+                    _VScrollBar.Enabled = true;
+                    _VScrollBar.LargeChange = largechange;
+                    _VScrollBar.Maximum = size - 1; //この-1が必要なのが妙な仕様だ
+                }
             }
         }
 
@@ -368,7 +380,12 @@ namespace Poderosa.View {
 
         //_documentのうちどれを先頭(1行目)として表示するかを返す
         public virtual GLine GetTopLine() {
-            return _document.FindLine(_document.FirstLine.ID + _VScrollBar.Value);
+            using (DocumentScope docScope = GetDocumentScope()) {
+                if (docScope.Document == null) {
+                    return null;
+                }
+                return docScope.Document.FindLine(docScope.Document.FirstLine.ID + _VScrollBar.Value);
+            }
         }
 
         public void MousePosToTextPos(int mouseX, int mouseY, out int textX, out int textY) {
@@ -397,7 +414,7 @@ namespace Poderosa.View {
             _maxDisplayLines = height;
         }
 
-        protected void InvalidateAll() {
+        public void InvalidateAll() {
             _requiresFullInvalidate = true;
         }
 
@@ -464,56 +481,60 @@ namespace Poderosa.View {
             base.OnPaint(e);
 
             try {
-                if (_document != null)
-                    ShowVScrollBar();
-                else
-                    HideVScrollBar();
+                using (DocumentScope docScope = GetDocumentScope()) {
+                    if (docScope.Document != null && !this.DesignMode) {
+                        ShowVScrollBar();
 
-                if (HasDocument && !this.DesignMode) {
-                    Rectangle clip = e.ClipRectangle;
-                    Graphics g = e.Graphics;
-                    RenderProfile profile = GetRenderProfile();
+                        Rectangle clip = e.ClipRectangle;
+                        Graphics g = e.Graphics;
+                        RenderProfile profile = GetRenderProfile();
 
-                    // determine background color of the view
-                    Color backColor;
-                    if (_document.IsApplicationMode) {
-                        backColor = profile.GetBackColor(_document.ApplicationModeBackColor);
-                    }
-                    else {
-                        backColor = profile.BackColor;
-                    }
+                        // determine background color of the view
+                        Color backColor;
+                        if (docScope.Document.IsApplicationMode) {
+                            backColor = profile.GetBackColor(docScope.Document.ApplicationModeBackColor);
+                        }
+                        else {
+                            backColor = profile.BackColor;
+                        }
 
-                    if (this.BackColor != backColor)
-                        this.BackColor = backColor; // set background color of the view
+                        if (this.BackColor != backColor)
+                            this.BackColor = backColor; // set background color of the view
 
-                    // draw background image if it is required.
-                    if (!_document.IsApplicationMode) {
-                        Image img = profile.GetImage();
-                        if (img != null) {
-                            DrawBackgroundImage(g, img, profile.ImageStyle, clip);
+                        // draw background image if it is required.
+                        if (!docScope.Document.IsApplicationMode) {
+                            Image img = profile.GetImage();
+                            if (img != null) {
+                                DrawBackgroundImage(g, img, profile.ImageStyle, clip);
+                            }
+                        }
+
+                        _caret.Enabled = _caret.Enabled && this.Focused; //TODO さらにIME起動中はキャレットを表示しないように. TerminalControlだったらAdjustCaretでIMEをみてるので問題はない
+
+                        //描画用にテンポラリのGLineを作り、描画中にdocumentをロックしないようにする
+                        //!!ここは実行頻度が高いのでnewを毎回するのは避けたいところだ
+                        RenderParameter param;
+                        lock (docScope.Document) {
+                            CommitTransientScrollBar();
+                            BuildTransientDocument(docScope.Document, clip, out param);
+                        }
+
+                        DrawLines(g, param, backColor);
+
+                        if (_caret.Enabled && (!_caret.Blink || _caret.IsActiveTick)) { //点滅しなければEnabledによってのみ決まる
+                            if (_caret.Style == CaretType.Line)
+                                DrawBarCaret(g, param, _caret.X, _caret.Y);
+                            else if (_caret.Style == CaretType.Underline)
+                                DrawUnderLineCaret(g, param, _caret.X, _caret.Y);
                         }
                     }
-
-                    //描画用にテンポラリのGLineを作り、描画中にdocumentをロックしないようにする
-                    //!!ここは実行頻度が高いのでnewを毎回するのは避けたいところだ
-                    RenderParameter param;
-                    _caret.Enabled = _caret.Enabled && this.Focused; //TODO さらにIME起動中はキャレットを表示しないように. TerminalControlだったらAdjustCaretでIMEをみてるので問題はない
-                    lock (_document) {
-                        CommitTransientScrollBar();
-                        BuildTransientDocument(clip, out param);
+                    else {
+                        HideVScrollBar();
                     }
 
-                    DrawLines(g, param, backColor);
-
-                    if (_caret.Enabled && (!_caret.Blink || _caret.IsActiveTick)) { //点滅しなければEnabledによってのみ決まる
-                        if (_caret.Style == CaretType.Line)
-                            DrawBarCaret(g, param, _caret.X, _caret.Y);
-                        else if (_caret.Style == CaretType.Underline)
-                            DrawUnderLineCaret(g, param, _caret.X, _caret.Y);
-                    }
+                    //マークの描画
+                    _splitMark.OnPaint(e);
                 }
-                //マークの描画
-                _splitMark.OnPaint(e);
             }
             catch (Exception ex) {
                 if (!_errorRaisedInDrawing) { //この中で一度例外が発生すると繰り返し起こってしまうことがままある。なので初回のみ表示してとりあえず切り抜ける
@@ -532,7 +553,9 @@ namespace Poderosa.View {
 #endif
         }
 
-        private void BuildTransientDocument(Rectangle clip, out RenderParameter param) {
+        private void BuildTransientDocument(CharacterDocument document, Rectangle clip, out RenderParameter param) {
+            Debug.Assert(document != null);
+
             RenderProfile profile = GetRenderProfile();
             _transientLines.Clear();
 
@@ -559,7 +582,7 @@ namespace Poderosa.View {
             //Debug.WriteLine(String.Format("{0} {1} ", param.LineFrom, param.LineCount));
 
             int topline_id = GetTopLine().ID;
-            GLine l = _document.FindLineOrNull(topline_id + lineFrom);
+            GLine l = document.FindLineOrNull(topline_id + lineFrom);
             if (l != null) {
                 int poolIndex = 0;
                 for (int i = 0; i < lineCount; i++) {
@@ -589,8 +612,8 @@ namespace Poderosa.View {
             if (!_textSelection.IsEmpty) {
                 TextSelection.TextPoint from = _textSelection.HeadPoint;
                 TextSelection.TextPoint to = _textSelection.TailPoint;
-                l = _document.FindLineOrNull(from.Line);
-                GLine t = _document.FindLineOrNull(to.Line);
+                l = document.FindLineOrNull(from.Line);
+                GLine t = document.FindLineOrNull(to.Line);
                 if (l != null && t != null) { //本当はlがnullではいけないはずだが、それを示唆するバグレポートがあったので念のため
                     t = t.NextLine;
                     int pos = from.Column; //たとえば左端を越えてドラッグしたときの選択範囲は前行末になるので pos==TerminalWidthとなるケースがある。
@@ -636,23 +659,20 @@ namespace Poderosa.View {
         private void DrawLines(Graphics g, RenderParameter param, Color baseBackColor) {
             RenderProfile prof = GetRenderProfile();
             Caret caret = _caret;
-            //Rendering Core
-            if (param.LineFrom <= _document.LastLineNumber) {
-                IntPtr hdc = g.GetHdc();
-                try {
-                    float y = (prof.Pitch.Height + prof.LineSpacing) * param.LineFrom + BORDER;
-                    for (int i = 0; i < _transientLines.Count; i++) {
-                        GLine line = _transientLines[i];
-                        line.Render(hdc, prof, caret, baseBackColor, BORDER, (int)y);
-                        if (line.IsPeriodicRedrawRequired()) {
-                            _requiresPeriodicRedraw = true;
-                        }
-                        y += prof.Pitch.Height + prof.LineSpacing;
+            IntPtr hdc = g.GetHdc();
+            try {
+                float y = (prof.Pitch.Height + prof.LineSpacing) * param.LineFrom + BORDER;
+                for (int i = 0; i < _transientLines.Count; i++) {
+                    GLine line = _transientLines[i];
+                    line.Render(hdc, prof, caret, baseBackColor, BORDER, (int)y);
+                    if (line.IsPeriodicRedrawRequired()) {
+                        _requiresPeriodicRedraw = true;
                     }
+                    y += prof.Pitch.Height + prof.LineSpacing;
                 }
-                finally {
-                    g.ReleaseHdc(hdc);
-                }
+            }
+            finally {
+                g.ReleaseHdc(hdc);
             }
         }
 
@@ -880,102 +900,122 @@ namespace Poderosa.View {
         }
 
         public override UIHandleResult OnMouseDown(MouseEventArgs args) {
-            if (args.Button != MouseButtons.Left || !_viewer.HasDocument)
-                return UIHandleResult.Pass;
+            using (CharacterDocumentViewer.DocumentScope docScope = _viewer.GetDocumentScope()) {
+                if (docScope.Document == null) {
+                    return UIHandleResult.Pass;
+                }
 
-            //テキスト選択ではないのでちょっと柄悪いが。UserControl->Controlの置き換えに伴う
-            if (!_viewer.Focused)
-                _viewer.Focus();
+                if (args.Button != MouseButtons.Left || !_viewer.HasDocument) {
+                    return UIHandleResult.Pass;
+                }
 
+                //テキスト選択ではないのでちょっと柄悪いが。UserControl->Controlの置き換えに伴う
+                if (!_viewer.Focused) {
+                    _viewer.Focus();
+                }
 
-            CharacterDocument document = _viewer.CharacterDocument;
-            lock (document) {
-                int col, row;
-                _viewer.MousePosToTextPos(args.X, args.Y, out col, out row);
-                int target_id = _viewer.GetTopLine().ID + row;
+                lock (docScope.Document) {
+                    int col, row;
+                    _viewer.MousePosToTextPos(args.X, args.Y, out col, out row);
+                    int target_id = _viewer.GetTopLine().ID + row;
+                    TextSelection sel = _viewer.TextSelection;
+                    if (sel.State == SelectionState.Fixed)
+                        sel.Clear(); //変なところでMouseDownしたとしてもClearだけはする
+                    if (target_id <= docScope.Document.LastLineNumber) {
+                        //if(InFreeSelectionMode) ExitFreeSelectionMode();
+                        //if(InAutoSelectionMode) ExitAutoSelectionMode();
+                        RangeType rt;
+                        //Debug.WriteLine(String.Format("MouseDown {0} {1}", sel.State, sel.PivotType));
+
+                        //同じ場所でポチポチと押すとChar->Word->Line->Charとモード変化する
+                        if (sel.StartX != args.X || sel.StartY != args.Y)
+                            rt = RangeType.Char;
+                        else
+                            rt = sel.PivotType == RangeType.Char ? RangeType.Word : sel.PivotType == RangeType.Word ? RangeType.Line : RangeType.Char;
+
+                        //マウスを動かしていなくても、MouseDownとともにMouseMoveが来てしまうようだ
+                        GLine tl = docScope.Document.FindLine(target_id);
+                        if (tl.IsDoubleWidth) {
+                            col /= 2;
+                        }
+                        sel.StartSelection(tl, col, rt, args.X, args.Y);
+                    }
+                }
+
+                _viewer.InvalidateAll(); //NOTE 選択状態に変化のあった行のみ更新すればなおよし
+                return UIHandleResult.Capture;
+            }
+        }
+
+        public override UIHandleResult OnMouseMove(MouseEventArgs args) {
+            using (CharacterDocumentViewer.DocumentScope docScope = _viewer.GetDocumentScope()) {
+                if (docScope.Document == null) {
+                    return UIHandleResult.Pass;
+                }
+
+                if (args.Button != MouseButtons.Left) {
+                    return UIHandleResult.Pass;
+                }
+
                 TextSelection sel = _viewer.TextSelection;
-                if (sel.State == SelectionState.Fixed)
-                    sel.Clear(); //変なところでMouseDownしたとしてもClearだけはする
-                if (target_id <= document.LastLineNumber) {
-                    //if(InFreeSelectionMode) ExitFreeSelectionMode();
-                    //if(InAutoSelectionMode) ExitAutoSelectionMode();
-                    RangeType rt;
-                    //Debug.WriteLine(String.Format("MouseDown {0} {1}", sel.State, sel.PivotType));
+                if (sel.State == SelectionState.Fixed || sel.State == SelectionState.Empty) {
+                    return UIHandleResult.Pass;
+                }
 
-                    //同じ場所でポチポチと押すとChar->Word->Line->Charとモード変化する
-                    if (sel.StartX != args.X || sel.StartY != args.Y)
-                        rt = RangeType.Char;
-                    else
-                        rt = sel.PivotType == RangeType.Char ? RangeType.Word : sel.PivotType == RangeType.Word ? RangeType.Line : RangeType.Char;
+                //クリックだけでもなぜかMouseDownの直後にMouseMoveイベントが来るのでこのようにしてガード。でないと単発クリックでも選択状態になってしまう
+                if (sel.StartX == args.X && sel.StartY == args.Y) {
+                    return UIHandleResult.Capture;
+                }
 
-                    //マウスを動かしていなくても、MouseDownとともにMouseMoveが来てしまうようだ
-                    GLine tl = document.FindLine(target_id);
-                    if (tl.IsDoubleWidth) {
+                lock (docScope.Document) {
+                    int topline_id = _viewer.GetTopLine().ID;
+                    SizeF pitch = _viewer.GetRenderProfile().Pitch;
+                    int row, col;
+                    _viewer.MousePosToTextPos_AllowNegative(args.X, args.Y, out col, out row);
+                    int viewheight = (int)Math.Floor(_viewer.ClientSize.Height / pitch.Width);
+                    int target_id = topline_id + row;
+
+                    GLine target_line = docScope.Document.FindLineOrEdge(target_id);
+                    if (target_line.IsDoubleWidth) {
                         col /= 2;
                     }
-                    sel.StartSelection(tl, col, rt, args.X, args.Y);
-                }
-            }
-            _viewer.Invalidate(); //NOTE 選択状態に変化のあった行のみ更新すればなおよし
-            return UIHandleResult.Capture;
-        }
-        public override UIHandleResult OnMouseMove(MouseEventArgs args) {
-            if (args.Button != MouseButtons.Left)
-                return UIHandleResult.Pass;
-            TextSelection sel = _viewer.TextSelection;
-            if (sel.State == SelectionState.Fixed || sel.State == SelectionState.Empty)
-                return UIHandleResult.Pass;
-            //クリックだけでもなぜかMouseDownの直後にMouseMoveイベントが来るのでこのようにしてガード。でないと単発クリックでも選択状態になってしまう
-            if (sel.StartX == args.X && sel.StartY == args.Y)
-                return UIHandleResult.Capture;
+                    TextSelection.TextPoint point = sel.ConvertSelectionPosition(target_line, col);
 
-            CharacterDocument document = _viewer.CharacterDocument;
-            lock (document) {
-                int topline_id = _viewer.GetTopLine().ID;
-                SizeF pitch = _viewer.GetRenderProfile().Pitch;
-                int row, col;
-                _viewer.MousePosToTextPos_AllowNegative(args.X, args.Y, out col, out row);
-                int viewheight = (int)Math.Floor(_viewer.ClientSize.Height / pitch.Width);
-                int target_id = topline_id + row;
+                    point.Line = RuntimeUtil.AdjustIntRange(point.Line, docScope.Document.FirstLineNumber, docScope.Document.LastLineNumber);
 
-                GLine target_line = document.FindLineOrEdge(target_id);
-                if (target_line.IsDoubleWidth) {
-                    col /= 2;
-                }
-                TextSelection.TextPoint point = sel.ConvertSelectionPosition(target_line, col);
-
-                point.Line = RuntimeUtil.AdjustIntRange(point.Line, document.FirstLineNumber, document.LastLineNumber);
-
-                if (_viewer.VScrollBar.Enabled) { //スクロール可能なときは
-                    VScrollBar vsc = _viewer.VScrollBar;
-                    if (target_id < topline_id) //前方スクロール
-                        vsc.Value = point.Line - document.FirstLineNumber;
-                    else if (point.Line >= topline_id + vsc.LargeChange) { //後方スクロール
-                        int newval = point.Line - document.FirstLineNumber - vsc.LargeChange + 1;
-                        if (newval < 0)
-                            newval = 0;
-                        if (newval > vsc.Maximum - vsc.LargeChange)
-                            newval = vsc.Maximum - vsc.LargeChange + 1;
-                        vsc.Value = newval;
+                    if (_viewer.VScrollBar.Enabled) { //スクロール可能なときは
+                        VScrollBar vsc = _viewer.VScrollBar;
+                        if (target_id < topline_id) //前方スクロール
+                            vsc.Value = point.Line - docScope.Document.FirstLineNumber;
+                        else if (point.Line >= topline_id + vsc.LargeChange) { //後方スクロール
+                            int newval = point.Line - docScope.Document.FirstLineNumber - vsc.LargeChange + 1;
+                            if (newval < 0)
+                                newval = 0;
+                            if (newval > vsc.Maximum - vsc.LargeChange)
+                                newval = vsc.Maximum - vsc.LargeChange + 1;
+                            vsc.Value = newval;
+                        }
                     }
-                }
-                else { //スクロール不可能なときは見えている範囲で
-                    point.Line = RuntimeUtil.AdjustIntRange(point.Line, topline_id, topline_id + viewheight - 1);
-                } //ここさぼっている
-                //Debug.WriteLine(String.Format("MouseMove {0} {1} {2}", sel.State, sel.PivotType, args.X));
-                RangeType rt = sel.PivotType;
-                if ((Control.ModifierKeys & Keys.Control) != Keys.None)
-                    rt = RangeType.Word;
-                else if ((Control.ModifierKeys & Keys.Shift) != Keys.None)
-                    rt = RangeType.Line;
+                    else { //スクロール不可能なときは見えている範囲で
+                        point.Line = RuntimeUtil.AdjustIntRange(point.Line, topline_id, topline_id + viewheight - 1);
+                    } //ここさぼっている
+                    //Debug.WriteLine(String.Format("MouseMove {0} {1} {2}", sel.State, sel.PivotType, args.X));
+                    RangeType rt = sel.PivotType;
+                    if ((Control.ModifierKeys & Keys.Control) != Keys.None)
+                        rt = RangeType.Word;
+                    else if ((Control.ModifierKeys & Keys.Shift) != Keys.None)
+                        rt = RangeType.Line;
 
-                GLine tl = document.FindLine(point.Line);
-                sel.ExpandTo(tl, point.Column, rt);
+                    GLine tl = docScope.Document.FindLine(point.Line);
+                    sel.ExpandTo(tl, point.Column, rt);
+                }
             }
+
             _viewer.Invalidate(); //TODO 選択状態に変化のあった行のみ更新するようにすればなおよし
             return UIHandleResult.Capture;
 
         }
+
         public override UIHandleResult OnMouseUp(MouseEventArgs args) {
             TextSelection sel = _viewer.TextSelection;
             if (args.Button == MouseButtons.Left) {
@@ -985,7 +1025,6 @@ namespace Poderosa.View {
                     sel.Clear();
             }
             return _viewer.MouseHandlerManager.CapturingHandler == this ? UIHandleResult.EndCapture : UIHandleResult.Pass;
-
         }
     }
 
@@ -1019,5 +1058,29 @@ namespace Poderosa.View {
         }
     }
 
+    /// <summary>
+    /// CharacterDocumentViewer with CharacterDocument
+    /// </summary>
+    public abstract class SimpleCharacterDocumentViewer : CharacterDocumentViewer {
+        private CharacterDocument _document = null;
+        private readonly ReaderWriterLockSlim _documentLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
+        protected void DocumentChanged(CharacterDocument document) {
+            _documentLock.EnterWriteLock();
+            _document = document;
+            DocumentChanged(document != null);
+            _documentLock.ExitWriteLock();
+        }
+
+        public override bool HasDocument {
+            get {
+                return _document != null;
+            }
+        }
+
+        public override DocumentScope GetDocumentScope() {
+            _documentLock.EnterReadLock();
+            return new DocumentScope(_document, _documentLock);
+        }
+    }
 }
