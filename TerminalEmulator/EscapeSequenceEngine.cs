@@ -883,13 +883,7 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// </remarks>
         internal class IgnoreControlStringState : CharStateBase {
 
-            public int Id {
-                get;
-                private set;
-            }
-
             private IgnoreControlStringState() {
-                Id = _nextStateId++;
             }
 
             public static IgnoreControlStringState BuildForAPC() {
