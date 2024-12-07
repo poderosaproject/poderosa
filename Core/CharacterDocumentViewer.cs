@@ -55,16 +55,16 @@ namespace Poderosa.View {
         private readonly List<GLine> _transientLines; //再描画するGLineを一時的に保管する
         private readonly List<GLine> _glinePool;
         private bool _requiresPeriodicRedraw;
-        private TextSelection _textSelection;
-        private SplitMarkSupport _splitMark;
+        private readonly TextSelection _textSelection;
+        private readonly SplitMarkSupport _splitMark;
         private bool _enabled; //ドキュメントがアタッチされていないときを示す 変更するときはEnabledExプロパティで！
 
         private Cursor _documentCursor = Cursors.IBeam;
 
-        protected MouseHandlerManager _mouseHandlerManager;
+        protected readonly MouseHandlerManager _mouseHandlerManager;
         protected VScrollBar _VScrollBar;
         protected bool _enableAutoScrollBarAdjustment; //リサイズ時に自動的に_VScrollBarの値を調整するかどうか
-        protected Caret _caret;
+        protected readonly Caret _caret;
         protected DateTime _nextCaretUpdate = DateTime.UtcNow;
 
         private readonly System.Timers.Timer _updatingTimer;
