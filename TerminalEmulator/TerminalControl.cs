@@ -74,9 +74,6 @@ namespace Poderosa.Terminal {
         private bool _forceNewLine; // controls behavior of Enter key
         private bool _hideCaret;
 
-        //再描画の状態管理
-        private int _drawOptimizingState = 0; //この状態管理はOnWindowManagerTimer(), SmartInvalidate()参照
-
         internal TerminalDocument GetDocument() {
             // FIXME: In rare case, _session may be null...
             return _session.Terminal.Document;
@@ -300,7 +297,6 @@ namespace Poderosa.Terminal {
             //Debug.WriteLine(String.Format("v={0} l={1} m={2}", _VScrollBar.Value, _VScrollBar.LargeChange, _VScrollBar.Maximum));
             if (DebugOpt.DrawingPerformance)
                 DrawingPerformance.MarkReceiveData(GetDocument().InvalidatedRegion);
-            SmartInvalidate();
 
             //部分変換中であったときのための調整
             if (_inIMEComposition) {
@@ -311,46 +307,11 @@ namespace Poderosa.Terminal {
             }
         }
 
-        private void SmartInvalidate() {
-            //ここでDrawOptimizeStateをいじる。近接して到着するデータによる過剰な再描画を回避しつつ、タイマーで一定時間後には確実に描画されるようにする。
-            //状態遷移は、データ到着とタイマーをトリガとする３状態の簡単なオートマトンである。
-            switch (_drawOptimizingState) {
-                case 0:
-                    _drawOptimizingState = 1;
-                    InvalidateEx();
-                    break;
-                case 1:
-                    if (_session.TerminalConnection.Socket.Available)
-                        Interlocked.Exchange(ref _drawOptimizingState, 2); //間引きモードへ
-                    else
-                        InvalidateEx();
-                    break;
-                case 2:
-                    break; //do nothing
-            }
-        }
-
         /*
          * ↑  受信スレッドによる実行のエリア
          * -------------------------------
          * ↓  UIスレッドによる実行のエリア
          */
-
-        protected override void OnWindowManagerTimer() {
-            base.OnWindowManagerTimer();
-
-            switch (_drawOptimizingState) {
-                case 0:
-                    break; //do nothing
-                case 1:
-                    Interlocked.CompareExchange(ref _drawOptimizingState, 0, 1);
-                    break;
-                case 2: //忙しくても偶には描画
-                    _drawOptimizingState = 1;
-                    InvalidateEx();
-                    break;
-            }
-        }
 
         private delegate void InvalidateDelegate1();
         private delegate void InvalidateDelegate2(Rectangle rc);
@@ -705,7 +666,8 @@ namespace Poderosa.Terminal {
 
             //接続先へ通知
             GetTerminalTransmission().Resize(width, height);
-            InvalidateEx();
+
+            InvalidateAll();
         }
 
         //IMEの位置合わせなど。日本語入力開始時、現在のキャレット位置からIMEをスタートさせる。

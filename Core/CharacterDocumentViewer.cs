@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Poderosa.View {
@@ -43,7 +44,6 @@ namespace Poderosa.View {
     public class CharacterDocumentViewer : Control, IPoderosaControl, ISelectionListener, SplitMarkSupport.ISite {
 
         public const int BORDER = 2; //内側の枠線のサイズ
-        internal const int TIMER_INTERVAL = 50; //再描画最適化とキャレット処理を行うタイマーの間隔
 
         private CharacterDocument _document;
         private int _maxDisplayLines; // restrict lines to display to avoid artifacts
@@ -61,8 +61,12 @@ namespace Poderosa.View {
         protected VScrollBar _VScrollBar;
         protected bool _enableAutoScrollBarAdjustment; //リサイズ時に自動的に_VScrollBarの値を調整するかどうか
         protected Caret _caret;
-        protected ITimerSite _timer;
-        protected int _tickCount;
+        protected DateTime _nextCaretUpdate = DateTime.UtcNow;
+
+        private readonly System.Timers.Timer _updatingTimer;
+        private int _updatingState = 0; // avoid overlapping execution of timer event
+
+        private bool _requiresFullInvalidate = false; // requests full-invalidate regardless of the document status
 
         public delegate void OnPaintTimeObserver(Stopwatch s);
 
@@ -71,6 +75,11 @@ namespace Poderosa.View {
 #endif
 
         public CharacterDocumentViewer() {
+            _updatingTimer = new System.Timers.Timer();
+            _updatingTimer.Interval = 1000.0 / 60.0;
+            _updatingTimer.Elapsed += UpdatingTimerElapsed;
+            _updatingTimer.AutoReset = true;
+
             _maxDisplayLines = Int32.MaxValue;
             _enableAutoScrollBarAdjustment = true;
             _transientLines = new List<GLine>();
@@ -201,40 +210,116 @@ namespace Poderosa.View {
             _document = doc;
             this.EnabledEx = doc != null;
 
-            if (_timer != null)
-                _timer.Close();
             if (this.EnabledEx) {
-                _timer = WindowManagerPlugin.Instance.CreateTimer(TIMER_INTERVAL, new TimerDelegate(OnWindowManagerTimer));
-                _tickCount = 0;
+                _updatingTimer.Enabled = true;
+            }
+            else {
+                _updatingTimer.Enabled = false;
             }
 
             if (_enableAutoScrollBarAdjustment)
                 AdjustScrollBar();
         }
 
-        //タイマーの受信
-        private void CaretTick() {
-            if (_enabled) {
-                // Note:
-                //  Currently, blinking status of the caret is used also for displaying "blink" characters.
-                //  So the blinking status of the caret have to be updated here even if the caret blinking was not enabled.
-                _caret.Tick();
-                if (_requiresPeriodicRedraw) {
-                    _requiresPeriodicRedraw = false;
-                    _document.InvalidatedRegion.InvalidatedAll = true;
+        private void UpdatingTimerElapsed(object sender, System.Timers.ElapsedEventArgs e) {
+            if (Interlocked.CompareExchange(ref _updatingState, 1, 0) != 0) {
+                return;
+            }
+
+            DateTime now = DateTime.UtcNow;
+            if (now >= _nextCaretUpdate) {
+                if (_enabled) {
+                    // Note:
+                    //  Currently, blinking status of the caret is used also for displaying "blink" characters.
+                    //  So the blinking status of the caret have to be updated here even if the caret blinking was not enabled.
+                    _caret.Tick();
+
+                    if (_requiresPeriodicRedraw) { // blinking characters exist
+                        _requiresPeriodicRedraw = false;
+                        _document.InvalidateAll();
+                    }
+                    else {
+                        _document.InvalidatedRegion.InvalidateLine(GetTopLine().ID + _caret.Y);
+                    }
+                }
+
+                TimeSpan d = TimeSpan.FromMilliseconds(WindowManagerPlugin.Instance.WindowPreference.OriginalPreference.CaretInterval);
+                DateTime next = _nextCaretUpdate + d;
+                if (next < now) {
+                    next = now + d;
+                }
+                _nextCaretUpdate = next;
+            }
+
+            AdaptiveInvalidate();
+
+            Interlocked.Exchange(ref _updatingState, 0);
+        }
+
+        private void AdaptiveInvalidate() {
+            if (this.IsDisposed) {
+                return;
+            }
+
+            bool invalidateRequired;
+            bool fullInvalidate;
+            Rectangle r = new Rectangle();
+
+            if (_document != null) {
+                InvalidatedRegion rgn = _document.InvalidatedRegion.GetCopyAndReset();
+                if (rgn.IsEmpty) {
+                    invalidateRequired = false;
+                    fullInvalidate = false;
                 }
                 else {
-                    _document.InvalidatedRegion.InvalidateLine(GetTopLine().ID + _caret.Y);
+                    invalidateRequired = true;
+                    if (rgn.InvalidatedAll) {
+                        fullInvalidate = true;
+                    }
+                    else {
+                        fullInvalidate = false;
+                        r.X = 0;
+                        r.Width = this.ClientSize.Width;
+                        int topLine = GetTopLine().ID;
+                        int y1 = rgn.LineIDStart - topLine;
+                        int y2 = rgn.LineIDEnd + 1 - topLine;
+                        RenderProfile prof = GetRenderProfile();
+                        r.Y = BORDER + (int)(y1 * (prof.Pitch.Height + prof.LineSpacing));
+                        r.Height = (int)((y2 - y1) * (prof.Pitch.Height + prof.LineSpacing)) + 1;
+                    }
                 }
-                InvalidateEx();
             }
-        }
-        protected virtual void OnWindowManagerTimer() {
-            //タイマーはTIMER_INTERVALごとにカウントされるので。
-            int q = Math.Max(1, WindowManagerPlugin.Instance.WindowPreference.OriginalPreference.CaretInterval / TIMER_INTERVAL);
-            _tickCount = (_tickCount + 1) % q;
-            if (_tickCount == 0) {
-                CaretTick();
+            else {
+                invalidateRequired = false;
+                fullInvalidate = false;
+            }
+
+            if (_requiresFullInvalidate) {
+                _requiresFullInvalidate = false;
+                invalidateRequired = true;
+                fullInvalidate = true;
+            }
+
+            if (!invalidateRequired) {
+                return;
+            }
+
+            if (this.InvokeRequired) {
+                if (fullInvalidate)
+                    this.BeginInvoke((MethodInvoker)delegate() {
+                        Invalidate();
+                    });
+                else {
+                    this.BeginInvoke((MethodInvoker)delegate() {
+                        Invalidate(r);
+                    });
+                }
+            }
+            else {
+                if (fullInvalidate)
+                    Invalidate();
+                else
+                    Invalidate(r);
             }
         }
 
@@ -311,50 +396,8 @@ namespace Poderosa.View {
             _maxDisplayLines = height;
         }
 
-        //_documentの更新状況を見て適切な領域のControl.Invalidate()を呼ぶ。
-        //また、コントロールを所有していないスレッドから呼んでもOKなようになっている。
-        protected void InvalidateEx() {
-            if (this.IsDisposed)
-                return;
-            bool full_invalidate = true;
-            Rectangle r = new Rectangle();
-
-            if (_document != null) {
-                if (_document.InvalidatedRegion.IsEmpty)
-                    return;
-                InvalidatedRegion rgn = _document.InvalidatedRegion.GetCopyAndReset();
-                if (rgn.IsEmpty)
-                    return;
-                if (!rgn.InvalidatedAll) {
-                    full_invalidate = false;
-                    r.X = 0;
-                    r.Width = this.ClientSize.Width;
-                    int topLine = GetTopLine().ID;
-                    int y1 = rgn.LineIDStart - topLine;
-                    int y2 = rgn.LineIDEnd + 1 - topLine;
-                    RenderProfile prof = GetRenderProfile();
-                    r.Y = BORDER + (int)(y1 * (prof.Pitch.Height + prof.LineSpacing));
-                    r.Height = (int)((y2 - y1) * (prof.Pitch.Height + prof.LineSpacing)) + 1;
-                }
-            }
-
-            if (this.InvokeRequired) {
-                if (full_invalidate)
-                    this.BeginInvoke((MethodInvoker)delegate() {
-                        Invalidate();
-                    });
-                else {
-                    this.BeginInvoke((MethodInvoker)delegate() {
-                        Invalidate(r);
-                    });
-                }
-            }
-            else {
-                if (full_invalidate)
-                    Invalidate();
-                else
-                    Invalidate(r);
-            }
+        protected void InvalidateAll() {
+            _requiresFullInvalidate = true;
         }
 
         private void InitializeComponent() {
@@ -389,9 +432,8 @@ namespace Poderosa.View {
         protected override void Dispose(bool disposing) {
             base.Dispose(disposing);
             if (disposing) {
+                _updatingTimer.Dispose();
                 _caret.Dispose();
-                if (_timer != null)
-                    _timer.Close();
                 _splitMark.Pen.Dispose();
             }
         }
@@ -512,7 +554,7 @@ namespace Poderosa.View {
                 }
                 lineCount = lineTo - lineFrom + 1;
             }
-            
+
             //Debug.WriteLine(String.Format("{0} {1} ", param.LineFrom, param.LineCount));
 
             int topline_id = GetTopLine().ID;
