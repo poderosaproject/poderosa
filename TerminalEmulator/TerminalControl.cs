@@ -218,6 +218,7 @@ namespace Poderosa.Terminal {
                 _documentCache = null;
                 DocumentChanged(false);
                 ChangeUICursor(null);
+                Invalidate(true);
             }
             finally {
                 _documentLock.ExitWriteLock();

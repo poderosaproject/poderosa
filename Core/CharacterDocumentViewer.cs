@@ -289,65 +289,61 @@ namespace Poderosa.View {
         }
 
         private void AdaptiveInvalidate(CharacterDocument document) {
-            bool invalidateRequired;
-            bool fullInvalidate;
-            Rectangle r = new Rectangle();
-
-            if (document != null) {
-                InvalidatedRegion rgn = document.InvalidatedRegion.GetCopyAndReset();
-                if (rgn.IsEmpty) {
-                    invalidateRequired = false;
-                    fullInvalidate = false;
-                }
-                else {
-                    invalidateRequired = true;
-                    if (rgn.InvalidatedAll) {
-                        fullInvalidate = true;
-                    }
-                    else {
-                        fullInvalidate = false;
-                        r.X = 0;
-                        r.Width = this.ClientSize.Width;
-                        int topLine = GetTopLine().ID;
-                        int y1 = rgn.LineIDStart - topLine;
-                        int y2 = rgn.LineIDEnd + 1 - topLine;
-                        RenderProfile prof = GetRenderProfile();
-                        r.Y = BORDER + (int)(y1 * (prof.Pitch.Height + prof.LineSpacing));
-                        r.Height = (int)((y2 - y1) * (prof.Pitch.Height + prof.LineSpacing)) + 1;
-                    }
-                }
-            }
-            else {
-                invalidateRequired = false;
-                fullInvalidate = false;
-            }
-
-            if (_requiresFullInvalidate) {
-                _requiresFullInvalidate = false;
-                invalidateRequired = true;
-                fullInvalidate = true;
-            }
-
-            if (!invalidateRequired) {
+            if (document == null) {
                 return;
             }
 
+            // In order to clear the InvalidatedRegion, the call of GetCopyAndReset() is required
+            // even if full-invalidate will be done.
+            InvalidatedRegion rgn = document.InvalidatedRegion.GetCopyAndReset();
+
+            if (_requiresFullInvalidate) {
+                _requiresFullInvalidate = false;
+                FullInvalidate();
+                return;
+            }
+
+            if (rgn.IsEmpty) {
+                return;
+            }
+
+            if (rgn.InvalidatedAll) {
+                FullInvalidate();
+                return;
+            }
+
+            Rectangle r = new Rectangle();
+            r.X = 0;
+            r.Width = this.ClientSize.Width;
+            int topLine = GetTopLine().ID;
+            int y1 = rgn.LineIDStart - topLine;
+            int y2 = rgn.LineIDEnd + 1 - topLine;
+            RenderProfile prof = GetRenderProfile();
+            r.Y = BORDER + (int)(y1 * (prof.Pitch.Height + prof.LineSpacing));
+            r.Height = (int)((y2 - y1) * (prof.Pitch.Height + prof.LineSpacing)) + 1;
+
+            PartialInvalidate(r);
+        }
+
+        private void FullInvalidate() {
             if (this.InvokeRequired) {
-                if (fullInvalidate)
-                    this.BeginInvoke((MethodInvoker)delegate() {
-                        Invalidate();
-                    });
-                else {
-                    this.BeginInvoke((MethodInvoker)delegate() {
-                        Invalidate(r);
-                    });
-                }
+                this.BeginInvoke((MethodInvoker)delegate() {
+                    Invalidate();
+                });
             }
             else {
-                if (fullInvalidate)
-                    Invalidate();
-                else
+                Invalidate();
+            }
+        }
+
+        private void PartialInvalidate(Rectangle r) {
+            if (this.InvokeRequired) {
+                this.BeginInvoke((MethodInvoker)delegate() {
                     Invalidate(r);
+                });
+            }
+            else {
+                Invalidate(r);
             }
         }
 
