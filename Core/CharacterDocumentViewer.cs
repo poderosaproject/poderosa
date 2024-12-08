@@ -132,7 +132,11 @@ namespace Poderosa.View {
             _enableAutoScrollBarAdjustment = true;
             _transientLines = new List<GLine>();
             _glinePool = new List<GLine>();
+
             InitializeComponent();
+
+            AdjustScrollBarPosition();
+            this.ImeMode = ImeMode.NoControl;
             //SetStyle(ControlStyles.UserPaint|ControlStyles.AllPaintingInWmPaint|ControlStyles.DoubleBuffer, true);
             this.DoubleBuffered = true;
 
@@ -415,6 +419,10 @@ namespace Poderosa.View {
             textY = (int)Math.Floor((mouseY - CharacterDocumentViewer.BORDER) / (pitch.Height + GetRenderProfile().LineSpacing));
         }
 
+        private void OnVScrollBarValueChanged(object sender, EventArgs args) {
+            VScrollBarValueChanged();
+        }
+
         //_VScrollBar.ValueChangedイベント
         protected virtual void VScrollBarValueChanged() {
             if (_enableAutoScrollBarAdjustment)
@@ -451,14 +459,8 @@ namespace Poderosa.View {
             this._VScrollBar.TabStop = false;
             this._VScrollBar.Cursor = Cursors.Default;
             this._VScrollBar.Visible = false;
-            this._VScrollBar.ValueChanged += delegate(object sender, EventArgs args) {
-                VScrollBarValueChanged();
-            };
+            this._VScrollBar.ValueChanged += OnVScrollBarValueChanged;
             this.Controls.Add(_VScrollBar);
-
-            this.ImeMode = ImeMode.NoControl;
-            //this.BorderStyle = BorderStyle.Fixed3D; //IMEPROBLEM
-            AdjustScrollBarPosition();
             this.ResumeLayout();
         }
 
@@ -495,66 +497,68 @@ namespace Poderosa.View {
 
             base.OnPaint(e);
 
-            try {
-                using (DocumentScope docScope = GetDocumentScope()) {
-                    if (docScope.Document != null && !this.DesignMode) {
-                        ShowVScrollBar();
+            if (!this.DesignMode) {
+                try {
+                    using (DocumentScope docScope = GetDocumentScope()) {
+                        if (docScope.Document != null) {
+                            ShowVScrollBar();
 
-                        Rectangle clip = e.ClipRectangle;
-                        Graphics g = e.Graphics;
-                        RenderProfile profile = GetRenderProfile();
+                            Rectangle clip = e.ClipRectangle;
+                            Graphics g = e.Graphics;
+                            RenderProfile profile = GetRenderProfile();
 
-                        // determine background color of the view
-                        Color backColor;
-                        if (docScope.Document.IsApplicationMode) {
-                            backColor = profile.GetBackColor(docScope.Document.ApplicationModeBackColor);
-                        }
-                        else {
-                            backColor = profile.BackColor;
-                        }
+                            // determine background color of the view
+                            Color backColor;
+                            if (docScope.Document.IsApplicationMode) {
+                                backColor = profile.GetBackColor(docScope.Document.ApplicationModeBackColor);
+                            }
+                            else {
+                                backColor = profile.BackColor;
+                            }
 
-                        if (this.BackColor != backColor)
-                            this.BackColor = backColor; // set background color of the view
+                            if (this.BackColor != backColor)
+                                this.BackColor = backColor; // set background color of the view
 
-                        // draw background image if it is required.
-                        if (!docScope.Document.IsApplicationMode) {
-                            Image img = profile.GetImage();
-                            if (img != null) {
-                                DrawBackgroundImage(g, img, profile.ImageStyle, clip);
+                            // draw background image if it is required.
+                            if (!docScope.Document.IsApplicationMode) {
+                                Image img = profile.GetImage();
+                                if (img != null) {
+                                    DrawBackgroundImage(g, img, profile.ImageStyle, clip);
+                                }
+                            }
+
+                            _caret.Enabled = _caret.Enabled && this.Focused; //TODO さらにIME起動中はキャレットを表示しないように. TerminalControlだったらAdjustCaretでIMEをみてるので問題はない
+
+                            //描画用にテンポラリのGLineを作り、描画中にdocumentをロックしないようにする
+                            //!!ここは実行頻度が高いのでnewを毎回するのは避けたいところだ
+                            RenderParameter param;
+                            lock (docScope.Document) {
+                                CommitTransientScrollBar();
+                                BuildTransientDocument(docScope.Document, clip, out param);
+                            }
+
+                            DrawLines(g, param, backColor);
+
+                            if (_caret.Enabled && (!_caret.Blink || _caret.IsActiveTick)) { //点滅しなければEnabledによってのみ決まる
+                                if (_caret.Style == CaretType.Line)
+                                    DrawBarCaret(g, param, _caret.X, _caret.Y);
+                                else if (_caret.Style == CaretType.Underline)
+                                    DrawUnderLineCaret(g, param, _caret.X, _caret.Y);
                             }
                         }
-
-                        _caret.Enabled = _caret.Enabled && this.Focused; //TODO さらにIME起動中はキャレットを表示しないように. TerminalControlだったらAdjustCaretでIMEをみてるので問題はない
-
-                        //描画用にテンポラリのGLineを作り、描画中にdocumentをロックしないようにする
-                        //!!ここは実行頻度が高いのでnewを毎回するのは避けたいところだ
-                        RenderParameter param;
-                        lock (docScope.Document) {
-                            CommitTransientScrollBar();
-                            BuildTransientDocument(docScope.Document, clip, out param);
+                        else {
+                            HideVScrollBar();
                         }
 
-                        DrawLines(g, param, backColor);
-
-                        if (_caret.Enabled && (!_caret.Blink || _caret.IsActiveTick)) { //点滅しなければEnabledによってのみ決まる
-                            if (_caret.Style == CaretType.Line)
-                                DrawBarCaret(g, param, _caret.X, _caret.Y);
-                            else if (_caret.Style == CaretType.Underline)
-                                DrawUnderLineCaret(g, param, _caret.X, _caret.Y);
-                        }
+                        //マークの描画
+                        _splitMark.OnPaint(e);
                     }
-                    else {
-                        HideVScrollBar();
-                    }
-
-                    //マークの描画
-                    _splitMark.OnPaint(e);
                 }
-            }
-            catch (Exception ex) {
-                if (!_errorRaisedInDrawing) { //この中で一度例外が発生すると繰り返し起こってしまうことがままある。なので初回のみ表示してとりあえず切り抜ける
-                    _errorRaisedInDrawing = true;
-                    RuntimeUtil.ReportException(ex);
+                catch (Exception ex) {
+                    if (!_errorRaisedInDrawing) { //この中で一度例外が発生すると繰り返し起こってしまうことがままある。なので初回のみ表示してとりあえず切り抜ける
+                        _errorRaisedInDrawing = true;
+                        RuntimeUtil.ReportException(ex);
+                    }
                 }
             }
 
