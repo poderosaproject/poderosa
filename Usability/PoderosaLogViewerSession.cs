@@ -147,16 +147,6 @@ namespace Poderosa.LogViewer {
             else
                 Invalidate();
         }
-        //UpdateDocumentのInvoke実行
-        private delegate void UpdateDocumentDelegate_();
-        private UpdateDocumentDelegate_ _updateDocumentDelegate;
-        public Delegate UpdateDocumentDelegate {
-            get {
-                if (_updateDocumentDelegate == null)
-                    _updateDocumentDelegate = new UpdateDocumentDelegate_(UpdateDocument);
-                return _updateDocumentDelegate;
-            }
-        }
 
         //Command
         public IPoderosaCommand Copy {
@@ -228,7 +218,7 @@ namespace Poderosa.LogViewer {
             PoderosaLogViewControl vc = _session.CurrentView;
             if (vc != null) {
                 if (vc.InvokeRequired)
-                    vc.Invoke(vc.UpdateDocumentDelegate);
+                    vc.Invoke((System.Windows.Forms.MethodInvoker)vc.UpdateDocument);
                 else
                     vc.UpdateDocument();
             }
