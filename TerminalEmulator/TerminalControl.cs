@@ -72,6 +72,8 @@ namespace Poderosa.Terminal {
 
         private bool _escForVI;
 
+        private bool _resetViewTop;
+
         /// <summary>
         /// Scope to guarantee consistent access to the TerminalDocument bound to this control
         /// </summary>
@@ -136,6 +138,7 @@ namespace Poderosa.Terminal {
             _instanceID = _instanceCount++;
             _enableAutoScrollBarAdjustment = false;
             _escForVI = false;
+            _resetViewTop = false;
 
             // この呼び出しは、Windows.Forms フォーム デザイナで必要です。
             InitializeComponent();
@@ -248,6 +251,19 @@ namespace Poderosa.Terminal {
         private TerminalDocumentScope GetTerminalDocumentScope() {
             _documentLock.EnterReadLock();
             return new TerminalDocumentScope(_documentCache, _documentLock);
+        }
+
+        protected override void OnUpdatingTimer() {
+            if (_resetViewTop) {
+                _resetViewTop = false;
+                using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
+                    if (docScope.Document != null) {
+                        lock (docScope.Document) {
+                            docScope.Document.ResetViewTop();
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -582,16 +598,9 @@ namespace Poderosa.Terminal {
         }
 
         private void SendBytes(byte[] data) {
-            using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
-                if (docScope.Document != null) {
-                    lock (docScope.Document) {
-                        //キーを押しっぱなしにしたときにキャレットがブリンクするのはちょっと見苦しいのでキー入力があるたびにタイマをリセット
-                        _caret.KeepActiveUntilNextTick();
-
-                        docScope.Document.ResetViewTop();
-                    }
-                }
-            }
+            //キーを押しっぱなしにしたときにキャレットがブリンクするのはちょっと見苦しいのでキー入力があるたびにタイマをリセット
+            _caret.KeepActiveUntilNextTick();
+            _resetViewTop = true;
             GetTerminalTransmission().Transmit(data);
         }
 
@@ -694,8 +703,6 @@ namespace Poderosa.Terminal {
                 height = 1;
             return new Size(width, height);
         }
-
-
 
         private void ShowSizeTip(int width, int height) {
             const int MARGIN = 8;

@@ -220,6 +220,10 @@ namespace Poderosa.View {
 
         public abstract DocumentScope GetDocumentScope();
 
+        protected virtual void OnUpdatingTimer() {
+            // do pending tasks
+        }
+
         #region IAdaptable
         public virtual IAdaptable GetAdapter(Type adapter) {
             return SessionManagerPlugin.Instance.PoderosaWorld.AdapterManager.GetAdapter(this, adapter);
@@ -261,6 +265,7 @@ namespace Poderosa.View {
             }
 
             if (!this.IsDisposed) {
+                OnUpdatingTimer();
                 using (DocumentScope docScope = GetDocumentScope()) {
                     DateTime now = DateTime.UtcNow;
                     if (now >= _nextCaretUpdate && docScope.Document != null) {
@@ -1032,7 +1037,6 @@ namespace Poderosa.View {
 
             _viewer.Invalidate(); //TODO 選択状態に変化のあった行のみ更新するようにすればなおよし
             return UIHandleResult.Capture;
-
         }
 
         public override UIHandleResult OnMouseUp(MouseEventArgs args) {

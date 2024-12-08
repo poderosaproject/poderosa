@@ -56,6 +56,7 @@ namespace Poderosa.View {
         private int _tick; //一定時間毎の切り替わり
         private bool _enabled;
         private bool _blink;
+        private bool _pending;
         private Pen _pen;
 
         public Caret() {
@@ -122,11 +123,16 @@ namespace Poderosa.View {
             }
         }
         public void Tick() {
-            _tick = (_tick + 1) % TICKER_LOOP_INTERVAL;
+            if (_pending) {
+                _pending = false;
+                _tick = 0;
+            }
+            else {
+                _tick = (_tick + 1) % TICKER_LOOP_INTERVAL;
+            }
         }
         public void KeepActiveUntilNextTick() {
-            //TODO タイマーのリセットまでできるとよい
-            _tick = -1;
+            _pending = true;
         }
         public void Reset() {
             DisposePen();
