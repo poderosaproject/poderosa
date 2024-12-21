@@ -43,6 +43,7 @@ namespace Poderosa.Forms {
         private System.Windows.Forms.ListBox _cjkFontList;
         private ClearTypeAwareLabel _lASCIISample;
         private ClearTypeAwareLabel _lCJKSample;
+        private TableLayoutPanel _tableLayout;
         private System.Windows.Forms.Button _okButton;
         private System.Windows.Forms.Button _cancelButton;
         /// <summary>
@@ -152,33 +153,39 @@ namespace Poderosa.Forms {
             this._asciiFontList = new System.Windows.Forms.ListBox();
             this._lAsciiFont = new System.Windows.Forms.Label();
             this._lFontSize = new System.Windows.Forms.Label();
-            this._fontSizeList = new ComboBox();
+            this._fontSizeList = new System.Windows.Forms.ComboBox();
             this._checkClearType = new System.Windows.Forms.CheckBox();
-            this._checkBoldStyle = new CheckBox();
-            this._checkForceBoldStyle = new CheckBox();
+            this._checkBoldStyle = new System.Windows.Forms.CheckBox();
+            this._checkForceBoldStyle = new System.Windows.Forms.CheckBox();
             this._lCJKFont = new System.Windows.Forms.Label();
             this._cjkFontList = new System.Windows.Forms.ListBox();
             this._lASCIISample = new Poderosa.Forms.ClearTypeAwareLabel();
             this._lCJKSample = new Poderosa.Forms.ClearTypeAwareLabel();
             this._okButton = new System.Windows.Forms.Button();
             this._cancelButton = new System.Windows.Forms.Button();
+            this._tableLayout = new System.Windows.Forms.TableLayoutPanel();
+            this._tableLayout.SuspendLayout();
             this.SuspendLayout();
             // 
             // _asciiFontList
             // 
+            this._asciiFontList.Dock = System.Windows.Forms.DockStyle.Fill;
             this._asciiFontList.ItemHeight = 12;
-            this._asciiFontList.Location = new System.Drawing.Point(8, 112);
+            this._asciiFontList.Location = new System.Drawing.Point(0, 25);
+            this._asciiFontList.Margin = new System.Windows.Forms.Padding(0, 0, 4, 0);
             this._asciiFontList.Name = "_asciiFontList";
-            this._asciiFontList.Size = new System.Drawing.Size(128, 100);
-            this._asciiFontList.TabIndex = 5;
+            this._asciiFontList.Size = new System.Drawing.Size(129, 103);
+            this._asciiFontList.TabIndex = 1;
             this._asciiFontList.SelectedIndexChanged += new System.EventHandler(this.OnASCIIFontChange);
             // 
             // _lAsciiFont
             // 
-            this._lAsciiFont.Location = new System.Drawing.Point(8, 88);
+            this._lAsciiFont.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._lAsciiFont.Location = new System.Drawing.Point(0, 0);
+            this._lAsciiFont.Margin = new System.Windows.Forms.Padding(0, 0, 4, 0);
             this._lAsciiFont.Name = "_lAsciiFont";
-            this._lAsciiFont.Size = new System.Drawing.Size(120, 23);
-            this._lAsciiFont.TabIndex = 3;
+            this._lAsciiFont.Size = new System.Drawing.Size(129, 25);
+            this._lAsciiFont.TabIndex = 0;
             this._lAsciiFont.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // _lFontSize
@@ -199,86 +206,120 @@ namespace Poderosa.Forms {
             // 
             // _checkClearType
             // 
+            this._checkClearType.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this._checkClearType.Location = new System.Drawing.Point(24, 32);
             this._checkClearType.Name = "_checkClearType";
-            this._checkClearType.FlatStyle = FlatStyle.System;
             this._checkClearType.Size = new System.Drawing.Size(240, 15);
             this._checkClearType.TabIndex = 2;
             this._checkClearType.CheckedChanged += new System.EventHandler(this.UpdateFontSample);
             // 
             // _checkBoldStyle
             // 
+            this._checkBoldStyle.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this._checkBoldStyle.Location = new System.Drawing.Point(24, 50);
             this._checkBoldStyle.Name = "_checkBoldStyle";
-            this._checkBoldStyle.FlatStyle = FlatStyle.System;
             this._checkBoldStyle.Size = new System.Drawing.Size(240, 15);
             this._checkBoldStyle.TabIndex = 3;
             this._checkBoldStyle.CheckedChanged += new System.EventHandler(this.UpdateFontSample);
-            //
+            // 
             // _checkForceBoldStyle
-            //
-            this._checkForceBoldStyle.Location = new Point(24, 68);
+            // 
+            this._checkForceBoldStyle.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this._checkForceBoldStyle.Location = new System.Drawing.Point(24, 68);
             this._checkForceBoldStyle.Name = "_checkForceBoldStyle";
-            this._checkForceBoldStyle.FlatStyle = FlatStyle.System;
-            this._checkForceBoldStyle.Size = new Size(240, 15);
+            this._checkForceBoldStyle.Size = new System.Drawing.Size(240, 15);
             this._checkForceBoldStyle.TabIndex = 4;
-            this._checkForceBoldStyle.Checked = false;
-            this._checkForceBoldStyle.CheckedChanged += new EventHandler(this.UpdateFontSample);
+            this._checkForceBoldStyle.CheckedChanged += new System.EventHandler(this.UpdateFontSample);
             // 
             // _lCJKFont
             // 
-            this._lCJKFont.Location = new System.Drawing.Point(144, 88);
+            this._lCJKFont.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._lCJKFont.Location = new System.Drawing.Point(137, 0);
+            this._lCJKFont.Margin = new System.Windows.Forms.Padding(4, 0, 0, 0);
             this._lCJKFont.Name = "_lCJKFont";
-            this._lCJKFont.Size = new System.Drawing.Size(128, 23);
-            this._lCJKFont.TabIndex = 6;
+            this._lCJKFont.Size = new System.Drawing.Size(129, 25);
+            this._lCJKFont.TabIndex = 3;
             this._lCJKFont.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // _cjkFontList
             // 
+            this._cjkFontList.Dock = System.Windows.Forms.DockStyle.Fill;
             this._cjkFontList.ItemHeight = 12;
-            this._cjkFontList.Location = new System.Drawing.Point(144, 112);
+            this._cjkFontList.Location = new System.Drawing.Point(137, 25);
+            this._cjkFontList.Margin = new System.Windows.Forms.Padding(4, 0, 0, 0);
             this._cjkFontList.Name = "_cjkFontList";
-            this._cjkFontList.Size = new System.Drawing.Size(128, 100);
-            this._cjkFontList.TabIndex = 7;
+            this._cjkFontList.Size = new System.Drawing.Size(129, 103);
+            this._cjkFontList.TabIndex = 4;
             this._cjkFontList.SelectedIndexChanged += new System.EventHandler(this.OnCJKFontChange);
             // 
             // _lASCIISample
             // 
             this._lASCIISample.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this._lASCIISample.ClearType = false;
-            this._lASCIISample.Location = new System.Drawing.Point(8, 216);
+            this._lASCIISample.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._lASCIISample.Location = new System.Drawing.Point(0, 130);
+            this._lASCIISample.Margin = new System.Windows.Forms.Padding(0, 2, 4, 0);
             this._lASCIISample.Name = "_lASCIISample";
-            this._lASCIISample.Size = new System.Drawing.Size(128, 40);
-            this._lASCIISample.TabIndex = 8;
+            this._lASCIISample.Size = new System.Drawing.Size(129, 38);
+            this._lASCIISample.TabIndex = 2;
             this._lASCIISample.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // _lCJKSample
             // 
             this._lCJKSample.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this._lCJKSample.ClearType = false;
-            this._lCJKSample.Location = new System.Drawing.Point(144, 216);
+            this._lCJKSample.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._lCJKSample.Location = new System.Drawing.Point(137, 130);
+            this._lCJKSample.Margin = new System.Windows.Forms.Padding(4, 2, 0, 0);
             this._lCJKSample.Name = "_lCJKSample";
-            this._lCJKSample.Size = new System.Drawing.Size(128, 40);
-            this._lCJKSample.TabIndex = 9;
+            this._lCJKSample.Size = new System.Drawing.Size(129, 38);
+            this._lCJKSample.TabIndex = 5;
             this._lCJKSample.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // _okButton
             // 
+            this._okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this._okButton.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this._okButton.Location = new System.Drawing.Point(112, 260);
+            this._okButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this._okButton.Location = new System.Drawing.Point(110, 264);
             this._okButton.Name = "_okButton";
-            this._okButton.FlatStyle = FlatStyle.System;
-            this._okButton.TabIndex = 10;
+            this._okButton.Size = new System.Drawing.Size(75, 23);
+            this._okButton.TabIndex = 6;
             this._okButton.Click += new System.EventHandler(this.OnOK);
             // 
             // _cancelButton
             // 
+            this._cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this._cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this._cancelButton.Location = new System.Drawing.Point(200, 260);
+            this._cancelButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this._cancelButton.Location = new System.Drawing.Point(196, 264);
             this._cancelButton.Name = "_cancelButton";
-            this._cancelButton.FlatStyle = FlatStyle.System;
-            this._cancelButton.TabIndex = 11;
+            this._cancelButton.Size = new System.Drawing.Size(75, 23);
+            this._cancelButton.TabIndex = 7;
             this._cancelButton.Click += new System.EventHandler(this.OnCancel);
+            // 
+            // _tableLayout
+            // 
+            this._tableLayout.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._tableLayout.ColumnCount = 2;
+            this._tableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this._tableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this._tableLayout.Controls.Add(this._lAsciiFont, 0, 0);
+            this._tableLayout.Controls.Add(this._asciiFontList, 0, 1);
+            this._tableLayout.Controls.Add(this._lASCIISample, 0, 2);
+            this._tableLayout.Controls.Add(this._lCJKFont, 1, 0);
+            this._tableLayout.Controls.Add(this._cjkFontList, 1, 1);
+            this._tableLayout.Controls.Add(this._lCJKSample, 1, 2);
+            this._tableLayout.Location = new System.Drawing.Point(8, 88);
+            this._tableLayout.Name = "_tableLayout";
+            this._tableLayout.RowCount = 3;
+            this._tableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this._tableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this._tableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this._tableLayout.Size = new System.Drawing.Size(266, 168);
+            this._tableLayout.TabIndex = 5;
             // 
             // GFontDialog
             // 
@@ -286,26 +327,23 @@ namespace Poderosa.Forms {
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 12);
             this.CancelButton = this._cancelButton;
             this.ClientSize = new System.Drawing.Size(282, 295);
-            this.Controls.AddRange(new System.Windows.Forms.Control[] {
-                this._cancelButton,
-                this._okButton,
-                this._lCJKSample,
-                this._lASCIISample,
-                this._cjkFontList,
-                this._lCJKFont,
-                this._checkClearType,
-                this._checkBoldStyle,
-                this._checkForceBoldStyle,
-                this._fontSizeList,
-                this._lFontSize,
-                this._lAsciiFont,
-                this._asciiFontList});
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Controls.Add(this._cancelButton);
+            this.Controls.Add(this._okButton);
+            this.Controls.Add(this._checkClearType);
+            this.Controls.Add(this._checkBoldStyle);
+            this.Controls.Add(this._checkForceBoldStyle);
+            this.Controls.Add(this._fontSizeList);
+            this.Controls.Add(this._lFontSize);
+            this.Controls.Add(this._tableLayout);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(298, 334);
             this.Name = "GFontDialog";
+            this.ShowIcon = false;
             this.ShowInTaskbar = false;
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this._tableLayout.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
