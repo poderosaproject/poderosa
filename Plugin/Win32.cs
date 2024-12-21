@@ -121,7 +121,7 @@ namespace Poderosa {
         [DllImport("kernel32.dll", CharSet = CharSet.Ansi)] //WinExecはLPCSTRだった。"T"がない。
         public static extern int WinExec(string command, int uCmdShow);
 
-        [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
+        [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
         public static extern int EnumFontFamiliesEx(
             IntPtr hdc,                          // handle to DC
             ref tagLOGFONT lpLogfont,              // font information
@@ -217,6 +217,15 @@ namespace Poderosa {
 
         public const uint INVALID_FILE_ATTRIBUTES = 0xffffffffu;
 
+        public const uint RASTER_FONTTYPE = 1u;
+        public const uint DEVICE_FONTTYPE = 2u;
+        public const uint TRUETYPE_FONTTYPE = 4u;
+
+        public const byte TMPF_FIXED_PITCH = 1;
+        public const byte TMPF_VECTOR = 2;
+        public const byte TMPF_TRUETYPE = 4;
+        public const byte TMPF_DEVICE = 8;
+
 
         /// <summary>
         /// 
@@ -258,7 +267,7 @@ namespace Poderosa {
         /// 
         /// </summary>
         /// <exclude/>
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct tagLOGFONT {
             public int lfHeight;
             public int lfWidth;
@@ -309,7 +318,7 @@ namespace Poderosa {
         /// 
         /// </summary>
         /// <exclude/>
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct ENUMLOGFONTEX {
             //LOGFONT part
             public int lfHeight;
@@ -340,7 +349,7 @@ namespace Poderosa {
         /// 
         /// </summary>
         /// <exclude/>
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct NEWTEXTMETRIC {
             public int tmHeight;
             public int tmAscent;
@@ -384,7 +393,7 @@ namespace Poderosa {
         /// 
         /// </summary>
         /// <exclude/>
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct NEWTEXTMETRICEX {
             public NEWTEXTMETRIC ntmTm;
             public FONTSIGNATURE ntmFontSig;

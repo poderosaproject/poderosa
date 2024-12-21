@@ -13,13 +13,14 @@
 // limitations under the License.
 
 using System;
+using System.ComponentModel;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Text;
-using System.Collections;
-using System.ComponentModel;
+using System.Linq;
+//using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 using Poderosa.Usability;
 
@@ -363,19 +364,6 @@ namespace Poderosa.Forms {
             _fontSizeList.Items.Add("20");
 
             InitFontList();
-            /*
-            foreach(FontFamily f in FontFamily.Families) {
-                if(!f.IsStyleAvailable(FontStyle.Regular|FontStyle.Underline|FontStyle.Bold)) continue;
-                Win32.LOGFONT lf = new Win32.LOGFONT();
-                new Font(f, 10).ToLogFont(lf);
-                //if((lf.lfPitchAndFamily & 0x01)==0) continue; //fixed pitchのみ認める
-                Debug.WriteLine(lf.lfFaceName+" " + lf.lfCharSet + " " + lf.lfPitchAndFamily);
-                if(lf.lfCharSet==128)
-                    _japaneseFontList.Items.Add(f.GetName(0));
-                if(lf.lfCharSet!=2) //Symbol用は除く
-                    _asciiFontList.Items.Add(f.GetName(0));
-            }
-            */
         }
 
         private void InitFontList() {
@@ -383,38 +371,32 @@ namespace Poderosa.Forms {
             Graphics g = CreateGraphics();
             IntPtr hDC = g.GetHdc();
 
-            Win32.EnumFontFamExProc proc = new Win32.EnumFontFamExProc(FontProc);
-            IntPtr lParam = new IntPtr(0);
+            List<string> asciiFonts = new List<string>();
+            List<string> cjkFonts = new List<string>();
+            Win32.EnumFontFamExProc proc = (ref Win32.ENUMLOGFONTEX lpelfe, ref Win32.NEWTEXTMETRICEX lpntme, uint fontType, IntPtr lParam) => {
+                return FontProc(ref lpelfe, ref lpntme, fontType, lParam, asciiFonts, cjkFonts);
+            };
             lf.lfCharSet = 1; //default
-            Win32.EnumFontFamiliesEx(hDC, ref lf, proc, lParam, 0);
-            //lf.lfCharSet = 128; //日本語
-            //lParam = new IntPtr(128);
-            //Win32.EnumFontFamiliesEx(hDC, ref lf, proc, lParam, 0);
+            Win32.EnumFontFamiliesEx(hDC, ref lf, proc, IntPtr.Zero, 0);
             g.ReleaseHdc(hDC);
+
+            _asciiFontList.Items.AddRange(asciiFonts.OrderBy(s => s).Distinct().ToArray());
+            _cjkFontList.Items.AddRange(cjkFonts.OrderBy(s => s).Distinct().ToArray());
         }
 
-        private int FontProc(ref Win32.ENUMLOGFONTEX lpelfe, ref Win32.NEWTEXTMETRICEX lpntme, uint FontType, IntPtr lParam) {
-            //(lpelfe.lfPitchAndFamily & 2)==0)
-            bool interesting = FontType == 4 && (lpntme.ntmTm.tmPitchAndFamily & 1) == 0 && lpelfe.lfFaceName[0] != '@';
-            //Terminalは依然ダメ
-            //if(!interesting)
-            //	if(lpelfe.lfFaceName=="FixedSys" || lpelfe.lfFaceName=="Terminal") interesting = true; //この２つだけはTrueTypeでなくともリストにいれる
-
-            if (interesting) { //縦書きでないことはこれでしか判定できないのか？
-                //さぼり
-                if (/*_language==Language.Japanese && */lpntme.ntmTm.tmCharSet == 128/*SHIFTJIS_CHARSET*/
+        private int FontProc(ref Win32.ENUMLOGFONTEX lpelfe, ref Win32.NEWTEXTMETRICEX lpntme, uint fontType, IntPtr lParam, ICollection<string> asciiFonts, ICollection<string> cjkFonts) {
+            if (fontType == Win32.TRUETYPE_FONTTYPE && (lpntme.ntmTm.tmPitchAndFamily & Win32.TMPF_FIXED_PITCH) == 0 /* monospace */ && lpelfe.lfFaceName.Length > 0 && lpelfe.lfFaceName[0] != '@') {
+                if (lpntme.ntmTm.tmCharSet == 128/*SHIFTJIS_CHARSET*/
                     || lpntme.ntmTm.tmCharSet == 129/*HANGUL_CHARSET*/
                     || lpntme.ntmTm.tmCharSet == 130/*JOHAB_CHARSET*/
                     || lpntme.ntmTm.tmCharSet == 134/*GB2312_CHARSET*/
                     || lpntme.ntmTm.tmCharSet == 136/*CHINESEBIG5_CHARSET*/) {
-                    _cjkFontList.Items.Add(lpelfe.lfFaceName);
-                    //日本語フォントでもASCIIは必ず表示できるはず
-                    if (_asciiFontList.FindStringExact(lpelfe.lfFaceName) == -1)
-                        _asciiFontList.Items.Add(lpelfe.lfFaceName);
+
+                    cjkFonts.Add(lpelfe.lfFaceName);
+                    asciiFonts.Add(lpelfe.lfFaceName);
                 }
                 else if (lpntme.ntmTm.tmCharSet == 0) {
-                    if (_asciiFontList.FindStringExact(lpelfe.lfFaceName) == -1)
-                        _asciiFontList.Items.Add(lpelfe.lfFaceName);
+                    asciiFonts.Add(lpelfe.lfFaceName);
                 }
             }
             return 1;
