@@ -121,7 +121,7 @@ namespace Poderosa {
         [DllImport("kernel32.dll", CharSet = CharSet.Ansi)] //WinExecはLPCSTRだった。"T"がない。
         public static extern int WinExec(string command, int uCmdShow);
 
-        [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
+        [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
         public static extern int EnumFontFamiliesEx(
             IntPtr hdc,                          // handle to DC
             ref tagLOGFONT lpLogfont,              // font information
@@ -217,6 +217,12 @@ namespace Poderosa {
 
         public const uint INVALID_FILE_ATTRIBUTES = 0xffffffffu;
 
+        public const uint RASTER_FONTTYPE = 1u;
+        public const uint DEVICE_FONTTYPE = 2u;
+        public const uint TRUETYPE_FONTTYPE = 4u;
+
+        public const byte FIXED_PITCH = 1;
+
 
         /// <summary>
         /// 
@@ -258,7 +264,7 @@ namespace Poderosa {
         /// 
         /// </summary>
         /// <exclude/>
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct tagLOGFONT {
             public int lfHeight;
             public int lfWidth;
@@ -309,25 +315,9 @@ namespace Poderosa {
         /// 
         /// </summary>
         /// <exclude/>
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct ENUMLOGFONTEX {
-            //LOGFONT part
-            public int lfHeight;
-            public int lfWidth;
-            public int lfEscapement;
-            public int lfOrientation;
-            public int lfWeight;
-            public byte lfItalic;
-            public byte lfUnderline;
-            public byte lfStrikeOut;
-            public byte lfCharSet;
-            public byte lfOutPrecision;
-            public byte lfClipPrecision;
-            public byte lfQuality;
-            public byte lfPitchAndFamily;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
-            public string lfFaceName;
-            //ENUMLOGFONTEX part
+            public tagLOGFONT elfLogFont;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
             public string elfFullName;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
@@ -340,7 +330,7 @@ namespace Poderosa {
         /// 
         /// </summary>
         /// <exclude/>
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct NEWTEXTMETRIC {
             public int tmHeight;
             public int tmAscent;
@@ -384,7 +374,7 @@ namespace Poderosa {
         /// 
         /// </summary>
         /// <exclude/>
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct NEWTEXTMETRICEX {
             public NEWTEXTMETRIC ntmTm;
             public FONTSIGNATURE ntmFontSig;

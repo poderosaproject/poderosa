@@ -708,6 +708,9 @@
   <data name="Caption.PreferenceEditor.Int">
     <value>Integer</value>
   </data>
+  <data name="Caption.PreferenceEditor.Decimal">
+    <value>Number</value>
+  </data>
   <data name="Caption.PreferenceEditor.String">
     <value>String</value>
   </data>

@@ -968,6 +968,10 @@ $Id: stringresource.xml,v 1.6 2012/06/02 15:01:10 kzmi Exp $
   <ja>整数</ja>
   <en>Integer</en>
 </record>
+<record name="Caption.PreferenceEditor.Decimal">
+  <ja>数値</ja>
+  <en>Number</en>
+</record>
 <record name="Caption.PreferenceEditor.String">
   <ja>文字列</ja>
   <en>String</en>

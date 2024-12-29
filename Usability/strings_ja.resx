@@ -706,6 +706,9 @@
   <data name="Caption.PreferenceEditor.Int">
     <value>整数</value>
   </data>
+  <data name="Caption.PreferenceEditor.Decimal">
+    <value>数値</value>
+  </data>
   <data name="Caption.PreferenceEditor.String">
     <value>文字列</value>
   </data>
