@@ -23,15 +23,13 @@ using System.Linq;
 using System.Windows.Forms;
 
 using Poderosa.Usability;
+using Poderosa.Terminal;
 
 namespace Poderosa.Forms {
     /// <summary>
     /// GFontDialog の概要の説明です。
     /// </summary>
     internal class GFontDialog : System.Windows.Forms.Form {
-
-        //このダイアログは言語によって様子が違ってくる
-        //private Language _language;
 
         private System.Windows.Forms.ListBox _asciiFontList;
         private System.Windows.Forms.Label _lAsciiFont;
@@ -96,8 +94,7 @@ namespace Poderosa.Forms {
             _checkForceBoldStyle.Checked = force_bold;
             _lASCIISample.ClearType = cleartype;
             _lCJKSample.ClearType = cleartype;
-            int s = (int)ascii.Size;
-            _fontSizeList.SelectedIndex = _fontSizeList.FindStringExact(s.ToString());
+            _fontSizeList.Text = ascii.Size.ToString();
             _asciiFontList.SelectedIndex = _asciiFontList.FindStringExact(ascii.Name);
             _cjkFontList.SelectedIndex = _cjkFontList.FindStringExact(cjk.Name);
 
@@ -177,7 +174,7 @@ namespace Poderosa.Forms {
             this._asciiFontList.Name = "_asciiFontList";
             this._asciiFontList.Size = new System.Drawing.Size(129, 103);
             this._asciiFontList.TabIndex = 1;
-            this._asciiFontList.SelectedIndexChanged += new System.EventHandler(this.OnASCIIFontChange);
+            this._asciiFontList.SelectedIndexChanged += new System.EventHandler(this.UpdateFontSample);
             // 
             // _lAsciiFont
             // 
@@ -198,12 +195,12 @@ namespace Poderosa.Forms {
             // 
             // _fontSizeList
             // 
-            this._fontSizeList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._fontSizeList.Location = new System.Drawing.Point(136, 8);
             this._fontSizeList.Name = "_fontSizeList";
             this._fontSizeList.Size = new System.Drawing.Size(121, 20);
             this._fontSizeList.TabIndex = 1;
             this._fontSizeList.SelectedIndexChanged += new System.EventHandler(this.UpdateFontSample);
+            this._fontSizeList.TextChanged += new System.EventHandler(this.UpdateFontSample);
             // 
             // _checkClearType
             // 
@@ -251,7 +248,7 @@ namespace Poderosa.Forms {
             this._cjkFontList.Name = "_cjkFontList";
             this._cjkFontList.Size = new System.Drawing.Size(129, 103);
             this._cjkFontList.TabIndex = 4;
-            this._cjkFontList.SelectedIndexChanged += new System.EventHandler(this.OnCJKFontChange);
+            this._cjkFontList.SelectedIndexChanged += new System.EventHandler(this.UpdateFontSample);
             // 
             // _lASCIISample
             // 
@@ -301,8 +298,8 @@ namespace Poderosa.Forms {
             // 
             // _tableLayout
             // 
-            this._tableLayout.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this._tableLayout.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this._tableLayout.ColumnCount = 2;
             this._tableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -367,16 +364,17 @@ namespace Poderosa.Forms {
         }
 
         private void InitFontList() {
-            Win32.tagLOGFONT lf = new Win32.tagLOGFONT();
             Graphics g = CreateGraphics();
             IntPtr hDC = g.GetHdc();
 
             List<string> asciiFonts = new List<string>();
             List<string> cjkFonts = new List<string>();
             Win32.EnumFontFamExProc proc = (ref Win32.ENUMLOGFONTEX lpelfe, ref Win32.NEWTEXTMETRICEX lpntme, uint fontType, IntPtr lParam) => {
-                return FontProc(ref lpelfe, ref lpntme, fontType, lParam, asciiFonts, cjkFonts);
+                AddFont(ref lpelfe, ref lpntme, fontType, asciiFonts, cjkFonts);
+                return 1; // continue enumeration
             };
-            lf.lfCharSet = 1; //default
+            Win32.tagLOGFONT lf = new Win32.tagLOGFONT();
+            lf.lfCharSet = 1; // DEFAULT_CHARSET
             Win32.EnumFontFamiliesEx(hDC, ref lf, proc, IntPtr.Zero, 0);
             g.ReleaseHdc(hDC);
 
@@ -384,22 +382,32 @@ namespace Poderosa.Forms {
             _cjkFontList.Items.AddRange(cjkFonts.OrderBy(s => s).Distinct().ToArray());
         }
 
-        private int FontProc(ref Win32.ENUMLOGFONTEX lpelfe, ref Win32.NEWTEXTMETRICEX lpntme, uint fontType, IntPtr lParam, ICollection<string> asciiFonts, ICollection<string> cjkFonts) {
-            if (fontType == Win32.TRUETYPE_FONTTYPE && (lpntme.ntmTm.tmPitchAndFamily & Win32.TMPF_FIXED_PITCH) == 0 /* monospace */ && lpelfe.lfFaceName.Length > 0 && lpelfe.lfFaceName[0] != '@') {
-                if (lpntme.ntmTm.tmCharSet == 128/*SHIFTJIS_CHARSET*/
-                    || lpntme.ntmTm.tmCharSet == 129/*HANGUL_CHARSET*/
-                    || lpntme.ntmTm.tmCharSet == 130/*JOHAB_CHARSET*/
-                    || lpntme.ntmTm.tmCharSet == 134/*GB2312_CHARSET*/
-                    || lpntme.ntmTm.tmCharSet == 136/*CHINESEBIG5_CHARSET*/) {
-
-                    cjkFonts.Add(lpelfe.lfFaceName);
-                    asciiFonts.Add(lpelfe.lfFaceName);
-                }
-                else if (lpntme.ntmTm.tmCharSet == 0) {
-                    asciiFonts.Add(lpelfe.lfFaceName);
+        private void AddFont(
+            ref Win32.ENUMLOGFONTEX lpelfe,
+            ref Win32.NEWTEXTMETRICEX lpntme,
+            uint fontType,
+            ICollection<string> asciiFonts,
+            ICollection<string> cjkFonts
+        ) {
+            if (fontType == Win32.TRUETYPE_FONTTYPE
+                && (lpelfe.elfLogFont.lfPitchAndFamily & Win32.FIXED_PITCH) != 0 /* monospace */
+                && lpelfe.elfLogFont.lfFaceName.Length > 0
+                && lpelfe.elfLogFont.lfFaceName[0] != '@'
+            ) {
+                switch (lpelfe.elfLogFont.lfCharSet) {
+                    case 128: // SHIFTJIS_CHARSET
+                    case 129: // HANGUL_CHARSET
+                    case 130: // JOHAB_CHARSET
+                    case 134: // GB2312_CHARSET
+                    case 136: // CHINESEBIG5_CHARSET
+                        cjkFonts.Add(lpelfe.elfLogFont.lfFaceName);
+                        asciiFonts.Add(lpelfe.elfLogFont.lfFaceName);
+                        break;
+                    case 0: // ANSI_CHARSET
+                        asciiFonts.Add(lpelfe.elfLogFont.lfFaceName);
+                        break;
                 }
             }
-            return 1;
         }
 
         private void UpdateFontSample(object sender, EventArgs args) {
@@ -407,86 +415,64 @@ namespace Poderosa.Forms {
                 return;
             _lASCIISample.ClearType = _checkClearType.Checked;
             _lCJKSample.ClearType = _checkClearType.Checked;
-            OnCJKFontChange(sender, args);
-            OnASCIIFontChange(sender, args);
+            float fontSize = GetFontSize().GetValueOrDefault((float)TerminalEmulatorOptionConstants.DEFAULT_FONT_SIZE);
+            UpdateCJKFont(fontSize);
+            UpdateASCIIFont(fontSize);
             _lASCIISample.Invalidate();
             _lCJKSample.Invalidate();
         }
-        private void OnCJKFontChange(object sender, EventArgs args) {
-            if (_ignoreEvent || _cjkFontList.SelectedIndex == -1)
+
+        private void UpdateCJKFont(float fontSize) {
+            if (_ignoreEvent || _cjkFontList.SelectedIndex == -1) {
                 return;
-            string fontname = (string)_cjkFontList.Items[_cjkFontList.SelectedIndex];
-            _cjkFont = RuntimeUtil.CreateFont(fontname, GetFontSize());
-            if (_checkForceBoldStyle.Checked)
+            }
+            string fontName = (string)_cjkFontList.Items[_cjkFontList.SelectedIndex];
+            _cjkFont = RuntimeUtil.CreateFont(fontName, fontSize);
+            if (_checkForceBoldStyle.Checked) {
                 _cjkFont = new Font(_cjkFont, _cjkFont.Style | FontStyle.Bold);
+            }
             _lCJKSample.Font = _cjkFont;
         }
-        private void OnASCIIFontChange(object sender, EventArgs args) {
-            if (_ignoreEvent || _asciiFontList.SelectedIndex == -1)
+
+        private void UpdateASCIIFont(float fontSize) {
+            if (_ignoreEvent || _asciiFontList.SelectedIndex == -1) {
                 return;
-            string fontname = (string)_asciiFontList.Items[_asciiFontList.SelectedIndex];
-            _asciiFont = RuntimeUtil.CreateFont(fontname, GetFontSize());
-            if (_checkForceBoldStyle.Checked)
+            }
+            string fontName = (string)_asciiFontList.Items[_asciiFontList.SelectedIndex];
+            _asciiFont = RuntimeUtil.CreateFont(fontName, fontSize);
+            if (_checkForceBoldStyle.Checked) {
                 _asciiFont = new Font(_asciiFont, _asciiFont.Style | FontStyle.Bold);
+            }
             _lASCIISample.Font = _asciiFont;
         }
+
         private void OnOK(object sender, EventArgs args) {
-            if (!CheckFixedSizeFont("FixedSys", 14) || !CheckFixedSizeFont("Terminal", 6, 10, 14, 17, 20))
-                this.DialogResult = DialogResult.None;
-            else {
-                this.DialogResult = DialogResult.OK;
-                try {
-                    Close();
-                }
-                catch (Exception ex) {
-                    Debug.WriteLine(ex.Message);
-                    Debug.WriteLine(ex.StackTrace);
-                }
+            this.DialogResult = DialogResult.OK;
+            try {
+                Close();
+            }
+            catch (Exception ex) {
+                Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
         }
+
         private void OnCancel(object sender, EventArgs args) {
             this.DialogResult = DialogResult.Cancel;
             Close();
         }
 
-        //固定長フォントを使っているとき、認められていないサイズを指定していたら警告してfalseを返す。
-        //allowed_sizesはサイズ指定のリストに含まれているものを使用すること！
-        private bool CheckFixedSizeFont(string name, params float[] allowed_sizes) {
-            if (_asciiFont.Name == name || _cjkFont.Name == name) {
-                float sz = GetFontSize();
-                bool contained = false;
-                float diff = Single.MaxValue;
-                float nearest = 0;
-                foreach (float t in allowed_sizes) {
-                    if (t == sz) {
-                        contained = true;
-                        break;
-                    }
-                    else {
-                        if (diff > Math.Abs(sz - t)) {
-                            diff = Math.Abs(sz - t);
-                            nearest = t;
-                        }
-                    }
-                }
+        private float? GetFontSize() {
+            string fontSizeText = _fontSizeList.Text.Trim();
+            float fontSize;
+            if (Single.TryParse(fontSizeText, out fontSize)
+                && fontSize >= (float)TerminalEmulatorOptionConstants.FONT_SIZE_MIN
+                && fontSize <= (float)TerminalEmulatorOptionConstants.FONT_SIZE_MAX) {
 
-                if (!contained) {
-                    GUtil.Warning(this, String.Format(TerminalUIPlugin.Instance.Strings.GetString("Message.GFontDialog.NotTrueTypeWarning"), name, nearest));
-                    _fontSizeList.SelectedIndex = _fontSizeList.FindStringExact(nearest.ToString());
-                    return false;
-                }
-                else
-                    return true;
+                return fontSize;
             }
-            else
-                return true;
+            return null;
         }
-
-        private float GetFontSize() {
-            return Single.Parse((string)_fontSizeList.Items[_fontSizeList.SelectedIndex]);
-        }
-
-
     }
 
     /// <summary>

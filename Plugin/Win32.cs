@@ -221,10 +221,7 @@ namespace Poderosa {
         public const uint DEVICE_FONTTYPE = 2u;
         public const uint TRUETYPE_FONTTYPE = 4u;
 
-        public const byte TMPF_FIXED_PITCH = 1;
-        public const byte TMPF_VECTOR = 2;
-        public const byte TMPF_TRUETYPE = 4;
-        public const byte TMPF_DEVICE = 8;
+        public const byte FIXED_PITCH = 1;
 
 
         /// <summary>
@@ -320,23 +317,7 @@ namespace Poderosa {
         /// <exclude/>
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct ENUMLOGFONTEX {
-            //LOGFONT part
-            public int lfHeight;
-            public int lfWidth;
-            public int lfEscapement;
-            public int lfOrientation;
-            public int lfWeight;
-            public byte lfItalic;
-            public byte lfUnderline;
-            public byte lfStrikeOut;
-            public byte lfCharSet;
-            public byte lfOutPrecision;
-            public byte lfClipPrecision;
-            public byte lfQuality;
-            public byte lfPitchAndFamily;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
-            public string lfFaceName;
-            //ENUMLOGFONTEX part
+            public tagLOGFONT elfLogFont;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
             public string elfFullName;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
