@@ -69,6 +69,23 @@ namespace Poderosa.Util.Generics {
     /// 
     /// </summary>
     /// <exclude/>
+    public class DecimalPrimitiveAdapter : IPrimitiveAdapter<decimal> {
+        public string ToString(decimal value) {
+            return value.ToString();
+        }
+
+        public decimal Parse(string value) {
+            return Decimal.Parse(value);
+        }
+
+        public bool Equals(decimal v1, decimal v2) {
+            return v1 == v2;
+        }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <exclude/>
     public class StringPrimitiveAdapter : IPrimitiveAdapter<string> {
         public string ToString(string value) {
             return value;
