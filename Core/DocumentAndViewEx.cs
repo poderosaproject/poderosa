@@ -318,7 +318,7 @@ namespace Poderosa.Sessions {
         CommandResult SplitHorizontal(IContentReplaceableView view, IViewFactory factory);
         CommandResult SplitVertical(IContentReplaceableView view, IViewFactory factory);
         CommandResult Unify(IContentReplaceableView view, out IContentReplaceableView next_focus);
-        CommandResult UnifyAll(out IContentReplaceableView next_focus);
+        CommandResult UnifyAll(IPoderosaMainWindow window, out IContentReplaceableView next_focus);
         bool CanSplit(IContentReplaceableView view);
         bool CanUnify(IContentReplaceableView view);
         bool IsSplitted();

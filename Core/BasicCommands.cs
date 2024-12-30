@@ -311,23 +311,13 @@ namespace Poderosa.Commands {
             return svm.Unify(view, out next);
         }
         private static CommandResult CmdUnifyAll(ICommandTarget target) {
-            IContentReplaceableView view = CommandTargetUtil.AsContentReplaceableViewOrLastActivatedView(target);
-            if (view == null)
+            IPoderosaMainWindow window = CommandTargetUtil.AsWindow(target);
+            if (window == null)
                 return CommandResult.Ignored;
 
-            IPoderosaDocument doc = view.Document;
-            ISplittableViewManager svm = (ISplittableViewManager)view.ViewManager.GetAdapter(typeof(ISplittableViewManager));
-            IContentReplaceableView next = null;
-
-            CommandResult r = svm.UnifyAll(out next);
-            if (r == CommandResult.Succeeded) {
-                ISessionManager sm = SessionManagerPlugin.Instance;
-                ISessionManagerForViewSplitter smp = SessionManagerPlugin.Instance;
-                smp.ChangeLastAttachedViewForWindow(view.ViewManager.ParentWindow, next);
-                if (doc != null)
-                    sm.ActivateDocument(doc, ActivateReason.InternalAction);
-            }
-            return r;
+            ISplittableViewManager svm = (ISplittableViewManager)window.ViewManager.GetAdapter(typeof(ISplittableViewManager));
+            IContentReplaceableView next;
+            return svm.UnifyAll(window, out next);
         }
 
         private static bool CanSplitUnify(ICommandTarget target) {

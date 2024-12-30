@@ -198,12 +198,25 @@ namespace Poderosa.Forms {
             return CommandResult.Succeeded;
         }
 
-        public CommandResult UnifyAll(out IContentReplaceableView next) {
-            PaneDivision.IPane nextfocus = null;
-            UnifyAll(out nextfocus);
-            next = (IContentReplaceableView)nextfocus;
+        public CommandResult UnifyAll(IPoderosaMainWindow window, out IContentReplaceableView next) {
+            IContentReplaceableView activeView = window.LastActivatedView;
+            IPoderosaDocument activeDocument = (activeView != null) ? activeView.Document : null;
+
+            PaneDivision.IPane nextPane;
+            UnifyAll(out nextPane);
+            next = nextPane as IContentReplaceableView;
+
+            ISessionManager sm = SessionManagerPlugin.Instance;
+            ISessionManagerForViewSplitter smp = SessionManagerPlugin.Instance;
+            smp.ChangeLastAttachedViewForWindow(window, next);
+
+            if (activeDocument != null) {
+                sm.ActivateDocument(activeDocument, ActivateReason.InternalAction);
+            }
+
             return CommandResult.Succeeded;
         }
+
         public bool CanSplit(IContentReplaceableView view) {
             return _paneDivision.CountLimit >= _paneDivision.PaneCount;
         }
@@ -240,9 +253,9 @@ namespace Poderosa.Forms {
                     new_views = GetAllViews(); //新しいのを取得
                 }
                 else {
-                    IContentReplaceableView view;
-                    UnifyAll(out view);
-                    new_views = new IPoderosaView[] { view };
+                    PaneDivision.IPane nextPane;
+                    UnifyAll(out nextPane);
+                    new_views = new IPoderosaView[] { (IPoderosaView)nextPane };
                 }
 
                 //既存ドキュメントに再適用
@@ -288,12 +301,14 @@ namespace Poderosa.Forms {
         #endregion
 
         //分割・結合メソッド
-        public void SplitHorizontal(PaneDivision.IPane view, IViewFactory factory) {
+        private void SplitHorizontal(PaneDivision.IPane view, IViewFactory factory) {
             InternalSplit(view, factory, PaneDivision.Direction.TB);
         }
-        public void SplitVertical(PaneDivision.IPane view, IViewFactory factory) {
+
+        private void SplitVertical(PaneDivision.IPane view, IViewFactory factory) {
             InternalSplit(view, factory, PaneDivision.Direction.LR);
         }
+
         private void InternalSplit(PaneDivision.IPane view, IViewFactory factory, PaneDivision.Direction direction) {
             PaneDivision.IPane t = CreateNewPane(factory, direction == PaneDivision.Direction.LR ? DockStyle.Left : DockStyle.Top);
             Form form = _parent.AsForm();
@@ -305,7 +320,7 @@ namespace Poderosa.Forms {
             view.AsDotNet().Focus();
         }
 
-        public bool Unify(PaneDivision.IPane view, out PaneDivision.IPane nextfocus) {
+        private bool Unify(PaneDivision.IPane view, out PaneDivision.IPane nextfocus) {
             Form form = _parent.AsForm();
             form.SuspendLayout();
             PaneDivision.SplitResult r = _paneDivision.UnifyPane(view, out nextfocus);
@@ -317,7 +332,8 @@ namespace Poderosa.Forms {
             FireOnUnify();
             return r == PaneDivision.SplitResult.Success;
         }
-        public void UnifyAll(out PaneDivision.IPane nextfocus) {
+
+        private void UnifyAll(out PaneDivision.IPane nextfocus) {
             Form form = _parent.AsForm();
             form.SuspendLayout();
             _singlePane = _paneDivision.UnifyAll();
