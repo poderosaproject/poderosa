@@ -820,8 +820,12 @@ namespace Poderosa.View {
             _splitMark.ClearMark();
         }
 
-        public bool CanSplit {
+        public bool CanSplitWithSplitMark {
             get {
+                if (!WindowManagerPlugin.Instance.WindowPreference.OriginalPreference.EnableOldSplitterUI) {
+                    return false;
+                }
+
                 IContentReplaceableView v = AsControlReplaceableView();
                 return v == null ? false : GetSplittableViewManager().CanSplit(v);
             }
