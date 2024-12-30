@@ -54,6 +54,24 @@
   <data name="Command.PoderosaLog">
     <value>Shows Poderosa event log</value>
   </data>
+  <data name="Command.SplitHorizontal">
+    <value>Make a horizontal split</value>
+  </data>
+  <data name="Command.SplitVertical">
+    <value>Make a vertical split</value>
+  </data>
+  <data name="Command.SplitUnify">
+    <value>Unify split</value>
+  </data>
+  <data name="Menu.DivideFrameHorizontal">
+    <value>Split &amp;Horizontally</value>
+  </data>
+  <data name="Menu.DivideFrameVertical">
+    <value>Split &amp;Vertically</value>
+  </data>
+  <data name="Menu.UnifyFrame">
+    <value>&amp;Unify</value>
+  </data>
   <data name="Menu.EditRenderProfile">
     <value>Edit &amp;display profile...</value>
   </data>

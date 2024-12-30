@@ -53,6 +53,24 @@
   <data name="Command.PoderosaLog">
     <value>Poderosaイベントログ表示</value>
   </data>
+  <data name="Command.SplitHorizontal">
+    <value>上下に分割</value>
+  </data>
+  <data name="Command.SplitVertical">
+    <value>左右に分割</value>
+  </data>
+  <data name="Command.SplitUnify">
+    <value>分割の結合</value>
+  </data>
+  <data name="Menu.DivideFrameHorizontal">
+    <value>上下に分割(&amp;H)</value>
+  </data>
+  <data name="Menu.DivideFrameVertical">
+    <value>左右に分割(&amp;V)</value>
+  </data>
+  <data name="Menu.UnifyFrame">
+    <value>分割を結合(&amp;U)</value>
+  </data>
   <data name="Menu.EditRenderProfile">
     <value>表示プロファイルの編集(&amp;D)...</value>
   </data>
