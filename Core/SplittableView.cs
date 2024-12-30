@@ -174,11 +174,30 @@ namespace Poderosa.Forms {
             return CommandResult.Succeeded;
         }
         public CommandResult Unify(IContentReplaceableView view, out IContentReplaceableView next) {
-            PaneDivision.IPane nextfocus = null;
-            bool r = Unify((PaneDivision.IPane)view.GetAdapter(typeof(PaneDivision.IPane)), out nextfocus);
-            next = r ? (IContentReplaceableView)nextfocus : null; //TODO ちょいまず
-            return r ? CommandResult.Succeeded : CommandResult.Failed;
+            IPoderosaDocument document = view.Document;
+
+            PaneDivision.IPane nextPane;
+            bool r = Unify((PaneDivision.IPane)view.GetAdapter(typeof(PaneDivision.IPane)), out nextPane);
+            if (!r) {
+                next = null;
+                return CommandResult.Failed;
+            }
+
+            ISessionManager sm = SessionManagerPlugin.Instance;
+            ISessionManagerForViewSplitter smp = SessionManagerPlugin.Instance;
+            next = nextPane as IContentReplaceableView;
+            smp.ChangeLastAttachedViewForAllDocuments(view, next);
+
+            if (document != null) {
+                sm.ActivateDocument(document, ActivateReason.InternalAction);
+            }
+            else if (next.Document != null) {
+                sm.ActivateDocument(next.Document, ActivateReason.InternalAction);
+            }
+
+            return CommandResult.Succeeded;
         }
+
         public CommandResult UnifyAll(out IContentReplaceableView next) {
             PaneDivision.IPane nextfocus = null;
             UnifyAll(out nextfocus);

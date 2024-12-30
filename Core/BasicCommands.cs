@@ -308,23 +308,7 @@ namespace Poderosa.Commands {
             ISplittableViewManager svm = (ISplittableViewManager)view.ViewManager.GetAdapter(typeof(ISplittableViewManager));
             IContentReplaceableView next = null;
             IPoderosaDocument document_unifying = view.Document;
-            CommandResult r = svm.Unify(view, out next);
-
-            if (r == CommandResult.Succeeded) {
-                ISessionManager sm = SessionManagerPlugin.Instance;
-                ISessionManagerForViewSplitter smp = SessionManagerPlugin.Instance;
-                smp.ChangeLastAttachedViewForAllDocuments(view, next);
-
-                //次のフォーカスのドキュメントがなければ旧ドキュメントを移行。そしてnextのドキュメントをアクティブに
-                if (document_unifying != null && next.Document == null) {
-                    sm.AttachDocumentAndView(document_unifying, next);
-                    Debug.Assert(next.Document == document_unifying);
-                }
-
-                if (next.Document != null)
-                    sm.ActivateDocument(next.Document, ActivateReason.InternalAction);
-            }
-            return r;
+            return svm.Unify(view, out next);
         }
         private static CommandResult CmdUnifyAll(ICommandTarget target) {
             IContentReplaceableView view = CommandTargetUtil.AsContentReplaceableViewOrLastActivatedView(target);
