@@ -74,6 +74,9 @@ namespace Poderosa.Terminal {
 
         private bool _resetViewTop;
 
+        private bool _isResizeSuspended;
+        private Size? _pendingSize;
+
         /// <summary>
         /// Scope to guarantee consistent access to the TerminalDocument bound to this control
         /// </summary>
@@ -619,6 +622,19 @@ namespace Poderosa.Terminal {
             SendBytes(data);
         }
 
+        public void SuspendResize() {
+            _isResizeSuspended = true;
+        }
+
+        public void ResumeResize() {
+            _isResizeSuspended = false;
+
+            if (_pendingSize.HasValue) {
+                ApplyTerminalSize(_pendingSize.Value);
+                _pendingSize = null;
+            }
+        }
+
         protected override void OnResize(EventArgs args) {
             base.OnResize(args);
 
@@ -630,14 +646,24 @@ namespace Poderosa.Terminal {
 
             Size ts = CalcTerminalSize(GetRenderProfile());
 
+            if (_isResizeSuspended) {
+                _pendingSize = ts;
+                return;
+            }
+
+            ApplyTerminalSize(ts);
+        }
+
+        private void ApplyTerminalSize(Size size) {
             using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
-                if (!IsConnectionClosed() && docScope.Document != null && (ts.Width != docScope.Document.TerminalWidth || ts.Height != docScope.Document.TerminalHeight)) {
-                    ResizeTerminal(docScope.Document, ts.Width, ts.Height);
-                    ShowSizeTip(ts.Width, ts.Height);
+                if (!IsConnectionClosed() && docScope.Document != null && (size.Width != docScope.Document.TerminalWidth || size.Height != docScope.Document.TerminalHeight)) {
+                    ResizeTerminal(docScope.Document, size.Width, size.Height);
+                    ShowSizeTip(size.Width, size.Height);
                     CommitTransientScrollBar();
                 }
             }
         }
+        
         private void OnHideSizeTip(object sender, EventArgs args) {
             Debug.Assert(!this.InvokeRequired);
             _sizeTip.Visible = false;

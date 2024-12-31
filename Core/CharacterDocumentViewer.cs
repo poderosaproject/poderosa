@@ -1109,5 +1109,11 @@ namespace Poderosa.View {
             _documentLock.EnterReadLock();
             return new DocumentScope(_document, _documentLock);
         }
+
+        public void SuspendResize() {
+        }
+
+        public void ResumeResize() {
+        }
     }
 }

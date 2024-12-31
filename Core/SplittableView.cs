@@ -97,16 +97,16 @@ namespace Poderosa.Forms {
 
     internal class SplittableViewManager : ISplittableViewManager, PaneDivision.IUIActionHandler {
         private PaneDivision.IPane _singlePane; //分割していないときにのみ非null
-        private PaneDivision _paneDivision;
-        private IViewFactory _defaultViewFactory;
-        private IPoderosaMainWindow _parent;
+        private readonly PaneDivision _paneDivision;
+        private readonly IViewFactory _defaultViewFactory;
+        private readonly IPoderosaMainWindow _parent;
 
         public SplittableViewManager(IPoderosaMainWindow parent, IViewFactory defaultviewfactory) {
             _parent = parent;
             _defaultViewFactory = defaultviewfactory;
 
             Debug.Assert(_paneDivision == null);
-            _singlePane = CreateNewPane(_defaultViewFactory, DockStyle.Fill); //先頭のFactoryで作ってしまうというのはどうかな
+            _singlePane = CreateNewPane(_defaultViewFactory, DockStyle.Fill);
 
             _paneDivision = new PaneDivision();
             _paneDivision.CountLimit = WindowManagerPlugin.Instance.WindowPreference.OriginalPreference.SplitLimitCount;
@@ -311,43 +311,34 @@ namespace Poderosa.Forms {
 
         private void InternalSplit(PaneDivision.IPane view, IViewFactory factory, PaneDivision.Direction direction) {
             PaneDivision.IPane t = CreateNewPane(factory, direction == PaneDivision.Direction.LR ? DockStyle.Left : DockStyle.Top);
-            Form form = _parent.AsForm();
-            form.SuspendLayout();
+            SuspendLayout();
             _paneDivision.SplitPane(view, t, direction);
             _singlePane = null;
+            ResumeLayout();
             FireOnSplit();
-            form.ResumeLayout(true);
             view.AsDotNet().Focus();
         }
 
         private bool Unify(PaneDivision.IPane view, out PaneDivision.IPane nextfocus) {
-            Form form = _parent.AsForm();
-            form.SuspendLayout();
+            SuspendLayout();
             PaneDivision.SplitResult r = _paneDivision.UnifyPane(view, out nextfocus);
             if (r == PaneDivision.SplitResult.Success)
                 view.AsDotNet().Dispose();
             if (_paneDivision.IsEmpty)
                 _singlePane = nextfocus;
-            form.ResumeLayout(true);
+            ResumeLayout();
             FireOnUnify();
             return r == PaneDivision.SplitResult.Success;
         }
 
         private void UnifyAll(out PaneDivision.IPane nextfocus) {
-            Form form = _parent.AsForm();
-            form.SuspendLayout();
+            SuspendLayout();
             _singlePane = _paneDivision.UnifyAll();
-            form.ResumeLayout(true);
+            ResumeLayout();
             FireOnUnify();
             nextfocus = _singlePane;
         }
 
-        private Control GetRootControl() {
-            if (_singlePane != null)
-                return _singlePane.AsDotNet();
-            Control c = _paneDivision.RootControl;
-            return c;
-        }
         private PaneDivision.IPane CreateNewPane(IViewFactory factory, DockStyle dock) {
             PaneDivision.IPane pb = new SplittableViewPane(this, factory.CreateNew(_parent));
             pb.AsDotNet().Dock = dock;
@@ -374,6 +365,17 @@ namespace Poderosa.Forms {
             }
         }
 
+        private void SuspendLayout() {
+            foreach (IPoderosaView view in GetAllViews()) {
+                view.SuspendResize();
+            }
+        }
+
+        private void ResumeLayout() {
+            foreach (IPoderosaView view in GetAllViews()) {
+                view.ResumeResize();
+            }
+        }
     }
 
     internal class SplittableViewPane : PaneDivision.IPane, IContentReplaceableView, IGeneralViewCommands {
@@ -489,6 +491,14 @@ namespace Poderosa.Forms {
             IViewManagerFactory[] vm = (IViewManagerFactory[])WindowManagerPlugin.Instance.PoderosaWorld.PluginManager.FindExtensionPoint(WindowManagerConstants.MAINWINDOWCONTENT_ID).GetExtensions();
             Debug.Assert(vm.Length > 0);
             AssureViewClass(vm[0].DefaultViewFactory.GetViewType());
+        }
+
+        public void SuspendResize() {
+            _content.SuspendResize();
+        }
+
+        public void ResumeResize() {
+            _content.ResumeResize();
         }
 
         #endregion
