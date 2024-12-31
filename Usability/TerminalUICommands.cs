@@ -155,11 +155,21 @@ namespace Poderosa.Usability {
         }
 
         private static IContentReplaceableView GetContentReplaceableView(ICommandTarget target) {
+            IContentReplaceableView view = (IContentReplaceableView)target.GetAdapter(typeof(IContentReplaceableView));
+            if (view != null) {
+                return view;
+            }
+
+            IContentReplaceableViewSite site = (IContentReplaceableViewSite)target.GetAdapter(typeof(IContentReplaceableViewSite));
+            if (site != null) {
+                return site.CurrentContentReplaceableView;
+            }
+
             ITerminalSession session = AsTerminalSession(target);
             if (session != null) {
                 TerminalControl control = session.TerminalControl;
                 if (control != null) {
-                    IContentReplaceableViewSite site = (IContentReplaceableViewSite)control.GetAdapter(typeof(IContentReplaceableViewSite));
+                    site = (IContentReplaceableViewSite)control.GetAdapter(typeof(IContentReplaceableViewSite));
                     if (site != null) {
                         return site.CurrentContentReplaceableView;
                     }

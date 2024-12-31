@@ -1313,9 +1313,6 @@ namespace Poderosa.Terminal {
             return UIHandleResult.Pass;
         }
         public override UIHandleResult OnMouseUp(MouseEventArgs args) {
-            if (!_control.HasDocument)
-                return UIHandleResult.Pass;
-
             if (args.Button == MouseButtons.Right || args.Button == MouseButtons.Middle) {
                 ITerminalEmulatorOptions opt = TerminalEmulatorPlugin.Instance.TerminalEmulatorOptions;
                 MouseButtonAction act = args.Button == MouseButtons.Right ? opt.RightButtonAction : opt.MiddleButtonAction;
@@ -1323,6 +1320,9 @@ namespace Poderosa.Terminal {
                     if (Control.ModifierKeys == Keys.Shift ^ act == MouseButtonAction.ContextMenu) //シフトキーで動作反転
                         ShowContextMenu(new Point(args.X, args.Y));
                     else { //Paste
+                        if (!_control.HasDocument)
+                            return UIHandleResult.Pass;
+
                         IGeneralViewCommands vc = (IGeneralViewCommands)_control.GetAdapter(typeof(IGeneralViewCommands));
                         TerminalEmulatorPlugin.Instance.GetCommandManager().Execute(vc.Paste, (ICommandTarget)vc.GetAdapter(typeof(ICommandTarget)));
                         //ペースト後はフォーカス
