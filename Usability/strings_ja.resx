@@ -89,6 +89,9 @@
   <data name="Menu.PoderosaLog">
     <value>Poderosaイベントログの表示(&amp;E)...</value>
   </data>
+  <data name="Menu.CopyRemote">
+    <value>リモートアドレスをコピー</value>
+  </data>
   <data name="Form.ChangeLog.Text">
     <value>ログの設定</value>
   </data>

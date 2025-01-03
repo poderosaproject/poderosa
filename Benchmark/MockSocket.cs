@@ -154,6 +154,12 @@ namespace Poderosa.Benchmark {
                 Monitor.Exit(_pumpThreadSync);
             }
         }
+
+        public string Remote {
+            get {
+                return "(mock)";
+            }
+        }
     }
 
     /// <summary>

@@ -111,6 +111,10 @@ $Id: stringresource.xml,v 1.6 2012/06/02 15:01:10 kzmi Exp $
   <ja>Poderosaイベントログの表示(&amp;E)...</ja>
   <en>Shows Poderosa &amp;event log...</en>
 </record>
+<record name="Menu.CopyRemote">
+  <ja>リモートアドレスをコピー</ja>
+  <en>Copy remote address</en>
+</record>
 
 <!-- ChangeLog.cs -->
 <record name="Form.ChangeLog.Text">

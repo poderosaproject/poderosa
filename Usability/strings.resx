@@ -90,6 +90,9 @@
   <data name="Menu.PoderosaLog">
     <value>Shows Poderosa &amp;event log...</value>
   </data>
+  <data name="Menu.CopyRemote">
+    <value>Copy remote address</value>
+  </data>
   <data name="Form.ChangeLog.Text">
     <value>Log configuration</value>
   </data>
