@@ -351,7 +351,7 @@ namespace Poderosa.Pipe {
                 Process process = Process.GetProcessById(processInfo.dwProcessId);
 
                 PipedProcess pipedProcess = new PipedProcess(process, childStdInHandle, childStdOutHandle, childStdErrHandle);
-                PipeSocket socket = new PipeSocket(parentReadStream, parentWriteStream);
+                PipeSocket socket = new PipeSocket(parentReadStream, parentWriteStream, commandLine);
                 PipeTerminalConnection connection = new PipeTerminalConnection(param, socket, pipedProcess);
 
                 return connection;
@@ -437,7 +437,10 @@ namespace Poderosa.Pipe {
                     writeStream = readStream;
                 }
 
-                PipeSocket sock = new PipeSocket(readStream, writeStream);
+                string remote = (hasOutputPipePath)
+                    ? param.InputPipePath + " > " + param.OutputPipePath
+                    : param.InputPipePath;
+                PipeSocket sock = new PipeSocket(readStream, writeStream, remote);
                 PipeTerminalConnection conn = new PipeTerminalConnection(param, sock, null);
 
                 return conn;

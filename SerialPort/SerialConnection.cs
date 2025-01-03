@@ -172,18 +172,26 @@ namespace Poderosa.SerialPort {
     }
 
     internal class SerialSocket : IPoderosaSocket {
-        private SerialTerminalConnection _parent;
-        private IntPtr _fileHandle;
+        private readonly string _remote;
+        private readonly SerialTerminalConnection _parent;
+        private readonly IntPtr _fileHandle;
         private IByteAsyncInputStream _callback;
         private ByteDataFragment _dataFragment;
         private ManualResetEvent _writeOverlappedEvent;
-        private SerialTerminalSettings _serialSettings;
+        private readonly SerialTerminalSettings _serialSettings;
 
-        public SerialSocket(SerialTerminalConnection parent, IntPtr filehandle, SerialTerminalSettings settings) {
+        public SerialSocket(SerialTerminalConnection parent, IntPtr filehandle, SerialTerminalSettings settings, string remote) {
+            _remote = remote;
             _parent = parent;
             _serialSettings = settings;
             _fileHandle = filehandle;
             _writeOverlappedEvent = new ManualResetEvent(false);
+        }
+
+        public string Remote {
+            get {
+                return _remote;
+            }
         }
 
         public bool Available {
@@ -488,7 +496,7 @@ namespace Poderosa.SerialPort {
         public SerialTerminalConnection(SerialTerminalParam p, SerialTerminalSettings settings, IntPtr fh) {
             _serialTerminalParam = p;
             _fileHandle = fh;
-            _serialSocket = new SerialSocket(this, fh, settings);
+            _serialSocket = new SerialSocket(this, fh, settings, p.PortName);
             _serialTerminalOutput = new SerialTerminalOutput(fh);
             //_socket = _serialSocket;
             //_terminalOutput = _serialTerminalOutput;
