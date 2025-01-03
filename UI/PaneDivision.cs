@@ -490,7 +490,7 @@ namespace Poderosa.UI {
         private sealed class DivisionList {
             private DivisionNode _first;             //最初のノード
             private readonly Direction _direction;            //vertical or horizontal
-            private IntermediateContainer _hostingControl;
+            private readonly IntermediateContainer _hostingControl;
             private readonly PaneDivision _parentDivision; //container
             private DivisionNode _parentNode;
 

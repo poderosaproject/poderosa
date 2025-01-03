@@ -98,6 +98,14 @@ namespace Poderosa.Terminal {
                 return _parent;
             }
         }
+
+        public void SuspendResize() {
+            _control.SuspendResize();
+        }
+
+        public void ResumeResize() {
+            _control.ResumeResize();
+        }
         #endregion
 
         public IAdaptable GetAdapter(Type adapter) {

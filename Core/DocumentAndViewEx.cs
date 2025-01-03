@@ -185,6 +185,34 @@ namespace Poderosa.Sessions {
         IPoderosaForm ParentForm {
             get;
         }
+
+        /// <summary>
+        /// <ja>
+        /// リサイズイベントの適用を一時的に停止します。
+        /// ビューのレイアウト変更でリサイズイベントが頻繁に発生するとき、過渡的なサイズがコンテンツに反映されてしまうのを防止します。
+        /// そのような制御が必要ない場合は何も行いません。
+        /// </ja>
+        /// <en>
+        /// Suspends applying resize events temporarily.
+        /// This prevents transitional sizes to be applied to the content when resize events occur frequently during view layout changes.
+        /// Do nothing if such control is not needed.
+        /// </en>
+        /// </summary>
+        void SuspendResize();
+
+        /// <summary>
+        /// <ja>
+        /// リサイズイベントの適用を再開します。
+        /// サスペンド中に発生した最後のリサイズイベントをコンテンツに反映します。
+        /// そのような制御が必要ない場合は何も行いません。
+        /// </ja>
+        /// <en>
+        /// Resumes applying resize events.
+        /// This applies the last resize event occurred during the suspend to the content.
+        /// Do nothing if such control is not needed.
+        /// </en>
+        /// </summary>
+        void ResumeResize();
     }
 
     //ビュークラス
@@ -318,7 +346,7 @@ namespace Poderosa.Sessions {
         CommandResult SplitHorizontal(IContentReplaceableView view, IViewFactory factory);
         CommandResult SplitVertical(IContentReplaceableView view, IViewFactory factory);
         CommandResult Unify(IContentReplaceableView view, out IContentReplaceableView next_focus);
-        CommandResult UnifyAll(out IContentReplaceableView next_focus);
+        CommandResult UnifyAll(IPoderosaMainWindow window, out IContentReplaceableView next_focus);
         bool CanSplit(IContentReplaceableView view);
         bool CanUnify(IContentReplaceableView view);
         bool IsSplitted();

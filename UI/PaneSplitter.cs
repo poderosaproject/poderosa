@@ -335,7 +335,7 @@ namespace Poderosa.UI {
             SplitMarkSupport SplitMark {
                 get;
             }
-            bool CanSplit {
+            bool CanSplitWithSplitMark {
                 get;
             }
             int SplitClientWidth {
@@ -482,7 +482,7 @@ namespace Poderosa.UI {
             MarkState previous = _state;
 
             _state = MarkState.None;
-            if (_enabled && _output.CanSplit) {
+            if (_enabled && _output.CanSplitWithSplitMark) {
                 int x = args.X;
                 int y = args.Y;
                 if (Near(x, y, _output.SplitClientWidth / 2, MIN_DISTANCE))

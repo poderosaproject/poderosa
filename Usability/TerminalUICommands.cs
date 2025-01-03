@@ -43,6 +43,9 @@ namespace Poderosa.Usability {
             cm.Register(new TerminalUICommand("org.poderosa.terminalemulator.commentlog", "Command.CommentLog", new ExecuteDelegate(CmdCommentLog), does_open_target_session));
             cm.Register(new TerminalUICommand("org.poderosa.terminalemulator.changelog", "Command.ChangeLog", new ExecuteDelegate(CmdChangeLog), does_open_target_session));
             cm.Register(new TerminalUICommand("org.poderosa.terminalemulator.shellSchemeEditor", "Command.ShellSchemeEditor", new ExecuteDelegate(CmdShellSchemeEditor)));
+            cm.Register(new TerminalUICommand("org.poderosa.terminalemulator.splithorizontal", "Command.SplitHorizontal", new ExecuteDelegate(CmdSplitHorizontal), new CanExecuteDelegate(CanSplit)));
+            cm.Register(new TerminalUICommand("org.poderosa.terminalemulator.splitvertical", "Command.SplitVertical", new ExecuteDelegate(CmdSplitVertical), new CanExecuteDelegate(CanSplit)));
+            cm.Register(new TerminalUICommand("org.poderosa.terminalemulator.splitunify", "Command.SplitUnify", new ExecuteDelegate(CmdSplitUnify), new CanExecuteDelegate(CanSplitUnify)));
         }
         private static CommandResult CmdEditRenderProfile(ICommandTarget target) {
             ITerminalSession s = AsTerminalSession(target);
@@ -104,6 +107,81 @@ namespace Poderosa.Usability {
             return CommandResult.Succeeded;
         }
 
+        private static bool CanSplit(ICommandTarget target) {
+            IContentReplaceableView view = GetContentReplaceableView(target);
+            if (view != null) {
+                return GetSplittableViewManager(view).CanSplit(view);
+            }
+            return false;
+        }
+
+        private static CommandResult CmdSplitHorizontal(ICommandTarget target) {
+            if (CanSplit(target)) {
+                IContentReplaceableView view = GetContentReplaceableView(target);
+                if (view != null) {
+                    return GetSplittableViewManager(view).SplitHorizontal(view, null);
+                }
+            }
+            return CommandResult.Ignored;
+        }
+
+        private static CommandResult CmdSplitVertical(ICommandTarget target) {
+            if (CanSplit(target)) {
+                IContentReplaceableView view = GetContentReplaceableView(target);
+                if (view != null) {
+                    return GetSplittableViewManager(view).SplitVertical(view, null);
+                }
+            }
+            return CommandResult.Ignored;
+        }
+
+        private static bool CanSplitUnify(ICommandTarget target) {
+            IContentReplaceableView view = GetContentReplaceableView(target);
+            if (view != null) {
+                return GetSplittableViewManager(view).CanUnify(view);
+            }
+            return false;
+        }
+
+        private static CommandResult CmdSplitUnify(ICommandTarget target) {
+            if (CanSplitUnify(target)) {
+                IContentReplaceableView view = GetContentReplaceableView(target);
+                if (view != null) {
+                    IContentReplaceableView nextView;
+                    return GetSplittableViewManager(view).Unify(view, out nextView);
+                }
+            }
+            return CommandResult.Ignored;
+        }
+
+        private static IContentReplaceableView GetContentReplaceableView(ICommandTarget target) {
+            IContentReplaceableView view = (IContentReplaceableView)target.GetAdapter(typeof(IContentReplaceableView));
+            if (view != null) {
+                return view;
+            }
+
+            IContentReplaceableViewSite site = (IContentReplaceableViewSite)target.GetAdapter(typeof(IContentReplaceableViewSite));
+            if (site != null) {
+                return site.CurrentContentReplaceableView;
+            }
+
+            ITerminalSession session = AsTerminalSession(target);
+            if (session != null) {
+                TerminalControl control = session.TerminalControl;
+                if (control != null) {
+                    site = (IContentReplaceableViewSite)control.GetAdapter(typeof(IContentReplaceableViewSite));
+                    if (site != null) {
+                        return site.CurrentContentReplaceableView;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private static ISplittableViewManager GetSplittableViewManager(IContentReplaceableView view) {
+            return (ISplittableViewManager)view.ViewManager.GetAdapter(typeof(ISplittableViewManager));
+        }
+
         //CommandTargetからTerminalSessionを得る
         public static ITerminalSession AsTerminalSession(ICommandTarget target) {
             IPoderosaDocument document = CommandTargetUtil.AsDocumentOrViewOrLastActivatedDocument(target);
@@ -152,6 +230,9 @@ namespace Poderosa.Usability {
         public override IPoderosaMenu[] ChildMenus {
             get {
                 return new IPoderosaMenu[] {
+                    new StandardTerminalUIMenuItem("Menu.DivideFrameHorizontal", "org.poderosa.terminalemulator.splithorizontal"),
+                    new StandardTerminalUIMenuItem("Menu.DivideFrameVertical", "org.poderosa.terminalemulator.splitvertical"),
+                    new StandardTerminalUIMenuItem("Menu.UnifyFrame", "org.poderosa.terminalemulator.splitunify"),
                     new StandardTerminalUIMenuItem("Menu.EditRenderProfile", "org.poderosa.terminalemulator.editrenderprofile"),
                     new StandardTerminalUIMenuItem("Menu.RenameTab", "org.poderosa.terminalemulator.renametab")
                 };

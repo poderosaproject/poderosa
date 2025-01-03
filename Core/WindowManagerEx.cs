@@ -776,6 +776,10 @@ namespace Poderosa.Forms {
             get;
             set;
         }
+        bool EnableOldSplitterUI {
+            get;
+            set;
+        }
 
         //非GUI
         int SplitLimitCount {

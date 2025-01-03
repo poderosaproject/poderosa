@@ -303,6 +303,7 @@ namespace Poderosa.Terminal {
 
         public void Resize(int width, int height) {
             _geom = _geom.ChangeSize(width, height);
+            Debug.WriteLine("{2} Resize: cols {0} x rows {1}", width, height, Caption);
         }
 
         public void ClearMargins() {
