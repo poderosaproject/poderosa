@@ -1239,9 +1239,11 @@ namespace Poderosa.Document {
                 if (IsDoubleHeight) {
                     etoCommonOpts += Win32.ETO_CLIPPED;
                     if (IsLowerHalf) {
-                        textYOffset = -(int)prof.Pitch.Height;
+                        textYOffset = (prof.LineSpacing / 2) - prof.LineSpacing - (int)prof.Pitch.Height;
                     }
                     else {
+                        y2 += prof.LineSpacing;
+                        textYOffset = prof.LineSpacing / 2;
                         underlineFlag = GAttrFlags.None;
                     }
                 }
