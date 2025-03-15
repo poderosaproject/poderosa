@@ -228,7 +228,7 @@ namespace Poderosa.ConnectionParam {
         internal TerminalParam() {
             _encoding = EncodingType.EUC_JP;
             _logtype = LogType.None;
-            _terminalType = TerminalType.XTerm;
+            _terminalType = TerminalType.XTerm256Color;
             _localecho = false;
             _lineFeedRule = LineFeedRule.Normal;
             _transmitnl = NewLine.CR;

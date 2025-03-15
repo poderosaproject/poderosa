@@ -45,6 +45,29 @@ namespace Poderosa.Terminal {
             Assert.AreEqual(false, ts1.LocalEcho);
             Assert.AreEqual(NewLine.CR, ts1.TransmitNL);
             Assert.AreEqual(LineFeedRule.Normal, ts1.LineFeedRule);
+            Assert.AreEqual(TerminalType.XTerm256Color, ts1.TerminalType);
+
+            Assert.AreEqual(EncodingType.ISO8859_1, ts2.Encoding);
+            Assert.AreEqual(false, ts2.LocalEcho);
+            Assert.AreEqual(NewLine.CR, ts2.TransmitNL);
+            Assert.AreEqual(LineFeedRule.Normal, ts2.LineFeedRule);
+            Assert.AreEqual(TerminalType.XTerm256Color, ts2.TerminalType);
+        }
+
+        [Test]
+        public void Test0_oldDefaultTerminalType() {
+            SerializationOptions opt = new SerializationOptions();
+            TerminalSettings ts1 = new TerminalSettings();
+            ts1.BeginUpdate();
+            ts1.TerminalType = TerminalType.XTerm; // old default typeminal type
+            ts1.EndUpdate();
+            StructuredText storage = _terminalSettingsSerializer.Serialize(ts1, opt);
+            TerminalSettings ts2 = (TerminalSettings)_terminalSettingsSerializer.Deserialize(storage);
+
+            Assert.AreEqual(EncodingType.ISO8859_1, ts1.Encoding);
+            Assert.AreEqual(false, ts1.LocalEcho);
+            Assert.AreEqual(NewLine.CR, ts1.TransmitNL);
+            Assert.AreEqual(LineFeedRule.Normal, ts1.LineFeedRule);
             Assert.AreEqual(TerminalType.XTerm, ts1.TerminalType);
 
             Assert.AreEqual(EncodingType.ISO8859_1, ts2.Encoding);
@@ -110,7 +133,10 @@ namespace Poderosa.Terminal {
                 }
             }
 
-            public IPoderosaCulture Culture { get; private set; }
+            public IPoderosaCulture Culture {
+                get;
+                private set;
+            }
 
             public IAdaptable GetAdapter(System.Type adapter) {
                 throw new NotImplementedException();

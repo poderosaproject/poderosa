@@ -60,7 +60,7 @@ namespace Poderosa.Terminal {
             else
                 _encoding = EncodingType.ISO8859_1;
 
-            _terminalType = TerminalType.XTerm;
+            _terminalType = TerminalType.XTerm256Color;
             _lineContinuationMode = LineContinuationMode.Standard;
             _localecho = false;
             _lineFeedRule = LineFeedRule.Normal;

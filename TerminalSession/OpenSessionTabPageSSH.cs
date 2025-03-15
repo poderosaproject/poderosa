@@ -37,6 +37,7 @@ namespace Poderosa.Sessions {
     internal partial class OpenSessionTabPageSSH : UserControl, IOpenSessionTabPage {
 
         private const string DEFAULT_SSH_PORT = "22";
+        private const TerminalType DEFAULT_TERMINAL_TYPE = TerminalType.XTerm256Color;
 
         private readonly List<ParameterItem> _historyItems = new List<ParameterItem>();
 
@@ -219,7 +220,7 @@ namespace Poderosa.Sessions {
             this._ssh2RadioButton.Checked = true;
             this._portBox.Text = DEFAULT_SSH_PORT;
             this._logTypeBox.SelectedItem = LogType.None;
-            this._terminalTypeBox.SelectedItem = TerminalType.XTerm;
+            this._terminalTypeBox.SelectedItem = DEFAULT_TERMINAL_TYPE;
             this._encodingBox.SelectedItem = EncodingType.UTF8_Latin;
             this._newLineBox.SelectedItem = NewLine.CR;
             this._authOptions.SelectedItem = AuthType.Password;
