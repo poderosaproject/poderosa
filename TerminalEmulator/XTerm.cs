@@ -250,6 +250,8 @@ namespace Poderosa.Terminal {
         private bool _originRelative = false;
         private bool _enableHorizontalMargins = false; // DECLRMM
         private bool _rectangularAttributeChange = false; // mode for DECCARA and DECRARA
+        private bool _sixelDisplayMode = false; // DECSDM
+        private bool _sixelScrollingCursorRight = false;
 
         private const int MOUSE_POS_LIMIT = 255 - 32;       // mouse position limit
         private const int MOUSE_POS_EXT_LIMIT = 2047 - 32;  // mouse position limit in extended mode
@@ -313,6 +315,8 @@ namespace Poderosa.Terminal {
             _originRelative = false;
             _enableHorizontalMargins = false;
             _rectangularAttributeChange = false;
+            _sixelDisplayMode = false;
+            _sixelScrollingCursorRight = false;
             _escapeSequenceEngine.Reset();
             DoEraseInDisplay(2 /* all */, false, true);
             MoveCursorTo(new Row(1), new Col(1));
@@ -701,7 +705,6 @@ namespace Poderosa.Terminal {
         // [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 'p')] // set pointerMode (xterm)
         // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'q')] // Load LEDs
         // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', 'q')] // Set Cursor Style
-        // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 't')] // Window Manipulation (xterm)
         // [EscapeSequence(ControlCode.CSI, '>', EscapeSequenceParamType.Numeric, 't')] // Title Mode (xterm)
         // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', 't')] // Set Warning Bell Volume
         // [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, ' ', 'u')] // Set Margin Bell Volume
@@ -943,7 +946,7 @@ namespace Poderosa.Terminal {
                 {
                     1, // 132 columns
                     // 2, // Printer port
-                    // 4, // Sixel
+                    4, // Sixel
                     6, // Selective erase
                     // 7, // Soft character set (DRCS)
                     // 8, // User-defined keys (UDKs)
@@ -1449,6 +1452,13 @@ namespace Poderosa.Terminal {
                         Document.RemoveAfter(bottomLineNumber + 1);
                         Document.ClearRange(Document.CurrentLineNumber + 1, bottomLineNumber + 1, Document.CurrentDecoration, selective, resetLineRenderingType);
                         _manipulator.Load(Document.CurrentLine);
+
+                        // The range to clear is widen to avoid residual pixels at the screen edge.
+                        // FIXME: all sixels on the current line are cleared.
+                        bool cleared = Document.SixelImageManager.ClearLineRange(Document.CurrentLineNumber, bottomLineNumber + 1);
+                        if (cleared) {
+                            Document.InvalidateAll();
+                        }
                     }
                     break;
                 case 1: //erase above
@@ -1470,6 +1480,13 @@ namespace Poderosa.Terminal {
                         Document.UpdateCurrentLine(_manipulator);
                         Document.ClearRange(Document.TopLineNumber, Document.CurrentLineNumber, Document.CurrentDecoration, selective, resetLineRenderingType);
                         _manipulator.Load(Document.CurrentLine);
+
+                        // The range to clear is widen to avoid residual pixels at the screen edge.
+                        // FIXME: all sixels on the current line are cleared.
+                        bool cleared = Document.SixelImageManager.ClearLineRange(Document.TopLineNumber - 1, Document.CurrentLineNumber);
+                        if (cleared) {
+                            Document.InvalidateAll();
+                        }
                     }
                     break;
                 case 2: //erase all
@@ -1482,6 +1499,12 @@ namespace Poderosa.Terminal {
                         Document.RemoveAfter(bottomLineNumber + 1);
                         Document.ClearRange(Document.TopLineNumber, bottomLineNumber + 1, Document.CurrentDecoration, selective, resetLineRenderingType);
                         _manipulator.Load(Document.CurrentLine);
+
+                        // The range to clear is widen to avoid residual pixels at the screen edge.
+                        bool cleared = Document.SixelImageManager.ClearLineRange(Document.TopLineNumber - 1, bottomLineNumber + 1);
+                        if (cleared) {
+                            Document.InvalidateAll();
+                        }
                     }
                     break;
                 case 3: //saved lines
@@ -2708,6 +2731,9 @@ namespace Poderosa.Terminal {
                         ResetLineRenderingType();
                     }
                     break;
+                case 80: // Sixel display mode (DECSDM)
+                    _sixelDisplayMode = set;
+                    break;
                 case 1000: // DEC VT200 compatible: Send button press and release event with mouse position.
                     ResetMouseTracking((set) ? MouseTrackingState.Normal : MouseTrackingState.Off);
                     break;
@@ -2783,6 +2809,9 @@ namespace Poderosa.Terminal {
                 case 2004:    // Set/Reset bracketed paste mode
                     _bracketedPasteMode = set;
                     break;
+                case 8452:  // Sixel scrolling leaves cursor to right of graphic
+                    _sixelScrollingCursorRight = set;
+                    break;
             }
         }
 
@@ -2830,6 +2859,10 @@ namespace Poderosa.Terminal {
                     return _isAlternateBuffer;
                 case 66:
                     return TerminalMode == TerminalMode.Application;
+                case 69:
+                    return _enableHorizontalMargins;
+                case 80:
+                    return _sixelDisplayMode;
                 case 1000:
                     return _mouseTrackingState == MouseTrackingState.Normal;
                 case 1001:
@@ -3203,6 +3236,88 @@ namespace Poderosa.Terminal {
             TransmitDirect(data);
         }
 
+        [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 't')] // Window Manipulation (xterm)
+        private void ProcessWindowManipulation(NumericParams p) {
+            int cmd = p.Get(0, -1);
+
+            switch (cmd) {
+                case 11: // Report xterm window state
+                    TransmitDirect(MakeCSI("1t"));
+                    break;
+                case 13: {
+                        int sub = p.Get(1, -1);
+                        if (sub == -1) {
+                            // Report xterm window position
+                            TransmitDirect(MakeCSI("3;0;0t"));
+                        }
+                        else if (sub == 2) {
+                            // Report xterm text-area position
+                            TransmitDirect(MakeCSI("3;0;0t"));
+                        }
+                        break;
+                    }
+                case 14:
+                case 15: {
+                        RenderProfile renderProfile = GetRenderProfile();
+                        int sw = (int)(Document.TerminalWidth * renderProfile.Pitch.Width);
+                        int sh = (int)(Document.TerminalHeight * (renderProfile.Pitch.Height + renderProfile.LineSpacing) - renderProfile.LineSpacing);
+
+                        if (cmd == 14) {
+                            int sub = p.Get(1, -1);
+                            if (sub == -1) {
+                                // Report xterm text area size in pixels
+                                TransmitDirect(MakeCSI("4;" + sh.ToInvariantString() + ";" + sw.ToInvariantString() + "t"));
+                            }
+                            else if (sub == 2) {
+                                // Report xterm window size in pixels
+                                TransmitDirect(MakeCSI("4;" + sh.ToInvariantString() + ";" + sw.ToInvariantString() + "t"));
+                            }
+                        }
+                        else {
+                            // Report size of the screen in pixels
+                            TransmitDirect(MakeCSI("5;" + sh.ToInvariantString() + ";" + sw.ToInvariantString() + "t"));
+                        }
+                        break;
+                    }
+                case 16: {
+                        // Report xterm character size in pixels
+                        RenderProfile renderProfile = GetRenderProfile();
+                        int cw = (int)renderProfile.Pitch.Width;
+                        int ch = (int)renderProfile.Pitch.Height;
+                        TransmitDirect(MakeCSI("6;" + ch.ToInvariantString() + ";" + cw.ToInvariantString() + "t"));
+                        break;
+                    }
+                case 18:
+                case 19: {
+                        int w = Document.TerminalWidth;
+                        int h = Document.TerminalHeight;
+                        if (cmd == 18) {
+                            // Report the size of the text area in characters
+                            TransmitDirect(MakeCSI("8;" + h.ToInvariantString() + ";" + w.ToInvariantString() + "t"));
+                        }
+                        else {
+                            // Report the size of the screen in characters
+                            TransmitDirect(MakeCSI("9;" + h.ToInvariantString() + ";" + w.ToInvariantString() + "t"));
+                        }
+                        break;
+                    }
+                case 20:
+                case 21: {
+                        string label = Document.SubCaption;
+                        string ascii_label = new String(label.Select(ch => (ch >= 0x20 && ch <= 0x7e) ? ch : '_').ToArray());
+                        if (cmd == 20) {
+                            // Report xterm window's icon label
+                            TransmitDirect(MakeOSC_ST("L" + ascii_label));
+                        }
+                        else {
+                            // Report xterm window's icon label
+                            TransmitDirect(MakeOSC_ST("l" + ascii_label));
+                        }
+                        break;
+                    }
+            }
+        }
+
         private void ResetMouseTracking(MouseTrackingState newState) {
             if (newState != MouseTrackingState.Off) {
                 if (_mouseTrackingState == MouseTrackingState.Off) {
@@ -3279,7 +3394,10 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'S')] // SU
         private void ProcessScrollUp(NumericParams p) {
             int d = p.GetNonZero(0, 1);
+            DoScrollUp(d);
+        }
 
+        private void DoScrollUp(int d) {
             Document.UpdateCurrentLine(_manipulator);
             if (!Document.HasTopMargin && !Document.HasBottomMargin && !Document.HasLeftMargin && !Document.HasRightMargin) {
                 Document.CurrentLineNumber += d;
@@ -3841,6 +3959,83 @@ namespace Poderosa.Terminal {
                     _tabStops.Set(pos - 1);
                 }
             }
+        }
+
+        [EscapeSequence(ControlCode.DCS, EscapeSequenceParamType.Numeric, 'q')] // SIXEL
+        private void ProcessSixel(NumericParams p) {
+            RenderProfile renderProfile = GetRenderProfile();
+
+            // "Sixel Scrolling" is enabled when "Sixel Display Mode" is off
+            bool sixelScrolling = !_sixelDisplayMode;
+
+            int lineId;
+            int columnIndex;
+            if (sixelScrolling) {
+                lineId = Document.CurrentLineNumber;
+                columnIndex = Document.CaretColumn;
+            }
+            else {
+                lineId = Document.TopLineNumber;
+                columnIndex = 0;
+            }
+
+            Sixel.SixelDCSProcessor.CompletedCallback onCompleted = (startLineId, startColumnIndex, imageSize, lastSixelDataPosition) => {
+                if (sixelScrolling) {
+                    float linePitch = renderProfile.Pitch.Height + renderProfile.LineSpacing;
+                    int imageBottomLineId = startLineId + (int)Math.Ceiling(lastSixelDataPosition.Y / linePitch) - 1;
+
+                    float columnPitch = renderProfile.Pitch.Width;
+                    int cursorColumnIndex;
+                    if (_sixelScrollingCursorRight) {
+                        cursorColumnIndex = startColumnIndex + (int)Math.Ceiling(imageSize.Width / columnPitch);
+                    }
+                    else {
+                        cursorColumnIndex = startColumnIndex;
+                    }
+
+                    int rightEnd = GetCaretColumnRightLimit();
+                    bool wrapPending;
+                    if (cursorColumnIndex > rightEnd) {
+                        cursorColumnIndex = rightEnd;
+                        wrapPending = _wrapAroundMode;
+                    }
+                    else {
+                        wrapPending = false;
+                    }
+
+                    ViewPort vp = new ViewPort(Document, false); // without origin mode
+                    int scrollingBottom = Document.ScrollingBottomLineNumber;
+                    if (imageBottomLineId > scrollingBottom) {
+                        int scrollLines = imageBottomLineId - scrollingBottom;
+                        Row row = vp.FromLineNumber(scrollingBottom);
+                        Col col = vp.FromCaretColumn(cursorColumnIndex);
+                        MoveCursorTo(row, col);
+                        DoScrollUp(scrollLines);
+                    }
+                    else {
+                        MoveCursorTo(vp.FromLineNumber(imageBottomLineId), vp.FromCaretColumn(cursorColumnIndex));
+                    }
+
+                    if (wrapPending) {
+                        Document.WrapPending = true;
+                    }
+                }
+
+                Document.UpdateCurrentLine(_manipulator); // flush update spans with the current z-order
+                return Document.GLineZOrderManager.Increment();
+            };
+
+            _escapeSequenceEngine.StartDCSProcessor(
+                new Sixel.SixelDCSProcessor(
+                    document: Document,
+                    renderProfile: renderProfile,
+                    manager: Document.SixelImageManager,
+                    lineId: lineId,
+                    columnIndex: columnIndex,
+                    para: p,
+                    completed: onCompleted
+                )
+            );
         }
 
         private bool ParseNonNegativeInteger(string s, out int n) {

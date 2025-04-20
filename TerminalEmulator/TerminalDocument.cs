@@ -190,6 +190,7 @@ namespace Poderosa.Terminal {
             }
         }
 
+        private readonly Sixel.SixelImageManager _sixelImageManager = new Sixel.SixelImageManager();
         private TextDecoration _currentDecoration = TextDecoration.Default;
         private int _caretColumn;
         private bool _wrapPending;
@@ -239,6 +240,12 @@ namespace Poderosa.Terminal {
             }
             set {
                 _currentDecoration = value;
+            }
+        }
+
+        internal Sixel.SixelImageManager SixelImageManager {
+            get {
+                return _sixelImageManager;
             }
         }
 
@@ -598,6 +605,8 @@ namespace Poderosa.Terminal {
 
             CurrentLineNumber = savedLineNumber;
 
+            _sixelImageManager.MoveDown(from, to, n);
+
             InvalidateAll();
 
 #if DEBUG
@@ -667,6 +676,8 @@ namespace Poderosa.Terminal {
             }
 
             CurrentLineNumber = savedLineNumber;
+
+            _sixelImageManager.MoveUp(from, to, n);
 
             InvalidateAll();
 
@@ -745,6 +756,12 @@ namespace Poderosa.Terminal {
                 InvalidatedRegion.InvalidateLine(dstLine.ID);
                 dstLine = dstLine.PrevLine;
             }
+
+            bool imageMoved = _sixelImageManager.MoveDown(top, bottom, n);
+
+            if (imageMoved) {
+                InvalidateAll();
+            }
         }
 
         /// <summary>
@@ -808,6 +825,12 @@ namespace Poderosa.Terminal {
                 dstManip.ExportTo(dstLine);
                 InvalidatedRegion.InvalidateLine(dstLine.ID);
                 dstLine = dstLine.NextLine;
+            }
+
+            bool imageMoved = _sixelImageManager.MoveUp(top, bottom, n);
+
+            if (imageMoved) {
+                InvalidateAll();
             }
         }
 

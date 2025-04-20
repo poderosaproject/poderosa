@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -383,6 +384,71 @@ namespace Poderosa.Terminal {
          * ↓  UIスレッドによる実行のエリア
          */
 
+        [ThreadStatic]
+        private static List<Sixel.LineIdAndColumnSpan> _lineIdAndColumnSpanList;
+
+        protected override void OverlayAfter(Graphics g, CharacterDocumentViewer.RenderParameter param) {
+            using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
+                if (docScope.Document != null) {
+                    // Cut out regions of newly updated text from the sixel images.
+                    List<Sixel.LineIdAndColumnSpan> tmpList = _lineIdAndColumnSpanList;
+                    if (tmpList == null) {
+                        tmpList = new List<Sixel.LineIdAndColumnSpan>();
+                        _lineIdAndColumnSpanList = tmpList;
+                    }
+                    else {
+                        tmpList.Clear();
+                    }
+
+                    foreach (GLine l in param.GLines) {
+                        if (l.UpdatedSpans != null) {
+                            foreach (GLineColumnSpan s in l.UpdatedSpans) {
+                                tmpList.Add(new Sixel.LineIdAndColumnSpan(l.ID, s));
+                            }
+                        }
+                    }
+
+                    if (tmpList.Count > 0) {
+                        docScope.Document.SixelImageManager.ClearSpans(
+                            spans: tmpList.ToArray(),
+                            topLineId: param.TopLineId,
+                            lineIdFrom: param.TopLineId + param.LineFrom,
+                            lineIdTo: param.TopLineId + param.LineFrom + param.LineCount - 1,
+                            linePitch: param.LinePitch,
+                            columnPitch: param.ColumnPitch
+                        );
+                    }
+
+                    // Calculate the region to exclude temporarily to display the cursor.
+                    Rectangle? excludedRect;
+                    if (param.CaretEnabled) {
+                        float fy = param.CaretLineOffset * param.LinePitch;
+                        int y1 = param.Origin.Y + (int)fy;
+                        int y2 = param.Origin.Y + (int)(fy + param.LinePitch);
+                        float fx = param.CaretColumnIndex * param.ColumnPitch;
+                        int x1 = param.Origin.X + (int)fx;
+                        int x2 = param.Origin.X + (int)(fx + param.ColumnPitch * param.CaretWidth);
+                        excludedRect = new Rectangle(x1, y1, x2 - x1, y2 - y1);
+                    }
+                    else {
+                        excludedRect = null;
+                    }
+
+                    // Draw sixel images
+                    docScope.Document.SixelImageManager.Draw(
+                        topLineId: param.TopLineId,
+                        lineIdFrom: param.TopLineId + param.LineFrom,
+                        lineIdTo: param.TopLineId + param.LineFrom + param.LineCount - 1,
+                        linePitch: param.LinePitch,
+                        columnPitch: param.ColumnPitch,
+                        g: g,
+                        origin: param.Origin,
+                        excludedRect: excludedRect
+                    );
+                }
+            }
+        }
+
         private delegate void InvalidateDelegate1();
         private delegate void InvalidateDelegate2(Rectangle rc);
         private void DelInvalidate(Rectangle rc) {
@@ -663,7 +729,7 @@ namespace Poderosa.Terminal {
                 }
             }
         }
-        
+
         private void OnHideSizeTip(object sender, EventArgs args) {
             Debug.Assert(!this.InvokeRequired);
             _sizeTip.Visible = false;

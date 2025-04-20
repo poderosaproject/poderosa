@@ -96,6 +96,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="ShellScheme.cs" />
+    <Compile Include="Sixel.cs" />
     <Compile Include="TerminalBase.cs" />
     <Compile Include="TerminalCommands.cs" />
     <Compile Include="TerminalDocument.cs" />
