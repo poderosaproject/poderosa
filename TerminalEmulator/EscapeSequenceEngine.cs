@@ -879,7 +879,7 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// </summary>
         /// <remarks>
         /// As Xterm does, this state accepts UTF-8 text as control string data.
-        /// As a result, the C1 control character cannot be used as the terminal character.
+        /// As a result, ST or the C1 control character cannot be used as the terminal character.
         /// </remarks>
         internal class IgnoreControlStringState : CharStateBase {
 
@@ -929,15 +929,21 @@ namespace Poderosa.Terminal.EscapeSequence {
                     s.RegisterState(ControlCode.BEL, finalState);
                 }
 
-                // register both of ST(0x9c) and ESC -> backslash transition.
-                // but in Accept(), ST(0x9c) is treated as UTF-8 data, not as a terminal character.
-                s.RegisterState(ControlCode.ST, finalState);
+                // s.RegisterState(ControlCode.ST, finalState);
+                // Note:
+                //  Formally, ST(0x9c) or ESC-backslash terminates the control string.
+                //  However, in this implementation, ST is treated as a normal character to accept Unicode characters.
+                //  In addition, it is recommended to terminate the control string with ESC for backward compatibility.
 
                 return s;
             }
 
             public override IState Accept(Context context, char ch) {
                 // control string can be very long, so data is not stored in the buffer
+
+                if (ch == ControlCode.ESC) {
+                    return null;
+                }
 
                 if (ch >= 0x80 && ch <= 0xf4) {
                     // accept as UTF-8 data
@@ -1349,12 +1355,17 @@ namespace Poderosa.Terminal.EscapeSequence {
                     case DCSProcessCharResult.Finished:
                         _dcsProcessor = null;
                         return true;
+                    case DCSProcessCharResult.Aborted:
+                        _dcsProcessor = null;
+                        goto PROC_CHAR;
                     case DCSProcessCharResult.Invalid:
                         break;
                 }
                 _dcsProcessor = null;
                 return false;
             }
+
+        PROC_CHAR:
 
             IState nextState = _currentState.Accept(_context, ch);
 
@@ -1689,6 +1700,10 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// </summary>
         Finished,
         /// <summary>
+        /// DCS has been aborted. The input character has not been consumed. Another escape sequence may have been started.
+        /// </summary>
+        Aborted,
+        /// <summary>
         /// The input character is invalid for DCS.
         /// </summary>
         Invalid,
@@ -1706,8 +1721,40 @@ namespace Poderosa.Terminal.EscapeSequence {
 
         private enum Status {
             Normal,
-            Escape,
             Finished,
+        }
+
+        private enum CharType : byte {
+            None = 0,
+            StringChar = 1,
+            Terminator = 2,
+            CancelTerminator = 3,
+            SemiTerminator = 4,
+        }
+
+        private static readonly CharType[] _charTable;
+
+        static DCSProcessorBase() {
+            _charTable = new CharType[256];
+
+            for (int i = 0x08; i <= 0x0d; i++) {
+                _charTable[i] = CharType.StringChar;
+            }
+
+            for (int i = 0x20; i <= 0x7e; i++) {
+                _charTable[i] = CharType.StringChar;
+            }
+
+            // To accept UTF-8 text, ST and C1 controls are treated as the normal character.
+            // See also IgnoreControlStringState.
+            for (int i = 0x80; i <= 0xf4; i++) {
+                _charTable[i] = CharType.StringChar;
+            }
+
+            _charTable[0x1b] = CharType.SemiTerminator; // ESC
+
+            _charTable[0x18] = CharType.CancelTerminator; // CAN
+            _charTable[0x1a] = CharType.CancelTerminator; // SUB
         }
 
         private Status _status = Status.Normal;
@@ -1715,36 +1762,27 @@ namespace Poderosa.Terminal.EscapeSequence {
         public DCSProcessCharResult ProcessChar(char ch) {
             switch (_status) {
                 case Status.Normal:
-                    if ((ch >= 0x20 && ch <= 0x7e) || (ch >= 0x08 && ch <= 0x0d)) {
-                        Input(ch);
-                        return DCSProcessCharResult.Consumed;
-                    }
+                    if ((int)ch < _charTable.Length) {
+                        switch (_charTable[(int)ch]) {
+                            case CharType.StringChar:
+                                Input(ch);
+                                return DCSProcessCharResult.Consumed;
 
-                    if (ch == ControlCode.ESC) {
-                        _status = Status.Escape;
-                        return DCSProcessCharResult.Consumed;
-                    }
+                            case CharType.Terminator:
+                                Finish();
+                                _status = Status.Finished;
+                                return DCSProcessCharResult.Finished;
 
-                    if (ch == ControlCode.ST || ch == ControlCode.CAN || ch == ControlCode.SUB) {
-                        if (ch == ControlCode.ST) {
-                            Finish();
+                            case CharType.CancelTerminator:
+                                Cancel();
+                                _status = Status.Finished;
+                                return DCSProcessCharResult.Finished;
+
+                            case CharType.SemiTerminator:
+                                Finish();
+                                _status = Status.Finished;
+                                return DCSProcessCharResult.Aborted;
                         }
-                        else {
-                            Cancel();
-                        }
-                        _status = Status.Finished;
-                        return DCSProcessCharResult.Finished; // ST, CAN and SUB are consumed
-                    }
-
-                    Cancel();
-                    _status = Status.Finished;
-                    return DCSProcessCharResult.Invalid;
-
-                case Status.Escape:
-                    if (ch == '\\') {
-                        Finish();
-                        _status = Status.Finished;
-                        return DCSProcessCharResult.Finished;
                     }
 
                     Cancel();

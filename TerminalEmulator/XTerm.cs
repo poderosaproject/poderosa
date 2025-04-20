@@ -674,6 +674,7 @@ namespace Poderosa.Terminal {
             Document.CaretColumn = Document.LeftMarginOffset;
         }
 
+        [EscapeSequence(ControlCode.ST)] // ST (orphan string terminator)
         [EscapeSequence(ControlCode.ENQ)] // ENQ (answerback message is not supported)
         [EscapeSequence(ControlCode.DEL)] // DEL (if DEL is a printable character in the selected graphics set, CharDecoder convert it)
         [EscapeSequence(ControlCode.ESC, ' ', 'L')] // dpANS X3.134.1 - ANSI conformance level 1
