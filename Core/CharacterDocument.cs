@@ -338,6 +338,7 @@ namespace Poderosa.Document {
 
         private int _lineIDStart;
         private int _lineIDEnd;
+        private int _minHeightInPixels;
         private bool _invalidatedAll;
         private bool _empty;
 
@@ -354,6 +355,12 @@ namespace Poderosa.Document {
         public int LineIDEnd {
             get {
                 return _lineIDEnd;
+            }
+        }
+
+        public int MinHeightInPixels {
+            get {
+                return _minHeightInPixels;
             }
         }
 
@@ -385,10 +392,18 @@ namespace Poderosa.Document {
             }
         }
 
+        public void InvalidateImage(int startLineId, int heightInPixels) {
+            lock (this) {
+                InvalidateLine(startLineId);
+                _minHeightInPixels = heightInPixels;
+            }
+        }
+
         private void Reset() {
             lock (this) {
                 _lineIDStart = NOT_SET;
                 _lineIDEnd = NOT_SET;
+                _minHeightInPixels = 0;
                 _invalidatedAll = false;
                 _empty = true;
             }

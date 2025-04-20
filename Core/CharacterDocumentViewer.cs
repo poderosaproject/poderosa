@@ -330,6 +330,9 @@ namespace Poderosa.View {
             RenderProfile prof = GetRenderProfile();
             r.Y = BORDER + (int)(y1 * (prof.Pitch.Height + prof.LineSpacing));
             r.Height = (int)((y2 - y1) * (prof.Pitch.Height + prof.LineSpacing)) + 1;
+            if (r.Height < rgn.MinHeightInPixels) {
+                r.Height = rgn.MinHeightInPixels;
+            }
 
             PartialInvalidate(r);
         }
