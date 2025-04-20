@@ -2883,6 +2883,8 @@ namespace Poderosa.Terminal {
                     return true;
                 case 2004:
                     return _bracketedPasteMode;
+                case 8452:
+                    return _sixelScrollingCursorRight;
                 default:
                     return null;
             }
