@@ -1718,7 +1718,7 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="index">index to write a character.</param>
         /// <param name="ch">character to write.</param>
-        /// <param name="dec">text decoration of the character. (null indicates default setting)</param>
+        /// <param name="dec">text decoration of the character.</param>
         /// <returns>the next index</returns>
         public int PutChar(int index, UnicodeChar ch, TextDecoration dec) {
             if (index < 0) {
@@ -1845,7 +1845,7 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="from">start index of the range (inclusive)</param>
         /// <param name="to">end index of the range (exclusive)</param>
-        /// <param name="dec">text decoration of the blanks (null indicates default setting)</param>
+        /// <param name="dec">text decoration of the blanks</param>
         public void FillSpace(int from, int to, TextDecoration dec) {
             from = Math.Max(from, 0);
 
@@ -1875,7 +1875,7 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="from">start index of the range (inclusive)</param>
         /// <param name="to">end index of the range (exclusive)</param>
-        /// <param name="dec">text decoration of the blanks (null indicates default setting)</param>
+        /// <param name="dec">text decoration of the blanks</param>
         public void FillSpaceUnprotected(int from, int to, TextDecoration dec) {
             from = Math.Max(from, 0);
 
@@ -1994,7 +1994,7 @@ namespace Poderosa.Document {
         /// <param name="start">start columns index</param>
         /// <param name="count">count of columns to delete</param>
         /// <param name="end">end position for left shift of characters (column index, exclusive)</param>
-        /// <param name="dec">text decoration of the blanks (null indicates default setting)</param>
+        /// <param name="dec">text decoration of the blanks</param>
         public void DeleteChars(int start, int count, int? end, TextDecoration dec) {
             if (count <= 0) {
                 return;
@@ -2046,7 +2046,7 @@ namespace Poderosa.Document {
         /// <param name="start">start column index</param>
         /// <param name="count">count of columns to insert blanks</param>
         /// <param name="end">end position for right shift of characters (column index, exclusive)</param>
-        /// <param name="dec">text decoration of the blanks (null indicates default setting)</param>
+        /// <param name="dec">text decoration of the blanks</param>
         public void InsertBlanks(int start, int count, int end, TextDecoration dec) {
             if (count <= 0) {
                 return;
