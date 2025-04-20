@@ -437,7 +437,7 @@ namespace Poderosa.Terminal.EscapeSequence {
             /// </summary>
             /// <returns>buffered text</returns>
             public string GetPrintableBufferedText() {
-                return _buff.ToString()
+                return _buff
                         .Aggregate(
                             new StringBuilder(),
                             (s, c) => {
