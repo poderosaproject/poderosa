@@ -605,8 +605,8 @@ namespace Poderosa.View {
 
             //Debug.WriteLine(String.Format("{0} {1} ", param.LineFrom, param.LineCount));
 
-            int topline_id = GetTopLine().ID;
-            GLine l = document.FindLineOrNull(topline_id + lineFrom);
+            int topLineId = GetTopLine().ID;
+            GLine l = document.FindLineOrNull(topLineId + lineFrom);
             if (l != null) {
                 int poolIndex = 0;
                 for (int i = 0; i < lineCount; i++) {
@@ -614,10 +614,10 @@ namespace Poderosa.View {
                     if (poolIndex < _glinePool.Count) {
                         cloned = _glinePool[poolIndex];
                         poolIndex++;
-                        cloned.CopyFrom(l);
+                        cloned.CopyAndMoveUpdateSpansFrom(l);
                     }
                     else {
-                        cloned = l.Clone();
+                        cloned = l.CloneAndMoveUpdateSpans();
                         cloned.NextLine = cloned.PrevLine = null;
                         _glinePool.Add(cloned); // store for next use
                         poolIndex++;
@@ -642,7 +642,7 @@ namespace Poderosa.View {
                     t = t.NextLine;
                     int pos = from.Column; //たとえば左端を越えてドラッグしたときの選択範囲は前行末になるので pos==TerminalWidthとなるケースがある。
                     do {
-                        int index = l.ID - (topline_id + lineFrom);
+                        int index = l.ID - (topLineId + lineFrom);
                         if (pos >= 0 && pos < l.DisplayLength && index >= 0 && index < _transientLines.Count) {
                             if (l.ID == to.Line) {
                                 if (pos != to.Column) {

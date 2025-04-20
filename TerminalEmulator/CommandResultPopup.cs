@@ -96,7 +96,7 @@ namespace Poderosa.Terminal {
         public override void EndCommand(List<GLine> command_result) {
             CommandResultDocument doc = new CommandResultDocument(_executingCommand);
             foreach (GLine line in command_result)
-                doc.AddLine(line.Clone());
+                doc.AddLine(line.CloneWithoutUpdateSpans());
 
             TerminalControl tc = _terminal.TerminalHost.TerminalControl;
             if (tc == null)

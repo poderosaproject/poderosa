@@ -637,6 +637,163 @@ namespace Poderosa.Document {
     }
 
     /// <summary>
+    /// Z-Order for GLine update spans.
+    /// </summary>
+    public struct GLineZOrder : IComparable<GLineZOrder>, IEquatable<GLineZOrder> {
+
+        internal const uint MAX_DIFFERENCE = 2147483647u;
+
+        private readonly uint _value;
+
+        private GLineZOrder(uint value) {
+            _value = value;
+        }
+
+#if UNITTEST
+        public static GLineZOrder CreateForTest(uint value) {
+            return new GLineZOrder(value);
+        }
+#endif
+
+        /// <summary>
+        /// Compares with another value.
+        /// </summary>
+        /// <remarks>
+        /// This method determines correctly when the difference between the two values in mod 2^32 is within 2147483647.
+        /// Currently, z-order is incremented when a new sixel image is created, and used to determine the overlap between text and sixel images.
+        /// The older sixel images will be deleted due to the image quantity limitation, so the range of 2147483647 is enough.
+        /// </remarks>
+        /// <param name="another">another Z-order</param>
+        /// <returns></returns>
+        public int CompareTo(GLineZOrder another) {
+            if (this._value == another._value) {
+                return 0;
+            }
+            uint d = unchecked(this._value - another._value);
+            return (d <= MAX_DIFFERENCE) ? 1 : -1;
+        }
+
+        public bool Equals(GLineZOrder another) {
+            return this._value == another._value;
+        }
+
+        public override bool Equals(object obj) {
+            if (obj is GLineZOrder) {
+                return Equals((GLineZOrder)obj);
+            }
+            return false;
+        }
+
+        public static bool operator ==(GLineZOrder a, GLineZOrder b) {
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(GLineZOrder a, GLineZOrder b) {
+            return !a.Equals(b);
+        }
+
+        public override int GetHashCode() {
+            return this._value.GetHashCode();
+        }
+
+        /// <summary>
+        /// Manage <see cref="GLineZOrder"/> for each terminal.
+        /// </summary>
+        public class Manager {
+
+            private bool _initial = true;
+            private uint _current = 0;
+
+            public Manager() {
+            }
+
+            /// <summary>
+            /// Whether the current z-order is initial value or not.
+            /// </summary>
+            public bool IsInitial {
+                get {
+                    return _initial;
+                }
+            }
+
+            /// <summary>
+            /// Current z-order.
+            /// </summary>
+            public GLineZOrder Current {
+                get {
+                    return new GLineZOrder(_current);
+                }
+            }
+
+            /// <summary>
+            /// Increment z-order.
+            /// </summary>
+            /// <returns>new z-order.</returns>
+            public GLineZOrder Increment() {
+                _current++;
+                _initial = false;
+                return new GLineZOrder(_current);
+            }
+
+#if UNITTEST
+            public void SetCurrentForTest(uint value) {
+                _current = value;
+            }
+#endif
+        }
+    }
+
+    /// <summary>
+    /// Column span on <see cref="GLine"/>
+    /// </summary>
+    public struct GLineColumnSpan {
+        /// <summary>
+        /// Z-Order
+        /// </summary>
+        /// <seealso cref="GLineZOrder"/>
+        public readonly GLineZOrder Z;
+
+        /// <summary>
+        /// Start column index (inclusive)
+        /// </summary>
+        public readonly int Start;
+
+        /// <summary>
+        /// End column index (exclusive)
+        /// </summary>
+        public readonly int End;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="z">z-order</param>
+        /// <param name="start">start column index (inclusive)</param>
+        /// <param name="end">end column index (exclusive)</param>
+        public GLineColumnSpan(GLineZOrder z, int start, int end) {
+            this.Z = z;
+            this.Start = start;
+            this.End = end;
+        }
+
+        /// <summary>
+        /// Merge this span and another span.
+        /// </summary>
+        /// <param name="another">another span</param>
+        /// <returns>new span if merging succeeded, otherwise null.</returns>
+        public GLineColumnSpan? Merge(GLineColumnSpan another) {
+            if (another.Z != this.Z || another.End < this.Start || another.Start > this.End) {
+                return null;
+            }
+
+            return new GLineColumnSpan(
+                        this.Z,
+                        Math.Min(this.Start, another.Start),
+                        Math.Max(this.End, another.End)
+            );
+        }
+    }
+
+    /// <summary>
     /// Represents a single line.
     /// </summary>
     public sealed class GLine {
@@ -656,6 +813,7 @@ namespace Poderosa.Document {
         /// <param name="length">Number of characters to copy from buff.</param>
         public delegate void BufferWriter(char[] buff, int length);
 
+        // core data
         private GCell[] _cell;
         private GColor24[] _color24;    // can be null if 24 bit colors are not used
         private int _displayLength;
@@ -664,6 +822,10 @@ namespace Poderosa.Document {
         private int _id;
         private GLine _nextLine;
         private GLine _prevLine;
+
+        // the list of the update column spans.
+        // when GLine is cloned for drawing, this list is **moved** to the instance for drawing.
+        private List<GLineColumnSpan> _updatedSpans = null;
 
         [ThreadStatic]
         private static char[] _copyTempBuff;
@@ -757,6 +919,12 @@ namespace Poderosa.Document {
             }
         }
 
+        public IEnumerable<GLineColumnSpan> UpdatedSpans {
+            get {
+                return _updatedSpans;
+            }
+        }
+
         /// <summary>
         /// Whether this line is rendered double width.
         /// </summary>
@@ -842,13 +1010,15 @@ namespace Poderosa.Document {
         /// <param name="displayLength">length of the content</param>
         /// <param name="eolType">type of the line ending</param>
         /// <param name="lineRenderingType">type of the line rendering</param>
-        internal GLine(GCell[] cell, GColor24[] color24, int displayLength, EOLType eolType, LineRenderingType lineRenderingType) {
+        /// <param name="updatedSpans">updated column spans to set, or null if no spans</param>
+        internal GLine(GCell[] cell, GColor24[] color24, int displayLength, EOLType eolType, LineRenderingType lineRenderingType, List<GLineColumnSpan> updatedSpans) {
             _cell = cell;
             _color24 = color24;
             _displayLength = displayLength;
             _eolType = eolType;
             _lineRenderingType = lineRenderingType;
             _id = -1;
+            _updatedSpans = updatedSpans;
         }
 
         /// <summary>
@@ -859,7 +1029,9 @@ namespace Poderosa.Document {
         /// <param name="displayLength">length of the content</param>
         /// <param name="eolType">type of the line ending</param>
         /// <param name="lineRenderingType">type of the line rendering</param>
-        internal void UpdateContent(GCell[] cell, GColor24[] color24, int displayLength, EOLType eolType, LineRenderingType lineRenderingType) {
+        /// <param name="updatedSpans">updated column spans to set, or null if no spans.</param>
+        /// <param name="mergeUpdatedSpans">if true, <paramref name="updatedSpans"/> is merged into the existing spans.</param>
+        internal void UpdateContent(GCell[] cell, GColor24[] color24, int displayLength, EOLType eolType, LineRenderingType lineRenderingType, List<GLineColumnSpan> updatedSpans, bool mergeUpdatedSpans) {
             lock (this) {
                 if (_cell.Length == cell.Length) {
                     cell.CopyTo(_cell);
@@ -881,35 +1053,92 @@ namespace Poderosa.Document {
                 _displayLength = displayLength;
                 _eolType = eolType;
                 _lineRenderingType = lineRenderingType;
+
+                if (!mergeUpdatedSpans) {
+                    _updatedSpans = updatedSpans;
+                }
+                else if (updatedSpans != null) {
+                    if (_updatedSpans == null) {
+                        _updatedSpans = updatedSpans;
+                    }
+                    else {
+                        GLineColumnSpan? merged;
+                        if (_updatedSpans.Count > 0 && updatedSpans.Count > 0) {
+                            // try to merge with previous one
+                            merged = _updatedSpans[_updatedSpans.Count - 1].Merge(updatedSpans[0]);
+                        }
+                        else {
+                            merged = null;
+                        }
+
+                        if (merged.HasValue) {
+                            updatedSpans[0] = merged.Value;
+                            _updatedSpans.RemoveAt(_updatedSpans.Count - 1);
+                            _updatedSpans.AddRange(updatedSpans);
+                        }
+                        else {
+                            _updatedSpans.AddRange(updatedSpans);
+                        }
+                    }
+                }
             }
         }
 
         /// <summary>
         /// Copys content and ID from the specified instance.
+        /// The updated column spans are moved to the new instance from the this instance.
         /// </summary>
         /// <param name="line">another instance</param>
-        public void CopyFrom(GLine line) {
+        public void CopyAndMoveUpdateSpansFrom(GLine line) {
             lock (this) {
-                this.UpdateContent(line._cell, line._color24, line._displayLength, line._eolType, line._lineRenderingType);
+                List<GLineColumnSpan> updatedSpans = line._updatedSpans;
+                line._updatedSpans = null;
+                this.UpdateContent(line._cell, line._color24, line._displayLength, line._eolType, line._lineRenderingType, updatedSpans, false /*replace*/);
                 this._id = line._id;
             }
         }
 
         /// <summary>
         /// Creates cloned instance.
+        /// The updated column spans are moved to the new instance from the this instance.
         /// </summary>
         /// <returns>cloned instance</returns>
-        public GLine Clone() {
+        public GLine CloneAndMoveUpdateSpans() {
             lock (this) {
-                GLine nl = new GLine(
-                            (GCell[])_cell.Clone(),
-                            (_color24 != null) ? (GColor24[])_color24.Clone() : null,
-                            _displayLength,
-                            _eolType,
-                            _lineRenderingType);
-                nl._id = _id;
+                GLine nl = CloneInternal(_updatedSpans);
+                _updatedSpans = null;
                 return nl;
             }
+        }
+
+        /// <summary>
+        /// Creates cloned instance.
+        /// The updated column spans in the new instance are reset.
+        /// </summary>
+        /// <returns>cloned instance</returns>
+        public GLine CloneWithoutUpdateSpans() {
+            lock (this) {
+                GLine nl = CloneInternal(null);
+                return nl;
+            }
+        }
+
+        /// <summary>
+        /// Creates cloned instance.
+        /// </summary>
+        /// <param name="updatedSpans">updated column spans for the new instance</param>
+        /// <returns>cloned instance</returns>
+        private GLine CloneInternal(List<GLineColumnSpan> updatedSpans) {
+            GLine nl = new GLine(
+                        (GCell[])_cell.Clone(),
+                        (_color24 != null) ? (GColor24[])_color24.Clone() : null,
+                        _displayLength,
+                        _eolType,
+                        _lineRenderingType,
+                        updatedSpans
+                    );
+            nl._id = _id;
+            return nl;
         }
 
         /// <summary>
@@ -1547,8 +1776,9 @@ namespace Poderosa.Document {
         /// </summary>
         /// <param name="text">a text string</param>
         /// <param name="dec"></param>
+        /// <param name="z">z-order</param>
         /// <returns></returns>
-        public static GLine CreateSimpleGLine(string text, TextDecoration dec) {
+        public static GLine CreateSimpleGLine(string text, TextDecoration dec, GLineZOrder z) {
             GCell[] buff = new GCell[text.Length * 2];
             GColor24[] colorBuff = null;
             int offset = 0;
@@ -1591,7 +1821,10 @@ namespace Poderosa.Document {
                 }
             }
 
-            return new GLine(buff, null, offset, EOLType.CRLF, LineRenderingType.Normal);
+            List<GLineColumnSpan> updatedSpans =
+                (offset > 0) ? new List<GLineColumnSpan> { new GLineColumnSpan(z, 0, offset) } : null;
+
+            return new GLine(buff, null, offset, EOLType.CRLF, LineRenderingType.Normal, updatedSpans);
         }
     }
 
@@ -1599,6 +1832,8 @@ namespace Poderosa.Document {
     /// Manipulator for editing line buffer copied from <see cref="GLine"/>.
     /// </summary>
     public class GLineManipulator {
+
+        private readonly GLineZOrder.Manager _zMan;
 
         // Note:
         //  GColor24 array is always non-null even if the 24 bit colors are not used, and
@@ -1610,6 +1845,7 @@ namespace Poderosa.Document {
 
         private GCell[] _cell = new GCell[1];
         private GColor24[] _color24 = new GColor24[1];  // always non-null
+        private byte[] _dirty = new byte[1];
         private EOLType _eolType = EOLType.Continue;
         private LineRenderingType _lineRenderingType = LineRenderingType.Normal;
 
@@ -1647,6 +1883,14 @@ namespace Poderosa.Document {
         }
 
         /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="zMan">GLine Z-Order manager</param>
+        public GLineManipulator(GLineZOrder.Manager zMan) {
+            _zMan = zMan;
+        }
+
+        /// <summary>
         /// Reset line buffer.
         /// </summary>
         /// <param name="length">length of the internal buffer</param>
@@ -1667,6 +1911,12 @@ namespace Poderosa.Document {
                 _color24[i] = new GColor24();
             }
 
+            if (_dirty == null || length != _dirty.Length) {
+                _dirty = new byte[length];
+            }
+
+            ClearDirtyFlagsInternal();
+
             _eolType = EOLType.Continue;
             _lineRenderingType = LineRenderingType.Normal;
         }
@@ -1686,6 +1936,7 @@ namespace Poderosa.Document {
                 line.DuplicateBuffers(_cell, _color24, out _cell, out _color24);
                 _eolType = line.EOLType;
                 _lineRenderingType = line.LineRenderingType;
+                ClearDirtyFlagsInternal();
             }
         }
 
@@ -1704,6 +1955,12 @@ namespace Poderosa.Document {
                 oldBuff.CopyTo(newBuff);
                 newBuff.Fill(oldBuff.Length, newBuff.Length, GChar.ASCII_NUL, GAttr.Default);
                 _cell = newBuff;
+            }
+
+            if (length > _dirty.Length) {
+                byte[] newDirty = new byte[length];
+                _dirty.CopyTo(newDirty, 0);
+                _dirty = newDirty;
             }
 
             if (length > _color24.Length) {
@@ -1740,12 +1997,14 @@ namespace Poderosa.Document {
 
             _cell[index].Set(newChar, newAttr);
             _color24[index] = newColor;
+            _dirty[index] = 1;
 
             index++;
 
             if (newChar.IsWideWidth) {
                 _cell[index].Set(newChar + GCharFlags.RightHalf, newAttr);
                 _color24[index] = newColor;
+                _dirty[index] = 1;
                 index++;
             }
 
@@ -1766,6 +2025,7 @@ namespace Poderosa.Document {
             if (index >= 0 && index < _cell.Length) {
                 if (_cell[index].Char.IsLeftHalf) {
                     _cell[index].SetNul();
+                    // dirty flag is not set, because this change is for cosmetic improvement
                 }
             }
         }
@@ -1782,6 +2042,7 @@ namespace Poderosa.Document {
             if (index >= 0 && index < _cell.Length) {
                 if (_cell[index].Char.IsRightHalf) {
                     _cell[index].SetNul();
+                    // dirty flag is not set, because this change is for cosmetic improvement
                 }
             }
         }
@@ -1865,6 +2126,7 @@ namespace Poderosa.Document {
                 // Note: uses ASCII_NUL instead of ASCII_SPACE for detecting correct length of the content
                 _cell[i].Set(GChar.ASCII_NUL, fillAttr);
                 _color24[i] = fillColor;
+                _dirty[i] = 1;
             }
 
             FixRightHalfOfWideWidthCharacter(to);
@@ -1900,6 +2162,7 @@ namespace Poderosa.Document {
                 // Note: uses ASCII_NUL instead of ASCII_SPACE for detecting correct length of the content
                 _cell[i].Set(GChar.ASCII_NUL, fillAttr);
                 _color24[i] = fillColor;
+                _dirty[i] = 1;
             }
 
             FixRightHalfOfWideWidthCharacter(to);
@@ -1932,6 +2195,7 @@ namespace Poderosa.Document {
 
                 // Note: uses ASCII_NUL instead of ASCII_SPACE for detecting correct length of the content
                 _cell[i].Set(GChar.ASCII_NUL, attr - GAttrFlags.UseCjkFont);
+                _dirty[i] = 1;
             }
 
             FixRightHalfOfWideWidthCharacter(to);
@@ -1971,17 +2235,21 @@ namespace Poderosa.Document {
                     _cell[index + 1].Set(fillChar + GCharFlags.RightHalf, fillAttr);
                     _color24[index] = fillColor;
                     _color24[index + 1] = fillColor;
+                    _dirty[index] = 1;
+                    _dirty[index + 1] = 1;
                     index += 2;
                 }
                 if (index < to) {
                     _cell[index].Set(GChar.ASCII_NUL, fillAttr - GAttrFlags.UseCjkFont);
                     _color24[index] = fillColor;
+                    _dirty[index] = 1;
                 }
             }
             else {
                 for (int index = from; index < to; index++) {
                     _cell[index].Set(fillChar, fillAttr);
                     _color24[index] = fillColor;
+                    _dirty[index] = 1;
                 }
             }
 
@@ -2023,6 +2291,7 @@ namespace Poderosa.Document {
             while (dstIndex < actualEnd && srcIndex < actualEnd) {
                 _cell[dstIndex] = _cell[srcIndex];
                 _color24[dstIndex] = _color24[srcIndex];
+                _dirty[dstIndex] = 1;
                 dstIndex++;
                 srcIndex++;
             }
@@ -2031,6 +2300,7 @@ namespace Poderosa.Document {
                 // Note: uses ASCII_NUL instead of ASCII_SPACE for detecting correct length of the content
                 _cell[dstIndex].Set(GChar.ASCII_NUL, fillAttr);
                 _color24[dstIndex] = fillColor;
+                _dirty[dstIndex] = 1;
                 dstIndex++;
             }
 
@@ -2071,6 +2341,7 @@ namespace Poderosa.Document {
             while (srcIndex >= start) {
                 _cell[dstIndex] = _cell[srcIndex];
                 _color24[dstIndex] = _color24[srcIndex];
+                _dirty[dstIndex] = 1;
                 dstIndex--;
                 srcIndex--;
             }
@@ -2078,6 +2349,7 @@ namespace Poderosa.Document {
             while (dstIndex >= start) {
                 _cell[dstIndex].Set(GChar.ASCII_NUL, fillAttr);
                 _color24[dstIndex] = fillColor;
+                _dirty[dstIndex] = 1;
                 dstIndex--;
             }
 
@@ -2108,9 +2380,11 @@ namespace Poderosa.Document {
                 if (srcCol >= 0 && srcCol < source._cell.Length) {
                     this._cell[destCol] = source._cell[srcCol];
                     this._color24[destCol] = source._color24[srcCol];
+                    this._dirty[destCol] = 1;
                 }
                 else {
                     this._cell[destCol].Set(GChar.ASCII_SPACE, GAttr.Default);
+                    this._dirty[destCol] = 1;
                 }
 
                 if (!lastCopiedCol.HasValue) { // first character
@@ -2182,6 +2456,7 @@ namespace Poderosa.Document {
                 }
 
                 _cell[i].Attr = attr;
+                _dirty[i] = 1;
             }
         }
 
@@ -2220,7 +2495,19 @@ namespace Poderosa.Document {
                 }
 
                 _cell[i].Attr = attr;
+                _dirty[i] = 1;
             }
+        }
+
+        /// <summary>
+        /// Clear dirty flags
+        /// </summary>
+        public void ClearDirtyFlags() {
+            ClearDirtyFlagsInternal();
+        }
+
+        private void ClearDirtyFlagsInternal() {
+            Array.Clear(_dirty, 0, _dirty.Length);
         }
 
         /// <summary>
@@ -2237,7 +2524,8 @@ namespace Poderosa.Document {
                             uses24bitColor ? (GColor24[])_color24.Clone() : null,
                             displayLength,
                             _eolType,
-                            _lineRenderingType);
+                            _lineRenderingType,
+                            GetUpdatedSpans());
             return line;
         }
 
@@ -2250,7 +2538,7 @@ namespace Poderosa.Document {
             int displayLength;
             PrepareExport(out uses24bitColor, out displayLength);
 
-            line.UpdateContent(_cell, uses24bitColor ? _color24 : null, displayLength, _eolType, _lineRenderingType);
+            line.UpdateContent(_cell, uses24bitColor ? _color24 : null, displayLength, _eolType, _lineRenderingType, GetUpdatedSpans(), true /*merge*/);
         }
 
         /// <summary>
@@ -2283,6 +2571,50 @@ namespace Poderosa.Document {
 
             uses24bitColor = tempUses24bitColor;
             displayLength = lastCharIndex + 1;
+        }
+
+        private List<GLineColumnSpan> GetUpdatedSpans() {
+            // Optimization until the first increment of the Z-order.
+            // Currently, GLineColumnSpans with the initial z-order are not used.
+            if (_zMan.IsInitial) {
+                return null;
+            }
+
+            GLineZOrder z = _zMan.Current;
+
+            List<GLineColumnSpan> newList = null;
+
+            int i = 0;
+            while (i < _dirty.Length) {
+                while (i < _dirty.Length && _dirty[i] == 0) {
+                    i++;
+                }
+
+                if (i >= _dirty.Length) {
+                    break;
+                }
+
+                int start = i;
+                i++;
+
+                while (i < _dirty.Length && _dirty[i] != 0) {
+                    i++;
+                }
+
+                int end = i;
+                i++;
+
+                if (newList == null) {
+                    newList = new List<GLineColumnSpan>(4);
+                }
+                newList.Add(new GLineColumnSpan(z, start, end));
+            }
+
+            if (newList != null) {
+                ClearDirtyFlagsInternal();
+            }
+
+            return newList;
         }
     }
 

@@ -3048,7 +3048,7 @@ namespace Poderosa.Terminal {
                 while (l != null && l.ID <= rectBottomLineNumber) {
                     int offset = l.ID - rectTopLineNumber;
                     if (offset >= 0 && offset < copy.Length) {
-                        copy[offset] = l.Clone();
+                        copy[offset] = l.CloneWithoutUpdateSpans();
                     }
                     l = l.NextLine;
                 }
@@ -3060,7 +3060,7 @@ namespace Poderosa.Terminal {
             Document.EnsureLine(destBottomLimit);
 
             GLine destLine = Document.FindLineOrEdge(destTopLineNumber);
-            GLineManipulator srcManipurator = new GLineManipulator();
+            GLineManipulator srcManipurator = new GLineManipulator(Document.GLineZOrderManager);
             while (destLine != null && destLine.ID <= destBottomLimit) {
                 int offset = destLine.ID - destTopLineNumber;
                 if (offset >= 0 && offset < copy.Length) {
@@ -3467,7 +3467,7 @@ namespace Poderosa.Terminal {
             GLine l = Document.TopLine;
             int m = l.ID + Document.TerminalHeight;
             while (l != null && l.ID < m) {
-                lines.Add(l.Clone());
+                lines.Add(l.CloneWithoutUpdateSpans());
                 l = l.NextLine;
             }
             _savedScreen[sw] = lines;

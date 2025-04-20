@@ -54,9 +54,17 @@ namespace Poderosa.Document {
         protected ColorSpec _appModeBgColor = ColorSpec.Default;
         protected bool _bApplicationMode;
 
+        protected readonly GLineZOrder.Manager _zMan = new GLineZOrder.Manager();
+
         public InvalidatedRegion InvalidatedRegion {
             get {
                 return _invalidatedRegion;
+            }
+        }
+
+        public GLineZOrder.Manager GLineZOrderManager {
+            get {
+                return _zMan;
             }
         }
 
@@ -279,9 +287,10 @@ namespace Poderosa.Document {
         public void LoadForTest(string filename) {
             using (StreamReader r = new StreamReader(filename, Encoding.Default)) {
                 TextDecoration dec = TextDecoration.Default;
+                GLineZOrder z = _zMan.Current;
                 string line = r.ReadLine();
                 while (line != null) {
-                    this.AddLine(GLine.CreateSimpleGLine(line, dec));
+                    this.AddLine(GLine.CreateSimpleGLine(line, dec, z));
                     line = r.ReadLine();
                 }
             }
@@ -289,7 +298,7 @@ namespace Poderosa.Document {
         //単一行からの作成
         public static CharacterDocument SingleLine(string content) {
             CharacterDocument doc = new CharacterDocument();
-            doc.AddLine(GLine.CreateSimpleGLine(content, TextDecoration.Default));
+            doc.AddLine(GLine.CreateSimpleGLine(content, TextDecoration.Default, doc._zMan.Current));
             return doc;
         }
 

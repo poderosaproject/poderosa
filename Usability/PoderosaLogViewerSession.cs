@@ -189,7 +189,7 @@ namespace Poderosa.LogViewer {
             _caption = "Poderosa Event Log";
             _session = session;
             //１行はないとだめな制約があるので
-            this.AddLine(GLine.CreateSimpleGLine("", TextDecoration.Default));
+            this.AddLine(GLine.CreateSimpleGLine("", TextDecoration.Default, _zMan.Current));
             _nextLineIsFirstLine = true;
         }
 
@@ -209,7 +209,7 @@ namespace Poderosa.LogViewer {
             int offset = 0;
             while (offset < text.Length) {
                 int next = RuntimeUtil.AdjustIntRange(offset + width, 0, text.Length);
-                GLine line = GLine.CreateSimpleGLine(text.Substring(offset, next - offset), TextDecoration.Default);
+                GLine line = GLine.CreateSimpleGLine(text.Substring(offset, next - offset), TextDecoration.Default, _zMan.Current);
                 line.EOLType = next < text.Length ? EOLType.Continue : EOLType.CRLF;
                 Append(line);
                 offset = next;

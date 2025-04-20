@@ -116,7 +116,7 @@ namespace Poderosa.Terminal {
             _unicodeCharConverter = _encodingProfile.CreateUnicodeCharConverter();
             _terminalMode = TerminalMode.Normal;
             _lineContinuationMode = _session.TerminalSettings.LineContinuationMode;
-            _manipulator = new GLineManipulator();
+            _manipulator = new GLineManipulator(_document.GLineZOrderManager);
             _scrollBarValues = new ScrollBarValues();
             _logService = new LogService(info.TerminalParameter, _session.TerminalSettings);
             _promptRecognizer = new PromptRecognizer(this);

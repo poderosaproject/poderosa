@@ -726,8 +726,8 @@ namespace Poderosa.Terminal {
 
             GLine dstLine = FindLineOrEdge(bottom);
             GLine srcLine = FindLineOrNull(bottom - n);
-            GLineManipulator srcManip = new GLineManipulator();
-            GLineManipulator dstManip = new GLineManipulator();
+            GLineManipulator srcManip = new GLineManipulator(_zMan);
+            GLineManipulator dstManip = new GLineManipulator(_zMan);
             while (srcLine != null && dstLine != null && srcLine.ID >= top) {
                 srcManip.Load(srcLine);
                 dstManip.Load(dstLine);
@@ -790,8 +790,8 @@ namespace Poderosa.Terminal {
 
             GLine dstLine = FindLineOrEdge(top);
             GLine srcLine = FindLineOrNull(top + n);
-            GLineManipulator srcManip = new GLineManipulator();
-            GLineManipulator dstManip = new GLineManipulator();
+            GLineManipulator srcManip = new GLineManipulator(_zMan);
+            GLineManipulator dstManip = new GLineManipulator(_zMan);
             while (srcLine != null && dstLine != null && srcLine.ID <= bottom) {
                 srcManip.Load(srcLine);
                 dstManip.Load(dstLine);
@@ -960,7 +960,7 @@ namespace Poderosa.Terminal {
                 while (c != null) {
                     if (flag || c.DisplayLength == 0) {
                         flag = true;
-                        GLine nl = c.Clone();
+                        GLine nl = c.CloneWithoutUpdateSpans();
                         nl.ID = _firstLine.ID - 1;
                         InsertBefore(_firstLine, nl); //最初に空でない行があれば以降は全部挿入
                         offset++;
