@@ -1612,7 +1612,9 @@ namespace Poderosa.Document {
         /// Set cursor at the specified cell.
         /// </summary>
         /// <param name="index">cell index</param>
-        internal void SetCursor(int index) {
+        /// <param name="adjustedIndex">returns adjusted cell index</param>
+        /// <param name="width">returns cursor width (1 or 2)</param>
+        internal void SetCursor(int index, out int adjustedIndex, out int width) {
             lock (this) {
                 if (index >= _displayLength) {
                     int prevLength = _displayLength;
@@ -1626,22 +1628,32 @@ namespace Poderosa.Document {
                     if (index > 0 && _cell[index - 1].Char.IsLeftHalf) {
                         _cell[index - 1].Attr += GAttrFlags.Cursor;
                         UpdateSameToPreviousForCellsChanged(index - 1, index + 1);
+                        adjustedIndex = index - 1;
+                        width = 2;
                     }
                     else {
                         UpdateSameToPreviousForCellsChanged(index, index + 1);
+                        adjustedIndex = index;
+                        width = 1;
                     }
                 }
                 else if (_cell[index].Char.IsLeftHalf) {
                     if (index + 1 < _cell.Length && _cell[index + 1].Char.IsRightHalf) {
                         _cell[index + 1].Attr += GAttrFlags.Cursor;
                         UpdateSameToPreviousForCellsChanged(index, index + 2);
+                        adjustedIndex = index;
+                        width = 2;
                     }
                     else {
                         UpdateSameToPreviousForCellsChanged(index, index + 1);
+                        adjustedIndex = index;
+                        width = 1;
                     }
                 }
                 else {
                     UpdateSameToPreviousForCellsChanged(index, index + 1);
+                    adjustedIndex = index;
+                    width = 1;
                 }
             }
         }

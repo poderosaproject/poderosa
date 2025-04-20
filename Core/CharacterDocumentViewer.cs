@@ -547,6 +547,8 @@ namespace Poderosa.View {
 
                             DrawLines(g, param, backColor);
 
+                            OverlayAfter(g, param);
+
                             if (_caret.Enabled && (!_caret.Blink || _caret.IsActiveTick)) { //点滅しなければEnabledによってのみ決まる
                                 if (_caret.Style == CaretType.Line)
                                     DrawBarCaret(g, param, _caret.X, _caret.Y);
@@ -578,6 +580,9 @@ namespace Poderosa.View {
                 }
             }
 #endif
+        }
+
+        protected virtual void OverlayAfter(Graphics g, RenderParameter param) {
         }
 
         private void BuildTransientDocument(CharacterDocument document, Rectangle clip, out RenderParameter param) {
@@ -666,20 +671,32 @@ namespace Poderosa.View {
             _caret.Enabled = _caret.Enabled && (lineFrom <= _caret.Y && _caret.Y < lineFrom + lineCount);
 
             //Caret画面外にあるなら処理はしなくてよい。２番目の条件は、Attach-ResizeTerminalの流れの中でこのOnPaintを実行した場合にTerminalHeight>lines.Countになるケースがあるのを防止するため
+            int adjustedCaretX = _caret.X;
+            int caretWidth = 1;
             if (_caret.Enabled) {
                 //ヒクヒク問題のため、キャレットを表示しないときでもこの操作は省けない
                 if (_caret.Style == CaretType.Box) {
                     int y = _caret.Y - lineFrom;
                     if (y >= 0 && y < _transientLines.Count) {
-                        _transientLines[y].SetCursor(_caret.X);
+
+                        _transientLines[y].SetCursor(_caret.X, out adjustedCaretX, out caretWidth);
                     }
                 }
             }
 
             param = new RenderParameter(
+                topLineId: topLineId,
                 lineFrom: lineFrom,
                 lineCount: lineCount,
-                targetRect: targetRect
+                linePitch: linePitch,
+                columnPitch: profile.Pitch.Width,
+                origin: new Point(BORDER, BORDER),
+                caretEnabled: _caret.Enabled,
+                caretType: _caret.Style,
+                caretLineOffset: _caret.Y,
+                caretColumnIndex: adjustedCaretX,
+                caretWidth: caretWidth,
+                glines: _transientLines
             );
         }
 
@@ -689,8 +706,7 @@ namespace Poderosa.View {
             IntPtr hdc = g.GetHdc();
             try {
                 float y = (prof.Pitch.Height + prof.LineSpacing) * param.LineFrom + BORDER;
-                for (int i = 0; i < _transientLines.Count; i++) {
-                    GLine line = _transientLines[i];
+                foreach (GLine line in param.GLines) {
                     line.Render(hdc, prof, caret, baseBackColor, BORDER, (int)y);
                     if (line.IsPeriodicRedrawRequired()) {
                         _requiresPeriodicRedraw = true;
@@ -901,24 +917,50 @@ namespace Poderosa.View {
         }
         #endregion
 
-    }
+        /// <summary>
+        /// Screen range to render
+        /// </summary>
+        protected class RenderParameter {
+            public readonly int TopLineId;
+            public readonly int LineFrom;
+            public readonly int LineCount;
+            public readonly float LinePitch;
+            public readonly float ColumnPitch;
+            public readonly Point Origin;
+            public readonly bool CaretEnabled;
+            public readonly CaretType CaretType;
+            public readonly int CaretLineOffset;
+            public readonly int CaretColumnIndex;
+            public readonly int CaretWidth;
+            public readonly IEnumerable<GLine> GLines;
 
-    /*
-     * 何行目から何行目までを描画すべきかの情報を収録
-     */
-    internal class RenderParameter {
-        public readonly int LineFrom;
-        public readonly int LineCount;
-        public readonly Rectangle TargetRect;
-
-        public RenderParameter(
-            int lineFrom,
-            int lineCount,
-            Rectangle targetRect
-        ) {
-            this.LineFrom = lineFrom;
-            this.LineCount = lineCount;
-            this.TargetRect = targetRect;
+            public RenderParameter(
+                int topLineId,
+                int lineFrom,
+                int lineCount,
+                float linePitch,
+                float columnPitch,
+                Point origin,
+                bool caretEnabled,
+                CaretType caretType,
+                int caretLineOffset,
+                int caretColumnIndex,
+                int caretWidth,
+                IEnumerable<GLine> glines
+            ) {
+                this.TopLineId = topLineId;
+                this.LineFrom = lineFrom;
+                this.LineCount = lineCount;
+                this.LinePitch = linePitch;
+                this.ColumnPitch = columnPitch;
+                this.Origin = origin;
+                this.CaretEnabled = caretEnabled;
+                this.CaretType = caretType;
+                this.CaretLineOffset = caretLineOffset;
+                this.CaretColumnIndex = caretColumnIndex;
+                this.CaretWidth = caretWidth;
+                this.GLines = glines;
+            }
         }
     }
 
