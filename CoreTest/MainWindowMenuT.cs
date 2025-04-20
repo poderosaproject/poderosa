@@ -335,6 +335,12 @@ namespace Poderosa.Forms {
             public IAdaptable GetAdapter(Type adapter) {
                 return null;
             }
+
+            public void SuspendResize() {
+            }
+
+            public void ResumeResize() {
+            }
         }
 
         #endregion
