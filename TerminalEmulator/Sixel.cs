@@ -1488,20 +1488,19 @@ namespace Poderosa.Terminal.Sixel {
         }
 
         protected override void Finish() {
-            if (_rowBuffer.Width == 0) {
-                if (!_imageAdded) {
-                    _image.Dispose();
-                    return;
-                }
+            FlushRowBuffer(false);
+
+            if (_image.Size.IsEmpty && !_imageAdded) {
+                _image.Dispose();
             }
-
-            FlushRowBuffer(true);
-            _image.Finish(); // freeze image
-            GLineZOrder z = _completed(_image.LineId, _image.ColumnIndex, _image.Size, _image.LastSixelDataRightBottom);
-            _image.SetZOrder(z); // set new z-order. the image will be affected by the subsequent update spans.
-            ForceInvalidate();
-            _manager.ReduceImages(_image);
-
+            else {
+                _image.Finish();
+                GLineZOrder z = _completed(_image.LineId, _image.ColumnIndex, _image.Size, _image.LastSixelDataRightBottom);
+                // set new z-order. the image will be affected by the subsequent updated spans.
+                _image.SetZOrder(z);
+                _manager.ReduceImages(_image);
+                ForceInvalidate();
+            }
             _rowBuffer.Dispose();
         }
 
