@@ -299,15 +299,14 @@ namespace Granados.SSH2 {
         /// <param name="reasonCode">reason code (this value is ignored on the SSH1 connection)</param>
         /// <param name="message">a message to be notified to the server</param>
         public void Disconnect(DisconnectionReasonCode reasonCode, string message) {
-            if (!this.IsOpen) {
-                return;
+            if (this.IsOpen) {
+                _syncHandler.SendDisconnect(
+                    new SSH2Packet(SSH2PacketType.SSH_MSG_DISCONNECT)
+                        .WriteInt32((int)reasonCode)
+                        .WriteString(message)
+                        .WriteString("") //language
+                );
             }
-            _syncHandler.SendDisconnect(
-                new SSH2Packet(SSH2PacketType.SSH_MSG_DISCONNECT)
-                    .WriteInt32((int)reasonCode)
-                    .WriteString(message)
-                    .WriteString("") //language
-            );
             Close();
         }
 

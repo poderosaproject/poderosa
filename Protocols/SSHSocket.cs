@@ -52,7 +52,7 @@ namespace Poderosa.Protocols {
         }
 
         public virtual void CleanupErrorStatus() {
-            if (_connection != null && _connection.IsOpen) {
+            if (_connection != null) {
                 _connection.Close();
             }
         }
@@ -61,7 +61,7 @@ namespace Poderosa.Protocols {
 
         public virtual void OnConnectionClosed() {
             OnNormalTerminationCore();
-            if (_connection != null && _connection.IsOpen) {
+            if (_connection != null) {
                 _connection.Close();
             }
         }
@@ -192,7 +192,7 @@ namespace Poderosa.Protocols {
 
         public void ForceDisposed() {
             try {
-                if (_connection != null && _connection.IsOpen) {
+                if (_connection != null) {
                     _connection.Disconnect(DisconnectionReasonCode.ByApplication, "bye");
                 }
             }
