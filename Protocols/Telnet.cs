@@ -62,6 +62,11 @@ namespace Poderosa.Protocols {
             _defaultOptionSent = false;
         }
 
+        public void SetTerminalSize(int width, int height) {
+            _width = width;
+            _height = height;
+        }
+
         public void Flush(IPoderosaSocket s) {
             if (!_defaultOptionSent) {
                 WriteDefaultOptions();

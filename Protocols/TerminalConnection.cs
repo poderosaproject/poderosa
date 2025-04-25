@@ -449,6 +449,10 @@ namespace Poderosa.Protocols {
             _callback.OnAbnormalTermination(msg);
         }
 
+        public void SetTerminalSize(int width, int height) {
+            _negotiator.SetTerminalSize(width, height);
+        }
+
         //CR NUL -> CR 変換および IACからはじまるシーケンスの処理
         private void ProcessBuffer(ByteDataFragment data) {
             int limit = data.Offset + data.Length;
@@ -488,20 +492,20 @@ namespace Poderosa.Protocols {
 
     internal class TelnetSocket : IPoderosaSocketInet, ITerminalOutput {
         private readonly IPoderosaSocketInet _socket;
-        private readonly TelnetReceiver _callback;
+        private readonly TelnetReceiver _receiver;
         private readonly TelnetTerminalConnection _parent;
         private readonly bool _telnetNewLine;
 
         public TelnetSocket(TelnetTerminalConnection parent, IPoderosaSocketInet socket, TelnetReceiver receiver, bool telnetNewLine) {
             _parent = parent;
-            _callback = receiver;
+            _receiver = receiver;
             _socket = socket;
             _telnetNewLine = telnetNewLine;
         }
 
         public void RepeatAsyncRead(IByteAsyncInputStream callback) {
-            _callback.SetReceiver(callback);
-            _socket.RepeatAsyncRead(_callback);
+            _receiver.SetReceiver(callback);
+            _socket.RepeatAsyncRead(_receiver);
         }
 
         public void Close() {
@@ -517,6 +521,8 @@ namespace Poderosa.Protocols {
                 wr.WriteTerminalSize(width, height);
                 wr.WriteTo(_socket);
             }
+            // prepare IAC DO NAWS request
+            _receiver.SetTerminalSize(width, height);
         }
 
         public void Transmit(ByteDataFragment data) {
