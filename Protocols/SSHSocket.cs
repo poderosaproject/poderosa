@@ -176,7 +176,15 @@ namespace Poderosa.Protocols {
                 throw new Exception(PEnv.Strings.GetString("Message.SSHSocket.FailedToStartShell"));
             }
 
+            SSHChannelHandler oldChannelHandler = _channelHandler;
             _channelHandler = channelHandler;
+
+            if (oldChannelHandler != null && oldChannelHandler.Operator is NullSSHChannel) {
+                uint tw, th, pw, ph;
+                if (((NullSSHChannel)oldChannelHandler.Operator).HasPendingTerminalResize(out tw, out th, out pw, out ph)) {
+                    channelHandler.Operator.ResizeTerminal(tw, th, pw, ph);
+                }
+            }
         }
 
         public void OpenKeyboardInteractiveShell() {
@@ -412,6 +420,11 @@ namespace Poderosa.Protocols {
     /// </summary>
     internal class NullSSHChannel : ISSHChannel {
 
+        private uint? _pendingResizeWidth = null;
+        private uint? _pendingResizeHeight = null;
+        private uint? _pendingResizePixelWidth = null;
+        private uint? _pendingResizePixelHeight = null;
+
         public uint LocalChannel {
             get {
                 throw new NotImplementedException();
@@ -455,6 +468,18 @@ namespace Poderosa.Protocols {
         }
 
         public void ResizeTerminal(uint width, uint height, uint pixelWidth, uint pixelHeight) {
+            _pendingResizeWidth = width;
+            _pendingResizeHeight = height;
+            _pendingResizePixelWidth = pixelWidth;
+            _pendingResizePixelHeight = pixelHeight;
+        }
+
+        public bool HasPendingTerminalResize(out uint width, out uint height, out uint pixelWidth, out uint pixelHeight) {
+            width = _pendingResizeWidth ?? 0;
+            height = _pendingResizeHeight ?? 0;
+            pixelWidth = _pendingResizePixelWidth ?? 0;
+            pixelHeight = _pendingResizePixelHeight ?? 0;
+            return _pendingResizeWidth.HasValue && _pendingResizeHeight.HasValue && _pendingResizePixelWidth.HasValue && _pendingResizePixelHeight.HasValue;
         }
 
         public bool WaitReady() {
