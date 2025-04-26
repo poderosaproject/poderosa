@@ -474,40 +474,6 @@ namespace Poderosa.Terminal.Sixel {
         }
 
         /// <summary>
-        /// Merge another <see cref="SixelBitmap"/> into this bitmap.
-        /// </summary>
-        /// <param name="underImage">another bitmap at the lower layer</param>
-        public void MergeOver(SixelBitmap underImage) {
-            lock (_sync) {
-                lock (underImage._sync) {
-                    Bitmap underBitmap = underImage._bitmap;
-                    if (underBitmap == null) {
-                        return;
-                    }
-
-                    Bitmap oldBitmap = _bitmap;
-
-                    int newWidth;
-                    int newHeight;
-                    if (oldBitmap == null) {
-                        newWidth = underBitmap.Width;
-                        newHeight = underBitmap.Height;
-                    }
-                    else {
-                        newWidth = Math.Max(underBitmap.Width, oldBitmap.Width);
-                        newHeight = Math.Max(underBitmap.Height, oldBitmap.Height);
-                    }
-
-                    _bitmap = CreateNewBitmap(newWidth, newHeight, underBitmap, null, null, oldBitmap);
-
-                    if (oldBitmap != null) {
-                        oldBitmap.Dispose();
-                    }
-                }
-            }
-        }
-
-        /// <summary>
         /// Expand or rebuild bitmap if neccessary.
         /// </summary>
         /// <param name="minWidth">minimum width</param>
@@ -824,14 +790,6 @@ namespace Poderosa.Terminal.Sixel {
         }
 
         /// <summary>
-        /// Merge another <see cref="SixelBitmap"/> into this bitmap.
-        /// </summary>
-        /// <param name="underImage">another bitmap at the lower layer</param>
-        public void MergeOver(SixelImage underImage) {
-            _bitmap.MergeOver(underImage._bitmap);
-        }
-
-        /// <summary>
         /// Move this image to the line above in the scroll region.
         /// </summary>
         /// <remarks>
@@ -942,6 +900,8 @@ namespace Poderosa.Terminal.Sixel {
                 while (_sixelImages.Count > SixelConstants.MAX_IMAGES) {
                     RemoveSixelImage(_sixelImages.First);
                 }
+
+                Debug.Print("sixel images: {0}", _sixelImages.Count);
             }
         }
 
@@ -951,13 +911,8 @@ namespace Poderosa.Terminal.Sixel {
         /// <param name="image">upper sixel image</param>
         public void ReduceImages(SixelImage image) {
             lock (_sync) {
-                // Merge images starting at the same position.
-                // If there are other overlapping images that start at other position, the Z-order may be broken.
-                // But it will work in many cases.
-
                 LinkedListNode<SixelImage> node = _sixelImages.Last;
 
-                // find node of the specified image
                 while (node != null && !Object.ReferenceEquals(node.Value, image)) {
                     node = node.Previous;
                 }
@@ -971,15 +926,14 @@ namespace Poderosa.Terminal.Sixel {
                 while (node != null) {
                     LinkedListNode<SixelImage> prevNode = node.Previous;
 
-                    SixelImage other = node.Value;
+                    SixelImage underlay = node.Value;
 
-                    if (other.LineId == image.LineId && other.ColumnIndex == image.ColumnIndex) {
-                        Size otherSize = other.Size;
+                    if (underlay.LineId == image.LineId && underlay.ColumnIndex == image.ColumnIndex) {
+                        Size underlaySize = underlay.Size;
                         Size imageSize = image.Size;
-                        if (otherSize.Width > imageSize.Width || otherSize.Height > imageSize.Height) {
-                            image.MergeOver(other);
+                        if (underlaySize.Width <= imageSize.Width && underlaySize.Height <= imageSize.Height) {
+                            RemoveSixelImage(node);
                         }
-                        RemoveSixelImage(node);
                     }
 
                     node = prevNode;
@@ -1384,7 +1338,7 @@ namespace Poderosa.Terminal.Sixel {
         private void NewLine() {
             FlushRowBuffer(true);  // flush forcibly to expand bitmap
             _image.NextRow(_pixelSize);
-            Invalidate();
+            InvalidateIfSlow();
         }
 
         private void FlushRowBuffer(bool force) {
@@ -1415,25 +1369,28 @@ namespace Poderosa.Terminal.Sixel {
                     else {
                         _image.Expand(h, v);
                     }
-                    Invalidate();
+                    InvalidateIfSlow();
                 }
             }
         }
 
-        private void Invalidate() {
+        private void EnsureRegistered() {
+            if (!_imageAdded) {
+                _manager.Add(_image);
+                _imageAdded = true;
+            }
+        }
+
+        private void InvalidateIfSlow() {
             int tc = Environment.TickCount;
             if (unchecked(tc - _lastUpdateTime) >= 500) {
+                EnsureRegistered();
                 ForceInvalidate();
                 _lastUpdateTime = tc;
             }
         }
 
         private void ForceInvalidate() {
-            if (!_imageAdded) {
-                _manager.Add(_image);
-                _imageAdded = true;
-            }
-
             Size imageSize = _image.Size;
             _document.InvalidatedRegion.InvalidateImage(_image.LineId, imageSize.Height);
         }
@@ -1498,6 +1455,7 @@ namespace Poderosa.Terminal.Sixel {
                 GLineZOrder z = _completed(_image.LineId, _image.ColumnIndex, _image.Size, _image.LastSixelDataRightBottom);
                 // set new z-order. the image will be affected by the subsequent updated spans.
                 _image.SetZOrder(z);
+                EnsureRegistered();
                 _manager.ReduceImages(_image);
                 ForceInvalidate();
             }
