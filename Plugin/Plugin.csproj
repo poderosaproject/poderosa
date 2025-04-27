@@ -75,6 +75,7 @@
     <Compile Include="PoderosaStartup.cs" />
     <Compile Include="PoderosaWorld.cs" />
     <Compile Include="PoderosaWorldEx.cs" />
+    <Compile Include="PreferencesIO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Remoting.cs" />
     <Compile Include="StringResource.cs" />

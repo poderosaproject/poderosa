@@ -60,19 +60,8 @@ namespace Poderosa.Preferences {
             Flush(); //ファイルの有無に関わらず内部のStorageNodeは更新しとく
 
             if (s.PreferenceFileName != null) {
-                string preferenceFileName = s.PreferenceFileName;
-                string tempPreferenceFileName = preferenceFileName + ".tmp";
-                string prevPreferenceFileName = preferenceFileName + ".prev";
-
                 try {
-                    using (TextWriter writer = new StreamWriter(tempPreferenceFileName, false, System.Text.Encoding.Default)) {
-                        WritePreference(writer);
-                    }
-                    if (File.Exists(preferenceFileName)) {
-                        File.Delete(prevPreferenceFileName);
-                        File.Move(preferenceFileName, prevPreferenceFileName);
-                    }
-                    File.Move(tempPreferenceFileName, preferenceFileName);
+                    PreferencesIO.WritePreferences(s.PreferenceFileName, s.Preferences);
                 }
                 catch (Exception ex) {
                     RuntimeUtil.ReportException(ex);
@@ -94,11 +83,6 @@ namespace Poderosa.Preferences {
         public void Flush() {
             foreach (PlugInHost host in _idToHosts.Values)
                 host.Flush();
-        }
-
-        public void WritePreference(TextWriter writer) {
-            IStartupContextSupplier s = (IStartupContextSupplier)_poderosaWorld.GetAdapter(typeof(IStartupContextSupplier));
-            new TextStructuredTextWriter(writer).Write(s.Preferences);
         }
 
         #region IPreferences
