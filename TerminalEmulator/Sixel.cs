@@ -1484,6 +1484,15 @@ namespace Poderosa.Terminal.Sixel {
             Debug.Assert(saturation >= 0);
             Debug.Assert(saturation <= SATURATION_MAX);
 
+            // Hue of DEC HLS is 120 degrees ahead from the standard HLS.
+            // Blue   : DEC=0   STD=240
+            // Magenta: DEC=60  STD=300
+            // Red    : DEC=120 STD=0
+            // Yellow : DEC=180 STD=60
+            // Green  : DEC=240 STD=120
+            // Cyan   : DEC=300 STD=180
+            hue = (hue + 240) % 360;
+
             if (saturation <= 0) {
                 int c = 255 * lightness / LIGHTNESS_MAX;
                 return Color.FromArgb(c, c, c);
