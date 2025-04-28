@@ -882,6 +882,7 @@ namespace Poderosa.Terminal.Sixel {
     internal class SixelImageManager {
         private readonly object _sync = new object();
         private readonly LinkedList<SixelImage> _sixelImages = new LinkedList<SixelImage>();
+        private SixelPalette _sharedPalette = null;
 
         // SixelImageManager belongs to TerminalDocument, and does not have direct access to the RenderProfile maintaining line-pitch and column-pitch.
         // To manipulate document regardless of rendering, line-pitch and column-pitch passed in ClearSpans() or Draw() are used.
@@ -890,6 +891,24 @@ namespace Poderosa.Terminal.Sixel {
 
 
         public SixelImageManager() {
+        }
+
+        /// <summary>
+        /// Get shared palette.
+        /// </summary>
+        /// <returns>shared palette</returns>
+        public SixelPalette GetSharedPalette() {
+            if (_sharedPalette == null) {
+                _sharedPalette = new SixelPalette();
+            }
+            return _sharedPalette;
+        }
+
+        /// <summary>
+        /// Reset shared palette.
+        /// </summary>
+        public void ResetSharedPalette() {
+            _sharedPalette = null;
         }
 
         /// <summary>
@@ -1126,7 +1145,7 @@ namespace Poderosa.Terminal.Sixel {
         private readonly TerminalDocument _document;
         private readonly SixelImageManager _manager;
         private readonly CompletedCallback _completed;
-        private readonly SixelPalette _palette = new SixelPalette();
+        private readonly SixelPalette _palette;
         private readonly SixelTemporalRowBuffer _rowBuffer = new SixelTemporalRowBuffer();
         private readonly SixelImage _image;
         private readonly bool _fillBackground;
@@ -1148,7 +1167,7 @@ namespace Poderosa.Terminal.Sixel {
         private int _paramValue = 0;
         private Size _pixelSize;
 
-        public SixelDCSProcessor(TerminalDocument document, RenderProfile renderProfile, SixelImageManager manager, int lineId, int columnIndex, NumericParams para, CompletedCallback completed) {
+        public SixelDCSProcessor(TerminalDocument document, RenderProfile renderProfile, SixelImageManager manager, int lineId, int columnIndex, NumericParams para, bool usePrivateColorRegisters, CompletedCallback completed) {
             int p1 = para.Get(0, -1); // pixel aspect ratio
             int p2 = para.Get(1, 0); // put background color at zero pixel
 
@@ -1179,6 +1198,7 @@ namespace Poderosa.Terminal.Sixel {
             _document = document;
             _manager = manager;
             _completed = completed;
+            _palette = usePrivateColorRegisters ? new SixelPalette() : manager.GetSharedPalette();
             ColorSpec backColorSpec = _document.CurrentDecoration.GetBackColorSpec();
             _image = new SixelImage(lineId, columnIndex);
             _lastUpdateTime = Environment.TickCount;

@@ -341,6 +341,7 @@ namespace Poderosa.Terminal {
                 _document.KeySendLocked = false;
                 _document.ForceNewLine = false;
                 _document.ShowCaret = true;
+                _document.SixelImageManager.ResetSharedPalette();
                 FullResetInternal();
                 _document.InvalidateAll();
             }

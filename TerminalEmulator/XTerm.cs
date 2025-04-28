@@ -252,6 +252,7 @@ namespace Poderosa.Terminal {
         private bool _rectangularAttributeChange = false; // mode for DECCARA and DECRARA
         private bool _sixelDisplayMode = false; // DECSDM
         private bool _sixelScrollingCursorRight = false;
+        private bool _usePrivateColorRegisters = true;
 
         private const int MOUSE_POS_LIMIT = 255 - 32;       // mouse position limit
         private const int MOUSE_POS_EXT_LIMIT = 2047 - 32;  // mouse position limit in extended mode
@@ -317,6 +318,7 @@ namespace Poderosa.Terminal {
             _rectangularAttributeChange = false;
             _sixelDisplayMode = false;
             _sixelScrollingCursorRight = false;
+            _usePrivateColorRegisters = true;
             _escapeSequenceEngine.Reset();
             DoEraseInDisplay(2 /* all */, false, true);
             MoveCursorTo(new Row(1), new Col(1));
@@ -2806,6 +2808,9 @@ namespace Poderosa.Terminal {
                         RestoreCursor();
                     }
                     break;
+                case 1070:  // Private color registers
+                    _usePrivateColorRegisters = set;
+                    break;
                 case 2004:    // Set/Reset bracketed paste mode
                     _bracketedPasteMode = set;
                     break;
@@ -2881,6 +2886,8 @@ namespace Poderosa.Terminal {
                     return _mouseTrackingProtocol == MouseTrackingProtocol.Urxvt;
                 case 1048:
                     return true;
+                case 1070:
+                    return _usePrivateColorRegisters;
                 case 2004:
                     return _bracketedPasteMode;
                 case 8452:
@@ -4035,6 +4042,7 @@ namespace Poderosa.Terminal {
                     lineId: lineId,
                     columnIndex: columnIndex,
                     para: p,
+                    usePrivateColorRegisters: _usePrivateColorRegisters,
                     completed: onCompleted
                 )
             );
