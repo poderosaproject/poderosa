@@ -87,6 +87,9 @@ namespace Poderosa.Terminal.Sixel {
             }
 
             var bm = rb.GetSixelBitmap();
+            Assert.GreaterOrEqual(bm.Width, width);
+            Assert.AreEqual(6, bm.Height);
+
             BitmapData bmData = bm.LockBits(new Rectangle(0, 0, bm.Width, bm.Height), ImageLockMode.ReadOnly, bm.PixelFormat);
             try {
                 Assert.AreEqual(expectedBitmap0.Take(width * 4).ToArray(), ToByteArray(bmData, 0));
@@ -160,6 +163,9 @@ namespace Poderosa.Terminal.Sixel {
             }
 
             var bm = rb.GetSixelBitmap();
+            Assert.GreaterOrEqual(bm.Width, width);
+            Assert.AreEqual(6, bm.Height);
+
             BitmapData bmData = bm.LockBits(new Rectangle(0, 0, bm.Width, bm.Height), ImageLockMode.ReadOnly, bm.PixelFormat);
             try {
                 Assert.AreEqual(expectedBitmap0.Take(width * 4).ToArray(), ToByteArray(bmData, 0));
@@ -172,6 +178,50 @@ namespace Poderosa.Terminal.Sixel {
             finally {
                 bm.UnlockBits(bmData);
             }
+        }
+
+        [Test]
+        public void TestWidthAndOffset() {
+            SixelTemporalRowBuffer rb = new SixelTemporalRowBuffer();
+
+            Assert.AreEqual(0, rb.Width);
+            Assert.AreEqual(0, rb.CurrentX);
+
+            rb.CarriageReturn();
+
+            Assert.AreEqual(0, rb.Width);
+            Assert.AreEqual(0, rb.CurrentX);
+
+            for (int i = 0; i < 12; i++) {
+                rb.Put(5, 1, palette);
+            }
+
+            Assert.AreEqual(12, rb.Width);
+            Assert.AreEqual(12, rb.CurrentX);
+
+            rb.CarriageReturn();
+
+            Assert.AreEqual(12, rb.Width);
+            Assert.AreEqual(0, rb.CurrentX);
+
+            for (int i = 0; i < 7; i++) {
+                rb.Put(4, 2, palette);
+            }
+
+            Assert.AreEqual(12, rb.Width);
+            Assert.AreEqual(7, rb.CurrentX);
+
+            rb.CarriageReturn();
+
+            Assert.AreEqual(12, rb.Width);
+            Assert.AreEqual(0, rb.CurrentX);
+
+            for (int i = 0; i < 15; i++) {
+                rb.Put(9, 3, palette);
+            }
+
+            Assert.AreEqual(15, rb.Width);
+            Assert.AreEqual(15, rb.CurrentX);
         }
     }
 

@@ -223,26 +223,29 @@ namespace Poderosa.Terminal.Sixel {
         /// <returns>bitmap. Do not dispose this bitmap as it will be reused later.</returns>
         public Bitmap GetSixelBitmap() {
             int rowWidth = this.Width;
-            if (_rowBitmap.Width < rowWidth) {
-                _rowBitmap.Dispose();
-                _rowBitmap = new Bitmap(rowWidth, 6, PIXELFORMAT);
-            }
 
-            BitmapData bmpData = _rowBitmap.LockBits(new Rectangle(0, 0, rowWidth, 6), ImageLockMode.WriteOnly, PIXELFORMAT);
-            IntPtr dest = bmpData.Scan0;
-            int stride = bmpData.Stride;
-            Marshal.Copy(_sixelColors0.ToArray(), 0, dest, rowWidth);
-            dest += stride;
-            Marshal.Copy(_sixelColors1.ToArray(), 0, dest, rowWidth);
-            dest += stride;
-            Marshal.Copy(_sixelColors2.ToArray(), 0, dest, rowWidth);
-            dest += stride;
-            Marshal.Copy(_sixelColors3.ToArray(), 0, dest, rowWidth);
-            dest += stride;
-            Marshal.Copy(_sixelColors4.ToArray(), 0, dest, rowWidth);
-            dest += stride;
-            Marshal.Copy(_sixelColors5.ToArray(), 0, dest, rowWidth);
-            _rowBitmap.UnlockBits(bmpData);
+            if (rowWidth > 0) {
+                if (_rowBitmap.Width < rowWidth) {
+                    _rowBitmap.Dispose();
+                    _rowBitmap = new Bitmap(rowWidth, 6, PIXELFORMAT);
+                }
+
+                BitmapData bmpData = _rowBitmap.LockBits(new Rectangle(0, 0, rowWidth, 6), ImageLockMode.WriteOnly, PIXELFORMAT);
+                IntPtr dest = bmpData.Scan0;
+                int stride = bmpData.Stride;
+                Marshal.Copy(_sixelColors0.ToArray(), 0, dest, rowWidth);
+                dest += stride;
+                Marshal.Copy(_sixelColors1.ToArray(), 0, dest, rowWidth);
+                dest += stride;
+                Marshal.Copy(_sixelColors2.ToArray(), 0, dest, rowWidth);
+                dest += stride;
+                Marshal.Copy(_sixelColors3.ToArray(), 0, dest, rowWidth);
+                dest += stride;
+                Marshal.Copy(_sixelColors4.ToArray(), 0, dest, rowWidth);
+                dest += stride;
+                Marshal.Copy(_sixelColors5.ToArray(), 0, dest, rowWidth);
+                _rowBitmap.UnlockBits(bmpData);
+            }
 
             return _rowBitmap;
         }
