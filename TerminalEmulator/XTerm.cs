@@ -2508,14 +2508,14 @@ namespace Poderosa.Terminal {
                         case 9:
                             // Strikeout: not supported
                             break;
-                        case 10:
-                            mask |= SGRStackMask.ForegroundColor;
-                            break;
-                        case 11:
-                            mask |= SGRStackMask.BackgroundColor;
-                            break;
                         case 21:
                             // Doubly underline: not supported
+                            break;
+                        case 30:
+                            mask |= SGRStackMask.ForegroundColor;
+                            break;
+                        case 31:
+                            mask |= SGRStackMask.BackgroundColor;
                             break;
                     }
                 }
