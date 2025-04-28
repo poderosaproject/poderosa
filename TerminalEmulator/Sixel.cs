@@ -1468,6 +1468,11 @@ namespace Poderosa.Terminal.Sixel {
         }
 
         protected override void Finish() {
+            if (_state != State.SIXEL_DATA_WAIT) {
+                // terminate current sixel control function
+                Input((char)0);
+            }
+            
             FlushRowBuffer(false);
 
             if (_image.Size.IsEmpty && !_imageAdded) {
