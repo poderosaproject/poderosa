@@ -42,13 +42,9 @@ namespace Poderosa.Terminal.Sixel {
         public void TestEmpty() {
             SixelTemporalRowBuffer rb = new SixelTemporalRowBuffer();
 
-            var bm = rb.GetBitmapData(palette);
-            Assert.AreEqual(0, bm.Line0.Length);
-            Assert.AreEqual(0, bm.Line1.Length);
-            Assert.AreEqual(0, bm.Line2.Length);
-            Assert.AreEqual(0, bm.Line3.Length);
-            Assert.AreEqual(0, bm.Line4.Length);
-            Assert.AreEqual(0, bm.Line5.Length);
+            var bm = rb.GetSixelBitmap();
+            Assert.GreaterOrEqual(bm.Width, 0);
+            Assert.AreEqual(6, bm.Height);
         }
 
         [Test]
@@ -90,21 +86,26 @@ namespace Poderosa.Terminal.Sixel {
                 rb.Put(patterns[i], colors[i], palette);
             }
 
-            var bm = rb.GetBitmapData(palette);
-            Assert.AreEqual(expectedBitmap0.Take(width * 4).ToArray(), ToByteArray(bm.Line0));
-            Assert.AreEqual(expectedBitmap1.Take(width * 4).ToArray(), ToByteArray(bm.Line1));
-            Assert.AreEqual(expectedBitmap2.Take(width * 4).ToArray(), ToByteArray(bm.Line2));
-            Assert.AreEqual(expectedBitmap3.Take(width * 4).ToArray(), ToByteArray(bm.Line3));
-            Assert.AreEqual(expectedBitmap4.Take(width * 4).ToArray(), ToByteArray(bm.Line4));
-            Assert.AreEqual(expectedBitmap5.Take(width * 4).ToArray(), ToByteArray(bm.Line5));
+            var bm = rb.GetSixelBitmap();
+            BitmapData bmData = bm.LockBits(new Rectangle(0, 0, bm.Width, bm.Height), ImageLockMode.ReadOnly, bm.PixelFormat);
+            try {
+                Assert.AreEqual(expectedBitmap0.Take(width * 4).ToArray(), ToByteArray(bmData, 0));
+                Assert.AreEqual(expectedBitmap1.Take(width * 4).ToArray(), ToByteArray(bmData, 1));
+                Assert.AreEqual(expectedBitmap2.Take(width * 4).ToArray(), ToByteArray(bmData, 2));
+                Assert.AreEqual(expectedBitmap3.Take(width * 4).ToArray(), ToByteArray(bmData, 3));
+                Assert.AreEqual(expectedBitmap4.Take(width * 4).ToArray(), ToByteArray(bmData, 4));
+                Assert.AreEqual(expectedBitmap5.Take(width * 4).ToArray(), ToByteArray(bmData, 5));
+            }
+            finally {
+                bm.UnlockBits(bmData);
+            }
         }
 
-        private byte[] ToByteArray(int[] orig) {
-            byte[] newArray = new byte[orig.Length * 4];
-            Buffer.BlockCopy(orig, 0, newArray, 0, orig.Length * 4);
+        private byte[] ToByteArray(BitmapData bmData, int y) {
+            byte[] newArray = new byte[bmData.Width * 4];
+            Marshal.Copy(bmData.Scan0 + bmData.Stride * y, newArray, 0, newArray.Length);
             return newArray;
         }
-
 
         [Test]
         [TestCase(1)]
@@ -158,13 +159,19 @@ namespace Poderosa.Terminal.Sixel {
                 rb.Put(patternsPass3[i], colorsPass3[i], palette);
             }
 
-            var bm = rb.GetBitmapData(palette);
-            Assert.AreEqual(expectedBitmap0.Take(width * 4).ToArray(), ToByteArray(bm.Line0));
-            Assert.AreEqual(expectedBitmap1.Take(width * 4).ToArray(), ToByteArray(bm.Line1));
-            Assert.AreEqual(expectedBitmap2.Take(width * 4).ToArray(), ToByteArray(bm.Line2));
-            Assert.AreEqual(expectedBitmap3.Take(width * 4).ToArray(), ToByteArray(bm.Line3));
-            Assert.AreEqual(expectedBitmap4.Take(width * 4).ToArray(), ToByteArray(bm.Line4));
-            Assert.AreEqual(expectedBitmap5.Take(width * 4).ToArray(), ToByteArray(bm.Line5));
+            var bm = rb.GetSixelBitmap();
+            BitmapData bmData = bm.LockBits(new Rectangle(0, 0, bm.Width, bm.Height), ImageLockMode.ReadOnly, bm.PixelFormat);
+            try {
+                Assert.AreEqual(expectedBitmap0.Take(width * 4).ToArray(), ToByteArray(bmData, 0));
+                Assert.AreEqual(expectedBitmap1.Take(width * 4).ToArray(), ToByteArray(bmData, 1));
+                Assert.AreEqual(expectedBitmap2.Take(width * 4).ToArray(), ToByteArray(bmData, 2));
+                Assert.AreEqual(expectedBitmap3.Take(width * 4).ToArray(), ToByteArray(bmData, 3));
+                Assert.AreEqual(expectedBitmap4.Take(width * 4).ToArray(), ToByteArray(bmData, 4));
+                Assert.AreEqual(expectedBitmap5.Take(width * 4).ToArray(), ToByteArray(bmData, 5));
+            }
+            finally {
+                bm.UnlockBits(bmData);
+            }
         }
     }
 
