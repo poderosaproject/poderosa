@@ -559,7 +559,7 @@ namespace Poderosa.Sessions {
 
         protected override void ClearConnectingState() {
             base.ClearConnectingState();
-            this.Text = TEnv.Strings.GetString("Form.CygwinLoginDialog.Text");
+            this.Text = TEnv.Strings.GetString("Form.CygwinLoginDialog.TextCygwin");
             _connector = null;
         }
 

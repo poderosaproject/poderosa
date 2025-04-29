@@ -232,5 +232,10 @@ namespace Poderosa.Sessions {
             }
         }
 
+        protected override void OnClosing(CancelEventArgs e) {
+            if (this.IsConnecting) {
+                e.Cancel = true;
+            }
+        }
     }
 }
