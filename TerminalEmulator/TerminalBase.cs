@@ -118,7 +118,7 @@ namespace Poderosa.Terminal {
             _lineContinuationMode = _session.TerminalSettings.LineContinuationMode;
             _manipulator = new GLineManipulator(_document.GLineZOrderManager);
             _scrollBarValues = new ScrollBarValues();
-            _logService = new LogService(info.TerminalParameter, _session.TerminalSettings);
+            _logService = new LogService(GEnv.Options, info.TerminalParameter, _session.TerminalSettings);
             _promptRecognizer = new PromptRecognizer(this);
             _intelliSense = new IntelliSense(this);
             _commandResultRecognizer = new PopupStyleCommandResultRecognizer(this);

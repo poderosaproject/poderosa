@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using System.Threading;
 
@@ -27,6 +28,7 @@ using Poderosa.Util;
 using Poderosa.ConnectionParam;
 
 namespace Poderosa.Terminal {
+
     internal abstract class LoggerBase {
         private readonly ISimpleLogSettings _logSetting;
         private int _writeNumber = 0;
@@ -207,136 +209,197 @@ namespace Poderosa.Terminal {
         }
     }
 
-    //複数のログを取るための分岐
-    internal class BinaryLoggerList : ListenerList<IBinaryLogger>, IBinaryLogger {
-        public void Write(ByteDataFragment data) {
-            if (this.IsEmpty)
-                return;
+    internal interface INullLogger {
+    }
 
-            foreach (IBinaryLogger logger in this) {
+    internal class NullBinaryLogger : INullLogger, IBinaryLogger {
+        public void Write(ByteDataFragment data) {
+        }
+
+        public void Close() {
+        }
+
+        public void Flush() {
+        }
+
+        public void AutoFlush() {
+        }
+    }
+
+    internal class NullTextLogger : INullLogger, ITextLogger {
+        public void WriteLine(GLine line) {
+        }
+
+        public void Comment(string comment) {
+        }
+
+        public void Close() {
+        }
+
+        public void Flush() {
+        }
+
+        public void AutoFlush() {
+        }
+    }
+
+    internal class NullXmlLogger : INullLogger, IXmlLogger {
+        public void Write(char ch) {
+        }
+
+        public void EscapeSequence(char[] body) {
+        }
+
+        public void Comment(string comment) {
+        }
+
+        public void Close() {
+        }
+
+        public void Flush() {
+        }
+
+        public void AutoFlush() {
+        }
+    }
+
+    internal interface ILoggerList<ILoggerT> {
+        IEnumerable<ILoggerT> Loggers {
+            get;
+        }
+    }
+
+    internal class BinaryLoggerList : ILoggerList<IBinaryLogger>, IBinaryLogger {
+
+        private readonly IBinaryLogger[] _loggers;
+
+        public BinaryLoggerList(IBinaryLogger[] loggers) {
+            _loggers = loggers;
+        }
+
+        public IEnumerable<IBinaryLogger> Loggers {
+            get {
+                return _loggers;
+            }
+        }
+
+        public void Write(ByteDataFragment data) {
+            foreach (IBinaryLogger logger in _loggers) {
                 logger.Write(data);
             }
         }
 
         public void Close() {
-            if (this.IsEmpty)
-                return;
-
-            foreach (IBinaryLogger logger in this) {
+            foreach (IBinaryLogger logger in _loggers) {
                 logger.Close();
             }
-            base.Clear();
         }
 
         public void Flush() {
-            if (this.IsEmpty)
-                return;
-
-            foreach (IBinaryLogger logger in this) {
+            foreach (IBinaryLogger logger in _loggers) {
                 logger.Flush();
             }
         }
 
         public void AutoFlush() {
-            if (this.IsEmpty)
-                return;
-
-            foreach (IBinaryLogger logger in this) {
+            foreach (IBinaryLogger logger in _loggers) {
                 logger.AutoFlush();
             }
         }
+
     }
 
-    internal class TextLoggerList : ListenerList<ITextLogger>, ITextLogger {
+    internal class TextLoggerList : ILoggerList<ITextLogger>, ITextLogger {
+
+        private readonly ITextLogger[] _loggers;
+
+        public TextLoggerList(ITextLogger[] loggers) {
+            _loggers = loggers;
+        }
+
+        public IEnumerable<ITextLogger> Loggers {
+            get {
+                return _loggers;
+            }
+        }
+
         public void WriteLine(GLine line) {
-            if (this.IsEmpty)
-                return;
-            foreach (ITextLogger logger in this) {
+            foreach (ITextLogger logger in _loggers) {
                 logger.WriteLine(line);
             }
         }
 
         public void Comment(string comment) {
-            if (this.IsEmpty)
-                return;
-            foreach (ITextLogger logger in this) {
+            foreach (ITextLogger logger in _loggers) {
                 logger.Comment(comment);
             }
         }
 
         public void Close() {
-            if (this.IsEmpty)
-                return;
-            foreach (ITextLogger logger in this) {
+            foreach (ITextLogger logger in _loggers) {
                 logger.Close();
             }
-            base.Clear();
         }
 
         public void Flush() {
-            if (this.IsEmpty)
-                return;
-            foreach (ITextLogger logger in this) {
+            foreach (ITextLogger logger in _loggers) {
                 logger.Flush();
             }
         }
 
         public void AutoFlush() {
-            if (this.IsEmpty)
-                return;
-            foreach (ITextLogger logger in this) {
+            foreach (ITextLogger logger in _loggers) {
                 logger.AutoFlush();
             }
         }
     }
 
-    internal class XmlLoggerList : ListenerList<IXmlLogger>, IXmlLogger {
+    internal class XmlLoggerList : ILoggerList<IXmlLogger>, IXmlLogger {
+
+        private readonly IXmlLogger[] _loggers;
+
+        public XmlLoggerList(IXmlLogger[] loggers) {
+            _loggers = loggers;
+        }
+
+        public IEnumerable<IXmlLogger> Loggers {
+            get {
+                return _loggers;
+            }
+        }
 
         public void Write(char ch) {
-            if (this.IsEmpty)
-                return;
-            foreach (IXmlLogger logger in this) {
+            foreach (IXmlLogger logger in _loggers) {
                 logger.Write(ch);
             }
         }
 
         public void EscapeSequence(char[] body) {
-            if (this.IsEmpty)
-                return;
-            foreach (IXmlLogger logger in this) {
+            foreach (IXmlLogger logger in _loggers) {
                 logger.EscapeSequence(body);
             }
         }
 
         public void Comment(string comment) {
-            if (this.IsEmpty)
-                return;
-            foreach (IXmlLogger logger in this) {
+            foreach (IXmlLogger logger in _loggers) {
                 logger.Comment(comment);
             }
         }
 
         public void Close() {
-            if (this.IsEmpty)
-                return;
-            foreach (IXmlLogger logger in this) {
+            foreach (IXmlLogger logger in _loggers) {
                 logger.Close();
             }
-            base.Clear();
         }
 
         public void Flush() {
-            if (this.IsEmpty)
-                return;
-            foreach (IXmlLogger logger in this) {
+            foreach (IXmlLogger logger in _loggers) {
                 logger.Flush();
             }
         }
 
         public void AutoFlush() {
-            if (this.IsEmpty)
-                return;
-            foreach (IXmlLogger logger in this) {
+            foreach (IXmlLogger logger in _loggers) {
                 logger.AutoFlush();
             }
         }
@@ -344,108 +407,190 @@ namespace Poderosa.Terminal {
 
     //ログに関する機能のまとめクラス
     internal class LogService : ILogService {
-        private BinaryLoggerList _binaryLoggers;
-        private TextLoggerList _textLoggers;
-        private XmlLoggerList _xmlLoggers;
+        private IBinaryLogger _binaryLogger;
+        private ITextLogger _textLogger;
+        private IXmlLogger _xmlLogger;
 
         private Thread _autoFlushThread = null;
         private readonly object _autoFlushSync = new object();
 
         private const int AUTOFLUSH_CHECK_INTERVAL = 1000;
 
-        public LogService(ITerminalParameter param, ITerminalSettings settings) {
-            _binaryLoggers = new BinaryLoggerList();
-            _textLoggers = new TextLoggerList();
-            _xmlLoggers = new XmlLoggerList();
-            ITerminalEmulatorOptions opt = GEnv.Options;
-            if (opt.DefaultLogType != LogType.None)
-                ApplySimpleLogSetting(new SimpleLogSettings(opt.DefaultLogType, CreateAutoLogFileName(opt, param, settings)));
-        }
-        public void AddBinaryLogger(IBinaryLogger logger) {
-            lock (_autoFlushSync) { // pause auto flush while adding a new logger
-                _binaryLoggers.Add(logger);
+        public LogService(ITerminalEmulatorOptions options, ITerminalParameter param, ITerminalSettings settings) {
+            _binaryLogger = new NullBinaryLogger();
+            _textLogger = new NullTextLogger();
+            _xmlLogger = new NullXmlLogger();
+            if (options.DefaultLogType != LogType.None) {
+                ApplySimpleLogSetting(new SimpleLogSettings(options.DefaultLogType, CreateAutoLogFileName(options, param, settings)));
             }
-            StartAutoFlushThread();
+        }
+
+#if UNITTEST
+        internal LogService() {
+            _binaryLogger = new NullBinaryLogger();
+            _textLogger = new NullTextLogger();
+            _xmlLogger = new NullXmlLogger();
+        }
+#endif
+
+        public void AddBinaryLogger(IBinaryLogger logger) {
+            AddLogger<IBinaryLogger>(ref _binaryLogger, logger, CreateLoggerList);
         }
         public void RemoveBinaryLogger(IBinaryLogger logger) {
-            lock (_autoFlushSync) { // pause auto flush while removing a logger
-                _binaryLoggers.Remove(logger);
-            }
+            RemoveLogger<IBinaryLogger, NullBinaryLogger>(ref _binaryLogger, logger, CreateLoggerList);
+            logger.Flush();
         }
         public void AddTextLogger(ITextLogger logger) {
-            lock (_autoFlushSync) { // pause auto flush while adding a new logger
-                _textLoggers.Add(logger);
-            }
-            StartAutoFlushThread();
+            AddLogger<ITextLogger>(ref _textLogger, logger, CreateLoggerList);
         }
         public void RemoveTextLogger(ITextLogger logger) {
-            lock (_autoFlushSync) { // pause auto flush while removing a logger
-                _textLoggers.Remove(logger);
-            }
+            RemoveLogger<ITextLogger, NullTextLogger>(ref _textLogger, logger, CreateLoggerList);
+            logger.Flush();
         }
         public void AddXmlLogger(IXmlLogger logger) {
-            lock (_autoFlushSync) { // pause auto flush while adding a new logger
-                _xmlLoggers.Add(logger);
-            }
-            StartAutoFlushThread();
+            AddLogger<IXmlLogger>(ref _xmlLogger, logger, CreateLoggerList);
         }
         public void RemoveXmlLogger(IXmlLogger logger) {
-            lock (_autoFlushSync) { // pause auto flush while removing a logger
-                _xmlLoggers.Remove(logger);
+            RemoveLogger<IXmlLogger, NullXmlLogger>(ref _xmlLogger, logger, CreateLoggerList);
+            logger.Flush();
+        }
+
+        private void AddLogger<ILoggerT>(ref ILoggerT target, ILoggerT logger, Func<ILoggerT[], ILoggerT> createList)
+            where ILoggerT : class {
+
+            lock (_autoFlushSync) { // pause auto flush while adding a new logger
+                ILoggerT currentLogger = Volatile.Read(ref target);
+                if (currentLogger == null || currentLogger is INullLogger) {
+                    Volatile.Write(ref target, logger);
+                }
+                else if (currentLogger is ILoggerList<ILoggerT>) {
+                    ILoggerT newLogger = createList(MakeLoggerArray(((ILoggerList<ILoggerT>)currentLogger).Loggers, logger));
+                    Volatile.Write(ref target, newLogger);
+                }
+                else {
+                    ILoggerT newLogger = createList(new ILoggerT[] { currentLogger, logger });
+                    Volatile.Write(ref target, newLogger);
+                }
             }
+
+            StartAutoFlushThread();
+        }
+
+        private ILoggerT[] MakeLoggerArray<ILoggerT>(IEnumerable<ILoggerT> loggers, ILoggerT logger) {
+            List<ILoggerT> list = new List<ILoggerT>(loggers);
+            list.Add(logger);
+            return list.ToArray();
+        }
+
+        private void RemoveLogger<ILoggerT, NullT>(ref ILoggerT target, ILoggerT logger, Func<ILoggerT[], ILoggerT> createList)
+            where ILoggerT : class
+            where NullT : INullLogger, ILoggerT, new() {
+
+            lock (_autoFlushSync) { // pause auto flush while adding a new logger
+                ILoggerT currentLogger = Volatile.Read(ref target);
+                if (currentLogger is ILoggerList<ILoggerT>) {
+                    ILoggerT[] loggers = ((ILoggerList<ILoggerT>)currentLogger).Loggers.Where(l => !Object.ReferenceEquals(l, logger)).ToArray();
+                    ILoggerT newLogger;
+                    if (loggers.Length == 0) {
+                        newLogger = new NullT();
+                    }
+                    else if (loggers.Length == 1) {
+                        newLogger = loggers[0];
+                    }
+                    else {
+                        newLogger = createList(loggers);
+                    }
+                    Volatile.Write(ref target, newLogger);
+                }
+                else if (Object.ReferenceEquals(currentLogger, logger)) {
+                    Volatile.Write(ref target, new NullT());
+                }
+            }
+
+            StartAutoFlushThread();
+        }
+
+        private static BinaryLoggerList CreateLoggerList(IBinaryLogger[] loggers) {
+            return new BinaryLoggerList(loggers);
+        }
+
+        private static TextLoggerList CreateLoggerList(ITextLogger[] loggers) {
+            return new TextLoggerList(loggers);
+        }
+
+        private static XmlLoggerList CreateLoggerList(IXmlLogger[] loggers) {
+            return new XmlLoggerList(loggers);
         }
 
         //以下はAbstractTerminalから
         public IBinaryLogger BinaryLogger {
             get {
-                return _binaryLoggers;
+                return _binaryLogger;
             }
         }
         public ITextLogger TextLogger {
             get {
-                return _textLoggers;
+                return _textLogger;
             }
         }
         public IXmlLogger XmlLogger {
             get {
-                return _xmlLoggers;
+                return _xmlLogger;
             }
         }
 
         public bool HasBinaryLogger {
             get {
-                return !_binaryLoggers.IsEmpty;
+                return HasLogger<IBinaryLogger>(ref _binaryLogger);
             }
         }
         public bool HasTextLogger {
             get {
-                return !_textLoggers.IsEmpty;
+                return HasLogger<ITextLogger>(ref _textLogger);
             }
         }
         public bool HasXmlLogger {
             get {
-                return !_xmlLoggers.IsEmpty;
+                return HasLogger<IXmlLogger>(ref _xmlLogger);
             }
         }
 
+        private bool HasLogger<ILoggerT>(ref ILoggerT target)
+            where ILoggerT : class {
+
+            ILoggerT currentLogger = Volatile.Read(ref target);
+            if (currentLogger == null || currentLogger is INullLogger) {
+                return false;
+            }
+            return true;
+        }
+
         public void Flush() {
-            _binaryLoggers.Flush();
-            _textLoggers.Flush();
-            _xmlLoggers.Flush();
+            _binaryLogger.Flush();
+            _textLogger.Flush();
+            _xmlLogger.Flush();
         }
         public void Close(GLine lastLine) {
-            _textLoggers.WriteLine(lastLine); //TextLogは改行ごとであるから、Close時に最終行を書き込むようにする
+            _textLogger.WriteLine(lastLine); //TextLogは改行ごとであるから、Close時に最終行を書き込むようにする
             StopAutoFlushThread();
             InternalClose();
         }
         private void InternalClose() {
-            _binaryLoggers.Close();
-            _textLoggers.Close();
-            _xmlLoggers.Close();
+            IBinaryLogger binaryLogger = _binaryLogger;
+            Volatile.Write(ref _binaryLogger, new NullBinaryLogger());
+            binaryLogger.Close();
+
+            ITextLogger textLogger = _textLogger;
+            Volatile.Write(ref _textLogger, new NullTextLogger());
+            textLogger.Close();
+
+            IXmlLogger xmlLogger = _xmlLogger;
+            Volatile.Write(ref _xmlLogger, new NullXmlLogger());
+            xmlLogger.Close();
         }
         public void Comment(string comment) {
-            _textLoggers.Comment(comment);
-            _xmlLoggers.Comment(comment);
+            _textLogger.Comment(comment);
+            _xmlLogger.Comment(comment);
         }
 
         public void ApplyLogSettings(ILogSettings settings, bool clear_previous) {
@@ -549,9 +694,9 @@ namespace Poderosa.Terminal {
         private void AutoFlushThread() {
             lock (_autoFlushSync) {
                 while (true) {
-                    _binaryLoggers.AutoFlush();
-                    _textLoggers.AutoFlush();
-                    _xmlLoggers.AutoFlush();
+                    _binaryLogger.AutoFlush();
+                    _textLogger.AutoFlush();
+                    _xmlLogger.AutoFlush();
 
                     bool signaled = Monitor.Wait(_autoFlushSync, AUTOFLUSH_CHECK_INTERVAL);
                     if (signaled)
