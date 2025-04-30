@@ -1440,8 +1440,13 @@ namespace Poderosa.Terminal.EscapeSequence {
                 }
 
                 // abort current escape sequence
-                _incompleteHandler(_context);
-                ResetState();
+                //
+                // The control string may be aborted by ESC, and it is not illegal.
+                // In such cases, the escape sequence should not be handled as an "incomplete" sequence.
+                if (!(_currentState is IgnoreControlStringState && ch == ControlCode.ESC)) {
+                    _incompleteHandler(_context);
+                }
+                ResetState(); // _currentState is also reset here
 
                 // restart
                 nextState = _currentState.Accept(_context, ch);
