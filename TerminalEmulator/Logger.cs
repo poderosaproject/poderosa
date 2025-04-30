@@ -109,9 +109,9 @@ namespace Poderosa.Terminal {
         private bool _continued = false;
         private bool _closed = false;
 
-        public DefaultLogger(ISimpleLogSettings log, StreamWriter w, bool withTimestamp)
+        public DefaultLogger(ISimpleLogSettings log, Stream stream, bool withTimestamp)
             : base(log) {
-            _writer = w;
+            _writer = new StreamWriter(stream, Encoding.UTF8); // BOM is inserted automatically
             _withTimestamp = withTimestamp;
             if (withTimestamp)
                 _timestampBuffer = new char[26];  // "YYYY-MM-DD hh:mm:ss,nnn - "
@@ -624,10 +624,10 @@ namespace Poderosa.Terminal {
                 case LogType.Default:
                 case LogType.PlainTextWithTimestamp:
                     bool withTimestamp = (sl.LogType == LogType.PlainTextWithTimestamp);
-                    AddTextLogger(new DefaultLogger(loginfo, new StreamWriter(fs, Encoding.Default), withTimestamp));
+                    AddTextLogger(new DefaultLogger(loginfo, fs, withTimestamp));
                     break;
                 case LogType.Xml:
-                    AddXmlLogger(new XmlLogger(loginfo, new StreamWriter(fs, Encoding.Default)));
+                    AddXmlLogger(new XmlLogger(loginfo, fs));
                     break;
             }
         }

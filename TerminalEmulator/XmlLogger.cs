@@ -36,9 +36,9 @@ namespace Poderosa.Terminal {
         private readonly char[] _buffer;
         private bool _closed = false;
 
-        public XmlLogger(ISimpleLogSettings log, StreamWriter w)
+        public XmlLogger(ISimpleLogSettings log, Stream stream)
             : base(log) {
-            _writer = new XmlTextWriter(w);
+            _writer = new XmlTextWriter(stream, Encoding.UTF8); // BOM is inserted automatically
             _writer.WriteStartDocument();
             _writer.WriteStartElement("terminal-log");
 
