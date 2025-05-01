@@ -511,13 +511,32 @@ namespace Poderosa.Terminal.EscapeSequence {
                 private set;
             }
 
-            public FinalState(Action<object, Context> action) {
+            public bool IsConsuming {
+                get;
+                private set;
+            }
+
+            public FinalState(Action<object, Context> action)
+                : this(action, true) {
+            }
+
+            protected FinalState(Action<object, Context> action, bool consuming) {
                 Action = action;
                 Id = _nextStateId++;
+                IsConsuming = consuming;
             }
 
             public IState Accept(Context context, char ch) {
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Final state without consuming input char
+        /// </summary>
+        internal class NonConsumingFinalState : FinalState {
+            public NonConsumingFinalState(Action<object, Context> action)
+                : base(action, false) {
             }
         }
 
@@ -913,6 +932,12 @@ namespace Poderosa.Terminal.EscapeSequence {
 #endif
                 });
 
+                NonConsumingFinalState nonConsumingFinalState = new NonConsumingFinalState((obj, context) => {
+#if DEBUG
+                    System.Diagnostics.Debug.WriteLine("Ignore " + introducer + " without consuming last character");
+#endif
+                });
+
                 IgnoreControlStringState s = new IgnoreControlStringState();
 
                 for (int c = 0x08; c <= 0x0d; c++) {
@@ -934,16 +959,13 @@ namespace Poderosa.Terminal.EscapeSequence {
                 //  Formally, ST(0x9c) or ESC-backslash terminates the control string.
                 //  However, in this implementation, ST is treated as a normal character to accept Unicode characters.
                 //  In addition, it is recommended to terminate the control string with ESC for backward compatibility.
+                s.RegisterState(ControlCode.ESC, nonConsumingFinalState);
 
                 return s;
             }
 
             public override IState Accept(Context context, char ch) {
                 // control string can be very long, so data is not stored in the buffer
-
-                if (ch == ControlCode.ESC) {
-                    return null;
-                }
 
                 if (ch >= 0x80 && ch <= 0xf4) {
                     // accept as UTF-8 data
@@ -1345,8 +1367,9 @@ namespace Poderosa.Terminal.EscapeSequence {
         /// </summary>
         /// <param name="instance">instance of <typeparamref name="T"/></param>
         /// <param name="ch">input</param>
+        /// <param name="noRecursive">if true, recursive processing of <paramref name="ch"/> is not allowed</param>
         /// <returns>true if <paramref name="ch"/> was handled. otherwise false.</returns>
-        public bool Process(T instance, char ch) {
+        public bool Process(T instance, char ch, bool noRecursive = false) {
             if (_dcsProcessor != null) {
                 DCSProcessCharResult dcsResult = _dcsProcessor.ProcessChar(ch);
                 switch (dcsResult) {
@@ -1440,16 +1463,11 @@ namespace Poderosa.Terminal.EscapeSequence {
                 }
 
                 // abort current escape sequence
-                //
-                // The control string may be aborted by ESC, and it is not illegal.
-                // In such cases, the escape sequence should not be handled as an "incomplete" sequence.
-                if (!(_currentState is IgnoreControlStringState && ch == ControlCode.ESC)) {
-                    _incompleteHandler(_context);
-                }
+                _incompleteHandler(_context);
                 ResetState(); // _currentState is also reset here
 
                 // restart
-                nextState = _currentState.Accept(_context, ch);
+                nextState = Volatile.Read(ref _currentState).Accept(_context, ch);
                 if (nextState == null) {
                     return false; // not handled
                 }
@@ -1465,6 +1483,10 @@ namespace Poderosa.Terminal.EscapeSequence {
             CallAction(instance, _context, final);
 
             ResetState();
+
+            if (!noRecursive && !final.IsConsuming) {
+                return Process(instance, ch, true);
+            }
             return true; // handled
         }
 
