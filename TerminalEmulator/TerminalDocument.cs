@@ -191,6 +191,7 @@ namespace Poderosa.Terminal {
         }
 
         private readonly Sixel.SixelImageManager _sixelImageManager = new Sixel.SixelImageManager();
+        private readonly LogService _logServide;
         private TextDecoration _currentDecoration = TextDecoration.Default;
         private int _caretColumn;
         private bool _wrapPending;
@@ -200,7 +201,12 @@ namespace Poderosa.Terminal {
         private GLine _viewTopLine; // top of the view
         private GLine _currentLine;
 
-        internal TerminalDocument(int width, int height) {
+        internal TerminalDocument(int width, int height)
+            : this(width, height, new LogService()) {
+        }
+
+        internal TerminalDocument(int width, int height, LogService logService) {
+            _logServide = logService;
             _geom = new ScreenGeometry(
                     width: width,
                     height: height,
@@ -1006,13 +1012,13 @@ namespace Poderosa.Terminal {
             }
         }
 
-        public GLine UpdateCurrentLine(GLineManipulator manipulator) {
+        public void UpdateCurrentLine(GLineManipulator manipulator) {
             GLine line = _currentLine;
             if (line != null) {
                 manipulator.ExportTo(line);
                 _invalidatedRegion.InvalidateLine(line.ID);
+                _logServide.TextLogger.WriteLine(line);
             }
-            return line;
         }
 
         private GLine CreateErasedGLine() {

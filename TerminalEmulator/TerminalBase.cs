@@ -115,7 +115,7 @@ namespace Poderosa.Terminal {
                 _logService.ApplyLogSettings(info.Session.TerminalSettings.LogSettings, false);
             }
 
-            _document = new TerminalDocument(info.InitialWidth, info.InitialHeight);
+            _document = new TerminalDocument(info.InitialWidth, info.InitialHeight, _logService);
             _document.SetOwner(_session.ISession);
             _afterExitLockActions = new ConcurrentQueue<AfterExitLockDelegate>();
 

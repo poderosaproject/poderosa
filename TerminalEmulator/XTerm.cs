@@ -671,10 +671,7 @@ namespace Poderosa.Terminal {
 
         private void ContinueToNextLine() {
             _manipulator.EOLType = EOLType.Continue;
-            GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
-            if (lineUpdated != null) {
-                this.LogService.TextLogger.WriteLine(lineUpdated);
-            }
+            Document.UpdateCurrentLine(_manipulator);
             Document.LineFeed();
             _manipulator.Load(Document.CurrentLine);
             Document.CaretColumn = Document.LeftMarginOffset;
@@ -843,10 +840,7 @@ namespace Poderosa.Terminal {
 
         private void DoLineFeed() {
             _manipulator.EOLType = (_manipulator.EOLType == EOLType.CR || _manipulator.EOLType == EOLType.CRLF) ? EOLType.CRLF : EOLType.LF;
-            GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
-            if (lineUpdated != null) {
-                this.LogService.TextLogger.WriteLine(lineUpdated);
-            }
+            Document.UpdateCurrentLine(_manipulator);
             Document.LineFeed();
 
             _manipulator.Load(Document.CurrentLine);
@@ -1308,10 +1302,7 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'A')] // CUU
         private void ProcessCursorUp(NumericParams p) {
             int count = p.GetNonZero(0, 1);
-            GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
-            if (lineUpdated != null) {
-                this.LogService.TextLogger.WriteLine(lineUpdated);
-            }
+            Document.UpdateCurrentLine(_manipulator);
             int scrollingTop = Document.ScrollingTopLineNumber;
             if (Document.CurrentLineNumber >= scrollingTop) {
                 Document.CurrentLineNumber = Math.Max(Document.CurrentLineNumber - count, scrollingTop);
@@ -1325,10 +1316,7 @@ namespace Poderosa.Terminal {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'B')] // CUD
         private void ProcessCursorDown(NumericParams p) {
             int count = p.GetNonZero(0, 1);
-            GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
-            if (lineUpdated != null) {
-                this.LogService.TextLogger.WriteLine(lineUpdated);
-            }
+            Document.UpdateCurrentLine(_manipulator);
             int scrollingBottom = Document.ScrollingBottomLineNumber;
             if (Document.CurrentLineNumber <= scrollingBottom) {
                 Document.CurrentLineNumber = Math.Min(Document.CurrentLineNumber + count, scrollingBottom);
@@ -1398,10 +1386,7 @@ namespace Poderosa.Terminal {
         private void MoveCursorTo(Row row, Col col) {
             int nextLineNumber = Document.TopLineNumber + row.Value - 1;
             if (Document.CurrentLineNumber != nextLineNumber) {
-                GLine lineUpdated = Document.UpdateCurrentLine(_manipulator);
-                if (lineUpdated != null) {
-                    this.LogService.TextLogger.WriteLine(lineUpdated);
-                }
+                Document.UpdateCurrentLine(_manipulator);
                 Document.CurrentLineNumber = nextLineNumber;
                 _manipulator.Load(Document.CurrentLine);
             }
@@ -3613,6 +3598,7 @@ namespace Poderosa.Terminal {
             int m = Document.TerminalHeight;
             GLine t = Document.TopLine;
             foreach (GLine l in _savedScreen[sw]) {
+                this.LogService.TextLogger.ForceWriteLine(l);
                 l.ExpandBuffer(w);
                 if (t == null)
                     Document.AddLine(l);

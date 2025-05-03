@@ -102,12 +102,25 @@ namespace Poderosa.Terminal {
 
     internal class TextLogger : LoggerBase, ITextLogger {
 
+        private const int INVALID_LINE_ID = Int32.MinValue;
+
+        private enum Continuity {
+            None,
+            ContinueNormal,
+            ContinueForced,
+        }
+
         private readonly StreamWriter _writer;
         private readonly bool _withTimestamp;
         private readonly char[] _timestampBuffer;
         private readonly object _sync = new object();
-        private bool _continued = false;
+        private Continuity _continuity = Continuity.None;
         private bool _closed = false;
+        private int _logLineId = INVALID_LINE_ID;
+        private DateTime _logLineTimestamp = DateTime.MinValue;
+        private bool _logLineContinued = false;
+        private char[] _logLineBuffer = new char[0];
+        private int _logLineLength = 0;
 
         public TextLogger(ISimpleLogSettings log, Stream stream, bool withTimestamp)
             : base(log) {
@@ -120,23 +133,91 @@ namespace Poderosa.Terminal {
         }
 
         public void WriteLine(GLine line) {
-            lock (_sync) {
-                if (_closed)
-                    return;
+            WriteLine(line, false);
+        }
 
-                if (_withTimestamp && !_continued)
-                    WriteTimestamp();
-                line.WriteTo((buff, len) => _writer.Write(buff, 0, len));
-                if (line.EOLType == EOLType.Continue) {
-                    _continued = true;
+        public void ForceWriteLine(GLine line) {
+            WriteLine(line, true);
+        }
+
+        private void WriteLine(GLine line, bool force) {
+            lock (_sync) {
+                if (_closed) {
+                    return;
+                }
+
+                int lineId = line.ID;
+                if (force || _logLineId != lineId) {
+                    EmitLogLine(force);
+                    _logLineId = lineId;
+                }
+
+                _logLineTimestamp = DateTime.Now;
+                _logLineContinued = line.EOLType == EOLType.Continue;
+                line.WriteTo((buff, len) => {
+                    EnsureLogLineBuffer(len);
+                    Array.Copy(buff, _logLineBuffer, len);
+                    _logLineLength = len;
+                });
+
+                if (force) {
+                    EmitLogLine(force);
+                }
+            }
+        }
+
+        private void EnsureLogLineBuffer(int length) {
+            if (length <= 0 || _logLineBuffer.Length >= length) {
+                return;
+            }
+            int v = length - 1;
+            v |= v >> 1;
+            v |= v >> 2;
+            v |= v >> 4;
+            v |= v >> 8;
+            v |= v >> 16;
+            v++;
+            _logLineBuffer = new char[v];
+        }
+
+        private void EmitLogLine(bool forced) {
+            if (_logLineId == INVALID_LINE_ID) {
+                return;
+            }
+
+            bool writeContinue;
+            if (_continuity == Continuity.None) {
+                writeContinue = false;
+            }
+            else {
+                // reset continuity if the current log line is expected to be continued and the output type of the next log doesn't match
+                if (_continuity != (forced ? Continuity.ContinueForced : Continuity.ContinueNormal)) {
+                    _writer.WriteLine();
+                    writeContinue = false;
                 }
                 else {
-                    _continued = false;
-                    _writer.WriteLine();
+                    writeContinue = true;
                 }
-
-                Wrote();
             }
+
+            if (_withTimestamp && !writeContinue) {
+                WriteTimestamp(_logLineTimestamp);
+            }
+
+            _writer.Write(_logLineBuffer, 0, _logLineLength);
+
+            if (_logLineContinued) {
+                _continuity = forced ? Continuity.ContinueForced : Continuity.ContinueNormal;
+            }
+            else {
+                _continuity = Continuity.None;
+                _writer.WriteLine();
+            }
+
+            _logLineId = INVALID_LINE_ID;
+            _logLineLength = 0;
+
+            Wrote();
         }
 
         public override void Flush() {
@@ -152,6 +233,7 @@ namespace Poderosa.Terminal {
         public void Close() {
             lock (_sync) {
                 if (!_closed) {
+                    EmitLogLine(false);
                     _writer.Close();
                     _closed = true;
                 }
@@ -161,34 +243,38 @@ namespace Poderosa.Terminal {
         public void Comment(string comment) {
             lock (_sync) {
                 if (!_closed) {
-                    _writer.Write(comment);
-                    if (_withTimestamp && !_continued)
+                    EmitLogLine(false);
+                    if (_continuity != Continuity.None) {
                         _writer.WriteLine();
+                    }
+                    if (_withTimestamp) {
+                        WriteTimestamp(DateTime.Now);
+                    }
+                    _writer.WriteLine(comment);
+                    _continuity = Continuity.None;
                     Wrote();
                 }
             }
         }
 
-        private void WriteTimestamp() {
+        private void WriteTimestamp(DateTime timestamp) {
             // Write timestamp in ISO 8601 format.
             char[] buff = _timestampBuffer;
             int offset = 0;
 
-            DateTime dt = DateTime.Now;
-
-            offset = WriteInt(buff, offset, 4, dt.Year);
+            offset = WriteInt(buff, offset, 4, timestamp.Year);
             buff[offset++] = '-';
-            offset = WriteInt(buff, offset, 2, dt.Month);
+            offset = WriteInt(buff, offset, 2, timestamp.Month);
             buff[offset++] = '-';
-            offset = WriteInt(buff, offset, 2, dt.Day);
+            offset = WriteInt(buff, offset, 2, timestamp.Day);
             buff[offset++] = 'T';
-            offset = WriteInt(buff, offset, 2, dt.Hour);
+            offset = WriteInt(buff, offset, 2, timestamp.Hour);
             buff[offset++] = ':';
-            offset = WriteInt(buff, offset, 2, dt.Minute);
+            offset = WriteInt(buff, offset, 2, timestamp.Minute);
             buff[offset++] = ':';
-            offset = WriteInt(buff, offset, 2, dt.Second);
+            offset = WriteInt(buff, offset, 2, timestamp.Second);
             buff[offset++] = '.';
-            offset = WriteInt(buff, offset, 3, dt.Millisecond);
+            offset = WriteInt(buff, offset, 3, timestamp.Millisecond);
 
             // separator
             buff[offset++] = ' ';
@@ -228,6 +314,9 @@ namespace Poderosa.Terminal {
 
     internal class NullTextLogger : INullLogger, ITextLogger {
         public void WriteLine(GLine line) {
+        }
+
+        public void ForceWriteLine(GLine line) {
         }
 
         public void Comment(string comment) {
@@ -326,6 +415,12 @@ namespace Poderosa.Terminal {
         public void WriteLine(GLine line) {
             foreach (ITextLogger logger in _loggers) {
                 logger.WriteLine(line);
+            }
+        }
+
+        public void ForceWriteLine(GLine line) {
+            foreach (ITextLogger logger in _loggers) {
+                logger.ForceWriteLine(line);
             }
         }
 
