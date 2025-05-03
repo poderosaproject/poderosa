@@ -3582,11 +3582,15 @@ namespace Poderosa.Terminal {
         }
 
         private void SwitchBuffer(bool toAlternate) {
-            if (_isAlternateBuffer != toAlternate) {
-                SaveScreen(toAlternate ? 0 : 1);
-                RestoreScreen(toAlternate ? 1 : 0);
-                _isAlternateBuffer = toAlternate;
+            if (_isAlternateBuffer == toAlternate) {
+                return;
             }
+
+            Document.UpdateCurrentLine(_manipulator);
+            SaveScreen(toAlternate ? 0 : 1);
+            RestoreScreen(toAlternate ? 1 : 0);
+            _manipulator.Load(Document.CurrentLine);
+            _isAlternateBuffer = toAlternate;
         }
 
         private void SaveScreen(int sw) {
