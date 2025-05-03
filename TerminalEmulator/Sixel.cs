@@ -1131,6 +1131,17 @@ namespace Poderosa.Terminal.Sixel {
             }
             return cleared;
         }
+
+        /// <summary>
+        /// Dlete all sixel images.
+        /// </summary>
+        public void DeleteAll() {
+            lock (_sync) {
+                while (_sixelImages.Count > 0) {
+                    RemoveSixelImage(_sixelImages.First);
+                }
+            }            
+        }
     }
 
     /// <summary>

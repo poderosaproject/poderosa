@@ -303,7 +303,9 @@ namespace Poderosa.Terminal {
             _firstLine = null;
             _lastLine = null;
             _size = 0;
+            _sixelImageManager.DeleteAll();
             AddLine(CreateErasedGLine());
+            InvalidateAll();
         }
 
         public void SetSubCaption(string caption) {
@@ -969,6 +971,7 @@ namespace Poderosa.Terminal {
         }
 
         public void ClearRange(int from, int to, TextDecoration dec, bool selective, bool resetLineRenderingType) {
+            // Note: this method doesn't clear sixel images
             GLine l = FindLineOrNullClipTop(from);
             if (l == null)
                 return;

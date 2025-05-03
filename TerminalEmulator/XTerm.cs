@@ -1440,7 +1440,7 @@ namespace Poderosa.Terminal {
                         Document.ClearRange(Document.CurrentLineNumber + 1, bottomLineNumber + 1, Document.CurrentDecoration, selective, resetLineRenderingType);
                         _manipulator.Load(Document.CurrentLine);
 
-                        // The range to clear is widen to avoid residual pixels at the screen edge.
+                        // clear wide enough to avoid residual pixels at the screen edge.
                         // FIXME: all sixels on the current line are cleared.
                         bool cleared = Document.SixelImageManager.ClearLineRange(Document.CurrentLineNumber, bottomLineNumber + 1);
                         if (cleared) {
@@ -1468,7 +1468,7 @@ namespace Poderosa.Terminal {
                         Document.ClearRange(Document.TopLineNumber, Document.CurrentLineNumber, Document.CurrentDecoration, selective, resetLineRenderingType);
                         _manipulator.Load(Document.CurrentLine);
 
-                        // The range to clear is widen to avoid residual pixels at the screen edge.
+                        // clear wide enough to avoid residual pixels at the screen edge.
                         // FIXME: all sixels on the current line are cleared.
                         bool cleared = Document.SixelImageManager.ClearLineRange(Document.TopLineNumber - 1, Document.CurrentLineNumber);
                         if (cleared) {
@@ -1487,7 +1487,7 @@ namespace Poderosa.Terminal {
                         Document.ClearRange(Document.TopLineNumber, bottomLineNumber + 1, Document.CurrentDecoration, selective, resetLineRenderingType);
                         _manipulator.Load(Document.CurrentLine);
 
-                        // The range to clear is widen to avoid residual pixels at the screen edge.
+                        // clear wide enough to avoid residual pixels at the screen edge.
                         bool cleared = Document.SixelImageManager.ClearLineRange(Document.TopLineNumber - 1, bottomLineNumber + 1);
                         if (cleared) {
                             Document.InvalidateAll();
