@@ -100,7 +100,7 @@ namespace Poderosa.Terminal {
         }
     }
 
-    internal class DefaultLogger : LoggerBase, ITextLogger {
+    internal class TextLogger : LoggerBase, ITextLogger {
 
         private readonly StreamWriter _writer;
         private readonly bool _withTimestamp;
@@ -109,7 +109,7 @@ namespace Poderosa.Terminal {
         private bool _continued = false;
         private bool _closed = false;
 
-        public DefaultLogger(ISimpleLogSettings log, Stream stream, bool withTimestamp)
+        public TextLogger(ISimpleLogSettings log, Stream stream, bool withTimestamp)
             : base(log) {
             _writer = new StreamWriter(stream, Encoding.UTF8); // BOM is inserted automatically
             _withTimestamp = withTimestamp;
@@ -624,7 +624,7 @@ namespace Poderosa.Terminal {
                 case LogType.Default:
                 case LogType.PlainTextWithTimestamp:
                     bool withTimestamp = (sl.LogType == LogType.PlainTextWithTimestamp);
-                    AddTextLogger(new DefaultLogger(loginfo, fs, withTimestamp));
+                    AddTextLogger(new TextLogger(loginfo, fs, withTimestamp));
                     break;
                 case LogType.Xml:
                     AddXmlLogger(new XmlLogger(loginfo, fs));
