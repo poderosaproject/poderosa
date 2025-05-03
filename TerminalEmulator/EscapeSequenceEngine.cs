@@ -1549,22 +1549,22 @@ namespace Poderosa.Terminal.EscapeSequence {
     internal class EscapeSequenceHandlerException : Exception {
 
         public EscapeSequenceHandlerException(string message)
-            : base(AddCapturedEscapeSequence(message)) {
+            : this(message, EscapeSequenceEngineBase.GetCurrentThreadEscapeSequence()) {
         }
 
         public EscapeSequenceHandlerException(string message, char[] escapeSequence)
-            : base(AddEscapeSequence(message, escapeSequence)) {
+            : base(EscapeSequenceErrorUtil.FormatMessage(message, escapeSequence)) {
         }
 
-        private static string AddCapturedEscapeSequence(string message) {
-            char[] captured = EscapeSequenceEngineBase.GetCurrentThreadEscapeSequence();
-            if (captured == null) {
+    }
+
+    internal static class EscapeSequenceErrorUtil {
+
+        public static string FormatMessage(string message, char[] escapeSequence) {
+            if (escapeSequence == null) {
                 return message;
             }
-            return AddEscapeSequence(message, captured);
-        }
 
-        private static string AddEscapeSequence(string message, char[] escapeSequence) {
             StringBuilder s = new StringBuilder();
             s.Append(message).Append(" : ");
 
@@ -1581,18 +1581,6 @@ namespace Poderosa.Terminal.EscapeSequence {
                 }
             }
             return s.ToString();
-        }
-    }
-
-    internal class UnknownEscapeSequenceException : EscapeSequenceHandlerException {
-        public UnknownEscapeSequenceException(string msg)
-            : base(msg) {
-        }
-    }
-
-    internal class IncompleteEscapeSequenceException : EscapeSequenceHandlerException {
-        public IncompleteEscapeSequenceException(string msg, char[] sequence)
-            : base(msg, sequence) {
         }
     }
 

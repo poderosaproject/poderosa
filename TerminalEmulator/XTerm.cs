@@ -280,18 +280,12 @@ namespace Poderosa.Terminal {
             if (this.LogService.HasXmlLogger) {
                 this.LogService.XmlLogger.EscapeSequence(context.GetSequence());
             }
-            RuntimeUtil.SilentReportException(new IncompleteEscapeSequenceException("Incomplete escape sequence", context.GetSequence()));
+#if DEBUG
+            Debug.WriteLine(EscapeSequenceErrorUtil.FormatMessage("Incomplete escape sequence", context.GetSequence()));
+#endif
         }
 
         private void HandleException(Exception ex, IEscapeSequenceContext context) {
-            if (ex is UnknownEscapeSequenceException) {
-                CharDecodeError(
-                    String.Format("{0}: {1}",
-                        GEnv.Strings.GetString("Message.EscapesequenceTerminal.UnsupportedSequence"),
-                        ex.Message
-                    )
-                );
-            }
             RuntimeUtil.SilentReportException(ex);
         }
 
