@@ -321,12 +321,15 @@ namespace Poderosa.Util {
         }
 
         [DllImport("advapi32.dll", EntryPoint = "CredReadW", CharSet = CharSet.Unicode, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool CredRead(string targetName, CredType type, uint reservedFlags, out IntPtr credential);
         [DllImport("advapi32.dll", EntryPoint = "CredWriteW", CharSet = CharSet.Unicode, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool CredWrite(ref Credential credential, CredPreserve flags);
         [DllImport("advapi32.dll")]
         private static extern void CredFree(IntPtr buffer);
         [DllImport("advapi32.dll", EntryPoint = "CredDeleteW", CharSet = CharSet.Unicode, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool CredDelete(string targetName, CredType type, uint reservedFlags);
 
         private const int CRED_MAX_GENERIC_TARGET_NAME_LENGTH = 32767;

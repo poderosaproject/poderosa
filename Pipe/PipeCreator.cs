@@ -60,6 +60,7 @@ namespace Poderosa.Pipe {
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool DuplicateHandle(
             IntPtr hSourceProcessHandle,
             SafeFileHandle hSourceHandle,
@@ -71,9 +72,11 @@ namespace Poderosa.Pipe {
         );
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool CreateProcess(
             [MarshalAs(UnmanagedType.LPTStr)]
             string lpApplicationName,
+            [MarshalAs(UnmanagedType.LPTStr)]
             string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,

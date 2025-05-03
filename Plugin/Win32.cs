@@ -48,14 +48,17 @@ namespace Poderosa {
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern short VkKeyScan(char ch);
         [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetKeyboardState(byte[] data);
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern int RegisterWindowMessage(string lpString);
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern int MessageBox(IntPtr hwnd, string text, string caption, int flags);
         [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool InvalidateRect(IntPtr hwnd, ref RECT rect, int erase);
         [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool InvalidateRect(IntPtr hwnd, IntPtr rect, int erase); //for invalidating all
 
 
@@ -66,8 +69,10 @@ namespace Poderosa {
         [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr CreateMutex(IntPtr lpSecurityAttribute, int initialOwner, string name);
         [DllImport("kernel32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool CloseHandle(IntPtr handle);
         [DllImport("kernel32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ReleaseMutex(IntPtr handle);
         [DllImport("kernel32.dll")]
         public static extern int WaitForSingleObject(IntPtr hHandle, uint dwMilliseconds);
@@ -90,6 +95,7 @@ namespace Poderosa {
         [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
         public static extern int GetTextExtentPoint32(IntPtr hdc, string text, int length, out SIZE size);
         [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetTextMetrics(IntPtr hdc, out TEXTMETRICW lptm);
         [DllImport("gdi32.dll")]
         public static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
@@ -116,6 +122,7 @@ namespace Poderosa {
         }
 
         [DllImport("kernel32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool FlushFileBuffers(IntPtr handle);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Ansi)] //WinExecはLPCSTRだった。"T"がない。
@@ -138,12 +145,16 @@ namespace Poderosa {
         [DllImport("imm32.dll")]
         public static extern IntPtr ImmGetContext(IntPtr hWnd);
         [DllImport("imm32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ImmReleaseContext(IntPtr hWnd, IntPtr hIMC);
         [DllImport("imm32.dll", CharSet = CharSet.Auto)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ImmSetCompositionFont(IntPtr hIMC, LOGFONT lf);
         [DllImport("imm32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ImmSetCompositionWindow(IntPtr hIMC, ref COMPOSITIONFORM form);
         [DllImport("imm32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ImmNotifyIME(IntPtr hIMC, int dwAction, int dwIndex, int dwValue);
 
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]

@@ -31,30 +31,39 @@ namespace Poderosa.SerialPort {
 
     internal class Win32Serial {
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetCommState(IntPtr handle, ref DCB dcb);
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetCommState(IntPtr handle, ref DCB dcb);
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetCommTimeouts(IntPtr handle, ref COMMTIMEOUTS timeouts);
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetCommTimeouts(IntPtr handle, ref COMMTIMEOUTS timeouts);
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetCommBreak(IntPtr handle);
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ClearCommBreak(IntPtr handle);
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool WaitCommEvent(
             IntPtr hFile,         // handle to comm device
             IntPtr lpEvtMask,     // event type
             IntPtr lpOverlapped   // overlapped structure
             );
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ClearCommError(
             IntPtr hFile,     // handle to communications device
             IntPtr lpErrors, // error codes
             IntPtr lpStat  // communications status (本当はCommStat)
             );
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetCommMask(
             IntPtr hFile,                // handle to comm device
             int flags
@@ -72,6 +81,7 @@ namespace Poderosa.SerialPort {
             );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ReadFile(
             IntPtr hFile,                // handle to file
             IntPtr lpBuffer,             // data buffer
@@ -80,6 +90,7 @@ namespace Poderosa.SerialPort {
             IntPtr lpOverlapped    // overlapped buffer
             );
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool WriteFile(
             IntPtr hFile,                // handle to file
             IntPtr lpBuffer,             // data buffer
@@ -88,6 +99,7 @@ namespace Poderosa.SerialPort {
             IntPtr lpOverlapped    // overlapped buffer
             );
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetOverlappedResult(
             IntPtr hFile,                       // handle to file, pipe, or device
             IntPtr lpOverlapped,          // overlapped structure
