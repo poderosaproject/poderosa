@@ -68,17 +68,18 @@ namespace Poderosa.Terminal {
         /// <exclude/>
         public delegate void AfterExitLockDelegate();
 
-        private ScrollBarValues _scrollBarValues;
+        private readonly LogService _logService;
+        private readonly ScrollBarValues _scrollBarValues;
+        private readonly TerminalDocument _document;
+        private readonly IAbstractTerminalHost _session;
+        private readonly PromptRecognizer _promptRecognizer;
+        private readonly IntelliSense _intelliSense;
+        private readonly PopupStyleCommandResultRecognizer _commandResultRecognizer;
+
         private EncodingProfile _encodingProfile;
         private ICharDecoder _decoder;
         private UnicodeCharConverter _unicodeCharConverter;
-        private TerminalDocument _document;
-        private IAbstractTerminalHost _session;
-        private LogService _logService;
         private IModalTerminalTask _modalTerminalTask;
-        private PromptRecognizer _promptRecognizer;
-        private IntelliSense _intelliSense;
-        private PopupStyleCommandResultRecognizer _commandResultRecognizer;
 
         private bool _cleanup = false;
 
