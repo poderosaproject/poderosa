@@ -416,22 +416,17 @@ namespace Poderosa.Terminal {
 
         private const int AUTOFLUSH_CHECK_INTERVAL = 1000;
 
-        public LogService(ITerminalEmulatorOptions options, ITerminalParameter param, ITerminalSettings settings) {
+        public LogService() {
             _binaryLogger = new NullBinaryLogger();
             _textLogger = new NullTextLogger();
             _xmlLogger = new NullXmlLogger();
+        }
+
+        public void SetupDefaultLogger(ITerminalEmulatorOptions options, ITerminalParameter param, ITerminalSettings settings) {
             if (options.DefaultLogType != LogType.None) {
                 ApplySimpleLogSetting(new SimpleLogSettings(options.DefaultLogType, CreateAutoLogFileName(options, param, settings)));
             }
         }
-
-#if UNITTEST
-        internal LogService() {
-            _binaryLogger = new NullBinaryLogger();
-            _textLogger = new NullTextLogger();
-            _xmlLogger = new NullXmlLogger();
-        }
-#endif
 
         public void AddBinaryLogger(IBinaryLogger logger) {
             AddLogger<IBinaryLogger>(ref _binaryLogger, logger, CreateLoggerList);

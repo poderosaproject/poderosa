@@ -107,6 +107,13 @@ namespace Poderosa.Terminal {
             _session = info.Session;
 
             //_invalidateParam = new InvalidateParam();
+
+            _logService = new LogService();
+            _logService.SetupDefaultLogger(GEnv.Options, info.TerminalParameter, info.Session.TerminalSettings);
+            if (info.Session.TerminalSettings.LogSettings != null) {
+                _logService.ApplyLogSettings(info.Session.TerminalSettings.LogSettings, false);
+            }
+
             _document = new TerminalDocument(info.InitialWidth, info.InitialHeight);
             _document.SetOwner(_session.ISession);
             _afterExitLockActions = new ConcurrentQueue<AfterExitLockDelegate>();
@@ -118,13 +125,9 @@ namespace Poderosa.Terminal {
             _lineContinuationMode = _session.TerminalSettings.LineContinuationMode;
             _manipulator = new GLineManipulator(_document.GLineZOrderManager);
             _scrollBarValues = new ScrollBarValues();
-            _logService = new LogService(GEnv.Options, info.TerminalParameter, _session.TerminalSettings);
             _promptRecognizer = new PromptRecognizer(this);
             _intelliSense = new IntelliSense(this);
             _commandResultRecognizer = new PopupStyleCommandResultRecognizer(this);
-
-            if (info.Session.TerminalSettings.LogSettings != null)
-                _logService.ApplyLogSettings(_session.TerminalSettings.LogSettings, false);
 
             //event handlers
             ITerminalSettings ts = info.Session.TerminalSettings;
