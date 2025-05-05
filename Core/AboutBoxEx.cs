@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,14 +56,23 @@ namespace Poderosa.Forms {
         public const string DEFAULT_ABOUTBOX_ID = "default";
 
         public static string[] GetVersionInfoContent() {
-            string[] s = new string[6];
-            s[0] = "Terminal Emulator <Poderosa>";
-            s[1] = "Copyright(c) " + VersionInfo.COPYRIGHT_YEARS + " " + VersionInfo.PROJECT_NAME + ",";
-            s[2] = "All Rights Reserved.";
-            s[3] = "";
-            s[4] = " Version : " + VersionInfo.PODEROSA_VERSION;
-            s[5] = " CLR     : " + System.Environment.Version.ToString();
+            string[] s = {
+                "Terminal Emulator <Poderosa>",
+                "Copyright(c) " + VersionInfo.COPYRIGHT_YEARS + " " + VersionInfo.PROJECT_NAME + ",",
+                "All Rights Reserved.",
+                "",
+                " Version : " + VersionInfo.PODEROSA_VERSION,
+                " CLR : " + System.Environment.Version.ToString() + (System.Environment.Is64BitProcess ? " (64 bit)" : " (32 bit)"),
+                " Runtime Framework : " + GetFrameworkVersion(),
+            };
             return s;
+        }
+
+        private static string GetFrameworkVersion() {
+            // >= .NET Framework 4.7.1
+            // return System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+            AssemblyFileVersionAttribute attr = (AssemblyFileVersionAttribute)(typeof(object).GetTypeInfo().Assembly.GetCustomAttribute(typeof(AssemblyFileVersionAttribute)));
+            return attr.Version;
         }
 
         //ExtensionPointとPreference。別クラスに分離してWindowManagerのメンバに入れようかな？
