@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -498,6 +498,9 @@ namespace Poderosa.Preferences {
         /// </remarks>
         IIntPreferenceItem DefineIntValue(IPreferenceFolder parent, string id, int initial_value, PreferenceItemValidator<int> validator);
 
+        /// <exclude/>
+        IDecimalPreferenceItem DefineDecimalValue(IPreferenceFolder parent, string id, decimal initial_value, PreferenceItemValidator<decimal> validator);
+
         /// <summary>
         /// <ja>
         /// string型のユーザー設定値を定義します。
@@ -844,6 +847,36 @@ namespace Poderosa.Preferences {
 
     /// <summary>
     /// <ja>
+    /// ユーザー設定値のデータ項目の型。
+    /// </ja>
+    /// <en>
+    /// Type of data item in user preference.
+    /// </en>
+    /// </summary>
+    public enum PreferenceItemDataType {
+        Bool,
+        Int,
+        Decimal,
+        String,
+    }
+
+    public enum PreferenceItemParseErrorMode {
+        /// <summary>
+        /// Reset to initial value if parse error or validation error occurs.
+        /// </summary>
+        Reset,
+        /// <summary>
+        /// throw <see cref="ValidationException"/>
+        /// </summary>
+        Throw,
+        /// <summary>
+        /// call validation error handler of Host
+        /// </summary>
+        NotifyHost,
+    }
+
+    /// <summary>
+    /// <ja>
     /// ユーザー設定値（Preference）の項目を示すインターフェイスです。
     /// </ja>
     /// <en>
@@ -851,12 +884,22 @@ namespace Poderosa.Preferences {
     /// </en>
     /// </summary>
     public interface IPreferenceItem : IPreferenceItemBase {
+
+        PreferenceItemDataType DataType {
+            get;
+        }
+
+        string FormatValue();
+        string FormatInitialValue();
+
+        void TryParseAndUpdate(string value, PreferenceItemParseErrorMode errormode);
+
         /// <summary>
         /// <ja>
         /// bool型として値を得るためのインターフェイスを取得します。
         /// </ja>
         /// <en>
-        /// The interface to obtain the value as bool type is got. 
+        /// Get the interface to obtain a value as a bool type.
         /// </en>
         /// </summary>
         /// <returns><ja>bool値としてアクセスするためのIBoolPreferenceItem</ja><en>IBoolPreferenceItem to access it as bool value</en></returns>
@@ -866,17 +909,27 @@ namespace Poderosa.Preferences {
         /// int型として値を得るためのインターフェイスを取得します。
         /// </ja>
         /// <en>
-        /// The interface to obtain the value as int type is got. 
+        /// Get the interface to obtain a value as a int type.
         /// </en>
         /// </summary>
         /// <returns><ja>int値としてアクセスするためのIIntPreferenceItem</ja><en>IIntPreferenceItem to access it as int value</en></returns>
         IIntPreferenceItem AsInt();
         /// <summary>
         /// <ja>
+        /// decimal型として値を得るためのインターフェイスを取得します。
+        /// </ja>
+        /// <en>
+        /// Get the interface to obtain a value as a decimal type.
+        /// </en>
+        /// </summary>
+        /// <returns><ja>decimal値としてアクセスするためのIDecimalPreferenceItem</ja><en>IDecimalPreferenceItem to access it as decimal value</en></returns>
+        IDecimalPreferenceItem AsDecimal();
+        /// <summary>
+        /// <ja>
         /// string型として値を得るためのインターフェイスを取得します。
         /// </ja>
         /// <en>
-        /// The interface to obtain the value as string type is got. 
+        /// Get the interface to obtain a value as a string type.
         /// </en>
         /// </summary>
         /// <returns><ja>string値としてアクセスするためのIStringPreferenceItem</ja><en>IStringPreferenceItem to access it as string value</en></returns>
@@ -939,7 +992,7 @@ namespace Poderosa.Preferences {
     /// bool型のユーザー設定値を読み書きする機能を提供します。
     /// </ja>
     /// <en>
-    /// Offered the function to read and write the user setting value of the bool type.
+    /// Provide functions to read and write the user setting values of bool type.
     /// </en>
     /// </summary>
     public interface IBoolPreferenceItem : ITypedPreferenceItem<bool> {
@@ -950,7 +1003,7 @@ namespace Poderosa.Preferences {
     /// int型のユーザー設定値を読み書きする機能を提供します。
     /// </ja>
     /// <en>
-    /// Offered the function to read and write the user setting value of the int type.
+    /// Provide functions to read and write the user setting values of int type.
     /// </en>
     /// </summary>
     public interface IIntPreferenceItem : ITypedPreferenceItem<int> {
@@ -958,10 +1011,21 @@ namespace Poderosa.Preferences {
 
     /// <summary>
     /// <ja>
+    /// decimal型のユーザー設定値を読み書きする機能を提供します。
+    /// </ja>
+    /// <en>
+    /// Provide functions to read and write the user setting values of decimal type.
+    /// </en>
+    /// </summary>
+    public interface IDecimalPreferenceItem : ITypedPreferenceItem<decimal> {
+    }
+
+    /// <summary>
+    /// <ja>
     /// string型のユーザー設定値を読み書きする機能を提供します。
     /// </ja>
     /// <en>
-    /// Offered the function to read and write the user setting value of the string type.
+    /// Provide functions to read and write the user setting values of string type.
     /// </en>
     /// </summary>
     public interface IStringPreferenceItem : ITypedPreferenceItem<string> {

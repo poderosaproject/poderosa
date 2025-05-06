@@ -62,7 +62,31 @@ $Id: stringresource.xml,v 1.6 2012/06/02 15:01:10 kzmi Exp $
   <ja>Poderosaイベントログ表示</ja>
   <en>Shows Poderosa event log</en>
 </record>
+<record name="Command.SplitHorizontal">
+  <ja>上下に分割</ja>
+  <en>Make a horizontal split</en>
+</record>
+<record name="Command.SplitVertical">
+  <ja>左右に分割</ja>
+  <en>Make a vertical split</en>
+</record>
+<record name="Command.SplitUnify">
+  <ja>分割の結合</ja>
+  <en>Unify split</en>
+</record>
 
+<record name="Menu.DivideFrameHorizontal">
+  <ja>上下に分割(&amp;H)</ja>
+  <en>Split &amp;Horizontally</en>
+</record>
+<record name="Menu.DivideFrameVertical">
+  <ja>左右に分割(&amp;V)</ja>
+  <en>Split &amp;Vertically</en>
+</record>
+<record name="Menu.UnifyFrame">
+  <ja>分割を結合(&amp;U)</ja>
+  <en>&amp;Unify</en>
+</record>
 <record name="Menu.EditRenderProfile">
   <ja>表示プロファイルの編集(&amp;D)...</ja>
   <en>Edit &amp;display profile...</en>
@@ -86,6 +110,10 @@ $Id: stringresource.xml,v 1.6 2012/06/02 15:01:10 kzmi Exp $
 <record name="Menu.PoderosaLog">
   <ja>Poderosaイベントログの表示(&amp;E)...</ja>
   <en>Shows Poderosa &amp;event log...</en>
+</record>
+<record name="Menu.CopyRemote">
+  <ja>リモートアドレスをコピー</ja>
+  <en>Copy remote address</en>
 </record>
 
 <!-- ChangeLog.cs -->
@@ -967,6 +995,10 @@ $Id: stringresource.xml,v 1.6 2012/06/02 15:01:10 kzmi Exp $
 <record name="Caption.PreferenceEditor.Int">
   <ja>整数</ja>
   <en>Integer</en>
+</record>
+<record name="Caption.PreferenceEditor.Decimal">
+  <ja>数値</ja>
+  <en>Number</en>
 </record>
 <record name="Caption.PreferenceEditor.String">
   <ja>文字列</ja>

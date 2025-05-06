@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -509,7 +509,7 @@ namespace Poderosa.Sessions {
                 }
 
                 ITerminalParameter param = (ITerminalParameter)p.GetAdapter(typeof(ITerminalParameter));
-                param.SetTerminalName(ToTerminalName(settings.TerminalType));
+                param.SetTerminalName(settings.TerminalType.ToTermValue());
 
                 if (p.AuthenticationType == AuthenticationType.PublicKey) {
                     if (!File.Exists(_privateKeyBox.Text))

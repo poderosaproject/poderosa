@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -239,6 +239,14 @@ namespace Poderosa.Terminal {
         /// </en>
         /// </summary>
         TerminalType TerminalType {
+            get;
+            set;
+        }
+        /// <summary>
+        /// <ja>行継続モードを取得／設定します。</ja>
+        /// <en>Set / get the line continuation mode.</en>
+        /// </summary>
+        LineContinuationMode LineContinuationMode {
             get;
             set;
         }
@@ -534,6 +542,11 @@ namespace Poderosa.Terminal {
         /// </summary>
         /// <exclude/>
         event ChangeHandler<EncodingType> ChangeEncoding;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <exclude/>
+        event ChangeHandler<LineContinuationMode> ChangeLineContinuationMode;
     }
 
 }

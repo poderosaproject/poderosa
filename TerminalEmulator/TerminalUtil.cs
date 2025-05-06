@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -142,6 +143,28 @@ namespace Poderosa.Terminal {
                 return _shiftGroup[(int)body];
             else
                 return _defaultGroup[(int)body];
+        }
+    }
+
+    /// <summary>
+    /// Mixin to add locale-independent stringification methods
+    /// </summary>
+    internal static class InvariantFormatMixin {
+
+        public static string ToInvariantString(this int s) {
+            return s.ToString(NumberFormatInfo.InvariantInfo);
+        }
+
+        public static string ToInvariantString(this uint s) {
+            return s.ToString(NumberFormatInfo.InvariantInfo);
+        }
+
+        public static string ToInvariantString(this long s) {
+            return s.ToString(NumberFormatInfo.InvariantInfo);
+        }
+
+        public static string ToInvariantString(this ulong s) {
+            return s.ToString(NumberFormatInfo.InvariantInfo);
         }
     }
 }

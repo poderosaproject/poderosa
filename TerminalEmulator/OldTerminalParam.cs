@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -304,10 +304,32 @@ namespace Poderosa.ConnectionParam {
         [EnumValue(Description = "Enum.TerminalType.XTerm")]
         XTerm,
         /// <summary>
+        /// xterm
+        /// </summary>
+        [EnumValue(Description = "Enum.TerminalType.XTerm256Color")]
+        XTerm256Color,
+        /// <summary>
         /// kterm
         /// </summary>
         [EnumValue(Description = "Enum.TerminalType.KTerm")]
         KTerm
+    }
+
+    /// <summary>
+    /// <ja>行継続モード</ja>
+    /// <en>Line continuation mode</en>
+    /// </summary>
+    public enum LineContinuationMode {
+        /// <summary>
+        /// <ja>行の継続性は考慮されません (デフォルト)</ja>
+        /// <en>Line continuity is not considered (default)</en>
+        /// </summary>
+        Standard,
+        /// <summary>
+        /// <ja>バックスペースのとき、自動折り返しした前の行にカーソルが移動します。</ja>
+        /// <en>In backspace action, the cursor will move to the auto-wrapped previous line.</en>
+        /// </summary>
+        Poderosa,
     }
 
     /// <summary>
@@ -326,6 +348,8 @@ namespace Poderosa.ConnectionParam {
                     return "vt100";
                 case TerminalType.XTerm:
                     return "xterm";
+                case TerminalType.XTerm256Color:
+                    return "xterm-256color";
                 case TerminalType.KTerm:
                     return "kterm";
                 default:

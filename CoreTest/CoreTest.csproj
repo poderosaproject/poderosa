@@ -51,6 +51,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GLineTest.cs" />
     <Compile Include="CommandPositionT.cs" />
     <Compile Include="MainWindowMenuT.cs" />
     <Compile Include="PreferencesT.cs" />

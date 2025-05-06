@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -95,12 +95,29 @@ namespace Poderosa.View {
     internal class FontHandle {
         private readonly Font _font;
         private readonly bool _clearType;
+        private readonly int? _charWidth;
         private IntPtr _hFont;
 
-        public FontHandle(Font f, bool clearType) {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="f">reference Font object</param>
+        /// <param name="clearType">true if use ClearType</param>
+        /// <param name="charWidth">value of LOGFONT.lfWidth</param>
+        public FontHandle(Font f, bool clearType, int? charWidth) {
             _font = f;
             _clearType = clearType;
+            _charWidth = charWidth;
             _hFont = IntPtr.Zero;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="f">reference Font object</param>
+        /// <param name="clearType">true if use ClearType</param>
+        public FontHandle(Font f, bool clearType)
+            : this(f, clearType, null) {
         }
 
         public Font Font {
@@ -127,10 +144,15 @@ namespace Poderosa.View {
                         Version osVer = Environment.OSVersion.Version;
                         int major = osVer.Major;
                         int minor = osVer.Minor;
-                        if (major > 5 || (major == 5 && minor >= 1))
+                        if (major > 5 || (major == 5 && minor >= 1)) {
                             lf.lfQuality = Win32.CLEARTYPE_NATURAL_QUALITY;
-                        else
+                        }
+                        else {
                             lf.lfQuality = Win32.CLEARTYPE_QUALITY;
+                        }
+                        if (_charWidth.HasValue) {
+                            lf.lfWidth = _charWidth.Value;
+                        }
                         _hFont = Win32.CreateFontIndirect(lf);
                     }
                     else {
@@ -153,20 +175,64 @@ namespace Poderosa.View {
     /// <en>Implements the parameters for displaying the console. By setting this object to the RenderProfile property of the TerminalParam object, the macro can control colors, fonts, and background images.</en>
     /// </summary>
     public class RenderProfile : ICloneable {
+
+        private class FontSet {
+            public readonly FontHandle NormalFont;
+            public readonly FontHandle BoldFont;
+
+            public FontSet(
+                FontHandle normalFont,
+                FontHandle boldFont
+            ) {
+                NormalFont = normalFont;
+                BoldFont = boldFont;
+            }
+
+            public void Dispose() {
+                NormalFont.Dispose();
+                BoldFont.Dispose();
+            }
+        }
+
+        private class FontSizes {
+            public FontSet Single = null;
+            public FontSet Double = null;
+            public FontSet Quad = null;
+
+            public void Dispose() {
+                if (Single != null) {
+                    Single.Dispose();
+                    Single = null;
+                }
+                if (Double != null) {
+                    Double.Dispose();
+                    Double = null;
+                }
+                if (Quad != null) {
+                    Quad.Dispose();
+                    Quad = null;
+                }
+            }
+        }
+
+        private class Fonts {
+            public readonly FontSizes Latin = new FontSizes();
+            public readonly FontSizes CJK = new FontSizes();
+
+            public void Dispose() {
+                Latin.Dispose();
+                CJK.Dispose();
+            }
+        }
+
+        private readonly Fonts _fonts = new Fonts();
+
         private string _fontName;
         private string _cjkFontName;
         private float _fontSize;
         private bool _useClearType;
         private bool _enableBoldStyle;
         private bool _forceBoldStyle;
-        private FontHandle _font;
-        private FontHandle _boldfont;
-        private FontHandle _underlinefont;
-        private FontHandle _boldunderlinefont;
-        private FontHandle _cjkFont;
-        private FontHandle _cjkBoldfont;
-        private FontHandle _cjkUnderlinefont;
-        private FontHandle _cjkBoldUnderlinefont;
 #if !MACRODOC
         private EscapesequenceColorSet _esColorSet;
 #endif
@@ -185,8 +251,7 @@ namespace Poderosa.View {
 
         private SizeF _pitch;
         private int _lineSpacing;
-        private float _chargap; //文字列を表示するときに左右につく余白
-        private bool _usingIdenticalFont; //ASCII/CJKで同じフォントを使っているかどうか
+        private float _charGap; //文字列を表示するときに左右につく余白
 
         /// <summary>
         /// <ja>通常の文字を表示するためのフォント名です。</ja>
@@ -373,7 +438,6 @@ namespace Poderosa.View {
             _useClearType = src._useClearType;
             _enableBoldStyle = src._enableBoldStyle;
             _forceBoldStyle = src._forceBoldStyle;
-            _cjkFont = _font = null;
 
             _forecolor = src._forecolor;
             _bgcolor = src._bgcolor;
@@ -386,6 +450,7 @@ namespace Poderosa.View {
             _imageLoadIsAttempted = false;
             _imageStyle = src.ImageStyle;
         }
+
         public RenderProfile() {
             //do nothing. properties must be filled
             _backgroundImageFileName = "";
@@ -403,24 +468,10 @@ namespace Poderosa.View {
             return new RenderProfile(this);
         }
 
-
-
         private void ClearFont() {
-            DisposeFontHandle(ref _font);
-            DisposeFontHandle(ref _boldfont);
-            DisposeFontHandle(ref _underlinefont);
-            DisposeFontHandle(ref _boldunderlinefont);
-            DisposeFontHandle(ref _cjkFont);
-            DisposeFontHandle(ref _cjkBoldfont);
-            DisposeFontHandle(ref _cjkUnderlinefont);
-            DisposeFontHandle(ref _cjkBoldUnderlinefont);
+            _fonts.Dispose();
         }
-        private void DisposeFontHandle(ref FontHandle f) {
-            if (f != null) {
-                f.Dispose();
-                f = null;
-            }
-        }
+
         private void ClearBrush() {
             if (_brush != null)
                 _brush.Dispose();
@@ -431,34 +482,76 @@ namespace Poderosa.View {
         }
 
 #if !MACRODOC
-        private void CreateFonts() {
-            _font = new FontHandle(RuntimeUtil.CreateFont(_fontName, _fontSize), _useClearType);
-            FontStyle fs = _font.Font.Style;
-            _boldfont = new FontHandle(new Font(_font.Font, fs | FontStyle.Bold), _useClearType);
-            _underlinefont = new FontHandle(new Font(_font.Font, fs | FontStyle.Underline), _useClearType);
-            _boldunderlinefont = new FontHandle(new Font(_font.Font, fs | FontStyle.Underline | FontStyle.Bold), _useClearType);
+        private void CreateSingleFonts() {
+            if (_fonts.Latin.Single != null) {
+                return;
+            }
 
-            _cjkFont = new FontHandle(new Font(_cjkFontName, _fontSize), _useClearType);
-            fs = _cjkFont.Font.Style;
-            _cjkBoldfont = new FontHandle(new Font(_cjkFont.Font, fs | FontStyle.Bold), _useClearType);
-            _cjkUnderlinefont = new FontHandle(new Font(_cjkFont.Font, fs | FontStyle.Underline), _useClearType);
-            _cjkBoldUnderlinefont = new FontHandle(new Font(_cjkFont.Font, fs | FontStyle.Underline | FontStyle.Bold), _useClearType);
-
-            _usingIdenticalFont = (_font.Font.Name == _cjkFont.Font.Name);
-
-            //通常版
             Graphics g = Graphics.FromHwnd(Win32.GetDesktopWindow());
             IntPtr hdc = g.GetHdc();
-            Win32.SelectObject(hdc, _font.HFONT);
-            Win32.SIZE charsize1, charsize2;
-            Win32.GetTextExtentPoint32(hdc, "A", 1, out charsize1);
-            Win32.GetTextExtentPoint32(hdc, "AAA", 3, out charsize2);
 
-            _pitch = new SizeF((charsize2.width - charsize1.width) / 2, charsize1.height);
-            _chargap = (charsize1.width - _pitch.Width) / 2;
+            Font font = RuntimeUtil.CreateFont(_fontName, _fontSize);
+            FontHandle normalFont = new FontHandle(font, _useClearType);
+            FontHandle boldFont = new FontHandle(new Font(font, font.Style | FontStyle.Bold), _useClearType);
+            _fonts.Latin.Single = new FontSet(
+                normalFont: normalFont,
+                boldFont: boldFont
+            );
+
+            Font cjkFont = RuntimeUtil.CreateFont(_cjkFontName, _fontSize);
+            FontHandle cjkNormalFont = new FontHandle(cjkFont, _useClearType);
+            FontHandle cjkBoldFont = new FontHandle(new Font(cjkFont, cjkFont.Style | FontStyle.Bold), _useClearType);
+            _fonts.CJK.Single = new FontSet(
+                normalFont: cjkNormalFont,
+                boldFont: cjkBoldFont
+            );
+
+            Win32.SelectObject(hdc, normalFont.HFONT);
+            Win32.SIZE charSize1, charSize2;
+            Win32.GetTextExtentPoint32(hdc, "A", 1, out charSize1);
+            Win32.GetTextExtentPoint32(hdc, "AAA", 3, out charSize2);
+
+            _pitch = new SizeF((charSize2.width - charSize1.width) / 2, charSize1.height);
+            _charGap = (charSize1.width - _pitch.Width) / 2;
+
             g.ReleaseHdc(hdc);
             g.Dispose();
         }
+
+        private FontSet CreateDoubleFonts(FontSet baseFontSet) {
+            Graphics g = Graphics.FromHwnd(Win32.GetDesktopWindow());
+            IntPtr hdc = g.GetHdc();
+
+            Win32.SelectObject(hdc, baseFontSet.NormalFont.HFONT);
+            Win32.TEXTMETRICW textMetric = new Win32.TEXTMETRICW();
+            Win32.GetTextMetrics(hdc, out textMetric);
+
+            int charWidth = textMetric.tmAveCharWidth * 2;
+
+            Font font = baseFontSet.NormalFont.Font;
+            FontHandle normalFont = new FontHandle(font, _useClearType, charWidth);
+            FontHandle boldFont = new FontHandle(new Font(font, font.Style | FontStyle.Bold), _useClearType, charWidth);
+
+            g.ReleaseHdc(hdc);
+            g.Dispose();
+
+            return new FontSet(
+                normalFont: normalFont,
+                boldFont: boldFont
+            );
+        }
+
+        private FontSet CreateQuadFonts(FontSet baseFontSet) {
+            Font font = new Font(baseFontSet.NormalFont.Font.FontFamily, baseFontSet.NormalFont.Font.Size * 2);
+            FontHandle normalFont = new FontHandle(font, _useClearType);
+            FontHandle boldFont = new FontHandle(new Font(font, font.Style | FontStyle.Bold), _useClearType);
+
+            return new FontSet(
+                normalFont: normalFont,
+                boldFont: boldFont
+            );
+        }
+
         private void CreateBrushes() {
             _brush = new SolidBrush(_forecolor);
             _bgbrush = new SolidBrush(_bgcolor);
@@ -493,8 +586,7 @@ namespace Poderosa.View {
         /// <exclude/>
         public SizeF Pitch {
             get {
-                if (_font == null)
-                    CreateFonts();
+                CreateSingleFonts();
                 return _pitch;
             }
         }
@@ -518,9 +610,8 @@ namespace Poderosa.View {
         /// <exclude/>
         public Font DefaultFont {
             get {
-                if (_font == null)
-                    CreateFonts();
-                return _font.Font;
+                CreateSingleFonts();
+                return _fonts.Latin.Single.NormalFont.Font;
             }
         }
 
@@ -558,19 +649,8 @@ namespace Poderosa.View {
         /// <exclude/>
         public float CharGap {
             get {
-                if (_font == null)
-                    CreateFonts();
-                return _chargap;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <exclude/>
-        public bool UsingIdenticalFont {
-            get {
-                return _usingIdenticalFont;
+                CreateSingleFonts();
+                return _charGap;
             }
         }
 
@@ -614,79 +694,51 @@ namespace Poderosa.View {
             return this.ESColorSet[colorCode].Color;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dec"></param>
-        /// <returns></returns>
-        /// <exclude/>
-        public bool CalcBold(TextDecoration dec) {
-            if (_forceBoldStyle)
-                return true;
-
-            if (_enableBoldStyle)
-                return dec.Bold;
-            else
-                return false;
-        }
-
         public Font GetIMECompositionFont() {
-            return CalcFontInternal(true, false, false).Font;
+            return CalcFontInternal(true, false, LineRenderingType.Normal).Font;
         }
 
-        internal IntPtr CalcHFONT_NoUnderline(GAttr attr) {
+        internal IntPtr CalcHFONT(GAttr attr, LineRenderingType renderingType) {
             return CalcFontInternal(
                     attr.Has(GAttrFlags.UseCjkFont),
                     DetermineBold(attr),
-                    false).HFONT;
+                    renderingType
+            ).HFONT;
         }
 
-        private FontHandle CalcFontInternal(bool useCjkFont, bool bold, bool underlined) {
-            if (_font == null) {
-                CreateFonts();
+        private FontHandle CalcFontInternal(bool useCjkFont, bool bold, LineRenderingType renderingType) {
+            CreateSingleFonts();
+
+            FontSizes fss = (useCjkFont) ? _fonts.CJK : _fonts.Latin;
+
+            FontSet fs;
+
+            if ((renderingType & LineRenderingType.DoubleWidth) == 0) {
+                fs = fss.Single;
             }
-
-            if (useCjkFont) {
-                if (bold) {
-                    if (underlined) {
-                        return _cjkBoldUnderlinefont;
-                    }
-
-                    return _cjkBoldfont;
+            else if ((renderingType & LineRenderingType.DoubleHeight) == 0) {
+                fs = fss.Double;
+                if (fs == null) {
+                    fs = CreateDoubleFonts(fss.Single);
+                    fss.Double = fs;
                 }
-
-                if (underlined) {
-                    return _cjkUnderlinefont;
+            }
+            else {
+                fs = fss.Quad;
+                if (fs == null) {
+                    fs = CreateQuadFonts(fss.Single);
+                    fss.Quad = fs;
                 }
-
-                return _cjkFont;
             }
 
             if (bold) {
-                if (underlined) {
-                    return _boldunderlinefont;
-                }
-
-                return _boldfont;
+                return fs.BoldFont;
             }
-
-            if (underlined) {
-                return _underlinefont;
-            }
-
-            return _font;
+            return fs.NormalFont;
         }
 
         internal bool DetermineBold(GAttr attr) {
-            if (_forceBoldStyle) {
-                return true;
-            }
-
-            if (_enableBoldStyle) {
-                return attr.Has(GAttrFlags.Bold);
-            }
-
-            return false;
+            return _forceBoldStyle || (_enableBoldStyle && attr.Has(GAttrFlags.Bold));
         }
 
         internal void DetermineColors(GAttr attr, GColor24 color24, Caret caret, Color baseBackColor, out Color backColor, out Color foreColor) {

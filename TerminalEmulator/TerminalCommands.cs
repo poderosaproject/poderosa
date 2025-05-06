@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -257,7 +257,7 @@ namespace Poderosa.Terminal {
             if (c == null)
                 return null;
             ITextSelection s = c.ITextSelection;
-            if (s.IsEmpty || !c.EnabledEx)
+            if (s.IsEmpty || !c.HasDocument)
                 return null;
 
             return s.GetSelectedText(opt);
@@ -350,16 +350,15 @@ namespace Poderosa.Terminal {
 
             TerminalControl tc = TerminalCommandTarget.AsTerminalControl(target);
             lock (doc) {
-                GLine l = doc.TopLine;
-                int top_id = l.ID;
-                int limit = l.ID + doc.TerminalHeight;
-                while (l != null && l.ID < limit) {
-                    l.Clear();
-                    l = l.NextLine;
-                }
-                doc.CurrentLineNumber = top_id;
+                int topId = doc.TopLineNumber;
+                int bottomId = topId + doc.TerminalHeight - 1;
+                doc.ClearRange(topId, bottomId + 1, doc.CurrentDecoration, false, true);
+                // clear wide enough to avoid residual pixels at the screen edge.
+                // see also the implementation of XTerm.ClearScreen()
+                doc.SixelImageManager.ClearLineRange(topId - 1, bottomId + 1);
+                doc.CurrentLineNumber = topId;
                 doc.CaretColumn = 0;
-                doc.InvalidatedRegion.InvalidatedAll = true;
+                doc.InvalidateAll();
                 if (tc != null) {
                     tc.ITextSelection.Clear();
                     tc.Invalidate();

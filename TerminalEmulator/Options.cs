@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -262,11 +262,18 @@ namespace Poderosa.Terminal {
         RenderProfile CreateRenderProfile(); //NOTE これは意味的にちょっとまずいかも。Preferenceに特化すべきか
     }
 
+    public static class TerminalEmulatorOptionConstants {
+        public const decimal DEFAULT_FONT_SIZE = 10m;
+        public const decimal FONT_SIZE_MIN = 1m;
+        public const decimal FONT_SIZE_MAX = 1000m;
+    }
+
+
     internal class TerminalOptions : SnapshotAwarePreferenceBase, ITerminalEmulatorOptions {
         //表示
         private IStringPreferenceItem _fontName;
         private IStringPreferenceItem _cjkFontName;
-        private IIntPreferenceItem _fontSize; //floatにすべきかなあ
+        private IDecimalPreferenceItem _fontSize;
         private IBoolPreferenceItem _useClearType;
         private IBoolPreferenceItem _enableBoldStyle;
         private IBoolPreferenceItem _forceBoldStyle;
@@ -340,7 +347,8 @@ namespace Poderosa.Terminal {
             //表示
             _fontName = builder.DefineStringValue(_folder, "fontName", "Courier New", null);
             _cjkFontName = builder.DefineStringValue(_folder, "cjkFontName", "ＭＳ ゴシック", null);
-            _fontSize = builder.DefineIntValue(_folder, "fontSize", 10, PreferenceValidatorUtil.PositiveIntegerValidator); //floatにすべきかなあ
+            _fontSize = builder.DefineDecimalValue(_folder, "fontSize", TerminalEmulatorOptionConstants.DEFAULT_FONT_SIZE,
+                            PreferenceValidatorUtil.DecimalRangeValidator(TerminalEmulatorOptionConstants.FONT_SIZE_MIN, TerminalEmulatorOptionConstants.FONT_SIZE_MAX));
             _useClearType = builder.DefineBoolValue(_folder, "useClearType", true, null);
             _enableBoldStyle = builder.DefineBoolValue(_folder, "enableBoldStyle", true, null);
             _forceBoldStyle = builder.DefineBoolValue(_folder, "forceBoldStyle", false, null);
@@ -400,7 +408,7 @@ namespace Poderosa.Terminal {
             //表示
             _fontName = ConvertItem(src._fontName);
             _cjkFontName = ConvertItem(src._cjkFontName);
-            _fontSize = ConvertItem(src._fontSize); //floatにすべきかなあ
+            _fontSize = ConvertItem(src._fontSize);
             _useClearType = ConvertItem(src._useClearType);
             _enableBoldStyle = ConvertItem(src._enableBoldStyle);
             _forceBoldStyle = ConvertItem(src._forceBoldStyle);
@@ -469,7 +477,7 @@ namespace Poderosa.Terminal {
             set { //サイズの変更はこっちで
                 _font = value;
                 _fontName.Value = GetFontName(value);
-                _fontSize.Value = (int)value.Size;
+                _fontSize.Value = new Decimal(value.Size);
             }
         }
 

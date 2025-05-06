@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ namespace Poderosa.Document {
     /// </remarks>
     public class CharacterDocument : IPoderosaDocument, IPoderosaContextMenuPoint {
         protected string _caption;
+        protected string _subCaption;
         protected Image _icon;
         protected ISession _owner;
 
@@ -53,9 +54,17 @@ namespace Poderosa.Document {
         protected ColorSpec _appModeBgColor = ColorSpec.Default;
         protected bool _bApplicationMode;
 
+        protected readonly GLineZOrder.Manager _zMan = new GLineZOrder.Manager();
+
         public InvalidatedRegion InvalidatedRegion {
             get {
                 return _invalidatedRegion;
+            }
+        }
+
+        public GLineZOrder.Manager GLineZOrderManager {
+            get {
+                return _zMan;
             }
         }
 
@@ -278,9 +287,10 @@ namespace Poderosa.Document {
         public void LoadForTest(string filename) {
             using (StreamReader r = new StreamReader(filename, Encoding.Default)) {
                 TextDecoration dec = TextDecoration.Default;
+                GLineZOrder z = _zMan.Current;
                 string line = r.ReadLine();
                 while (line != null) {
-                    this.AddLine(GLine.CreateSimpleGLine(line, dec));
+                    this.AddLine(GLine.CreateSimpleGLine(line, dec, z));
                     line = r.ReadLine();
                 }
             }
@@ -288,7 +298,7 @@ namespace Poderosa.Document {
         //単一行からの作成
         public static CharacterDocument SingleLine(string content) {
             CharacterDocument doc = new CharacterDocument();
-            doc.AddLine(GLine.CreateSimpleGLine(content, TextDecoration.Default));
+            doc.AddLine(GLine.CreateSimpleGLine(content, TextDecoration.Default, doc._zMan.Current));
             return doc;
         }
 
@@ -310,7 +320,12 @@ namespace Poderosa.Document {
         }
         public virtual string Caption {
             get {
-                return _caption;
+                return (_caption != null) ? _caption : String.Empty;
+            }
+        }
+        public virtual string SubCaption {
+            get {
+                return (_subCaption != null) ? _subCaption : this.Caption;
             }
         }
         #endregion
@@ -323,8 +338,8 @@ namespace Poderosa.Document {
 
         private int _lineIDStart;
         private int _lineIDEnd;
+        private int _minHeightInPixels;
         private bool _invalidatedAll;
-
         private bool _empty;
 
         public InvalidatedRegion() {
@@ -336,16 +351,25 @@ namespace Poderosa.Document {
                 return _lineIDStart;
             }
         }
+
         public int LineIDEnd {
             get {
                 return _lineIDEnd;
             }
         }
+
+        public int MinHeightInPixels {
+            get {
+                return _minHeightInPixels;
+            }
+        }
+
         public bool IsEmpty {
             get {
                 return _empty;
             }
         }
+
         public bool InvalidatedAll {
             get {
                 return _invalidatedAll;
@@ -367,10 +391,19 @@ namespace Poderosa.Document {
                     _lineIDEnd = id;
             }
         }
-        public void Reset() {
+
+        public void InvalidateImage(int startLineId, int heightInPixels) {
+            lock (this) {
+                InvalidateLine(startLineId);
+                _minHeightInPixels = heightInPixels;
+            }
+        }
+
+        private void Reset() {
             lock (this) {
                 _lineIDStart = NOT_SET;
                 _lineIDEnd = NOT_SET;
+                _minHeightInPixels = 0;
                 _invalidatedAll = false;
                 _empty = true;
             }

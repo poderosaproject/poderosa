@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -207,33 +207,55 @@ namespace Poderosa.Usability {
             }
             public string TypeStringID {
                 get {
-                    if (_item.AsBool() != null)
-                        return "Caption.PreferenceEditor.Bool";
-                    else if (_item.AsInt() != null)
-                        return "Caption.PreferenceEditor.Int";
-                    else
-                        return "Caption.PreferenceEditor.String";
+                    switch (_item.DataType) {
+                        case PreferenceItemDataType.Bool:
+                            return "Caption.PreferenceEditor.Bool";
+                        case PreferenceItemDataType.Int:
+                            return "Caption.PreferenceEditor.Int";
+                        case PreferenceItemDataType.Decimal:
+                            return "Caption.PreferenceEditor.Decimal";
+                        case PreferenceItemDataType.String:
+                            return "Caption.PreferenceEditor.String";
+                        default:
+                            throw new Exception("no TypeStringID");
+                    }
                 }
             }
             public string ValueString {
                 get {
-                    if (_item.AsBool() != null)
-                        return _item.AsBool().Value.ToString();
-                    else if (_item.AsInt() != null)
-                        return _item.AsInt().Value.ToString();
-                    else
-                        return _item.AsString().Value;
+                    switch (_item.DataType) {
+                        case PreferenceItemDataType.Bool:
+                            return _item.AsBool().Value.ToString();
+                        case PreferenceItemDataType.Int:
+                            return _item.AsInt().Value.ToString();
+                        case PreferenceItemDataType.Decimal:
+                            return _item.AsDecimal().Value.ToString();
+                        case PreferenceItemDataType.String:
+                            return _item.AsString().Value;
+                        default:
+                            throw new Exception("no conversion");
+                    }
                 }
             }
             public bool IsChanged {
                 get {
-                    if (_item.AsBool() != null)
-                        return _item.AsBool().Value != _item.AsBool().InitialValue;
-                    else if (_item.AsInt() != null)
-                        return _item.AsInt().Value != _item.AsInt().InitialValue;
-                    else
-                        return _item.AsString().Value != _item.AsString().InitialValue;
+                    switch (_item.DataType) {
+                        case PreferenceItemDataType.Bool:
+                            return CheckChange(_item.AsBool());
+                        case PreferenceItemDataType.Int:
+                            return CheckChange(_item.AsInt());
+                        case PreferenceItemDataType.Decimal:
+                            return CheckChange(_item.AsDecimal());
+                        case PreferenceItemDataType.String:
+                            return CheckChange(_item.AsString());
+                        default:
+                            throw new Exception("no comparison");
+                    }
                 }
+            }
+
+            private bool CheckChange<T>(ITypedPreferenceItem<T> item) where T: IEquatable<T> {
+                return !item.Value.Equals(item.InitialValue);
             }
 
             public int CompareTo(ItemTag other) {

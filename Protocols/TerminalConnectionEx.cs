@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 
 namespace Poderosa.Protocols {
@@ -29,6 +30,17 @@ namespace Poderosa.Protocols {
     /// <ja>このインターフェイスは、接続を示す<seealso cref="ITerminalConnection">ITerminalConnection</seealso>の<see cref="ITerminalConnection.Socket">Socketプロパティ</see>として取得できます。</ja><en>This interface can be got <see cref="ITerminalConnection.Socket">Socket property</see> that show connection on <seealso cref="ITerminalConnection">ITerminalConnection</seealso>.</en>
     /// </remarks>
     public interface IPoderosaSocket : IByteOutputStream {
+        /// <summary>
+        /// <ja>
+        /// 接続のリモート側を表す文字列です。
+        /// </ja>
+        /// <en>
+        /// A string representing the remote side of the connection.
+        /// </en>
+        /// </summary>
+        string Remote {
+            get;
+        }
         /// <summary>
         /// <ja>
         /// データを受信するためのインターフェイスを登録します。
@@ -68,6 +80,40 @@ namespace Poderosa.Protocols {
         /// </en>
         /// </summary>
         void ForceDisposed();
+    }
+
+    /// <summary>
+    /// <ja>
+    /// サーバーにIPソケットで接続している場合の <see cref="IPoderosaSocket"/>。
+    /// </ja>
+    /// <en>
+    /// <see cref="IPoderosaSocket"/> when an IP socket is used to connect to the server.
+    /// </en>
+    /// </summary>
+    public interface IPoderosaSocketInet : IPoderosaSocket {
+        /// <summary>
+        /// <ja>
+        /// リモート側のIPアドレスです。取得できなければnull。
+        /// </ja>
+        /// <en>
+        /// An IP address of the remote side. Null if not available.
+        /// </en>
+        /// </summary>
+        IPAddress RemoteAddress {
+            get;
+        }
+
+        /// <summary>
+        /// <ja>
+        /// リモート側のポート番号です。取得できなければnull。
+        /// </ja>
+        /// <en>
+        /// Port number of the remote side. Null if not available.
+        /// </en>
+        /// </summary>
+        int? RemotePortNumber {
+            get;
+        }
     }
 
     //端末としての出力。旧TerminalConnectionのいくつかのメソッドを抜き出した

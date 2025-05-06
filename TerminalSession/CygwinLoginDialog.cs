@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -497,7 +497,9 @@ namespace Poderosa.Sessions {
             }
             settings.Icon = Poderosa.TerminalSession.Properties.Resources.Cygwin16x16;
             settings.Encoding = ((EnumListItem<EncodingType>)_encodingBox.SelectedItem).Value;
-            settings.TerminalType = ((EnumListItem<TerminalType>)_terminalTypeBox.SelectedItem).Value;
+            settings.TerminalType = (_terminalTypeBox.SelectedItem == null)
+                ? TerminalType.XTerm256Color
+                : ((EnumListItem<TerminalType>)_terminalTypeBox.SelectedItem).Value;
             settings.EndUpdate();
 
             ITerminalParameter termParam = (ITerminalParameter)_param.GetAdapter(typeof(ITerminalParameter));
@@ -557,7 +559,7 @@ namespace Poderosa.Sessions {
 
         protected override void ClearConnectingState() {
             base.ClearConnectingState();
-            this.Text = TEnv.Strings.GetString("Form.CygwinLoginDialog.Text");
+            this.Text = TEnv.Strings.GetString("Form.CygwinLoginDialog.TextCygwin");
             _connector = null;
         }
 

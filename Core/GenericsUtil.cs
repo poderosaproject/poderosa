@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -62,6 +62,23 @@ namespace Poderosa.Util.Generics {
         }
 
         public bool Equals(int v1, int v2) {
+            return v1 == v2;
+        }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <exclude/>
+    public class DecimalPrimitiveAdapter : IPrimitiveAdapter<decimal> {
+        public string ToString(decimal value) {
+            return value.ToString();
+        }
+
+        public decimal Parse(string value) {
+            return Decimal.Parse(value);
+        }
+
+        public bool Equals(decimal v1, decimal v2) {
             return v1 == v2;
         }
     }

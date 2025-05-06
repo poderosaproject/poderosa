@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -260,15 +260,20 @@ namespace Poderosa.View {
 
         public void SelectAll() {
             //_disabledTemporary = false;
-            _forwardPivot.Line = _owner.CharacterDocument.FirstLine.ID;
-            _forwardPivot.Column = 0;
-            _backwardPivot = (TextPoint)_forwardPivot.Clone();
-            _forwardDestination.Line = _owner.CharacterDocument.LastLine.ID;
-            _forwardDestination.Column = _owner.CharacterDocument.LastLine.DisplayLength;
-            _backwardDestination = (TextPoint)_forwardDestination.Clone();
-
-            _pivotType = RangeType.Char;
-            FixSelection();
+            using (CharacterDocumentViewer.DocumentScope docScope = _owner.GetDocumentScope()) {
+                if (docScope.Document != null) {
+                    lock (docScope.Document) {
+                        _forwardPivot.Line = docScope.Document.FirstLine.ID;
+                        _forwardPivot.Column = 0;
+                        _backwardPivot = (TextPoint)_forwardPivot.Clone();
+                        _forwardDestination.Line = docScope.Document.LastLine.ID;
+                        _forwardDestination.Column = docScope.Document.LastLine.DisplayLength;
+                        _backwardDestination = (TextPoint)_forwardDestination.Clone();
+                        _pivotType = RangeType.Char;
+                    }
+                    FixSelection();
+                }
+            }
         }
 
         //選択モードに応じて範囲を定める。マウスでドラッグすることもあるので、column<0のケースも存在する
@@ -315,42 +320,50 @@ namespace Poderosa.View {
         }
 
         public string GetSelectedText(TextFormatOption opt) {
-            StringBuilder bld = new StringBuilder();
-            TextPoint selStart = HeadPoint;
-            TextPoint selEnd = TailPoint;
+            using (CharacterDocumentViewer.DocumentScope docScope = _owner.GetDocumentScope()) {
+                if (docScope.Document == null) {
+                    return String.Empty;
+                }
 
-            GLine l = _owner.CharacterDocument.FindLineOrEdge(selStart.Line);
-            int pos = selStart.Column;
-            if (pos < 0) {
-                return "";
-            }
+                StringBuilder bld = new StringBuilder();
+                TextPoint selStart = HeadPoint;
+                TextPoint selEnd = TailPoint;
 
-            while (true) {
-                bool eolRequired = (opt == TextFormatOption.AsLook || l.EOLType != EOLType.Continue);
-
-                if (l.ID == selEnd.Line) {  // the last line
-                    CopyGLineContent(l, bld, pos, selEnd.Column);
-                    if (eolRequired && _pivotType == RangeType.Line) {
-                        bld.Append("\r\n");
+                lock (docScope.Document) {
+                    GLine l = docScope.Document.FindLineOrEdge(selStart.Line);
+                    int pos = selStart.Column;
+                    if (pos < 0) {
+                        return "";
                     }
-                    break;
+
+                    while (true) {
+                        bool eolRequired = (opt == TextFormatOption.AsLook || l.EOLType != EOLType.Continue);
+
+                        if (l.ID == selEnd.Line) {  // the last line
+                            CopyGLineContent(l, bld, pos, selEnd.Column);
+                            if (eolRequired && _pivotType == RangeType.Line) {
+                                bld.Append("\r\n");
+                            }
+                            break;
+                        }
+
+                        CopyGLineContent(l, bld, pos, null);
+
+                        if (eolRequired) {
+                            bld.Append("\r\n");
+                        }
+
+                        l = l.NextLine;
+                        if (l == null) {
+                            // this should not be happened...
+                            break;
+                        }
+                        pos = 0;
+                    }
                 }
 
-                CopyGLineContent(l, bld, pos, null);
-
-                if (eolRequired) {
-                    bld.Append("\r\n");
-                }
-
-                l = l.NextLine;
-                if (l == null) {
-                    // this should not be happened...
-                    break;
-                }
-                pos = 0;
+                return bld.ToString();
             }
-
-            return bld.ToString();
         }
 
         private void CopyGLineContent(GLine line, StringBuilder buff, int start, int? end) {

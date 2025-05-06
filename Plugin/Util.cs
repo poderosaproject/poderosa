@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 using System;
 using System.Diagnostics;
 using System.Collections;
+using System.Globalization;
 using System.Text;
 using System.Drawing;
 using System.IO;
@@ -94,7 +95,8 @@ namespace Poderosa {
     public static class RuntimeUtil {
 
         private static readonly object _errorFileSync = new object();
-        
+        private static string _errorLogFilePath = null;
+
         public static void ReportException(Exception ex) {
             Debug.WriteLine(ex.Message);
             Debug.WriteLine(ex.StackTrace);
@@ -161,8 +163,32 @@ namespace Poderosa {
         }
 
         private static StreamWriter GetErrorLog(out string errorfile) {
-            errorfile = Path.Combine(PoderosaStartupContext.Instance.ProfileHomeDirectory, "error.log");
-            return new StreamWriter(errorfile, true/*append!*/, Encoding.Default);
+            if (_errorLogFilePath == null) {
+                lock (_errorFileSync) {
+                    if (_errorLogFilePath == null) {
+                        string errorLogDir = PoderosaStartupContext.Instance.ProfileHomeDirectory;
+                        string errorFilePath = Path.Combine(errorLogDir, "error.log");
+                        if (File.Exists(errorFilePath)) {
+                            // check the current encoding, and rename the log file if it is not UTF-8 with BOM
+                            Encoding encoding;
+                            using (FileStream fs = File.OpenRead(errorFilePath))
+                            using (StreamReader reader = new StreamReader(fs, Encoding.Default, true)) {
+                                reader.Read();
+                                encoding = reader.CurrentEncoding;
+                            }
+                            if (encoding.CodePage != Encoding.UTF8.CodePage) {
+                                string backupFileName = "error (backup " + DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss", DateTimeFormatInfo.InvariantInfo) + ").log";
+                                string backupFilePath = Path.Combine(errorLogDir, backupFileName);
+                                File.Move(errorFilePath, backupFilePath);
+                            }
+                        }
+                        _errorLogFilePath = errorFilePath;
+                    }
+                }
+            }
+
+            errorfile = _errorLogFilePath;
+            return new StreamWriter(errorfile, true /* append */, Encoding.UTF8 /* with BOM */);
         }
 
         public static Font CreateFont(string name, float size) {

@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -56,6 +57,8 @@ namespace Poderosa.Terminal {
 
         private System.Windows.Forms.Timer _sizeTipTimer;
         private ITerminalControlHost _session;
+        private TerminalDocument _documentCache; // cache _session.Terminal.Document
+        private readonly ReaderWriterLockSlim _documentLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         private readonly TerminalEmulatorMouseHandler _terminalEmulatorMouseHandler;
         private readonly MouseTrackingHandler _mouseTrackingHandler;
@@ -70,13 +73,48 @@ namespace Poderosa.Terminal {
 
         private bool _escForVI;
 
-        //再描画の状態管理
-        private int _drawOptimizingState = 0; //この状態管理はOnWindowManagerTimer(), SmartInvalidate()参照
+        private bool _resetViewTop;
 
-        internal TerminalDocument GetDocument() {
-            // FIXME: In rare case, _session may be null...
-            return _session.Terminal.GetDocument();
+        private bool _isResizeSuspended;
+        private Size? _pendingSize;
+
+        /// <summary>
+        /// Scope to guarantee consistent access to the TerminalDocument bound to this control
+        /// </summary>
+        /// <remarks>
+        /// To avoid frequent memory allocations, this type is defined as struct.
+        /// </remarks>
+        private struct TerminalDocumentScope : IDisposable {
+            /// <summary>
+            /// Document bound to the viewer. This may be null.
+            /// </summary>
+            public readonly TerminalDocument Document;
+
+            private readonly ReaderWriterLockSlim _lock;
+
+            public TerminalDocumentScope(TerminalDocument document, ReaderWriterLockSlim documentLock) {
+                this.Document = document;
+                this._lock = documentLock;
+            }
+
+            public void Dispose() {
+                _lock.ExitReadLock();
+            }
         }
+
+        /// <summary>
+        /// The current document bound to this control. This may be null.
+        /// </summary>
+        /// <remarks>
+        /// <para>Direct access to the current document still exist to work with other existing components.</para>
+        /// <para>For consistent access to the current document, <see cref="GetDocumentScope()"/> or <see cref="GetTerminalDocumentScope()"/> should be used.</para>
+        /// </remarks>
+        public IPoderosaDocument CurrentDocument {
+            get {
+                return _documentCache;
+            }
+        }
+
         protected ITerminalSettings GetTerminalSettings() {
             // FIXME: In rare case, _session may be null...
             return _session.TerminalSettings;
@@ -104,7 +142,7 @@ namespace Poderosa.Terminal {
             _instanceID = _instanceCount++;
             _enableAutoScrollBarAdjustment = false;
             _escForVI = false;
-            this.EnabledEx = false;
+            _resetViewTop = false;
 
             // この呼び出しは、Windows.Forms フォーム デザイナで必要です。
             InitializeComponent();
@@ -122,55 +160,114 @@ namespace Poderosa.Terminal {
 
             this.SetStyle(ControlStyles.SupportsTransparentBackColor, true);
         }
+
         public void Attach(ITerminalControlHost session) {
-            _session = session;
-            SetContent(session.Terminal.GetDocument());
+            _documentLock.EnterWriteLock();
+            try {
+                _session = session;
+                _documentCache = session.Terminal.Document;
+                DocumentChanged(true);
+                ChangeUICursor(_documentCache.UICursor);
 
-            _mouseTrackingHandler.Attach(session);
-            _mouseWheelHandler.Attach(session);
+                _mouseTrackingHandler.Attach(session);
+                _mouseWheelHandler.Attach(session);
 
-            ITerminalEmulatorOptions opt = TerminalEmulatorPlugin.Instance.TerminalEmulatorOptions;
-            _caret.Blink = opt.CaretBlink;
-            _caret.Color = opt.CaretColor;
-            _caret.Style = opt.CaretType;
-            _caret.Reset();
+                ITerminalEmulatorOptions opt = TerminalEmulatorPlugin.Instance.TerminalEmulatorOptions;
+                _caret.Blink = opt.CaretBlink;
+                _caret.Color = opt.CaretColor;
+                _caret.Style = opt.CaretType;
+                _caret.Reset();
 
-            //KeepAliveタイマ起動は最も遅らせた場合でココ
-            TerminalEmulatorPlugin.Instance.KeepAlive.Refresh(opt.KeepAliveInterval);
+                //KeepAliveタイマ起動は最も遅らせた場合でココ
+                TerminalEmulatorPlugin.Instance.KeepAlive.Refresh(opt.KeepAliveInterval);
 
-            //ASCIIWordBreakTable : 今は共有設定だが、Session固有にデータを持つようにするかもしれない含みを持たせて。
-            ASCIIWordBreakTable table = ASCIIWordBreakTable.Default;
-            table.Reset();
-            foreach (char ch in opt.AdditionalWordElement)
-                table.Set(ch, ASCIIWordBreakTable.LETTER);
+                //ASCIIWordBreakTable : 今は共有設定だが、Session固有にデータを持つようにするかもしれない含みを持たせて。
+                ASCIIWordBreakTable table = ASCIIWordBreakTable.Default;
+                table.Reset();
+                foreach (char ch in opt.AdditionalWordElement)
+                    table.Set(ch, ASCIIWordBreakTable.LETTER);
 
-            lock (GetDocument()) {
-                _ignoreValueChangeEvent = true;
-                _session.Terminal.CommitScrollBar(_VScrollBar, false);
-                _ignoreValueChangeEvent = false;
+                TerminalDocument document = _documentCache;
+                lock (document) {
+                    _ignoreValueChangeEvent = true;
+                    _session.Terminal.CommitScrollBar(_VScrollBar, false);
+                    _ignoreValueChangeEvent = false;
 
-                if (!IsConnectionClosed()) {
-                    Size ts = CalcTerminalSize(GetRenderProfile());
+                    if (!IsConnectionClosed()) {
+                        Size ts = CalcTerminalSize(GetRenderProfile());
 
-                    //TODO ネゴ開始前はここを抑制したい
-                    if (ts.Width != GetDocument().TerminalWidth || ts.Height != GetDocument().TerminalHeight)
-                        ResizeTerminal(ts.Width, ts.Height);
+                        //TODO ネゴ開始前はここを抑制したい
+                        if (ts.Width != document.TerminalWidth || ts.Height != document.TerminalHeight) {
+                            ResizeTerminal(document, ts.Width, ts.Height);
+                        }
+                    }
+                }
+                Invalidate(true);
+            }
+            finally {
+                _documentLock.ExitWriteLock();
+            }
+        }
+
+        public void Detach() {
+            _documentLock.EnterWriteLock();
+            try {
+                if (DebugOpt.DrawingPerformance)
+                    DrawingPerformance.Output();
+
+                if (_inIMEComposition)
+                    ClearIMEComposition();
+
+                _mouseTrackingHandler.Detach();
+                _mouseWheelHandler.Detach();
+
+                _session = null;
+                _documentCache = null;
+                DocumentChanged(false);
+                ChangeUICursor(null);
+                Invalidate(true);
+            }
+            finally {
+                _documentLock.ExitWriteLock();
+            }
+        }
+
+        public void ChangeUICursor(Cursor uiCursor) {
+            if (uiCursor != null) {
+                SetUICursor(uiCursor);
+            }
+            else {
+                ResetUICursor();
+            }
+        }
+
+        public override bool HasDocument {
+            get {
+                return _documentCache != null;
+            }
+        }
+
+        public override DocumentScope GetDocumentScope() {
+            _documentLock.EnterReadLock();
+            return new DocumentScope(_documentCache, _documentLock);
+        }
+
+        private TerminalDocumentScope GetTerminalDocumentScope() {
+            _documentLock.EnterReadLock();
+            return new TerminalDocumentScope(_documentCache, _documentLock);
+        }
+
+        protected override void OnUpdatingTimer() {
+            if (_resetViewTop) {
+                _resetViewTop = false;
+                using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
+                    if (docScope.Document != null) {
+                        lock (docScope.Document) {
+                            docScope.Document.ResetViewTop();
+                        }
+                    }
                 }
             }
-            Invalidate(true);
-        }
-        public void Detach() {
-            if (DebugOpt.DrawingPerformance)
-                DrawingPerformance.Output();
-
-            if (_inIMEComposition)
-                ClearIMEComposition();
-
-            _mouseTrackingHandler.Detach();
-            _mouseWheelHandler.Detach();
-
-            _session = null;
-            SetContent(null);
         }
 
         /// <summary>
@@ -258,44 +355,26 @@ namespace Poderosa.Terminal {
         }
 
         private void InternalDataArrived() {
-            if (_session == null)
-                return;	// ペインを閉じる時に _tag が null になっていることがある
+            using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
+                if (docScope.Document == null) {
+                    return;	// ペインを閉じる時に _tag が null になっていることがある
+                }
 
-            TerminalDocument document = GetDocument();
-            if (!this.ITextSelection.IsEmpty) {
-                document.InvalidatedRegion.InvalidatedAll = true; //面倒だし
-                this.ITextSelection.Clear();
-            }
-            //Debug.WriteLine(String.Format("v={0} l={1} m={2}", _VScrollBar.Value, _VScrollBar.LargeChange, _VScrollBar.Maximum));
-            if (DebugOpt.DrawingPerformance)
-                DrawingPerformance.MarkReceiveData(GetDocument().InvalidatedRegion);
-            SmartInvalidate();
+                if (!this.ITextSelection.IsEmpty) {
+                    docScope.Document.InvalidatedRegion.InvalidatedAll = true; //面倒だし
+                    this.ITextSelection.Clear();
+                }
+                //Debug.WriteLine(String.Format("v={0} l={1} m={2}", _VScrollBar.Value, _VScrollBar.LargeChange, _VScrollBar.Maximum));
+                if (DebugOpt.DrawingPerformance)
+                    DrawingPerformance.MarkReceiveData(docScope.Document.InvalidatedRegion);
 
-            //部分変換中であったときのための調整
-            if (_inIMEComposition) {
-                if (this.InvokeRequired)
-                    this.Invoke(new AdjustIMECompositionDelegate(AdjustIMEComposition));
-                else
-                    AdjustIMEComposition();
-            }
-        }
-
-        private void SmartInvalidate() {
-            //ここでDrawOptimizeStateをいじる。近接して到着するデータによる過剰な再描画を回避しつつ、タイマーで一定時間後には確実に描画されるようにする。
-            //状態遷移は、データ到着とタイマーをトリガとする３状態の簡単なオートマトンである。
-            switch (_drawOptimizingState) {
-                case 0:
-                    _drawOptimizingState = 1;
-                    InvalidateEx();
-                    break;
-                case 1:
-                    if (_session.TerminalConnection.Socket.Available)
-                        Interlocked.Exchange(ref _drawOptimizingState, 2); //間引きモードへ
+                //部分変換中であったときのための調整
+                if (_inIMEComposition) {
+                    if (this.InvokeRequired)
+                        this.Invoke(new AdjustIMECompositionDelegate(AdjustIMEComposition));
                     else
-                        InvalidateEx();
-                    break;
-                case 2:
-                    break; //do nothing
+                        AdjustIMEComposition();
+                }
             }
         }
 
@@ -305,19 +384,68 @@ namespace Poderosa.Terminal {
          * ↓  UIスレッドによる実行のエリア
          */
 
-        protected override void OnWindowManagerTimer() {
-            base.OnWindowManagerTimer();
+        [ThreadStatic]
+        private static List<Sixel.LineIdAndColumnSpan> _lineIdAndColumnSpanList;
 
-            switch (_drawOptimizingState) {
-                case 0:
-                    break; //do nothing
-                case 1:
-                    Interlocked.CompareExchange(ref _drawOptimizingState, 0, 1);
-                    break;
-                case 2: //忙しくても偶には描画
-                    _drawOptimizingState = 1;
-                    InvalidateEx();
-                    break;
+        protected override void OverlayAfter(Graphics g, CharacterDocumentViewer.RenderParameter param) {
+            using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
+                if (docScope.Document != null) {
+                    // Cut out regions of newly updated text from the sixel images.
+                    List<Sixel.LineIdAndColumnSpan> tmpList = _lineIdAndColumnSpanList;
+                    if (tmpList == null) {
+                        tmpList = new List<Sixel.LineIdAndColumnSpan>();
+                        _lineIdAndColumnSpanList = tmpList;
+                    }
+                    else {
+                        tmpList.Clear();
+                    }
+
+                    foreach (GLine l in param.GLines) {
+                        if (l.UpdatedSpans != null) {
+                            foreach (GLineColumnSpan s in l.UpdatedSpans) {
+                                tmpList.Add(new Sixel.LineIdAndColumnSpan(l.ID, s));
+                            }
+                        }
+                    }
+
+                    if (tmpList.Count > 0) {
+                        docScope.Document.SixelImageManager.ClearSpans(
+                            spans: tmpList.ToArray(),
+                            topLineId: param.TopLineId,
+                            lineIdFrom: param.TopLineId + param.LineFrom,
+                            lineIdTo: param.TopLineId + param.LineFrom + param.LineCount - 1,
+                            linePitch: param.LinePitch,
+                            columnPitch: param.ColumnPitch
+                        );
+                    }
+
+                    // Calculate the region to exclude temporarily to display the cursor.
+                    Rectangle? excludedRect;
+                    if (param.CaretEnabled) {
+                        float fy = param.CaretLineOffset * param.LinePitch;
+                        int y1 = param.Origin.Y + (int)fy;
+                        int y2 = param.Origin.Y + (int)(fy + param.LinePitch);
+                        float fx = param.CaretColumnIndex * param.ColumnPitch;
+                        int x1 = param.Origin.X + (int)fx;
+                        int x2 = param.Origin.X + (int)(fx + param.ColumnPitch * param.CaretWidth);
+                        excludedRect = new Rectangle(x1, y1, x2 - x1, y2 - y1);
+                    }
+                    else {
+                        excludedRect = null;
+                    }
+
+                    // Draw sixel images
+                    docScope.Document.SixelImageManager.Draw(
+                        topLineId: param.TopLineId,
+                        lineIdFrom: param.TopLineId + param.LineFrom,
+                        lineIdTo: param.TopLineId + param.LineFrom + param.LineCount - 1,
+                        linePitch: param.LinePitch,
+                        columnPitch: param.ColumnPitch,
+                        g: g,
+                        origin: param.Origin,
+                        excludedRect: excludedRect
+                    );
+                }
             }
         }
 
@@ -334,11 +462,15 @@ namespace Poderosa.Terminal {
         protected override void VScrollBarValueChanged() {
             if (_ignoreValueChangeEvent)
                 return;
-            TerminalDocument document = GetDocument();
-            lock (document) {
-                document.TopLineNumber = document.FirstLineNumber + _VScrollBar.Value;
-                _session.Terminal.TransientScrollBarValues.Value = _VScrollBar.Value;
-                Invalidate();
+
+            using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
+                if (docScope.Document != null) {
+                    lock (docScope.Document) {
+                        docScope.Document.SetViewTopLineNumber(docScope.Document.FirstLineNumber + _VScrollBar.Value);
+                        _session.Terminal.TransientScrollBarValues.Value = _VScrollBar.Value;
+                        Invalidate(); // redraw now
+                    }
+                }
             }
         }
 
@@ -376,15 +508,17 @@ namespace Poderosa.Terminal {
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
             Keys modifiers = keyData & Keys.Modifiers;
-            if (IsAcceptableUserInput() && (modifiers & Keys.Alt) != Keys.None) { //Altキーの横取り処理を開始
-                Keys keybody = keyData & Keys.KeyCode;
-                if (GEnv.Options.LeftAltKey != AltKeyAction.Menu && (Win32.GetKeyState(Win32.VK_LMENU) & 0x8000) != 0) {
-                    ProcessSpecialAltKey(GEnv.Options.LeftAltKey, modifiers, keybody);
-                    return true;
-                }
-                else if (GEnv.Options.RightAltKey != AltKeyAction.Menu && (Win32.GetKeyState(Win32.VK_RMENU) & 0x8000) != 0) {
-                    ProcessSpecialAltKey(GEnv.Options.RightAltKey, modifiers, keybody);
-                    return true;
+            using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
+                if (IsAcceptableUserInput(docScope.Document) && (modifiers & Keys.Alt) != Keys.None) { //Altキーの横取り処理を開始
+                    Keys keybody = keyData & Keys.KeyCode;
+                    if (GEnv.Options.LeftAltKey != AltKeyAction.Menu && (Win32.GetKeyState(Win32.VK_LMENU) & 0x8000) != 0) {
+                        ProcessSpecialAltKey(GEnv.Options.LeftAltKey, modifiers, keybody);
+                        return true;
+                    }
+                    else if (GEnv.Options.RightAltKey != AltKeyAction.Menu && (Win32.GetKeyState(Win32.VK_RMENU) & 0x8000) != 0) {
+                        ProcessSpecialAltKey(GEnv.Options.RightAltKey, modifiers, keybody);
+                        return true;
+                    }
                 }
             }
 
@@ -406,43 +540,55 @@ namespace Poderosa.Terminal {
             Keys keybody = key & Keys.KeyCode;
 
             //接続中でないとだめなキー
-            if (IsAcceptableUserInput()) {
-                //TODO Enter,Space,SequenceKey系もカスタムキーに入れてしまいたい
-                char[] custom = TerminalEmulatorPlugin.Instance.CustomKeySettings.Scan(key); //カスタムキー
-                if (custom != null) {
-                    SendCharArray(custom);
-                    return true;
-                }
-                else if (ProcessAdvancedFeatureKey(modifiers, keybody)) {
-                    return true;
-                }
-                else if (keybody == Keys.Enter && modifiers == Keys.None) {
-                    _escForVI = false;
-                    SendCharArray(TerminalUtil.NewLineChars(GetTerminalSettings().TransmitNL));
-                    return true;
-                }
-                else if (keybody == Keys.Space && modifiers == Keys.Control) { //これはOnKeyPressにわたってくれない
-                    SendChar('\0');
-                    return true;
-                }
-                if ((keybody == Keys.Tab) && (modifiers == Keys.Shift)) {
-                    this.SendChar('\t');
-                    return true;
-                }
-                else if (IsSequenceKey(keybody)) {
-                    ProcessSequenceKey(modifiers, keybody);
-                    return true;
-                }
-            }
+            using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
+                if (docScope.Document != null) {
+                    if (IsAcceptableUserInput(docScope.Document)) {
+                        //TODO Enter,Space,SequenceKey系もカスタムキーに入れてしまいたい
+                        char[] custom = TerminalEmulatorPlugin.Instance.CustomKeySettings.Scan(key); //カスタムキー
+                        if (custom != null) {
+                            SendCharArray(custom);
+                            return true;
+                        }
+                        else if (ProcessAdvancedFeatureKey(modifiers, keybody)) {
+                            return true;
+                        }
+                        else if (keybody == Keys.Enter && modifiers == Keys.None) {
+                            _escForVI = false;
+                            SendCharArray(
+                                TerminalUtil.NewLineChars(
+                                    docScope.Document.ForceNewLine
+                                        ? NewLine.CRLF
+                                        : GetTerminalSettings().TransmitNL));
+                            return true;
+                        }
+                        else if (keybody == Keys.Space && modifiers == Keys.Control) { //これはOnKeyPressにわたってくれない
+                            SendChar('\0');
+                            return true;
+                        }
+                        if ((keybody == Keys.Tab) && (modifiers == Keys.Shift)) {
+                            this.SendChar('\t');
+                            return true;
+                        }
+                        else if (IsSequenceKey(keybody)) {
+                            ProcessSequenceKey(modifiers, keybody);
+                            return true;
+                        }
+                    }
 
-            //常に送れるキー
-            if (keybody == Keys.Apps) { //コンテキストメニュー
-                TerminalDocument document = GetDocument();
-                int x = document.CaretColumn;
-                int y = document.CurrentLineNumber - document.TopLineNumber;
-                SizeF p = GetRenderProfile().Pitch;
-                _terminalEmulatorMouseHandler.ShowContextMenu(new Point((int)(p.Width * x), (int)(p.Height * y)));
-                return true;
+                    //常に送れるキー
+                    if (keybody == Keys.Apps) { //コンテキストメニュー
+                        int x, y;
+                        lock (docScope.Document) {
+                            x = docScope.Document.CaretColumn;
+                            y = Math.Min(docScope.Document.CurrentLineNumber - docScope.Document.ViewTopLineNumber, docScope.Document.TerminalHeight - 1);
+                        }
+                        RenderProfile renderProfile = GetRenderProfile();
+                        SizeF p = renderProfile.Pitch;
+                        int lineSpacing = renderProfile.LineSpacing;
+                        _terminalEmulatorMouseHandler.ShowContextMenu(new Point((int)(p.Width * x), (int)((p.Height + lineSpacing) * y)));
+                        return true;
+                    }
+                }
             }
 
             return base.ProcessDialogKey(key);
@@ -471,7 +617,7 @@ namespace Poderosa.Terminal {
                 key == Keys.Home || key == Keys.End;
         }
         private void ProcessSpecialAltKey(AltKeyAction act, Keys modifiers, Keys body) {
-            if (!this.EnabledEx)
+            if (!this.HasDocument)
                 return;
             char ch = KeyboardInfo.Scan(body, (modifiers & Keys.Shift) != Keys.None);
             if (ch == '\0')
@@ -481,11 +627,8 @@ namespace Poderosa.Terminal {
                 ch = (char)((int)ch % 32); //Controlを押したら制御文字
 
             if (act == AltKeyAction.ESC) {
-                byte[] t = new byte[2];
-                t[0] = 0x1B;
-                t[1] = (byte)ch;
                 //Debug.WriteLine("ESC " + (int)ch);
-                SendBytes(t);
+                SendBytes(new byte[] { 0x1b, (byte)ch });
             }
             else { //Meta
                 ch = (char)(0x80 + ch);
@@ -501,8 +644,10 @@ namespace Poderosa.Terminal {
             if (e.KeyChar == '\x001b') {
                 _escForVI = true;
             }
-            if (!IsAcceptableUserInput())
-                return;
+            using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
+                if (!IsAcceptableUserInput(docScope.Document))
+                    return;
+            }
             /* ここの処理について
              * 　IMEで入力文字を確定すると（部分確定ではない）、WM_IME_CHAR、WM_ENDCOMPOSITION、WM_CHARの順でメッセージが送られてくる。Controlはその両方でKeyPressイベントを
              * 　発生させるので、IMEの入力が２回送信されてしまう。
@@ -522,55 +667,19 @@ namespace Poderosa.Terminal {
         }
 
         private void SendBytes(byte[] data) {
-            TerminalDocument doc = GetDocument();
-            lock (doc) {
-                //キーを押しっぱなしにしたときにキャレットがブリンクするのはちょっと見苦しいのでキー入力があるたびにタイマをリセット
-                _caret.KeepActiveUntilNextTick();
-
-                MakeCurrentLineVisible();
-            }
+            //キーを押しっぱなしにしたときにキャレットがブリンクするのはちょっと見苦しいのでキー入力があるたびにタイマをリセット
+            _caret.KeepActiveUntilNextTick();
+            _resetViewTop = true;
             GetTerminalTransmission().Transmit(data);
         }
-        private bool IsAcceptableUserInput() {
+
+        private bool IsAcceptableUserInput(TerminalDocument document) {
             //TODO: ModalTerminalTaskの存在が理由で拒否するときはステータスバーか何かに出すのがよいかも
-            if (!this.EnabledEx || IsConnectionClosed() || _session.Terminal.CurrentModalTerminalTask != null)
+            if (document == null || IsConnectionClosed() || _session.Terminal.CurrentModalTerminalTask != null || document.KeySendLocked)
                 return false;
             else
                 return true;
 
-        }
-
-        private void ProcessScrollKey(Keys key) {
-            TerminalDocument doc = GetDocument();
-            int current = doc.TopLineNumber - doc.FirstLineNumber;
-            int newvalue = 0;
-            switch (key) {
-                case Keys.Up:
-                    newvalue = current - 1;
-                    break;
-                case Keys.Down:
-                    newvalue = current + 1;
-                    break;
-                case Keys.PageUp:
-                    newvalue = current - doc.TerminalHeight;
-                    break;
-                case Keys.PageDown:
-                    newvalue = current + doc.TerminalHeight;
-                    break;
-                case Keys.Home:
-                    newvalue = 0;
-                    break;
-                case Keys.End:
-                    newvalue = doc.LastLineNumber - doc.FirstLineNumber + 1 - doc.TerminalHeight;
-                    break;
-            }
-
-            if (newvalue < 0)
-                newvalue = 0;
-            else if (newvalue > _VScrollBar.Maximum + 1 - _VScrollBar.LargeChange)
-                newvalue = _VScrollBar.Maximum + 1 - _VScrollBar.LargeChange;
-
-            _VScrollBar.Value = newvalue; //これでイベントも発生するのでマウスで動かした場合と同じ挙動になる
         }
 
         private void ProcessSequenceKey(Keys modifier, Keys body) {
@@ -579,19 +688,16 @@ namespace Poderosa.Terminal {
             SendBytes(data);
         }
 
-        private void MakeCurrentLineVisible() {
+        public void SuspendResize() {
+            _isResizeSuspended = true;
+        }
 
-            TerminalDocument document = GetDocument();
-            if (document.CurrentLineNumber - document.FirstLineNumber < _VScrollBar.Value) { //上に隠れた
-                document.TopLineNumber = document.CurrentLineNumber;
-                _session.Terminal.TransientScrollBarValues.Value = document.TopLineNumber - document.FirstLineNumber;
-            }
-            else if (_VScrollBar.Value + document.TerminalHeight <= document.CurrentLineNumber - document.FirstLineNumber) { //下に隠れた
-                int n = document.CurrentLineNumber - document.FirstLineNumber - document.TerminalHeight + 1;
-                if (n < 0)
-                    n = 0;
-                GetTerminal().TransientScrollBarValues.Value = n;
-                GetDocument().TopLineNumber = n + document.FirstLineNumber;
+        public void ResumeResize() {
+            _isResizeSuspended = false;
+
+            if (_pendingSize.HasValue) {
+                ApplyTerminalSize(_pendingSize.Value);
+                _pendingSize = null;
             }
         }
 
@@ -606,12 +712,24 @@ namespace Poderosa.Terminal {
 
             Size ts = CalcTerminalSize(GetRenderProfile());
 
-            if (!IsConnectionClosed() && (ts.Width != GetDocument().TerminalWidth || ts.Height != GetDocument().TerminalHeight)) {
-                ResizeTerminal(ts.Width, ts.Height);
-                ShowSizeTip(ts.Width, ts.Height);
-                CommitTransientScrollBar();
+            if (_isResizeSuspended) {
+                _pendingSize = ts;
+                return;
+            }
+
+            ApplyTerminalSize(ts);
+        }
+
+        private void ApplyTerminalSize(Size size) {
+            using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
+                if (!IsConnectionClosed() && docScope.Document != null && (size.Width != docScope.Document.TerminalWidth || size.Height != docScope.Document.TerminalHeight)) {
+                    ResizeTerminal(docScope.Document, size.Width, size.Height);
+                    ShowSizeTip(size.Width, size.Height);
+                    CommitTransientScrollBar();
+                }
             }
         }
+
         private void OnHideSizeTip(object sender, EventArgs args) {
             Debug.Assert(!this.InvokeRequired);
             _sizeTip.Visible = false;
@@ -638,25 +756,31 @@ namespace Poderosa.Terminal {
         }
 
         public override GLine GetTopLine() {
-            //TODO Pane内のクラスチェンジができるようになったらここを改善
-            return _session == null ? base.GetTopLine() : GetDocument().TopLine;
+            TerminalDocument document = _documentCache;
+            return (document != null) ? document.ViewTopLine : base.GetTopLine();
         }
 
         protected override void AdjustCaret(Caret caret) {
             if (_session == null)
                 return;
 
-            if (IsConnectionClosed() || !this.Focused || _inIMEComposition)
+            if (IsConnectionClosed() || !this.Focused || _inIMEComposition) {
                 caret.Enabled = false;
+            }
             else {
-                TerminalDocument d = GetDocument();
-                // Note:
-                //  After a character was added to the last column of the row,
-                //  the value of CaretColumn will indicate outside of the terminal view.
-                //  In such case we draw the caret on the last column of the row.
-                caret.X = Math.Min(d.CaretColumn, d.TerminalWidth - 1);
-                caret.Y = d.CurrentLineNumber - d.TopLineNumber;
-                caret.Enabled = caret.Y >= 0 && caret.Y < d.TerminalHeight;
+                using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
+                    if (docScope.Document != null) {
+                        lock (docScope.Document) {
+                            // Note:
+                            //  After a character was added to the last column of the row,
+                            //  the value of CaretColumn will indicate outside of the terminal view.
+                            //  In such case we draw the caret on the last column of the row.
+                            caret.X = Math.Min(docScope.Document.CaretColumn, docScope.Document.TerminalWidth - 1);
+                            caret.Y = docScope.Document.CurrentLineNumber - docScope.Document.ViewTopLineNumber;
+                            caret.Enabled = docScope.Document.ShowCaret && caret.Y >= 0 && caret.Y < docScope.Document.TerminalHeight;
+                        }
+                    }
+                }
             }
         }
 
@@ -671,8 +795,6 @@ namespace Poderosa.Terminal {
                 height = 1;
             return new Size(width, height);
         }
-
-
 
         private void ShowSizeTip(int width, int height) {
             const int MARGIN = 8;
@@ -699,57 +821,52 @@ namespace Poderosa.Terminal {
             ShowSizeTip(width, height);
         }
 
-        private void ResizeTerminal(int width, int height) {
+        private void ResizeTerminal(TerminalDocument document, int width, int height) {
             //Debug.WriteLine(String.Format("Resize {0} {1}", width, height));
 
+            //   In the terminal display, the rendered area should be restricted to
+            // the screen size, since the remote application only updates within
+            // the notified screen size.
+            RestrictDisplayArea(width, height);
+
             //Documentへ通知
-            GetDocument().Resize(width, height);
+            document.Resize(width, height);
 
             if (_session.Terminal.CurrentModalTerminalTask != null)
                 return; //別タスクが走っているときは無視
-            if (GetTerminal().TerminalMode == TerminalMode.Application) //リサイズしてもスクロールリージョンも更新されるかは分からないが、一応全画面を更新する
-                GetDocument().SetScrollingRegion(0, height - 1);
             GetTerminal().Reset();
-            if (_VScrollBar.Enabled) {
-                bool scroll = IsAutoScrollMode();
-                _VScrollBar.LargeChange = height;
-                if (scroll)
-                    MakeCurrentLineVisible();
-            }
 
             //接続先へ通知
             GetTerminalTransmission().Resize(width, height);
-            InvalidateEx();
-        }
-        //現在行が見えるように自動的に追随していくべきかどうかの判定
-        private bool IsAutoScrollMode() {
-            TerminalDocument doc = GetDocument();
-            return GetTerminal().TerminalMode == TerminalMode.Normal &&
-                doc.CurrentLineNumber >= doc.TopLineNumber + doc.TerminalHeight - 1 &&
-                (!_VScrollBar.Enabled || _VScrollBar.Value + _VScrollBar.LargeChange > _VScrollBar.Maximum);
-        }
 
+            Invalidate(); // redraw now
+        }
 
         //IMEの位置合わせなど。日本語入力開始時、現在のキャレット位置からIMEをスタートさせる。
         private void AdjustIMEComposition() {
-            TerminalDocument document = GetDocument();
-            IntPtr hIMC = Win32.ImmGetContext(this.Handle);
-            RenderProfile prof = GetRenderProfile();
+            using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
+                if (docScope.Document != null) {
+                    IntPtr hIMC = Win32.ImmGetContext(this.Handle);
+                    RenderProfile prof = GetRenderProfile();
 
-            //フォントのセットは１回やればよいのか？
-            Win32.LOGFONT lf = new Win32.LOGFONT();
-            prof.GetIMECompositionFont().ToLogFont(lf);
-            Win32.ImmSetCompositionFont(hIMC, lf);
+                    //フォントのセットは１回やればよいのか？
+                    Win32.LOGFONT lf = new Win32.LOGFONT();
+                    prof.GetIMECompositionFont().ToLogFont(lf);
+                    Win32.ImmSetCompositionFont(hIMC, lf);
 
-            Win32.COMPOSITIONFORM form = new Win32.COMPOSITIONFORM();
-            form.dwStyle = Win32.CFS_POINT;
-            Win32.SystemMetrics sm = GEnv.SystemMetrics;
-            //Debug.WriteLine(String.Format("{0} {1} {2}", document.CaretColumn, charwidth, document.CurrentLine.CharPosToDisplayPos(document.CaretColumn)));
-            form.ptCurrentPos.x = sm.ControlBorderWidth + (int)(prof.Pitch.Width * (document.CaretColumn));
-            form.ptCurrentPos.y = sm.ControlBorderHeight + (int)((prof.Pitch.Height + prof.LineSpacing) * (document.CurrentLineNumber - document.TopLineNumber));
-            bool r = Win32.ImmSetCompositionWindow(hIMC, ref form);
-            Debug.Assert(r);
-            Win32.ImmReleaseContext(this.Handle, hIMC);
+                    Win32.COMPOSITIONFORM form = new Win32.COMPOSITIONFORM();
+                    form.dwStyle = Win32.CFS_POINT;
+                    Win32.SystemMetrics sm = GEnv.SystemMetrics;
+                    //Debug.WriteLine(String.Format("{0} {1} {2}", document.CaretColumn, charwidth, document.CurrentLine.CharPosToDisplayPos(document.CaretColumn)));
+                    lock (docScope.Document) {
+                        form.ptCurrentPos.x = sm.ControlBorderWidth + (int)(prof.Pitch.Width * (docScope.Document.CaretColumn));
+                        form.ptCurrentPos.y = sm.ControlBorderHeight + (int)((prof.Pitch.Height + prof.LineSpacing) * Math.Min(docScope.Document.CurrentLineNumber - docScope.Document.ViewTopLineNumber, docScope.Document.TerminalHeight - 1));
+                    }
+                    bool r = Win32.ImmSetCompositionWindow(hIMC, ref form);
+                    Debug.Assert(r);
+                    Win32.ImmReleaseContext(this.Handle, hIMC);
+                }
+            }
         }
         private void ClearIMEComposition() {
             IntPtr hIMC = Win32.ImmGetContext(this.Handle);
@@ -759,17 +876,19 @@ namespace Poderosa.Terminal {
         }
 
         public void ApplyRenderProfile(RenderProfile prof) {
-            if (this.EnabledEx) {
+            if (this.HasDocument) {
                 this.BackColor = prof.BackColor;
                 Size ts = CalcTerminalSize(prof);
-                if (!IsConnectionClosed() && (ts.Width != GetDocument().TerminalWidth || ts.Height != GetDocument().TerminalHeight)) {
-                    ResizeTerminal(ts.Width, ts.Height);
+                using (TerminalDocumentScope docScope = GetTerminalDocumentScope()) {
+                    if (!IsConnectionClosed() && docScope.Document != null && (ts.Width != docScope.Document.TerminalWidth || ts.Height != docScope.Document.TerminalHeight)) {
+                        ResizeTerminal(docScope.Document, ts.Width, ts.Height);
+                    }
                 }
                 Invalidate();
             }
         }
         public void ApplyTerminalOptions(ITerminalEmulatorOptions opt) {
-            if (this.EnabledEx) {
+            if (this.HasDocument) {
                 if (GetTerminalSettings().UsingDefaultRenderProfile) {
                     ApplyRenderProfile(opt.CreateRenderProfile());
                 }
@@ -788,24 +907,24 @@ namespace Poderosa.Terminal {
 
         protected override void OnGotFocus(EventArgs args) {
             base.OnGotFocus(args);
-            if (!this.EnabledEx)
+            if (!this.HasDocument)
                 return;
             if (GetTerminal().GetFocusReportingMode()) {
                 byte[] data = new byte[] { 0x1b, 0x5b, 0x49 };
                 TransmitDirect(data, 0, data.Length);
             }
 
-            if (this.CharacterDocument != null) { //初期化過程のときは無視
-
-                //NOTE TerminalControlはSessionについては無知、という前提にしたほうがいいのかもしれない
-                TerminalEmulatorPlugin.Instance.GetSessionManager().ActivateDocument(this.CharacterDocument, ActivateReason.ViewGotFocus);
-
+            using (DocumentScope docScope = GetDocumentScope()) {
+                if (docScope.Document != null) {
+                    //NOTE TerminalControlはSessionについては無知、という前提にしたほうがいいのかもしれない
+                    TerminalEmulatorPlugin.Instance.GetSessionManager().ActivateDocument(docScope.Document, ActivateReason.ViewGotFocus);
+                }
             }
         }
 
         protected override void OnLostFocus(EventArgs args) {
             base.OnLostFocus(args);
-            if (!this.EnabledEx)
+            if (!this.HasDocument)
                 return;
             if (GetTerminal().GetFocusReportingMode()) {
                 byte[] data = new byte[] { 0x1b, 0x5b, 0x4f };
@@ -858,10 +977,20 @@ namespace Poderosa.Terminal {
                     newval++;
                     break;
                 case 2: //SB_PAGEUP
-                    newval -= GetDocument().TerminalHeight;
+                    {
+                        TerminalDocument document = _documentCache;
+                        if (document != null) {
+                            newval -= document.TerminalHeight;
+                        }
+                    }
                     break;
                 case 3: //SB_PAGEDOWN
-                    newval += GetDocument().TerminalHeight;
+                    {
+                        TerminalDocument document = _documentCache;
+                        if (document != null) {
+                            newval += document.TerminalHeight;
+                        }
+                    }
                     break;
             }
 
@@ -952,7 +1081,7 @@ namespace Poderosa.Terminal {
         }
 
         public override UIHandleResult OnMouseWheel(MouseEventArgs args) {
-            if (!_control.EnabledEx)
+            if (!_control.HasDocument)
                 return UIHandleResult.Pass;
 
             lock (_terminalSync) {
@@ -1250,9 +1379,6 @@ namespace Poderosa.Terminal {
             return UIHandleResult.Pass;
         }
         public override UIHandleResult OnMouseUp(MouseEventArgs args) {
-            if (!_control.EnabledEx)
-                return UIHandleResult.Pass;
-
             if (args.Button == MouseButtons.Right || args.Button == MouseButtons.Middle) {
                 ITerminalEmulatorOptions opt = TerminalEmulatorPlugin.Instance.TerminalEmulatorOptions;
                 MouseButtonAction act = args.Button == MouseButtons.Right ? opt.RightButtonAction : opt.MiddleButtonAction;
@@ -1260,6 +1386,9 @@ namespace Poderosa.Terminal {
                     if (Control.ModifierKeys == Keys.Shift ^ act == MouseButtonAction.ContextMenu) //シフトキーで動作反転
                         ShowContextMenu(new Point(args.X, args.Y));
                     else { //Paste
+                        if (!_control.HasDocument)
+                            return UIHandleResult.Pass;
+
                         IGeneralViewCommands vc = (IGeneralViewCommands)_control.GetAdapter(typeof(IGeneralViewCommands));
                         TerminalEmulatorPlugin.Instance.GetCommandManager().Execute(vc.Paste, (ICommandTarget)vc.GetAdapter(typeof(ICommandTarget)));
                         //ペースト後はフォーカス

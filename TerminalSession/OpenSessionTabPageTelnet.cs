@@ -1,4 +1,4 @@
-﻿// Copyright 2016-2017 The Poderosa Project.
+﻿// Copyright 2016-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -187,7 +187,7 @@ namespace Poderosa.Sessions {
         private void SetDefaultValues() {
             this._portBox.Text = DEFAULT_TELNET_PORT;
             this._logTypeBox.SelectedItem = LogType.None;
-            this._terminalTypeBox.SelectedItem = TerminalType.XTerm;
+            this._terminalTypeBox.SelectedItem = TerminalType.XTerm256Color;
             this._encodingBox.SelectedItem = EncodingType.UTF8_Latin;
             this._newLineBox.SelectedItem = NewLine.CR;
             this._localEchoBox.SelectedItem = false;

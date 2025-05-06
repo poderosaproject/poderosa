@@ -1,4 +1,4 @@
-﻿// Copyright 2011-2017 The Poderosa Project.
+﻿// Copyright 2011-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,6 +60,7 @@ namespace Poderosa.Pipe {
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool DuplicateHandle(
             IntPtr hSourceProcessHandle,
             SafeFileHandle hSourceHandle,
@@ -71,9 +72,11 @@ namespace Poderosa.Pipe {
         );
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool CreateProcess(
             [MarshalAs(UnmanagedType.LPTStr)]
             string lpApplicationName,
+            [MarshalAs(UnmanagedType.LPTStr)]
             string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
@@ -351,7 +354,7 @@ namespace Poderosa.Pipe {
                 Process process = Process.GetProcessById(processInfo.dwProcessId);
 
                 PipedProcess pipedProcess = new PipedProcess(process, childStdInHandle, childStdOutHandle, childStdErrHandle);
-                PipeSocket socket = new PipeSocket(parentReadStream, parentWriteStream);
+                PipeSocket socket = new PipeSocket(parentReadStream, parentWriteStream, commandLine);
                 PipeTerminalConnection connection = new PipeTerminalConnection(param, socket, pipedProcess);
 
                 return connection;
@@ -437,7 +440,10 @@ namespace Poderosa.Pipe {
                     writeStream = readStream;
                 }
 
-                PipeSocket sock = new PipeSocket(readStream, writeStream);
+                string remote = (hasOutputPipePath)
+                    ? param.InputPipePath + " > " + param.OutputPipePath
+                    : param.InputPipePath;
+                PipeSocket sock = new PipeSocket(readStream, writeStream, remote);
                 PipeTerminalConnection conn = new PipeTerminalConnection(param, sock, null);
 
                 return conn;

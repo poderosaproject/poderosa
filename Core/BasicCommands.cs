@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -308,42 +308,16 @@ namespace Poderosa.Commands {
             ISplittableViewManager svm = (ISplittableViewManager)view.ViewManager.GetAdapter(typeof(ISplittableViewManager));
             IContentReplaceableView next = null;
             IPoderosaDocument document_unifying = view.Document;
-            CommandResult r = svm.Unify(view, out next);
-
-            if (r == CommandResult.Succeeded) {
-                ISessionManager sm = SessionManagerPlugin.Instance;
-                ISessionManagerForViewSplitter smp = SessionManagerPlugin.Instance;
-                smp.ChangeLastAttachedViewForAllDocuments(view, next);
-
-                //次のフォーカスのドキュメントがなければ旧ドキュメントを移行。そしてnextのドキュメントをアクティブに
-                if (document_unifying != null && next.Document == null) {
-                    sm.AttachDocumentAndView(document_unifying, next);
-                    Debug.Assert(next.Document == document_unifying);
-                }
-
-                if (next.Document != null)
-                    sm.ActivateDocument(next.Document, ActivateReason.InternalAction);
-            }
-            return r;
+            return svm.Unify(view, out next);
         }
         private static CommandResult CmdUnifyAll(ICommandTarget target) {
-            IContentReplaceableView view = CommandTargetUtil.AsContentReplaceableViewOrLastActivatedView(target);
-            if (view == null)
+            IPoderosaMainWindow window = CommandTargetUtil.AsWindow(target);
+            if (window == null)
                 return CommandResult.Ignored;
 
-            IPoderosaDocument doc = view.Document;
-            ISplittableViewManager svm = (ISplittableViewManager)view.ViewManager.GetAdapter(typeof(ISplittableViewManager));
-            IContentReplaceableView next = null;
-
-            CommandResult r = svm.UnifyAll(out next);
-            if (r == CommandResult.Succeeded) {
-                ISessionManager sm = SessionManagerPlugin.Instance;
-                ISessionManagerForViewSplitter smp = SessionManagerPlugin.Instance;
-                smp.ChangeLastAttachedViewForWindow(view.ViewManager.ParentWindow, next);
-                if (doc != null)
-                    sm.ActivateDocument(doc, ActivateReason.InternalAction);
-            }
-            return r;
+            ISplittableViewManager svm = (ISplittableViewManager)window.ViewManager.GetAdapter(typeof(ISplittableViewManager));
+            IContentReplaceableView next;
+            return svm.UnifyAll(window, out next);
         }
 
         private static bool CanSplitUnify(ICommandTarget target) {
@@ -758,7 +732,7 @@ namespace Poderosa.Commands {
         public CommandResult InternalExecute(ICommandTarget target, params IAdaptable[] args) {
             CharacterDocumentViewer control = (CharacterDocumentViewer)target.GetAdapter(typeof(CharacterDocumentViewer));
             ITextSelection s = control.ITextSelection;
-            if (s.IsEmpty || !control.EnabledEx)
+            if (s.IsEmpty || !control.HasDocument)
                 return CommandResult.Ignored;
 
             string t = s.GetSelectedText(TextFormatOption.Default);
@@ -770,7 +744,7 @@ namespace Poderosa.Commands {
 
         public bool CanExecute(ICommandTarget target) {
             CharacterDocumentViewer control = (CharacterDocumentViewer)target.GetAdapter(typeof(CharacterDocumentViewer));
-            return control.EnabledEx && !control.ITextSelection.IsEmpty;
+            return control.HasDocument && !control.ITextSelection.IsEmpty;
         }
 
         public IAdaptable GetAdapter(Type adapter) {

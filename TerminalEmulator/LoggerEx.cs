@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -82,9 +82,18 @@ namespace Poderosa.Terminal {
         /// </summary>
         /// <param name="line"><ja>書き込まれようとしているデータです。</ja><en>Data to write.</en></param>
         /// <remarks>
-        /// <ja>テキストロガーの実装者は、<paramref name="line"/>に渡されたデータを書き込むように実装します。</ja><en>Those who implements about text logger implement like writing the data passed to <paramref name="line"/>. </en>
+        /// <ja>テキストロガーの実装者は、<paramref name="line"/>に渡されたデータを書き込むように実装します。 このメソッドはGLineが編集されるたびに同じGLineで繰り返し呼ばれることがあります。</ja>
+        /// <en>Those who implements about text logger implement like writing the data passed to <paramref name="line"/>. This method may be called repeatedly with the same GLine for each time the GLine is edited.</en>
         /// </remarks>
         void WriteLine(GLine line); //テキストベースはLine単位
+        /// <summary>
+        /// <ja>
+        /// 無条件でテキストログを書き込みます。
+        /// </ja>
+        /// <en>Write a text log unconditionally</en>
+        /// </summary>
+        /// <param name="line"><ja>書き込まれようとしているデータです。</ja><en>Data to write.</en></param>
+        void ForceWriteLine(GLine line);
         /// <summary>
         /// <ja>コメントを書き込みます。</ja>
         /// <en>Write a comment</en>

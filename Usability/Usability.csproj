@@ -185,6 +185,9 @@
       <SubType>Designer</SubType>
       <DependentUpon>DisplayOptionPanel.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FontDialog.resx">
+      <DependentUpon>FontDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="GuevaraAboutBox.resx">
       <DependentUpon>GuevaraAboutBox.cs</DependentUpon>
       <SubType>Designer</SubType>

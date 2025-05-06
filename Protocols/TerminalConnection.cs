@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,23 +27,24 @@ using Granados.SSH2;
 using Granados.KeyboardInteractive;
 
 namespace Poderosa.Protocols {
-    internal class PlainPoderosaSocket : IPoderosaSocket {
+    internal class PlainPoderosaSocket : IPoderosaSocketInet {
         private IByteAsyncInputStream _callback;
-        private Socket _socket;
-        private byte[] _buf;
-        private ByteDataFragment _dataFragment;
-        private AsyncCallback _callbackRoot;
-        private TerminalConnection _ownerConnection;
+        private readonly Socket _socket;
+        private readonly string _remote;
+        private readonly IPEndPoint _endPoint;
+        private readonly byte[] _buf;
+        private readonly ByteDataFragment _dataFragment;
+        private readonly AsyncCallback _callbackRoot;
+        private readonly TerminalConnection _ownerConnection;
 
-        public PlainPoderosaSocket(Socket s) {
+        public PlainPoderosaSocket(TerminalConnection owner, Socket s, string remote) {
+            _ownerConnection = owner;
+            _remote = remote;
+            _endPoint = s.RemoteEndPoint as IPEndPoint;
             _socket = s;
             _buf = new byte[ProtocolsPlugin.Instance.ProtocolOptions.SocketBufferSize];
             _dataFragment = new ByteDataFragment(_buf, 0, 0);
             _callbackRoot = new AsyncCallback(RepeatCallback);
-        }
-
-        public void SetOwnerConnection(TerminalConnection con) {
-            _ownerConnection = con;
         }
 
         public void Transmit(ByteDataFragment data) {
@@ -154,6 +155,24 @@ namespace Poderosa.Protocols {
         private void BeginReceive() {
             _socket.BeginReceive(_buf, 0, _buf.Length, SocketFlags.None, _callbackRoot, null);
         }
+
+        public string Remote {
+            get {
+                return _remote;
+            }
+        }
+
+        public IPAddress RemoteAddress {
+            get {
+                return (_endPoint != null) ? _endPoint.Address : null;
+            }
+        }
+
+        public int? RemotePortNumber {
+            get {
+                return (_endPoint != null) ? _endPoint.Port : (int?)null;
+            }
+        }
     }
 
     //送信したものをそのまま戻す
@@ -183,6 +202,12 @@ namespace Poderosa.Protocols {
 
         public void Close() {
         }
+
+        public string Remote {
+            get {
+                return "(loopback)";
+            }
+        }
     }
 
 
@@ -211,10 +236,8 @@ namespace Poderosa.Protocols {
     }
 
     internal abstract class TerminalConnection : ITerminalConnection {
-        protected ITerminalParameter _destination;
-        protected ConnectionStats _stats;
-        protected ITerminalOutput _terminalOutput; //派生クラスではこれをセットする
-        protected IPoderosaSocket _socket;
+        protected readonly ITerminalParameter _destination;
+        protected readonly ConnectionStats _stats;
 
         //すでにクローズされたかどうかのフラグ
         protected bool _closed;
@@ -228,20 +251,33 @@ namespace Poderosa.Protocols {
             get {
                 return _destination;
             }
-            set {
-                _destination = value;
-            }
         }
-        public ITerminalOutput TerminalOutput {
-            get {
-                return _terminalOutput;
-            }
+
+        // Note:
+        //  Many of the concrete classes of ITerminalOutput and IPoderosaSocket are designed to have mutual references to TerminalConnection.
+        //  For easier setup of mutual references, ITerminalOutput and IPoderosaSocket are returned by the derived class as follows.
+        //
+        // class DerivedTerminalConnection : TerminalConnection {
+        //     private readonly ITerminalOutput _terminalOutput;
+        //     private readonly IPoderosaSocket _poderosaSocket;
+        //
+        //     DerivedTerminalConnection(...) {
+        //         _terminalOutput = new TerminalOutputImpl(this); // make mutual reference
+        //         _poderosaSocket = new PoderosaSocketImpl(this); // make mutual reference
+        //     }
+        //
+        //     public ITerminalOutput TerminalOutput { get { return _terminalOutput; } }
+        //     public IPoderosaSocket Socket { get { return _poderosaSocket; } }
+        // }
+
+        public abstract ITerminalOutput TerminalOutput {
+            get;
         }
-        public IPoderosaSocket Socket {
-            get {
-                return _socket;
-            }
+
+        public abstract IPoderosaSocket Socket {
+            get;
         }
+
         public bool IsClosed {
             get {
                 return _closed;
@@ -282,14 +318,24 @@ namespace Poderosa.Protocols {
         private readonly SSHSocket _sshSocket;
         private readonly ISSHLoginParameter _sshLoginParameter;
 
-        public SSHTerminalConnection(ISSHLoginParameter ssh)
+        public SSHTerminalConnection(ISSHLoginParameter ssh, string remote, IPEndPoint endPoint)
             : base((ITCPParameter)ssh.GetAdapter(typeof(ITCPParameter))) {
             _sshLoginParameter = ssh;
-            SSHSocket s = new SSHSocket(this);
-            _sshSocket = s;
-            _socket = s;
-            _terminalOutput = s;
+            _sshSocket = new SSHSocket(this, remote, endPoint);
         }
+
+        public override ITerminalOutput TerminalOutput {
+            get {
+                return _sshSocket;
+            }
+        }
+
+        public override IPoderosaSocket Socket {
+            get {
+                return _sshSocket;
+            }
+        }
+
         public ISSHConnectionEventHandler ConnectionEventReceiver {
             get {
                 return _sshSocket;
@@ -374,9 +420,9 @@ namespace Poderosa.Protocols {
 
     internal class TelnetReceiver : IByteAsyncInputStream {
         private IByteAsyncInputStream _callback;
-        private TelnetNegotiator _negotiator;
-        private TelnetTerminalConnection _parent;
-        private ByteDataFragment _localdata;
+        private readonly TelnetNegotiator _negotiator;
+        private readonly TelnetTerminalConnection _parent;
+        private readonly ByteDataFragment _localdata;
         private bool _gotCR;
 
         public TelnetReceiver(TelnetTerminalConnection parent, TelnetNegotiator negotiator) {
@@ -401,6 +447,10 @@ namespace Poderosa.Protocols {
 
         public void OnAbnormalTermination(string msg) {
             _callback.OnAbnormalTermination(msg);
+        }
+
+        public void SetTerminalSize(int width, int height) {
+            _negotiator.SetTerminalSize(width, height);
         }
 
         //CR NUL -> CR 変換および IACからはじまるシーケンスの処理
@@ -440,22 +490,22 @@ namespace Poderosa.Protocols {
         }
     }
 
-    internal class TelnetSocket : IPoderosaSocket, ITerminalOutput {
-        private IPoderosaSocket _socket;
-        private TelnetReceiver _callback;
-        private TelnetTerminalConnection _parent;
-        private bool _telnetNewLine;
+    internal class TelnetSocket : IPoderosaSocketInet, ITerminalOutput {
+        private readonly IPoderosaSocketInet _socket;
+        private readonly TelnetReceiver _receiver;
+        private readonly TelnetTerminalConnection _parent;
+        private readonly bool _telnetNewLine;
 
-        public TelnetSocket(TelnetTerminalConnection parent, IPoderosaSocket socket, TelnetReceiver receiver, bool telnetNewLine) {
+        public TelnetSocket(TelnetTerminalConnection parent, IPoderosaSocketInet socket, TelnetReceiver receiver, bool telnetNewLine) {
             _parent = parent;
-            _callback = receiver;
+            _receiver = receiver;
             _socket = socket;
             _telnetNewLine = telnetNewLine;
         }
 
         public void RepeatAsyncRead(IByteAsyncInputStream callback) {
-            _callback.SetReceiver(callback);
-            _socket.RepeatAsyncRead(_callback);
+            _receiver.SetReceiver(callback);
+            _socket.RepeatAsyncRead(_receiver);
         }
 
         public void Close() {
@@ -471,6 +521,8 @@ namespace Poderosa.Protocols {
                 wr.WriteTerminalSize(width, height);
                 wr.WriteTo(_socket);
             }
+            // prepare IAC DO NAWS request
+            _receiver.SetTerminalSize(width, height);
         }
 
         public void Transmit(ByteDataFragment data) {
@@ -543,24 +595,42 @@ namespace Poderosa.Protocols {
             catch (ObjectDisposedException) {
             }
         }
+
+        public string Remote {
+            get {
+                return _socket.Remote;
+            }
+        }
+
+        public IPAddress RemoteAddress {
+            get {
+                return _socket.RemoteAddress;
+            }
+        }
+
+        public int? RemotePortNumber {
+            get {
+                return _socket.RemotePortNumber;
+            }
+        }
     }
 
     internal class TelnetTerminalConnection : TCPTerminalConnection {
-        private TelnetReceiver _telnetReceiver;
-        private TelnetSocket _telnetSocket;
-        private IPoderosaSocket _rawSocket;
+        private readonly TelnetReceiver _telnetReceiver;
+        private readonly TelnetSocket _telnetSocket;
+        private readonly IPoderosaSocket _rawSocket;
 
-        public TelnetTerminalConnection(ITCPParameter p, TelnetNegotiator neg, PlainPoderosaSocket s)
+        public TelnetTerminalConnection(ITCPParameter p, TelnetNegotiator neg, Socket socket, string remote)
             : base(p) {
-            s.SetOwnerConnection(this);
             _telnetReceiver = new TelnetReceiver(this, neg);
             ITelnetParameter telnetParams = (ITelnetParameter)p.GetAdapter(typeof(ITelnetParameter));
             bool telnetNewLine = (telnetParams != null) ? telnetParams.TelnetNewLine : true/*default*/;
-            _telnetSocket = new TelnetSocket(this, s, _telnetReceiver, telnetNewLine);
-            _rawSocket = s;
-            _socket = _telnetSocket;
-            _terminalOutput = _telnetSocket;
+
+            PlainPoderosaSocket plainSocket = new PlainPoderosaSocket(this, socket, remote);
+            _rawSocket = plainSocket;
+            _telnetSocket = new TelnetSocket(this, plainSocket, _telnetReceiver, telnetNewLine);
         }
+
         //Telnetのエスケープ機能つき
         public TelnetSocket TelnetSocket {
             get {
@@ -581,13 +651,22 @@ namespace Poderosa.Protocols {
             base.Close();
         }
 
+        public override ITerminalOutput TerminalOutput {
+            get {
+                return _telnetSocket;
+            }
+        }
 
-
+        public override IPoderosaSocket Socket {
+            get {
+                return _telnetSocket;
+            }
+        }
     }
 
     internal class RawTerminalConnection : ITerminalConnection, ITerminalOutput {
-        private IPoderosaSocket _socket;
-        private ITerminalParameter _terminalParameter;
+        private readonly IPoderosaSocket _socket;
+        private readonly ITerminalParameter _terminalParameter;
 
         public RawTerminalConnection(IPoderosaSocket socket, ITerminalParameter tp) {
             _socket = socket;

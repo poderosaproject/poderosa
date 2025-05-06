@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,10 +35,10 @@ namespace Poderosa.Terminal {
     /// </en>
     /// </summary>
     public class TerminalTransmission {
-        private AbstractTerminal _host;
-        private ITerminalSettings _settings;
+        private readonly AbstractTerminal _host;
+        private readonly ITerminalSettings _settings;
         private ITerminalConnection _connection;
-        private ByteDataFragment _dataForLocalEcho;
+        private readonly ByteDataFragment _dataForLocalEcho;
         private readonly object _transmitSync = new object();
 
         private readonly CacheByEncodingType<EncodingProfile.Encoder> _encoderCache =

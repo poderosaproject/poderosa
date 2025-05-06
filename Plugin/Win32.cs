@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,14 +48,17 @@ namespace Poderosa {
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern short VkKeyScan(char ch);
         [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetKeyboardState(byte[] data);
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern int RegisterWindowMessage(string lpString);
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern int MessageBox(IntPtr hwnd, string text, string caption, int flags);
         [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool InvalidateRect(IntPtr hwnd, ref RECT rect, int erase);
         [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool InvalidateRect(IntPtr hwnd, IntPtr rect, int erase); //for invalidating all
 
 
@@ -66,8 +69,10 @@ namespace Poderosa {
         [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr CreateMutex(IntPtr lpSecurityAttribute, int initialOwner, string name);
         [DllImport("kernel32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool CloseHandle(IntPtr handle);
         [DllImport("kernel32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ReleaseMutex(IntPtr handle);
         [DllImport("kernel32.dll")]
         public static extern int WaitForSingleObject(IntPtr hHandle, uint dwMilliseconds);
@@ -89,6 +94,9 @@ namespace Poderosa {
         public static extern int SetBkMode(IntPtr hDC, int mode);
         [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
         public static extern int GetTextExtentPoint32(IntPtr hdc, string text, int length, out SIZE size);
+        [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool GetTextMetrics(IntPtr hdc, out TEXTMETRICW lptm);
         [DllImport("gdi32.dll")]
         public static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
         [DllImport("gdi32.dll")]
@@ -114,12 +122,13 @@ namespace Poderosa {
         }
 
         [DllImport("kernel32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool FlushFileBuffers(IntPtr handle);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Ansi)] //WinExecはLPCSTRだった。"T"がない。
         public static extern int WinExec(string command, int uCmdShow);
 
-        [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
+        [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
         public static extern int EnumFontFamiliesEx(
             IntPtr hdc,                          // handle to DC
             ref tagLOGFONT lpLogfont,              // font information
@@ -136,12 +145,16 @@ namespace Poderosa {
         [DllImport("imm32.dll")]
         public static extern IntPtr ImmGetContext(IntPtr hWnd);
         [DllImport("imm32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ImmReleaseContext(IntPtr hWnd, IntPtr hIMC);
         [DllImport("imm32.dll", CharSet = CharSet.Auto)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ImmSetCompositionFont(IntPtr hIMC, LOGFONT lf);
         [DllImport("imm32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ImmSetCompositionWindow(IntPtr hIMC, ref COMPOSITIONFORM form);
         [DllImport("imm32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ImmNotifyIME(IntPtr hIMC, int dwAction, int dwIndex, int dwValue);
 
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]
@@ -208,11 +221,18 @@ namespace Poderosa {
         public const int OPAQUE = 2;
 
         public const int ETO_OPAQUE = 2;
+        public const int ETO_CLIPPED = 4;
 
         public const byte CLEARTYPE_QUALITY = 5;            // (_WIN32_WINNT >= 0x0500)
         public const byte CLEARTYPE_NATURAL_QUALITY = 6;    // (_WIN32_WINNT >= 0x0501)
 
         public const uint INVALID_FILE_ATTRIBUTES = 0xffffffffu;
+
+        public const uint RASTER_FONTTYPE = 1u;
+        public const uint DEVICE_FONTTYPE = 2u;
+        public const uint TRUETYPE_FONTTYPE = 4u;
+
+        public const byte FIXED_PITCH = 1;
 
 
         /// <summary>
@@ -255,7 +275,7 @@ namespace Poderosa {
         /// 
         /// </summary>
         /// <exclude/>
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct tagLOGFONT {
             public int lfHeight;
             public int lfWidth;
@@ -278,25 +298,37 @@ namespace Poderosa {
         /// 
         /// </summary>
         /// <exclude/>
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public struct TEXTMETRICW {
+            public int tmHeight;
+            public int tmAscent;
+            public int tmDescent;
+            public int tmInternalLeading;
+            public int tmExternalLeading;
+            public int tmAveCharWidth;
+            public int tmMaxCharWidth;
+            public int tmWeight;
+            public int tmOverhang;
+            public int tmDigitizedAspectX;
+            public int tmDigitizedAspectY;
+            public char tmFirstChar;
+            public char tmLastChar;
+            public char tmDefaultChar;
+            public char tmBreakChar;
+            public byte tmItalic;
+            public byte tmUnderlined;
+            public byte tmStruckOut;
+            public byte tmPitchAndFamily;
+            public byte tmCharSet;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <exclude/>
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct ENUMLOGFONTEX {
-            //LOGFONT part
-            public int lfHeight;
-            public int lfWidth;
-            public int lfEscapement;
-            public int lfOrientation;
-            public int lfWeight;
-            public byte lfItalic;
-            public byte lfUnderline;
-            public byte lfStrikeOut;
-            public byte lfCharSet;
-            public byte lfOutPrecision;
-            public byte lfClipPrecision;
-            public byte lfQuality;
-            public byte lfPitchAndFamily;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
-            public string lfFaceName;
-            //ENUMLOGFONTEX part
+            public tagLOGFONT elfLogFont;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
             public string elfFullName;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
@@ -309,7 +341,7 @@ namespace Poderosa {
         /// 
         /// </summary>
         /// <exclude/>
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct NEWTEXTMETRIC {
             public int tmHeight;
             public int tmAscent;
@@ -353,7 +385,7 @@ namespace Poderosa {
         /// 
         /// </summary>
         /// <exclude/>
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct NEWTEXTMETRICEX {
             public NEWTEXTMETRIC ntmTm;
             public FONTSIGNATURE ntmFontSig;

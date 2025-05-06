@@ -270,13 +270,12 @@ namespace Granados.SSH1 {
         /// <param name="reasonCode">reason code (this value is ignored on the SSH1 connection)</param>
         /// <param name="message">a message to be notified to the server</param>
         public void Disconnect(DisconnectionReasonCode reasonCode, string message) {
-            if (!this.IsOpen) {
-                return;
+            if (this.IsOpen) {
+                _syncHandler.SendDisconnect(
+                    new SSH1Packet(SSH1PacketType.SSH_MSG_DISCONNECT)
+                        .WriteString(message)
+                );
             }
-            _syncHandler.SendDisconnect(
-                new SSH1Packet(SSH1PacketType.SSH_MSG_DISCONNECT)
-                    .WriteString(message)
-            );
             Close();
         }
 

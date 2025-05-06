@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -383,6 +383,11 @@ namespace Poderosa.Forms {
             public override string Caption {
                 get {
                     return _document.Caption;
+                }
+            }
+            public override string SubCaption {
+                get {
+                    return _document.SubCaption;
                 }
             }
             public override Image Icon {

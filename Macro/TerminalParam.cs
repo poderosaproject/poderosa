@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -228,7 +228,7 @@ namespace Poderosa.ConnectionParam {
         internal TerminalParam() {
             _encoding = EncodingType.EUC_JP;
             _logtype = LogType.None;
-            _terminalType = TerminalType.XTerm;
+            _terminalType = TerminalType.XTerm256Color;
             _localecho = false;
             _lineFeedRule = LineFeedRule.Normal;
             _transmitnl = NewLine.CR;

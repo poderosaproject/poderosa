@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,76 @@ using System.Resources;
 using Poderosa.Protocols;
 
 namespace Poderosa.Terminal {
-    internal interface ICharDecoder {
+    public enum CharacterSetSizeType {
+        /// <summary>
+        /// 94-character
+        /// </summary>
+        CS94,
+        /// <summary>
+        /// 96-character
+        /// </summary>
+        CS96,
+        /// <summary>
+        /// Other (e.g. 94x94 character)
+        /// </summary>
+        Other,
+        /// <summary>
+        /// Not designated
+        /// </summary>
+        NotDesignated,
+    }
+
+    public interface ICharacterSetManager {
+        /// <summary>
+        /// Get the character corresponding to the code in the current character set.
+        /// </summary>
+        /// <param name="code">code (0-255)</param>
+        /// <returns>a character corresponding to the code if it exists. otherwise null.</returns>
+        char? GetCharacer(byte code);
+
+        /// <summary>
+        /// Get character set size of G0, G1, G2 or G3.
+        /// </summary>
+        /// <param name="g">0=G0, 1=G1, 2=G2, 3=G3</param>
+        /// <returns>character set size type</returns>
+        CharacterSetSizeType GetCharacterSetSizeType(int g);
+
+        /// <summary>
+        /// Get character set mapping.
+        /// </summary>
+        /// <param name="g0">designator of G0 is stored. null is stored if the character set cannot be designated in SCS.</param>
+        /// <param name="g1">designator of G1 is stored. null is stored if the character set cannot be designated in SCS.</param>
+        /// <param name="g2">designator of G2 is stored. null is stored if the character set cannot be designated in SCS.</param>
+        /// <param name="g3">designator of G3 is stored. null is stored if the character set cannot be designated in SCS.</param>
+        /// <param name="gl">graphic set number mapped to GL is stored. (0=G0, 1=G1, ...)</param>
+        /// <param name="gr">graphic set number mapped to GR is stored. (0=G0, 1=G1, ...)</param>
+        void GetCharacterSetMapping(out string g0, out string g1, out string g2, out string g3, out int gl, out int gr);
+
+        /// <summary>
+        /// Restore character set mapping.
+        /// </summary>
+        /// <param name="g0">designator of G0</param>
+        /// <param name="g1">designator of G1</param>
+        /// <param name="g2">designator of G2</param>
+        /// <param name="g3">designator of G3</param>
+        /// <param name="gl">graphic set number mapped to GL (0=G0, 1=G1, ...)</param>
+        /// <param name="gr">graphic set number mapped to GR (0=G0, 1=G1, ...)</param>
+        void RestoreCharacterSetMapping(string g0, string g1, string g2, string g3, int gl, int gr);
+
+        /// <summary>
+        /// Get character set mapping
+        /// </summary>
+        /// <returns>character set mapping</returns>
+        CharacterSetMapping GetCharacterSetMapping();
+
+        /// <summary>
+        /// Restore character set mapping
+        /// </summary>
+        /// <param name="csMap">character set mapping</param>
+        void RestoreCharacterSetMapping(CharacterSetMapping csMap);
+    }
+
+    internal interface ICharDecoder : ICharacterSetManager {
         void OnReception(ByteDataFragment data);
         void Reset();
         EncodingProfile CurrentEncoding {
@@ -52,6 +121,7 @@ namespace Poderosa.Terminal {
             void ProcessByte(byte b);
             void Init();
             void Flush();
+            char? GetCharacer(byte code);
         }
 
         private class ASCIIByteProcessor : IByteProcessor {
@@ -65,6 +135,19 @@ namespace Poderosa.Terminal {
             public void Init() {
             }
             public void Flush() {
+            }
+
+            public char? GetCharacer(byte code) {
+                return GetCharacerFallback(code);
+            }
+
+            public static char? GetCharacerFallback(byte code) {
+                if ((code >= 0x20 && code <= 0x7e) || (code >= 0xa0 && code <= 0xff)) {
+                    return (char)code;
+                }
+                else {
+                    return null;
+                }
             }
         }
 
@@ -128,6 +211,13 @@ namespace Poderosa.Terminal {
 
             public void Flush() {
             }
+
+            public char? GetCharacer(byte code) {
+                if (0x60 <= code && code <= 0x7F) {
+                    return DEC_SPECIAL_CHARACTERS[code - 0x60];
+                }
+                return ASCIIByteProcessor.GetCharacerFallback(code);
+            }
         }
 
         private class CJKByteProcessor : IByteProcessor {
@@ -160,6 +250,9 @@ namespace Poderosa.Terminal {
                 foreach (char c in text) {
                     _processor.ProcessChar(c);
                 }
+            }
+            public char? GetCharacer(byte code) {
+                return ASCIIByteProcessor.GetCharacerFallback(code);
             }
         }
 
@@ -243,9 +336,14 @@ namespace Poderosa.Terminal {
             _decoder = enc.CreateDecoder();
 
             _asciiByteProcessor = new ASCIIByteProcessor(processor);
-            _currentByteProcessor = _asciiByteProcessor;
+            _decLineByteProcessor = new Lazy<DECLineByteProcessor>(() => new DECLineByteProcessor(_processor), false);
+            _iso2022jpByteProcessor = new Lazy<ISO2022JPByteProcessor>(() => new ISO2022JPByteProcessor(_processor, _byteProcessorBuffer), false);
+            _iso2022jpkanaByteProcessor = new Lazy<ISO2022JPKanaByteProcessor>(() => new ISO2022JPKanaByteProcessor(_processor, _byteProcessorBuffer), false);
+            _iso2022krByteProcessor = new Lazy<ISO2022KRByteProcessor>(() => new ISO2022KRByteProcessor(_processor, _byteProcessorBuffer), false);
             _G0ByteProcessor = _asciiByteProcessor;
             _G1ByteProcessor = _asciiByteProcessor;
+            _currentByteProcessor = _asciiByteProcessor;
+            _currentGraphicSet = 0;
 
             _byteProcessorBuffer = new ByteProcessorBuffer();
         }
@@ -256,41 +354,170 @@ namespace Poderosa.Terminal {
             }
         }
 
-        private IByteProcessor _currentByteProcessor;
         private IByteProcessor _G0ByteProcessor; //iso2022のG0,G1
         private IByteProcessor _G1ByteProcessor;
+        // _currentGraphicSet and _currentByteProcessor are changed at the same time in ChangeProcessor()
+        private IByteProcessor _currentByteProcessor;
+        private int _currentGraphicSet; // 0=G0, 1=G1
 
-        private ASCIIByteProcessor _asciiByteProcessor;
+        private readonly ASCIIByteProcessor _asciiByteProcessor;
 
-        private DECLineByteProcessor _decLineByteProcessor = null;
-        private ISO2022JPByteProcessor _iso2022jpByteProcessor = null;
-        private ISO2022JPKanaByteProcessor _iso2022jpkanaByteProcessor = null;
-        private ISO2022KRByteProcessor _iso2022krByteProcessor = null;
+        private readonly Lazy<DECLineByteProcessor> _decLineByteProcessor;
+        private readonly Lazy<ISO2022JPByteProcessor> _iso2022jpByteProcessor;
+        private readonly Lazy<ISO2022JPKanaByteProcessor> _iso2022jpkanaByteProcessor;
+        private readonly Lazy<ISO2022KRByteProcessor> _iso2022krByteProcessor;
 
         private ByteProcessorBuffer _byteProcessorBuffer;
 
-        private DECLineByteProcessor GetDECLineByteProcessor() {
-            if (_decLineByteProcessor == null)
-                _decLineByteProcessor = new DECLineByteProcessor(_processor);
-            return _decLineByteProcessor;
+        public CharacterSetSizeType GetCharacterSetSizeType(int g) {
+            IByteProcessor processor;
+            if (g == 0) {
+                processor = _G0ByteProcessor;
+            }
+            else if (g == 1) {
+                processor = _G1ByteProcessor;
+            }
+            else {
+                return CharacterSetSizeType.NotDesignated;
+            }
+
+            if (processor is ASCIIByteProcessor || processor is DECLineByteProcessor) {
+                return CharacterSetSizeType.CS94;
+            }
+
+            return CharacterSetSizeType.Other;
         }
 
-        private ISO2022JPByteProcessor GetISO2022JPByteProcessor() {
-            if (_iso2022jpByteProcessor == null)
-                _iso2022jpByteProcessor = new ISO2022JPByteProcessor(_processor, _byteProcessorBuffer);
-            return _iso2022jpByteProcessor;
+        public void GetCharacterSetMapping(out string g0, out string g1, out string g2, out string g3, out int gl, out int gr) {
+            g0 = GetSCSDesignator(0);
+            g1 = GetSCSDesignator(1);
+            g2 = GetSCSDesignator(2);
+            g3 = GetSCSDesignator(3);
+            gl = _currentGraphicSet;
+            gr = 1;
         }
 
-        private ISO2022JPKanaByteProcessor GetISO2022JPKanaByteProcessor() {
-            if (_iso2022jpkanaByteProcessor == null)
-                _iso2022jpkanaByteProcessor = new ISO2022JPKanaByteProcessor(_processor, _byteProcessorBuffer);
-            return _iso2022jpkanaByteProcessor;
+        private string GetSCSDesignator(int g) {
+            IByteProcessor processor;
+            if (g == 0) {
+                processor = _G0ByteProcessor;
+            }
+            else if (g == 1) {
+                processor = _G1ByteProcessor;
+            }
+            else {
+                return null;
+            }
+
+            if (processor is ASCIIByteProcessor) {
+                return "B";
+            }
+
+            if (processor is DECLineByteProcessor) {
+                return "0";
+            }
+
+            return null;
         }
 
-        private ISO2022KRByteProcessor GetISO2022KRByteProcessor() {
-            if (_iso2022krByteProcessor == null)
-                _iso2022krByteProcessor = new ISO2022KRByteProcessor(_processor, _byteProcessorBuffer);
-            return _iso2022krByteProcessor;
+        public void RestoreCharacterSetMapping(string g0, string g1, string g2, string g3, int gl, int gr) {
+            RestoreCharacterSetBySCSDesignator(0, g0);
+            RestoreCharacterSetBySCSDesignator(1, g1);
+            RestoreCharacterSetBySCSDesignator(2, g2);
+            RestoreCharacterSetBySCSDesignator(3, g3);
+            if (gl >= 0 && gl <= 1) {
+                if (gl != _currentGraphicSet) {
+                    ChangeProcessor(gl);
+                }
+                else {
+                    ApplyProcessor(gl);
+                }
+            }
+            else {
+                ApplyProcessor(_currentGraphicSet);
+            }
+        }
+
+        private void RestoreCharacterSetBySCSDesignator(int g, string desig) {
+            IByteProcessor processor;
+            if (g == 0) {
+                processor = _G0ByteProcessor;
+            }
+            else if (g == 1) {
+                processor = _G1ByteProcessor;
+            }
+            else {
+                return;
+            }
+
+            // support only switching between DEC Line and others
+
+            if (desig == "B") {
+                if (processor is DECLineByteProcessor) {
+                    processor = _asciiByteProcessor;
+                }
+                else {
+                    return;
+                }
+            }
+            else if (desig == "0") {
+                if (!(processor is DECLineByteProcessor)) {
+                    processor = _decLineByteProcessor.Value;
+                }
+                else {
+                    return;
+                }
+            }
+
+            if (g == 0) {
+                _G0ByteProcessor = processor;
+            }
+            else if (g == 1) {
+                _G1ByteProcessor = processor;
+            }
+        }
+
+        public CharacterSetMapping GetCharacterSetMapping() {
+            return new CharacterSetMapping(
+                g0ByteProcessorName: GetByteProcessorName(_G0ByteProcessor),
+                g1ByteProcessorName: GetByteProcessorName(_G1ByteProcessor),
+                graphicSet: _currentGraphicSet
+            );
+        }
+
+        public void RestoreCharacterSetMapping(CharacterSetMapping csMap) {
+            _G0ByteProcessor = GetByteProcessorByName(csMap.G0ByteProcessorName);
+            _G1ByteProcessor = GetByteProcessorByName(csMap.G1ByteProcessorName);
+            ChangeProcessor(csMap.GraphicSet);
+        }
+
+        private string GetByteProcessorName(IByteProcessor byteProcessor) {
+            if (byteProcessor == null) {
+                return String.Empty;
+            }
+            return byteProcessor.GetType().Name;
+        }
+
+        private IByteProcessor GetByteProcessorByName(string byteProcessorName) {
+            switch (byteProcessorName) {
+                case "Default":
+                case "ASCIIByteProcessor":
+                    return _asciiByteProcessor;
+                case "DECLineByteProcessor":
+                    return _decLineByteProcessor.Value;
+                case "ISO2022JPByteProcessor":
+                    return _iso2022jpByteProcessor.Value;
+                case "ISO2022JPKanaByteProcessor":
+                    return _iso2022jpkanaByteProcessor.Value;
+                case "ISO2022KRByteProcessor":
+                    return _iso2022krByteProcessor.Value;
+                default:
+                    return null;
+            }
+        }
+
+        public char? GetCharacer(byte code) {
+            return _currentByteProcessor.GetCharacer(code);
         }
 
         public void OnReception(ByteDataFragment data) {
@@ -304,7 +531,7 @@ namespace Poderosa.Terminal {
         }
 
         private void ProcessByte(byte b) {
-            if (_processor.State == ProcessCharResult.Escaping)
+            if (_processor.IsEscapeSequenceReading)
                 _processor.ProcessChar((char)b);
             else {
                 if (_state == State.Normal && !IsControlChar(b) && _decoder.IsInterestingByte(b)) {
@@ -319,9 +546,9 @@ namespace Poderosa.Terminal {
                                 _state = State.ESC;
                             }
                             else if (b == 14) //SO
-                                ChangeProcessor(_G1ByteProcessor);
+                                ChangeProcessor(1);
                             else if (b == 15) //SI
-                                ChangeProcessor(_G0ByteProcessor);
+                                ChangeProcessor(0);
                             else
                                 ConsumeByte(b);
                             break;
@@ -341,13 +568,13 @@ namespace Poderosa.Terminal {
                         case State.ESC_BRACKET:
                             _escseq.Append(b);
                             if (b == (byte)'0') {
-                                _G0ByteProcessor = GetDECLineByteProcessor();
-                                ChangeProcessor(_G0ByteProcessor);
+                                _G0ByteProcessor = _decLineByteProcessor.Value;
+                                ApplyProcessor(0);
                                 _state = State.Normal;
                             }
-                            else if (b == (byte)'B' || b == (byte)'J' || b == (byte)'~') { //!!lessでssh2architecture.txtを見ていたら来た。詳細はまだ調べていない。
+                            else if (b == (byte)'B' || b == (byte)'J') {
                                 _G0ByteProcessor = _asciiByteProcessor;
-                                ChangeProcessor(_G0ByteProcessor);
+                                ApplyProcessor(0);
                                 _state = State.Normal;
                             }
                             else {
@@ -359,11 +586,13 @@ namespace Poderosa.Terminal {
                         case State.ESC_ENDBRACKET:
                             _escseq.Append(b);
                             if (b == (byte)'0') {
-                                _G1ByteProcessor = GetDECLineByteProcessor();
+                                _G1ByteProcessor = _decLineByteProcessor.Value;
+                                ApplyProcessor(1);
                                 _state = State.Normal;
                             }
-                            else if (b == (byte)'B' || b == (byte)'J' || b == (byte)'~') { //!!lessでssh2architecture.txtを見ていたら来た。詳細はまだ調べていない。
+                            else if (b == (byte)'B' || b == (byte)'J') {
                                 _G1ByteProcessor = _asciiByteProcessor;
+                                ApplyProcessor(1);
                                 _state = State.Normal;
                             }
                             else {
@@ -378,8 +607,8 @@ namespace Poderosa.Terminal {
                             else if (b == (byte)')')
                                 _state = State.ESC_DOLLAR_ENDBRACKET;
                             else if (b == (byte)'B' || b == (byte)'@') {
-                                _G0ByteProcessor = GetISO2022JPByteProcessor();
-                                ChangeProcessor(_G0ByteProcessor);
+                                _G0ByteProcessor = _iso2022jpByteProcessor.Value;
+                                ApplyProcessor(0);
                                 _state = State.Normal;
                             }
                             else {
@@ -391,18 +620,18 @@ namespace Poderosa.Terminal {
                         case State.ESC_DOLLAR_BRACKET:
                             _escseq.Append(b);
                             if (b == (byte)'C') {
-                                _G0ByteProcessor = GetISO2022KRByteProcessor();
-                                ChangeProcessor(_G0ByteProcessor);
+                                _G0ByteProcessor = _iso2022krByteProcessor.Value;
+                                ApplyProcessor(0);
                                 _state = State.Normal;
                             }
                             else if (b == (byte)'D') {
-                                _G0ByteProcessor = GetISO2022JPByteProcessor();
-                                ChangeProcessor(_G0ByteProcessor);
+                                _G0ByteProcessor = _iso2022jpByteProcessor.Value;
+                                ApplyProcessor(0);
                                 _state = State.Normal;
                             }
                             else if (b == (byte)'I') {
-                                _G0ByteProcessor = GetISO2022JPKanaByteProcessor();
-                                ChangeProcessor(_G0ByteProcessor);
+                                _G0ByteProcessor = _iso2022jpkanaByteProcessor.Value;
+                                ApplyProcessor(0);
                                 _state = State.Normal;
                             }
                             else {
@@ -414,7 +643,8 @@ namespace Poderosa.Terminal {
                         case State.ESC_DOLLAR_ENDBRACKET:
                             _escseq.Append(b);
                             if (b == (byte)'C') {
-                                _G1ByteProcessor = GetISO2022KRByteProcessor();
+                                _G1ByteProcessor = _iso2022krByteProcessor.Value;
+                                ApplyProcessor(1);
                                 _state = State.Normal;
                             }
                             else {
@@ -430,18 +660,36 @@ namespace Poderosa.Terminal {
             }
         }
 
-        private void ChangeProcessor(IByteProcessor newprocessor) {
-            //既存のやつがあればリセット
+        private void ChangeProcessor(int g) {
+            IByteProcessor newProcessor;
+            switch (g) {
+                case 0:
+                    newProcessor = _G0ByteProcessor;
+                    break;
+                case 1:
+                    newProcessor = _G1ByteProcessor;
+                    break;
+                default:
+                    return;
+            }
+
             if (_currentByteProcessor != null) {
                 _currentByteProcessor.Flush();
             }
 
-            if (newprocessor != null) {
-                newprocessor.Init();
+            if (newProcessor != null) {
+                newProcessor.Init();
             }
 
-            _currentByteProcessor = newprocessor;
+            _currentByteProcessor = newProcessor;
+            _currentGraphicSet = g;
             _state = State.Normal;
+        }
+
+        private void ApplyProcessor(int g) {
+            if (g == _currentGraphicSet) {
+                ChangeProcessor(g);
+            }
         }
 
         private void ConsumeBytes(byte[] buff, int len) {
@@ -479,6 +727,29 @@ namespace Poderosa.Terminal {
                 _processor.InvalidCharDetected(_decoder.GetBuffer());
                 _decoder.Reset();
             }
+        }
+    }
+
+    /// <summary>
+    /// Saved character set mapping
+    /// </summary>
+    public class CharacterSetMapping {
+        internal readonly string G0ByteProcessorName;
+        internal readonly string G1ByteProcessorName;
+        internal readonly int GraphicSet;
+
+        internal CharacterSetMapping(string g0ByteProcessorName, string g1ByteProcessorName, int graphicSet) {
+            this.G0ByteProcessorName = g0ByteProcessorName;
+            this.G1ByteProcessorName = g1ByteProcessorName;
+            this.GraphicSet = graphicSet;
+        }
+
+        internal static CharacterSetMapping GetDefault() {
+            return new CharacterSetMapping(
+                g0ByteProcessorName: "Default",
+                g1ByteProcessorName: "Default",
+                graphicSet: 0
+            );
         }
     }
 }

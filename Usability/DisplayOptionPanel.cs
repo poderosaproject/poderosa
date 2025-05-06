@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -495,11 +495,10 @@ namespace Poderosa.Forms {
         }
 
         private void AdjustFontDescription(Font ascii, Font cjk) {
-            int sz = (int)(ascii.Size + 0.5);
             if (/*GEnv.Options.Language==Language.English ||*/ ascii.Name == cjk.Name)
-                _fontDescription.Text = String.Format("{0},{1}pt", ascii.Name, sz); //Singleをintにキャストすると切り捨てだが、四捨五入にしてほしいので0.5を足してから切り捨てる
+                _fontDescription.Text = String.Format("{0},{1}pt", ascii.Name, ascii.Size);
             else
-                _fontDescription.Text = String.Format("{0}/{1},{2}pt", ascii.Name, cjk.Name, sz);
+                _fontDescription.Text = String.Format("{0}/{1},{2}pt", ascii.Name, cjk.Name, ascii.Size);
         }
 
         private void OnBGColorChanged(object sender, Color e) {

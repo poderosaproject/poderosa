@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,51 +27,31 @@ using Poderosa.Forms;
 using Poderosa.Util;
 
 namespace Poderosa.Sessions {
-    //NOTE Invalidateに必要なパラメータ これも意図がいまいちだなあ
-    internal class InvalidateParam {
-        private Delegate _delegate;
-        private object[] _param;
-        private bool _set;
-        public void Set(Delegate d, object[] p) {
-            _delegate = d;
-            _param = p;
-            _set = true;
-        }
-        public void Reset() {
-            _set = false;
-        }
-        public void InvokeFor(Control c) {
-            if (_set)
-                c.Invoke(_delegate, _param);
-        }
-    }
 
     //接続に対して関連付けるデータ
     internal class TerminalSession : ITerminalSession, IAbstractTerminalHost, ITerminalControlHost {
         private delegate void HostCauseCloseDelagate(string msg);
 
-        private ISessionHost _sessionHost;
-        private TerminalTransmission _output;
-        private AbstractTerminal _terminal;
-        private ITerminalSettings _terminalSettings;
-        private TerminalControl _terminalControl;
-        private bool _terminated;
+        private readonly TerminalTransmission _output;
+        private readonly AbstractTerminal _terminal;
+        private readonly ITerminalSettings _terminalSettings;
+        private ISessionHost _sessionHost = null;
+        private TerminalControl _terminalControl = null;
+        private bool _terminated = false;
+        private bool _commStarted = false;
 
         public TerminalSession(ITerminalConnection connection, ITerminalSettings terminalSettings) {
             _terminalSettings = terminalSettings;
-            //VT100指定でもxtermシーケンスを送ってくるアプリケーションが後をたたないので
             _terminal = AbstractTerminal.Create(new TerminalInitializeInfo(this, connection.Destination));
             _output = new TerminalTransmission(_terminal, _terminalSettings, connection);
 
             _terminalSettings.ChangeCaption += delegate(string caption) {
                 this.OwnerWindow.DocumentTabFeature.Update(_terminal.IDocument);
             };
-
         }
 
         public void Revive(ITerminalConnection connection) {
-            TerminalDocument doc = _terminal.GetDocument();
-            _output.Revive(connection, doc.TerminalWidth, doc.TerminalHeight);
+            _output.Revive(connection, _terminal.Document.TerminalWidth, _terminal.Document.TerminalHeight);
             this.OwnerWindow.DocumentTabFeature.Update(_terminal.IDocument);
             _output.Connection.Socket.RepeatAsyncRead(_terminal); //再受信
         }
@@ -94,10 +74,13 @@ namespace Poderosa.Sessions {
         }
         public IPoderosaMainWindow OwnerWindow {
             get {
-                if (_terminated)
-                    return TerminalSessionsPlugin.Instance.WindowManager.ActiveWindow; //終了しているときはSessionHost等も取得不能
-                else
-                    return (IPoderosaMainWindow)_sessionHost.GetParentFormFor(_terminal.IDocument).GetAdapter(typeof(IPoderosaMainWindow));
+                ISessionHost host = _sessionHost;
+                if (host == null || _terminated) {
+                    return TerminalSessionsPlugin.Instance.WindowManager.ActiveWindow;
+                }
+                else {
+                    return (IPoderosaMainWindow)host.GetParentFormFor(_terminal.IDocument).GetAdapter(typeof(IPoderosaMainWindow));
+                }
             }
         }
         public ITerminalConnection TerminalConnection {
@@ -120,23 +103,21 @@ namespace Poderosa.Sessions {
                 return this;
             }
         }
-        /*
-        public ILogService LogService {
-            get {
-                return _terminal.ILogService;
-            }
-        }*/
         #endregion
 
         //受信スレッドから呼ぶ、Document更新の通知
         public void NotifyViewsDataArrived() {
-            if (_terminalControl != null)
-                _terminalControl.DataArrived();
+            TerminalControl control = _terminalControl;
+            if (control != null) {
+                control.DataArrived();
+            }
         }
         //正常・異常とも呼ばれる
         public void CloseByReceptionThread(string msg) {
-            if (_terminated)
+            if (_terminated) {
                 return;
+            }
+
             IPoderosaMainWindow window = this.OwnerWindow;
             if (window != null) {
                 Debug.Assert(window.AsControl().InvokeRequired);
@@ -145,8 +126,12 @@ namespace Poderosa.Sessions {
             }
         }
         private void HostCauseClose(string msg) {
-            if (TerminalSessionsPlugin.Instance.TerminalEmulatorService.TerminalEmulatorOptions.CloseOnDisconnect)
-                _sessionHost.TerminateSession();
+            if (TerminalSessionsPlugin.Instance.TerminalEmulatorService.TerminalEmulatorOptions.CloseOnDisconnect) {
+                ISessionHost host = _sessionHost;
+                if (host != null) {
+                    host.TerminateSession();
+                }
+            }
             else {
                 IPoderosaMainWindow window = this.OwnerWindow;
                 window.DocumentTabFeature.Update(_terminal.IDocument);
@@ -171,7 +156,6 @@ namespace Poderosa.Sessions {
         public void InternalStart(ISessionHost host) {
             _sessionHost = host;
             host.RegisterDocument(_terminal.IDocument);
-            _output.Connection.Socket.RepeatAsyncRead(_terminal);
         }
         public void InternalTerminate() {
             _terminated = true;
@@ -179,7 +163,7 @@ namespace Poderosa.Sessions {
                 _output.Connection.Close();
                 _output.Connection.Socket.ForceDisposed();
             }
-            catch (Exception) { //ここでの例外は無視
+            catch (Exception) {
             }
             _terminal.CloseBySession();
         }
@@ -209,6 +193,13 @@ namespace Poderosa.Sessions {
 
             _terminalControl = tp;
             _terminal.Attached(tp);
+
+            // The data receiving loop is started after the first attachment.
+            // To control the scroll position properly, the terminal size must be determined first.
+            if (!_commStarted) {
+                _output.Connection.Socket.RepeatAsyncRead(_terminal);
+                _commStarted = true;
+            }
         }
         public void InternalDetachView(IPoderosaDocument document, IPoderosaView view) {
             Debug.WriteLineIf(DebugOpt.ViewManagement, "DETACH VIEW");
@@ -228,29 +219,6 @@ namespace Poderosa.Sessions {
         public void InternalCloseDocument(IPoderosaDocument document) {
             //do nothing
         }
-#if false //廃止
-        //ビューからのコントロールの取得
-        private static TerminalControl CastTerminalControl(IPoderosaView view) {
-            IContentReplaceableView rv = (IContentReplaceableView)view.GetAdapter(typeof(IContentReplaceableView));
-            Debug.Assert(rv!=null); //現状では分割方式でしか動作していないのでここまでは必ず成功
-            IPoderosaView content = rv.GetCurrentContent();
-
-            if(content is TerminalView)
-                return ((TerminalView)content).TerminalControl;
-            else
-                return null;
-        }
-        private static TerminalControl CastOrCreateTerminalControl(IPoderosaView view) {
-            TerminalControl c = CastTerminalControl(view);
-            if(c!=null) return c; //キャストできればそれでOK。でなければ作る
-
-            Debug.WriteLine("Creating New TerminalControl");
-            IContentReplaceableView rv = (IContentReplaceableView)view.GetAdapter(typeof(IContentReplaceableView));
-            TerminalControl tc = new TerminalControl();
-            rv.ReplaceContent(new TerminalView(view.ParentForm, tc));
-            return tc;
-        }
-#endif
     }
 
 }

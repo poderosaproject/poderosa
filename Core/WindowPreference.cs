@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ namespace Poderosa.Forms {
         private IIntPreferenceItem _caretInterval;
         private IBoolPreferenceItem _autoCopyByLeftButton; //TerminalEmulatorから引越ししてきた
 
+        private IBoolPreferenceItem _enableOldSplitterUI;
         private IIntPreferenceItem _splitLimitCount;
 
         //ダーティフラグとキャッシュ
@@ -57,6 +58,7 @@ namespace Poderosa.Forms {
             _autoCopyByLeftButton = builder.DefineBoolValue(_folder, "autoCopyByLeftButton", false, null);
             _language = builder.DefineStringValue(_folder, "language", GetNativeLanguage().ToString(), null);
 
+            _enableOldSplitterUI = builder.DefineBoolValue(_folder, "enableOldSplitterUI", false, null);
             _splitLimitCount = builder.DefineIntValue(_folder, "splitLimitCount", 16, PreferenceValidatorUtil.IntRangeValidator(1, 50));
         }
         public CoreServicePreferenceAdapter Import(CoreServicePreferenceAdapter src) {
@@ -65,6 +67,7 @@ namespace Poderosa.Forms {
             _language = ConvertItem(src._language);
             _caretInterval = ConvertItem(src._caretInterval);
             _autoCopyByLeftButton = ConvertItem(src._autoCopyByLeftButton);
+            _enableOldSplitterUI = ConvertItem(src._enableOldSplitterUI);
             _splitLimitCount = ConvertItem(src._splitLimitCount);
             return this;
         }
@@ -87,6 +90,7 @@ namespace Poderosa.Forms {
                 _caretInterval.Value = value;
             }
         }
+
         public bool AutoCopyByLeftButton {
             get {
                 return _autoCopyByLeftButton.Value;
@@ -95,6 +99,16 @@ namespace Poderosa.Forms {
                 _autoCopyByLeftButton.Value = value;
             }
         }
+
+        public bool EnableOldSplitterUI {
+            get {
+                return _enableOldSplitterUI.Value;
+            }
+            set {
+                _enableOldSplitterUI.Value = value;
+            }
+        }
+
         public int SplitLimitCount {
             get {
                 return _splitLimitCount.Value;

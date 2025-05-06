@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -151,7 +151,10 @@ namespace Poderosa.Protocols {
                         args += " -- " + _param.ShellName;
                     }
                     ProcessStartInfo psi = new ProcessStartInfo(cygwinBridgePath, args);
-                    PrepareEnv(psi, _param);
+                    string cygwinDir = _param.CygwinDir;
+                    if (cygwinDir == null || cygwinDir.Length == 0)
+                        cygwinDir = CygwinUtil.GuessRootDirectory();
+                    PrepareEnv(psi, cygwinDir);
                     psi.CreateNoWindow = true;
                     psi.ErrorDialog = false;
                     psi.UseShellExecute = false;
@@ -180,7 +183,7 @@ namespace Poderosa.Protocols {
                         return null;
                     }
 
-                    return new CygwinTerminalConnection(term, sock);
+                    return new CygwinTerminalConnection(term, sock, cygwinDir);
                 }
             }
 
@@ -225,11 +228,8 @@ namespace Poderosa.Protocols {
 
         }
 
-        protected static void PrepareEnv(ProcessStartInfo psi, ICygwinParameter p) {
+        protected static void PrepareEnv(ProcessStartInfo psi, string cygwinDir) {
             string path = psi.EnvironmentVariables["PATH"];
-            string cygwinDir = p.CygwinDir;
-            if (cygwinDir == null || cygwinDir.Length == 0)
-                cygwinDir = CygwinUtil.GuessRootDirectory();
             if (path == null)
                 path = String.Empty;
             else if (!path.EndsWith(";"))
@@ -411,17 +411,30 @@ namespace Poderosa.Protocols {
     /// </summary>
     internal class CygwinTerminalConnection : TerminalConnection, ITerminalConnection {
 
+        private readonly CygwinSocket _cygwinSocket;
+
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="terminalParameter">Terminal parameter</param>
         /// <param name="socket">Socket object</param>
-        public CygwinTerminalConnection(ITerminalParameter terminalParameter, Socket socket)
+        /// <param name="remote">text representing the remote side</param>
+        public CygwinTerminalConnection(ITerminalParameter terminalParameter, Socket socket, string remote)
             : base(terminalParameter) {
-            _destination = terminalParameter;
-            CygwinSocket s = new CygwinSocket(socket, this);
-            _socket = s;
-            _terminalOutput = s;
+
+            _cygwinSocket = new CygwinSocket(socket, this, remote);
+        }
+
+        public override ITerminalOutput TerminalOutput {
+            get {
+                return _cygwinSocket;
+            }
+        }
+
+        public override IPoderosaSocket Socket {
+            get {
+                return _cygwinSocket;
+            }
         }
     }
 
@@ -432,9 +445,8 @@ namespace Poderosa.Protocols {
         private byte[] _buff = new byte[0];
         private readonly object _buffSync = new object();
 
-        public CygwinSocket(Socket socket, TerminalConnection conn) {
-            _inner = new PlainPoderosaSocket(socket);
-            _inner.SetOwnerConnection(conn);
+        public CygwinSocket(Socket socket, TerminalConnection conn, string remote) {
+            _inner = new PlainPoderosaSocket(conn, socket, remote);
         }
 
         public void Transmit(ByteDataFragment data) {
@@ -510,6 +522,12 @@ namespace Poderosa.Protocols {
                 catch (Exception) {
                     // ignore
                 }
+            }
+        }
+
+        public string Remote {
+            get {
+                return _inner.Remote;
             }
         }
     }

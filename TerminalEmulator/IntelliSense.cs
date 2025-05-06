@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -147,7 +147,7 @@ namespace Poderosa.Terminal {
             return false;
         }
         private void TryParseMultiLineCommand() {
-            GLine current = _terminal.GetDocument().CurrentLine;
+            GLine current = _terminal.Document.CurrentLine;
             GLine command_start_candidate = current;
             IShellScheme scheme = GetTerminalSettings().ShellScheme;
 
@@ -391,8 +391,8 @@ namespace Poderosa.Terminal {
         public void Init(AbstractTerminal terminal, IShellScheme scheme, string[] current_input, IntelliSenseMode mode, char append_char) {
             _ownerControl = terminal.TerminalHost.TerminalControl;
             Debug.Assert(_ownerControl != null);
-            TerminalDocument doc = terminal.GetDocument();
-            _commandStartPoint = new Point(doc.CaretColumn + (append_char == '\0' ? 0 : 1), doc.CurrentLineNumber - doc.TopLineNumber);
+            TerminalDocument doc = terminal.Document;
+            _commandStartPoint = new Point(doc.CaretColumn + (append_char == '\0' ? 0 : 1), Math.Min(doc.CurrentLineNumber - doc.ViewTopLineNumber, doc.TerminalHeight));
             Debug.WriteLineIf(DebugOpt.IntelliSense, String.Format("IS CtxInit M={0} CaretC={1}", mode.ToString(), doc.CaretColumn));
             _scheme = scheme;
             _currentInput = current_input;

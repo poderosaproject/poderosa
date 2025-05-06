@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ namespace Poderosa.Terminal {
     public class TerminalSettings : ITerminalSettings, IShellSchemeDynamicChangeListener {
         private EncodingType _encoding;
         private TerminalType _terminalType;
+        private LineContinuationMode _lineContinuationMode;
         private bool _localecho;
         private LineFeedRule _lineFeedRule;
         private NewLine _transmitnl;
@@ -50,6 +51,7 @@ namespace Poderosa.Terminal {
         public event ChangeHandler<string> ChangeCaption;
         public event ChangeHandler<RenderProfile> ChangeRenderProfile;
         public event ChangeHandler<EncodingType> ChangeEncoding;
+        public event ChangeHandler<LineContinuationMode> ChangeLineContinuationMode;
 
         public TerminalSettings() {
             IPoderosaCulture culture = TerminalEmulatorPlugin.Instance.PoderosaWorld.Culture;
@@ -58,7 +60,8 @@ namespace Poderosa.Terminal {
             else
                 _encoding = EncodingType.ISO8859_1;
 
-            _terminalType = TerminalType.XTerm;
+            _terminalType = TerminalType.XTerm256Color;
+            _lineContinuationMode = LineContinuationMode.Standard;
             _localecho = false;
             _lineFeedRule = LineFeedRule.Normal;
             _transmitnl = NewLine.CR;
@@ -80,6 +83,7 @@ namespace Poderosa.Terminal {
         public virtual void Import(ITerminalSettings src) {
             _encoding = src.Encoding;
             _terminalType = src.TerminalType;
+            _lineContinuationMode = src.LineContinuationMode;
             _localecho = src.LocalEcho;
             _lineFeedRule = src.LineFeedRule;
             _transmitnl = src.TransmitNL;
@@ -135,6 +139,20 @@ namespace Poderosa.Terminal {
             set {
                 EnsureUpdating();
                 _terminalType = value;
+            }
+        }
+
+        [MacroConnectionParameter]
+        public LineContinuationMode LineContinuationMode {
+            get {
+                return _lineContinuationMode;
+            }
+            set {
+                EnsureUpdating();
+                _lineContinuationMode = value;
+                if (this.ChangeLineContinuationMode != null)
+                    this.ChangeLineContinuationMode(value);
+
             }
         }
 

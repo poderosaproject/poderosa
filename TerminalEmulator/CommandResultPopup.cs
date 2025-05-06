@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ namespace Poderosa.Terminal {
         public override void EndCommand(List<GLine> command_result) {
             CommandResultDocument doc = new CommandResultDocument(_executingCommand);
             foreach (GLine line in command_result)
-                doc.AddLine(line.Clone());
+                doc.AddLine(line.CloneWithoutUpdateSpans());
 
             TerminalControl tc = _terminal.TerminalHost.TerminalControl;
             if (tc == null)
@@ -198,8 +198,7 @@ namespace Poderosa.Terminal {
         //ポップアップ対象の行を集めて構築。ここは受信スレッドでの実行であることに注意
         private void ProcessCommandResult(int end_line_id) {
             List<GLine> result = new List<GLine>();
-            TerminalDocument doc = _terminal.GetDocument();
-            GLine line = doc.FindLineOrNull(_commandStartLineID);
+            GLine line = _terminal.Document.FindLineOrNull(_commandStartLineID);
             while (line != null && line.ID <= end_line_id) {
                 //Debug.WriteLine("P]"+new string(line.Text, 0, line.DisplayLength));
                 result.Add(line);
@@ -278,10 +277,12 @@ namespace Poderosa.Terminal {
         private void ShowMenu() {
             TerminalControl tc = _terminal.TerminalHost.TerminalControl;
             Debug.Assert(tc != null);
-            TerminalDocument doc = _terminal.GetDocument();
-            SizeF pitch = tc.GetRenderProfile().Pitch;
-            Point popup = new Point((int)(doc.CaretColumn * pitch.Width), (int)((doc.CurrentLineNumber - doc.TopLineNumber + 1) * pitch.Height));
-
+            TerminalDocument doc = _terminal.Document;
+            RenderProfile renderProfile = tc.GetRenderProfile();
+            SizeF pitch = renderProfile.Pitch;
+            int lineSpacing = renderProfile.LineSpacing;
+            int posY = (int)(Math.Min(doc.CurrentLineNumber - doc.ViewTopLineNumber + 1, doc.TerminalHeight) * (pitch.Height + lineSpacing) - lineSpacing);
+            Point popup = new Point((int)(doc.CaretColumn * pitch.Width), posY);
             IPoderosaForm f = tc.FindForm() as IPoderosaForm;
             Debug.Assert(f != null);
             //EXTPにしてもいいんだけど

@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,24 +13,25 @@
 // limitations under the License.
 
 using System;
-using System.Text;
-using System.Net.Sockets;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Granados;
 using Granados.SSH2;
 using Granados.IO;
 using Granados.KeyboardInteractive;
 using Granados.SSH;
-using System.Threading.Tasks;
 
 namespace Poderosa.Protocols {
     //SSHの入出力系
     internal abstract class SSHConnectionEventReceiverBase : ISSHConnectionEventHandler {
-        protected SSHTerminalConnection _parent;
+        protected readonly SSHTerminalConnection _parent;
         protected ISSHConnection _connection;
         protected IByteAsyncInputStream _callback;
         private bool _normalTerminationCalled;
@@ -38,17 +39,20 @@ namespace Poderosa.Protocols {
         public SSHConnectionEventReceiverBase(SSHTerminalConnection parent) {
             _parent = parent;
         }
+
         //SSHConnection確立時に呼ぶ
         public void SetSSHConnection(ISSHConnection connection) {
             _connection = connection;
         }
+
         public ISSHConnection Connection {
             get {
                 return _connection;
             }
         }
+
         public virtual void CleanupErrorStatus() {
-            if (_connection != null && _connection.IsOpen) {
+            if (_connection != null) {
                 _connection.Close();
             }
         }
@@ -57,7 +61,7 @@ namespace Poderosa.Protocols {
 
         public virtual void OnConnectionClosed() {
             OnNormalTerminationCore();
-            if (_connection != null && _connection.IsOpen) {
+            if (_connection != null) {
                 _connection.Close();
             }
         }
@@ -123,16 +127,21 @@ namespace Poderosa.Protocols {
 
     internal class SSHSocket
         : SSHConnectionEventReceiverBase,
-          IPoderosaSocket, ITerminalOutput, IKeyboardInteractiveAuthenticationHandler {
+          IPoderosaSocketInet, ITerminalOutput, IKeyboardInteractiveAuthenticationHandler {
+
+        private readonly string _remote;
+        private readonly IPEndPoint _endPoint;
 
         private SSHChannelHandler _channelHandler;
-        private ByteDataFragment _data;
+        private readonly ByteDataFragment _data;
         private MemoryStream _buffer = new MemoryStream();
 
         private KeyboardInteractiveAuthHanlder _keyboardInteractiveAuthHanlder;
 
-        public SSHSocket(SSHTerminalConnection parent)
+        public SSHSocket(SSHTerminalConnection parent, string remote, IPEndPoint endPoint)
             : base(parent) {
+            _remote = remote;
+            _endPoint = endPoint;
             _data = new ByteDataFragment();
         }
 
@@ -167,7 +176,15 @@ namespace Poderosa.Protocols {
                 throw new Exception(PEnv.Strings.GetString("Message.SSHSocket.FailedToStartShell"));
             }
 
+            SSHChannelHandler oldChannelHandler = _channelHandler;
             _channelHandler = channelHandler;
+
+            if (oldChannelHandler != null && oldChannelHandler.Operator is NullSSHChannel) {
+                uint tw, th, pw, ph;
+                if (((NullSSHChannel)oldChannelHandler.Operator).HasPendingTerminalResize(out tw, out th, out pw, out ph)) {
+                    channelHandler.Operator.ResizeTerminal(tw, th, pw, ph);
+                }
+            }
         }
 
         public void OpenKeyboardInteractiveShell() {
@@ -183,11 +200,11 @@ namespace Poderosa.Protocols {
 
         public void ForceDisposed() {
             try {
-                if (_connection != null && _connection.IsOpen) {
+                if (_connection != null) {
                     _connection.Disconnect(DisconnectionReasonCode.ByApplication, "bye");
                 }
             }
-            catch(Exception e) {
+            catch (Exception e) {
                 Debug.WriteLine(e.Message);
                 Debug.WriteLine(e.StackTrace);
             }
@@ -245,12 +262,30 @@ namespace Poderosa.Protocols {
             }
         }
 
+        public string Remote {
+            get {
+                return _remote;
+            }
+        }
+        public IPAddress RemoteAddress {
+            get {
+                return (_endPoint != null) ? _endPoint.Address : null;
+            }
+        }
+
+        public int? RemotePortNumber {
+            get {
+                return (_endPoint != null) ? _endPoint.Port : (int?)null;
+            }
+        }
+
         #region IKeyboardInteractiveAuthenticationHandler
 
         public string[] KeyboardInteractiveAuthenticationPrompt(string[] prompts, bool[] echoes) {
             if (_keyboardInteractiveAuthHanlder != null) {
                 return _keyboardInteractiveAuthHanlder.KeyboardInteractiveAuthenticationPrompt(prompts, echoes);
-            } else {
+            }
+            else {
                 return prompts.Select(s => "").ToArray();
             }
         }
@@ -385,6 +420,11 @@ namespace Poderosa.Protocols {
     /// </summary>
     internal class NullSSHChannel : ISSHChannel {
 
+        private uint? _pendingResizeWidth = null;
+        private uint? _pendingResizeHeight = null;
+        private uint? _pendingResizePixelWidth = null;
+        private uint? _pendingResizePixelHeight = null;
+
         public uint LocalChannel {
             get {
                 throw new NotImplementedException();
@@ -428,6 +468,18 @@ namespace Poderosa.Protocols {
         }
 
         public void ResizeTerminal(uint width, uint height, uint pixelWidth, uint pixelHeight) {
+            _pendingResizeWidth = width;
+            _pendingResizeHeight = height;
+            _pendingResizePixelWidth = pixelWidth;
+            _pendingResizePixelHeight = pixelHeight;
+        }
+
+        public bool HasPendingTerminalResize(out uint width, out uint height, out uint pixelWidth, out uint pixelHeight) {
+            width = _pendingResizeWidth ?? 0;
+            height = _pendingResizeHeight ?? 0;
+            pixelWidth = _pendingResizePixelWidth ?? 0;
+            pixelHeight = _pendingResizePixelHeight ?? 0;
+            return _pendingResizeWidth.HasValue && _pendingResizeHeight.HasValue && _pendingResizePixelWidth.HasValue && _pendingResizePixelHeight.HasValue;
         }
 
         public bool WaitReady() {

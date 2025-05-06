@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,19 +60,8 @@ namespace Poderosa.Preferences {
             Flush(); //ファイルの有無に関わらず内部のStorageNodeは更新しとく
 
             if (s.PreferenceFileName != null) {
-                string preferenceFileName = s.PreferenceFileName;
-                string tempPreferenceFileName = preferenceFileName + ".tmp";
-                string prevPreferenceFileName = preferenceFileName + ".prev";
-
                 try {
-                    using (TextWriter writer = new StreamWriter(tempPreferenceFileName, false, System.Text.Encoding.Default)) {
-                        WritePreference(writer);
-                    }
-                    if (File.Exists(preferenceFileName)) {
-                        File.Delete(prevPreferenceFileName);
-                        File.Move(preferenceFileName, prevPreferenceFileName);
-                    }
-                    File.Move(tempPreferenceFileName, preferenceFileName);
+                    PreferencesIO.WritePreferences(s.PreferenceFileName, s.Preferences);
                 }
                 catch (Exception ex) {
                     RuntimeUtil.ReportException(ex);
@@ -94,11 +83,6 @@ namespace Poderosa.Preferences {
         public void Flush() {
             foreach (PlugInHost host in _idToHosts.Values)
                 host.Flush();
-        }
-
-        public void WritePreference(TextWriter writer) {
-            IStartupContextSupplier s = (IStartupContextSupplier)_poderosaWorld.GetAdapter(typeof(IStartupContextSupplier));
-            new TextStructuredTextWriter(writer).Write(s.Preferences);
         }
 
         #region IPreferences
@@ -268,6 +252,13 @@ namespace Poderosa.Preferences {
         public IIntPreferenceItem DefineIntValue(IPreferenceFolder parent, string id, int initial_value, PreferenceItemValidator<int> validator) {
             PreferenceFolder f = CastFolder(parent);
             IntPreferenceItem item = new IntPreferenceItem(f, id, parent.ChildCount, initial_value, validator);
+            f.AddChild(item);
+            return item;
+        }
+
+        public IDecimalPreferenceItem DefineDecimalValue(IPreferenceFolder parent, string id, decimal initial_value, PreferenceItemValidator<decimal> validator) {
+            PreferenceFolder f = CastFolder(parent);
+            DecimalPreferenceItem item = new DecimalPreferenceItem(f, id, parent.ChildCount, initial_value, validator);
             f.AddChild(item);
             return item;
         }
@@ -498,7 +489,7 @@ namespace Poderosa.Preferences {
                     if (ch_data == null)
                         ch_item.ResetValue();
                     else
-                        ch_item.TryToParse(ch_data.value, PreferenceItem.ErrorMode.Reset);
+                        ch_item.TryParseAndUpdate(ch_data.value, PreferenceItemParseErrorMode.Reset);
                 }
                 else if (ch_array != null) {
                     ArrayList ch_data = new ArrayList();
@@ -690,14 +681,8 @@ namespace Poderosa.Preferences {
         }
     }
 
-
     //Itemの基底。ここから各型に分岐
     internal abstract class PreferenceItem : PreferenceItemBase, IPreferenceItem {
-
-        public enum ErrorMode {
-            Reset,
-            NotifyHost
-        }
 
         public PreferenceItem(PreferenceFolder parent, string id, int index)
             : base(parent, id, index) {
@@ -727,6 +712,10 @@ namespace Poderosa.Preferences {
             _parent.GetHost().ValidationError(this, result);
         }
 
+        public abstract PreferenceItemDataType DataType {
+            get;
+        }
+
         //子で実装
         public virtual IBoolPreferenceItem AsBool() {
             return null;
@@ -734,33 +723,20 @@ namespace Poderosa.Preferences {
         public virtual IIntPreferenceItem AsInt() {
             return null;
         }
+        public virtual IDecimalPreferenceItem AsDecimal() {
+            return null;
+        }
         public virtual IStringPreferenceItem AsString() {
             return null;
         }
 
-
-        internal abstract string FormatValue();
-        internal abstract void TryToParse(string value, ErrorMode errormode);
+        public abstract string FormatValue();
+        public abstract string FormatInitialValue();
+        public abstract void TryParseAndUpdate(string value, PreferenceItemParseErrorMode errormode);
         internal abstract void ImportSnapshot(PreferenceItem item);
         internal abstract bool IsChanged {
             get;
         } //デフォルト値と違うかどうか
-
-        protected bool Validate<T>(T value, PreferenceItemValidator<T> validator, ErrorMode errormode) {
-            if (validator != null) {
-                PreferenceValidationResult r = GetSharedValidationResult();
-                validator(value, r);
-                if (!r.Validated) {
-                    if (errormode == ErrorMode.Reset)
-                        ResetValue();
-                    else
-                        ValidationError(r);
-                    return false;
-                }
-            }
-
-            return true;
-        }
     }
 
     internal abstract class TypedPreferenceItem<T> : PreferenceItem, ITypedPreferenceItem<T> {
@@ -782,7 +758,7 @@ namespace Poderosa.Preferences {
                 return _value;
             }
             set {
-                if (!Validate(value, ErrorMode.NotifyHost))
+                if (!Validate(value, PreferenceItemParseErrorMode.NotifyHost))
                     return;
                 _value = value;
             }
@@ -811,35 +787,48 @@ namespace Poderosa.Preferences {
             item._value = _value; //ノーイベント
             return item;
         }
+
         internal override void ImportSnapshot(PreferenceItem item) {
             TypedPreferenceItem<T> i = item as TypedPreferenceItem<T>;
             Debug.Assert(i != null);
 
             _value = i._value; //チェック済みなのでノーイベントで
         }
-        internal override string FormatValue() {
+
+        public override string FormatValue() {
             return _value.ToString();
         }
-        internal override void TryToParse(string value, ErrorMode errormode) {
+
+        public override string FormatInitialValue() {
+            return _initialValue.ToString();
+        }
+
+        public override void TryParseAndUpdate(string value, PreferenceItemParseErrorMode errorMode) {
             T v = _primitiveAdapter.Parse(value);
-            if (Validate(v, errormode))
+            if (Validate(v, errorMode))
                 _value = v;
         }
+
         internal override bool IsChanged {
             get {
                 return !_primitiveAdapter.Equals(_value, _initialValue);
             }
         }
 
-        private bool Validate(T value, ErrorMode errormode) {
+        private bool Validate(T value, PreferenceItemParseErrorMode errorMode) {
             if (_validator != null) {
                 PreferenceValidationResult r = GetSharedValidationResult();
                 _validator(value, r);
                 if (!r.Validated) {
-                    if (errormode == ErrorMode.Reset)
+                    if (errorMode == PreferenceItemParseErrorMode.Reset) {
                         ResetValue();
-                    else
+                    }
+                    else if (errorMode == PreferenceItemParseErrorMode.NotifyHost) {
                         ValidationError(r);
+                    }
+                    else if (errorMode == PreferenceItemParseErrorMode.Throw) {
+                        throw new ValidationException(this, r);
+                    }
                     return false;
                 }
             }
@@ -861,6 +850,11 @@ namespace Poderosa.Preferences {
         protected override TypedPreferenceItem<bool> InternalClone() {
             return new BoolPreferenceItem(_parent, _id, _index, _initialValue, _validator);
         }
+        public override PreferenceItemDataType DataType {
+            get {
+                return PreferenceItemDataType.Bool;
+            }
+        }
         public override IBoolPreferenceItem AsBool() {
             return this;
         }
@@ -873,7 +867,29 @@ namespace Poderosa.Preferences {
         protected override TypedPreferenceItem<int> InternalClone() {
             return new IntPreferenceItem(_parent, _id, _index, _initialValue, _validator);
         }
+        public override PreferenceItemDataType DataType {
+            get {
+                return PreferenceItemDataType.Int;
+            }
+        }
         public override IIntPreferenceItem AsInt() {
+            return this;
+        }
+    }
+    internal class DecimalPreferenceItem : TypedPreferenceItem<decimal>, IDecimalPreferenceItem {
+        private static IPrimitiveAdapter<decimal> adapter = new DecimalPrimitiveAdapter();
+        public DecimalPreferenceItem(PreferenceFolder parent, string id, int index, decimal initialValue, PreferenceItemValidator<decimal> validator)
+            : base(parent, id, index, initialValue, validator, adapter) {
+        }
+        protected override TypedPreferenceItem<decimal> InternalClone() {
+            return new DecimalPreferenceItem(_parent, _id, _index, _initialValue, _validator);
+        }
+        public override PreferenceItemDataType DataType {
+            get {
+                return PreferenceItemDataType.Decimal;
+            }
+        }
+        public override IDecimalPreferenceItem AsDecimal() {
             return this;
         }
     }
@@ -884,6 +900,11 @@ namespace Poderosa.Preferences {
         }
         protected override TypedPreferenceItem<string> InternalClone() {
             return new StringPreferenceItem(_parent, _id, _index, _initialValue, _validator);
+        }
+        public override PreferenceItemDataType DataType {
+            get {
+                return PreferenceItemDataType.String;
+            }
         }
         public override IStringPreferenceItem AsString() {
             return this;
@@ -1033,6 +1054,9 @@ namespace Poderosa.Preferences {
         protected IIntPreferenceItem ConvertItem(IIntPreferenceItem item) {
             return _folder.ChildAt(item.Index).AsItem().AsInt();
         }
+        protected IDecimalPreferenceItem ConvertItem(IDecimalPreferenceItem item) {
+            return _folder.ChildAt(item.Index).AsItem().AsDecimal();
+        }
         protected IStringPreferenceItem ConvertItem(IStringPreferenceItem item) {
             return _folder.ChildAt(item.Index).AsItem().AsString();
         }
@@ -1093,23 +1117,24 @@ namespace Poderosa.Preferences {
                 result.ErrorMessage = CoreUtil.Strings.GetString("Message.ValueMustBePositive");
         }
 
-        private class IntRange {
-            private int _min;
-            private int _max;
-
-            public IntRange(int min, int max) {
-                _min = min;
-                _max = max;
-            }
-
-            public void Check(int value, IPreferenceValidationResult result) {
-                if (value < _min || value > _max)
-                    result.ErrorMessage = String.Format(CoreUtil.Strings.GetString("Message.ValueMustBeContainedRange"), _min, _max);
-            }
+        public static PreferenceItemValidator<int> IntRangeValidator(int min, int max) {
+            return new PreferenceItemValidator<int>(
+                (value, result) => {
+                    if (value < min || value > max) {
+                        result.ErrorMessage = String.Format(CoreUtil.Strings.GetString("Message.ValueMustBeContainedRange"), min, max);
+                    }
+                }
+            );
         }
 
-        public static PreferenceItemValidator<int> IntRangeValidator(int min, int max) {
-            return new PreferenceItemValidator<int>(new IntRange(min, max).Check);
+        public static PreferenceItemValidator<decimal> DecimalRangeValidator(decimal min, decimal max) {
+            return new PreferenceItemValidator<decimal>(
+                (value, result) => {
+                    if (value < min || value > max) {
+                        result.ErrorMessage = String.Format(CoreUtil.Strings.GetString("Message.ValueMustBeContainedRange"), min, max);
+                    }
+                }
+            );
         }
     }
 

@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,30 +31,39 @@ namespace Poderosa.SerialPort {
 
     internal class Win32Serial {
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetCommState(IntPtr handle, ref DCB dcb);
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetCommState(IntPtr handle, ref DCB dcb);
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetCommTimeouts(IntPtr handle, ref COMMTIMEOUTS timeouts);
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetCommTimeouts(IntPtr handle, ref COMMTIMEOUTS timeouts);
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetCommBreak(IntPtr handle);
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ClearCommBreak(IntPtr handle);
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool WaitCommEvent(
             IntPtr hFile,         // handle to comm device
             IntPtr lpEvtMask,     // event type
             IntPtr lpOverlapped   // overlapped structure
             );
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ClearCommError(
             IntPtr hFile,     // handle to communications device
             IntPtr lpErrors, // error codes
             IntPtr lpStat  // communications status (本当はCommStat)
             );
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetCommMask(
             IntPtr hFile,                // handle to comm device
             int flags
@@ -72,6 +81,7 @@ namespace Poderosa.SerialPort {
             );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ReadFile(
             IntPtr hFile,                // handle to file
             IntPtr lpBuffer,             // data buffer
@@ -80,6 +90,7 @@ namespace Poderosa.SerialPort {
             IntPtr lpOverlapped    // overlapped buffer
             );
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool WriteFile(
             IntPtr hFile,                // handle to file
             IntPtr lpBuffer,             // data buffer
@@ -88,6 +99,7 @@ namespace Poderosa.SerialPort {
             IntPtr lpOverlapped    // overlapped buffer
             );
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetOverlappedResult(
             IntPtr hFile,                       // handle to file, pipe, or device
             IntPtr lpOverlapped,          // overlapped structure
@@ -172,18 +184,26 @@ namespace Poderosa.SerialPort {
     }
 
     internal class SerialSocket : IPoderosaSocket {
-        private SerialTerminalConnection _parent;
-        private IntPtr _fileHandle;
+        private readonly string _remote;
+        private readonly SerialTerminalConnection _parent;
+        private readonly IntPtr _fileHandle;
         private IByteAsyncInputStream _callback;
         private ByteDataFragment _dataFragment;
         private ManualResetEvent _writeOverlappedEvent;
-        private SerialTerminalSettings _serialSettings;
+        private readonly SerialTerminalSettings _serialSettings;
 
-        public SerialSocket(SerialTerminalConnection parent, IntPtr filehandle, SerialTerminalSettings settings) {
+        public SerialSocket(SerialTerminalConnection parent, IntPtr filehandle, SerialTerminalSettings settings, string remote) {
+            _remote = remote;
             _parent = parent;
             _serialSettings = settings;
             _fileHandle = filehandle;
             _writeOverlappedEvent = new ManualResetEvent(false);
+        }
+
+        public string Remote {
+            get {
+                return _remote;
+            }
         }
 
         public bool Available {
@@ -488,7 +508,7 @@ namespace Poderosa.SerialPort {
         public SerialTerminalConnection(SerialTerminalParam p, SerialTerminalSettings settings, IntPtr fh) {
             _serialTerminalParam = p;
             _fileHandle = fh;
-            _serialSocket = new SerialSocket(this, fh, settings);
+            _serialSocket = new SerialSocket(this, fh, settings, p.PortName);
             _serialTerminalOutput = new SerialTerminalOutput(fh);
             //_socket = _serialSocket;
             //_terminalOutput = _serialTerminalOutput;

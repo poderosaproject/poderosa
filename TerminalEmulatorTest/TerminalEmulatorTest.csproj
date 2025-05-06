@@ -47,12 +47,17 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EscapeSequenceEngineTest.cs" />
     <Compile Include="KeyFunction.cs" />
+    <Compile Include="LoggerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShellScheme.cs" />
+    <Compile Include="SixelTest.cs" />
+    <Compile Include="TabStopsTest.cs" />
     <Compile Include="TerminalSettingsSerialize.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -66,6 +71,10 @@
     <ProjectReference Include="..\Plugin\Plugin.csproj">
       <Project>{d84b661b-503e-4c22-892b-7499b72c7e04}</Project>
       <Name>Plugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Protocols\Protocols.csproj">
+      <Project>{04f18da5-bf47-48a3-9b8b-b6b93dcba875}</Project>
+      <Name>Protocols</Name>
     </ProjectReference>
     <ProjectReference Include="..\TerminalEmulator\TerminalEmulator.csproj">
       <Project>{7f80731c-443a-4533-90d1-1643a5c1364e}</Project>

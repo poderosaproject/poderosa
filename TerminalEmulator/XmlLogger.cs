@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,9 +36,9 @@ namespace Poderosa.Terminal {
         private readonly char[] _buffer;
         private bool _closed = false;
 
-        public XmlLogger(ISimpleLogSettings log, StreamWriter w)
+        public XmlLogger(ISimpleLogSettings log, Stream stream)
             : base(log) {
-            _writer = new XmlTextWriter(w);
+            _writer = new XmlTextWriter(stream, Encoding.UTF8); // BOM is inserted automatically
             _writer.WriteStartDocument();
             _writer.WriteStartElement("terminal-log");
 

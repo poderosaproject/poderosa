@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -102,10 +102,9 @@ namespace Poderosa.LogViewer {
     }
 
     //ViewClass
-    internal class PoderosaLogViewControl : CharacterDocumentViewer, IPoderosaView, IGeneralViewCommands {
+    internal class PoderosaLogViewControl : SimpleCharacterDocumentViewer, IPoderosaView, IGeneralViewCommands {
         private IPoderosaForm _form;
         private PoderosaLogViewerSession _session;
-
 
         public PoderosaLogViewControl(IPoderosaForm form) {
             _form = form;
@@ -116,7 +115,7 @@ namespace Poderosa.LogViewer {
         public void SetParent(PoderosaLogViewerSession session) {
             _session = session;
             this.SetPrivateRenderProfile(CreateLogRenderProfile());
-            this.SetContent(_session.Document);
+            this.DocumentChanged(session != null ? session.Document : null);
         }
 
         public IPoderosaDocument Document {
@@ -147,16 +146,6 @@ namespace Poderosa.LogViewer {
                 _VScrollBar.Value = newtop;
             else
                 Invalidate();
-        }
-        //UpdateDocumentのInvoke実行
-        private delegate void UpdateDocumentDelegate_();
-        private UpdateDocumentDelegate_ _updateDocumentDelegate;
-        public Delegate UpdateDocumentDelegate {
-            get {
-                if (_updateDocumentDelegate == null)
-                    _updateDocumentDelegate = new UpdateDocumentDelegate_(UpdateDocument);
-                return _updateDocumentDelegate;
-            }
         }
 
         //Command
@@ -200,7 +189,7 @@ namespace Poderosa.LogViewer {
             _caption = "Poderosa Event Log";
             _session = session;
             //１行はないとだめな制約があるので
-            this.AddLine(GLine.CreateSimpleGLine("", TextDecoration.Default));
+            this.AddLine(GLine.CreateSimpleGLine("", TextDecoration.Default, _zMan.Current));
             _nextLineIsFirstLine = true;
         }
 
@@ -220,7 +209,7 @@ namespace Poderosa.LogViewer {
             int offset = 0;
             while (offset < text.Length) {
                 int next = RuntimeUtil.AdjustIntRange(offset + width, 0, text.Length);
-                GLine line = GLine.CreateSimpleGLine(text.Substring(offset, next - offset), TextDecoration.Default);
+                GLine line = GLine.CreateSimpleGLine(text.Substring(offset, next - offset), TextDecoration.Default, _zMan.Current);
                 line.EOLType = next < text.Length ? EOLType.Continue : EOLType.CRLF;
                 Append(line);
                 offset = next;
@@ -229,7 +218,7 @@ namespace Poderosa.LogViewer {
             PoderosaLogViewControl vc = _session.CurrentView;
             if (vc != null) {
                 if (vc.InvokeRequired)
-                    vc.Invoke(vc.UpdateDocumentDelegate);
+                    vc.Invoke((System.Windows.Forms.MethodInvoker)vc.UpdateDocument);
                 else
                     vc.UpdateDocument();
             }

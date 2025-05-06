@@ -54,6 +54,24 @@
   <data name="Command.PoderosaLog">
     <value>Shows Poderosa event log</value>
   </data>
+  <data name="Command.SplitHorizontal">
+    <value>Make a horizontal split</value>
+  </data>
+  <data name="Command.SplitVertical">
+    <value>Make a vertical split</value>
+  </data>
+  <data name="Command.SplitUnify">
+    <value>Unify split</value>
+  </data>
+  <data name="Menu.DivideFrameHorizontal">
+    <value>Split &amp;Horizontally</value>
+  </data>
+  <data name="Menu.DivideFrameVertical">
+    <value>Split &amp;Vertically</value>
+  </data>
+  <data name="Menu.UnifyFrame">
+    <value>&amp;Unify</value>
+  </data>
   <data name="Menu.EditRenderProfile">
     <value>Edit &amp;display profile...</value>
   </data>
@@ -71,6 +89,9 @@
   </data>
   <data name="Menu.PoderosaLog">
     <value>Shows Poderosa &amp;event log...</value>
+  </data>
+  <data name="Menu.CopyRemote">
+    <value>Copy remote address</value>
   </data>
   <data name="Form.ChangeLog.Text">
     <value>Log configuration</value>
@@ -707,6 +728,9 @@
   </data>
   <data name="Caption.PreferenceEditor.Int">
     <value>Integer</value>
+  </data>
+  <data name="Caption.PreferenceEditor.Decimal">
+    <value>Number</value>
   </data>
   <data name="Caption.PreferenceEditor.String">
     <value>String</value>

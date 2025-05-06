@@ -1,4 +1,4 @@
-﻿// Copyright 2011-2017 The Poderosa Project.
+﻿// Copyright 2011-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -152,6 +152,12 @@ namespace Poderosa.Benchmark {
             if (Monitor.TryEnter(_pumpThreadSync)) {
                 Monitor.PulseAll(_pumpThreadSync);
                 Monitor.Exit(_pumpThreadSync);
+            }
+        }
+
+        public string Remote {
+            get {
+                return "(mock)";
             }
         }
     }

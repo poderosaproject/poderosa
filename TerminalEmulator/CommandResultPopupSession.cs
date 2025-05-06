@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -121,7 +121,6 @@ namespace Poderosa.Terminal {
                 Debug.Assert(tc != null);
                 RenderProfile rp = (RenderProfile)tc.GetRenderProfile().Clone();
                 CommandResultSession session = new CommandResultSession(document, rp); //現在のRenderProfileを使ってセッションを作る
-                TerminalDocument terminaldoc = terminal.GetDocument();
                 PopupViewCreationParam cp = new PopupViewCreationParam(_viewFactory);
                 //結果のサイズに合わせる。ただし高さは20行を上限とする
                 cp.InitialSize = new Size(tc.ClientSize.Width, (int)(RuntimeUtil.AdjustIntRange(document.Size, 0, 20) * rp.Pitch.Height) + 2);
@@ -150,7 +149,7 @@ namespace Poderosa.Terminal {
     }
 
     //ViewClass
-    internal class CommandResultViewerControl : CharacterDocumentViewer, IPoderosaView, IGeneralViewCommands {
+    internal class CommandResultViewerControl : SimpleCharacterDocumentViewer, IPoderosaView, IGeneralViewCommands {
         private IPoderosaForm _form;
         private CommandResultSession _session;
 
@@ -163,7 +162,7 @@ namespace Poderosa.Terminal {
         public void SetParent(CommandResultSession session) {
             _session = session;
             this.SetPrivateRenderProfile(session.RenderProfile);
-            this.SetContent(_session.Document);
+            this.DocumentChanged(session != null ? session.Document : null);
         }
 
         public IPoderosaDocument Document {

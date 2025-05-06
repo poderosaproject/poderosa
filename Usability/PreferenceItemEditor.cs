@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -159,29 +159,16 @@ namespace Poderosa.Usability {
             _resetButton.Text = sr.GetString("Form.PreferenceItemEditor._resetButton");
             _okButton.Text = sr.GetString("Common.OK");
             _cancelButton.Text = sr.GetString("Common.Cancel");
-
-            //int/stringどちらかの場合をサポート
-            IIntPreferenceItem intitem = item.AsInt();
-            IStringPreferenceItem stritem = item.AsString();
-            Debug.Assert(intitem != null || stritem != null);
-            _valueBox.Text = intitem != null ? intitem.Value.ToString() : stritem.Value;
+            _valueBox.Text = _item.FormatValue();
         }
 
         private void OnReset(object sender, EventArgs e) {
-            IIntPreferenceItem intitem = _item.AsInt();
-            IStringPreferenceItem stritem = _item.AsString();
-            Debug.Assert(intitem != null || stritem != null);
-            _valueBox.Text = intitem != null ? intitem.InitialValue.ToString() : stritem.InitialValue;
+            _valueBox.Text = _item.FormatInitialValue();
         }
+
         private void OnOK(object sender, EventArgs e) {
             try {
-                IIntPreferenceItem intitem = _item.AsInt();
-                IStringPreferenceItem stritem = _item.AsString();
-
-                if (intitem != null)
-                    intitem.Value = ParseUtil.ParseInt(_valueBox.Text, intitem.InitialValue);
-                else
-                    stritem.Value = _valueBox.Text;
+                _item.TryParseAndUpdate(_valueBox.Text, PreferenceItemParseErrorMode.Throw);
             }
             catch (Exception ex) {
                 GUtil.Warning(this, ex.Message);

@@ -1,4 +1,4 @@
-﻿// Copyright 2011-2017 The Poderosa Project.
+﻿// Copyright 2011-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ namespace Poderosa.Pipe {
     /// </summary>
     internal class PipeSocket : IPoderosaSocket {
 
+        private readonly string _remote;
+
         private readonly FileStream _inputStream;
         private readonly FileStream _outputStream;
 
@@ -51,10 +53,12 @@ namespace Poderosa.Pipe {
         /// </summary>
         /// <param name="inputStream">Stream to input from.</param>
         /// <param name="outputStream">Stream to output to. Can be same instance as inputStream.</param>
-        public PipeSocket(FileStream inputStream, FileStream outputStream) {
+        /// <param name="remote">text representing the remote side</param>
+        public PipeSocket(FileStream inputStream, FileStream outputStream, string remote) {
             Debug.Assert(inputStream != null);
             Debug.Assert(outputStream != null);
 
+            _remote = remote;
             _inputStream = inputStream;
             _outputStream = outputStream;
         }
@@ -130,6 +134,12 @@ namespace Poderosa.Pipe {
             });
             _inputThread.Name = "Poderosa.Pipe.PipeSocket.InputThread";
             _inputThread.Start();
+        }
+
+        public string Remote {
+            get {
+                return _remote;
+            }
         }
 
         public bool Available {

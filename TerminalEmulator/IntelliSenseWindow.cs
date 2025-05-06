@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -153,7 +153,7 @@ namespace Poderosa.Terminal {
             else {
                 Point pt = _context.CommandStartPoint;
                 pt.X += h.Length + 1;
-                if (pt.X < _context.Owner.Terminal.GetDocument().TerminalWidth) { //移動後も位置OKなら
+                if (pt.X < _context.Owner.Terminal.Document.TerminalWidth) { //移動後も位置OKなら
                     _context.CommandStartPoint = pt;
                     PopupAgain();
                 }
@@ -221,7 +221,7 @@ namespace Poderosa.Terminal {
             StringBuilder bld = new StringBuilder();
             //一致しているところまで検索し、必要に応じてバックスペースを入れる
             int corresponding_len = 0;
-            int caret_column = _context.Owner.Terminal.GetDocument().CaretColumn;
+            int caret_column = _context.Owner.Terminal.Document.CaretColumn;
             string current_text = _context.Owner.PromptLine.ToNormalString();
             while (caret_column > current_text.Length) {
                 current_text += " ";
@@ -290,8 +290,9 @@ namespace Poderosa.Terminal {
         }
         private Point ToControlPoint(Point textPoint) {
             SizeF pitch = _context.RenderProfile.Pitch;
+            int lineSpacing = _context.RenderProfile.LineSpacing;
             int x = (int)(textPoint.X * pitch.Width) - 2; //Y座標は現在行の上側に出すケースもあるが、ContextMenu.Show()で適当に何とかしてくれる
-            int y = (int)((textPoint.Y + 1) * pitch.Height) + 1;
+            int y = (int)((textPoint.Y + 1) * (pitch.Height + lineSpacing) - lineSpacing) + 1;
             Point pt = new Point(x, y);
             //下にはみ出たら
             if (_context.OwnerControl.PointToScreen(pt).Y + this.Height > Screen.PrimaryScreen.Bounds.Height) {

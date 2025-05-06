@@ -53,6 +53,24 @@
   <data name="Command.PoderosaLog">
     <value>Poderosaイベントログ表示</value>
   </data>
+  <data name="Command.SplitHorizontal">
+    <value>上下に分割</value>
+  </data>
+  <data name="Command.SplitVertical">
+    <value>左右に分割</value>
+  </data>
+  <data name="Command.SplitUnify">
+    <value>分割の結合</value>
+  </data>
+  <data name="Menu.DivideFrameHorizontal">
+    <value>上下に分割(&amp;H)</value>
+  </data>
+  <data name="Menu.DivideFrameVertical">
+    <value>左右に分割(&amp;V)</value>
+  </data>
+  <data name="Menu.UnifyFrame">
+    <value>分割を結合(&amp;U)</value>
+  </data>
   <data name="Menu.EditRenderProfile">
     <value>表示プロファイルの編集(&amp;D)...</value>
   </data>
@@ -70,6 +88,9 @@
   </data>
   <data name="Menu.PoderosaLog">
     <value>Poderosaイベントログの表示(&amp;E)...</value>
+  </data>
+  <data name="Menu.CopyRemote">
+    <value>リモートアドレスをコピー</value>
   </data>
   <data name="Form.ChangeLog.Text">
     <value>ログの設定</value>
@@ -705,6 +726,9 @@
   </data>
   <data name="Caption.PreferenceEditor.Int">
     <value>整数</value>
+  </data>
+  <data name="Caption.PreferenceEditor.Decimal">
+    <value>数値</value>
   </data>
   <data name="Caption.PreferenceEditor.String">
     <value>文字列</value>

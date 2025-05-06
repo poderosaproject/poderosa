@@ -1,4 +1,4 @@
-﻿// Copyright 2004-2017 The Poderosa Project.
+﻿// Copyright 2004-2025 The Poderosa Project.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ namespace Poderosa.Protocols {
 
     internal class SSHConnector : InterruptableConnector {
 
-        private ISSHLoginParameter _destination;
-        private HostKeyVerifierBridge _keycheck;
+        private readonly ISSHLoginParameter _destination;
+        private readonly HostKeyVerifierBridge _keycheck;
         private TerminalConnection _result;
 
         public SSHConnector(ISSHLoginParameter destination, HostKeyVerifierBridge keycheck) {
@@ -43,7 +43,8 @@ namespace Poderosa.Protocols {
             ITerminalParameter term = (ITerminalParameter)_destination.GetAdapter(typeof(ITerminalParameter));
             ITCPParameter tcp = (ITCPParameter)_destination.GetAdapter(typeof(ITCPParameter));
 
-            SSHTerminalConnection terminalConnection = new SSHTerminalConnection(_destination);
+            SSHTerminalConnection terminalConnection =
+                new SSHTerminalConnection(_destination, tcp.Destination, _socket.RemoteEndPoint as IPEndPoint);
 
             SSHConnectionParameter con =
                 new SSHConnectionParameter(
@@ -138,7 +139,7 @@ namespace Poderosa.Protocols {
     }
 
     internal class TelnetConnector : InterruptableConnector {
-        private ITCPParameter _destination;
+        private readonly ITCPParameter _destination;
         private TelnetTerminalConnection _result;
 
         public TelnetConnector(ITCPParameter destination) {
@@ -148,7 +149,7 @@ namespace Poderosa.Protocols {
         protected override void Negotiate() {
             ITerminalParameter term = (ITerminalParameter)_destination.GetAdapter(typeof(ITerminalParameter));
             TelnetNegotiator neg = new TelnetNegotiator(term.TerminalType, term.InitialWidth, term.InitialHeight);
-            TelnetTerminalConnection r = new TelnetTerminalConnection(_destination, neg, new PlainPoderosaSocket(_socket));
+            TelnetTerminalConnection r = new TelnetTerminalConnection(_destination, neg, _socket, _destination.Destination);
             //BACK-BURNER r.UsingSocks = _socks!=null;
             _result = r;
         }
