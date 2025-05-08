@@ -1,4 +1,88 @@
-﻿4.5.0
+4.8.0
+-----
+    * Terminal emulation was redesigned, and support for numerous
+      escape sequences, including SIXEL, was added.
+      A new escape sequence engine is used to detect escape sequences with
+      the state machine.
+      Compatibility with XTerm and standards was also improved.
+
+    * Configuration file `options.conf` is now saved in UTF-8 with BOM.
+      Previous options.conf saved with the system default encoding can also
+      be loaded.
+
+    * Error log file `error.log` is now saved in UTF-8 with BOM.
+      If a previous error.log saved with the system default encoding exists,
+      it will be renamed and a new error.log will be created.
+
+    * The encoding for the text log and XML log is now UTF-8 with BOM.
+
+    * Splitting/Unifying pane functionality was improved.
+      The splitter UI, which splits pane at the centerline, is now disabled
+      by default.
+      You can enable it with `org.poderosa.core.window.enableOldSplitterUI`.
+      Splitting/Unifying pane from the menu now works even if no active
+      connection exists.
+
+    * In SSH / TELNET / Cygwin connection, "xterm-256color" can be selected
+      as the Terminal Type, which specifies the value for the `TERM`
+      environment variable.
+      "xterm-256color" is the default for the new connections, but you may
+      need to change Terminal Type manually if you edit the old settings
+      to start a new connection.
+
+    * Remote address of the connection can be copied to the clipboard from
+      the context menu of the tab for each connection.
+
+    * Font dialog in Options Settings > Display has been improved:
+      - Support for decimal point values in font size
+      - Duplicate font names have been eliminated from listings
+      - Dialog is now resizable
+
+    * More runtime information is added to About dialog.
+
+    * P/Invoke attributes to follow Windows API conventions were added
+      for boolean return values and string members.
+
+    * Fixed: Non-ASCII font names may appear corrupted in the font dialog
+
+    * Fixed: Application may not terminate when closing window during
+      SSH authentication
+
+    * Fixed: Terminal size is not reported to the server after
+      SSH or TELNET authentication
+
+4.7.0
+-----
+    * Added support for the AES-GCM as the cipher/MAC algorithms:
+      "aes128-gcm@openssh.com", "aes256-gcm@openssh.com", "AEAD_AES_128_GCM"
+      and "AEAD_AES_256_GCM".
+      These algorithms are set to a lower priority by default due to their
+      higher CPU usage.
+      You can adjust their priority in the "SSH" section of the "Option Settings"
+      dialog.
+
+    * Changed the initial focus to the hostname field when opening
+      the New Session dialog.
+
+    * Fix: An error may occur when saving the configuration file after the MRU size
+      has been changed.
+
+    * Moved test codes of Granados to GranadosTest.
+
+4.6.0
+-----
+    * Supports KEX algorithm "curve25519-sha256@libssh.org."
+    * Allow storing passphrase in the shortcut file (.gts).
+      The shortcut files containing passphrase, saved in older versions (<=4.4.5),
+      can also be used.
+    * Fix: Support for using read-only key file.
+    * Some code cleanup.
+
+4.5.1
+-----
+    * Fix: Proper discovery of public key algorithms (RFC8332 3.3)
+
+4.5.0
 -----
     * Support "rsa-sha2-512" or "rsa-sha2-256" for the public key algorithm
       and the host key algorithm. (RFC8332, draft-miller-ssh-agent-04)
