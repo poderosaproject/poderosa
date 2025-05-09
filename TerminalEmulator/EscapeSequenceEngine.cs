@@ -1184,7 +1184,10 @@ namespace Poderosa.Terminal.EscapeSequence {
 
             private void RegisterHandlerCore(EscapeSequenceAttribute attr, Action<object, Context> action) {
                 FinalState final = new FinalState(action);
+                RegisterHandlerCore(attr, final);
+            }
 
+            private void RegisterHandlerCore(EscapeSequenceAttribute attr, FinalState final) {
                 int prefixLen = attr.Prefix.Length;
                 if (prefixLen == 0) {
                     throw new ArgumentException("missing prefix");
@@ -1252,29 +1255,27 @@ namespace Poderosa.Terminal.EscapeSequence {
             public StateMachineBuilder RegisterMissingHandlers() {
                 // IgnoreControlStringState requires at least one handler that handles introducer
 
+                NonConsumingFinalState final = new NonConsumingFinalState((obj, context) => {
+                });
+
                 if (!_root.HasNextState(ControlCode.APC)) {
-                    RegisterHandlerCore(new EscapeSequenceAttribute(ControlCode.APC, ControlCode.ST), (obj, context) => {
-                    });
+                    RegisterHandlerCore(new EscapeSequenceAttribute(ControlCode.APC, ControlCode.ESC), final);
                 }
 
                 if (!_root.HasNextState(ControlCode.DCS)) {
-                    RegisterHandlerCore(new EscapeSequenceAttribute(ControlCode.DCS, ControlCode.ST), (obj, context) => {
-                    });
+                    RegisterHandlerCore(new EscapeSequenceAttribute(ControlCode.DCS, ControlCode.ESC), final);
                 }
 
                 if (!_root.HasNextState(ControlCode.OSC)) {
-                    RegisterHandlerCore(new EscapeSequenceAttribute(ControlCode.OSC, ControlCode.ST), (obj, context) => {
-                    });
+                    RegisterHandlerCore(new EscapeSequenceAttribute(ControlCode.OSC, ControlCode.ESC), final);
                 }
 
                 if (!_root.HasNextState(ControlCode.PM)) {
-                    RegisterHandlerCore(new EscapeSequenceAttribute(ControlCode.PM, ControlCode.ST), (obj, context) => {
-                    });
+                    RegisterHandlerCore(new EscapeSequenceAttribute(ControlCode.PM, ControlCode.ESC), final);
                 }
 
                 if (!_root.HasNextState(ControlCode.SOS)) {
-                    RegisterHandlerCore(new EscapeSequenceAttribute(ControlCode.SOS, ControlCode.ST), (obj, context) => {
-                    });
+                    RegisterHandlerCore(new EscapeSequenceAttribute(ControlCode.SOS, ControlCode.ESC), final);
                 }
 
                 return this;

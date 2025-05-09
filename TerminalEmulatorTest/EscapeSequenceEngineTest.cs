@@ -1683,25 +1683,15 @@ namespace Poderosa.Terminal.EscapeSequence {
                     // added by RegisterMissingHandlers()
                     "  [0x1b] --> <CharState>",
                     "               [P] --> <CharState>",
-                    "                         [0x1b] --> <CharState>",
-                    "                                      [\\] --> <FinalState>", // DCS ST
-                    "                         [0x9c] --> <FinalState>",  // DCS ST
+                    "                         [0x1b] --> <NonConsumingFinalState>", // DCS ESC
                     "               [X] --> <CharState>",
-                    "                         [0x1b] --> <CharState>",
-                    "                                      [\\] --> <FinalState>", // SOS ST
-                    "                         [0x9c] --> <FinalState>",  // SOS ST
+                    "                         [0x1b] --> <NonConsumingFinalState>", // SOS ESC
                     "               []] --> <CharState>",
-                    "                         [0x1b] --> <CharState>",
-                    "                                      [\\] --> <FinalState>", // OSC ST
-                    "                         [0x9c] --> <FinalState>",  // OSC ST
+                    "                         [0x1b] --> <NonConsumingFinalState>", // OSC ESC
                     "               [^] --> <CharState>",
-                    "                         [0x1b] --> <CharState>",
-                    "                                      [\\] --> <FinalState>", // PM ST
-                    "                         [0x9c] --> <FinalState>",  // PM ST
+                    "                         [0x1b] --> <NonConsumingFinalState>", // PM ESC
                     "               [_] --> <CharState>",
-                    "                         [0x1b] --> <CharState>",
-                    "                                      [\\] --> <FinalState>", // APC ST
-                    "                         [0x9c] --> <FinalState>",  // APC ST
+                    "                         [0x1b] --> <NonConsumingFinalState>", // APC ESC
                     //
                     // from ValidHandlers
                     "  [A] --> <FinalState>",
@@ -1794,25 +1784,15 @@ namespace Poderosa.Terminal.EscapeSequence {
                     //
                     // added by RegisterMissingHandlers()
                     "  [0x90] --> <CharState>",
-                    "               [0x1b] --> <CharState>",
-                    "                            [\\] --> <FinalState>", // DCS ST
-                    "               [0x9c] --> <FinalState>",  // DCS ST
+                    "               [0x1b] --> <NonConsumingFinalState>", // DCS ESC
                     "  [0x98] --> <CharState>",
-                    "               [0x1b] --> <CharState>",
-                    "                            [\\] --> <FinalState>", // SOS ST
-                    "               [0x9c] --> <FinalState>",  // SOS ST
+                    "               [0x1b] --> <NonConsumingFinalState>", // SOS ESC
                     "  [0x9d] --> <CharState>",
-                    "               [0x1b] --> <CharState>",
-                    "                            [\\] --> <FinalState>", // OSC ST
-                    "               [0x9c] --> <FinalState>",  // OSC ST
+                    "               [0x1b] --> <NonConsumingFinalState>", // OSC ESC
                     "  [0x9e] --> <CharState>",
-                    "               [0x1b] --> <CharState>",
-                    "                            [\\] --> <FinalState>", // PM ST
-                    "               [0x9c] --> <FinalState>",  // PM ST
+                    "               [0x1b] --> <NonConsumingFinalState>", // PM ESC
                     "  [0x9f] --> <CharState>",
-                    "               [0x1b] --> <CharState>",
-                    "                            [\\] --> <FinalState>", // APC ST
-                    "               [0x9c] --> <FinalState>",  // APC ST
+                    "               [0x1b] --> <NonConsumingFinalState>", // APC ESC
                 },
                 dump
             );
@@ -1990,85 +1970,100 @@ namespace Poderosa.Terminal.EscapeSequence {
             TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
         }
 
-        [TestCase(APC7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(APC7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { "Handle ST" })] // terminated by ESC of ST (7bit), 8bit ST is ignored as UTF-8 data
         [TestCase(APC7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
         [TestCase(APC7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
-        [TestCase(APC8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(APC8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { "Handle ST" })] // terminated by ESC of ST (7bit), 8bit ST is ignored as UTF-8 data
         [TestCase(APC8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
         [TestCase(APC8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
-        [TestCase(APC7 + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit)
+        [TestCase(APC7 + ST7 + "XYZ", "XYZ", new string[] { "Handle ST" })] // terminated by ESC of ST (7bit)
         [TestCase(APC7 + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN
         [TestCase(APC7 + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB
-        [TestCase(APC7 + "ABC" + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase(APC7 + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle ST", "Handle CSI A" })] // ST (7bit) and the subsequent escape sequence must be handled
+        [TestCase(APC7 + ESC + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
+        [TestCase(APC7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase(APC7 + "ABC" + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle ST", "Handle CSI A" })] // ST (7bit) and the subsequent escape sequence must be handled
         [TestCase(APC7 + "ABC" + ESC + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
-        [TestCase(APC7 + "ABC" + CSI7 + "1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
+        [TestCase(APC7 + "ABC" + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
         public void TestIgnoreAPC(string input, string expectedNotAcceptedText, string[] expectedCalled) {
             TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
         }
 
-        [TestCase(DCS7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(DCS7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { "Handle ST" })] // terminated by ESC of ST (7bit), 8bit ST is ignored as UTF-8 data
         [TestCase(DCS7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
         [TestCase(DCS7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
-        [TestCase(DCS8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(DCS8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { "Handle ST" })] // terminated by ESC of ST (7bit), 8bit ST is ignored as UTF-8 data
         [TestCase(DCS8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
         [TestCase(DCS8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
-        [TestCase(DCS7 + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit)
+        [TestCase(DCS7 + ST7 + "XYZ", "XYZ", new string[] { "Handle ST" })] // terminated by ESC of ST (7bit)
         [TestCase(DCS7 + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN
         [TestCase(DCS7 + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB
-        [TestCase(DCS7 + "ABC" + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase(DCS7 + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle ST", "Handle CSI A" })] // ST (7bit) and the subsequent escape sequence must be handled
+        [TestCase(DCS7 + ESC + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
+        [TestCase(DCS7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase(DCS7 + "ABC" + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle ST", "Handle CSI A" })] // ST (7bit) and the subsequent escape sequence must be handled
         [TestCase(DCS7 + "ABC" + ESC + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
-        [TestCase(DCS7 + "ABC" + CSI7 + "1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
+        [TestCase(DCS7 + "ABC" + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
         public void TestIgnoreDCS(string input, string expectedNotAcceptedText, string[] expectedCalled) {
             TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
         }
 
-        [TestCase(OSC7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(OSC7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { "Handle ST" })] // terminated by ESC of ST (7bit), 8bit ST is ignored as UTF-8 data
         [TestCase(OSC7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
         [TestCase(OSC7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
         [TestCase(OSC7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + BEL + "XYZ", "XYZ", new string[] { })] // terminated by BEL, 8bit ST is ignored as UTF-8 data
-        [TestCase(OSC8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(OSC8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { "Handle ST" })] // terminated by ESC of ST (7bit), 8bit ST is ignored as UTF-8 data
         [TestCase(OSC8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
         [TestCase(OSC8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
         [TestCase(OSC8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + BEL + "XYZ", "XYZ", new string[] { })] // terminated by BEL, 8bit ST is ignored as UTF-8 data
-        [TestCase(OSC7 + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit)
+        [TestCase(OSC7 + ST7 + "XYZ", "XYZ", new string[] { "Handle ST" })] // terminated by ESC of ST (7bit)
         [TestCase(OSC7 + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN
         [TestCase(OSC7 + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB
         [TestCase(OSC7 + BEL + "XYZ", "XYZ", new string[] { })] // terminated by BEL
-        [TestCase(OSC7 + "ABC" + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase(OSC7 + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle ST", "Handle CSI A" })] // ST (7bit) and the subsequent escape sequence must be handled
+        [TestCase(OSC7 + ESC + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
+        [TestCase(OSC7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase(OSC7 + "ABC" + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle ST", "Handle CSI A" })] // ST (7bit) and the subsequent escape sequence must be handled
         [TestCase(OSC7 + "ABC" + ESC + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
-        [TestCase(OSC7 + "ABC" + CSI7 + "1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
+        [TestCase(OSC7 + "ABC" + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
         public void TestIgnoreOSC(string input, string expectedNotAcceptedText, string[] expectedCalled) {
             TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
         }
 
-        [TestCase(PM7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(PM7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { "Handle ST" })] // terminated by ESC of ST (7bit), 8bit ST is ignored as UTF-8 data
         [TestCase(PM7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
         [TestCase(PM7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
-        [TestCase(PM8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(PM8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { "Handle ST" })] // terminated by ESC of ST (7bit), 8bit ST is ignored as UTF-8 data
         [TestCase(PM8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
         [TestCase(PM8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
-        [TestCase(PM7 + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit)
+        [TestCase(PM7 + ST7 + "XYZ", "XYZ", new string[] { "Handle ST" })] // terminated by ESC of ST (7bit)
         [TestCase(PM7 + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN
         [TestCase(PM7 + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB
-        [TestCase(PM7 + "ABC" + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase(PM7 + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle ST", "Handle CSI A" })] // ST (7bit) and the subsequent escape sequence must be handled
+        [TestCase(PM7 + ESC + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
+        [TestCase(PM7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase(PM7 + "ABC" + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle ST", "Handle CSI A" })] // ST (7bit) and the subsequent escape sequence must be handled
         [TestCase(PM7 + "ABC" + ESC + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
-        [TestCase(PM7 + "ABC" + CSI7 + "1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
+        [TestCase(PM7 + "ABC" + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
         public void TestIgnorePM(string input, string expectedNotAcceptedText, string[] expectedCalled) {
             TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
         }
 
-        [TestCase(SOS7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(SOS7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { "Handle ST" })] // terminated by ESC of ST (7bit), 8bit ST is ignored as UTF-8 data
         [TestCase(SOS7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
         [TestCase(SOS7 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
-        [TestCase(SOS8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit), 8bit ST is ignored as UTF-8 data
+        [TestCase(SOS8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + ST7 + "XYZ", "XYZ", new string[] { "Handle ST" })] // terminated by ESC of ST (7bit), 8bit ST is ignored as UTF-8 data
         [TestCase(SOS8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN, 8bit ST is ignored as UTF-8 data
         [TestCase(SOS8 + "ABC\\u0008\\u000d\\u0080\\u00f4DEF" + ST8 + "GHI" + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB, 8bit ST is ignored as UTF-8 data
-        [TestCase(SOS7 + ST7 + "XYZ", "XYZ", new string[] { })] // terminated by ST (7bit)
+        [TestCase(SOS7 + ST7 + "XYZ", "XYZ", new string[] { "Handle ST" })] // terminated by ST (7bit)
         [TestCase(SOS7 + CAN + "XYZ", "XYZ", new string[] { })] // terminated by CAN
         [TestCase(SOS7 + SUB + "XYZ", "XYZ", new string[] { })] // terminated by SUB
-        [TestCase(SOS7 + "ABC" + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase(SOS7 + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle ST", "Handle CSI A" })] // ST (7bit) and the subsequent escape sequence must be handled
+        [TestCase(SOS7 + ESC + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
+        [TestCase(SOS7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
+        [TestCase(SOS7 + "ABC" + ST7 + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle ST", "Handle CSI A" })] // ST (7bit) and the subsequent escape sequence must be handled
         [TestCase(SOS7 + "ABC" + ESC + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // first sequence is aborted by ESC after ESC, and restart sequence
-        [TestCase(SOS7 + "ABC" + CSI7 + "1;2;3AXYZ", "[1;2;3AXYZ", new string[] { })] // first sequence is aborted by '['
+        [TestCase(SOS7 + "ABC" + CSI7 + "1;2;3AXYZ", "XYZ", new string[] { "Handle CSI A" })] // the subsequent escape sequence must be handled
         public void TestIgnoreSOS(string input, string expectedNotAcceptedText, string[] expectedCalled) {
             TestIgnoreControlString(input, expectedNotAcceptedText, expectedCalled);
         }
@@ -2341,6 +2336,11 @@ namespace Poderosa.Terminal.EscapeSequence {
         [EscapeSequence(ControlCode.CSI, EscapeSequenceParamType.Numeric, 'B')]
         private void CSIB() {
             Called.Add("Handle CSI B");
+        }
+
+        [EscapeSequence(ControlCode.ST)] // orphan ST
+        private void ST() {
+            Called.Add("Handle ST");
         }
     }
 
