@@ -75,6 +75,10 @@ namespace Poderosa.Terminal {
         public void AutoFlush() {
             AutoFlushCount++;
         }
+
+        public void ForceWriteLine(GLine line) {
+            Written += "<" + line.ToNormalString() + ">\r\n";
+        }
     }
 
     internal class MockXmlLogger : IXmlLogger {
@@ -303,7 +307,8 @@ namespace Poderosa.Terminal {
             byte[] bytes = new byte[100];
             Random random = new Random();
             random.NextBytes(bytes);
-            list.WriteLine(GLine.CreateSimpleGLine("abcdeef", TextDecoration.Default, GLineZOrder.CreateForTest(0)));
+            list.WriteLine(GLine.CreateSimpleGLine("abc", TextDecoration.Default, GLineZOrder.CreateForTest(0)));
+            list.ForceWriteLine(GLine.CreateSimpleGLine("def", TextDecoration.Default, GLineZOrder.CreateForTest(0)));
             list.Comment("xyz");
 
             list.AutoFlush();
@@ -318,8 +323,8 @@ namespace Poderosa.Terminal {
 
             list.Close();
 
-            Assert.AreEqual("abcdeef\r\n[[xyz]]\r\n", l1.Written);
-            Assert.AreEqual("abcdeef\r\n[[xyz]]\r\n", l2.Written);
+            Assert.AreEqual("abc\r\n<def>\r\n[[xyz]]\r\n", l1.Written);
+            Assert.AreEqual("abc\r\n<def>\r\n[[xyz]]\r\n", l2.Written);
 
             Assert.AreEqual(3, l1.AutoFlushCount);
             Assert.AreEqual(3, l2.AutoFlushCount);
