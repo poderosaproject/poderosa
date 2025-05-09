@@ -1,3 +1,14 @@
+4.8.1
+-----
+    * Fixed: Shortcut connection dialog doesn't close when the connection is
+      established.
+
+    * Fixed: Application may not terminate when SSH authentication is cancelled
+      from connection dialog.
+
+    * Fixed: If escape sequence starts immediately after a control string
+      introducer, the escape sequence is not handled properly.
+
 4.8.0
 -----
     * Terminal emulation was redesigned, and support for numerous
