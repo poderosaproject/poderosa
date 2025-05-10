@@ -74,6 +74,7 @@ namespace Granados.SSH2 {
         private uint _serverWindowSizeLeft;
 
         private volatile State _state;
+        private volatile bool _waitReady = false;
         private readonly object _stateSync = new object();
 
         private readonly object _channelRequestStatusSync = new object();
@@ -357,14 +358,29 @@ namespace Granados.SSH2 {
                 return true;
             }
             lock (_stateSync) {
+                _waitReady = true;
                 while (true) {
                     if (_state == State.Ready) {
+                        _waitReady = false;
                         return true;
                     }
-                    if (_state == State.Closing || _state == State.Closed) {
+                    if (_state == State.Closing || _state == State.Closed || !_waitReady) {
+                        _waitReady = false;
                         return false;
                     }
                     Monitor.Wait(_stateSync);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Abort WaitReady() if it is being called.
+        /// </summary>
+        public void AbortWaitReady() {
+            lock (_stateSync) {
+                if (_waitReady) {
+                    _waitReady = false;
+                    Monitor.PulseAll(_stateSync);
                 }
             }
         }
@@ -1404,7 +1420,7 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH2RemotePortForwardingChannel(
-                SSHTimeouts timeouts, 
+                SSHTimeouts timeouts,
                 IPacketSender<SSH2Packet> packetSender,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,
@@ -1458,7 +1474,7 @@ namespace Granados.SSH2 {
         /// Constructor (initiated by server)
         /// </summary>
         public SSH2X11ForwardingChannel(
-                SSHTimeouts timeouts, 
+                SSHTimeouts timeouts,
                 IPacketSender<SSH2Packet> packetSender,
                 SSHConnectionParameter param,
                 SSHProtocolEventManager protocolEventManager,

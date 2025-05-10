@@ -134,6 +134,11 @@ namespace Granados.SSH1 {
         public abstract bool WaitReady();
 
         /// <summary>
+        /// Abort WaitReady() if it is being called.
+        /// </summary>
+        public abstract void AbortWaitReady();
+
+        /// <summary>
         /// Send data.
         /// </summary>
         /// <param name="data">data to send</param>
@@ -267,6 +272,7 @@ namespace Granados.SSH1 {
         }
 
         private volatile State _state;
+        private volatile bool _waitReady = false;
         private readonly object _stateSync = new object();
 
         private bool _eof = false;
@@ -374,14 +380,29 @@ namespace Granados.SSH1 {
                 return true;
             }
             lock (_stateSync) {
+                _waitReady = true;
                 while (true) {
                     if (_state == State.Ready) {
+                        _waitReady = false;
                         return true;
                     }
-                    if (_state == State.Closing || _state == State.Closed) {
+                    if (_state == State.Closing || _state == State.Closed || !_waitReady) {
+                        _waitReady = false;
                         return false;
                     }
                     Monitor.Wait(_stateSync);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Abort WaitReady() if it is being called.
+        /// </summary>
+        public override void AbortWaitReady() {
+            lock (_stateSync) {
+                if (_waitReady) {
+                    _waitReady = false;
+                    Monitor.PulseAll(_stateSync);
                 }
             }
         }
@@ -729,6 +750,7 @@ namespace Granados.SSH1 {
         }
 
         private volatile State _state;
+        private volatile bool _waitReady = false;
         private readonly object _stateSync = new object();
 
         // Min/Max size of the SSH_MSG_CHANNEL_DATA datagram
@@ -884,14 +906,29 @@ namespace Granados.SSH1 {
                 return true;
             }
             lock (_stateSync) {
+                _waitReady = true;
                 while (true) {
                     if (_state == State.Ready) {
+                        _waitReady = false;
                         return true;
                     }
-                    if (_state == State.Closing || _state == State.Closed) {
+                    if (_state == State.Closing || _state == State.Closed || !_waitReady) {
+                        _waitReady = false;
                         return false;
                     }
                     Monitor.Wait(_stateSync);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Abort WaitReady() if it is being called.
+        /// </summary>
+        public override void AbortWaitReady() {
+            lock (_stateSync) {
+                if (_waitReady) {
+                    _waitReady = false;
+                    Monitor.PulseAll(_stateSync);
                 }
             }
         }

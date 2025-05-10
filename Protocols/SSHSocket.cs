@@ -486,6 +486,9 @@ namespace Poderosa.Protocols {
             return true;
         }
 
+        public void AbortWaitReady() {
+        }
+
         public void Send(DataFragment data) {
         }
 
