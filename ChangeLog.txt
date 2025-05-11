@@ -3,8 +3,8 @@
     * Fixed: Shortcut connection dialog doesn't close when the connection is
       established.
 
-    * Fixed: Application may not terminate when SSH authentication is cancelled
-      from connection dialog.
+    * Fixed: Application cannot be terminated if SSH authentication has been
+      cancelled from connection dialog.
 
     * Fixed: If escape sequence starts immediately after a control string
       introducer, the escape sequence is not handled properly.
