@@ -96,6 +96,11 @@ namespace Granados {
         bool WaitReady();
 
         /// <summary>
+        /// Abort WaitReady() if it is being called.
+        /// </summary>
+        void AbortWaitReady();
+
+        /// <summary>
         /// Send data.
         /// </summary>
         /// <remarks>

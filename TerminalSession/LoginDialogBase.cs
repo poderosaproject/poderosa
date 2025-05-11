@@ -117,7 +117,9 @@ namespace Poderosa.Sessions {
         }
 
         private void InterruptConnecting() {
-            _connector.Interrupt();
+            if (_connector != null) {
+                _connector.Interrupt();
+            }
         }
 
         private bool IsConnecting {
@@ -136,6 +138,7 @@ namespace Poderosa.Sessions {
 #endif
 
         protected virtual void ClearConnectingState() {
+            _connector = null;
             _loginButton.Enabled = true;
             _cancelButton.Enabled = true;
             this.Cursor = Cursors.Default;
@@ -177,6 +180,7 @@ namespace Poderosa.Sessions {
                 this.Invoke(new SuccessfullyExitDelegate(this.SuccessfullyExit), new object[] { result });
             }
             else {
+                ClearConnectingState();
                 _result = result;
                 this.DialogResult = DialogResult.OK;
                 this.Cursor = Cursors.Default;

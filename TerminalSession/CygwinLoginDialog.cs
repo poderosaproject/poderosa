@@ -560,7 +560,6 @@ namespace Poderosa.Sessions {
         protected override void ClearConnectingState() {
             base.ClearConnectingState();
             this.Text = TEnv.Strings.GetString("Form.CygwinLoginDialog.TextCygwin");
-            _connector = null;
         }
 
         private void _selectAutoExecMacroButton_Click(object sender, EventArgs e) {

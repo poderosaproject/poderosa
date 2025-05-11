@@ -643,6 +643,7 @@ namespace Granados.SSH2 {
         /// Tasks to do when the underlying socket raised an exception.
         /// </summary>
         private void OnError(Exception error) {
+            _channelCollection.ForEach((channel, handler) => channel.AbortWaitReady());
             _eventHandler.OnError(error);
         }
 
